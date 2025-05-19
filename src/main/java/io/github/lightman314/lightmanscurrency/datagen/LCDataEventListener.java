@@ -28,6 +28,7 @@ public class LCDataEventListener {
     @SubscribeEvent
     public static void onDataGen(GatherDataEvent event)
     {
+
         DataGenerator generator = event.getGenerator();
         PackOutput output = generator.getPackOutput();
         CompletableFuture<HolderLookup.Provider> lookupHolder = event.getLookupProvider();

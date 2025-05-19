@@ -12,6 +12,9 @@ import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
 import io.github.lightman314.lightmanscurrency.client.renderer.item.GachaBallRenderer;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.custom_models.CustomModelDataManager;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.ItemPositionBlockManager;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.ItemPositionManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMachineBlock;
@@ -19,7 +22,6 @@ import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlo
 import io.github.lightman314.lightmanscurrency.common.core.*;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
-import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -87,41 +89,6 @@ public class ClientModEvents {
 		});
 		//Gacha Ball
 		event.register(GachaBallRenderer.MODEL);
-		//Model Variant Models
-		List<ResourceLocation> addedModels = new ArrayList<>();
-		List<ModelResourceLocation> addedItemModels = new ArrayList<>();
-		ModelVariantDataManager.forEachWithID((id,variant) -> {
-			for(ResourceLocation target : variant.getTargets())
-			{
-				Block b = BuiltInRegistries.BLOCK.get(target);
-				if(b instanceof IVariantBlock block)
-				{
-					ModelResourceLocation itemID = variant.getItem(block);
-					if(itemID != null && !addedItemModels.contains(itemID))
-					{
-						event.register(itemID);
-						addedModels.add(itemID.id());
-						addedItemModels.add(itemID);
-					}
-					else
-						LightmansCurrency.LogWarning("Variant " + id + " does not have an item model defined!");
-					if(block.requiredModels() > block.modelsRequiringRotation())
-					{
-						List<ResourceLocation> models = variant.getModels(block);
-						for(int i = block.modelsRequiringRotation(); i < models.size(); ++i)
-						{
-							ResourceLocation modelID = models.get(i);
-							if(!addedModels.contains(modelID))
-							{
-								event.register(ModelResourceLocation.standalone(modelID));
-								addedModels.add(modelID);
-							}
-						}
-					}
-				}
-			}
-		});
-		LightmansCurrency.LogDebug("Registered " + addedModels.size() + " Model Variant models\n" + DebugUtil.debugList(addedModels));
 	}
 
 	@SubscribeEvent
@@ -236,6 +203,14 @@ public class ClientModEvents {
 	public static void registerClientExtensions(RegisterClientExtensionsEvent event)
 	{
 		event.registerItem(LCItemRenderer.USE_LC_RENDERER,ModBlocks.COIN_CHEST.get().asItem(),ModItems.GACHA_BALL.get());
+	}
+
+	@SubscribeEvent
+	public static void registerResourceListeners(RegisterClientReloadListenersEvent event) {
+		event.registerReloadListener(ItemPositionManager.INSTANCE);
+		event.registerReloadListener(ItemPositionBlockManager.INSTANCE);
+		event.registerReloadListener(CustomModelDataManager.INSTANCE);
+		event.registerReloadListener(ModelVariantDataManager.INSTANCE);
 	}
 	
 }

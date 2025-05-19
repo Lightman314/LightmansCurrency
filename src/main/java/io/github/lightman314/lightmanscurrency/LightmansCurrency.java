@@ -124,7 +124,7 @@ public class LightmansCurrency {
         ModRegistries.register(eventBus);
         
         //Initialize the proxy
-		getProxy().init(modContainer);
+		getProxy().init(eventBus,modContainer);
 
 		IntegrationUtil.SafeRunIfLoaded("ftbchunks", LCFTBChunksIntegration::setup, "Error setting up FTB Chunks chunk purchasing integration!");
 		IntegrationUtil.SafeRunIfLoaded("flan", LCFlanIntegration::setup, "Error setting up Flans chunk purchasing integration!");

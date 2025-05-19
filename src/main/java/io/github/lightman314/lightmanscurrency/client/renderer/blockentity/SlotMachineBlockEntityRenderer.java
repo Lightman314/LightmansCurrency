@@ -1,8 +1,9 @@
 package io.github.lightman314.lightmanscurrency.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.models.VariantModelLocation;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.SlotMachineTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMachineBlock;
@@ -39,14 +40,16 @@ public class SlotMachineBlockEntityRenderer implements BlockEntityRenderer<SlotM
 
 			//LightmansCurrency.LogDebug("Light level is " + lightLevel);
 
+			Minecraft mc = Minecraft.getInstance();
+
 			ModelResourceLocation lightModel = ModelResourceLocation.standalone(block.getLightModel());
 
 			ModelVariant variant = ModelVariantDataManager.getVariant(blockEntity.getCurrentVariant());
-			if(variant != null && variant.getTargets().contains(block.getBlockID()) && variant.getModels(block).size() == block.requiredModels())
+			BakedModel model = mc.getModelManager().getModel(lightModel);
+			if(variant != null && variant.getTargets().contains(block.getBlockID()) && variant.getModels().size() == block.requiredModels())
 			{
-				ModelResourceLocation newModel = variant.getStandaloneModel(block,block.requiredModels() - 1);
-				if(newModel != null)
-					lightModel = newModel;
+				VariantModelLocation newModel = VariantModelLocation.basic(blockEntity.getCurrentVariant(),block.getBlockID(),block.requiredModels() - 1);
+				model = ModelVariantDataManager.getModel(newModel);
 			}
 
 			if(lightModel == null)
@@ -63,8 +66,6 @@ public class SlotMachineBlockEntityRenderer implements BlockEntityRenderer<SlotM
 			poseStack.translate(offset.x, offset.y, offset.z);
 			poseStack.mulPose(MathUtil.fromAxisAngleDegree(MathUtil.getYP(), facing.get2DDataValue() * -90f));
 
-			Minecraft mc = Minecraft.getInstance();
-			BakedModel model = mc.getModelManager().getModel(lightModel);
 			ItemRenderer itemRenderer = mc.getItemRenderer();
 			itemRenderer.render(new ItemStack(block), ItemDisplayContext.FIXED, false, poseStack, bufferSource, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, model);
 

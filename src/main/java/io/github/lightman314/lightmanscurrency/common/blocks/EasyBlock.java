@@ -1,12 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.TooltipInfo;
 import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVariantSupportingBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
+import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
@@ -86,7 +88,15 @@ public class EasyBlock extends Block {
             ResourceLocation variantID = stack.get(ModDataComponents.MODEL_VARIANT);
             ModelVariant variant = ModelVariantDataManager.getVariant(variantID);
             if(variant != null)
+            {
                 tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_NAME.get(variant.getName().withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.YELLOW));
+                if(variant.has(VariantProperties.TOOLTIP_INFO))
+                {
+                    TooltipInfo extraTooltip = variant.get(VariantProperties.TOOLTIP_INFO);
+                    if(extraTooltip.drawOnItem)
+                        tooltip.addAll(TooltipHelper.splitTooltips(extraTooltip.getTooltip()));
+                }
+            }
             if(tooltipFlag.isAdvanced())
                 tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_ID.get(variantID.toString()).withStyle(ChatFormatting.DARK_GRAY));
         }

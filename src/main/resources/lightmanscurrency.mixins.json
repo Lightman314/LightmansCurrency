@@ -19,9 +19,8 @@
   ],
   "client": [
     "client.AbstractWidgetMixin",
-    "client.BlockStateModelLoaderMixin",
+    "client.BlockStateModelLoaderAccessor",
     "client.CommandSuggestionsAccessor",
-    "client.ModelManagerMixin",
     "client.SlotWrapperMixin",
     "client.SuggestionsListAccessor"
   ],

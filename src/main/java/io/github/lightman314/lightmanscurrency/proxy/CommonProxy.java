@@ -15,6 +15,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
@@ -27,7 +28,7 @@ public class CommonProxy {
 
 	public boolean isClient() { return false; }
 
-	public void init(ModContainer modContainer) {}
+	public void init(IEventBus eventBus, ModContainer modContainer) {}
 
 	public void setupClient() {}
 

@@ -7,15 +7,20 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.SlotTyp
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.TooltipInfo;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -65,8 +70,12 @@ public class ModelVariantButton extends EasyButton implements ITooltipWidget {
         //Render the Icon
         if(entry.getSecond().getItemIcon() != null)
             gui.renderItem(entry.getSecond().getItemIcon(),1,1); //Render the actual item for the "default" model variant
-        else
-            gui.renderItemModel(entry.getSecond().getItem(this.targetSource.get()),1,1);
+        else if(this.targetSource.get() instanceof ItemLike i && entry.getFirst() != null)
+        {
+            ItemStack item = new ItemStack(i);
+            item.set(ModDataComponents.MODEL_VARIANT,entry.getFirst());
+            gui.renderItem(item,1,1);
+        }
         if(this.isMouseOver(gui.mousePos))
             gui.renderSlotHighlight(1,1);
     }
@@ -79,6 +88,13 @@ public class ModelVariantButton extends EasyButton implements ITooltipWidget {
         if(entry == null)
             return new ArrayList<>();
         List<Component> tooltip = new ArrayList<>(TooltipHelper.splitTooltips(entry.getSecond().getName()));
+        //Add custom tooltips
+        if(entry.getSecond().has(VariantProperties.TOOLTIP_INFO))
+        {
+            TooltipInfo extraTooltip = entry.getSecond().get(VariantProperties.TOOLTIP_INFO);
+            if(extraTooltip.drawOnSelection)
+                tooltip.addAll(TooltipHelper.splitTooltips(extraTooltip.getTooltip()));
+        }
         if(entry.getFirst() != null && Minecraft.getInstance().options.advancedItemTooltips)
             tooltip.add(EasyText.literal(entry.getFirst().toString()).withStyle(ChatFormatting.GRAY));
         return tooltip;

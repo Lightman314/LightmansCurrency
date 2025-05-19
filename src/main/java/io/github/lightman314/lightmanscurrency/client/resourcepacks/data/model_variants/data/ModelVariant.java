@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants;
+package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -10,20 +10,21 @@ import com.google.gson.JsonSyntaxException;
 import com.mojang.serialization.JsonOps;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperty;
 import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -47,12 +48,15 @@ public class ModelVariant {
     @Nullable
     private ModelVariant parentVariant = null;
 
+    private final List<String> targetSelectors;
     private final List<ResourceLocation> targets;
     public List<ResourceLocation> getTargets() {
         if(this.targets.isEmpty() && this.parentVariant != null)
             return this.parentVariant.getTargets();
         return this.targets;
     }
+    public boolean isValidTarget(IVariantBlock block) { return this.getTargets().contains(block.getBlockID()); }
+    public boolean isValidTarget(Block block) { return this.getTargets().contains(BuiltInRegistries.BLOCK.getKey(block)); }
 
     @Nullable
     private final Component name;
@@ -63,68 +67,22 @@ public class ModelVariant {
     }
 
     @Nullable
-    private ModelResourceLocation item;
-    private Map<ResourceLocation,ModelResourceLocation> targetedItems = ImmutableMap.of();
-    @ApiStatus.Internal
-    public ModelResourceLocation getItem() {
-        if(this.item == null && this.parentVariant != null)
-            return this.parentVariant.getItem();
+    private final ResourceLocation item;
+    @Nullable
+    public ResourceLocation getItemModel() {
+        if(this.item == null && this.parent != null)
+            return this.parentVariant == null ? null : this.parentVariant.getItemModel();
         return this.item;
     }
-    public ModelResourceLocation getItem(@Nullable IVariantBlock target) {
-        if(target == null)
-            return this.getItem();
-        ModelResourceLocation itemModel = this.targetedItems.get(target.getBlockID());
-        return itemModel == null ? this.getItem() : itemModel;
-    }
-    @ApiStatus.Internal
-    public void overrideItemModel(ModelResourceLocation modelID) { this.item = modelID; }
-    public void defineTargetBasedItemModel(Map<ResourceLocation,ModelResourceLocation> targetedItems) { this.targetedItems = ImmutableMap.copyOf(targetedItems); }
     @Nullable
     public ItemStack getItemIcon() { return null; }
 
-    private List<ResourceLocation> models;
-    private Map<ResourceLocation,List<ResourceLocation>> targetedModels = ImmutableMap.of();
+    private final List<ResourceLocation> models;
     public boolean hasModels() { return !this.getModels().isEmpty(); }
     public List<ResourceLocation> getModels() {
         if(this.models.isEmpty() && this.parent != null)
             return parentVariant == null ? ImmutableList.of() : parentVariant.getModels();
         return this.models;
-    }
-    public List<ResourceLocation> getModels(@Nullable IVariantBlock target)
-    {
-        if(target == null)
-            return this.getModels();
-        return Objects.requireNonNullElseGet(this.targetedModels.get(target.getBlockID()),this::getModels);
-    }
-    @ApiStatus.Internal
-    public void overrideModels(List<ResourceLocation> models) { this.models = ImmutableList.copyOf(models); }
-    public void defineTargetBasedModels(Map<ResourceLocation,List<ResourceLocation>> models) { this.targetedModels = ImmutableMap.copyOf(models); }
-    @Nullable
-    private ResourceLocation getModel(int index)
-    {
-        List<ResourceLocation> models = this.getModels();
-        if(index < 0 || index >= models.size())
-            return null;
-        return models.get(index);
-    }
-    @Nullable
-    public ResourceLocation getModel(@Nullable IVariantBlock target, int index)
-    {
-        if(target == null)
-            return this.getModel(index);
-        List<ResourceLocation> models = this.targetedModels.get(target.getBlockID());
-        if(models == null)
-            models = this.getModels();
-        if(index < 0 || index >= models.size())
-            return null;
-        return models.get(index);
-    }
-    @Nullable
-    public ModelResourceLocation getStandaloneModel(@Nullable IVariantBlock target, int index)
-    {
-        ResourceLocation model = this.getModel(target,index);
-        return model == null ? null : ModelResourceLocation.standalone(model);
     }
 
     private final Map<String,ResourceLocation> textureOverrides;
@@ -141,11 +99,17 @@ public class ModelVariant {
 
     private final Map<VariantProperty<?>,Object> properties;
 
-    protected ModelVariant() { this(null,new ArrayList<>(), null,null,new ArrayList<>(),new HashMap<>(),new HashMap<>(),true); }
-    private ModelVariant(@Nullable ResourceLocation parent, List<ResourceLocation> targets, @Nullable Component name, @Nullable ModelResourceLocation item, List<ResourceLocation> models, Map<String,ResourceLocation> textureOverrides, Map<VariantProperty<?>,Object> properties, boolean dummy)
+    //Only exists for the "DefaultVariant" class
+    protected ModelVariant() { this(null,new ArrayList<>(), new ArrayList<>(),null,null,new ArrayList<>(),new HashMap<>(),new HashMap<>(),true); }
+    private ModelVariant(@Nullable ResourceLocation parent, List<ResourceLocation> targets, @Nullable Component name, @Nullable ResourceLocation item, List<ResourceLocation> models, Map<String,ResourceLocation> textureOverrides, Map<VariantProperty<?>,Object> properties, boolean dummy)
+    {
+        this(parent,targets,ImmutableList.of(),name,item,models,textureOverrides,properties,dummy);
+    }
+    private ModelVariant(@Nullable ResourceLocation parent, List<ResourceLocation> targets, List<String> selectorTargets, @Nullable Component name, @Nullable ResourceLocation item, List<ResourceLocation> models, Map<String,ResourceLocation> textureOverrides, Map<VariantProperty<?>,Object> properties, boolean dummy)
     {
         this.parent = parent;
         this.targets = ImmutableList.copyOf(targets);
+        this.targetSelectors = ImmutableList.copyOf(selectorTargets);
         this.name = name;
         this.item = item;
         this.models = ImmutableList.copyOf(models);
@@ -183,10 +147,19 @@ public class ModelVariant {
                 array.add(t.toString());
             json.add("target",array);
         }
+        if(this.targetSelectors.size() == 1)
+            json.addProperty("targetSelector",this.targetSelectors.getFirst());
+        else if(!this.targetSelectors.isEmpty())
+        {
+            JsonArray array = new JsonArray();
+            for(String t : this.targetSelectors)
+                array.add(t);
+            json.add("targetSelector",array);
+        }
         if(this.name != null)
             json.add("name", ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE,this.name).getOrThrow());
         if(this.item != null)
-            json.addProperty("item",this.item.id().toString());
+            json.addProperty("item",this.item.toString());
         if(!this.models.isEmpty())
         {
             JsonArray models = new JsonArray();
@@ -203,7 +176,13 @@ public class ModelVariant {
         this.properties.forEach((property,value) -> {
             try {
                 JsonElement element = property.write(value);
-                json.add(property.getID().toString(),element);
+                ResourceLocation id = property.getID();
+                String field;
+                if(id.getNamespace().equals(LightmansCurrency.MODID))
+                    field = id.getPath();
+                else
+                    field = id.toString();
+                json.add(field,element);
             }catch (Exception e) { LightmansCurrency.LogError("Error writing Variant Property",e); }
         });
         if(this.dummy)
@@ -227,10 +206,31 @@ public class ModelVariant {
             else
             {
                 JsonArray array = GsonHelper.getAsJsonArray(json,"target");
-                if(array.isEmpty())
-                    throw new JsonSyntaxException("At least one target must be defined");
                 for(int i = 0; i < array.size(); ++i)
                     targets.add(VersionUtil.parseResource(GsonHelper.convertToString(array.get(i),"target[" + i + "]")));
+            }
+        }
+
+        if(json.has("targetSelector"))
+        {
+            List<TargetSelector> targetSelectors = new ArrayList<>();
+            JsonElement targetElement = json.get("targetSelector");
+            if(targetElement.isJsonPrimitive())
+            {
+                targetSelectors.add(TargetSelector.parse(GsonHelper.getAsString(json,"targetSelector")));
+            }
+            else
+            {
+                JsonArray array = GsonHelper.getAsJsonArray(json,"targetSelector");
+                for(int i = 0; i < array.size(); ++i)
+                    targetSelectors.add(TargetSelector.parse(GsonHelper.convertToString(array.get(i),"targetSelector[" + i + "]")));
+            }
+            //Check every block to see if it matches the target selector
+            List<ResourceLocation> addedTargets = testSelectors(targetSelectors);
+            for(ResourceLocation added : testSelectors(targetSelectors))
+            {
+                if(!targets.contains(added))
+                    targets.add(added);
             }
         }
 
@@ -266,6 +266,8 @@ public class ModelVariant {
         VariantProperty.forEach((id,property) -> {
             if(json.has(id.toString()))
                 properties.put(property,property.parse(json.get(id.toString())));
+            else if(id.getNamespace().equals(LightmansCurrency.MODID) && json.has(id.getPath()))
+                properties.put(property,property.parse(json.get(id.getPath())));
         });
         if(targets.isEmpty() && name == null && item == null && models.isEmpty() && textureOverrides.isEmpty() && properties.isEmpty())
         {
@@ -275,7 +277,7 @@ public class ModelVariant {
                 throw new JsonSyntaxException("Model Variant must have something other than the parent defined!");
         }
         boolean dummy = GsonHelper.getAsBoolean(json,"dummy",false);
-        return new ModelVariant(parent,targets,name,item == null ? null : ModelResourceLocation.standalone(item),models,textureOverrides,properties,dummy);
+        return new ModelVariant(parent,targets,name,item,models,textureOverrides,properties,dummy);
     }
 
     
@@ -424,25 +426,27 @@ public class ModelVariant {
         @Nullable
         private ResourceLocation parent;
         private final List<ResourceLocation> targets = new ArrayList<>();
+        private final List<String> selectorTargets = new ArrayList<>();
         @Nullable
         private Component name;
-        private ModelResourceLocation item = null;
+        private ResourceLocation item = null;
         private final List<ResourceLocation> models = new ArrayList<>();
         private final Map<String,ResourceLocation> textureOverrides = new HashMap<>();
         private final Map<VariantProperty<?>,Object> properties = new HashMap<>();
         private boolean dummy = false;
 
-        private Builder() {}
+        private Builder() { VariantProperty.confirmRegistration(); }
 
         public Builder withParent(ResourceLocation parent) { this.parent = parent; return this; }
 
         public Builder withTarget(Supplier<? extends Block> block) { return this.withTarget(block.get()); }
         public Builder withTarget(Block block) { return this.withTarget(BuiltInRegistries.BLOCK.getKey(block)); }
         public Builder withTarget(ResourceLocation target) { if(!this.targets.contains(target)) this.targets.add(target); return this; }
+        public Builder withSelectorTarget(String selectorTarget) { if(!this.selectorTargets.contains(selectorTarget)) this.selectorTargets.add(selectorTarget); return this; }
 
         public Builder withName(Component name) { this.name = name; return this; }
 
-        public Builder withItem(ResourceLocation item) { this.item = ModelResourceLocation.standalone(item); return this; }
+        public Builder withItem(ResourceLocation item) { this.item = item; return this; }
 
         public Builder withModel(ResourceLocation... model) { this.models.addAll(Lists.newArrayList(model)); return this; }
 
@@ -452,7 +456,7 @@ public class ModelVariant {
 
         public Builder asDummy() { this.dummy = true; return this; }
 
-        public ModelVariant build() { return new ModelVariant(this.parent,this.targets,this.name,this.item,this.models,this.textureOverrides,this.properties,this.dummy); }
+        public ModelVariant build() { return new ModelVariant(this.parent,this.targets,this.selectorTargets,this.name,this.item,this.models,this.textureOverrides,this.properties,this.dummy); }
 
     }
 
@@ -468,6 +472,68 @@ public class ModelVariant {
             this.variants.add(variant);
             return false;
         }
+    }
+
+    private static List<ResourceLocation> testSelectors(List<TargetSelector> targetSelectors)
+    {
+        List<ResourceLocation> results = new ArrayList<>();
+        for(Map.Entry<ResourceKey<Block>,Block> entry : BuiltInRegistries.BLOCK.entrySet())
+        {
+            if(entry.getValue() instanceof IVariantBlock && matchesSelectors(entry.getKey().location(),targetSelectors))
+                results.add(entry.getKey().location());
+        }
+        return results;
+    }
+
+    private static boolean matchesSelectors(ResourceLocation id, List<TargetSelector> targetSelectors)
+    {
+        String idString = id.toString();
+        return targetSelectors.stream().anyMatch(s -> s.matches(idString));
+    }
+
+    private record TargetSelector(String testString, TestType test)
+    {
+        enum TestType { START(true,false), CONTAINS(true,true), END(false,true);
+            final boolean start;
+            final boolean end;
+            TestType(boolean start,boolean end) { this.start = start; this.end = end; }
+        }
+        boolean matches(String idString)
+        {
+            return switch (this.test) {
+                case START -> idString.startsWith(this.testString);
+                case CONTAINS -> idString.contains(this.testString);
+                case END -> idString.endsWith(this.testString);
+            };
+        }
+
+        public static TargetSelector parse(String selector) throws JsonSyntaxException
+        {
+            boolean end = selector.startsWith("*");
+            if(end)
+                selector = selector.substring(1);
+            boolean start = selector.endsWith("*");
+            if(start)
+                selector = selector.substring(0,selector.length() - 1);
+            if(start && !end)
+                return new TargetSelector(selector,TestType.START);
+            else if(end && !start)
+                return new TargetSelector(selector,TestType.END);
+            else
+                return new TargetSelector(selector,TestType.CONTAINS);
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder builder = new StringBuilder();
+            if(this.test.end)
+                builder.append("*");
+            builder.append(this.testString);
+            if(this.test.start)
+                builder.append("*");
+            return builder.toString();
+        }
+
     }
 
 }

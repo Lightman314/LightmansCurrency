@@ -1,12 +1,11 @@
 package io.github.lightman314.lightmanscurrency.datagen.client;
 
-import com.google.errorprone.annotations.Var;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.ItemPositionDataEntry;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.datagen.client.generators.ModelVariantProvider;
 import io.github.lightman314.lightmanscurrency.datagen.util.ColorHelper;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
@@ -28,6 +27,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
                         .withName(LCText.BLOCK_VARIANT_GLASSLESS.get())
                         .withItem(VersionUtil.lcResource("block/display_case/glassless/base"))
                         .withModel(VersionUtil.lcResource("block/display_case/glassless/base"))
+                        .withProperty(VariantProperties.ITEM_POSITION_DATA,ItemPositionDataEntry.create(VersionUtil.lcResource("display_case_open")))
                         .asDummy()
                         .build());
 
@@ -132,6 +132,21 @@ public class LCModelVariantProvider extends ModelVariantProvider {
                             .withTexture("interior",VersionUtil.lcResource("block/large_vending_machine/footless/" + color.getResourceSafeName() + "_interior"))
                             .build())
         );
+
+        //Debug Examples
+        /*
+        this.add("example/property_example",
+                ModelVariant.builder()
+                        .withParent(VersionUtil.lcResource("display_case/glassless/white"))
+                        .withName(EasyText.literal("Property Examples"))
+                        .withSelectorTarget("lightmanscurrency:display_case*")
+                        .withProperty(VariantProperties.INPUT_DISPLAY_OFFSET,new InputDisplayOffset(Map.of(Direction.UP, ScreenPosition.of(0,-16))))
+                        .withProperty(VariantProperties.TOOLTIP_INFO,new TooltipInfo(Lists.newArrayList(EasyText.literal("Example Tooltip"))))
+                        .withProperty(VariantProperties.ITEM_POSITION_DATA, ItemPositionDataEntry.create(ItemPositionBuilder.builder()
+                                .withGlobalRotationType(RotationHandler.SPINNING)
+                                .withSimpleEntry(new Vector3f(0.5f,1.5f,0.5f))))
+                        .build());
+        //*/
 
     }
 

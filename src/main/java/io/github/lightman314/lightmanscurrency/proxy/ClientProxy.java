@@ -10,14 +10,14 @@ import com.mojang.authlib.GameProfile;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.builtin.ConfigSelectionScreen;
+import io.github.lightman314.lightmanscurrency.api.events.client.RegisterVariantPropertiesEvent;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.BookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.EnchantedBookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.NormalBookRenderer;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.VariantProperties;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.VariantProperty;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
 import io.github.lightman314.lightmanscurrency.common.attachments.EventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.*;
@@ -49,6 +49,7 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
@@ -68,8 +69,9 @@ public class ClientProxy extends CommonProxy{
 	public boolean isClient() { return true; }
 
 	@Override
-	public void init(ModContainer modContainer) {
+	public void init(IEventBus eventBus, ModContainer modContainer) {
 		modContainer.registerExtensionPoint(IConfigScreenFactory.class,ConfigSelectionScreen.createFactory(LCConfig.CLIENT,LCConfig.COMMON,LCConfig.SERVER));
+		eventBus.addListener(this::registerVariantProperties);
 	}
 
 	@Override
@@ -111,13 +113,17 @@ public class ClientProxy extends CommonProxy{
 		ItemProperties.register(ModBlocks.MONEY_BAG.get().asItem(), MoneyBagItem.PROPERTY,
 				(stack,level,player,seed) -> (float)MoneyBagItem.getSize(stack));
 
-		//Register Variant Properties
-		VariantProperty.register(VersionUtil.lcResource("item_position_data"),VariantProperties.ITEM_POSITION_DATA);
-
 		//Register Curios Render Layers
 		if(LCCurios.isLoaded())
 			LCCuriosClient.registerRenderLayers();
 
+	}
+
+	private void registerVariantProperties(RegisterVariantPropertiesEvent event) {
+		//Register Variant Properties
+		event.register(VersionUtil.lcResource("item_position_data"),VariantProperties.ITEM_POSITION_DATA);
+		event.register(VersionUtil.lcResource("input_display_offset"),VariantProperties.INPUT_DISPLAY_OFFSET);
+		event.register(VersionUtil.lcResource("tooltip_info"),VariantProperties.TOOLTIP_INFO);
 	}
 
 	private BlockEntity checkForCoinChest(Block block)

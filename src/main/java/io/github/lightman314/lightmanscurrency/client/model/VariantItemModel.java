@@ -1,16 +1,15 @@
 package io.github.lightman314.lightmanscurrency.client.model;
 
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.models.VariantModelLocation;
 import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -68,11 +67,11 @@ public class VariantItemModel extends BakedModelWrapper<BakedModel> {
         else
         {
             BakedModel model;
-            ModelResourceLocation modelID = variant.getItem(this.block);
+            VariantModelLocation modelID = VariantModelLocation.item(variantID,this.block.getBlockID());
             if(modelID == null)
                 model = this.defaultModel;
             else
-                model = Minecraft.getInstance().getModelManager().getModel(modelID);
+                model = ModelVariantDataManager.getModel(modelID);
             this.itemModelCache.put(variantID,model);
             return model;
         }

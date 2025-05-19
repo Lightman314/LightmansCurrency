@@ -1,10 +1,9 @@
-package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants;
+package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data;
 
 import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -30,9 +29,6 @@ public class DefaultModelVariant extends ModelVariant {
 
     @Override
     public MutableComponent getName() { return LCText.BLOCK_VARIANT_DEFAULT.get(); }
-
-    @Override
-    public ModelResourceLocation getItem() { return ModelResourceLocation.inventory(this.block.getItemID()); }
 
     @Override
     @Nullable

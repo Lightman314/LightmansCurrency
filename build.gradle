@@ -202,6 +202,9 @@ dependencies {
     //Distant Horizons compatibility testing
     //runtimeOnly "maven.modrinth:distanthorizons:2.3.2-b-1.21.1"
 
+    //ModernFix for compatibility testing with dynamic resources
+    runtimeOnly "maven.modrinth:modernfix:RU9sGOmD"
+
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

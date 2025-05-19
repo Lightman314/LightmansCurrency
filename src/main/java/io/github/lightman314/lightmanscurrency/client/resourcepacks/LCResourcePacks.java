@@ -61,13 +61,6 @@ public class LCResourcePacks {
             pack.addToRepository((p) -> event.addRepositorySource((consumer) -> consumer.accept(p)));
     }
 
-    @SubscribeEvent
-    public static void registerResourceListeners(RegisterClientReloadListenersEvent event) {
-        event.registerReloadListener(ItemPositionManager.INSTANCE);
-        event.registerReloadListener(ItemPositionBlockManager.INSTANCE);
-        event.registerReloadListener(CustomModelDataManager.INSTANCE);
-    }
-
     public static class CustomResourcePack
     {
         private final String modid;

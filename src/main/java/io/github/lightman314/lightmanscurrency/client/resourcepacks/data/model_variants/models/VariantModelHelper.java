@@ -1,32 +1,20 @@
-package io.github.lightman314.lightmanscurrency.client.model.util;
+package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.models;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Either;
-import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariant;
-import io.github.lightman314.lightmanscurrency.common.blocks.properties.YRotationProperty;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.resources.model.*;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.Property;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ModelEvent;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -37,76 +25,24 @@ import java.util.function.Predicate;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-@EventBusSubscriber(value = Dist.CLIENT, bus = EventBusSubscriber.Bus.MOD)
 public class VariantModelHelper {
 
     private VariantModelHelper() {}
-
-    public static final YRotationProperty ROTATION_PROPERTY = YRotationProperty.of("rotation");
-    public static final StateDefinition<Block,BlockState> ROTATABLE_FAKE_DEFINITION = new StateDefinition.Builder<Block,BlockState>(Blocks.AIR)
-            .add(ROTATION_PROPERTY)
-            .create(Block::defaultBlockState, BlockState::new);
-    public static final StateDefinition<Block,BlockState> NORMAL_FAKE_DEFINITION = new StateDefinition.Builder<Block,BlockState>(Blocks.AIR)
-            .create(Block::defaultBlockState,BlockState::new);
-
-    private static final ResourceLocation NULL_MODEL_ID = VersionUtil.vanillaResource("null");
-
-    private static Map<ResourceLocation,BlockModel> modelDataCache = null;
-    public static void setModelDataCache(Map<ResourceLocation, BlockModel> map) { modelDataCache = map; }
-    public static Map<ResourceLocation,BlockModel> getModelDataCache() { return modelDataCache; }
 
     /**
      * State should not be null. Only to be used for getting the block model for the given variant/state
      */
     @Nullable
-    public static ModelResourceLocation getModelID(ModelVariant variant, IVariantBlock block, BlockState state)
+    public static VariantModelLocation getModelID(ModelVariant variant, ResourceLocation variantID, IVariantBlock block, BlockState state)
     {
         if(state == null)
-            return null;
+            return VariantModelLocation.item(variantID,block.getBlockID());
         int index = block.getModelIndex(state);
-        ResourceLocation model = variant.getModel(block,index);
-        if(model == null)
-        {
-            LightmansCurrency.LogWarning("Missing targeted model for " + block.getBlockID() + " at index " + index);
-            return null;
-        }
-        if(index >= block.modelsRequiringRotation())
-            return ModelResourceLocation.standalone(model);
-        Map<Property<?>,Comparable<?>> map = new HashMap<>();
-        if(block instanceof IRotatableBlock rb)
-            map.put(ROTATION_PROPERTY,rb.getRotationY(state));
-        return new ModelResourceLocation(model,BlockModelShaper.statePropertiesToString(map));
+        if(index < block.modelsRequiringRotation() && block instanceof IRotatableBlock rb)
+            return VariantModelLocation.rotatable(variantID,block.getBlockID(),index,rb.getRotationY(state));
+        else
+            return VariantModelLocation.basic(variantID,block.getBlockID(),index);
     }
-
-    private static final List<Pair<ResourceLocation,Boolean>> generatedStates = new ArrayList<>();
-    public static void defineGeneratedStates(List<Pair<ResourceLocation,Boolean>> list) { generatedStates.addAll(list); }
-    public static List<Pair<ResourceLocation,Boolean>> getStatesToGenerate() { return generatedStates; }
-
-    public static JsonElement generateBlockStateFile(ResourceLocation modelID, boolean rotatable)
-    {
-        JsonObject json = new JsonObject();
-        JsonObject variants = new JsonObject();
-        if(rotatable)
-        {
-            for(int yRot : YRotationProperty.POSSIBLE_VALUES)
-            {
-                JsonObject entry = new JsonObject();
-                entry.addProperty("model",modelID.toString());
-                entry.addProperty("y",yRot);
-                variants.add(BlockModelShaper.statePropertiesToString(ImmutableMap.of(ROTATION_PROPERTY,yRot)),entry);
-            }
-        }
-        else {
-            JsonObject entry = new JsonObject();
-            entry.addProperty("model",modelID.toString());
-            variants.add("",entry);
-        }
-        json.add("variants",variants);
-        return json;
-    }
-
-    @SubscribeEvent
-    public static void onModelsLoaded(ModelEvent.BakingCompleted event) { modelDataCache = null; }
 
     public static List<ResourceLocation> createCustomBlockModel(List<ResourceLocation> originalModels, Map<ResourceLocation,BlockModel> modelData, Map<String,ResourceLocation> textureOverrides, Function<String,ResourceLocation> idGenerator)
     {
@@ -122,12 +58,14 @@ public class VariantModelHelper {
     }
     public static void createCustomBlockModel(ResourceLocation model, Map<ResourceLocation,BlockModel> modelData, Map<String,ResourceLocation> textureOverrides, ResourceLocation newModelID)
     {
+        ResourceLocation fileID = ModelBakery.MODEL_LISTER.idToFile(newModelID);
+        if(modelData.containsKey(fileID))
+            return;
         Map<String, Either<Material,String>> textureMap = new HashMap<>();
         textureOverrides.forEach((key,texture) ->
                 textureMap.put(key,Either.left(new Material(InventoryMenu.BLOCK_ATLAS,texture)))
         );
         BlockModel newModel = new BlockModel(model,new ArrayList<>(),textureMap,null,null, ItemTransforms.NO_TRANSFORMS,new ArrayList<>());
-        ResourceLocation fileID = ModelBakery.MODEL_LISTER.idToFile(newModelID);
         modelData.put(fileID,newModel);
     }
 
@@ -137,7 +75,7 @@ public class VariantModelHelper {
         ResourceLocation fileID = BlockStateModelLoader.BLOCKSTATE_LISTER.idToFile(block.getBlockID());
         List<BlockStateModelLoader.LoadedJson> blockStates = blockStateData.getOrDefault(fileID,new ArrayList<>());
         //Intiailize list that should be built
-        List<ResourceLocation> models = NonNullList.withSize(block.modelsRequiringRotation(),VersionUtil.vanillaResource("null"));
+        List<ResourceLocation> models = NonNullList.withSize(block.requiredModels(),VersionUtil.vanillaResource("null"));
         List<Integer> completedIndexes = new ArrayList<>();
         //Set up loading context
         BlockModelDefinition.Context context = new BlockModelDefinition.Context();
@@ -169,6 +107,8 @@ public class VariantModelHelper {
                 });
             }catch (Exception e) { LightmansCurrency.LogWarning("Error parsing Block Model Definition for " + block.getBlockID(),e); }
         }
+        for(int i = block.modelsRequiringRotation(); i < block.requiredModels(); ++i)
+            models.set(i,block.getCustomDefaultModel(i));
         return models;
     }
 
