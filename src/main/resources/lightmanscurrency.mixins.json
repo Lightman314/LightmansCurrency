@@ -19,8 +19,10 @@
     "compat.supplementaries.RedMerchantMenuMixin"
   ],
   "client": [
+    "client.AtlasSetMixin",
     "client.CommandSuggestionsAccessor",
     "client.ModelBakeryAccessor",
+    "client.ModelManagerAccessor",
     "client.RenderStateShardAccessor",
     "client.SlotWrapperMixin",
     "client.SuggestionsListAccessor"
