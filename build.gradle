@@ -87,7 +87,8 @@ minecraft {
             args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/'),
                     '--existing', file('optional_assets/1.20/biomesoplenty'),
                     '--existing', file('optional_assets/1.20/quark'),
-                    '--existing', file('optional_assets/1.20/bwg')
+                    '--existing', file('optional_assets/1.20/bwg'),
+                    '--existing', file('optional_assets/1.20/tinkers')
 
             //Fix other mods mixins
             property 'mixin.env.remapRefMap', 'true'
@@ -191,6 +192,9 @@ dependencies {
     //Quark
     implementation fg.deobf("curse.maven:quark-243121:6312787")
     implementation fg.deobf("curse.maven:zeta-968868:6312779")
+    //Tinker's Construct
+    implementation fg.deobf("maven.modrinth:tinkers-construct:3.9.2.37")
+    implementation fg.deobf("maven.modrinth:mantle:1.11.44")
     //BYG
     implementation fg.deobf("curse.maven:oh-the-biomes-weve-gone-1070751:5607559")
     implementation fg.deobf("corgitaco.corgilib:Corgilib-Forge:1.20.1-4.0.3.3")
@@ -227,8 +231,8 @@ dependencies {
     //Jade cause it's kinda nice to have during runtime
     implementation fg.deobf("maven.modrinth:jade:11.13.1+forge")
 
-    //Modern Fix as I attempt to fix the dynamic resources compatibility
-    implementation fg.deobf("maven.modrinth:modernfix:5m06ltZw")
+    //ModernFix for compatibility testing with dynamic resources
+    runtimeOnly fg.deobf("maven.modrinth:modernfix:OLk2pIh9")
 
 }
 

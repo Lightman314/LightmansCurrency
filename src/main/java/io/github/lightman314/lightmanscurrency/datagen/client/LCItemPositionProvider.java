@@ -37,6 +37,11 @@ public class LCItemPositionProvider extends ItemPositionProvider {
                 .withSimpleEntry(new Vector3f(0.5f, 0.5f + 2f/16f, 0.5f)),
                 ModBlocks.DISPLAY_CASE
         );
+        //Glassless Display Case
+        this.addData(VersionUtil.lcResource("display_case_open"),ItemPositionBuilder.builder()
+                .withGlobalRotationType(RotationHandler.SPINNING)
+                .withGlobalScale(0.85f)
+                .withSimpleEntry(new Vector3f(0.5f,0.6999f,0.5f)));
         //Freezer
         this.addDataWithBlocks(VersionUtil.lcResource("freezer"), ItemPositionBuilder.builder()
                 .withGlobalScale(0.4f)

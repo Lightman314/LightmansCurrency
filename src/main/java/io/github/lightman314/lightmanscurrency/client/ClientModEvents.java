@@ -7,6 +7,9 @@ import io.github.lightman314.lightmanscurrency.client.model.VariantBlockModel;
 import io.github.lightman314.lightmanscurrency.client.model.VariantItemModel;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.item.GachaBallRenderer;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.custom_models.CustomModelDataManager;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.ItemPositionBlockManager;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.ItemPositionManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
@@ -16,7 +19,6 @@ import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
-import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -79,8 +81,6 @@ public class ClientModEvents {
 		});
 		//Gacha Ball
 		event.register(GachaBallRenderer.MODEL);
-		//Model Variant Models
-		//Done in mixin in 1.20.1 as the only place I could inject the model generation & block state creation is after this event is called
 	}
 
 	@SubscribeEvent
@@ -148,6 +148,14 @@ public class ClientModEvents {
 	@SubscribeEvent
 	public static void registerWalletGuiOverlay(RegisterGuiOverlaysEvent event) {
 		event.registerAboveAll("wallet_hud", WalletDisplayOverlay.INSTANCE);
+	}
+
+	@SubscribeEvent
+	public static void registerResourceListeners(RegisterClientReloadListenersEvent event) {
+		event.registerReloadListener(ItemPositionManager.INSTANCE);
+		event.registerReloadListener(ItemPositionBlockManager.INSTANCE);
+		event.registerReloadListener(CustomModelDataManager.INSTANCE);
+		event.registerReloadListener(ModelVariantDataManager.INSTANCE);
 	}
 	
 }

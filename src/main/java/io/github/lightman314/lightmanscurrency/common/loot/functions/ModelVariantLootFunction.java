@@ -23,7 +23,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class ModelVariantLootFunction implements LootItemFunction {
 
     public static final ModelVariantLootFunction INSTANCE = new ModelVariantLootFunction();
-    public static final Serializer<ModelVariantLootFunction> CODEC = new Serializer<ModelVariantLootFunction>() {
+    public static final Serializer<ModelVariantLootFunction> CODEC = new Serializer<>() {
         @Override
         public void serialize(JsonObject jsonObject, ModelVariantLootFunction modelVariantLootFunction, JsonSerializationContext jsonSerializationContext) {}
         @Override

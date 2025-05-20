@@ -1,11 +1,13 @@
-package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants;
+package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin;
 
+import com.google.common.base.Suppliers;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.ItemPositionData;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.ItemPositionManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.RotationHandler;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperty;
 import io.github.lightman314.lightmanscurrency.datagen.client.builders.ItemPositionBuilder;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -14,12 +16,19 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.function.Supplier;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class VariantProperties {
+public abstract class ItemPositionDataEntry {
 
-    public static final VariantProperty<ItemPositionDataEntry> ITEM_POSITION_DATA = new ItemPositionDataProperty();
+    public static final VariantProperty<ItemPositionDataEntry> PROPERTY = new ItemPositionDataProperty();
+
+    public abstract ItemPositionData get();
+    public abstract JsonElement write();
+    public static ItemPositionDataEntry create(ResourceLocation positionDataID) { return new IDEntry(positionDataID); }
+    public static ItemPositionDataEntry create(ItemPositionData data) { return new InstanceEntry(data); }
+    public static ItemPositionDataEntry create(ItemPositionBuilder data) { return new BuilderEntry(data); }
 
     private static class ItemPositionDataProperty extends VariantProperty<ItemPositionDataEntry>
     {
@@ -48,25 +57,22 @@ public class VariantProperties {
 
     }
 
-    public interface ItemPositionDataEntry
+    private static class IDEntry extends ItemPositionDataEntry
     {
-        ItemPositionData get();
-        JsonElement write();
-        static ItemPositionDataEntry create(ResourceLocation positionDataID) { return new IDEntry(positionDataID); }
-        static ItemPositionDataEntry create(ItemPositionData data) { return new InstanceEntry(data); }
-        static ItemPositionDataEntry create(ItemPositionBuilder data) { return new BuilderEntry(data); }
-    }
+        private final ResourceLocation positionDataID;
+        public IDEntry(ResourceLocation id) { this.positionDataID = id; }
 
-    private record IDEntry(ResourceLocation positionDataID) implements ItemPositionDataEntry
-    {
         @Override
         public ItemPositionData get() { return ItemPositionManager.getDataOrEmpty(this.positionDataID); }
         @Override
         public JsonElement write() { return new JsonPrimitive(this.positionDataID.toString()); }
     }
 
-    private record InstanceEntry(ItemPositionData data) implements ItemPositionDataEntry
+    private static class InstanceEntry extends ItemPositionDataEntry
     {
+        private final ItemPositionData data;
+        public InstanceEntry(ItemPositionData data) { this.data = data; }
+
         @Override
         public ItemPositionData get() { return this.data; }
         @Override
@@ -86,10 +92,14 @@ public class VariantProperties {
         }
     }
 
-    private record BuilderEntry(ItemPositionBuilder builder) implements ItemPositionDataEntry
+    private static class BuilderEntry extends ItemPositionDataEntry
     {
+        private final ItemPositionBuilder builder;
+        private final Supplier<ItemPositionData> dataSource;
+        public BuilderEntry(ItemPositionBuilder builder) { this.builder = builder; this.dataSource = Suppliers.memoize(() -> ItemPositionData.parse(this.builder.write())); }
+
         @Override
-        public ItemPositionData get() { return ItemPositionData.parse(this.builder.write()); }
+        public ItemPositionData get() { return this.dataSource.get(); }
         @Override
         public JsonElement write() { return this.builder.write(); }
     }

@@ -1,14 +1,14 @@
 package io.github.lightman314.lightmanscurrency.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.lightman314.lightmanscurrency.client.model.util.VariantModelHelper;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.models.VariantModelHelper;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.models.VariantModelLocation;
 import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVariantSupportingBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.mixin.client.RenderStateShardAccessor;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -128,12 +128,12 @@ public class VariantBlockModel implements IDynamicBakedModel {
             else
             {
                 List<BakedQuad> quads;
-                ResourceLocation modelID = VariantModelHelper.getModelID(variant,this.block,state);
+                VariantModelLocation modelID = VariantModelHelper.getModelID(variant,variantID,this.block,state);
                 if(modelID == null)
                     quads = this.defaultModel.getQuads(state,side,rand,data,renderType);
                 else
                 {
-                    BakedModel model = Minecraft.getInstance().getModelManager().getModel(modelID);
+                    BakedModel model = ModelVariantDataManager.getModel(modelID);
                     quads = model.getQuads(state,side,rand,data,renderType);
                 }
                 this.quadCache.put(key,quads);
@@ -166,11 +166,11 @@ public class VariantBlockModel implements IDynamicBakedModel {
             else
             {
                 BakedModel model;
-                ResourceLocation modelID = VariantModelHelper.getModelID(variant,this.block,data.get(STATE));
+                VariantModelLocation modelID = VariantModelHelper.getModelID(variant,variantID,this.block,data.get(STATE));
                 if(modelID == null)
                     model = this.defaultModel;
                 else
-                    model = Minecraft.getInstance().getModelManager().getModel(modelID);
+                    model = ModelVariantDataManager.getModel(modelID);
                 this.blockModelCache.put(key,model);
                 return model;
             }

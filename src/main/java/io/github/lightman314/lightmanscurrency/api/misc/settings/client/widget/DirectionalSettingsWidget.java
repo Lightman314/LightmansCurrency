@@ -21,6 +21,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainBut
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.model.VariantBlockModel;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.InputDisplayOffset;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -182,6 +186,15 @@ public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
             PoseStack pose = gui.getPose();
             BlockRenderDispatcher blockRenderer = Minecraft.getInstance().getBlockRenderer();
             gui.pushOffset(ScreenPosition.ZERO);
+
+			InputDisplayOffset offset = null;
+			if(attributes.variant != null)
+			{
+				ModelVariant variant = ModelVariantDataManager.getVariant(attributes.variant);
+				if(variant != null && variant.has(VariantProperties.INPUT_DISPLAY_OFFSET))
+					offset = variant.get(VariantProperties.INPUT_DISPLAY_OFFSET);
+			}
+
             for(Direction side : RENDER_DIRECTIONS)
             {
                 if(!this.isSideVisible(side))
@@ -375,7 +388,13 @@ public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
                     //Translate to position
                     pose.translate(position.x,position.y,32);
                     pose.translate(stateToDraw.getFirst().x,stateToDraw.getFirst().y,0);
-                    //Rotate
+                    //Offset based on defined variant property
+					if(offset != null)
+					{
+						ScreenPosition temp = offset.getOffset(side);
+						pose.translate(temp.x,temp.y,0);
+					}
+					//Rotate & Scale
                     pose.mulPose(rotation);
                     pose.scale(16,-16,16);
 

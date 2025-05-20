@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(value = StockTickerBlockEntity.class,remap = false)
 public interface StockTickerBlockEntityAccessor {
 
-    @Accessor("receivedPayments")
+    @Accessor(value = "receivedPayments",remap = false)
     SmartInventory getReceivedPayments();
 
 }

@@ -1,0 +1,94 @@
+package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin;
+
+import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperty;
+import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.ResourceLocationException;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.GsonHelper;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
+import java.util.List;
+
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
+public class TooltipInfo {
+
+    public static final VariantProperty<TooltipInfo> PROPERTY = new TooltipInfoProperty();
+
+    private final List<Component> tooltip;
+    public List<Component> getTooltip() { return new ArrayList<>(this.tooltip); }
+    public final boolean drawOnSelection;
+    public final boolean drawOnItem;
+    public final boolean drawOnJade;
+    public TooltipInfo(List<Component> tooltip) { this(tooltip,true,true,true); }
+    public TooltipInfo(List<Component> tooltip, boolean drawOnSelection, boolean drawOnItem, boolean drawOnJade)
+    {
+        this.tooltip = ImmutableList.copyOf(tooltip);
+        this.drawOnSelection = drawOnSelection;
+        this.drawOnItem = drawOnItem;
+        this.drawOnJade = drawOnJade;
+    }
+
+    private static class TooltipInfoProperty extends VariantProperty<TooltipInfo>
+    {
+        @Override
+        public TooltipInfo parse(JsonElement element) throws JsonSyntaxException, ResourceLocationException {
+            String elementName = this.getID().toString();
+            JsonObject json = GsonHelper.convertToJsonObject(element,elementName);
+            JsonElement tooltipElement = json.get("tooltip");
+            if(tooltipElement == null)
+                GsonHelper.getAsJsonArray(json,"tooltip");
+            List<Component> tooltip;
+            if(tooltipElement.isJsonObject() || tooltipElement.isJsonPrimitive())
+            {
+                Component line = Component.Serializer.fromJson(tooltipElement);
+                tooltip = new ArrayList<>();
+                tooltip.add(line);
+            }
+            else
+            {
+                tooltip = new ArrayList<>();
+                JsonArray tooltipArray = GsonHelper.convertToJsonArray(tooltipElement,"tooltip");
+                for(int i = 0; i < tooltipArray.size(); ++i)
+                {
+                    Component line = Component.Serializer.fromJson(tooltipArray.get(i));
+                    tooltip.add(line);
+                }
+            }
+            boolean drawOnSelection = GsonHelper.getAsBoolean(json,"selection",true);
+            boolean drawOnItem = GsonHelper.getAsBoolean(json,"item",true);
+            boolean drawOnJade = GsonHelper.getAsBoolean(json,"jade",true);
+            return new TooltipInfo(tooltip,drawOnSelection,drawOnItem,drawOnJade);
+        }
+
+        @Override
+        public JsonElement write(Object value) {
+            if(value instanceof TooltipInfo data)
+            {
+                JsonObject json = new JsonObject();
+                if(data.tooltip.size() == 1)
+                    json.add("tooltip",Component.Serializer.toJsonTree(data.tooltip.get(0)));
+                else
+                {
+                    JsonArray tooltipArray = new JsonArray();
+                    for(Component line : data.tooltip)
+                        tooltipArray.add(Component.Serializer.toJsonTree(line));
+                    json.add("tooltip",tooltipArray);
+                }
+                json.addProperty("selection",data.drawOnSelection);
+                json.addProperty("item",data.drawOnSelection);
+                json.addProperty("jade",data.drawOnSelection);
+                return json;
+            }
+            else
+                throw new IllegalArgumentException("Value must be a TooltipInfo element!");
+        }
+    }
+
+}

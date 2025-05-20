@@ -9,6 +9,7 @@ import com.google.common.base.Suppliers;
 import com.mojang.authlib.GameProfile;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
+import io.github.lightman314.lightmanscurrency.api.events.client.RegisterVariantPropertiesEvent;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_management.CoinManagementScreen;
@@ -18,8 +19,7 @@ import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.BookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.EnchantedBookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.NormalBookRenderer;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.VariantProperties;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.VariantProperty;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.CapabilityEventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.IEventUnlocks;
@@ -53,6 +53,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -69,6 +70,7 @@ public class ClientProxy extends CommonProxy{
 	public boolean isClient() { return true; }
 
 	public void init() {
+		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerVariantProperties);
 		//MinecraftForge.EVENT_BUS.register(this);
 	}
 
@@ -146,13 +148,17 @@ public class ClientProxy extends CommonProxy{
 		ItemProperties.register(ModBlocks.MONEY_BAG.get().asItem(), MoneyBagItem.PROPERTY,
 				(stack,level,player,seed) -> (float)MoneyBagItem.getSize(stack));
 
-		//Register Variant Properties
-		VariantProperty.register(VersionUtil.lcResource("item_position_data"),VariantProperties.ITEM_POSITION_DATA);
-
 		//Register Curios Render Layers
 		if(LCCurios.isLoaded())
 			LCCuriosClient.registerRenderLayers();
 
+	}
+
+	private void registerVariantProperties(RegisterVariantPropertiesEvent event) {
+		//Register Variant Properties
+		event.register(VersionUtil.lcResource("item_position_data"),VariantProperties.ITEM_POSITION_DATA);
+		event.register(VersionUtil.lcResource("input_display_offset"),VariantProperties.INPUT_DISPLAY_OFFSET);
+		event.register(VersionUtil.lcResource("tooltip_info"),VariantProperties.TOOLTIP_INFO);
 	}
 
 	private BlockEntity checkForCoinChest(Block block)

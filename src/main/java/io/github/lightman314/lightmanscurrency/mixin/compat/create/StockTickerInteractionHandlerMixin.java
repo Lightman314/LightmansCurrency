@@ -44,7 +44,7 @@ public class StockTickerInteractionHandlerMixin {
     @Unique
     private static WalletInventoryWrapper lightmanscurrency$wrapper;
 
-    @Inject(at=@At(value="FIELD", target="net/createmod/catnip/data/Iterate.trueAndFalse:[Z"),method="interactWithShop", cancellable=true)
+    @Inject(at=@At(value="FIELD", target="net/createmod/catnip/data/Iterate.trueAndFalse:[Z"),method="interactWithShop", cancellable=true, remap = false)
     private static void interactWithShop(Player player, Level level, BlockPos targetPos, ItemStack mainHandItem, CallbackInfo ci, @Local(name = "paymentEntries") InventorySummary paymentEntries)
     {
         lightmanscurrency$clearWrapper();
@@ -96,7 +96,7 @@ public class StockTickerInteractionHandlerMixin {
         }
     }
 
-    @WrapOperation(at = @At(value = "INVOKE", target = "net/minecraft/world/entity/player/Player.getInventory()Lnet/minecraft/world/entity/player/Inventory;"),method = "interactWithShop")
+    @WrapOperation(at = @At(value = "INVOKE", target = "net/minecraft/world/entity/player/Player.getInventory()Lnet/minecraft/world/entity/player/Inventory;"),method = "interactWithShop",remap = false)
     private static Inventory wrapInventory(Player player, Operation<Inventory> next, @Local(name = "paymentEntries") InventorySummary paymentEntries)
     {
         if(player.level().isClientSide)
@@ -117,7 +117,7 @@ public class StockTickerInteractionHandlerMixin {
         return next.call(player);
     }
 
-    @Inject(at = @At("RETURN"),method = "interactWithShop")
+    @Inject(at = @At("RETURN"),method = "interactWithShop",remap = false)
     private static void interactWithShop(Player player, Level level, BlockPos targetPos, ItemStack mainHandItem, CallbackInfo ci)
     {
         lightmanscurrency$clearWrapper();

@@ -2,8 +2,9 @@ package io.github.lightman314.lightmanscurrency.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.models.VariantModelLocation;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.FreezerTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
@@ -58,18 +59,16 @@ public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<Fre
 
 			Minecraft mc = Minecraft.getInstance();
 			ResourceLocation doorModel = freezerBlock.getDoorModel();
+			BakedModel model = mc.getModelManager().getModel(doorModel);
 
 
 			//Get custom freezer door model
 			ModelVariant variant = ModelVariantDataManager.getVariant(blockEntity.getCurrentVariant());
-			if(variant != null && variant.getTargets().contains(freezerBlock.getBlockID()) && variant.getModels(freezerBlock).size() == freezerBlock.requiredModels())
+			if(variant != null && variant.getTargets().contains(freezerBlock.getBlockID()) && variant.getModels().size() == freezerBlock.requiredModels())
 			{
-				ResourceLocation newModel = variant.getStandaloneModel(freezerBlock,freezerBlock.requiredModels() - 1);
-				if(newModel != null)
-					doorModel = newModel;
+				VariantModelLocation newModel = VariantModelLocation.basic(blockEntity.getCurrentVariant(),freezerBlock.getBlockID(),freezerBlock.requiredModels() - 1);
+				model = ModelVariantDataManager.getModel(newModel);
 			}
-
-			BakedModel model = mc.getModelManager().getModel(doorModel);
 
 			ItemRenderer itemRenderer = mc.getItemRenderer();
 			itemRenderer.render(new ItemStack(freezerBlock), ItemDisplayContext.FIXED, false, poseStack, bufferSource, lightLevel, OverlayTexture.NO_OVERLAY, model);

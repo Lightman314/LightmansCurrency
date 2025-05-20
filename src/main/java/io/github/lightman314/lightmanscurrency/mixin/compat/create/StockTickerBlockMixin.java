@@ -29,7 +29,7 @@ public class StockTickerBlockMixin {
     @Unique
     private StockTickerBlock lightmanscurrency$self() { return (StockTickerBlock)(Object)this;}
 
-    @Inject(at = @At("HEAD"),method = "use",cancellable = true)
+    @Inject(at = @At("HEAD"),method = "use",cancellable = true,remap = false)
     private void useItemOn(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir)
     {
         if(player == null)

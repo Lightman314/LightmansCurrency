@@ -2,7 +2,9 @@ package io.github.lightman314.lightmanscurrency.datagen.client;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.ItemPositionDataEntry;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.datagen.client.generators.ModelVariantProvider;
 import io.github.lightman314.lightmanscurrency.datagen.util.ColorHelper;
@@ -25,6 +27,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
                 .withName(LCText.BLOCK_VARIANT_GLASSLESS.get())
                 .withItem(VersionUtil.lcResource("block/display_case/glassless/base"))
                 .withModel(VersionUtil.lcResource("block/display_case/glassless/base"))
+                .withProperty(VariantProperties.ITEM_POSITION_DATA,ItemPositionDataEntry.create(VersionUtil.lcResource("display_case_open")))
                 .asDummy()
                 .build());
 
