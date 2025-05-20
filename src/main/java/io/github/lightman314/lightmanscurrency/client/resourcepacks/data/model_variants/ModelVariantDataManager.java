@@ -24,8 +24,6 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.inventory.InventoryMenu;
-import net.neoforged.neoforge.client.ClientHooks;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -52,12 +50,14 @@ public class ModelVariantDataManager implements PreparableReloadListener {
     private Map<ResourceLocation,List<ResourceLocation>> variantsByTarget = new HashMap<>();
     private Map<VariantModelLocation,BakedModel> variantModels = new HashMap<>();
 
-    private final AtlasSet atlases;
+    //private final AtlasSet atlases;
 
     private ModelVariantDataManager() {
-        Map<ResourceLocation, ResourceLocation> VANILLA_ATLASES = ClientHooks.gatherMaterialAtlases(Map.of(InventoryMenu.BLOCK_ATLAS,ResourceLocation.withDefaultNamespace("blocks")));
-        this.atlases = new AtlasSet(VANILLA_ATLASES, Minecraft.getInstance().getTextureManager());
+        //Map<ResourceLocation, ResourceLocation> VANILLA_ATLASES = ClientHooks.gatherMaterialAtlases(Map.of(InventoryMenu.BLOCK_ATLAS,ResourceLocation.withDefaultNamespace("blocks")));
+        //this.atlases = new AtlasSet(VANILLA_ATLASES, Minecraft.getInstance().getTextureManager());
     }
+
+    public static Map<ResourceLocation, CompletableFuture<AtlasSet.StitchResult>> atlasPreparation = null;
 
     @Nullable
     public static ModelVariant getVariant(@Nullable ResourceLocation variant) {
@@ -95,10 +95,10 @@ public class ModelVariantDataManager implements PreparableReloadListener {
             new VariantModelBakery(Minecraft.getInstance().getBlockColors(),reloadProfiler,modelsAndStates.getFirst(),modelsAndStates.getSecond(),variantMaps.variantMap)
         );
         //Try to wait for the texture atlases to finish loading
-        Map<ResourceLocation,CompletableFuture<AtlasSet.StitchResult>> atlasLoading = this.atlases.scheduleLoad(resourceManager,Minecraft.getInstance().options.mipmapLevels().get(),backgroundExecutor);
+        Map<ResourceLocation,CompletableFuture<AtlasSet.StitchResult>> atlasLoading = Objects.requireNonNull(atlasPreparation,"Vanilla Atlases are not currently loading!");
 
         //Register the texture relevant models to the ModelTextureCache
-        return CompletableFuture.allOf(Stream.concat(Stream.concat(atlasLoading.values().stream(),Stream.of(uploadVariants)),Stream.of(modelBakeryFuture)).toArray(CompletableFuture[]::new))
+        return CompletableFuture.allOf(Stream.concat(Stream.of(uploadVariants),Stream.of(modelBakeryFuture)).toArray(CompletableFuture[]::new))
                 .thenApplyAsync(v -> loadModels(reloadProfiler,
                         atlasLoading.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().join())),
                         modelBakeryFuture.join()
@@ -229,7 +229,6 @@ public class ModelVariantDataManager implements PreparableReloadListener {
 
     private Void uploadVariants(VariantMaps variantMaps)
     {
-
         this.variants = ImmutableMap.copyOf(variantMaps.variantMap);
         this.variantsByTarget = ImmutableMap.copyOf(variantMaps.variantsByTarget);
         return null;
@@ -240,7 +239,7 @@ public class ModelVariantDataManager implements PreparableReloadListener {
         profiler.startTick();
         profiler.push("upload");
         //Perhaps don't upload the atlas so that we don't conflict with vanilla?
-        state.atlasPreparations.values().forEach(AtlasSet.StitchResult::upload);
+        //state.atlasPreparations.values().forEach(AtlasSet.StitchResult::upload);
         VariantModelBakery modelBakery = state.modelBakery;
         this.variantModels = modelBakery.getBakedTopLevelModels();
         LightmansCurrency.LogInfo("Loaded " + modelBakery.getBakedModelCount() + " variant models for " + this.variantModels.size() + " possible variant states!");
@@ -260,8 +259,10 @@ public class ModelVariantDataManager implements PreparableReloadListener {
         profilerFiller.push("load");
         profilerFiller.popPush("baking");
         Multimap<String,Material> multimap = HashMultimap.create();
+        Minecraft mc = Minecraft.getInstance();
         modelBakery.bakeModels((id,material) -> {
             AtlasSet.StitchResult result = atlasPreparations.get(material.atlasLocation());
+            //Function<ResourceLocation,TextureAtlasSprite> atlas = mc.getTextureAtlas(material.atlasLocation());
             TextureAtlasSprite sprite = result.getSprite(material.texture());
             if(sprite != null)
                 return sprite;

@@ -19,8 +19,10 @@
   ],
   "client": [
     "client.AbstractWidgetMixin",
+    "client.AtlasSetMixin",
     "client.BlockStateModelLoaderAccessor",
     "client.CommandSuggestionsAccessor",
+    "client.ModelManagerAccessor",
     "client.SlotWrapperMixin",
     "client.SuggestionsListAccessor"
   ],
