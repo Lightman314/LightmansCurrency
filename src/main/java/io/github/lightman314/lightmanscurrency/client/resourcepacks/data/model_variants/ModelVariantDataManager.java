@@ -98,7 +98,7 @@ public class ModelVariantDataManager implements PreparableReloadListener {
         Map<ResourceLocation,CompletableFuture<AtlasSet.StitchResult>> atlasLoading = Objects.requireNonNull(atlasPreparation,"Vanilla Atlases are not currently loading!");
 
         //Register the texture relevant models to the ModelTextureCache
-        return CompletableFuture.allOf(Stream.concat(Stream.of(uploadVariants),Stream.of(modelBakeryFuture)).toArray(CompletableFuture[]::new))
+        return CompletableFuture.allOf(Stream.concat(Stream.concat(atlasLoading.values().stream(),Stream.of(uploadVariants)),Stream.of(modelBakeryFuture)).toArray(CompletableFuture[]::new))
                 .thenApplyAsync(v -> loadModels(reloadProfiler,
                         atlasLoading.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().join())),
                         modelBakeryFuture.join()
@@ -259,10 +259,8 @@ public class ModelVariantDataManager implements PreparableReloadListener {
         profilerFiller.push("load");
         profilerFiller.popPush("baking");
         Multimap<String,Material> multimap = HashMultimap.create();
-        Minecraft mc = Minecraft.getInstance();
         modelBakery.bakeModels((id,material) -> {
             AtlasSet.StitchResult result = atlasPreparations.get(material.atlasLocation());
-            //Function<ResourceLocation,TextureAtlasSprite> atlas = mc.getTextureAtlas(material.atlasLocation());
             TextureAtlasSprite sprite = result.getSprite(material.texture());
             if(sprite != null)
                 return sprite;
