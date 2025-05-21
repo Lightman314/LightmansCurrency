@@ -23,13 +23,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value = StockTickerBlock.class,remap = false)
+//Leave refmap=true on this one as well, since we're injecting into a vanilla method
+@Mixin(value = StockTickerBlock.class)
 public class StockTickerBlockMixin {
 
     @Unique
     private StockTickerBlock lightmanscurrency$self() { return (StockTickerBlock)(Object)this;}
 
-    @Inject(at = @At("HEAD"),method = "use",cancellable = true,remap = false)
+    @Inject(at = @At("HEAD"),method = "use",cancellable = true)
     private void useItemOn(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir)
     {
         if(player == null)

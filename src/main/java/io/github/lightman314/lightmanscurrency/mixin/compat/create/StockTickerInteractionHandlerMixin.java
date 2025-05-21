@@ -38,7 +38,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.HashMap;
 import java.util.Map;
 
-@Mixin(value = StockTickerInteractionHandler.class,remap = false)
+//Leave refmap=true for this one as we need a refmap for the Player#getInventory method targeted within the "interactWithShop" method
+@Mixin(value = StockTickerInteractionHandler.class)
 public class StockTickerInteractionHandlerMixin {
 
     @Unique
@@ -47,7 +48,7 @@ public class StockTickerInteractionHandlerMixin {
     @Inject(at=@At(value="FIELD", target="net/createmod/catnip/data/Iterate.trueAndFalse:[Z"),method="interactWithShop", cancellable=true, remap = false)
     private static void interactWithShop(Player player, Level level, BlockPos targetPos, ItemStack mainHandItem, CallbackInfo ci, @Local(name = "paymentEntries") InventorySummary paymentEntries)
     {
-        lightmanscurrency$clearWrapper();
+        lightmanscurrency$clearWrapper(true);
         //If no wallet equipped nothing to check
         IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(player);
         ItemStack wallet = walletHandler == null ? ItemStack.EMPTY : walletHandler.getWallet();
@@ -96,12 +97,12 @@ public class StockTickerInteractionHandlerMixin {
         }
     }
 
-    @WrapOperation(at = @At(value = "INVOKE", target = "net/minecraft/world/entity/player/Player.getInventory()Lnet/minecraft/world/entity/player/Inventory;"),method = "interactWithShop",remap = false)
+    @WrapOperation(at = @At(value = "INVOKE", target = "net/minecraft/world/entity/player/Player.getInventory()Lnet/minecraft/world/entity/player/Inventory;",remap = true),method = "interactWithShop",remap = false)
     private static Inventory wrapInventory(Player player, Operation<Inventory> next, @Local(name = "paymentEntries") InventorySummary paymentEntries)
     {
         if(player.level().isClientSide)
             return next.call(player);
-        lightmanscurrency$clearWrapper();
+        lightmanscurrency$clearWrapper(false);
         //If no wallet equipped, don't wrap the inventory
         IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(player);
         ItemStack wallet = walletHandler == null ? ItemStack.EMPTY : walletHandler.getWallet();
@@ -120,15 +121,15 @@ public class StockTickerInteractionHandlerMixin {
     @Inject(at = @At("RETURN"),method = "interactWithShop",remap = false)
     private static void interactWithShop(Player player, Level level, BlockPos targetPos, ItemStack mainHandItem, CallbackInfo ci)
     {
-        lightmanscurrency$clearWrapper();
+        lightmanscurrency$clearWrapper(true);
     }
 
     @Unique
-    private static void lightmanscurrency$clearWrapper()
+    private static void lightmanscurrency$clearWrapper(boolean finished)
     {
         if(lightmanscurrency$wrapper != null)
         {
-            lightmanscurrency$wrapper.clearContents();
+            lightmanscurrency$wrapper.clearContents(finished);
             lightmanscurrency$wrapper = null;
         }
     }

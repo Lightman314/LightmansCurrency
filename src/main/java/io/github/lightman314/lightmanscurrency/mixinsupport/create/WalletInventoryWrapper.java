@@ -6,6 +6,7 @@ import com.simibubi.create.content.logistics.packager.InventorySummary;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -109,7 +110,7 @@ public class WalletInventoryWrapper extends Inventory {
         return foundCount;
     }
 
-    public void clearContents()
+    public void clearContents(boolean finished)
     {
         //Give any leftover payment items back to the players wallet
         IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(this.player);
@@ -123,6 +124,8 @@ public class WalletInventoryWrapper extends Inventory {
                 if(!item.isEmpty())
                     ItemHandlerHelper.giveItemToPlayer(this.player,item);
             }
+            if(finished)
+                CoinAPI.API.CoinExchangeAllUp(walletContents);
             WalletItem.putWalletInventory(wallet,walletContents);
             walletHandler.setWallet(wallet);
             return;
