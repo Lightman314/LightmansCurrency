@@ -36,3 +36,4 @@ Build Backups
 *.zip
 *.pxf
 optional_assets
+hs_err_pid
