@@ -44,6 +44,7 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<MoneyBagData>> MONEY_BAG_CONTENTS;
     public static final Supplier<DataComponentType<LootTableEntry>> LOOT_TABLE_ENTRY;
     public static final Supplier<DataComponentType<ResourceLocation>> MODEL_VARIANT;
+    public static final Supplier<DataComponentType<Unit>> VARIANT_LOCK;
 
     //Item Attributes
     public static final Supplier<DataComponentType<Integer>> WALLET_LEVEL;
@@ -77,6 +78,7 @@ public class ModDataComponents {
         MONEY_BAG_CONTENTS = register("money_bag_data", builder -> builder.persistent(MoneyBagData.CODEC).networkSynchronized(MoneyBagData.STREAM_CODEC));
         LOOT_TABLE_ENTRY = register("loot_table", builder -> builder.persistent(LootTableEntry.CODEC).networkSynchronized(LootTableEntry.STREAM_CODEC));
         MODEL_VARIANT = registerResource("model_variant");
+        VARIANT_LOCK = registerUnit("variant_lock");
 
         //Custom Item Attributes
         WALLET_LEVEL = registerInt("wallet_level");
@@ -94,6 +96,7 @@ public class ModDataComponents {
     }
 
     private static <T> Supplier<DataComponentType<T>> register(@Nonnull String name, @Nonnull UnaryOperator<DataComponentType.Builder<T>> builder) { return ModRegistries.DATA_COMPONENTS.register(name, () -> builder.apply(DataComponentType.builder()).build()); }
+    private static Supplier<DataComponentType<Unit>> registerUnit(@Nonnull String name) { return register(name,builder -> builder.persistent(Unit.CODEC).networkSynchronized(StreamCodec.unit(Unit.INSTANCE))); }
     private static Supplier<DataComponentType<Boolean>> registerBool(@Nonnull String name) { return register(name,builder -> builder.persistent(Codec.BOOL).networkSynchronized(StreamCodec.of(FriendlyByteBuf::writeBoolean,FriendlyByteBuf::readBoolean))); }
     private static Supplier<DataComponentType<Integer>> registerInt(@Nonnull String name) { return register(name,builder -> builder.persistent(Codec.INT).networkSynchronized(StreamCodec.of(FriendlyByteBuf::writeInt,FriendlyByteBuf::readInt))); }
     private static Supplier<DataComponentType<Float>> registerFloat(@Nonnull String name) { return register(name,builder -> builder.persistent(Codec.FLOAT).networkSynchronized(StreamCodec.of(FriendlyByteBuf::writeFloat,FriendlyByteBuf::readFloat))); }

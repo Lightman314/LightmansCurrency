@@ -58,8 +58,10 @@ public class VariantComponentProvider implements IBlockComponentProvider{
                     {
                         TooltipInfo extraTooltip = variant.get(VariantProperties.TOOLTIP_INFO);
                         if(extraTooltip.drawOnJade)
-                            tooltip.addAll(TooltipHelper.splitTooltips(extraTooltip.getTooltip()));
+                            tooltip.addAll(extraTooltip.getTooltip());
                     }
+                    if(be.isVariantLocked())
+                        tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_LOCKED.getWithStyle(ChatFormatting.GOLD,ChatFormatting.BOLD));
                 }
             }
         }

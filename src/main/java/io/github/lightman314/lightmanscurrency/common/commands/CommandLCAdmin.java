@@ -35,6 +35,7 @@ import io.github.lightman314.lightmanscurrency.common.data.types.TaxDataCache;
 import io.github.lightman314.lightmanscurrency.common.items.GachaBallItem;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.items.data.TraderItemData;
+import io.github.lightman314.lightmanscurrency.common.items.data.WalletDataWrapper;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
@@ -58,6 +59,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -112,6 +114,9 @@ public class CommandLCAdmin {
 										.executes(CommandLCAdmin::replaceWalletSlotWithDefault)
 										.then(Commands.argument("keepWalletContents", BoolArgumentType.bool())
 												.executes(CommandLCAdmin::replaceWalletSlot)))))
+				.then(Commands.literal("emptyWallet")
+						.then(Commands.argument("entity",EntityArgument.entities())
+								.executes(CommandLCAdmin::emptyWallet)))
 				.then(Commands.literal("taxes")
 						.then(Commands.literal("list")
 								.executes(CommandLCAdmin::listTaxCollectors))
@@ -426,6 +431,31 @@ public class CommandLCAdmin {
 				walletHandler.setWallet(newWallet);
 			}
 		}
+		return count;
+	}
+
+	static int emptyWallet(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	{
+		int count = 0;
+		for(Entity e : EntityArgument.getEntities(commandContext,"entity"))
+		{
+			if(e instanceof LivingEntity entity && (entity.hasData(ModAttachmentTypes.WALLET_HANDLER) || e instanceof Player))
+			{
+				WalletHandler walletHandler = WalletHandler.get(entity);
+				ItemStack currentWallet = walletHandler.getWallet();
+				if(WalletItem.isWallet(currentWallet))
+				{
+					WalletDataWrapper wrapper = WalletItem.getDataWrapper(currentWallet);
+					if(!wrapper.getContents().isEmpty())
+					{
+						wrapper.setContents(new SimpleContainer(wrapper.getContainerSize()),entity);
+						count++;
+					}
+				}
+				walletHandler.setWallet(currentWallet);
+			}
+		}
+		EasyText.sendCommandSucess(commandContext,LCText.COMMAND_ADMIN_EMPTY_WALLET_SUCCESS.get(count), true);
 		return count;
 	}
 

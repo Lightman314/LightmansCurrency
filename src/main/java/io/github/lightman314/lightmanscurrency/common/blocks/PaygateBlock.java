@@ -92,7 +92,7 @@ public class PaygateBlock extends TraderBlockRotatable implements IVariantBlock 
 			//Use opposite side as the direction input is relative to the requestor
 			Direction relativeSide = IRotatableBlock.getRelativeSide(this.getFacing(state),dir.getOpposite());
 			if(be.allowOutputSide(relativeSide))
-				return be.getPowerLevel();
+				return be.getPowerLevel(relativeSide);
 		}
 		return 0;
 	}

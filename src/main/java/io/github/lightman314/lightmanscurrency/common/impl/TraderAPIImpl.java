@@ -86,19 +86,12 @@ public class TraderAPIImpl extends TraderAPI {
     }
 
     //Local private copy so that we don't have to re-process the string during the for loop of FilterTraders
-    @SuppressWarnings("deprecation")
     private boolean FilterTrader(@Nonnull TraderData data, @Nonnull PendingSearch search)
     {
         PendingSearch results = search.copy();
         //Check for failed filters
         for(ITraderSearchFilter filter : this.traderSearchFilters)
             filter.filter(data,results,data.registryAccess());
-        //Check old/normal search methods
-        for(ITraderSearchFilter filter : this.traderSearchFilters)
-        {
-            if(filter.filter(data,search.fullSearch,data.registryAccess()))
-                return true;
-        }
         return results.hasPassed();
     }
 
@@ -134,19 +127,12 @@ public class TraderAPIImpl extends TraderAPI {
         return this.FilterTrade(trade,PendingSearch.of(search),registryAccess);
     }
 
-    @SuppressWarnings("deprecation")
     private boolean FilterTrade(TradeData trade, PendingSearch search, RegistryAccess registryAccess)
     {
         PendingSearch results = search.copy();
         //Check for failed filters
         for(ITradeSearchFilter filter : this.tradeSearchFilters)
             filter.filterTrade(trade,results,registryAccess);
-        //Check old/normal search methods
-        for(ITradeSearchFilter filter : this.tradeSearchFilters)
-        {
-            if(filter.filterTrade(trade,search.fullSearch,registryAccess))
-                return true;
-        }
         return results.hasPassed();
     }
 

@@ -6,11 +6,15 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.serialization.JsonOps;
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperty;
+import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
+import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.GsonHelper;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -28,6 +32,7 @@ public class TooltipInfo {
     public final boolean drawOnSelection;
     public final boolean drawOnItem;
     public final boolean drawOnJade;
+    public TooltipInfo(Component tooltip) { this(ImmutableList.of(tooltip),true,true,true); }
     public TooltipInfo(List<Component> tooltip) { this(tooltip,true,true,true); }
     public TooltipInfo(List<Component> tooltip, boolean drawOnSelection, boolean drawOnItem, boolean drawOnJade)
     {
@@ -36,6 +41,9 @@ public class TooltipInfo {
         this.drawOnItem = drawOnItem;
         this.drawOnJade = drawOnJade;
     }
+
+    public static TooltipInfo ofModifier(TextEntry modifier) { return ofModifier(modifier.get()); }
+    public static TooltipInfo ofModifier(MutableComponent modifier) { return new TooltipInfo(LCText.BLOCK_VARIANT_MODIFIER_LABEL.get(modifier.withStyle(ChatFormatting.ITALIC,ChatFormatting.DARK_AQUA)).withStyle(ChatFormatting.GRAY)); }
 
     private static class TooltipInfoProperty extends VariantProperty<TooltipInfo>
     {
@@ -84,8 +92,8 @@ public class TooltipInfo {
                     json.add("tooltip",tooltipArray);
                 }
                 json.addProperty("selection",data.drawOnSelection);
-                json.addProperty("item",data.drawOnSelection);
-                json.addProperty("jade",data.drawOnSelection);
+                json.addProperty("item",data.drawOnItem);
+                json.addProperty("jade",data.drawOnJade);
                 return json;
             }
             else

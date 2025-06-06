@@ -121,12 +121,11 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderS
 
 		//Coin Slots
 		for(Slot slot : this.menu.getCoinSlots())
-			gui.blit(GUI_TEXTURE, slot.x - 1, slot.y - 1, this.imageWidth, 0, 18, 18);
-
+			gui.renderSlot(this,slot);
 
 		//Interaction Slot BG
 		if(this.menu.getInteractionSlot().isActive())
-			gui.blit(GUI_TEXTURE, this.menu.getInteractionSlot().x - 1, this.menu.getInteractionSlot().y - 1, this.imageWidth, 0, 18, 18);
+			gui.renderSlot(this,this.menu.getInteractionSlot());
 		
 		try { this.currentTab.renderBG(gui);
 		} catch(Throwable t) { LightmansCurrency.LogError("Error rendering trader tab " + this.currentTab.getClass().getName(), t); }

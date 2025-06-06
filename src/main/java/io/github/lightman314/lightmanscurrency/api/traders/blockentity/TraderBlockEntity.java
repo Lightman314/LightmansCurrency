@@ -177,12 +177,14 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		D newTrader = this.buildTrader(owner, placementStack);
 		//Update with the latest block variant data
 		if(this.getCurrentVariant() != null)
-			newTrader.setTraderBlockVariant(this.getCurrentVariant());
+			newTrader.setTraderBlockVariant(this.getCurrentVariant(),this.isVariantLocked());
 		//Register to the trading office
 		this.traderID = TraderAPI.API.CreateTrader(newTrader, owner);
 		this.checkTaxes(owner,newTrader);
 		//Send update packet to connected clients, so that they'll have the new trader id.
 		this.markDirty();
+		//Invalidate the capabilities
+		this.level.invalidateCapabilities(this.worldPosition);
 	}
 
 	private void checkTaxes(@Nonnull Player player, @Nonnull TraderData trader)
@@ -254,6 +256,8 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 				this.customTrader = null;
 				this.ignoreCustomTrader = true;
 				this.markDirty();
+				//Invalidate capabilities as a new trader was made
+				this.level.invalidateCapabilities(this.worldPosition);
 				LightmansCurrency.LogInfo("Successfully loaded custom trader at " + this.worldPosition.toShortString());
 			}
 		}
@@ -268,9 +272,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 	@Override
 	public void onLoad()
 	{
-		if(this.level.isClientSide)
-			BlockEntityUtil.requestUpdatePacket(this);
-		else
+		if(this.isServer())
 		{
 			//Update the traders block position to this position just in case we got moved by another block
 			this.moveCustomTrader(this.getTraderData());
@@ -319,11 +321,11 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 	public IUpgradeable getUpgradeable() { return this.getTraderData(); }
 
 	@Override
-	public void setVariant(@Nullable ResourceLocation variant) {
-		super.setVariant(variant);
+	public void setVariant(@Nullable ResourceLocation variant, boolean locked) {
+		super.setVariant(variant,locked);
 		TraderData t = this.getTraderData();
 		if(t != null)
-			t.setTraderBlockVariant(variant);
+			t.setTraderBlockVariant(variant,locked);
 	}
 
 }

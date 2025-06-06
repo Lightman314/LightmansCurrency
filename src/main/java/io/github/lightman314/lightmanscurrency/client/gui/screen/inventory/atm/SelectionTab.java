@@ -88,6 +88,9 @@ public class SelectionTab extends ATMTab {
 
 	}
 
+	@Override
+	public boolean blockInventoryClosing() { return true; }
+
 	private boolean canAccess(@Nonnull BankReference reference) { return reference.allowedAccess(this.menu.player); }
 
 	private BankReference getBankReference() { return this.screen.getMenu().getBankAccountReference(); }

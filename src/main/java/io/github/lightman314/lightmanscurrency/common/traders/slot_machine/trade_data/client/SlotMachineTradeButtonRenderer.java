@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.display.ItemEntry;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
@@ -54,7 +55,7 @@ public class SlotMachineTradeButtonRenderer extends TradeRenderManager<SlotMachi
         List<DisplayEntry> entries = new ArrayList<>();
         String odds = this.trade.trader.getOdds(entry.getWeight());
         for(ItemStack item : entry.items)
-            entries.add(DisplayEntry.of(item, item.getCount(), this.tweakTooltip(entry.getWeight(), odds)));
+            entries.add(ItemEntry.of(item, this.tweakTooltip(entry.getWeight(), odds)));
         return entries;
     }
 

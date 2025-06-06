@@ -83,7 +83,7 @@ public abstract class TradeRenderManager<T extends TradeData> {
                 extraTooltips = new ArrayList<>();
             extraTooltips.addFirst(LCText.TOOLTIP_TRADE_EDIT_PRICE.getWithStyle(ChatFormatting.YELLOW));
         }
-        return DisplayEntry.of(this.trade.getCost(context),extraTooltips);
+        return DisplayEntry.forMoneyWithAddedTooltip(this.trade.getCost(context),extraTooltips);
     }
 
     protected final boolean hasPermission(TradeContext context, String permission)

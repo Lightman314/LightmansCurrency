@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRen
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.display.ItemEntry;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.tradedata.GachaTradeData;
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
@@ -42,7 +43,7 @@ public class GachaTradeButtonRenderer extends TradeRenderManager<GachaTradeData>
         if(items.isEmpty())
             return ImmutableList.of();
         ItemStack display = ListUtil.randomItemFromList(items,ItemStack.EMPTY);
-        return ImmutableList.of(DisplayEntry.of(display,display.getCount(),this.getItemTooltips(items)));
+        return ImmutableList.of(ItemEntry.of(display,this.getItemTooltips(items)));
     }
 
     private List<Component> getItemTooltips(List<ItemStack> items) {

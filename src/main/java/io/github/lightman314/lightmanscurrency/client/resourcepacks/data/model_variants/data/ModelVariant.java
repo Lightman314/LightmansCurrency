@@ -7,12 +7,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperty;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantPropertyWithDefault;
 import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
-import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
@@ -34,6 +35,8 @@ import java.util.function.Supplier;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class ModelVariant {
+
+    public static Comparator<Pair<ResourceLocation,ModelVariant>> COMPARATOR = new VariantSorter();
 
     private boolean completelyInvalid = false;
     public boolean shouldRemove() { return this.completelyInvalid || (this.parentVariant != null && this.parentVariant.shouldRemove()); }
@@ -97,15 +100,15 @@ public class ModelVariant {
         return this.textureOverrides;
     }
 
-    private final Map<VariantProperty<?>,Object> properties;
+    private final Map<ResourceLocation,Object> properties;
 
     //Only exists for the "DefaultVariant" class
     protected ModelVariant() { this(null,new ArrayList<>(), new ArrayList<>(),null,null,new ArrayList<>(),new HashMap<>(),new HashMap<>(),true); }
-    private ModelVariant(@Nullable ResourceLocation parent, List<ResourceLocation> targets, @Nullable Component name, @Nullable ResourceLocation item, List<ResourceLocation> models, Map<String,ResourceLocation> textureOverrides, Map<VariantProperty<?>,Object> properties, boolean dummy)
+    private ModelVariant(@Nullable ResourceLocation parent, List<ResourceLocation> targets, @Nullable Component name, @Nullable ResourceLocation item, List<ResourceLocation> models, Map<String,ResourceLocation> textureOverrides, Map<ResourceLocation,Object> properties, boolean dummy)
     {
         this(parent,targets,ImmutableList.of(),name,item,models,textureOverrides,properties,dummy);
     }
-    private ModelVariant(@Nullable ResourceLocation parent, List<ResourceLocation> targets, List<String> selectorTargets, @Nullable Component name, @Nullable ResourceLocation item, List<ResourceLocation> models, Map<String,ResourceLocation> textureOverrides, Map<VariantProperty<?>,Object> properties, boolean dummy)
+    private ModelVariant(@Nullable ResourceLocation parent, List<ResourceLocation> targets, List<String> selectorTargets, @Nullable Component name, @Nullable ResourceLocation item, List<ResourceLocation> models, Map<String,ResourceLocation> textureOverrides, Map<ResourceLocation,Object> properties, boolean dummy)
     {
         this.parent = parent;
         this.targets = ImmutableList.copyOf(targets);
@@ -121,17 +124,25 @@ public class ModelVariant {
     public boolean has(VariantProperty<?> property) {
         if(this.parentVariant != null && this.parentVariant.has(property))
             return true;
-        return this.properties.containsKey(property);
+        return this.properties.containsKey(property.getID());
     }
 
     @Nullable
     public <T> T get(VariantProperty<T> property) {
         try {
-            if(!this.properties.containsKey(property) && this.parentVariant != null)
+            if(!this.properties.containsKey(property.getID()) && this.parentVariant != null)
                 return this.parentVariant.get(property);
-            return (T)this.properties.get(property);
+            return (T)this.properties.get(property.getID());
         } catch (ClassCastException e) { return null; }
     }
+
+    public <T> T getOrDefault(VariantProperty<T> property,T defaultValue)
+    {
+        T result = this.get(property);
+        return result == null ? defaultValue : result;
+    }
+
+    public <T> T getOrDefault(VariantPropertyWithDefault<T> property) { return this.getOrDefault(property,property.getMissingDefault()); }
 
     public JsonObject write()
     {
@@ -173,8 +184,9 @@ public class ModelVariant {
             this.textureOverrides.forEach((key,texture) -> textures.addProperty(key,texture.toString()));
             json.add("textures",textures);
         }
-        this.properties.forEach((property,value) -> {
+        this.properties.forEach((propID,value) -> {
             try {
+                VariantProperty<?> property = VariantProperty.getProperty(propID);
                 JsonElement element = property.write(value);
                 ResourceLocation id = property.getID();
                 String field;
@@ -262,12 +274,12 @@ public class ModelVariant {
                 textureOverrides.put(entry.getKey(),t);
             }
         }
-        Map<VariantProperty<?>,Object> properties = new HashMap<>();
+        Map<ResourceLocation,Object> properties = new HashMap<>();
         VariantProperty.forEach((id,property) -> {
             if(json.has(id.toString()))
-                properties.put(property,property.parse(json.get(id.toString())));
+                properties.put(id,property.parse(json.get(id.toString())));
             else if(id.getNamespace().equals(LightmansCurrency.MODID) && json.has(id.getPath()))
-                properties.put(property,property.parse(json.get(id.getPath())));
+                properties.put(id,property.parse(json.get(id.getPath())));
         });
         if(targets.isEmpty() && name == null && item == null && models.isEmpty() && textureOverrides.isEmpty() && properties.isEmpty())
         {
@@ -432,7 +444,7 @@ public class ModelVariant {
         private ResourceLocation item = null;
         private final List<ResourceLocation> models = new ArrayList<>();
         private final Map<String,ResourceLocation> textureOverrides = new HashMap<>();
-        private final Map<VariantProperty<?>,Object> properties = new HashMap<>();
+        private final Map<ResourceLocation,Object> properties = new HashMap<>();
         private boolean dummy = false;
 
         private Builder() { VariantProperty.confirmRegistration(); }
@@ -452,7 +464,9 @@ public class ModelVariant {
 
         public Builder withTexture(String textureKey, ResourceLocation texture) { this.textureOverrides.put(textureKey,texture); return this; }
 
-        public <T> Builder withProperty(VariantProperty<T> property, T value) { this.properties.put(property,value); return this; }
+        public <T> Builder withProperty(VariantProperty<T> property, T value) { this.properties.put(property.getID(),value); return this; }
+
+        public <T> Builder withProperty(VariantPropertyWithDefault<T> property) { this.properties.put(property.getID(),property.getBuilderDefault()); return this; }
 
         public Builder asDummy() { this.dummy = true; return this; }
 
@@ -534,6 +548,27 @@ public class ModelVariant {
             return builder.toString();
         }
 
+    }
+
+    private static class VariantSorter implements Comparator<Pair<ResourceLocation,ModelVariant>>
+    {
+        @Override
+        public int compare(Pair<ResourceLocation, ModelVariant> a, Pair<ResourceLocation, ModelVariant> b) {
+            ResourceLocation idA = a.getFirst();
+            ResourceLocation idB = b.getFirst();
+            if(idA == null)
+                return -1;
+            if(idB == null)
+                return 1;
+            ModelVariant varA = a.getSecond();
+            ModelVariant varB = b.getSecond();
+            String nameA = varA.getName().getString();
+            String nameB = varB.getName().getString();
+            int nameSort = nameA.compareToIgnoreCase(nameB);
+            if(nameSort == 0)
+                return idA.compareNamespaced(idB);
+            return nameSort;
+        }
     }
 
 }

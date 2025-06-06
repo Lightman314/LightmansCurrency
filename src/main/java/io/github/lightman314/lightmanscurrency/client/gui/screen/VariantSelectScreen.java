@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
@@ -14,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBa
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.DefaultModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
@@ -27,7 +29,6 @@ import net.minecraft.world.item.ItemStack;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -53,11 +54,14 @@ public class VariantSelectScreen extends EasyMenuScreen<VariantSelectMenu> imple
         temp.add(Pair.of(null, DefaultModelVariant.of(this.getMenu().getVariantBlock())));
         for(ResourceLocation id : this.getMenu().getVariantBlock().getValidVariants())
         {
-            ModelVariant variant = ModelVariantDataManager.getVariant(id);
-            if(variant != null)
-                temp.add(Pair.of(id,variant));
+            if(!LCConfig.SERVER.variantBlacklist.get().contains(id))
+            {
+                ModelVariant variant = ModelVariantDataManager.getVariant(id);
+                if(variant != null && !variant.getOrDefault(VariantProperties.HIDDEN))
+                    temp.add(Pair.of(id,variant));
+            }
         }
-        temp.sort(new VariantSorter());
+        temp.sort(ModelVariant.COMPARATOR);
         this.availableVariants = ImmutableList.copyOf(temp);
     }
 
@@ -194,27 +198,6 @@ public class VariantSelectScreen extends EasyMenuScreen<VariantSelectMenu> imple
         if(this.viewingVariant == null)
             return;
         this.menu.SetVariant(this.viewingVariant.getFirst());
-    }
-
-    private static class VariantSorter implements Comparator<Pair<ResourceLocation,ModelVariant>>
-    {
-        @Override
-        public int compare(Pair<ResourceLocation, ModelVariant> a, Pair<ResourceLocation, ModelVariant> b) {
-            ResourceLocation idA = a.getFirst();
-            ResourceLocation idB = b.getFirst();
-            if(idA == null)
-                return -1;
-            if(idB == null)
-                return 1;
-            ModelVariant varA = a.getSecond();
-            ModelVariant varB = b.getSecond();
-            String nameA = varA.getName().getString();
-            String nameB = varB.getName().getString();
-            int nameSort = nameA.compareToIgnoreCase(nameB);
-            if(nameSort == 0)
-                return idA.compareNamespaced(idB);
-            return nameSort;
-        }
     }
 
 }

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
+import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.BankAccountSelectButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
@@ -10,11 +11,15 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrolla
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -22,29 +27,51 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class BankAccountSelectionWidget extends EasyWidgetWithChildren implements IScrollable, Comparator<BankReference> {
+
+    public static final ResourceLocation SEARCH_BOX_TEXTURE = VersionUtil.lcResource("textures/gui/item_edit.png");
 
     private final int rows;
     private final Predicate<BankReference> filter;
     private final Supplier<BankReference> selectedAccount;
     private final Consumer<BankReference> consumer;
 
+    private EditBox searchBox;
+
+    private String lastSearch = "";
     private int scroll = 0;
 
-    private BankAccountSelectionWidget(@Nonnull Builder builder)
+    private BankAccountSelectionWidget(Builder builder)
     {
         super(builder);
         this.rows = builder.rows;
         this.filter = builder.filter;
         this.selectedAccount = builder.selectedAccount;
         this.consumer = builder.handler;
+        if(builder.oldWidget != null)
+        {
+            this.scroll = builder.oldWidget.scroll;
+            this.lastSearch = builder.oldWidget.lastSearch;
+        }
     }
 
     @Override
-    public void addChildren(@Nonnull ScreenArea area) {
+    public void addChildren(ScreenArea area) {
+        //Search
+        this.searchBox = this.addChild(TextInputUtil.stringBuilder()
+                .position(area.pos.offset(area.width - 88,2))
+                .startingString(this.lastSearch)
+                .handler(s -> this.lastSearch = s)
+                .size(79,9)
+                .noBorder()
+                .build());
         //Scroll Bar
         this.addChild(ScrollBarWidget.builder()
-                .onRight(this)
+                .position(area.pos.offset(area.width,12))
+                .height(area.height - 12)
+                .scrollable(this)
                 .addon(EasyAddonHelper.visibleCheck(this::isVisible))
                 .build());
         this.addChild(ScrollListener.builder()
@@ -55,7 +82,7 @@ public class BankAccountSelectionWidget extends EasyWidgetWithChildren implement
         {
             final int index = i;
             this.addChild(BankAccountSelectButton.builder()
-                    .position(area.pos.offset(0,i * BankAccountSelectButton.HEIGHT))
+                    .position(area.pos.offset(0,12 + (i * BankAccountSelectButton.HEIGHT)))
                     .width(this.width)
                     .pressAction(() -> this.selectAccount(index))
                     .currentlySelected(this.selectedAccount)
@@ -67,9 +94,19 @@ public class BankAccountSelectionWidget extends EasyWidgetWithChildren implement
 
     private List<BankReference> getBankAccounts()
     {
-        List<BankReference> list = new ArrayList<>(BankAPI.API.GetAllBankReferences(true).stream().filter(this.filter).toList());
+        List<BankReference> list = new ArrayList<>(BankAPI.API.GetAllBankReferences(true).stream().filter(this.filter).filter(this::searchFilter).toList());
         list.sort(this);
         return list;
+    }
+
+    private boolean searchFilter(BankReference reference)
+    {
+        if(this.lastSearch.isBlank())
+            return true;
+        IBankAccount account = reference == null ? null : reference.get();
+        if(account == null)
+            return false;
+        return account.getName().getString().toLowerCase().contains(this.lastSearch.toLowerCase());
     }
 
     @Nullable
@@ -90,8 +127,18 @@ public class BankAccountSelectionWidget extends EasyWidgetWithChildren implement
     }
 
     @Override
-    protected void renderWidget(@Nonnull EasyGuiGraphics gui) {
-        gui.fill(this.getArea().atPosition(ScreenPosition.ZERO),0xFF000000);
+    protected void renderWidget(EasyGuiGraphics gui) {
+        //Render Search Box
+        gui.blit(SEARCH_BOX_TEXTURE, this.width - 90, 0, 18, 0, 90, 12);
+        //Render Black BG
+        gui.fill(ScreenArea.of(ScreenPosition.of(0,12),this.width,this.height - 12),0xFF000000);
+    }
+
+    @Override
+    protected void renderTick() {
+        this.searchBox.visible = this.visible;
+        if(this.visible)
+            this.validateScroll();
     }
 
     @Override
@@ -121,7 +168,24 @@ public class BankAccountSelectionWidget extends EasyWidgetWithChildren implement
         if(rA == null && rB == null)
             return 0;
         //Otherwise sort by the accounts priority (inverted so that high priority is first)
-        return Integer.compare(rB.sortPriority(),rA.sortPriority());
+        int priority = Integer.compare(rB.sortPriority(),rA.sortPriority());
+        if(priority == 0)
+        {
+            //Sort by name
+            IBankAccount baA = rA.get();
+            IBankAccount baB = rB.get();
+            //Put null entries at the bottom of the list
+            if(baA != null && baB == null)
+                return -1;
+            if(baB != null && baA == null)
+                return 1;
+            if(baA == null && baB == null)
+                return 0;
+            //Sort by name
+            return baA.getName().getString().compareToIgnoreCase(baB.getName().getString());
+        }
+        else
+            return priority;
     }
 
     private boolean isCurrentAccount(@Nullable BankReference reference)
@@ -129,25 +193,27 @@ public class BankAccountSelectionWidget extends EasyWidgetWithChildren implement
         return reference != null && reference.equals(this.selectedAccount.get());
     }
 
-    @Nonnull
     public static Builder builder() { return new Builder(); }
 
-    @MethodsReturnNonnullByDefault
     @FieldsAreNonnullByDefault
     public static class Builder extends EasyBuilder<Builder>
     {
-        private Builder() { super(100,BankAccountSelectButton.HEIGHT); }
+        private Builder() { super(100,BankAccountSelectButton.HEIGHT + 12); }
 
         @Override
         protected Builder getSelf() { return this; }
 
+        @Nullable
+        BankAccountSelectionWidget oldWidget;
         int rows = 1;
         Predicate<BankReference> filter = r -> true;
         Supplier<BankReference> selectedAccount = () -> null;
         Consumer<BankReference> handler = r -> {};
 
+        public Builder oldWidget(@Nullable BankAccountSelectionWidget oldWidget) { this.oldWidget = oldWidget; return this; }
+
         public Builder width(int width) { this.changeWidth(width); return this; }
-        public Builder rows(int rows) { this.rows = rows; this.changeHeight(rows * BankAccountSelectButton.HEIGHT); return this; }
+        public Builder rows(int rows) { this.rows = rows; this.changeHeight((rows * BankAccountSelectButton.HEIGHT) + 12); return this; }
         public Builder filter(Predicate<BankReference> filter) { this.filter = filter; return this; }
         public Builder selected(Supplier<BankReference> selectedAccount) { this.selectedAccount = selectedAccount; return this; }
         public Builder handler(Consumer<BankReference> handler) { this.handler = handler; return this; }

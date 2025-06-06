@@ -112,7 +112,7 @@ public abstract class EasyWidget extends AbstractWidget {
         this.addons.forEach(WidgetAddon::activeTick);
     }
 
-    public void renderTickInternal() {
+    public final void renderTickInternal() {
         this.activeTickInternal();
         this.addons.forEach(WidgetAddon::renderTick);
         this.renderTick();

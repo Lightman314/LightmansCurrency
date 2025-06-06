@@ -454,7 +454,7 @@ public class ChainData {
         for(CoinEntry entry : existingEntries)
         {
             if(entry.matches(newEntry.getCoin()) || newEntry.matches(entry))
-                throw new JsonSyntaxException("Matching coin entry is already present");
+                throw new JsonSyntaxException("Matching coin entry for " + BuiltInRegistries.ITEM.getKey(newEntry.getCoin()) + " is already present");
         }
         existingEntries.add(newEntry);
     }

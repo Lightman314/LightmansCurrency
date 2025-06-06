@@ -110,7 +110,7 @@ public class WalletInventoryWrapper extends Inventory {
         return foundCount;
     }
 
-    public void clearContents()
+    public void clearContents(boolean finished)
     {
         //Give any leftover payment items back to the players wallet
         WalletHandler walletHandler = WalletHandler.get(this.player);
@@ -124,6 +124,8 @@ public class WalletInventoryWrapper extends Inventory {
                 if(!item.isEmpty())
                     ItemHandlerHelper.giveItemToPlayer(this.player,item);
             }
+            if(finished)
+                CoinAPI.API.CoinExchangeAllUp(walletContents);
             WalletItem.getDataWrapper(wallet).setContents(walletContents,this.player);
             walletHandler.setWallet(wallet);
             return;

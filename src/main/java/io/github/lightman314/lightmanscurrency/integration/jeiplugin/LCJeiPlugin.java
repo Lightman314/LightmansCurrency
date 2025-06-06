@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
@@ -28,12 +29,16 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.*;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
+import java.util.Objects;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -72,6 +77,13 @@ public class LCJeiPlugin implements IModPlugin{
 	@Override
 	public void registerItemSubtypes(ISubtypeRegistration registration) {
 		registration.registerSubtypeInterpreter(ModItems.COIN_ANCIENT.get(),new AncientCoinSubtype());
+		VariantSubtype variantSubtype = new VariantSubtype();
+		for(Item item : BuiltInRegistries.ITEM)
+		{
+			if(item instanceof BlockItem bi && bi.getBlock() instanceof IVariantBlock)
+				registration.registerSubtypeInterpreter(item,variantSubtype);
+
+		}
 	}
 
 	@Override
@@ -119,6 +131,15 @@ public class LCJeiPlugin implements IModPlugin{
 		public Object getSubtypeData(ItemStack ingredient, UidContext context) { return ingredient.getOrDefault(ModDataComponents.ANCIENT_COIN_TYPE,AncientCoinType.COPPER); }
 		@Override
 		public String getLegacyStringSubtypeInfo(ItemStack ingredient, UidContext context) { return String.valueOf(this.getSubtypeData(ingredient,context)); }
+	}
+
+	private static class VariantSubtype implements ISubtypeInterpreter<ItemStack>
+	{
+		@Override
+		@Nullable
+		public Object getSubtypeData(ItemStack ingredient, UidContext context) { return ingredient.getOrDefault(ModDataComponents.MODEL_VARIANT,null); }
+		@Override
+		public String getLegacyStringSubtypeInfo(ItemStack ingredient, UidContext context) { return Objects.toString(this.getSubtypeData(ingredient,context)); }
 	}
 	
 }

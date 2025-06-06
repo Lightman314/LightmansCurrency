@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_tr
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.ItemPositionManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
+import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.GachaMachineBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMachineBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.*;
@@ -89,11 +90,22 @@ public class ClientModEvents {
 		});
 		//Gacha Ball
 		event.register(GachaBallRenderer.MODEL);
+		//Gacha Machine Basic Graphics Models
+		for(ResourceLocation model : GachaMachineBlock.BASIC_MODELS)
+			event.register(ModelResourceLocation.standalone(model));
+		BuiltInRegistries.BLOCK.forEach(block -> {
+			if(block instanceof GachaMachineBlock b)
+			{
+				for(ResourceLocation model : b.getBasicModels())
+					event.register(ModelResourceLocation.standalone(model));
+			}
+		});
 	}
 
 	@SubscribeEvent
 	public static void onModelsBaked(ModelEvent.ModifyBakingResult event)
 	{
+		//Don't do anything if Model Variants aren't supposed to load
 		Map<ModelResourceLocation,BakedModel> modelRegistry = event.getModels();
 		List<ModelResourceLocation> wrappedModels = new ArrayList<>();
 		//Wrap each Variant Block item

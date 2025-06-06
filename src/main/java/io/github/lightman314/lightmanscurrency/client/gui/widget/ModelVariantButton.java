@@ -93,10 +93,10 @@ public class ModelVariantButton extends EasyButton implements ITooltipWidget {
         {
             TooltipInfo extraTooltip = entry.getSecond().get(VariantProperties.TOOLTIP_INFO);
             if(extraTooltip.drawOnSelection)
-                tooltip.addAll(TooltipHelper.splitTooltips(extraTooltip.getTooltip()));
+                tooltip.addAll(extraTooltip.getTooltip());
         }
         if(entry.getFirst() != null && Minecraft.getInstance().options.advancedItemTooltips)
-            tooltip.add(EasyText.literal(entry.getFirst().toString()).withStyle(ChatFormatting.GRAY));
+            tooltip.add(EasyText.literal(entry.getFirst().toString()).withStyle(ChatFormatting.DARK_GRAY));
         return tooltip;
     }
 

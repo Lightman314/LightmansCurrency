@@ -50,12 +50,7 @@ public class ModelVariantDataManager implements PreparableReloadListener {
     private Map<ResourceLocation,List<ResourceLocation>> variantsByTarget = new HashMap<>();
     private Map<VariantModelLocation,BakedModel> variantModels = new HashMap<>();
 
-    //private final AtlasSet atlases;
-
-    private ModelVariantDataManager() {
-        //Map<ResourceLocation, ResourceLocation> VANILLA_ATLASES = ClientHooks.gatherMaterialAtlases(Map.of(InventoryMenu.BLOCK_ATLAS,ResourceLocation.withDefaultNamespace("blocks")));
-        //this.atlases = new AtlasSet(VANILLA_ATLASES, Minecraft.getInstance().getTextureManager());
-    }
+    private ModelVariantDataManager() { }
 
     public static Map<ResourceLocation, CompletableFuture<AtlasSet.StitchResult>> atlasPreparation = null;
 

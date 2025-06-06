@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.display.ItemEntry;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
@@ -39,7 +40,7 @@ public class AuctionTradeButtonRenderer extends TradeRenderManager<AuctionTradeD
     public DisplayData inputDisplayArea(TradeContext context) { return new DisplayData(1, 1, 34, 16); }
 
     @Override
-    public List<DisplayEntry> getInputDisplays(TradeContext context) { return Lists.newArrayList(DisplayEntry.of(this.trade.getLastBidAmount(), this.getBidInfo(), true)); }
+    public List<DisplayEntry> getInputDisplays(TradeContext context) { return Lists.newArrayList(DisplayEntry.forMoneyWithSetTooltip(this.trade.getLastBidAmount(), this.getBidInfo())); }
 
     private List<Component> getBidInfo() {
         List<Component> bidInfo = new ArrayList<>();
@@ -68,7 +69,7 @@ public class AuctionTradeButtonRenderer extends TradeRenderManager<AuctionTradeD
         List<DisplayEntry> entries = new ArrayList<>();
         for (ItemStack item : this.trade.getAuctionItems()) {
             if (!item.isEmpty())
-                entries.add(DisplayEntry.of(item, item.getCount()));
+                entries.add(ItemEntry.of(item));
         }
         return entries;
     }

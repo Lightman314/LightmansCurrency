@@ -43,7 +43,6 @@ public class AncientMoneyType extends CurrencyType {
     private static final Comparator<AncientMoneyValue> TYPE_SORTER = new TypeSorter();
 
     private AncientMoneyType() { super(TYPE); }
-
     
     @Override
     protected MoneyValue sumValuesInternal(List<MoneyValue> values) {

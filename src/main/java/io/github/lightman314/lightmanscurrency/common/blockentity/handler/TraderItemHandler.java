@@ -5,6 +5,7 @@ import java.util.Map;
 
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -38,21 +39,25 @@ public class TraderItemHandler<T extends InputTraderData & TraderItemHandler.IIt
 		
 		protected final boolean allowsInputs() { return this.trader.allowInputSide(this.side); }
 		protected final boolean allowsOutputs() { return this.trader.allowOutputSide(this.side); }
-		
+
+		protected final boolean isGhostSlot(int slot) { return slot >= this.getStorage().getContents().size(); }
+
+		protected final void validateSlot(int slot) { if(slot < 0) throw new RuntimeException("Slot cannot be negative!"); }
+
 		@Override
 		public int getSlots() {
 			//Return 1 more slot than we have so that we always have an empty slot that can accept new items.
-			return this.getStorage().getContents().size() + 1;
+			return this.getStorage().getContents().size() + 9;
 		}
 		
 		@Nonnull
 		@Override
 		public ItemStack getStackInSlot(int slot) {
-			//If within the slot count of the storage, return the contents
-			if(slot >= 0 && slot < this.getStorage().getContents().size())
-				return this.getStorage().getContents().get(slot);
-			//Extra empty slot
-			return ItemStack.EMPTY;
+			if(this.isGhostSlot(slot))
+				return ItemStack.EMPTY;
+			this.validateSlot(slot);
+			//Return the item in that slot
+			return this.getStorage().getContents().get(slot);
 		}
 
 		@Override
@@ -60,7 +65,17 @@ public class TraderItemHandler<T extends InputTraderData & TraderItemHandler.IIt
 
 		@Override
 		public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-			return this.allowsInputs() && this.getStorage().allowItem(stack);
+			return this.allowsInputs() && this.getStorage().allowItem(stack) && this.allowedInGhostSlot(slot,stack);
+		}
+
+
+
+		private boolean allowedInGhostSlot(int slot, @Nonnull ItemStack stack)
+		{
+			if(slot >= this.getStorage().getContents().size())
+				return this.getStorage().getContents().stream().noneMatch(s -> InventoryUtil.ItemMatches(s,stack));
+			//Not a bonus slot, so it's always allowed
+			return true;
 		}
 		
 		public boolean allowExtraction(@Nonnull ItemStack stack) { return this.trader.allowExtraction(stack); }

@@ -48,8 +48,9 @@ public final class LCConfig {
 
         public final IntOption itemRenderLimit = IntOption.create(Integer.MAX_VALUE, 0);
         public final CustomItemScaleConfigOption itemScaleOverrides = CustomItemScaleConfigOption.create(new CustomItemScaleData(Lists.newArrayList(Pair.of(CustomItemScaleData.create(LCTags.Items.DRAW_HALF_SIZE),0.5f))));
-        public final BooleanOption drawGachaMachineItems = BooleanOption.createFalse();
         public final BooleanOption drawGachaBallItem = BooleanOption.createTrue();
+        public final BooleanOption gachaMachineFancyGraphics = BooleanOption.createTrue();
+        public final BooleanOption loadModelVariants = BooleanOption.createTrue();
 
         public final StringOption timeFormat = StringOption.create("MM/dd/yy hh:mmaa");
 
@@ -93,13 +94,19 @@ public final class LCConfig {
             builder.comment("A list of item ids or item tags that should be rendered by Item Traders at a different scale.")
                     .add("itemScaleOverrides",this.itemScaleOverrides);
 
-            builder.comment("Whether the Gacha Machine should display the items within the gacha balls",
-                            "Enabling will double the number of items being rendered, and can cause FPS issues near Gacha Machines")
-                    .add("gachaMachineFullRender",this.drawGachaMachineItems);
-
             builder.comment("Whether the Gacha Ball should render the item inside",
-                            "Enabling will double the number of items being rendered, and can cause FPS issues near Gacha Machines")
+                            "Enabling will double the number of items being rendered, and can cause FPS issues near Gacha Machines if their fancy graphics are enabled")
                     .add("gachaBallFullRender",this.drawGachaBallItem);
+
+            builder.comment("Whether the Gacha Machine will render each Gacha Ball individually",
+                            "Disable if you're having FPS issues near the Gacha Machine, this will make the machine render a far more simplisitic representation of its contents.")
+                    .add("gachaMachineFancyGraphics",this.gachaMachineFancyGraphics);
+
+            builder.comment("Whether the Model Variant system will be loaded",
+                            "If disabled, you will be unable to select model variants with the wand (only the default model will appear)",
+                            "and all blocks with variants currently applied will only use the default model.",
+                            "Requires a resource pack reload for changes to be applied")
+                    .add("loadVariantData",this.loadModelVariants);
 
             builder.pop();
 
@@ -697,6 +704,7 @@ public final class LCConfig {
         public final BooleanOption bankAccountInterestNotification = BooleanOption.createTrue();
         public final IntOption bankAccountInterestTime = IntOption.create(1728000, 1200, 630720000);
         public final MoneyValueListOption bankAccountInterestLimits = MoneyValueListOption.createNonEmpty(ArrayList::new);
+        public final StringListOption bankAccountInterestBlacklist = StringListOption.create(ArrayList::new);
 
         //Terminal Options
         public final BooleanOption openTerminalCommand = BooleanOption.createFalse();
@@ -719,6 +727,9 @@ public final class LCConfig {
 
         //Chocolate Coin Options
         public final BooleanOption chocolateCoinEffects = BooleanOption.createTrue();
+
+        //Variant
+        public final ResourceListOption variantBlacklist = ResourceListOption.create(ArrayList::new);
 
         //Claim Purchasing
         public final BooleanOption claimingAllowClaimPurchase = BooleanOption.createFalse();
@@ -945,6 +956,12 @@ public final class LCConfig {
                             "Adding \"coin;1-lightmanscurrency:coin_netherite\" to this list will make it so that players will get no more than 1 netherite coin worth of interest even if they would normally get more.")
                     .add("interestUpperLimits", this.bankAccountInterestLimits);
 
+            builder.comment("A list of Money Value unique ids that should not have interest applied to them.",
+                            "Example:",
+                            "Adding \"lightmanscurrency:coins!chocolate_coins\" will prevent chocolate coins from getting interest,",
+                            "Adding \"lightmanscurrency:coins!*\" will prevent all built-in money types from getting interest")
+                    .add("interestBlacklist",this.bankAccountInterestBlacklist);
+
             builder.pop();
 
             builder.comment("Network Terminal Settings").push("terminal");
@@ -959,7 +976,7 @@ public final class LCConfig {
 
             builder.comment("Paygate Settings").push("paygate");
 
-            builder.comment("The maximum number of ticks that a paygate can be set to output a redstone signal for.",
+            builder.comment("The maximum number of ticks that a paygate can be set to output a redstone signal for",
                             "Note: 20t = 1s")
                     .add("maxRedstoneDuration", this.paygateMaxDuration);
 
@@ -1006,6 +1023,14 @@ public final class LCConfig {
 
             builder.comment("Whether the Chocolate Coins will give players custom potion and/or healing effects on consumption.")
                     .add("chocolateEffects", this.chocolateCoinEffects);
+
+            builder.pop();
+
+            builder.comment("Model Variant Settings").push("model_variants");
+
+            builder.comment("A list of Model Variant ids that will be hidden from the Variant Select Menu on the client,",
+                            "and cannot be selected in said menu.")
+                    .add("variantBlacklist",this.variantBlacklist);
 
             builder.pop();
 

@@ -1,7 +1,13 @@
 package io.github.lightman314.lightmanscurrency;
 
 import com.google.common.base.Suppliers;
+import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.ModRegistries;
 import io.github.lightman314.lightmanscurrency.common.core.groups.BundleRequestFilter;
@@ -17,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Unit;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.ItemLike;
@@ -296,11 +303,39 @@ public class ModCreativeGroups {
         };
     }
 
-    public static void ezPop(CreativeModeTab.Output populator, Supplier<? extends ItemLike> item)  { populator.accept(item.get()); }
-    public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBundle<? extends ItemLike,?> bundle) { bundle.getAllSorted().forEach(populator::accept); }
-    public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBundle<? extends ItemLike,?> bundle, BundleRequestFilter filter) { bundle.getAllSorted(filter).forEach(populator::accept); }
-    public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBiBundle<? extends ItemLike,?,?> bundle) { bundle.getAllSorted().forEach(populator::accept); }
-    public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBiBundle<? extends ItemLike,?,?> bundle, BundleRequestFilter filter) { bundle.getAllSorted(filter).forEach(populator::accept); }
+    public static void ezPop(CreativeModeTab.Output populator, ItemLike item)  {
+        populator.accept(item);
+        //Check for variants
+        if(item.asItem() instanceof BlockItem bi && bi.getBlock() instanceof IVariantBlock vb && LightmansCurrency.getProxy().isClient())
+        {
+            List<Pair<ResourceLocation,ModelVariant>> foundVariants = new ArrayList<>();
+            LightmansCurrency.LogDebug("Checking if " + new ItemStack(item).getHoverName().getString() + " should add any variants to the creative menu!");
+            for(ResourceLocation variantID : vb.getValidVariants())
+            {
+                ModelVariant variant = ModelVariantDataManager.getVariant(variantID);
+                if(variant != null && variant.getOrDefault(VariantProperties.SHOW_IN_CREATIVE).show())
+                    foundVariants.add(Pair.of(variantID,variant));
+            }
+            if(!foundVariants.isEmpty())
+            {
+                foundVariants.sort(ModelVariant.COMPARATOR);
+                for(Pair<ResourceLocation,ModelVariant> entry : foundVariants)
+                {
+                    ItemStack stack = new ItemStack(item);
+                    stack.set(ModDataComponents.MODEL_VARIANT,entry.getFirst());
+                    if(entry.getSecond().get(VariantProperties.SHOW_IN_CREATIVE).locked())
+                        stack.set(ModDataComponents.VARIANT_LOCK, Unit.INSTANCE);
+                    populator.accept(stack);
+                }
+            }
+        }
+    }
+    public static void ezPop(CreativeModeTab.Output populator, List<? extends ItemLike> items) { for(ItemLike i : items) ezPop(populator,i); }
+    public static void ezPop(CreativeModeTab.Output populator, Supplier<? extends ItemLike> item)  { ezPop(populator,item.get()); }
+    public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBundle<? extends ItemLike,?> bundle) { ezPop(populator,bundle.getAllSorted()); }
+    public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBundle<? extends ItemLike,?> bundle, BundleRequestFilter filter) { ezPop(populator,bundle.getAllSorted(filter)); }
+    public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBiBundle<? extends ItemLike,?,?> bundle) { ezPop(populator,bundle.getAllSorted()); }
+    public static void ezPop(CreativeModeTab.Output populator, RegistryObjectBiBundle<? extends ItemLike,?,?> bundle, BundleRequestFilter filter) { ezPop(populator,bundle.getAllSorted(filter)); }
 
     private static Collection<ItemStack> convertToStack(Collection<? extends ItemLike> list) {
         List<ItemStack> result = new ArrayList<>();

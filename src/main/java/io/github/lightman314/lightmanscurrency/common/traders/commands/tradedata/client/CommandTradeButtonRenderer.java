@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRen
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.display.ScrollingTextEntry;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.traders.commands.CommandTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.commands.tradedata.CommandTrade;
@@ -36,7 +37,7 @@ public class CommandTradeButtonRenderer extends TradeRenderManager<CommandTrade>
     public DisplayData outputDisplayArea(TradeContext context) { return new DisplayData(60,1,127,16); }
 
     @Override
-    public List<DisplayEntry> getOutputDisplays(TradeContext context) { return ImmutableList.of(DisplayEntry.of(EasyText.literal(this.trade.getCommandDisplay()),0xFFFFFF, TooltipHelper.splitTooltips(this.trade.getCommandTooltip()))); }
+    public List<DisplayEntry> getOutputDisplays(TradeContext context) { return ImmutableList.of(ScrollingTextEntry.of(EasyText.literal(this.trade.getCommandDisplay()),0xFFFFFF, TooltipHelper.splitTooltips(this.trade.getCommandTooltip()))); }
 
     @Override
     protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) {

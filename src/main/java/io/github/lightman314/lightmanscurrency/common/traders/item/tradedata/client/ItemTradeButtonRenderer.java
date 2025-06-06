@@ -5,6 +5,8 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.display.EmptySlotEntry;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.display.ItemAndBackgroundEntry;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
@@ -77,7 +79,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
         {
             ItemStack item = this.trade.getSellItem(i);
             if(!item.isEmpty())
-                entries.add(DisplayEntry.of(item, item.getCount(), this.getSaleItemTooltip(item, this.trade.getCustomName(i), this.trade.getEnforceNBT(i), context), this.getNBTHightlight(this.trade.getEnforceNBT(i))));
+                entries.add(ItemAndBackgroundEntry.of(item, this.getSaleItemTooltip(item, this.trade.getCustomName(i), this.trade.getEnforceNBT(i), context), this.getNBTHightlight(this.trade.getEnforceNBT(i))));
             else if(context.isStorageMode)
                 entries.add(this.makeEmptySlot(this.trade.getRestriction().getEmptySlotBG(),context));
         }
@@ -124,7 +126,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
         {
             ItemStack item = this.trade.getBarterItem(i);
             if(!item.isEmpty())
-                entries.add(DisplayEntry.of(item, item.getCount(), this.getBarterTooltips(this.trade.getEnforceNBT(i + 2), context.isStorageMode, context), this.getNBTHightlight(this.trade.getEnforceNBT(i + 2))));
+                entries.add(ItemAndBackgroundEntry.of(item, this.getBarterTooltips(this.trade.getEnforceNBT(i + 2), context.isStorageMode, context), this.getNBTHightlight(this.trade.getEnforceNBT(i + 2))));
             else if(context.isStorageMode)
                 entries.add(this.makeEmptySlot(EasySlot.BACKGROUND,context));
         }
@@ -133,7 +135,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
 
     private DisplayEntry makeEmptySlot(Pair<ResourceLocation,ResourceLocation> background, TradeContext context)
     {
-        return DisplayEntry.of(background,this.hasPermission(context,Permissions.EDIT_TRADES) ? LCText.TOOLTIP_TRADE_ITEM_EDIT_EMPTY.getAsListWithStyle(ChatFormatting.YELLOW) : null);
+        return EmptySlotEntry.of(background,this.hasPermission(context,Permissions.EDIT_TRADES) ? LCText.TOOLTIP_TRADE_ITEM_EDIT_EMPTY.getAsListWithStyle(ChatFormatting.YELLOW) : null);
     }
 
     private Pair<ResourceLocation,ResourceLocation> getNBTHightlight(boolean enforceNBT) {

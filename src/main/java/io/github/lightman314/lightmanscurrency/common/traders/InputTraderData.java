@@ -121,7 +121,7 @@ public abstract class InputTraderData extends TraderData implements IDirectional
 				}
 			}
 		}
-		
+		//Load deprecated output sides
 		if(compound.contains("OutputSides") && this.allowOutputs())
 		{
 			CompoundTag tag = compound.getCompound("OutputSides");

@@ -58,6 +58,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.items.IItemHandler;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -76,6 +77,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	public IItemHandler getItemHandler(Direction relativeSide) { return this.itemHandler.getHandler(relativeSide); }
 	
 	protected TraderItemStorage storage = new TraderItemStorage(this);
+	@Nonnull
 	public final TraderItemStorage getStorage() { return this.storage; }
 	public void markStorageDirty() { this.markDirty(this::saveStorage); }
 

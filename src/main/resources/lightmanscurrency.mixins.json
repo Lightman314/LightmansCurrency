@@ -2,7 +2,7 @@
   "required": true,
   "package": "io.github.lightman314.lightmanscurrency.mixin",
   "compatibilityLevel": "JAVA_17",
-  "plugin": "io.github.lightman314.lightmanscurrency.mixin.LCMixinPlugin",
+  "plugin": "io.github.lightman314.lightmanscurrency.mixin.plugin.LCMixinPlugin",
   "mixins": [
     "AbstractContainerMenuAccessor",
     "EntityMixin",

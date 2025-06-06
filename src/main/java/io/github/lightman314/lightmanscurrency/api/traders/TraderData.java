@@ -41,6 +41,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.*;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.addons.MiscTabAddon;
+import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVariantSupportingBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.TraderEjectionData;
@@ -230,8 +232,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 					//Give the item this traders ID for future loading
 					result.set(ModDataComponents.TRADER_ITEM_DATA,new TraderItemData(this.id));
 					//Add the model variant to the item
-					if(this.blockVariant != null)
-						result.set(ModDataComponents.MODEL_VARIANT,this.blockVariant);
+					IVariantSupportingBlockEntity.copyDataToItem(this.blockVariant,this.blockVariantLocked,result);
 					//Give the item to the player
 					ItemHandlerHelper.giveItemToPlayer(player,result);
 				}
@@ -443,10 +444,19 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	private ResourceLocation blockVariant;
 	@Nullable
 	public ResourceLocation getTraderBlockVariant() { return this.blockVariant; }
-	public void setTraderBlockVariant(@Nullable ResourceLocation blockVariant) {
+	public void setTraderBlockVariant(@Nullable ResourceLocation blockVariant, boolean variantLocked) {
 		this.blockVariant = blockVariant;
-		this.markDirty(this::saveTraderItem);
+		this.blockVariantLocked = variantLocked;
+		//Manually write sync packet, so we can write "NoTraderVariant" data for sync purposes
+		CompoundTag packet = new CompoundTag();
+		if(this.blockVariant != null)
+			packet.putString("TraderVariant",this.blockVariant.toString());
+		else
+			packet.putBoolean("NoTraderVariant",true);
+		packet.putBoolean("TraderVariantLocked",this.blockVariantLocked);
+		this.markDirty(packet);
 	}
+	private boolean blockVariantLocked = false;
 
 	@Override
 	public void onDataChanged(EasyData<?> data) { this.markDirty(data::write); }
@@ -832,8 +842,8 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 			compound.putString("TraderBlock", BuiltInRegistries.ITEM.getKey(this.traderBlock).toString());
 		if(this.blockVariant != null)
 			compound.putString("TraderVariant",this.blockVariant.toString());
-		else
-			compound.putBoolean("NoTraderVariant",true);
+		if(this.blockVariantLocked)
+			compound.putBoolean("TraderVariantLocked",true);
 	}
 	
 	protected final void saveOwner(CompoundTag compound,HolderLookup.Provider lookup) { compound.put("OwnerData", this.owner.save(lookup)); }
@@ -953,6 +963,9 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		}
 		else if(compound.contains("NoTraderVariant"))
 			this.blockVariant = null;
+
+		if(compound.contains("TraderVariantLocked"))
+			this.blockVariantLocked = compound.getBoolean("TraderVariantLocked");
 		
 		if(compound.contains("OwnerData", Tag.TAG_COMPOUND))
 			this.owner.load(compound.getCompound("OwnerData"),lookup);
@@ -1192,8 +1205,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 				blockStack = b.getDropBlockItem(level, pos, state);
 			if(blockStack.isEmpty())
 				LightmansCurrency.LogWarning("Block drop for trader is empty!");
-			else if(this.blockVariant != null)
-				blockStack.set(ModDataComponents.MODEL_VARIANT,this.blockVariant);
+			IVariantSupportingBlockEntity.copyDataToItem(this.blockVariant,this.blockVariantLocked,blockStack);
 		}
 		return this.getContents(blockStack);
 	}
@@ -1240,8 +1252,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		if(!item.isEmpty())
 		{
 			item.set(ModDataComponents.TRADER_ITEM_DATA,new TraderItemData(this.getID()));
-			if(this.blockVariant != null)
-				item.set(ModDataComponents.MODEL_VARIANT,this.blockVariant);
+			IVariantSupportingBlockEntity.copyDataToItem(this.blockVariant,this.blockVariantLocked,item);
 		}
 		//Set State to Ejected
 		this.setState(TraderState.EJECTED);
@@ -1634,6 +1645,9 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 
 	@OnlyIn(Dist.CLIENT)
 	public void onStorageScreenInit(ITraderStorageScreen screen, Consumer<Object> addWidget) { }
+
+	@OnlyIn(Dist.CLIENT)
+	public List<MiscTabAddon> getMiscTabAddons() { return new ArrayList<>(); }
 
 	@Nullable
 	@Override

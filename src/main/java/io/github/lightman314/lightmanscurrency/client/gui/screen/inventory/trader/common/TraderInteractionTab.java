@@ -60,7 +60,7 @@ public class TraderInteractionTab extends TraderClientTab {
 				{
 					Slot slot = this.menu.getSlots().get(s);
 					//Replace slot bg with the hightlighted version.
-					gui.blit(TraderScreen.GUI_TEXTURE,slot.x - 1, slot.y - 1, this.screen.getXSize(), 24, 18, 18);
+					gui.renderSlot(this.screen,slot.x,slot.y,EasyGuiGraphics.SLOT_YELLOW);
 				}
 			}
 		}

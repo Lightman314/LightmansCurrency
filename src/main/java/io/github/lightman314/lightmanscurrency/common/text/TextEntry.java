@@ -82,6 +82,7 @@ public final class TextEntry {
     public static TextEntry chainDisplayWordy(String chain) { return new TextEntry("lightmanscurrency.money.chain." + chain + ".display.wordy"); }
     public static TextEntry lcStat(StatKey<?,?> statKey) { return new TextEntry(StatType.getTranslationKey(statKey.key)); }
     public static TextEntry blockVariant(String type) { return new TextEntry("lightmanscurrency.block_variant." + type); }
+    public static TextEntry blockVariantModifier(String type) { return new TextEntry("lightmanscurrency.block_variant.modifier." + type); }
     public static List<TextEntry> blockVariantList(String type, int size) {
         List<TextEntry> list = new ArrayList<>();
         for(int i = 1; i <= size; ++i)

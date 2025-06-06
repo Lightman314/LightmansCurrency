@@ -25,6 +25,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -33,26 +34,25 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 
 	private boolean isClient = false;
 	@Override
 	public boolean isClient() { return this.isClient; }
 
-	@Nonnull
 	public BankAccount flagAsClient() { return this.flagAsClient(true); }
-	@Nonnull
 	public BankAccount flagAsClient(boolean isClient) { this.isClient = isClient; if(this.isClient) this.logger.flagAsClient(); return this; }
-	@Nonnull
-	public BankAccount flagAsClient(@Nonnull IClientTracker parent) { return this.flagAsClient(parent.isClient()); }
+	public BankAccount flagAsClient(IClientTracker parent) { return this.flagAsClient(parent.isClient()); }
 
 	private final Runnable markDirty;
 	
 	private final MoneyStorage coinStorage = new MoneyStorage(this::markDirty);
-	@Nonnull
+	
 	public MoneyStorage getMoneyStorage() { return this.coinStorage; }
 
 	int cardValidation = 0;
@@ -65,15 +65,15 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	protected IMoneyHolder getParent() { return this.coinStorage; }
 
 	private final Map<String,MoneyValue> notificationLevels = new HashMap<>();
-	@Nonnull
+	
 	@Override
 	public Map<String,MoneyValue> getNotificationLevels() { return ImmutableMap.copyOf(this.notificationLevels); }
-	@Nonnull
+	
 	@Override
-	public MoneyValue getNotificationLevelFor(@Nonnull String type) { return this.notificationLevels.getOrDefault(type, MoneyValue.empty()); }
+	public MoneyValue getNotificationLevelFor(String type) { return this.notificationLevels.getOrDefault(type, MoneyValue.empty()); }
 
 	@Override
-	public void setNotificationLevel(@Nonnull String type, @Nonnull MoneyValue value) {
+	public void setNotificationLevel(String type, MoneyValue value) {
 		if(value.isEmpty())
 			this.notificationLevels.remove(type);
 		else
@@ -85,12 +85,12 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	public void setNotificationConsumer(Consumer<Supplier<Notification>> notificationSender) { this.notificationSender = notificationSender; }
 
 	@Override
-	public void pushLocalNotification(@Nonnull Notification notification) {
+	public void pushLocalNotification(Notification notification) {
 		this.logger.addNotification(notification);
 		this.markDirty();
 	}
 	@Override
-	public void pushNotification(@Nonnull Supplier<Notification> notification, boolean notifyPlayers) {
+	public void pushNotification(Supplier<Notification> notification, boolean notifyPlayers) {
 		this.pushLocalNotification(notification.get());
 		if(notifyPlayers && this.notificationSender != null)
 			this.notificationSender.accept(notification);
@@ -101,7 +101,7 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	}
 	
 	private final NotificationData logger = new NotificationData();
-	@Nonnull
+	
 	@Override
 	public List<Notification> getNotifications() { return this.logger.getNotifications(); }
 	
@@ -109,15 +109,14 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	public String getOwnersName() { return this.ownerName; }
 	public void updateOwnersName(String ownerName) { this.ownerName = ownerName; }
 	@Override
-	@Nonnull
 	public MutableComponent getName() { return LCText.GUI_BANK_ACCOUNT_NAME.get(this.ownerName); }
 
 	@Override
-	public void depositMoney(@Nonnull MoneyValue depositAmount) { this.coinStorage.addValue(depositAmount); }
+	public void depositMoney(MoneyValue depositAmount) { this.coinStorage.addValue(depositAmount); }
 
-	@Nonnull
+	
 	@Override
-	public MoneyValue withdrawMoney(@Nonnull MoneyValue withdrawAmount) {
+	public MoneyValue withdrawMoney(MoneyValue withdrawAmount) {
 		String type = withdrawAmount.getUniqueName();
 		withdrawAmount = this.coinStorage.capValue(withdrawAmount);
 		//Cannot withdraw if none is in storage
@@ -154,8 +153,8 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	public BankAccount() { this(null); }
 	public BankAccount(Runnable markDirty) { this.markDirty = markDirty; }
 	
-	public BankAccount(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) { this(null, compound, lookup); }
-	public BankAccount(Runnable markDirty, CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	public BankAccount(CompoundTag compound,HolderLookup.Provider lookup) { this(null, compound, lookup); }
+	public BankAccount(Runnable markDirty, CompoundTag compound, HolderLookup.Provider lookup) {
 		this.markDirty = markDirty;
 		this.coinStorage.safeLoad(compound, "CoinStorage");
 		this.logger.load(compound.getCompound("AccountLogs"),lookup);
@@ -186,7 +185,7 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 			this.markDirty.run();
 	}
 	
-	public final CompoundTag save(@Nonnull HolderLookup.Provider lookup) {
+	public final CompoundTag save(HolderLookup.Provider lookup) {
 		CompoundTag compound = new CompoundTag();
 		compound.put("CoinStorage", this.coinStorage.save());
 		compound.put("AccountLogs", this.logger.save(lookup));
@@ -199,7 +198,7 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	}
 
 	@Override
-	public void formatTooltip(@Nonnull List<Component> tooltip) {
+	public void formatTooltip(List<Component> tooltip) {
 		IMoneyHolder.defaultTooltipFormat(tooltip, this.getTooltipTitle(), this.getStoredMoney());
 	}
 
@@ -207,11 +206,11 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	public Component getTooltipTitle() { return LCText.TOOLTIP_MONEY_SOURCE_BANK.get(); }
 
 	@Override
-	public void applyInterest(double interestMultiplier, @Nonnull List<MoneyValue> limits, boolean forceInterest, boolean notifyPlayers) {
+	public void applyInterest(double interestMultiplier, List<MoneyValue> limits, List<String> blacklist, boolean forceInterest, boolean notifyPlayers) {
 		for(MoneyValue value : this.coinStorage.allValues())
 		{
 			//Don't calculate interest if the value has decided to opt out
-			if(!value.allowInterest())
+			if(!value.allowInterest() || isBlacklisted(blacklist,value))
 				continue;
 			MoneyValue interest = value.multiplyValue(interestMultiplier);
 			if(interest.isEmpty() && forceInterest)
@@ -234,6 +233,16 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 				}
 			}
 		}
+	}
+
+	private static boolean isBlacklisted(List<String> blacklist, MoneyValue value)
+	{
+		String id = value.getUniqueName();
+		return blacklist.stream().anyMatch(entry -> {
+			if(entry.endsWith("*"))
+                return id.startsWith(entry.substring(0, entry.length() - 1));
+			return entry.equals(id);
+		});
 	}
 
 }

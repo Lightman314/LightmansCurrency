@@ -99,6 +99,8 @@ public class PendingSearch {
         if(this.filteredResults.containsKey(filter))
         {
             Result<List<String>> result = this.filteredResults.get(filter);
+            if(result.passed)
+                return;
             boolean pass = true;
             for(String string : result.value)
             {

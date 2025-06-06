@@ -8,6 +8,7 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.fml.ModLoader;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Map;
 import java.util.Objects;
@@ -18,9 +19,6 @@ import java.util.function.BiConsumer;
 public abstract class VariantProperty<T> {
 
     private static Map<ResourceLocation,VariantProperty<?>> registry = null;
-
-    @Deprecated(since = "2.2.5.3")
-    public static void register(ResourceLocation type,VariantProperty<?> property) { property.id = type; }
 
     private ResourceLocation id;
     public ResourceLocation getID() { return Objects.requireNonNull(id,"VariantProperty has not been properly registered!"); }
@@ -34,6 +32,12 @@ public abstract class VariantProperty<T> {
         if(obj instanceof VariantProperty<?> other)
             return other.getClass() == this.getClass() && other.getID().equals(this.getID());
         return false;
+    }
+
+    @Nullable
+    public static VariantProperty<?> getProperty(ResourceLocation id) {
+        confirmRegistration();
+        return registry.get(id);
     }
 
     public static void forEach(BiConsumer<ResourceLocation,VariantProperty<?>> consumer) {

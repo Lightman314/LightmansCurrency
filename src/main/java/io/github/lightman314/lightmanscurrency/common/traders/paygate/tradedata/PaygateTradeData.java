@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -12,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettings;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.IDirectionalSettingsObject;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.IDescriptionTrade;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
@@ -19,6 +21,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.api.ticket.TicketGroupData;
 import io.github.lightman314.lightmanscurrency.common.text.TimeUnitTextEntry;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.common.traders.paygate.OutputConflictHandling;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.client.PaygateTradeButtonRenderer;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
@@ -30,6 +33,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.B
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.DemandPricing;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -46,10 +50,12 @@ import net.minecraft.world.level.block.Block;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-public class PaygateTradeData extends TradeData implements IDirectionalSettingsObject {
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
+public class PaygateTradeData extends TradeData implements IDirectionalSettingsObject, IDescriptionTrade {
 
 	public PaygateTradeData() {
 		super(true);
@@ -69,10 +75,12 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 	public void setRedstoneLevel(int level) { this.level = Math.clamp(level,1,15); }
 
 	private String description = "";
+	@Override
 	public String getDescription() { return this.description; }
 	public void setDescription(String description) { this.description = description; }
 
 	private String tooltip = "";
+	@Override
 	public String getTooltip() { return this.tooltip; }
 	public void setTooltip(String tooltip) { this.tooltip = tooltip; }
 	public List<Component> getDescriptionTooltip()
@@ -94,14 +102,11 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 	@Nullable
 	@Override
 	public Block getDisplayBlock() { return ModBlocks.PAYGATE.get(); }
-
 	@Nullable
 	@Override
 	public ResourceLocation getVariant() { return this.parent == null ? null : this.parent.getTraderBlockVariant(); }
-
-	@Nonnull
 	@Override
-	public DirectionalSettingsState getSidedState(@Nonnull Direction side) { return this.outputSettings.getState(side); }
+	public DirectionalSettingsState getSidedState(Direction side) { return this.outputSettings.getState(side); }
 
 	Item ticketItem = Items.AIR;
 	long ticketID = Long.MIN_VALUE;
@@ -128,10 +133,10 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 	}
 
 	@Override
-	public int getStock(@Nonnull TradeContext context) { return this.isValid() ? 1 : 0; }
+	public int getStock(TradeContext context) { return this.isValid() ? 1 : 0; }
 
 	@Override
-	public boolean allowTradeRule(@Nonnull TradeRule rule) {
+	public boolean allowTradeRule(TradeRule rule) {
 		//Block Demand Pricing trade rule from Paygates as stock is not relevant for this type of trade
 		if(rule instanceof DemandPricing)
 			return false;
@@ -160,15 +165,15 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 	
 	@Override
 	public boolean isValid() {
-		return this.getDuration() >= PaygateTraderData.DURATION_MIN && (this.isTicketTrade() || super.isValid());
+		return this.getDuration() >= PaygateTraderData.DURATION_MIN && (this.isTicketTrade() || super.isValid()) && this.hasOutputSide();
 	}
 	
-	public static void saveAllData(CompoundTag nbt, List<PaygateTradeData> data, @Nonnull HolderLookup.Provider lookup)
+	public static void saveAllData(CompoundTag nbt, List<PaygateTradeData> data, HolderLookup.Provider lookup)
 	{
 		saveAllData(nbt, data, DEFAULT_KEY,lookup);
 	}
 	
-	public static void saveAllData(CompoundTag nbt, List<PaygateTradeData> data, String key, @Nonnull HolderLookup.Provider lookup)
+	public static void saveAllData(CompoundTag nbt, List<PaygateTradeData> data, String key, HolderLookup.Provider lookup)
 	{
 		ListTag listNBT = new ListTag();
 
@@ -179,18 +184,18 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 			nbt.put(key, listNBT);
 	}
 	
-	public static PaygateTradeData loadData(CompoundTag nbt, @Nonnull HolderLookup.Provider lookup) {
+	public static PaygateTradeData loadData(CompoundTag nbt, HolderLookup.Provider lookup) {
 		PaygateTradeData trade = new PaygateTradeData();
 		trade.loadFromNBT(nbt,lookup);
 		return trade;
 	}
 	
-	public static List<PaygateTradeData> loadAllData(CompoundTag nbt, @Nonnull HolderLookup.Provider lookup)
+	public static List<PaygateTradeData> loadAllData(CompoundTag nbt, HolderLookup.Provider lookup)
 	{
 		return loadAllData(DEFAULT_KEY, nbt,lookup);
 	}
 	
-	public static List<PaygateTradeData> loadAllData(String key, CompoundTag nbt, @Nonnull HolderLookup.Provider lookup)
+	public static List<PaygateTradeData> loadAllData(String key, CompoundTag nbt, HolderLookup.Provider lookup)
 	{
 		ListTag listNBT = nbt.getList(key, Tag.TAG_COMPOUND);
 		
@@ -217,7 +222,7 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 	}
 	
 	@Override
-	public CompoundTag getAsNBT(@Nonnull HolderLookup.Provider lookup) {
+	public CompoundTag getAsNBT(HolderLookup.Provider lookup) {
 		CompoundTag compound = super.getAsNBT(lookup);
 		
 		compound.putInt("Duration", this.getDuration());
@@ -238,7 +243,7 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 	}
 	
 	@Override
-	protected void loadFromNBT(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	protected void loadFromNBT(CompoundTag compound, HolderLookup.Provider lookup) {
 		super.loadFromNBT(compound,lookup);
 		
 		this.duration = compound.getInt("Duration");
@@ -361,7 +366,7 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 		return result;
 	}
 
-	private static void appendUnit(@Nonnull MutableComponent result, boolean addSpacer, int count, @Nonnull TimeUnitTextEntry entry)
+	private static void appendUnit(MutableComponent result, boolean addSpacer, int count, TimeUnitTextEntry entry)
 	{
 		if(addSpacer)
 			result.append(EasyText.literal(" "));
@@ -372,16 +377,16 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 			result.append(entry.fullText.get());
 	}
 
-	@Nonnull
-	private static MutableComponent formatUnitShort(int count, @Nonnull TimeUnitTextEntry entry) { return EasyText.literal(String.valueOf(count)).append(entry.shortText.get()); }
+	
+	private static MutableComponent formatUnitShort(int count, TimeUnitTextEntry entry) { return EasyText.literal(String.valueOf(count)).append(entry.shortText.get()); }
 
-	@Nonnull
+	
     @Override
 	@OnlyIn(Dist.CLIENT)
 	public TradeRenderManager<?> getButtonRenderer() { return new PaygateTradeButtonRenderer(this); }
 
 	@Override
-	public void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
+	public void OnInputDisplayInteraction(BasicTradeEditTab tab, int index, TradeInteractionData data, ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof PaygateTraderData paygate)
 		{
 			int tradeIndex = paygate.getTradeData().indexOf(this);
@@ -402,7 +407,7 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 	}
 
 	@Override
-	public void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
+	public void OnOutputDisplayInteraction(BasicTradeEditTab tab, int index, TradeInteractionData data, ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof PaygateTraderData paygate)
 		{
 			int tradeIndex = paygate.getTradeData().indexOf(this);
@@ -413,7 +418,7 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 	}
 
 	@Override
-	public void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
+	public void OnInteraction(BasicTradeEditTab tab, TradeInteractionData data, ItemStack heldItem) {
 		
 		if(tab.menu.getTrader() instanceof PaygateTraderData paygate)
 		{

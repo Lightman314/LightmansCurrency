@@ -6,13 +6,11 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.BooleanOption;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.conditions.ICondition;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Optional;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -20,10 +18,9 @@ public class ConfigCraftingCondition implements ICondition {
 
     public static final MapCodec<ConfigCraftingCondition> CODEC = RecordCodecBuilder.mapCodec(builder ->
             builder.group(
-                    Codec.STRING.optionalFieldOf("fileName").forGetter(c -> Optional.empty()),
-                    ResourceLocation.CODEC.optionalFieldOf("fileID").forGetter(c -> Optional.of(c.fileID)),
+                    ResourceLocation.CODEC.fieldOf("fileID").forGetter(c -> c.fileID),
                     Codec.STRING.fieldOf("option").forGetter(c -> c.optionPath))
-                    .apply(builder,ConfigCraftingCondition::load));
+                    .apply(builder,ConfigCraftingCondition::new));
 
     private final ResourceLocation fileID;
     private final String optionPath;
@@ -62,20 +59,5 @@ public class ConfigCraftingCondition implements ICondition {
     
     @Override
     public MapCodec<ConfigCraftingCondition> codec() { return CODEC; }
-
-    @SuppressWarnings("deprecation")
-    private static ConfigCraftingCondition load(Optional<String> fileName, Optional<ResourceLocation> fileID, String option)
-    {
-        if(fileName.isPresent())
-        {
-            ConfigFile file = ConfigFile.lookupFile(fileName.get());
-            if(file != null)
-                return new ConfigCraftingCondition(file.getFileID(),option);
-            return new ConfigCraftingCondition(ConfigFile.forceGenerateID(fileName.get()),option);
-        }
-        else if(fileID.isPresent())
-            return new ConfigCraftingCondition(fileID.get(),option);
-        return new ConfigCraftingCondition(VersionUtil.modResource("unknown","unknown"),option);
-    }
 
 }

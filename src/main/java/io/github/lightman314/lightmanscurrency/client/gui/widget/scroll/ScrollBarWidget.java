@@ -143,12 +143,10 @@ public class ScrollBarWidget extends EasyWidget implements IMouseListener, IPreR
 
 	//Deprecated as this should only be called by the IMouseListener callers
 	@Override
-	@Deprecated
 	public boolean onMouseClicked(double mouseX, double mouseY, int button) {
 		this.isDragging = false;
 		if(this.isMouseOver(mouseX, mouseY) && this.visible() && button == 0)
 		{
-			LightmansCurrency.LogDebug("Started dragging.");
 			this.isDragging = true;
 			this.dragKnob(mouseY);
 		}
@@ -157,14 +155,12 @@ public class ScrollBarWidget extends EasyWidget implements IMouseListener, IPreR
 
 	//Deprecated as this should only be called by the IMouseListener callers (and thus not care that if it's a ScrollBarWidget or not)
 	@Override
-	@Deprecated
 	public boolean onMouseReleased(double mouseX, double mouseY, int button) {
 		if(this.isDragging && this.visible() && button == 0)
 		{
 			//One last drag calculation
 			this.dragKnob(mouseY);
 			this.isDragging = false;
-			LightmansCurrency.LogDebug("Stopped dragging.");
 		}
 		return false;
 	}

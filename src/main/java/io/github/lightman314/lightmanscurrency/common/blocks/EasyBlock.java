@@ -73,11 +73,7 @@ public class EasyBlock extends Block {
     public ItemStack getCloneItemStack(@Nonnull BlockState state, @Nonnull HitResult target, @Nonnull LevelReader level, @Nonnull BlockPos pos, @Nonnull Player player) {
         ItemStack result = super.getCloneItemStack(state,target,level,pos,player);
         if(player.isCrouching() && this instanceof IVariantBlock vb && level.getBlockEntity(pos) instanceof IVariantSupportingBlockEntity be)
-        {
-            ResourceLocation variant = be.getCurrentVariant();
-            if(variant != null)
-                result.set(ModDataComponents.MODEL_VARIANT,variant);
-        }
+            IVariantSupportingBlockEntity.copyDataToItem(be,result);
         return result;
     }
 
@@ -94,12 +90,14 @@ public class EasyBlock extends Block {
                 {
                     TooltipInfo extraTooltip = variant.get(VariantProperties.TOOLTIP_INFO);
                     if(extraTooltip.drawOnItem)
-                        tooltip.addAll(TooltipHelper.splitTooltips(extraTooltip.getTooltip()));
+                        tooltip.addAll(extraTooltip.getTooltip());
                 }
             }
             if(tooltipFlag.isAdvanced())
                 tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_ID.get(variantID.toString()).withStyle(ChatFormatting.DARK_GRAY));
         }
+        if(stack.has(ModDataComponents.VARIANT_LOCK))
+            tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_LOCKED.getWithStyle(ChatFormatting.GOLD,ChatFormatting.BOLD));
         super.appendHoverText(stack,context,tooltip,tooltipFlag);
     }
 
@@ -113,7 +111,7 @@ public class EasyBlock extends Block {
         if(level.isClientSide)
             return;
         if(this instanceof IVariantBlock && level.getBlockEntity(pos) instanceof IVariantSupportingBlockEntity be)
-            be.setVariant(stack.getOrDefault(ModDataComponents.MODEL_VARIANT,null));
+            be.setVariant(stack.getOrDefault(ModDataComponents.MODEL_VARIANT,null),stack.has(ModDataComponents.VARIANT_LOCK));
     }
 
 }

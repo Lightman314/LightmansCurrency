@@ -15,10 +15,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public interface ITradeSearchFilter {
 
-    @Deprecated(since = "2.2.4.3")
-    default boolean filterTrade(TradeData data, String searchText, HolderLookup.Provider lookup) { return false; }
-
-    default void filterTrade(TradeData data, PendingSearch search, HolderLookup.Provider lookup) { }
+    void filterTrade(TradeData data, PendingSearch search, HolderLookup.Provider lookup);
 
     static boolean filterItem(ItemStack stack, String searchText, HolderLookup.Provider lookup)
     {

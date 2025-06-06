@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IDeepBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.ITallBlock;
@@ -74,6 +75,11 @@ public class VariantSelectMenu extends LazyMessageMenu {
         }
         else
         {
+            if(variant != null && LCConfig.SERVER.variantBlacklist.get().contains(variant))
+            {
+                LightmansCurrency.LogWarning(this.player.getName().getString() + " just tried to assign a blacklisted Model Variant (" + variant + ")!");
+                return;
+            }
             BlockEntity blockEntity = this.level.getBlockEntity(this.pos);
             if(this.level.getBlockEntity(this.pos) instanceof IVariantSupportingBlockEntity be)
             {

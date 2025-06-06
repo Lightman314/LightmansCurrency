@@ -33,6 +33,15 @@ public class DirectionalSettings {
     public boolean allowInputs(Direction side) { return this.getState(side).allowsInputs(); }
     public boolean allowOutputs(Direction side) { return this.getState(side).allowsOutputs(); }
 
+    public boolean hasInput() {
+        for(Direction side : Direction.values())
+        {
+            if(this.allowInputs(side))
+                return true;
+        }
+        return false;
+    }
+
     public void save(CompoundTag compound, String tag) {
         ListTag list = new ListTag();
         for(Direction side : Direction.values())

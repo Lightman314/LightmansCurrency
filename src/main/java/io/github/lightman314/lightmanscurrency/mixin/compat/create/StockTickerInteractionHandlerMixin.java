@@ -37,7 +37,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.HashMap;
 import java.util.Map;
 
-@Mixin(value = StockTickerInteractionHandler.class,remap = false)
+@Mixin(value = StockTickerInteractionHandler.class)
 public class StockTickerInteractionHandlerMixin {
 
     @Unique
@@ -46,7 +46,7 @@ public class StockTickerInteractionHandlerMixin {
     @Inject(at=@At(value="FIELD", target="net/createmod/catnip/data/Iterate.trueAndFalse:[Z"),method="interactWithShop", cancellable=true)
     private static void interactWithShop(Player player, Level level, BlockPos targetPos, ItemStack mainHandItem, CallbackInfo ci, @Local(name = "paymentEntries") InventorySummary paymentEntries)
     {
-        lightmanscurrency$clearWrapper();
+        lightmanscurrency$clearWrapper(true);
         //If no wallet equipped nothing to check
         WalletHandler walletHandler = WalletHandler.get(player);
         ItemStack wallet = walletHandler == null ? ItemStack.EMPTY : walletHandler.getWallet();
@@ -100,7 +100,7 @@ public class StockTickerInteractionHandlerMixin {
     {
         if(player.level().isClientSide)
             return next.call(player);
-        lightmanscurrency$clearWrapper();
+        lightmanscurrency$clearWrapper(false);
         //If no wallet equipped, don't wrap the inventory
         WalletHandler walletHandler = WalletHandler.get(player);
         ItemStack wallet = walletHandler == null ? ItemStack.EMPTY : walletHandler.getWallet();
@@ -119,15 +119,15 @@ public class StockTickerInteractionHandlerMixin {
     @Inject(at = @At("RETURN"),method = "interactWithShop")
     private static void interactWithShop(Player player, Level level, BlockPos targetPos, ItemStack mainHandItem, CallbackInfo ci)
     {
-        lightmanscurrency$clearWrapper();
+        lightmanscurrency$clearWrapper(true);
     }
 
     @Unique
-    private static void lightmanscurrency$clearWrapper()
+    private static void lightmanscurrency$clearWrapper(boolean finished)
     {
         if(lightmanscurrency$wrapper != null)
         {
-            lightmanscurrency$wrapper.clearContents();
+            lightmanscurrency$wrapper.clearContents(finished);
             lightmanscurrency$wrapper = null;
         }
     }
