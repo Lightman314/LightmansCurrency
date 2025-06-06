@@ -173,7 +173,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		D newTrader = this.buildTrader(owner, placementStack);
 		//Update with the latest block variant data
 		if(this.getCurrentVariant() != null)
-			newTrader.setTraderBlockVariant(this.getCurrentVariant());
+			newTrader.setTraderBlockVariant(this.getCurrentVariant(),this.isVariantLocked());
 		//Register to the trading office
 		this.traderID = TraderAPI.API.CreateTrader(newTrader, owner);
 		this.checkTaxes(owner,newTrader);
@@ -264,9 +264,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 	@Override
 	public void onLoad()
 	{
-		if(this.level.isClientSide)
-			BlockEntityUtil.requestUpdatePacket(this);
-		else
+		if(this.isServer())
 		{
 			//Update the traders block position to this position just in case we got moved by another block
 			this.moveCustomTrader(this.getTraderData());
@@ -315,12 +313,12 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 	public IUpgradeable getUpgradeable() { return this.getTraderData(); }
 
 	@Override
-	public void setVariant(@Nullable ResourceLocation variant)
+	public void setVariant(@Nullable ResourceLocation variant, boolean locked)
 	{
-		super.setVariant(variant);
+		super.setVariant(variant,locked);
 		TraderData t = this.getTraderData();
 		if(t != null)
-			t.setTraderBlockVariant(variant);
+			t.setTraderBlockVariant(variant,locked);
 	}
 
 }

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.IDescriptionTrade;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
@@ -27,7 +28,7 @@ import java.util.List;
 
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class CommandTrade extends TradeData {
+public class CommandTrade extends TradeData implements IDescriptionTrade {
 
     private String command = "";
     public String getCommand() { return this.command; }
@@ -38,10 +39,12 @@ public class CommandTrade extends TradeData {
     public void setCommand(@Nullable String command) { this.command = command == null ? "" : command; }
 
     private String description = "";
+    @Override
     public String getDescription() { return this.description; }
     public void setDescription(String description) { this.description = description; }
 
     private String tooltip = "";
+    @Override
     public String getTooltip() { return this.tooltip; }
     public void setTooltip(String tooltip) { this.tooltip = tooltip; }
 

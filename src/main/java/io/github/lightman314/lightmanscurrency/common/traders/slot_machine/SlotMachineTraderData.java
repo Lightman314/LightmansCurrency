@@ -61,6 +61,7 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.text.DecimalFormat;
@@ -117,10 +118,10 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
             try{ level = LightmansCurrency.getProxy().safeGetDummyLevel();
             } catch(Throwable t) {
                 LightmansCurrency.LogError("Could not get a valid level from the trade's context or the proxy. Will have to use Java randomizer");
-                return this.getRandomizedEntry(new Random().nextInt(this.getTotalWeight()) + 1);
+                return this.getRandomizedEntry(new Random().nextInt(this.getTotalWeight()));
             }
         }
-        return this.getRandomizedEntry(level.random.nextInt(this.getTotalWeight()) + 1);
+        return this.getRandomizedEntry(level.random.nextInt(this.getTotalWeight()));
     }
 
     private SlotMachineEntry getRandomizedEntry(int rand)
@@ -128,7 +129,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
         for(SlotMachineEntry entry : this.getValidEntries())
         {
             rand -= entry.getWeight();
-            if(rand <= 0)
+            if(rand < 0)
                 return entry;
         }
         return null;
@@ -160,6 +161,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
 
     private final TraderItemStorage storage = new TraderItemStorage(this);
     
+    @Nonnull
     public final TraderItemStorage getStorage() { return this.storage; }
 
     private SlotMachineTraderData() { super(TYPE); }

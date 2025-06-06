@@ -34,13 +34,6 @@ public class InputTab extends SettingsSubTab {
         return null;
     }
 
-    protected ImmutableList<Direction> getIgnoreList() {
-        InputTraderData trader = this.getInputTrader();
-        if(trader != null)
-            return trader.ignoreSides;
-        return ImmutableList.copyOf(Direction.values());
-    }
-
     @Nonnull
     @Override
     public IconData getIcon() {

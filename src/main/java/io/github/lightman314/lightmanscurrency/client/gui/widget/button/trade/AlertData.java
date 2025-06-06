@@ -42,6 +42,6 @@ public class AlertData {
 	public static AlertData error(@Nonnull MutableComponent message) { return of(message, AlertType.ERROR); }
 	public static AlertData error(@Nonnull TextEntry message) { return of(message.get(), AlertType.ERROR); }
 
-	private static AlertData of(@Nonnull MutableComponent message, @Nonnull AlertType type) { return new AlertData(message, type); }
+	public static AlertData of(@Nonnull MutableComponent message, @Nonnull AlertType type) { return new AlertData(message, type); }
 	
 }

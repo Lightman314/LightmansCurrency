@@ -58,6 +58,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -111,6 +113,9 @@ public class CommandLCAdmin {
 										.executes(CommandLCAdmin::replaceWalletSlotWithDefault)
 										.then(Commands.argument("keepWalletContents", BoolArgumentType.bool())
 												.executes(CommandLCAdmin::replaceWalletSlot)))))
+				.then(Commands.literal("emptyWallet")
+						.then(Commands.argument("entity",EntityArgument.entities())
+								.executes(CommandLCAdmin::emptyWallet)))
 				.then(Commands.literal("taxes")
 						.then(Commands.literal("list")
 								.executes(CommandLCAdmin::listTaxCollectors))
@@ -426,6 +431,33 @@ public class CommandLCAdmin {
 				walletHandler.setWallet(newWallet);
 			}
 		}
+		return count;
+	}
+
+	static int emptyWallet(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException
+	{
+		int count = 0;
+		for(Entity e : EntityArgument.getEntities(commandContext,"entity"))
+		{
+			if(e instanceof LivingEntity entity)
+			{
+				IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(entity);
+				if(walletHandler == null)
+					continue;
+				ItemStack currentWallet = walletHandler.getWallet();
+				if(WalletItem.isWallet(currentWallet))
+				{
+					Container contents = WalletItem.getWalletInventory(currentWallet);
+					if(!contents.isEmpty())
+					{
+						WalletItem.putWalletInventory(currentWallet,new SimpleContainer(WalletItem.InventorySize(currentWallet)));
+						count++;
+						walletHandler.setWallet(currentWallet);
+					}
+				}
+			}
+		}
+		EasyText.sendCommandSucess(commandContext,LCText.COMMAND_ADMIN_EMPTY_WALLET_SUCCESS.get(count),true);
 		return count;
 	}
 

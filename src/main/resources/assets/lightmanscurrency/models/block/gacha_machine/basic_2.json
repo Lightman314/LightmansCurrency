@@ -1,0 +1,21 @@
+{
+	"credit": "Made with Blockbench",
+	"texture_size": [64, 64],
+	"textures": {
+		"particle": "#main",
+		"main": "lightmanscurrency:block/gacha_machine/basic_graphics"
+	},
+	"elements": [
+		{
+			"from": [4, 7, 4],
+			"to": [12, 11, 12],
+			"faces": {
+				"north": {"uv": [2.25, 10, 4.25, 11], "texture": "#main"},
+				"east": {"uv": [2.25, 11, 4.25, 12], "texture": "#main"},
+				"south": {"uv": [2.25, 12, 4.25, 13], "texture": "#main"},
+				"west": {"uv": [2.25, 13, 4.25, 14], "texture": "#main"},
+				"up": {"uv": [0, 14, 2, 16], "texture": "#main"}
+			}
+		}
+	]
+}

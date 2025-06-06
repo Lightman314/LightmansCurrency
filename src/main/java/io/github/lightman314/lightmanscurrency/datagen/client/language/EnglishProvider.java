@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
+import io.github.lightman314.lightmanscurrency.common.traders.paygate.OutputConflictHandling;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
 
@@ -310,6 +311,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_VARIANT_WAND, "Right click on most Lightman's Currency blocks to select a model variant","Not all blocks have variants by default, but more can be added via resource pack");
         this.translate(LCText.TOOLTIP_MODEL_VARIANT_NAME, "Variant: %s");
         this.translate(LCText.TOOLTIP_MODEL_VARIANT_ID, "Variant ID: %s");
+        this.translate(LCText.TOOLTIP_MODEL_VARIANT_LOCKED, "Variant is Locked");
 
         this.translate(LCText.TOOLTIP_TRADER_ITEM_WITH_DATA,"Linked to existing Trader Data");
         this.translate(LCText.TOOLTIP_TRADER_ITEM_WITH_DATA_TRADER_ID,"Trader ID: %s");
@@ -702,10 +704,16 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.GUI_TRADER_PAYGATE_DESCRIPTION,"Description:");
         this.translate(LCText.GUI_TRADER_PAYGATE_TOOLTIP,"Tooltip:");
         this.translate(LCText.GUI_TRADER_PAYGATE_LEVEL,"Redstone Level: %s");
+        this.translate(LCText.GUI_TRADER_PAYGATE_CONFLICT_LABEL,"Output Conflict Handling:");
+        this.translate(LCText.GUI_TRADER_PAYGATE_CONFLICT_HANDLING.get(OutputConflictHandling.DENY_ANY),"Deny: Any Outputs");
+        this.translate(LCText.GUI_TRADER_PAYGATE_CONFLICT_HANDLING.get(OutputConflictHandling.DENY_SIDE_CONFLICT),"Deny: Conflicting Outputs");
+        this.translate(LCText.GUI_TRADER_PAYGATE_CONFLICT_HANDLING.get(OutputConflictHandling.ADD_TIME),"Allow: Add to Timer");
+        this.translate(LCText.GUI_TRADER_PAYGATE_CONFLICT_HANDLING.get(OutputConflictHandling.OVERRIDE_TIME),"Allow: Override Timer");
         this.translate(LCText.TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_KEEP,"Store Ticket Stubs");
         this.translate(LCText.TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_GIVE,"Give Ticket Stubs to the Customer");
         this.translate(LCText.TOOLTIP_TRADER_PAYGATE_ALREADY_ACTIVE,"Already Active");
         this.translate(LCText.TOOLTIP_TRADER_PAYGATE_TIME_REMAINING,"Time Remaining: %s");
+        this.translate(LCText.TOOLTIP_TRADER_PAYGATE_SIDED_TIME_REMAINING,"%1$s has %2$s remaining");
 
         //Auction House Specific
         this.translate(LCText.GUI_TRADER_AUCTION_HOUSE,"Auction House");
@@ -1050,17 +1058,22 @@ public class EnglishProvider extends TranslationProvider {
         //Block Variants
         this.translate(LCText.GUI_VARIANT_MENU,"Variant Selection");
         this.translate(LCText.BUTTON_VARIANT_SELECT,"Select Variant");
+
         this.translate(LCText.BLOCK_VARIANT_DEFAULT,"Default Model");
         this.translate(LCText.BLOCK_VARIANT_UNNAMED,"Unnammed");
-        this.translate(LCText.BLOCK_VARIANT_GLASSLESS,"#Glassless");
+        this.translate(LCText.BLOCK_VARIANT_MODIFIER_LABEL,"⏵ Modifier: %s");
+
         this.translate(LCText.BLOCK_VARIANT_ARMOR_SKIN,"Skin (%s)");
-        this.translate(LCText.BLOCK_VARIANT_ARMOR_GLASSLESS_SKIN,"Skin (%s) #Glassless");
         this.translate(LCText.BLOCK_VARIANT_ARMOR_SKINS.get(0),"Steve");
         this.translate(LCText.BLOCK_VARIANT_ARMOR_SKINS.get(1),"Zuri");
         this.translate(LCText.BLOCK_VARIANT_ARMOR_SKINS.get(2),"Ari");
         this.translate(LCText.BLOCK_VARIANT_ARMOR_SKINS.get(3),"Kai");
         this.translate(LCText.BLOCK_VARIANT_ARMOR_SKINS.get(4),"Garrett");
-        this.translate(LCText.BLOCK_VARIANT_VENDING_MACHINE_FOOTLESS,"#Footless");
+
+        this.translate(LCText.BLOCK_VARIANT_ARMOR_SKIN_HEROBRINE,"Herobrine");
+
+        this.translate(LCText.BLOCK_VARIANT_MODIFIER_GLASSLESS,"#Glassless");
+        this.translate(LCText.BLOCK_VARIANT_MODIFIER_FOOTLESS,"#Footless");
 
         //Easy Data Names/Keys
         this.translate(LCText.DATA_ENTRY_CREATIVE,"Creative");
@@ -1069,11 +1082,13 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.DATA_ENTRY_TRADER_ICON,"Trader Terminal Icon");
         this.translate(LCText.DATA_ENTRY_TRADER_BANK_LINK,"Bank Account Link");
         this.translate(LCText.DATA_ENTRY_INPUT_OUTPUT_SIDES,"Input/Output Side: ");
+        this.translate(LCText.DATA_ENTRY_PAYGATE_CONFLICT_HANDLING,"Output Conflict Handling");
 
         //Easy Data Categories
         this.translate(LCText.DATA_CATEGORY_TRADER_DISPLAY,"Trader Display Settings");
         this.translate(LCText.DATA_CATEGORY_TRADER_BANK,"Trader Bank Settings");
         this.translate(LCText.DATA_CATEGORY_INPUT_SETTINGS,"Input/Output Settings");
+        this.translate(LCText.DATA_CATEGORY_MISC_SETTINGS,"Misc Settings");
 
         //LC Statistics
         //Generic
@@ -1151,6 +1166,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.COMMAND_ADMIN_TRADERDATA_ADD_TO_WHITELIST_SUCCESS,"Added %1$s player(s) to %2$s's whitelist");
         this.translate(LCText.COMMAND_ADMIN_TRADERDATA_ADD_TO_WHITELIST_MISSING,"Trader does not have a whitelist trade rule. Cannot add players to the whitelist.");
         this.translate(LCText.COMMAND_ADMIN_REPLACE_WALLET_NOT_A_WALLET, "Item given was not a valid wallet item or air");
+        this.translate(LCText.COMMAND_ADMIN_EMPTY_WALLET_SUCCESS, "Emptied %s wallets");
         this.translate(LCText.COMMAND_ADMIN_VIEW_WALLET_EMPTY, "%s does not have a wallet equipped");
         this.translate(LCText.COMMAND_ADMIN_VIEW_WALLET_SUCCESS, "%1$s has a %2$s equipped");
         this.translate(LCText.COMMAND_ADMIN_VIEW_WALLET_INVALID_TARGET, "%s is not capable of equipping a wallet");

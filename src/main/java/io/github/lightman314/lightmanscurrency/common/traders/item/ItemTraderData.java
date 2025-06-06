@@ -60,6 +60,7 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -79,7 +80,8 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	
 	protected TraderItemStorage storage = new TraderItemStorage(this);
 	
-	public final TraderItemStorage getStorage() { return this.storage; }
+	@Nonnull
+    public final TraderItemStorage getStorage() { return this.storage; }
 	public void markStorageDirty() { this.markDirty(this::saveStorage); }
 
 	private int baseTradeCount = 0;

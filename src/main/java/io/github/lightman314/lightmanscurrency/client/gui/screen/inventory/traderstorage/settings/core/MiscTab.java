@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.addons.MiscTabAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
@@ -20,6 +21,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MiscTab extends SettingsSubTab {
 
@@ -33,6 +37,17 @@ public class MiscTab extends SettingsSubTab {
     PlainButton buttonToggleChatNotifications;
     EasyButton buttonToggleTeamLevel;
 
+    int yOffset = 0;
+
+    private List<MiscTabAddon> addons = new ArrayList<>();
+
+    public List<MiscTabAddon> getAddons() {
+        TraderData trader = this.menu.getTrader();
+        if(trader != null)
+            return trader.getMiscTabAddons();
+        return new ArrayList<>();
+    }
+
     @Nonnull
     @Override
     public IconData getIcon() { return IconUtil.ICON_SETTINGS; }
@@ -44,16 +59,28 @@ public class MiscTab extends SettingsSubTab {
     public boolean canOpen() { return this.menu.hasPermission(Permissions.EDIT_SETTINGS); }
 
     @Override
+    public boolean shouldRenderInventoryText() { return false; }
+
+    @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 
+        AtomicInteger nextYLevel = new AtomicInteger(15);
+
+        this.addons = this.getAddons();
+        this.addons.forEach(a -> a.initialize(this));
+
+        this.addons.forEach(a -> a.onOpenBefore(this, screenArea, firstOpen, nextYLevel));
+
+        this.yOffset = nextYLevel.get();
+
         this.buttonAlwaysShowSearchBox = this.addChild(PlainButton.builder()
-                .position(screenArea.pos.offset(35,15))
+                .position(screenArea.pos.offset(35,nextYLevel.getAndAdd(20)))
                 .pressAction(this::ToggleShowSearchBox)
                 .sprite(IconAndButtonUtil.SPRITE_CHECK(this::alwaysShowSearchBox))
                 .build());
 
         this.buttonToggleBankLink = this.addChild(PlainButton.builder()
-                .position(screenArea.pos.offset(35,35))
+                .position(screenArea.pos.offset(35,nextYLevel.getAndAdd(20)))
                 .pressAction(this::ToggleBankLink)
                 .sprite(IconAndButtonUtil.SPRITE_CHECK(this::linkedToBank))
                 .addon(EasyAddonHelper.visibleCheck(this::showBankLink))
@@ -61,28 +88,33 @@ public class MiscTab extends SettingsSubTab {
                 .build());
 
         this.buttonToggleNotifications = this.addChild(PlainButton.builder()
-                .position(screenArea.pos.offset(35,55))
+                .position(screenArea.pos.offset(35,nextYLevel.getAndAdd(20)))
                 .pressAction(this::ToggleNotifications)
                 .sprite(IconAndButtonUtil.SPRITE_CHECK(this::notificationsEnabled))
                 .build());
 
         this.buttonToggleChatNotifications = this.addChild(PlainButton.builder()
-                .position(screenArea.pos.offset(35,75))
+                .position(screenArea.pos.offset(35,nextYLevel.getAndAdd(25)))
                 .pressAction(this::ToggleChatNotifications)
                 .sprite(IconAndButtonUtil.SPRITE_CHECK(this::notificationsToChat))
                 .build());
 
         this.buttonToggleTeamLevel = this.addChild(EasyTextButton.builder()
-                .position(screenArea.pos.offset(20,100))
+                .position(screenArea.pos.offset(20,nextYLevel.getAndAdd(25)))
                 .width(screenArea.width - 40)
                 .text(this::TeamLevelText)
                 .pressAction(this::ToggleTeamNotificationLevel)
                 .addon(EasyAddonHelper.visibleCheck(this::teamLevelVisible))
                 .build());
 
+        this.addons.forEach(a -> a.onOpenAfter(this, screenArea, firstOpen, nextYLevel));
+
         this.tick();
 
     }
+
+    @Override
+    protected void onSubtabClose() { this.addons.forEach(a -> a.onClose(this)); }
 
     private boolean notificationsEnabled() {
         TraderData t = this.menu.getTrader();
@@ -127,19 +159,30 @@ public class MiscTab extends SettingsSubTab {
             return;
 
         //Render the "always show search box" text
-        gui.drawString(LCText.GUI_TRADER_SETTINGS_ENABLE_SHOW_SEARCH_BOX.get(), 47, 16, 0x404040);
+        gui.drawString(LCText.GUI_TRADER_SETTINGS_ENABLE_SHOW_SEARCH_BOX.get(), 47, this.yOffset + 1, 0x404040);
 
         //Render the "Link to Bank Account" text
         if(this.menu.hasPermission(Permissions.BANK_LINK) && trader.canStoreMoney())
-            gui.drawString(LCText.GUI_SETTINGS_BANK_LINK.get(), 47, 36, 0x404040);
+            gui.drawString(LCText.GUI_SETTINGS_BANK_LINK.get(), 47, this.yOffset + 21, 0x404040);
 
         //Render the enable notification test
-        gui.drawString(LCText.GUI_TRADER_SETTINGS_NOTIFICATIONS_ENABLED.get(), 47, 56, 0x404040);
+        gui.drawString(LCText.GUI_TRADER_SETTINGS_NOTIFICATIONS_ENABLED.get(), 47, this.yOffset + 41, 0x404040);
 
         //Render the enable chat notification text
-        gui.drawString(LCText.GUI_TRADER_SETTINGS_NOTIFICATIONS_CHAT.get(), 47, 76, 0x404040);
+        gui.drawString(LCText.GUI_TRADER_SETTINGS_NOTIFICATIONS_CHAT.get(), 47, this.yOffset + 61, 0x404040);
+
+
+        this.addons.forEach(a -> a.renderBG(this, gui));
 
     }
+
+    @Override
+    public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
+        this.addons.forEach(a -> a.renderAfterWidgets(this, gui));
+    }
+
+    @Override
+    public void tick() { this.addons.forEach(a -> a.tick(this)); }
 
     private Component TeamLevelText()
     {

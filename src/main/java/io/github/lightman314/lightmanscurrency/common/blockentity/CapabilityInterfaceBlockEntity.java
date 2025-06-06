@@ -14,6 +14,9 @@ import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 public class CapabilityInterfaceBlockEntity extends BlockEntity implements IVariantSupportingBlockEntity {
 	
@@ -25,31 +28,54 @@ public class CapabilityInterfaceBlockEntity extends BlockEntity implements IVari
 	@Override
 	public ResourceLocation getCurrentVariant()
 	{
-		BlockState state = this.getBlockState();
-		if(state.getBlock() instanceof ICapabilityBlock block)
-		{
-			BlockPos newPos = block.getCapabilityBlockPos(state,this.level,this.worldPosition);
-			BlockEntity be = this.level.getBlockEntity(newPos);
-			if(be instanceof CapabilityInterfaceBlockEntity)
-				return null;
+		AtomicReference<ResourceLocation> result = new AtomicReference<>(null);
+		this.tryRunOnCoreBlockEntity(be -> {
 			if(be instanceof IVariantSupportingBlockEntity vsbe)
-				return vsbe.getCurrentVariant();
-		}
-		return null;
+				result.set(vsbe.getCurrentVariant());
+		});
+		return result.get();
 	}
 
 	@Override
 	public void setVariant(@Nullable ResourceLocation variant)
 	{
+		this.tryRunOnCoreBlockEntity(be -> {
+			if(be instanceof IVariantSupportingBlockEntity vsbe)
+				vsbe.setVariant(variant);
+		});
+	}
+
+	@Override
+	public void setVariant(@Nullable ResourceLocation variant, boolean locked)
+	{
+		this.tryRunOnCoreBlockEntity(be -> {
+			if(be instanceof IVariantSupportingBlockEntity vsbe)
+				vsbe.setVariant(variant,locked);
+		});
+	}
+
+	@Override
+	public boolean isVariantLocked() {
+		AtomicBoolean result = new AtomicBoolean(false);
+		this.tryRunOnCoreBlockEntity(be -> {
+			if(be instanceof IVariantSupportingBlockEntity vsbe)
+				result.set(vsbe.isVariantLocked());
+		});
+		return result.get();
+	}
+
+	public final void tryRunOnCoreBlockEntity(Consumer<BlockEntity> consumer)
+	{
 		BlockState state = this.getBlockState();
 		if(state.getBlock() instanceof ICapabilityBlock block)
 		{
 			BlockPos newPos = block.getCapabilityBlockPos(state,this.level,this.worldPosition);
+			if(newPos.equals(this.worldPosition))
+				return;
 			BlockEntity be = this.level.getBlockEntity(newPos);
 			if(be instanceof CapabilityInterfaceBlockEntity)
 				return;
-			if(be instanceof IVariantSupportingBlockEntity vsbe)
-				vsbe.setVariant(variant);
+			consumer.accept(be);
 		}
 	}
 

@@ -69,17 +69,8 @@ public class ConfigCraftingCondition implements ICondition {
         }
 
         @Override
-        @SuppressWarnings("deprecation")
         public ConfigCraftingCondition read(JsonObject json) {
             String optionPath = GsonHelper.getAsString(json,"option");
-            if(json.has("fileName"))
-            {
-                String fileName = GsonHelper.getAsString(json,"fileName");
-                ConfigFile file = ConfigFile.lookupFile(fileName);
-                if(file != null)
-                    return of(file.getFileID(),optionPath);
-                return of(ConfigFile.forceGenerateID(fileName),optionPath);
-            }
             ResourceLocation fileID = VersionUtil.parseResource(GsonHelper.getAsString(json,"fileID"));
             return of(fileID,optionPath);
         }

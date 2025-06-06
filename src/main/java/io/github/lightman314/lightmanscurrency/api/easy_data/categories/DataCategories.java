@@ -27,6 +27,10 @@ public class DataCategories {
                 .permission(Permissions.InputTrader.EXTERNAL_INPUTS)
                 .name(LCText.DATA_CATEGORY_INPUT_SETTINGS.get()).build();
 
+        public static final DataCategory MISC_SETTINGS = DataCategory.builder()
+                .permission(Permissions.EDIT_SETTINGS)
+                .name(LCText.DATA_CATEGORY_MISC_SETTINGS.get()).build();
+
     }
 
 }

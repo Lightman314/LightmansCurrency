@@ -21,6 +21,7 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.ejecti
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.*;
 import io.github.lightman314.lightmanscurrency.common.text.*;
+import io.github.lightman314.lightmanscurrency.common.traders.paygate.OutputConflictHandling;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.*;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.CustomProfessions;
@@ -300,6 +301,7 @@ public class LCText {
     public static final MultiLineTextEntry TOOLTIP_VARIANT_WAND = MultiLineTextEntry.tooltip(MODID,"variant_wand");
     public static final TextEntry TOOLTIP_MODEL_VARIANT_NAME = TextEntry.tooltip(MODID,"model_variant.name");
     public static final TextEntry TOOLTIP_MODEL_VARIANT_ID = TextEntry.tooltip(MODID,"model_variant.id");
+    public static final TextEntry TOOLTIP_MODEL_VARIANT_LOCKED = TextEntry.tooltip(MODID,"model_variant.locked");
 
     public static final TextEntry TOOLTIP_TRADER_ITEM_WITH_DATA = TextEntry.tooltip(MODID,"trader.item.contains_data");
     public static final TextEntry TOOLTIP_TRADER_ITEM_WITH_DATA_TRADER_ID = TextEntry.tooltip(MODID,"trader.item.contains_data.trader_id");
@@ -675,10 +677,13 @@ public class LCText {
     public static final TextEntry GUI_TRADER_PAYGATE_DESCRIPTION = TextEntry.gui(MODID,"trader.paygate.description");
     public static final TextEntry GUI_TRADER_PAYGATE_TOOLTIP = TextEntry.gui(MODID,"trader.paygate.tooltip");
     public static final TextEntry GUI_TRADER_PAYGATE_LEVEL = TextEntry.gui(MODID,"trader.paygate.level");
+    public static final TextEntry GUI_TRADER_PAYGATE_CONFLICT_LABEL = TextEntry.gui(MODID,"trader.paygate.conflict_label");
+    public static final TextEntryBundle<OutputConflictHandling> GUI_TRADER_PAYGATE_CONFLICT_HANDLING = TextEntryBundle.of(OutputConflictHandling.values(),"gui.trader.paygate.conflict");
     public static final TextEntry TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_KEEP = TextEntry.tooltip(MODID,"trader.paygate.ticket_stubs.keep");
     public static final TextEntry TOOLTIP_TRADER_PAYGATE_TICKET_STUBS_GIVE = TextEntry.tooltip(MODID,"trader.paygate.ticket_stubs.give");
     public static final TextEntry TOOLTIP_TRADER_PAYGATE_ALREADY_ACTIVE = TextEntry.tooltip(MODID,"trader.paygate.active");
     public static final TextEntry TOOLTIP_TRADER_PAYGATE_TIME_REMAINING = TextEntry.tooltip(MODID,"trader.paygate.time_remaining");
+    public static final TextEntry TOOLTIP_TRADER_PAYGATE_SIDED_TIME_REMAINING = TextEntry.tooltip(MODID,"trader.paygate.time_remaining.sided");
 
     //Auction House Specific
     public static final TextEntry GUI_TRADER_AUCTION_HOUSE = TextEntry.gui(MODID,"trader.auction_house");
@@ -990,11 +995,16 @@ public class LCText {
     public static final TextEntry BUTTON_VARIANT_SELECT = TextEntry.button(MODID,"block_variants.select");
     public static final TextEntry BLOCK_VARIANT_DEFAULT = TextEntry.blockVariant("default");
     public static final TextEntry BLOCK_VARIANT_UNNAMED = TextEntry.blockVariant("unnamed");
-    public static final TextEntry BLOCK_VARIANT_GLASSLESS = TextEntry.blockVariant("glassless");
+    public static final TextEntry BLOCK_VARIANT_MODIFIER_LABEL = TextEntry.blockVariantModifier("label");
+
     public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN = TextEntry.blockVariant("armor_display.skin");
-    public static final TextEntry BLOCK_VARIANT_ARMOR_GLASSLESS_SKIN = TextEntry.blockVariant("armor_display.glassless_skin");
     public static final List<TextEntry> BLOCK_VARIANT_ARMOR_SKINS = TextEntry.blockVariantList("armor_display.skin",5);
-    public static final TextEntry BLOCK_VARIANT_VENDING_MACHINE_FOOTLESS = TextEntry.blockVariant("vending_machine.footless");
+
+    public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_HEROBRINE = TextEntry.blockVariant("armor_display.skin.herobrine");
+
+    public static final TextEntry BLOCK_VARIANT_MODIFIER_GLASSLESS = TextEntry.blockVariantModifier("glassless");
+    public static final TextEntry BLOCK_VARIANT_MODIFIER_FOOTLESS = TextEntry.blockVariantModifier("footless");
+
 
     //Easy Data Names/Keys
     public static final TextEntry DATA_ENTRY_CREATIVE = TextEntry.dataName(MODID,"creative");
@@ -1003,11 +1013,13 @@ public class LCText {
     public static final TextEntry DATA_ENTRY_TRADER_ICON = TextEntry.dataName(MODID,"trader_icon");
     public static final TextEntry DATA_ENTRY_TRADER_BANK_LINK = TextEntry.dataName(MODID,"trader.bank_link");
     public static final TextEntry DATA_ENTRY_INPUT_OUTPUT_SIDES = TextEntry.dataName(MODID,"input_output_sides");
+    public static final TextEntry DATA_ENTRY_PAYGATE_CONFLICT_HANDLING = TextEntry.dataName(MODID,"trader.paygate.conflict_handling");
 
     //Easy Data Categories
     public static final TextEntry DATA_CATEGORY_TRADER_DISPLAY = TextEntry.dataCategory(MODID,"trader_display");
     public static final TextEntry DATA_CATEGORY_TRADER_BANK = TextEntry.dataCategory(MODID,"trader_bank");
     public static final TextEntry DATA_CATEGORY_INPUT_SETTINGS = TextEntry.dataCategory(MODID,"input_settings");
+    public static final TextEntry DATA_CATEGORY_MISC_SETTINGS = TextEntry.dataCategory(MODID,"misc_settings");
     public static final TextEntry DATA_CATEGORY_CREATIVE = TextEntry.dataCategory(MODID,"creative");
 
     //Command Arguments
@@ -1079,6 +1091,7 @@ public class LCText {
     public static final TextEntry COMMAND_ADMIN_TRADERDATA_ADD_TO_WHITELIST_SUCCESS = TextEntry.command(MODID,"lcadmin.traderdata.addToWhitelist.success");
     public static final TextEntry COMMAND_ADMIN_TRADERDATA_ADD_TO_WHITELIST_MISSING = TextEntry.command(MODID,"lcadmin.traderdata.addToWhitelist.missing");
     public static final TextEntry COMMAND_ADMIN_REPLACE_WALLET_NOT_A_WALLET = TextEntry.command(MODID,"lcadmin.replaceWallet.not_a_wallet");
+    public static final TextEntry COMMAND_ADMIN_EMPTY_WALLET_SUCCESS = TextEntry.command(MODID,"lcadmin.emptyWallet.success");
     public static final TextEntry COMMAND_ADMIN_VIEW_WALLET_EMPTY = TextEntry.command(MODID,"lcadmin.viewWallet.empty");
     public static final TextEntry COMMAND_ADMIN_VIEW_WALLET_SUCCESS = TextEntry.command(MODID,"lcadmin.viewWallet.success");
     public static final TextEntry COMMAND_ADMIN_VIEW_WALLET_INVALID_TARGET = TextEntry.command(MODID,"lcadmin.viewWallet.invalid_target");

@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
+import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -12,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_v
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.TooltipInfo;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
-import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
@@ -86,16 +86,16 @@ public class ModelVariantButton extends EasyButton implements ITooltipWidget {
         Pair<ResourceLocation,ModelVariant> entry = this.variantSource.get();
         if(entry == null)
             return new ArrayList<>();
-        List<Component> tooltip = new ArrayList<>(TooltipHelper.splitTooltips(entry.getSecond().getName()));
+        List<Component> tooltip = Lists.newArrayList(entry.getSecond().getName());
         //Add custom tooltips
         if(entry.getSecond().has(VariantProperties.TOOLTIP_INFO))
         {
             TooltipInfo extraTooltip = entry.getSecond().get(VariantProperties.TOOLTIP_INFO);
             if(extraTooltip.drawOnSelection)
-                tooltip.addAll(TooltipHelper.splitTooltips(extraTooltip.getTooltip()));
+                tooltip.addAll(extraTooltip.getTooltip());
         }
         if(entry.getFirst() != null && Minecraft.getInstance().options.advancedItemTooltips)
-            tooltip.add(EasyText.literal(entry.getFirst().toString()).withStyle(ChatFormatting.GRAY));
+            tooltip.add(EasyText.literal(entry.getFirst().toString()).withStyle(ChatFormatting.DARK_GRAY));
         return tooltip;
     }
 

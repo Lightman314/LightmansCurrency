@@ -45,6 +45,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 
 	private int columns;
 	private int rows;
+
 	List<NetworkTraderButton> traderButtons;
 
 	private List<TraderData> traderList(){
@@ -80,7 +81,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 			availableHeight -= NetworkTraderButton.HEIGHT;
 			this.rows++;
 		}
-		this.resize((this.columns * NetworkTraderButton.WIDTH) + 30, (this.rows * NetworkTraderButton.HEIGHT) + 36);
+		this.resize((this.columns * NetworkTraderButton.WIDTH) + 30, (this.rows * NetworkTraderButton.HEIGHT) + 45);
 		return this.getArea();
 	}
 
@@ -107,8 +108,8 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 				.build());
 
 		this.scrollBar = this.addChild(ScrollBarWidget.builder()
-				.position(screenArea.pos.offset(16 + (NetworkTraderButton.WIDTH * this.columns),17))
-				.height((NetworkTraderButton.HEIGHT * this.rows) * 2)
+				.position(screenArea.pos.offset(16 + (NetworkTraderButton.WIDTH * this.columns),25))
+				.height((NetworkTraderButton.HEIGHT * this.rows) + 2)
 				.scrollable(this)
 				.build());
 
@@ -144,10 +145,10 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 		gui.blitNineSplit(GUI_TEXTURE, 0, 0, this.imageWidth, this.imageHeight, 0, 0, 100, 100, 25);
 		//Render the search icon
 		gui.blit(GUI_TEXTURE, 14, 7, 100, 0,11, 14);
-		//Render the search input background
-		gui.blitHorizSplit(GUI_TEXTURE,25,7,this.searchWidth,14,111,0, 107,4);
+		//Render search input background
+		gui.blitHorizSplit(GUI_TEXTURE,25,7,this.searchWidth,14,111,0,107,4);
 		//Render the button background
-		gui.blitNineSplit(GUI_TEXTURE, 14, 25, this.imageWidth - 28, this.imageHeight - 42, 0, 100, 100, 100, 25);
+		gui.blitNineSplit(GUI_TEXTURE, 14, 25, this.imageWidth - 28, this.imageHeight - 43, 0, 100, 100, 100, 25);
 
 	}
 
@@ -197,17 +198,17 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 
 	private void updateTraderList()
 	{
+		//Filtering of results moved to the TradingOffice.filterTraders
 		StringBuilder fullSearch = new StringBuilder();
 		String extra = LCConfig.CLIENT.terminalBonusFilters.get();
 		if(!extra.isBlank())
 		{
-			fullSearch.append(extra);
+			fullSearch = fullSearch.append(extra);
 			if(!extra.endsWith(" "))
 				fullSearch.append(" ");
 		}
 		if(!this.searchField.getValue().isBlank())
 			fullSearch.append(this.searchField.getValue());
-		//Filtering of results moved to the TradingOffice.filterTraders
 		this.filteredTraderList = TraderAPI.API.FilterTraders(this.traderList(), fullSearch.toString());
 		//Validate the scroll
 		this.validateScroll();

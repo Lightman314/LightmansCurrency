@@ -11,18 +11,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public interface IBasicTraderFilter extends ITraderSearchFilter, ITradeSearchFilter {
 
     @Override
-    @SuppressWarnings("deprecation")
-    default boolean filter(TraderData data, String searchText)
-    {
-        for(TradeData trade : data.getTradeData())
-        {
-            if(this.filterTrade(trade, searchText))
-                return true;
-        }
-        return false;
-    }
-
-    @Override
     default void filter(TraderData data, PendingSearch search) {
         for(TradeData trade : data.getTradeData())
             this.filterTrade(trade,search);

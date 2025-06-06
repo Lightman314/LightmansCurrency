@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_tr
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
+import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.GachaMachineBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMachineBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
@@ -81,6 +82,16 @@ public class ClientModEvents {
 		});
 		//Gacha Ball
 		event.register(GachaBallRenderer.MODEL);
+		//Gacha Machine Basic Graphics Models
+		for(ResourceLocation model : GachaMachineBlock.BASIC_MODELS)
+			event.register(model);
+		ForgeRegistries.BLOCKS.forEach(block -> {
+			if(block instanceof GachaMachineBlock b)
+			{
+				for(ResourceLocation model : b.getBasicModels())
+					event.register(model);
+			}
+		});
 	}
 
 	@SubscribeEvent

@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.display.TextDisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.integration.impactor.LCImpactorCompat;
 import net.impactdev.impactor.api.economy.EconomyService;
@@ -144,7 +145,7 @@ public class ImpactorMoneyValue extends MoneyValue {
     @Nonnull
     @Override
     public DisplayEntry getDisplayEntry(@Nullable List<Component> additionalTooltips, boolean tooltipOverride) {
-        return DisplayEntry.of(this.getText(EasyText.empty()),TextRenderUtil.TextFormatting.create().centered().middle());
+        return TextDisplayEntry.of(this.getText(EasyText.empty()),TextRenderUtil.TextFormatting.create().centered().middle());
     }
 
     public static MoneyValue load(CompoundTag tag) {

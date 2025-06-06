@@ -6,17 +6,13 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Map;
 
 @ParametersAreNonnullByDefault
 public interface ITradeSearchFilter {
 
-    @Deprecated(since = "2.2.4.3")
-    default boolean filterTrade(TradeData data, String searchText) { return false; }
-
-    default void filterTrade(TradeData data, PendingSearch search) { }
+    void filterTrade(TradeData data, PendingSearch search);
 
     static boolean filterItem(ItemStack stack, String searchText)
     {

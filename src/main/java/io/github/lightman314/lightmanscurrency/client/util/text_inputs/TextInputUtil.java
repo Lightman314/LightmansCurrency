@@ -41,6 +41,7 @@ public class TextInputUtil {
         String startingValue = "";
         private int maxLength = 32;
         private Component message = EasyText.empty();
+        private boolean renderBG = true;
 
         public Builder<T> font(Font font) { this.font = font; return this; }
         public Builder<T> startingString(String value) { this.startingValue = value; return this; }
@@ -61,6 +62,8 @@ public class TextInputUtil {
         public Builder<T> filter(Predicate<String> filter) { this.filter = filter; return this; }
         public Builder<T> parser(Function<String,T> parser) { this.parser = parser; return this; }
 
+        public Builder<T> noBorder() { this.renderBG = false; return this; }
+
         public Builder<T> apply(Consumer<Builder<T>> application) { application.accept(this); return this; }
 
         public EditBox build() {
@@ -70,6 +73,7 @@ public class TextInputUtil {
                 box.setFilter(this.filter);
             box.setResponder(s -> this.handler.accept(this.parser.apply(s)));
             box.setMaxLength(this.maxLength);
+            box.setBordered(this.renderBG);
             return box;
         }
 

@@ -18,9 +18,8 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderSt
 import io.github.lightman314.lightmanscurrency.api.traders.permissions.PermissionOption;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.command.CommandSettingsTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.command.CommandSettingsAddon;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.addons.MiscTabAddon;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.misc.UpgradesTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.command.CommandTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.CommandTradeNotification;
@@ -311,9 +310,10 @@ public class CommandTrader extends TraderData {
     protected void addPermissionOptions(List<PermissionOption> options) { }
 
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void addSettingsTabs(TraderSettingsClientTab tab, List<SettingsSubTab> tabs) {
-        tabs.add(new CommandSettingsTab(tab));
+    public List<MiscTabAddon> getMiscTabAddons() {
+        List<MiscTabAddon> results = super.getMiscTabAddons();
+        results.add(new CommandSettingsAddon());
+        return results;
     }
 
     @Override

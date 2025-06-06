@@ -233,13 +233,14 @@ public class BankAPIImpl extends BankAPI {
                 List<MoneyValue> limits = LCConfig.SERVER.bankAccountInterestLimits.get();
                 boolean forceInterest = LCConfig.SERVER.bankAccountForceInterest.get();
                 boolean notifyPlayers = LCConfig.SERVER.bankAccountInterestNotification.get();
+                List<String> interestBlacklist = LCConfig.SERVER.bankAccountInterestBlacklist.get();
                 for(BankReference reference : this.GetAllBankReferences(false))
                 {
                     IBankAccount account = reference.get();
                     if(account != null)
                     {
                         LightmansCurrency.LogDebug("Applying interest to " + account.getName().getString());
-                        account.applyInterest(interestRate,limits,forceInterest,notifyPlayers);
+                        account.applyInterest(interestRate,limits,interestBlacklist,forceInterest,notifyPlayers);
                     }
                 }
             }

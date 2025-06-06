@@ -25,13 +25,17 @@ public class EasyBlockEntity extends BlockEntity implements IClientTracker, IVar
     @Nullable
     @Override
     public ResourceLocation getCurrentVariant() { return this.currentVariant; }
+    private boolean variantLocked = false;
+    @Override
+    public boolean isVariantLocked() { return this.variantLocked; }
 
     @Override
-    public void setVariant(@Nullable ResourceLocation variant) {
+    public void setVariant(@Nullable ResourceLocation variant, boolean variantLocked) {
         this.currentVariant = variant;
+        this.variantLocked = variantLocked;
         this.setChanged();
         if(this.isServer())
-            BlockEntityUtil.sendUpdatePacket(this);
+            BlockEntityUtil.sendUpdatePacket(this,this.saveVariantPacket());
     }
 
     public EasyBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) { super(type, pos, state); }
@@ -39,12 +43,23 @@ public class EasyBlockEntity extends BlockEntity implements IClientTracker, IVar
     @Override
     public boolean isClient() { return this.level == null || this.level.isClientSide; }
 
-    @Override
-    protected void saveAdditional(CompoundTag tag) {
+    protected final CompoundTag saveVariantPacket()
+    {
+        CompoundTag tag = new CompoundTag();
         if(this.currentVariant != null)
             tag.putString("Variant",this.currentVariant.toString());
         else
             tag.putBoolean("NoVariant",true);
+        tag.putBoolean("VariantLocked",this.variantLocked);
+        return tag;
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag) {
+        if(this.currentVariant != null)
+            tag.putString("Variant",this.currentVariant.toString());
+        if(this.variantLocked)
+            tag.putBoolean("VariantLocked",this.variantLocked);
         super.saveAdditional(tag);
     }
 
@@ -54,6 +69,8 @@ public class EasyBlockEntity extends BlockEntity implements IClientTracker, IVar
             this.currentVariant = VersionUtil.parseResource(tag.getString("Variant"));
         else if(tag.contains("NoVariant"))
             this.currentVariant = null;
+        if(tag.contains("VariantLocked"))
+            this.variantLocked = tag.getBoolean("VariantLocked");
         super.load(tag);
     }
 
@@ -65,6 +82,8 @@ public class EasyBlockEntity extends BlockEntity implements IClientTracker, IVar
             if(state.getBlock() instanceof IVariantBlock vb && !state.getValue(IVariantBlock.VARIANT))
                 this.level.setBlockAndUpdate(this.worldPosition,state.setValue(IVariantBlock.VARIANT,true));
         }
+        if(this.isClient())
+            BlockEntityUtil.requestUpdatePacket(this);
         super.onLoad();
     }
 

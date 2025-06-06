@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.integration.jade;
 
+import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.EasyBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.PaygateBlock;
 import io.github.lightman314.lightmanscurrency.integration.jade.providers.*;
@@ -15,4 +16,8 @@ public class LCJadePlugin implements IWailaPlugin {
         registration.registerBlockComponent(PaygateComponentProvider.INSTANCE,PaygateBlock.class);
     }
 
+    @Override
+    public void register(IWailaCommonRegistration registration) {
+        registration.registerBlockDataProvider(PaygateComponentProvider.INSTANCE, PaygateBlockEntity.class);
+    }
 }

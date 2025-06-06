@@ -39,7 +39,7 @@ public class CoinPriceEntry extends DisplayEntry {
     public void render(EasyGuiGraphics gui, int x, int y, DisplayData area) {
         gui.resetColor();
         List<CoinValuePair> entries = this.price.getEntries();
-        if(entries.size() * 16 <= area.width())
+        if(entries.size() * 16 <= area.width() || entries.size() == 1)
         {
             List<DisplayData> entryPositions = area.divide(entries.size());
             for(int i = 0; i < entryPositions.size() && i < entries.size(); ++i)
@@ -52,9 +52,9 @@ public class CoinPriceEntry extends DisplayEntry {
                 gui.renderItem(stack, left, top);
             }
         }
-        else if(!entries.isEmpty())
+        else if(entries.size() > 1)
         {
-            int spacing = (area.width() - 16) / entries.size();
+            int spacing = (area.width() - 16) / (entries.size() - 1);
             int top = this.getTopLeft(y + area.yOffset(), area.height());
             int left = x + area.xOffset() + area.width() - 16;
             //Draw cheapest to most expensive

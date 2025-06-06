@@ -7,10 +7,10 @@ import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_v
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.TooltipInfo;
 import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVariantSupportingBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
-import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
@@ -65,11 +65,7 @@ public class EasyBlock extends Block {
     public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
         ItemStack result = super.getCloneItemStack(state,target,level,pos,player);
         if(player.isCrouching() && this instanceof IVariantBlock vb && level.getBlockEntity(pos) instanceof IVariantSupportingBlockEntity be)
-        {
-            ResourceLocation variant = be.getCurrentVariant();
-            if(variant != null)
-                IVariantBlock.setItemVariant(result,variant);
-        }
+            IVariantSupportingBlockEntity.copyDataToItem(be,result);
         return result;
     }
 
@@ -88,13 +84,16 @@ public class EasyBlock extends Block {
                     {
                         TooltipInfo extraTooltip = variant.get(VariantProperties.TOOLTIP_INFO);
                         if(extraTooltip.drawOnItem)
-                            tooltip.addAll(TooltipHelper.splitTooltips(extraTooltip.getTooltip()));
+                            tooltip.addAll(extraTooltip.getTooltip());
                     }
                 }
                 if(flag.isAdvanced())
                     tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_ID.get(variantID.toString()).withStyle(ChatFormatting.DARK_GRAY));
             }
         }
+        CompoundTag tag = stack.getTag();
+        if(tag != null && tag.getBoolean("VariantLocked"))
+            tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_LOCKED.getWithStyle(ChatFormatting.GOLD,ChatFormatting.BOLD));
         super.appendHoverText(stack, context, tooltip, flag);
     }
 

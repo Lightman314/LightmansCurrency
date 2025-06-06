@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
+import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
@@ -29,7 +30,10 @@ import mezz.jei.api.registration.*;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
@@ -71,6 +75,12 @@ public class LCJeiPlugin implements IModPlugin{
 	@Override
 	public void registerItemSubtypes(ISubtypeRegistration registration) {
 		registration.registerSubtypeInterpreter(ModItems.COIN_ANCIENT.get(),new AncientCoinSubtype());
+		VariantSubtype variantSubtype = new VariantSubtype();
+		for(Item item : ForgeRegistries.ITEMS)
+		{
+			if(item instanceof BlockItem be && be.getBlock() instanceof IVariantBlock)
+				registration.registerSubtypeInterpreter(item,variantSubtype);
+		}
 	}
 
 	@Override
@@ -119,6 +129,15 @@ public class LCJeiPlugin implements IModPlugin{
 			if(type == null)
 				type = AncientCoinType.COPPER;
 			return type.toString();
+		}
+	}
+
+	private static class VariantSubtype implements IIngredientSubtypeInterpreter<ItemStack>
+	{
+		@Override
+		public String apply(ItemStack stack, UidContext uidContext) {
+			ResourceLocation variant = IVariantBlock.getItemVariant(stack);
+			return variant == null ? "" : variant.toString();
 		}
 	}
 	

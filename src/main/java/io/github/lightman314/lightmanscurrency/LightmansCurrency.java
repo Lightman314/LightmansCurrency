@@ -251,6 +251,7 @@ public class LightmansCurrency {
 		TraderAPI.API.RegisterSearchFilter(new ItemTraderSearchFilter());
 		TraderAPI.API.RegisterSearchFilter(new SlotMachineSearchFilter());
 		TraderAPI.API.RegisterSearchFilter(new AuctionSearchFilter());
+		TraderAPI.API.RegisterSearchFilter(new DescriptionSearchFilter());
 
 		//Register Tax Reference Types (in case I add more taxable blocks in the future)
 		TaxAPI.API.RegisterReferenceType(TaxableTraderReference.TYPE);

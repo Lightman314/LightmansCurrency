@@ -25,16 +25,6 @@ public abstract class ConfigFile {
     private static final Map<ResourceLocation,ConfigFile> loadableFiles = new HashMap<>();
     public static Iterable<ConfigFile> getAvailableFiles() { return ImmutableList.copyOf(loadableFiles.values()); }
     @Nullable
-    @Deprecated(since = "2.2.5.1c")
-    public static ConfigFile lookupFile(String fileName) {
-        for(ConfigFile file : loadableFiles.values())
-        {
-            if(file.getFileName().equals(fileName))
-                return file;
-        }
-        return null;
-    }
-    @Nullable
     public static ConfigFile lookupFile(ResourceLocation file) { return loadableFiles.get(file); }
     private static void registerConfig(ConfigFile file) { loadableFiles.put(file.fileID,file); }
 
@@ -232,6 +222,12 @@ public abstract class ConfigFile {
     private boolean reloading = false;
     private boolean loaded = false;
     public boolean isLoaded() { return this.loaded; }
+
+    public final void forceLoaded()
+    {
+        if(!this.loaded)
+            this.reload();
+    }
 
     public final void reload()
     {

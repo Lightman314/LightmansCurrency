@@ -174,7 +174,11 @@ public class PlayerListing extends TradeRule {
                             {
                                 List<PlayerReference> whitelist = PlayerReference.loadList(tag,"WhitelistedPlayers");
                                 boolean relevant = !whitelist.isEmpty();
-                                rule.playerList.addAll(whitelist);
+                                for(PlayerReference pr : whitelist)
+                                {
+                                    if(!PlayerReference.isInList(rule.playerList,pr))
+                                        rule.playerList.add(pr);
+                                }
                                 boolean active = tag.contains("Active") && tag.getBoolean("Active");
                                 whitelistState = Pair.of(relevant,active);
                             }
@@ -182,7 +186,11 @@ public class PlayerListing extends TradeRule {
                             {
                                 List<PlayerReference> blacklist = PlayerReference.loadList(tag,"BannedPlayers");
                                 boolean relevant = !blacklist.isEmpty();
-                                rule.playerList.addAll(blacklist);
+                                for(PlayerReference pr : blacklist)
+                                {
+                                    if(!PlayerReference.isInList(rule.playerList,pr))
+                                        rule.playerList.add(pr);
+                                }
                                 boolean active = tag.contains("Active") && tag.getBoolean("Active");
                                 blacklistState = Pair.of(relevant,active);
                             }

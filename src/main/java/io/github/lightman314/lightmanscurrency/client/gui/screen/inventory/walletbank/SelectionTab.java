@@ -35,13 +35,16 @@ public class SelectionTab extends WalletBankTab {
 		this.bankAccountSelection = this.addChild(BankAccountSelectionWidget.builder()
 				.position(screenArea.pos.offset(20,15))
 				.width(screenArea.width - 40)
-				.rows(5)
+				.rows(4)
 				.filter(this::allowedAccess)
 				.selected(this.menu::getBankAccountReference)
 				.handler(this::selectAccount)
 				.build());
 
 	}
+
+	@Override
+	public boolean blockInventoryClosing() { return true; }
 
 	private boolean allowedAccess(@Nonnull BankReference reference)
 	{

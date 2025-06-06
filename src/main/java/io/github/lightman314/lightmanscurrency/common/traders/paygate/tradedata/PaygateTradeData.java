@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.Dir
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.IDirectionalSettingsObject;
 import io.github.lightman314.lightmanscurrency.api.ticket.TicketData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.IDescriptionTrade;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
@@ -31,6 +32,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.DemandPricing;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -46,10 +48,12 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-public class PaygateTradeData extends TradeData implements IDirectionalSettingsObject {
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
+public class PaygateTradeData extends TradeData implements IDirectionalSettingsObject, IDescriptionTrade {
 
 	public PaygateTradeData() {
 		super(true);
@@ -69,10 +73,12 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 	public void setRedstoneLevel(int level) { this.level = MathUtil.clamp(level,1,15); }
 
 	private String description = "";
+	@Override
 	public String getDescription() { return this.description; }
 	public void setDescription(String description) { this.description = description; }
 
 	private String tooltip = "";
+	@Override
 	public String getTooltip() { return this.tooltip; }
 	public void setTooltip(String tooltip) { this.tooltip = tooltip; }
 	public List<Component> getDescriptionTooltip()
@@ -99,9 +105,8 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 	@Override
 	public ResourceLocation getVariant() { return this.parent == null ? null : this.parent.getTraderBlockVariant(); }
 
-	@Nonnull
 	@Override
-	public DirectionalSettingsState getSidedState(@Nonnull Direction side) { return this.outputSettings.getState(side); }
+	public DirectionalSettingsState getSidedState(Direction side) { return this.outputSettings.getState(side); }
 
 	Item ticketItem = Items.AIR;
 	long ticketID = Long.MIN_VALUE;
@@ -128,10 +133,10 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 	}
 
 	@Override
-	public int getStock(@Nonnull TradeContext context) { return this.isValid() ? 1 : 0; }
+	public int getStock(TradeContext context) { return this.isValid() ? 1 : 0; }
 
 	@Override
-	public boolean allowTradeRule(@Nonnull TradeRule rule) {
+	public boolean allowTradeRule(TradeRule rule) {
 		//Block Demand Pricing trade rule from Paygates as stock is not relevant for this type of trade
 		if(rule instanceof DemandPricing)
 			return false;
@@ -160,7 +165,7 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 
 	@Override
 	public boolean isValid() {
-		return this.getDuration() >= PaygateTraderData.DURATION_MIN && (this.isTicketTrade() || super.isValid());
+		return this.getDuration() >= PaygateTraderData.DURATION_MIN && (this.isTicketTrade() || super.isValid()) && this.hasOutputSide();
 	}
 
 	public static void saveAllData(CompoundTag nbt, List<PaygateTradeData> data)
@@ -362,7 +367,7 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 		return result;
 	}
 
-	private static void appendUnit(@Nonnull MutableComponent result, boolean addSpacer, int count, @Nonnull TimeUnitTextEntry entry)
+	private static void appendUnit(MutableComponent result, boolean addSpacer, int count, TimeUnitTextEntry entry)
 	{
 		if(addSpacer)
 			result.append(EasyText.literal(" "));
@@ -373,16 +378,16 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 			result.append(entry.fullText.get());
 	}
 
-	@Nonnull
-	private static MutableComponent formatUnitShort(int count, @Nonnull TimeUnitTextEntry entry) { return EasyText.literal(String.valueOf(count)).append(entry.shortText.get()); }
+	
+	private static MutableComponent formatUnitShort(int count, TimeUnitTextEntry entry) { return EasyText.literal(String.valueOf(count)).append(entry.shortText.get()); }
 
-	@Nonnull
+	
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public TradeRenderManager<?> getButtonRenderer() { return new PaygateTradeButtonRenderer(this); }
 
 	@Override
-	public void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
+	public void OnInputDisplayInteraction(BasicTradeEditTab tab, int index, TradeInteractionData data, ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof PaygateTraderData paygate)
 		{
 			int tradeIndex = paygate.getTradeData().indexOf(this);
@@ -403,7 +408,7 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 	}
 
 	@Override
-	public void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
+	public void OnOutputDisplayInteraction(BasicTradeEditTab tab, int index, TradeInteractionData data, ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof PaygateTraderData paygate)
 		{
 			int tradeIndex = paygate.getTradeData().indexOf(this);
@@ -414,7 +419,7 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 	}
 
 	@Override
-	public void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
+	public void OnInteraction(BasicTradeEditTab tab, TradeInteractionData data, ItemStack heldItem) {
 
 		if(tab.menu.getTrader() instanceof PaygateTraderData paygate)
 		{

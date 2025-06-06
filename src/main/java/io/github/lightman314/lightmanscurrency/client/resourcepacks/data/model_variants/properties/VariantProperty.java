@@ -8,6 +8,7 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fml.ModLoader;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Map;
 import java.util.Objects;
@@ -31,6 +32,13 @@ public abstract class VariantProperty<T> {
         if(obj instanceof VariantProperty<?> other)
             return other.getClass() == this.getClass() && other.getID().equals(this.getID());
         return false;
+    }
+
+    @Nullable
+    public static VariantProperty<?> getProperty(ResourceLocation id)
+    {
+        confirmRegistration();
+        return registry.get(id);
     }
 
     public static void forEach(BiConsumer<ResourceLocation,VariantProperty<?>> consumer) {

@@ -10,13 +10,18 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.easy_data.categories.DataCategories;
+import io.github.lightman314.lightmanscurrency.api.easy_data.types.EnumData;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettings;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderScreen;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.addons.MiscTabAddon;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.paygate.PaygateSettingAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
@@ -35,10 +40,12 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderSt
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.paygate.PaygateTradeEditTab;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.CPacketCollectTicketStubs;
+import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -50,6 +57,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.ItemHandlerHelper;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
@@ -103,6 +111,14 @@ public class PaygateTraderData extends TraderData {
 	public boolean canShowOnTerminal() { return false; }
 	
 	protected List<PaygateTradeData> trades = PaygateTradeData.listOfSize(1);
+
+	public final EnumData<OutputConflictHandling> conflictHandling = EnumData.builder(OutputConflictHandling.DENY_SIDE_CONFLICT,v -> LCText.GUI_TRADER_PAYGATE_CONFLICT_HANDLING.get(v).get())
+			.host(this)
+			.category(DataCategories.Traders.MISC_SETTINGS)
+			.name(LCText.DATA_ENTRY_PAYGATE_CONFLICT_HANDLING.get())
+			.key("conflict_mode")
+			.tagKey("ConflictMode")
+			.build();
 	
 	private PaygateTraderData() { super(TYPE); }
 	public PaygateTraderData(Level level, BlockPos pos) { super(TYPE, level, pos); }
@@ -199,17 +215,43 @@ public class PaygateTraderData extends TraderData {
 		return null;
 	}
 	
-	public boolean isActive() {
+	public boolean isActive(DirectionalSettings outputSides) {
 		PaygateBlockEntity be = this.getPaygate();
 		if(be != null)
-			return be.isActive();
+		{
+			if(this.conflictHandling.get() == OutputConflictHandling.DENY_ANY)
+				return be.isActive();
+			for(Direction side : be.getActiveSides())
+			{
+				if(outputSides.allowOutputs(side))
+					return true;
+			}
+		}
 		return false;
 	}
-	
-	private void activate(int duration, int level, DirectionalSettings outputSides) {
+
+	public int getTimeRemaining(DirectionalSettings outputSides) {
 		PaygateBlockEntity be = this.getPaygate();
 		if(be != null)
-			be.activate(duration,level,outputSides);
+			return be.getTimeRemaining(outputSides);
+		return 0;
+	}
+	
+	private void activate(int duration, int level, DirectionalSettings outputSides, @Nullable String name) {
+		PaygateBlockEntity be = this.getPaygate();
+		if(be != null)
+			be.activate(duration,level,outputSides,this.conflictHandling.get(),name);
+	}
+
+	@Override
+	public void handleSettingsChange(Player player, LazyPacketData message) {
+		super.handleSettingsChange(player, message);
+		if(message.contains("ChangeConflictMode"))
+		{
+			OutputConflictHandling newMode = EnumUtil.enumFromOrdinal(message.getInt("ChangeConflictMode"),OutputConflictHandling.values(),null);
+			if(newMode != null)
+				this.conflictHandling.trySet(player,newMode);
+		}
 	}
 
 	@Override
@@ -231,7 +273,7 @@ public class PaygateTraderData extends TraderData {
 		}
 		
 		//Abort if the paygate is already activated
-		if(this.isActive())
+		if(this.isActive(trade.getOutputSides()) && !this.conflictHandling.get().allowsConflicts)
 		{
 			LightmansCurrency.LogWarning("Paygate is already activated. It cannot be activated until the previous timer is completed.");
 			return TradeResult.FAIL_OUT_OF_STOCK;
@@ -288,7 +330,7 @@ public class PaygateTraderData extends TraderData {
 			}
 			
 			//Activate the paygate
-			this.activate(trade.getDuration(),trade.getRedstoneLevel(),trade.getOutputSides());
+			this.activate(trade.getDuration(),trade.getRedstoneLevel(),trade.getOutputSides(),trade.getDescription());
 			
 			//Push Notification
 			this.pushNotification(PaygateNotification.createTicket(trade, hasPass, context.getPlayerReference(), this.getNotificationCategory()));
@@ -308,7 +350,7 @@ public class PaygateTraderData extends TraderData {
 			}
 			
 			//We have collected the payment, activate the paygate
-			this.activate(trade.getDuration(),trade.getRedstoneLevel(),trade.getOutputSides());
+			this.activate(trade.getDuration(),trade.getRedstoneLevel(),trade.getOutputSides(),trade.getDescription());
 
 			//Don't store money if the trader is creative
 			if(!this.isCreative())
@@ -438,6 +480,13 @@ public class PaygateTraderData extends TraderData {
 				.addon(EasyAddonHelper.visibleCheck(() -> this.areTicketStubsRelevant() && this.hasPermission(playerSource.get(),Permissions.OPEN_STORAGE) && visible.get()))
 				.addon(EasyAddonHelper.activeCheck(() -> this.getStoredTicketStubs() > 0))
 				.build();
+	}
+
+	@Override
+	public List<MiscTabAddon> getMiscTabAddons() {
+		List<MiscTabAddon> list = super.getMiscTabAddons();
+		list.add(PaygateSettingAddon.INSTANCE);
+		return list;
 	}
 
 	private boolean areTicketStubsRelevant() {

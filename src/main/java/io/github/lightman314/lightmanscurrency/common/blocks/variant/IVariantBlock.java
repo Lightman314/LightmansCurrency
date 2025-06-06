@@ -1,12 +1,15 @@
 package io.github.lightman314.lightmanscurrency.common.blocks.variant;
 
+import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IDeepBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.ITallBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IWideBlock;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
+import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVariantSupportingBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.menus.VariantSelectMenu;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -90,6 +93,12 @@ public interface IVariantBlock {
                 return false;
             if(level.isClientSide)
                 return true;
+            //Prevent opening the menu if the variant is locked
+            if(level.getBlockEntity(pos) instanceof IVariantSupportingBlockEntity be && be.isVariantLocked())
+            {
+                player.sendSystemMessage(LCText.TOOLTIP_MODEL_VARIANT_LOCKED.getWithStyle(ChatFormatting.RED));
+                return true;
+            }
             NetworkHooks.openScreen(sp,VariantSelectMenu.providerFor(pos),pos);
             return true;
         }
