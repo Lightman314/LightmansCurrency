@@ -1,0 +1,14 @@
+{
+  "parent": "lightmanscurrency:armor_display/skin_default",
+  "name": {
+    "translate": "lightmanscurrency.block_variant.armor_display.skin",
+    "with": [
+      {
+        "translate": "lightmanscurrency.block_variant.armor_display.skin.2"
+      }
+    ]
+  },
+  "textures": {
+    "skin": "lightmanscurrency:block/armor_display/skin2"
+  }
+}

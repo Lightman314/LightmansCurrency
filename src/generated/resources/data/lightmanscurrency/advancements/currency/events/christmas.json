@@ -1,0 +1,39 @@
+{
+  "parent": "lightmanscurrency:currency/events/chocolate_coins",
+  "criteria": {
+    "event": {
+      "conditions": {
+        "end": {
+          "day": 31,
+          "month": 12
+        },
+        "start": {
+          "day": 1,
+          "month": 12
+        }
+      },
+      "trigger": "lightmanscurrency:date_range"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.lightmanscurrency.event.christmas.description"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "lightmanscurrency:coin_chocolate_gold"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.lightmanscurrency.event.christmas.title"
+    }
+  },
+  "requirements": [
+    [
+      "event"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

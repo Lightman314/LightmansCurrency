@@ -1,0 +1,3389 @@
+{
+  "values": [
+    "lightmanscurrency:shelf_oak",
+    "lightmanscurrency:shelf_spruce",
+    "lightmanscurrency:shelf_birch",
+    "lightmanscurrency:shelf_jungle",
+    "lightmanscurrency:shelf_acacia",
+    "lightmanscurrency:shelf_dark_oak",
+    "lightmanscurrency:shelf_mangrove",
+    "lightmanscurrency:shelf_cherry",
+    "lightmanscurrency:shelf_bamboo",
+    "lightmanscurrency:shelf_crimson",
+    "lightmanscurrency:shelf_warped",
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_dead",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_magic",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_umbran",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_hellbark",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_quark_ancient",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_quark_azalea",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_quark_blossom",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_aspen",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_baobab",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_blue_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_cika",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_cypress",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_ebony",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_florus",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_green_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_holly",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_ironwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_maple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_pine",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_rainbow_eucalyptus",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_sakura",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_skyris",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_white_mangrove",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_witch_hazel",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_zelkova",
+      "required": false
+    },
+    "lightmanscurrency:shelf_2x2_oak",
+    "lightmanscurrency:shelf_2x2_spruce",
+    "lightmanscurrency:shelf_2x2_birch",
+    "lightmanscurrency:shelf_2x2_jungle",
+    "lightmanscurrency:shelf_2x2_acacia",
+    "lightmanscurrency:shelf_2x2_dark_oak",
+    "lightmanscurrency:shelf_2x2_mangrove",
+    "lightmanscurrency:shelf_2x2_cherry",
+    "lightmanscurrency:shelf_2x2_bamboo",
+    "lightmanscurrency:shelf_2x2_crimson",
+    "lightmanscurrency:shelf_2x2_warped",
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomesoplenty_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomesoplenty_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomesoplenty_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomesoplenty_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomesoplenty_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomesoplenty_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomesoplenty_dead",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomesoplenty_magic",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomesoplenty_umbran",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomesoplenty_hellbark",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_quark_ancient",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_quark_azalea",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_quark_blossom",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_aspen",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_baobab",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_blue_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_cika",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_cypress",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_ebony",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_florus",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_green_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_holly",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_ironwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_maple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_pine",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_rainbow_eucalyptus",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_sakura",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_skyris",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_white_mangrove",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_witch_hazel",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomeswevegone_zelkova",
+      "required": false
+    },
+    "lightmanscurrency:card_display_oak_white",
+    "lightmanscurrency:card_display_oak_light_gray",
+    "lightmanscurrency:card_display_oak_gray",
+    "lightmanscurrency:card_display_oak_black",
+    "lightmanscurrency:card_display_oak_brown",
+    "lightmanscurrency:card_display_oak",
+    "lightmanscurrency:card_display_oak_orange",
+    "lightmanscurrency:card_display_oak_yellow",
+    "lightmanscurrency:card_display_oak_lime",
+    "lightmanscurrency:card_display_oak_green",
+    "lightmanscurrency:card_display_oak_cyan",
+    "lightmanscurrency:card_display_oak_light_blue",
+    "lightmanscurrency:card_display_oak_blue",
+    "lightmanscurrency:card_display_oak_purple",
+    "lightmanscurrency:card_display_oak_magenta",
+    "lightmanscurrency:card_display_oak_pink",
+    "lightmanscurrency:card_display_spruce_white",
+    "lightmanscurrency:card_display_spruce_light_gray",
+    "lightmanscurrency:card_display_spruce_gray",
+    "lightmanscurrency:card_display_spruce_black",
+    "lightmanscurrency:card_display_spruce_brown",
+    "lightmanscurrency:card_display_spruce",
+    "lightmanscurrency:card_display_spruce_orange",
+    "lightmanscurrency:card_display_spruce_yellow",
+    "lightmanscurrency:card_display_spruce_lime",
+    "lightmanscurrency:card_display_spruce_green",
+    "lightmanscurrency:card_display_spruce_cyan",
+    "lightmanscurrency:card_display_spruce_light_blue",
+    "lightmanscurrency:card_display_spruce_blue",
+    "lightmanscurrency:card_display_spruce_purple",
+    "lightmanscurrency:card_display_spruce_magenta",
+    "lightmanscurrency:card_display_spruce_pink",
+    "lightmanscurrency:card_display_birch_white",
+    "lightmanscurrency:card_display_birch_light_gray",
+    "lightmanscurrency:card_display_birch_gray",
+    "lightmanscurrency:card_display_birch_black",
+    "lightmanscurrency:card_display_birch_brown",
+    "lightmanscurrency:card_display_birch",
+    "lightmanscurrency:card_display_birch_orange",
+    "lightmanscurrency:card_display_birch_yellow",
+    "lightmanscurrency:card_display_birch_lime",
+    "lightmanscurrency:card_display_birch_green",
+    "lightmanscurrency:card_display_birch_cyan",
+    "lightmanscurrency:card_display_birch_light_blue",
+    "lightmanscurrency:card_display_birch_blue",
+    "lightmanscurrency:card_display_birch_purple",
+    "lightmanscurrency:card_display_birch_magenta",
+    "lightmanscurrency:card_display_birch_pink",
+    "lightmanscurrency:card_display_jungle_white",
+    "lightmanscurrency:card_display_jungle_light_gray",
+    "lightmanscurrency:card_display_jungle_gray",
+    "lightmanscurrency:card_display_jungle_black",
+    "lightmanscurrency:card_display_jungle_brown",
+    "lightmanscurrency:card_display_jungle",
+    "lightmanscurrency:card_display_jungle_orange",
+    "lightmanscurrency:card_display_jungle_yellow",
+    "lightmanscurrency:card_display_jungle_lime",
+    "lightmanscurrency:card_display_jungle_green",
+    "lightmanscurrency:card_display_jungle_cyan",
+    "lightmanscurrency:card_display_jungle_light_blue",
+    "lightmanscurrency:card_display_jungle_blue",
+    "lightmanscurrency:card_display_jungle_purple",
+    "lightmanscurrency:card_display_jungle_magenta",
+    "lightmanscurrency:card_display_jungle_pink",
+    "lightmanscurrency:card_display_acacia_white",
+    "lightmanscurrency:card_display_acacia_light_gray",
+    "lightmanscurrency:card_display_acacia_gray",
+    "lightmanscurrency:card_display_acacia_black",
+    "lightmanscurrency:card_display_acacia_brown",
+    "lightmanscurrency:card_display_acacia",
+    "lightmanscurrency:card_display_acacia_orange",
+    "lightmanscurrency:card_display_acacia_yellow",
+    "lightmanscurrency:card_display_acacia_lime",
+    "lightmanscurrency:card_display_acacia_green",
+    "lightmanscurrency:card_display_acacia_cyan",
+    "lightmanscurrency:card_display_acacia_light_blue",
+    "lightmanscurrency:card_display_acacia_blue",
+    "lightmanscurrency:card_display_acacia_purple",
+    "lightmanscurrency:card_display_acacia_magenta",
+    "lightmanscurrency:card_display_acacia_pink",
+    "lightmanscurrency:card_display_dark_oak_white",
+    "lightmanscurrency:card_display_dark_oak_light_gray",
+    "lightmanscurrency:card_display_dark_oak_gray",
+    "lightmanscurrency:card_display_dark_oak_black",
+    "lightmanscurrency:card_display_dark_oak_brown",
+    "lightmanscurrency:card_display_dark_oak",
+    "lightmanscurrency:card_display_dark_oak_orange",
+    "lightmanscurrency:card_display_dark_oak_yellow",
+    "lightmanscurrency:card_display_dark_oak_lime",
+    "lightmanscurrency:card_display_dark_oak_green",
+    "lightmanscurrency:card_display_dark_oak_cyan",
+    "lightmanscurrency:card_display_dark_oak_light_blue",
+    "lightmanscurrency:card_display_dark_oak_blue",
+    "lightmanscurrency:card_display_dark_oak_purple",
+    "lightmanscurrency:card_display_dark_oak_magenta",
+    "lightmanscurrency:card_display_dark_oak_pink",
+    "lightmanscurrency:card_display_mangrove_white",
+    "lightmanscurrency:card_display_mangrove_light_gray",
+    "lightmanscurrency:card_display_mangrove_gray",
+    "lightmanscurrency:card_display_mangrove_black",
+    "lightmanscurrency:card_display_mangrove_brown",
+    "lightmanscurrency:card_display_mangrove",
+    "lightmanscurrency:card_display_mangrove_orange",
+    "lightmanscurrency:card_display_mangrove_yellow",
+    "lightmanscurrency:card_display_mangrove_lime",
+    "lightmanscurrency:card_display_mangrove_green",
+    "lightmanscurrency:card_display_mangrove_cyan",
+    "lightmanscurrency:card_display_mangrove_light_blue",
+    "lightmanscurrency:card_display_mangrove_blue",
+    "lightmanscurrency:card_display_mangrove_purple",
+    "lightmanscurrency:card_display_mangrove_magenta",
+    "lightmanscurrency:card_display_mangrove_pink",
+    "lightmanscurrency:card_display_cherry_white",
+    "lightmanscurrency:card_display_cherry_light_gray",
+    "lightmanscurrency:card_display_cherry_gray",
+    "lightmanscurrency:card_display_cherry_black",
+    "lightmanscurrency:card_display_cherry_brown",
+    "lightmanscurrency:card_display_cherry",
+    "lightmanscurrency:card_display_cherry_orange",
+    "lightmanscurrency:card_display_cherry_yellow",
+    "lightmanscurrency:card_display_cherry_lime",
+    "lightmanscurrency:card_display_cherry_green",
+    "lightmanscurrency:card_display_cherry_cyan",
+    "lightmanscurrency:card_display_cherry_light_blue",
+    "lightmanscurrency:card_display_cherry_blue",
+    "lightmanscurrency:card_display_cherry_purple",
+    "lightmanscurrency:card_display_cherry_magenta",
+    "lightmanscurrency:card_display_cherry_pink",
+    "lightmanscurrency:card_display_bamboo_white",
+    "lightmanscurrency:card_display_bamboo_light_gray",
+    "lightmanscurrency:card_display_bamboo_gray",
+    "lightmanscurrency:card_display_bamboo_black",
+    "lightmanscurrency:card_display_bamboo_brown",
+    "lightmanscurrency:card_display_bamboo",
+    "lightmanscurrency:card_display_bamboo_orange",
+    "lightmanscurrency:card_display_bamboo_yellow",
+    "lightmanscurrency:card_display_bamboo_lime",
+    "lightmanscurrency:card_display_bamboo_green",
+    "lightmanscurrency:card_display_bamboo_cyan",
+    "lightmanscurrency:card_display_bamboo_light_blue",
+    "lightmanscurrency:card_display_bamboo_blue",
+    "lightmanscurrency:card_display_bamboo_purple",
+    "lightmanscurrency:card_display_bamboo_magenta",
+    "lightmanscurrency:card_display_bamboo_pink",
+    "lightmanscurrency:card_display_crimson_white",
+    "lightmanscurrency:card_display_crimson_light_gray",
+    "lightmanscurrency:card_display_crimson_gray",
+    "lightmanscurrency:card_display_crimson_black",
+    "lightmanscurrency:card_display_crimson_brown",
+    "lightmanscurrency:card_display_crimson",
+    "lightmanscurrency:card_display_crimson_orange",
+    "lightmanscurrency:card_display_crimson_yellow",
+    "lightmanscurrency:card_display_crimson_lime",
+    "lightmanscurrency:card_display_crimson_green",
+    "lightmanscurrency:card_display_crimson_cyan",
+    "lightmanscurrency:card_display_crimson_light_blue",
+    "lightmanscurrency:card_display_crimson_blue",
+    "lightmanscurrency:card_display_crimson_purple",
+    "lightmanscurrency:card_display_crimson_magenta",
+    "lightmanscurrency:card_display_crimson_pink",
+    "lightmanscurrency:card_display_warped_white",
+    "lightmanscurrency:card_display_warped_light_gray",
+    "lightmanscurrency:card_display_warped_gray",
+    "lightmanscurrency:card_display_warped_black",
+    "lightmanscurrency:card_display_warped_brown",
+    "lightmanscurrency:card_display_warped",
+    "lightmanscurrency:card_display_warped_orange",
+    "lightmanscurrency:card_display_warped_yellow",
+    "lightmanscurrency:card_display_warped_lime",
+    "lightmanscurrency:card_display_warped_green",
+    "lightmanscurrency:card_display_warped_cyan",
+    "lightmanscurrency:card_display_warped_light_blue",
+    "lightmanscurrency:card_display_warped_blue",
+    "lightmanscurrency:card_display_warped_purple",
+    "lightmanscurrency:card_display_warped_magenta",
+    "lightmanscurrency:card_display_warped_pink",
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_fir_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_fir_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_fir_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_fir_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_fir_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_fir_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_fir_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_fir_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_fir_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_fir_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_fir_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_fir_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_fir_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_fir_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_fir_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_redwood_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_redwood_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_redwood_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_redwood_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_redwood_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_redwood_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_redwood_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_redwood_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_redwood_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_redwood_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_redwood_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_redwood_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_redwood_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_redwood_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_redwood_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_mahogany_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_mahogany_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_mahogany_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_mahogany_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_mahogany_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_mahogany_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_mahogany_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_mahogany_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_mahogany_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_mahogany_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_mahogany_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_mahogany_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_mahogany_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_mahogany_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_mahogany_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_jacaranda_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_jacaranda_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_jacaranda_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_jacaranda_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_jacaranda_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_jacaranda_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_jacaranda_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_jacaranda_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_jacaranda_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_jacaranda_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_jacaranda_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_jacaranda_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_jacaranda_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_jacaranda_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_jacaranda_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_palm_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_palm_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_palm_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_palm_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_palm_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_palm_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_palm_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_palm_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_palm_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_palm_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_palm_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_palm_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_palm_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_palm_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_palm_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_willow_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_willow_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_willow_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_willow_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_willow_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_willow_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_willow_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_willow_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_willow_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_willow_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_willow_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_willow_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_willow_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_willow_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_willow_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_dead_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_dead_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_dead_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_dead_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_dead_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_dead",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_dead_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_dead_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_dead_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_dead_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_dead_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_dead_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_dead_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_dead_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_dead_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_dead_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_magic_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_magic_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_magic_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_magic_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_magic_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_magic",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_magic_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_magic_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_magic_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_magic_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_magic_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_magic_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_magic_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_magic_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_magic_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_magic_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_umbran_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_umbran_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_umbran_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_umbran_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_umbran_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_umbran",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_umbran_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_umbran_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_umbran_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_umbran_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_umbran_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_umbran_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_umbran_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_umbran_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_umbran_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_umbran_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_hellbark_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_hellbark_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_hellbark_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_hellbark_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_hellbark_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_hellbark",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_hellbark_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_hellbark_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_hellbark_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_hellbark_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_hellbark_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_hellbark_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_hellbark_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_hellbark_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_hellbark_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_hellbark_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_ancient_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_ancient_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_ancient_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_ancient_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_ancient_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_ancient",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_ancient_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_ancient_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_ancient_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_ancient_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_ancient_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_ancient_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_ancient_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_ancient_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_ancient_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_ancient_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_azalea_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_azalea_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_azalea_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_azalea_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_azalea_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_azalea",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_azalea_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_azalea_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_azalea_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_azalea_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_azalea_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_azalea_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_azalea_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_azalea_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_azalea_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_azalea_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_blossom_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_blossom_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_blossom_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_blossom_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_blossom_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_blossom",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_blossom_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_blossom_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_blossom_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_blossom_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_blossom_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_blossom_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_blossom_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_blossom_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_blossom_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_quark_blossom_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_aspen_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_aspen_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_aspen_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_aspen_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_aspen_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_aspen",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_aspen_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_aspen_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_aspen_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_aspen_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_aspen_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_aspen_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_aspen_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_aspen_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_aspen_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_aspen_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_baobab_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_baobab_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_baobab_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_baobab_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_baobab_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_baobab",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_baobab_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_baobab_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_baobab_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_baobab_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_baobab_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_baobab_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_baobab_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_baobab_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_baobab_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_baobab_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_blue_enchanted_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_blue_enchanted_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_blue_enchanted_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_blue_enchanted_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_blue_enchanted_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_blue_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_blue_enchanted_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_blue_enchanted_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_blue_enchanted_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_blue_enchanted_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_blue_enchanted_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_blue_enchanted_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_blue_enchanted_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_blue_enchanted_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_blue_enchanted_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_blue_enchanted_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cika_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cika_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cika_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cika_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cika_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cika",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cika_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cika_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cika_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cika_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cika_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cika_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cika_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cika_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cika_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cika_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cypress_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cypress_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cypress_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cypress_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cypress_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cypress",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cypress_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cypress_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cypress_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cypress_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cypress_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cypress_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cypress_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cypress_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cypress_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_cypress_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ebony_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ebony_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ebony_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ebony_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ebony_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ebony",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ebony_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ebony_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ebony_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ebony_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ebony_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ebony_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ebony_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ebony_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ebony_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ebony_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_fir_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_fir_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_fir_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_fir_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_fir_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_fir_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_fir_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_fir_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_fir_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_fir_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_fir_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_fir_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_fir_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_fir_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_fir_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_florus_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_florus_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_florus_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_florus_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_florus_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_florus",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_florus_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_florus_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_florus_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_florus_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_florus_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_florus_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_florus_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_florus_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_florus_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_florus_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_green_enchanted_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_green_enchanted_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_green_enchanted_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_green_enchanted_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_green_enchanted_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_green_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_green_enchanted_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_green_enchanted_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_green_enchanted_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_green_enchanted_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_green_enchanted_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_green_enchanted_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_green_enchanted_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_green_enchanted_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_green_enchanted_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_green_enchanted_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_holly_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_holly_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_holly_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_holly_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_holly_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_holly",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_holly_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_holly_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_holly_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_holly_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_holly_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_holly_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_holly_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_holly_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_holly_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_holly_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ironwood_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ironwood_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ironwood_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ironwood_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ironwood_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ironwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ironwood_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ironwood_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ironwood_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ironwood_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ironwood_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ironwood_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ironwood_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ironwood_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ironwood_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_ironwood_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_jacaranda_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_jacaranda_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_jacaranda_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_jacaranda_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_jacaranda_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_jacaranda_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_jacaranda_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_jacaranda_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_jacaranda_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_jacaranda_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_jacaranda_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_jacaranda_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_jacaranda_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_jacaranda_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_jacaranda_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_mahogany_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_mahogany_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_mahogany_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_mahogany_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_mahogany_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_mahogany_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_mahogany_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_mahogany_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_mahogany_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_mahogany_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_mahogany_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_mahogany_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_mahogany_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_mahogany_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_mahogany_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_maple_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_maple_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_maple_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_maple_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_maple_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_maple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_maple_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_maple_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_maple_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_maple_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_maple_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_maple_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_maple_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_maple_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_maple_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_maple_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palm_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palm_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palm_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palm_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palm_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palm_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palm_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palm_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palm_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palm_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palm_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palm_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palm_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palm_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palm_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_pine_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_pine_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_pine_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_pine_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_pine_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_pine",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_pine_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_pine_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_pine_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_pine_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_pine_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_pine_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_pine_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_pine_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_pine_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_pine_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_rainbow_eucalyptus_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_rainbow_eucalyptus_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_rainbow_eucalyptus_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_rainbow_eucalyptus_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_rainbow_eucalyptus_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_rainbow_eucalyptus",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_rainbow_eucalyptus_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_rainbow_eucalyptus_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_rainbow_eucalyptus_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_rainbow_eucalyptus_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_rainbow_eucalyptus_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_rainbow_eucalyptus_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_rainbow_eucalyptus_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_rainbow_eucalyptus_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_rainbow_eucalyptus_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_rainbow_eucalyptus_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_redwood_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_redwood_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_redwood_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_redwood_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_redwood_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_redwood_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_redwood_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_redwood_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_redwood_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_redwood_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_redwood_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_redwood_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_redwood_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_redwood_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_redwood_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_sakura_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_sakura_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_sakura_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_sakura_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_sakura_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_sakura",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_sakura_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_sakura_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_sakura_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_sakura_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_sakura_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_sakura_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_sakura_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_sakura_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_sakura_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_sakura_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_skyris_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_skyris_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_skyris_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_skyris_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_skyris_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_skyris",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_skyris_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_skyris_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_skyris_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_skyris_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_skyris_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_skyris_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_skyris_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_skyris_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_skyris_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_skyris_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_white_mangrove_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_white_mangrove_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_white_mangrove_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_white_mangrove_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_white_mangrove_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_white_mangrove",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_white_mangrove_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_white_mangrove_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_white_mangrove_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_white_mangrove_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_white_mangrove_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_white_mangrove_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_white_mangrove_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_white_mangrove_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_white_mangrove_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_white_mangrove_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_willow_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_willow_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_willow_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_willow_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_willow_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_willow_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_willow_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_willow_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_willow_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_willow_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_willow_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_willow_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_willow_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_willow_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_willow_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_witch_hazel_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_witch_hazel_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_witch_hazel_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_witch_hazel_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_witch_hazel_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_witch_hazel",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_witch_hazel_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_witch_hazel_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_witch_hazel_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_witch_hazel_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_witch_hazel_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_witch_hazel_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_witch_hazel_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_witch_hazel_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_witch_hazel_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_witch_hazel_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_zelkova_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_zelkova_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_zelkova_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_zelkova_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_zelkova_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_zelkova",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_zelkova_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_zelkova_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_zelkova_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_zelkova_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_zelkova_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_zelkova_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_zelkova_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_zelkova_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_zelkova_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_zelkova_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_blue_enchanted_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_blue_enchanted_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_blue_enchanted_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_blue_enchanted_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_blue_enchanted_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_blue_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_blue_enchanted_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_blue_enchanted_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_blue_enchanted_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_blue_enchanted_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_blue_enchanted_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_blue_enchanted_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_blue_enchanted_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_blue_enchanted_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_blue_enchanted_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_blue_enchanted_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_green_enchanted_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_green_enchanted_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_green_enchanted_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_green_enchanted_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_green_enchanted_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_green_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_green_enchanted_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_green_enchanted_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_green_enchanted_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_green_enchanted_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_green_enchanted_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_green_enchanted_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_green_enchanted_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_green_enchanted_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_green_enchanted_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_imbued_green_enchanted_pink",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palo_verde_white",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palo_verde_light_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palo_verde_gray",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palo_verde_black",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palo_verde_brown",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palo_verde",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palo_verde_orange",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palo_verde_yellow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palo_verde_lime",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palo_verde_green",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palo_verde_cyan",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palo_verde_light_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palo_verde_blue",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palo_verde_purple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palo_verde_magenta",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomeswevegone_palo_verde_pink",
+      "required": false
+    },
+    "lightmanscurrency:bookshelf_trader_oak",
+    "lightmanscurrency:bookshelf_trader_spruce",
+    "lightmanscurrency:bookshelf_trader_birch",
+    "lightmanscurrency:bookshelf_trader_jungle",
+    "lightmanscurrency:bookshelf_trader_acacia",
+    "lightmanscurrency:bookshelf_trader_dark_oak",
+    "lightmanscurrency:bookshelf_trader_mangrove",
+    "lightmanscurrency:bookshelf_trader_cherry",
+    "lightmanscurrency:bookshelf_trader_bamboo",
+    "lightmanscurrency:bookshelf_trader_crimson",
+    "lightmanscurrency:bookshelf_trader_warped",
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_dead",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_magic",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_umbran",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_hellbark",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_quark_ancient",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_quark_azalea",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_quark_blossom",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_aspen",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_baobab",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_blue_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_cika",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_cypress",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_ebony",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_florus",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_green_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_holly",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_ironwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_maple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_pine",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_rainbow_eucalyptus",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_sakura",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_skyris",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_white_mangrove",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_witch_hazel",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomeswevegone_zelkova",
+      "required": false
+    },
+    "lightmanscurrency:coin_chest",
+    "lightmanscurrency:auction_stand_oak",
+    "lightmanscurrency:auction_stand_spruce",
+    "lightmanscurrency:auction_stand_birch",
+    "lightmanscurrency:auction_stand_jungle",
+    "lightmanscurrency:auction_stand_acacia",
+    "lightmanscurrency:auction_stand_dark_oak",
+    "lightmanscurrency:auction_stand_mangrove",
+    "lightmanscurrency:auction_stand_cherry",
+    "lightmanscurrency:auction_stand_bamboo",
+    "lightmanscurrency:auction_stand_crimson",
+    "lightmanscurrency:auction_stand_warped",
+    {
+      "id": "lightmanscurrency:auction_stand_biomesoplenty_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomesoplenty_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomesoplenty_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomesoplenty_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomesoplenty_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomesoplenty_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomesoplenty_dead",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomesoplenty_magic",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomesoplenty_umbran",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomesoplenty_hellbark",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_quark_ancient",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_quark_azalea",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_quark_blossom",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_aspen",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_baobab",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_blue_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_cika",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_cypress",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_ebony",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_florus",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_green_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_holly",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_ironwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_maple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_pine",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_rainbow_eucalyptus",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_sakura",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_skyris",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_white_mangrove",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_witch_hazel",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_zelkova",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_imbued_blue_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_imbued_green_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomeswevegone_palo_verde",
+      "required": false
+    }
+  ]
+}

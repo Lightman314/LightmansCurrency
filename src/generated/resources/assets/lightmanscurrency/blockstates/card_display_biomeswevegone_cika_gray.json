@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "lightmanscurrency:block/card_display/biomeswevegone/cika/gray",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "lightmanscurrency:block/card_display/biomeswevegone/cika/gray"
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/card_display/biomeswevegone/cika/gray",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/card_display/biomeswevegone/cika/gray",
+      "y": 270
+    }
+  }
+}

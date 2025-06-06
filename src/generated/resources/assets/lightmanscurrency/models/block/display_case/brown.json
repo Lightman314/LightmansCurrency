@@ -1,0 +1,6 @@
+{
+  "parent": "lightmanscurrency:block/display_case/base",
+  "textures": {
+    "wool": "minecraft:block/brown_wool"
+  }
+}

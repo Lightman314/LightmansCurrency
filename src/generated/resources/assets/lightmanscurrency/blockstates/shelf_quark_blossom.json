@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "lightmanscurrency:block/shelf/quark/blossom",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "lightmanscurrency:block/shelf/quark/blossom"
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/shelf/quark/blossom",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/shelf/quark/blossom",
+      "y": 270
+    }
+  }
+}

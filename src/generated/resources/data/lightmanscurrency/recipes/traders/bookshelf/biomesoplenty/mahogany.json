@@ -1,0 +1,38 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "forge:mod_loaded",
+          "modid": "biomesoplenty"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "category": "misc",
+        "group": "bookshelf_trader",
+        "key": {
+          "p": {
+            "item": "biomesoplenty:mahogany_planks"
+          },
+          "s": {
+            "item": "biomesoplenty:mahogany_slab"
+          },
+          "x": {
+            "item": "lightmanscurrency:trading_core"
+          }
+        },
+        "pattern": [
+          "ppp",
+          "sxs",
+          "ppp"
+        ],
+        "result": {
+          "item": "lightmanscurrency:bookshelf_trader_biomesoplenty_mahogany"
+        },
+        "show_notification": true
+      }
+    }
+  ]
+}

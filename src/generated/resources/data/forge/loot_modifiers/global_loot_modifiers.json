@@ -1,0 +1,8 @@
+{
+  "entries": [
+    "lightmanscurrency:additions/netherite_wallet_in_bastions",
+    "lightmanscurrency:coins_in_chests",
+    "lightmanscurrency:additions/ender_dragon_wallet_in_end_cities"
+  ],
+  "replace": false
+}

@@ -1,0 +1,9 @@
+{
+  "parent": "lightmanscurrency:block/card_display/base",
+  "textures": {
+    "log": "biomeswevegone:block/rainbow_eucalyptus/log",
+    "logtop": "biomeswevegone:block/rainbow_eucalyptus/log_top",
+    "plank": "biomeswevegone:block/rainbow_eucalyptus/planks",
+    "wool": "minecraft:block/pink_wool"
+  }
+}

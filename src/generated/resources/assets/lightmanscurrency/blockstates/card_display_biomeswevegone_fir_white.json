@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "lightmanscurrency:block/card_display/biomeswevegone/fir/white",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "lightmanscurrency:block/card_display/biomeswevegone/fir/white"
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/card_display/biomeswevegone/fir/white",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/card_display/biomeswevegone/fir/white",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "lightmanscurrency:configured",
+          "fileID": "lightmanscurrency:common",
+          "option": "crafting.money_chest.canCraftMagnetUpgrade"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:smithing_transform",
+        "addition": {
+          "tag": "forge:gems/emerald"
+        },
+        "base": {
+          "item": "lightmanscurrency:coin_chest_magnet_upgrade_3"
+        },
+        "result": {
+          "item": "lightmanscurrency:coin_chest_magnet_upgrade_4"
+        },
+        "template": {
+          "item": "lightmanscurrency:upgrade_smithing_template"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "lightmans_template_copy",
+  "key": {
+    "i": {
+      "tag": "forge:ingots/iron"
+    },
+    "t": {
+      "item": "lightmanscurrency:upgrade_smithing_template"
+    }
+  },
+  "pattern": [
+    "iii",
+    "iti",
+    "iii"
+  ],
+  "result": {
+    "count": 10,
+    "item": "lightmanscurrency:upgrade_smithing_template"
+  },
+  "show_notification": true
+}

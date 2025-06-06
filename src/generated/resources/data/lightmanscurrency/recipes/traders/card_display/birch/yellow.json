@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "card_display_trader_birch",
+  "key": {
+    "c": {
+      "tag": "forge:chests/wooden"
+    },
+    "l": {
+      "item": "minecraft:birch_log"
+    },
+    "w": {
+      "item": "minecraft:yellow_wool"
+    },
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    }
+  },
+  "pattern": [
+    "  w",
+    " xl",
+    "llc"
+  ],
+  "result": {
+    "item": "lightmanscurrency:card_display_birch_yellow"
+  },
+  "show_notification": true
+}

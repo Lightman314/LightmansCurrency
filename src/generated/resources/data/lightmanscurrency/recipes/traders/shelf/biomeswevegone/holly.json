@@ -1,0 +1,34 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "forge:mod_loaded",
+          "modid": "biomeswevegone"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "category": "misc",
+        "group": "shelf_trader",
+        "key": {
+          "s": {
+            "item": "biomeswevegone:holly_slab"
+          },
+          "x": {
+            "item": "lightmanscurrency:trading_core"
+          }
+        },
+        "pattern": [
+          "x",
+          "s"
+        ],
+        "result": {
+          "item": "lightmanscurrency:shelf_biomeswevegone_holly"
+        },
+        "show_notification": true
+      }
+    }
+  ]
+}

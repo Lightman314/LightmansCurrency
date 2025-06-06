@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "tag": "forge:ingots/iron"
+  },
+  "base": {
+    "tag": "forge:chests/wooden"
+  },
+  "result": {
+    "item": "lightmanscurrency:item_capacity_upgrade_1"
+  },
+  "template": {
+    "item": "lightmanscurrency:upgrade_smithing_template"
+  }
+}

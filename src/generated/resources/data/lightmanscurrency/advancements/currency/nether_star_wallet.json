@@ -1,0 +1,38 @@
+{
+  "parent": "lightmanscurrency:currency/netherite_wallet",
+  "criteria": {
+    "nether_star_wallet": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "lightmanscurrency:wallet_nether_star"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.lightmanscurrency.nether_star_wallet.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "lightmanscurrency:wallet_nether_star"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.lightmanscurrency.nether_star_wallet.title"
+    }
+  },
+  "requirements": [
+    [
+      "nether_star_wallet"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

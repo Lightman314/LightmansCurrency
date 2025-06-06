@@ -1,0 +1,10 @@
+{
+  "values": [
+    "lightmanscurrency:coin_chocolate_copper",
+    "lightmanscurrency:coin_chocolate_iron",
+    "lightmanscurrency:coin_chocolate_gold",
+    "lightmanscurrency:coin_chocolate_emerald",
+    "lightmanscurrency:coin_chocolate_diamond",
+    "lightmanscurrency:coin_chocolate_netherite"
+  ]
+}

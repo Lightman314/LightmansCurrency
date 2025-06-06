@@ -1,0 +1,6 @@
+{
+  "parent": "lightmanscurrency:block/shelf/base",
+  "textures": {
+    "main": "quark:block/ancient_planks"
+  }
+}

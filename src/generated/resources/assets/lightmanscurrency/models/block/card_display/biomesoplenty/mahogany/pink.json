@@ -1,0 +1,9 @@
+{
+  "parent": "lightmanscurrency:block/card_display/base",
+  "textures": {
+    "log": "biomesoplenty:block/mahogany_log",
+    "logtop": "biomesoplenty:block/mahogany_log_top",
+    "plank": "biomesoplenty:block/mahogany_planks",
+    "wool": "minecraft:block/pink_wool"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "lightmanscurrency:item/wallet_hip/wallet_base",
+  "textures": {
+    "main": "lightmanscurrency:item/wallet_hip/wallet_nether_star"
+  }
+}

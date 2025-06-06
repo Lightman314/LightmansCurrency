@@ -1,0 +1,19 @@
+{
+  "type": "lightmanscurrency:crafting_wallet_upgrade",
+  "category": "misc",
+  "group": "wallet_upgrading",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:wallet_diamond"
+    },
+    {
+      "tag": "forge:ingots/netherite"
+    },
+    {
+      "tag": "forge:nether_stars"
+    }
+  ],
+  "result": {
+    "item": "lightmanscurrency:wallet_nether_star"
+  }
+}

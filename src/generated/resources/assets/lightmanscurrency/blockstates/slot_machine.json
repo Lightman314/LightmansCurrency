@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "bottom=false,facing=east": {
+      "model": "lightmanscurrency:block/slot_machine/top",
+      "y": 270
+    },
+    "bottom=false,facing=north": {
+      "model": "lightmanscurrency:block/slot_machine/top",
+      "y": 180
+    },
+    "bottom=false,facing=south": {
+      "model": "lightmanscurrency:block/slot_machine/top"
+    },
+    "bottom=false,facing=west": {
+      "model": "lightmanscurrency:block/slot_machine/top",
+      "y": 90
+    },
+    "bottom=true,facing=east": {
+      "model": "lightmanscurrency:block/slot_machine/bottom",
+      "y": 270
+    },
+    "bottom=true,facing=north": {
+      "model": "lightmanscurrency:block/slot_machine/bottom",
+      "y": 180
+    },
+    "bottom=true,facing=south": {
+      "model": "lightmanscurrency:block/slot_machine/bottom"
+    },
+    "bottom=true,facing=west": {
+      "model": "lightmanscurrency:block/slot_machine/bottom",
+      "y": 90
+    }
+  }
+}

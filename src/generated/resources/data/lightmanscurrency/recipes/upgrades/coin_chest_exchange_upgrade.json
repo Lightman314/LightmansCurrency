@@ -1,0 +1,29 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "lightmanscurrency:configured",
+          "fileID": "lightmanscurrency:common",
+          "option": "crafting.money_chest.canCraftExchangeUpgrade"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:smithing_transform",
+        "addition": {
+          "tag": "forge:dusts/redstone"
+        },
+        "base": {
+          "tag": "lightmanscurrency:atm"
+        },
+        "result": {
+          "item": "lightmanscurrency:coin_chest_exchange_upgrade"
+        },
+        "template": {
+          "item": "lightmanscurrency:upgrade_smithing_template"
+        }
+      }
+    }
+  ]
+}

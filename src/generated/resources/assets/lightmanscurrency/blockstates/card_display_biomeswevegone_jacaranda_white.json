@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "lightmanscurrency:block/card_display/biomeswevegone/jacaranda/white",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "lightmanscurrency:block/card_display/biomeswevegone/jacaranda/white"
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/card_display/biomeswevegone/jacaranda/white",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/card_display/biomeswevegone/jacaranda/white",
+      "y": 270
+    }
+  }
+}

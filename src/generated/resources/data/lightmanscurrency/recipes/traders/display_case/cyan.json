@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "display_case",
+  "key": {
+    "g": {
+      "tag": "forge:glass/colorless"
+    },
+    "w": {
+      "item": "minecraft:cyan_wool"
+    },
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    }
+  },
+  "pattern": [
+    "g",
+    "x",
+    "w"
+  ],
+  "result": {
+    "item": "lightmanscurrency:display_case_cyan"
+  },
+  "show_notification": true
+}

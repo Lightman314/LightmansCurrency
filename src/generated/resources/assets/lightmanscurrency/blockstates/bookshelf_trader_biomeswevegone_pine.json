@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "lightmanscurrency:block/bookshelf_trader/biomeswevegone/pine",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "lightmanscurrency:block/bookshelf_trader/biomeswevegone/pine"
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/bookshelf_trader/biomeswevegone/pine",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/bookshelf_trader/biomeswevegone/pine",
+      "y": 270
+    }
+  }
+}

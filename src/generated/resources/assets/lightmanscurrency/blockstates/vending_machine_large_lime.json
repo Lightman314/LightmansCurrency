@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "attached=false,bottom=false,facing=east": {
+      "model": "lightmanscurrency:block/large_vending_machine/lime_top_right",
+      "y": 90
+    },
+    "attached=false,bottom=false,facing=north": {
+      "model": "lightmanscurrency:block/large_vending_machine/lime_top_right"
+    },
+    "attached=false,bottom=false,facing=south": {
+      "model": "lightmanscurrency:block/large_vending_machine/lime_top_right",
+      "y": 180
+    },
+    "attached=false,bottom=false,facing=west": {
+      "model": "lightmanscurrency:block/large_vending_machine/lime_top_right",
+      "y": 270
+    },
+    "attached=false,bottom=true,facing=east": {
+      "model": "lightmanscurrency:block/large_vending_machine/lime_bottom_right",
+      "y": 90
+    },
+    "attached=false,bottom=true,facing=north": {
+      "model": "lightmanscurrency:block/large_vending_machine/lime_bottom_right"
+    },
+    "attached=false,bottom=true,facing=south": {
+      "model": "lightmanscurrency:block/large_vending_machine/lime_bottom_right",
+      "y": 180
+    },
+    "attached=false,bottom=true,facing=west": {
+      "model": "lightmanscurrency:block/large_vending_machine/lime_bottom_right",
+      "y": 270
+    },
+    "attached=true,bottom=false,facing=east": {
+      "model": "lightmanscurrency:block/large_vending_machine/lime_top_left",
+      "y": 90
+    },
+    "attached=true,bottom=false,facing=north": {
+      "model": "lightmanscurrency:block/large_vending_machine/lime_top_left"
+    },
+    "attached=true,bottom=false,facing=south": {
+      "model": "lightmanscurrency:block/large_vending_machine/lime_top_left",
+      "y": 180
+    },
+    "attached=true,bottom=false,facing=west": {
+      "model": "lightmanscurrency:block/large_vending_machine/lime_top_left",
+      "y": 270
+    },
+    "attached=true,bottom=true,facing=east": {
+      "model": "lightmanscurrency:block/large_vending_machine/lime_bottom_left",
+      "y": 90
+    },
+    "attached=true,bottom=true,facing=north": {
+      "model": "lightmanscurrency:block/large_vending_machine/lime_bottom_left"
+    },
+    "attached=true,bottom=true,facing=south": {
+      "model": "lightmanscurrency:block/large_vending_machine/lime_bottom_left",
+      "y": 180
+    },
+    "attached=true,bottom=true,facing=west": {
+      "model": "lightmanscurrency:block/large_vending_machine/lime_bottom_left",
+      "y": 270
+    }
+  }
+}

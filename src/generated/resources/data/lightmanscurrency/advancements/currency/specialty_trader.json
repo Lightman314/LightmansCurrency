@@ -1,0 +1,36 @@
+{
+  "parent": "lightmanscurrency:currency/trading_core",
+  "criteria": {
+    "specialty_trader": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:trader_specialty"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.lightmanscurrency.specialty_trader.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "lightmanscurrency:armor_display"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.lightmanscurrency.specialty_trader.title"
+    }
+  },
+  "requirements": [
+    [
+      "specialty_trader"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

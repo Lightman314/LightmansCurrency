@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:block/auction_stand/base",
+  "textures": {
+    "log": "quark:block/azalea_log",
+    "log_top": "quark:block/azalea_log_top"
+  }
+}

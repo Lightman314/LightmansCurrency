@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "lightmanscurrency:block/shelf/biomeswevegone/white_mangrove",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "lightmanscurrency:block/shelf/biomeswevegone/white_mangrove"
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/shelf/biomeswevegone/white_mangrove",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/shelf/biomeswevegone/white_mangrove",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "dummy": true,
+  "item": "lightmanscurrency:block/armor_display/skin/item",
+  "models": [
+    "lightmanscurrency:block/armor_display/skin/bottom",
+    "lightmanscurrency:block/armor_display/skin/top"
+  ],
+  "show_in_creative": true,
+  "target": "lightmanscurrency:armor_display"
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:block/auction_stand/base",
+  "textures": {
+    "log": "biomeswevegone:block/cypress/log",
+    "log_top": "biomeswevegone:block/cypress/log_top"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "card_display_trader_bamboo",
+  "key": {
+    "c": {
+      "tag": "forge:chests/wooden"
+    },
+    "l": {
+      "item": "minecraft:bamboo_block"
+    },
+    "w": {
+      "item": "minecraft:black_wool"
+    },
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    }
+  },
+  "pattern": [
+    "  w",
+    " xl",
+    "llc"
+  ],
+  "result": {
+    "item": "lightmanscurrency:card_display_bamboo_black"
+  },
+  "show_notification": true
+}

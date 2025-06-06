@@ -1,0 +1,72 @@
+{
+  "advancements": [
+    {
+      "advancement": {
+        "parent": "minecraft:recipes/root",
+        "criteria": {
+          "has_the_recipe": {
+            "conditions": {
+              "recipe": "lightmanscurrency:auction_stand/biomesoplenty/redwood"
+            },
+            "trigger": "minecraft:recipe_unlocked"
+          },
+          "money": {
+            "conditions": {
+              "items": [
+                {
+                  "tag": "lightmanscurrency:coins"
+                }
+              ]
+            },
+            "trigger": "minecraft:inventory_changed"
+          },
+          "terminal": {
+            "conditions": {
+              "items": [
+                {
+                  "tag": "lightmanscurrency:network_terminal"
+                }
+              ]
+            },
+            "trigger": "minecraft:inventory_changed"
+          },
+          "trader": {
+            "conditions": {
+              "items": [
+                {
+                  "tag": "lightmanscurrency:trader"
+                }
+              ]
+            },
+            "trigger": "minecraft:inventory_changed"
+          }
+        },
+        "requirements": [
+          [
+            "money",
+            "trader",
+            "terminal",
+            "has_the_recipe"
+          ]
+        ],
+        "rewards": {
+          "recipes": [
+            "lightmanscurrency:auction_stand/biomesoplenty/redwood"
+          ]
+        },
+        "sends_telemetry_event": false
+      },
+      "conditions": [
+        {
+          "type": "lightmanscurrency:configured",
+          "fileID": "lightmanscurrency:common",
+          "option": "crafting.canCraftAuctionStand"
+        },
+        {
+          "type": "forge:mod_loaded",
+          "modid": "biomesoplenty"
+        }
+      ]
+    }
+  ]
+}

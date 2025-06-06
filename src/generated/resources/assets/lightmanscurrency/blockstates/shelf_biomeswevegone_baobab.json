@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "lightmanscurrency:block/shelf/biomeswevegone/baobab",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "lightmanscurrency:block/shelf/biomeswevegone/baobab"
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/shelf/biomeswevegone/baobab",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/shelf/biomeswevegone/baobab",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "lightmanscurrency:traders/paygate"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "money": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:coins"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "ticket": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:tickets"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "ticket_material": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:ticket_material"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "trader": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:trader"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "money",
+      "trader",
+      "ticket",
+      "ticket_material",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:traders/paygate"
+    ]
+  },
+  "sends_telemetry_event": false
+}

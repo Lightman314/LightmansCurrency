@@ -1,0 +1,40 @@
+{
+  "parent": "lightmanscurrency:currency/atm",
+  "criteria": {
+    "banker_trade": {
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "nbt": "{VillagerData:{profession:\"lightmanscurrency:banker\"}}"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:villager_trade"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.lightmanscurrency.banker_trade.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "icon": {
+      "item": "lightmanscurrency:coinblock_netherite"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.lightmanscurrency.banker_trade.title"
+    }
+  },
+  "requirements": [
+    [
+      "banker_trade"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -1,0 +1,163 @@
+{
+  "values": [
+    "lightmanscurrency:shelf_oak",
+    "lightmanscurrency:shelf_spruce",
+    "lightmanscurrency:shelf_birch",
+    "lightmanscurrency:shelf_jungle",
+    "lightmanscurrency:shelf_acacia",
+    "lightmanscurrency:shelf_dark_oak",
+    "lightmanscurrency:shelf_mangrove",
+    "lightmanscurrency:shelf_cherry",
+    "lightmanscurrency:shelf_bamboo",
+    "lightmanscurrency:shelf_crimson",
+    "lightmanscurrency:shelf_warped",
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_dead",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_magic",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_umbran",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_hellbark",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_quark_ancient",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_quark_azalea",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_quark_blossom",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_aspen",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_baobab",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_blue_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_cika",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_cypress",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_ebony",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_florus",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_green_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_holly",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_ironwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_maple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_pine",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_rainbow_eucalyptus",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_sakura",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_skyris",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_white_mangrove",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_witch_hazel",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomeswevegone_zelkova",
+      "required": false
+    }
+  ]
+}

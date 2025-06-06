@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:block/auction_stand/base",
+  "textures": {
+    "log": "quark:block/blossom_log",
+    "log_top": "quark:block/blossom_log_top"
+  }
+}

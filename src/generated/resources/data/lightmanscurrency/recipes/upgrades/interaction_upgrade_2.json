@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "tag": "forge:gems/diamond"
+  },
+  "base": {
+    "item": "lightmanscurrency:interaction_upgrade_1"
+  },
+  "result": {
+    "item": "lightmanscurrency:interaction_upgrade_2"
+  },
+  "template": {
+    "item": "lightmanscurrency:upgrade_smithing_template"
+  }
+}

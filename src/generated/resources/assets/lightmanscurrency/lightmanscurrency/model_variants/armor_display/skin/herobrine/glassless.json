@@ -1,0 +1,18 @@
+{
+  "parent": "lightmanscurrency:armor_display/skin_glassless",
+  "hidden": true,
+  "name": {
+    "translate": "lightmanscurrency.block_variant.armor_display.skin",
+    "with": [
+      {
+        "translate": "lightmanscurrency.block_variant.armor_display.skin.herobrine"
+      }
+    ]
+  },
+  "show_in_creative": {
+    "locked": true
+  },
+  "textures": {
+    "skin": "lightmanscurrency:block/armor_display/skin_herobrine"
+  }
+}

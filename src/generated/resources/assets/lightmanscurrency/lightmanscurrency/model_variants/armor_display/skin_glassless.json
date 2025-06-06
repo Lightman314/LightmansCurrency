@@ -1,0 +1,25 @@
+{
+  "dummy": true,
+  "item": "lightmanscurrency:block/armor_display/skin/glassless/item",
+  "models": [
+    "lightmanscurrency:block/armor_display/skin/glassless/bottom",
+    "lightmanscurrency:block/armor_display/skin/glassless/top"
+  ],
+  "target": "lightmanscurrency:armor_display",
+  "tooltip_info": {
+    "item": true,
+    "jade": true,
+    "selection": true,
+    "tooltip": {
+      "color": "gray",
+      "translate": "lightmanscurrency.block_variant.modifier.label",
+      "with": [
+        {
+          "color": "dark_aqua",
+          "italic": true,
+          "translate": "lightmanscurrency.block_variant.modifier.glassless"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "parent": "lightmanscurrency:block/card_display/base",
+  "textures": {
+    "log": "biomeswevegone:block/redwood/log",
+    "logtop": "biomeswevegone:block/redwood/log_top",
+    "plank": "biomeswevegone:block/redwood/planks",
+    "wool": "minecraft:block/red_wool"
+  }
+}

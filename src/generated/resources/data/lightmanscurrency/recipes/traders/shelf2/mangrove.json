@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "shelf_trader_2x2",
+  "key": {
+    "c": {
+      "tag": "forge:chests/wooden"
+    },
+    "s": {
+      "item": "minecraft:mangrove_slab"
+    },
+    "x": {
+      "item": "lightmanscurrency:shelf_mangrove"
+    }
+  },
+  "pattern": [
+    "c",
+    "x",
+    "s"
+  ],
+  "result": {
+    "item": "lightmanscurrency:shelf_2x2_mangrove"
+  },
+  "show_notification": true
+}

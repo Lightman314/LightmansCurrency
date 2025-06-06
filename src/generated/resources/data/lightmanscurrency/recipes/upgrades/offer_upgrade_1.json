@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "tag": "forge:ingots/copper"
+  },
+  "base": {
+    "item": "lightmanscurrency:trading_core"
+  },
+  "result": {
+    "item": "lightmanscurrency:offer_upgrade_1"
+  },
+  "template": {
+    "item": "lightmanscurrency:upgrade_smithing_template"
+  }
+}

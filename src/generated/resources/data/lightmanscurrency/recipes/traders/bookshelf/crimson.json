@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "bookshelf_trader",
+  "key": {
+    "p": {
+      "item": "minecraft:crimson_planks"
+    },
+    "s": {
+      "item": "minecraft:crimson_slab"
+    },
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    }
+  },
+  "pattern": [
+    "ppp",
+    "sxs",
+    "ppp"
+  ],
+  "result": {
+    "item": "lightmanscurrency:bookshelf_trader_crimson"
+  },
+  "show_notification": true
+}

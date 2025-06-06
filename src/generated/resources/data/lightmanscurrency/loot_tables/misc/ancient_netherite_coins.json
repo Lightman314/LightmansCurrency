@@ -1,0 +1,48 @@
+{
+  "type": "minecraft:empty",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "lightmanscurrency:ancient_coin",
+          "coin": "NETHERITE_H"
+        },
+        {
+          "type": "lightmanscurrency:ancient_coin",
+          "coin": "NETHERITE_E1"
+        },
+        {
+          "type": "lightmanscurrency:ancient_coin",
+          "coin": "NETHERITE_R1"
+        },
+        {
+          "type": "lightmanscurrency:ancient_coin",
+          "coin": "NETHERITE_O"
+        },
+        {
+          "type": "lightmanscurrency:ancient_coin",
+          "coin": "NETHERITE_B"
+        },
+        {
+          "type": "lightmanscurrency:ancient_coin",
+          "coin": "NETHERITE_R2"
+        },
+        {
+          "type": "lightmanscurrency:ancient_coin",
+          "coin": "NETHERITE_I"
+        },
+        {
+          "type": "lightmanscurrency:ancient_coin",
+          "coin": "NETHERITE_N"
+        },
+        {
+          "type": "lightmanscurrency:ancient_coin",
+          "coin": "NETHERITE_E2"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "lightmanscurrency:misc/ancient_netherite_coins"
+}

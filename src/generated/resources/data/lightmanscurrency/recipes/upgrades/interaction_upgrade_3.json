@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "tag": "forge:ingots/netherite"
+  },
+  "base": {
+    "item": "lightmanscurrency:interaction_upgrade_2"
+  },
+  "result": {
+    "item": "lightmanscurrency:interaction_upgrade_3"
+  },
+  "template": {
+    "item": "lightmanscurrency:upgrade_smithing_template"
+  }
+}

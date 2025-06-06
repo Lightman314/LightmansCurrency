@@ -1,0 +1,41 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "forge:mod_loaded",
+          "modid": "biomeswevegone"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "category": "misc",
+        "group": "card_display_trader_holly",
+        "key": {
+          "c": {
+            "tag": "forge:chests/wooden"
+          },
+          "l": {
+            "item": "biomeswevegone:holly_log"
+          },
+          "w": {
+            "item": "minecraft:white_wool"
+          },
+          "x": {
+            "item": "lightmanscurrency:trading_core"
+          }
+        },
+        "pattern": [
+          "  w",
+          " xl",
+          "llc"
+        ],
+        "result": {
+          "item": "lightmanscurrency:card_display_biomeswevegone_holly_white"
+        },
+        "show_notification": true
+      }
+    }
+  ]
+}

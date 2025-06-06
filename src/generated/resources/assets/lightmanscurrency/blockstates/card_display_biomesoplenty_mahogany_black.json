@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "lightmanscurrency:block/card_display/biomesoplenty/mahogany/black",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "lightmanscurrency:block/card_display/biomesoplenty/mahogany/black"
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/card_display/biomesoplenty/mahogany/black",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/card_display/biomesoplenty/mahogany/black",
+      "y": 270
+    }
+  }
+}

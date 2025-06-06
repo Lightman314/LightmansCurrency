@@ -1,0 +1,39 @@
+{
+  "parent": "lightmanscurrency:currency/myfirstpenny",
+  "criteria": {
+    "has_coins": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:event_coins/chocolate"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "description": {
+      "translate": "advancements.lightmanscurrency.event.chocolate.description"
+    },
+    "frame": "challenge",
+    "hidden": true,
+    "icon": {
+      "item": "lightmanscurrency:coin_chocolate_copper"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.lightmanscurrency.event.chocolate.title"
+    }
+  },
+  "requirements": [
+    [
+      "has_coins"
+    ]
+  ],
+  "rewards": {
+    "function": "lightmanscurrency:unlock_chocolate"
+  },
+  "sends_telemetry_event": true
+}

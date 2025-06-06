@@ -1,0 +1,68 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "lightmanscurrency:upgrades/interaction_upgrade_3"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "network_trader": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:trader_network"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "previous": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "lightmanscurrency:interaction_upgrade_2"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "terminal": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:network_terminal"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "trader_interface": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:trader_interface"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "trader_interface",
+      "terminal",
+      "network_trader",
+      "previous",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:upgrades/interaction_upgrade_3"
+    ]
+  },
+  "sends_telemetry_event": false
+}

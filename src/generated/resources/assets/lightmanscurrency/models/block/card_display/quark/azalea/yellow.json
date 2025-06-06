@@ -1,0 +1,9 @@
+{
+  "parent": "lightmanscurrency:block/card_display/base",
+  "textures": {
+    "log": "quark:block/azalea_log",
+    "logtop": "quark:block/azalea_log_top",
+    "plank": "quark:block/azalea_planks",
+    "wool": "minecraft:block/yellow_wool"
+  }
+}

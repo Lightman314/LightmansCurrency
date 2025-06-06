@@ -1,0 +1,35 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "lightmanscurrency:configured",
+          "fileID": "lightmanscurrency:common",
+          "option": "crafting.money_chest.canCraftCoinChest"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "category": "misc",
+        "key": {
+          "p": {
+            "tag": "minecraft:planks"
+          },
+          "r": {
+            "item": "minecraft:comparator"
+          }
+        },
+        "pattern": [
+          "ppp",
+          "prp",
+          "ppp"
+        ],
+        "result": {
+          "item": "lightmanscurrency:coin_chest"
+        },
+        "show_notification": true
+      }
+    }
+  ]
+}

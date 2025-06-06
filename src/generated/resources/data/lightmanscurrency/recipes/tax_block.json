@@ -1,0 +1,44 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "lightmanscurrency:configured",
+          "fileID": "lightmanscurrency:common",
+          "option": "crafting.canCraftTaxCollector"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "category": "misc",
+        "key": {
+          "e": {
+            "tag": "forge:ender_pearls"
+          },
+          "g": {
+            "tag": "forge:ingots/gold"
+          },
+          "h": {
+            "item": "minecraft:hopper"
+          },
+          "n": {
+            "tag": "forge:ingots/netherite"
+          },
+          "x": {
+            "item": "lightmanscurrency:trading_core"
+          }
+        },
+        "pattern": [
+          "ghg",
+          "nxn",
+          "geg"
+        ],
+        "result": {
+          "item": "lightmanscurrency:tax_block"
+        },
+        "show_notification": true
+      }
+    }
+  ]
+}

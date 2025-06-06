@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "lightmanscurrency:block/bookshelf_trader/dark_oak",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "lightmanscurrency:block/bookshelf_trader/dark_oak"
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/bookshelf_trader/dark_oak",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/bookshelf_trader/dark_oak",
+      "y": 270
+    }
+  }
+}

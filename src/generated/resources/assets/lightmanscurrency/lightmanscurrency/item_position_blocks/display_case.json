@@ -1,0 +1,21 @@
+{
+  "target": "lightmanscurrency:display_case",
+  "values": [
+    "lightmanscurrency:display_case",
+    "lightmanscurrency:display_case_light_gray",
+    "lightmanscurrency:display_case_gray",
+    "lightmanscurrency:display_case_black",
+    "lightmanscurrency:display_case_brown",
+    "lightmanscurrency:display_case_red",
+    "lightmanscurrency:display_case_orange",
+    "lightmanscurrency:display_case_yellow",
+    "lightmanscurrency:display_case_lime",
+    "lightmanscurrency:display_case_green",
+    "lightmanscurrency:display_case_cyan",
+    "lightmanscurrency:display_case_light_blue",
+    "lightmanscurrency:display_case_blue",
+    "lightmanscurrency:display_case_purple",
+    "lightmanscurrency:display_case_magenta",
+    "lightmanscurrency:display_case_pink"
+  ]
+}

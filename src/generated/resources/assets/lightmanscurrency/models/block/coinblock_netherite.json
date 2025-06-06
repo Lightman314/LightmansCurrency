@@ -1,0 +1,6 @@
+{
+  "parent": "lightmanscurrency:block/coin_block",
+  "textures": {
+    "main": "lightmanscurrency:block/coinblock_netherite"
+  }
+}

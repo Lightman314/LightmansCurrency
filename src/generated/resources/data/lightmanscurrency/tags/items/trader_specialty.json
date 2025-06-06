@@ -1,0 +1,10 @@
+{
+  "values": [
+    "#lightmanscurrency:traders/special/armor_display",
+    "#lightmanscurrency:traders/special/paygate",
+    "#lightmanscurrency:traders/special/ticket_kiosk",
+    "#lightmanscurrency:traders/special/bookshelf",
+    "#lightmanscurrency:traders/special/slot_machine",
+    "#lightmanscurrency:traders/special/gacha_machine"
+  ]
+}

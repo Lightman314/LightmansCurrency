@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:empty",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "lightmanscurrency:coin_chocolate_emerald"
+        }
+      ],
+      "rolls": 36.0
+    }
+  ],
+  "random_sequence": "lightmanscurrency:blocks/falling/coinblock_chocolate_emerald"
+}

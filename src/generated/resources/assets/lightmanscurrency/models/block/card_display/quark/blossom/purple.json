@@ -1,0 +1,9 @@
+{
+  "parent": "lightmanscurrency:block/card_display/base",
+  "textures": {
+    "log": "quark:block/blossom_log",
+    "logtop": "quark:block/blossom_log_top",
+    "plank": "quark:block/blossom_planks",
+    "wool": "minecraft:block/purple_wool"
+  }
+}

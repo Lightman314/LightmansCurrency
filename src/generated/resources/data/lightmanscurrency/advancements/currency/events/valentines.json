@@ -1,0 +1,39 @@
+{
+  "parent": "lightmanscurrency:currency/events/chocolate_coins",
+  "criteria": {
+    "event": {
+      "conditions": {
+        "end": {
+          "day": 15,
+          "month": 2
+        },
+        "start": {
+          "day": 13,
+          "month": 2
+        }
+      },
+      "trigger": "lightmanscurrency:date_range"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.lightmanscurrency.event.valentines.description"
+    },
+    "frame": "task",
+    "hidden": true,
+    "icon": {
+      "item": "lightmanscurrency:coin_chocolate_diamond"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.lightmanscurrency.event.valentines.title"
+    }
+  },
+  "requirements": [
+    [
+      "event"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

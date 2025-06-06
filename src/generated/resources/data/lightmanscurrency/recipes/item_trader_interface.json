@@ -1,0 +1,38 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "lightmanscurrency:configured",
+          "fileID": "lightmanscurrency:common",
+          "option": "crafting.canCraftTraderInterface"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "category": "misc",
+        "key": {
+          "c": {
+            "tag": "forge:chests/wooden"
+          },
+          "i": {
+            "tag": "forge:ingots/iron"
+          },
+          "t": {
+            "tag": "lightmanscurrency:network_terminal"
+          }
+        },
+        "pattern": [
+          "ici",
+          "iti",
+          "ici"
+        ],
+        "result": {
+          "item": "lightmanscurrency:item_trader_interface"
+        },
+        "show_notification": true
+      }
+    }
+  ]
+}

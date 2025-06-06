@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "card_display_trader_acacia",
+  "key": {
+    "c": {
+      "tag": "forge:chests/wooden"
+    },
+    "l": {
+      "item": "minecraft:acacia_log"
+    },
+    "w": {
+      "item": "minecraft:light_blue_wool"
+    },
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    }
+  },
+  "pattern": [
+    "  w",
+    " xl",
+    "llc"
+  ],
+  "result": {
+    "item": "lightmanscurrency:card_display_acacia_light_blue"
+  },
+  "show_notification": true
+}

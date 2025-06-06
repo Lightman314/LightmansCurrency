@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "card_display_trader_oak",
+  "key": {
+    "c": {
+      "tag": "forge:chests/wooden"
+    },
+    "l": {
+      "item": "minecraft:oak_log"
+    },
+    "w": {
+      "item": "minecraft:light_blue_wool"
+    },
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    }
+  },
+  "pattern": [
+    "  w",
+    " xl",
+    "llc"
+  ],
+  "result": {
+    "item": "lightmanscurrency:card_display_oak_light_blue"
+  },
+  "show_notification": true
+}

@@ -1,0 +1,81 @@
+{
+  "advancements": [
+    {
+      "advancement": {
+        "parent": "minecraft:recipes/root",
+        "criteria": {
+          "has_the_recipe": {
+            "conditions": {
+              "recipe": "lightmanscurrency:item_trader_server_med"
+            },
+            "trigger": "minecraft:recipe_unlocked"
+          },
+          "money": {
+            "conditions": {
+              "items": [
+                {
+                  "tag": "lightmanscurrency:coins"
+                }
+              ]
+            },
+            "trigger": "minecraft:inventory_changed"
+          },
+          "previous": {
+            "conditions": {
+              "items": [
+                {
+                  "items": [
+                    "lightmanscurrency:item_trader_server_sml"
+                  ]
+                }
+              ]
+            },
+            "trigger": "minecraft:inventory_changed"
+          },
+          "terminal": {
+            "conditions": {
+              "items": [
+                {
+                  "tag": "lightmanscurrency:network_terminal"
+                }
+              ]
+            },
+            "trigger": "minecraft:inventory_changed"
+          },
+          "trader": {
+            "conditions": {
+              "items": [
+                {
+                  "tag": "lightmanscurrency:trader"
+                }
+              ]
+            },
+            "trigger": "minecraft:inventory_changed"
+          }
+        },
+        "requirements": [
+          [
+            "money",
+            "trader",
+            "terminal",
+            "previous",
+            "has_the_recipe"
+          ]
+        ],
+        "rewards": {
+          "recipes": [
+            "lightmanscurrency:item_trader_server_med"
+          ]
+        },
+        "sends_telemetry_event": false
+      },
+      "conditions": [
+        {
+          "type": "lightmanscurrency:configured",
+          "fileID": "lightmanscurrency:common",
+          "option": "crafting.canCraftNetworkTrader"
+        }
+      ]
+    }
+  ]
+}

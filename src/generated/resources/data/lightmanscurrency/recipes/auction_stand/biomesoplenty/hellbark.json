@@ -1,0 +1,43 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "lightmanscurrency:configured",
+          "fileID": "lightmanscurrency:common",
+          "option": "crafting.canCraftAuctionStand"
+        },
+        {
+          "type": "forge:mod_loaded",
+          "modid": "biomesoplenty"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "category": "misc",
+        "group": "auction_stand",
+        "key": {
+          "g": {
+            "tag": "forge:glass/colorless"
+          },
+          "l": {
+            "item": "biomesoplenty:hellbark_log"
+          },
+          "x": {
+            "item": "lightmanscurrency:trading_core"
+          }
+        },
+        "pattern": [
+          "g",
+          "x",
+          "l"
+        ],
+        "result": {
+          "item": "lightmanscurrency:auction_stand_biomesoplenty_hellbark"
+        },
+        "show_notification": true
+      }
+    }
+  ]
+}

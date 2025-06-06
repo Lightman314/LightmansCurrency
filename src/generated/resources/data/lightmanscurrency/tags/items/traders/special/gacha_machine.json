@@ -1,0 +1,20 @@
+{
+  "values": [
+    "lightmanscurrency:gacha_machine_white",
+    "lightmanscurrency:gacha_machine_light_gray",
+    "lightmanscurrency:gacha_machine_gray",
+    "lightmanscurrency:gacha_machine_black",
+    "lightmanscurrency:gacha_machine_brown",
+    "lightmanscurrency:gacha_machine_red",
+    "lightmanscurrency:gacha_machine_orange",
+    "lightmanscurrency:gacha_machine_yellow",
+    "lightmanscurrency:gacha_machine_lime",
+    "lightmanscurrency:gacha_machine_green",
+    "lightmanscurrency:gacha_machine_cyan",
+    "lightmanscurrency:gacha_machine_light_blue",
+    "lightmanscurrency:gacha_machine_blue",
+    "lightmanscurrency:gacha_machine_purple",
+    "lightmanscurrency:gacha_machine_magenta",
+    "lightmanscurrency:gacha_machine_pink"
+  ]
+}

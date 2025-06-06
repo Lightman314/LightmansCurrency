@@ -1,0 +1,100 @@
+{
+  "overrides": [
+    {
+      "model": "lightmanscurrency:item/ancient_coin/copper",
+      "predicate": {
+        "lightmanscurrency:ancient_coin_type": 1.0
+      }
+    },
+    {
+      "model": "lightmanscurrency:item/ancient_coin/iron",
+      "predicate": {
+        "lightmanscurrency:ancient_coin_type": 2.0
+      }
+    },
+    {
+      "model": "lightmanscurrency:item/ancient_coin/gold",
+      "predicate": {
+        "lightmanscurrency:ancient_coin_type": 3.0
+      }
+    },
+    {
+      "model": "lightmanscurrency:item/ancient_coin/emerald",
+      "predicate": {
+        "lightmanscurrency:ancient_coin_type": 4.0
+      }
+    },
+    {
+      "model": "lightmanscurrency:item/ancient_coin/diamond",
+      "predicate": {
+        "lightmanscurrency:ancient_coin_type": 5.0
+      }
+    },
+    {
+      "model": "lightmanscurrency:item/ancient_coin/netherite_h",
+      "predicate": {
+        "lightmanscurrency:ancient_coin_type": 6.0
+      }
+    },
+    {
+      "model": "lightmanscurrency:item/ancient_coin/netherite_e1",
+      "predicate": {
+        "lightmanscurrency:ancient_coin_type": 7.0
+      }
+    },
+    {
+      "model": "lightmanscurrency:item/ancient_coin/netherite_r1",
+      "predicate": {
+        "lightmanscurrency:ancient_coin_type": 8.0
+      }
+    },
+    {
+      "model": "lightmanscurrency:item/ancient_coin/netherite_o",
+      "predicate": {
+        "lightmanscurrency:ancient_coin_type": 9.0
+      }
+    },
+    {
+      "model": "lightmanscurrency:item/ancient_coin/netherite_b",
+      "predicate": {
+        "lightmanscurrency:ancient_coin_type": 10.0
+      }
+    },
+    {
+      "model": "lightmanscurrency:item/ancient_coin/netherite_r2",
+      "predicate": {
+        "lightmanscurrency:ancient_coin_type": 11.0
+      }
+    },
+    {
+      "model": "lightmanscurrency:item/ancient_coin/netherite_i",
+      "predicate": {
+        "lightmanscurrency:ancient_coin_type": 12.0
+      }
+    },
+    {
+      "model": "lightmanscurrency:item/ancient_coin/netherite_n",
+      "predicate": {
+        "lightmanscurrency:ancient_coin_type": 13.0
+      }
+    },
+    {
+      "model": "lightmanscurrency:item/ancient_coin/netherite_e2",
+      "predicate": {
+        "lightmanscurrency:ancient_coin_type": 14.0
+      }
+    },
+    {
+      "model": "lightmanscurrency:item/ancient_coin/lapis",
+      "predicate": {
+        "lightmanscurrency:ancient_coin_type": 15.0
+      }
+    },
+    {
+      "model": "lightmanscurrency:item/ancient_coin/ender_pearl",
+      "predicate": {
+        "lightmanscurrency:ancient_coin_type": 16.0
+      }
+    }
+  ]
+}

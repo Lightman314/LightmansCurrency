@@ -1,0 +1,38 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "forge:mod_loaded",
+          "modid": "biomeswevegone"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "category": "misc",
+        "group": "shelf_trader_2x2",
+        "key": {
+          "c": {
+            "tag": "forge:chests/wooden"
+          },
+          "s": {
+            "item": "biomeswevegone:baobab_slab"
+          },
+          "x": {
+            "item": "lightmanscurrency:shelf_biomeswevegone_baobab"
+          }
+        },
+        "pattern": [
+          "c",
+          "x",
+          "s"
+        ],
+        "result": {
+          "item": "lightmanscurrency:shelf_2x2_biomeswevegone_baobab"
+        },
+        "show_notification": true
+      }
+    }
+  ]
+}

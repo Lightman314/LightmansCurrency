@@ -1,0 +1,36 @@
+{
+  "parent": "lightmanscurrency:currency/myfirstpenny",
+  "criteria": {
+    "wallet": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:wallet"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.lightmanscurrency.wallet_crafting.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "lightmanscurrency:wallet_copper"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.lightmanscurrency.wallet_crafting.title"
+    }
+  },
+  "requirements": [
+    [
+      "wallet"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

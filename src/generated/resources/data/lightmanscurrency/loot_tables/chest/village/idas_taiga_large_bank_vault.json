@@ -1,0 +1,152 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:empty",
+          "weight": 100
+        },
+        {
+          "type": "lightmanscurrency:vanilla_loot_table",
+          "name": "minecraft:gameplay/hero_of_the_village/armorer_gift",
+          "weight": 10
+        },
+        {
+          "type": "lightmanscurrency:vanilla_loot_table",
+          "name": "minecraft:gameplay/hero_of_the_village/butcher_gift",
+          "weight": 10
+        },
+        {
+          "type": "lightmanscurrency:vanilla_loot_table",
+          "name": "minecraft:gameplay/hero_of_the_village/cartographer_gift",
+          "weight": 10
+        },
+        {
+          "type": "lightmanscurrency:vanilla_loot_table",
+          "name": "minecraft:gameplay/hero_of_the_village/cleric_gift",
+          "weight": 10
+        },
+        {
+          "type": "lightmanscurrency:vanilla_loot_table",
+          "name": "minecraft:gameplay/hero_of_the_village/farmer_gift",
+          "weight": 10
+        },
+        {
+          "type": "lightmanscurrency:vanilla_loot_table",
+          "name": "minecraft:gameplay/hero_of_the_village/fisherman_gift",
+          "weight": 10
+        },
+        {
+          "type": "lightmanscurrency:vanilla_loot_table",
+          "name": "minecraft:gameplay/hero_of_the_village/fletcher_gift",
+          "weight": 10
+        },
+        {
+          "type": "lightmanscurrency:vanilla_loot_table",
+          "name": "minecraft:gameplay/hero_of_the_village/leatherworker_gift",
+          "weight": 10
+        },
+        {
+          "type": "lightmanscurrency:vanilla_loot_table",
+          "name": "minecraft:gameplay/hero_of_the_village/librarian_gift",
+          "weight": 10
+        },
+        {
+          "type": "lightmanscurrency:vanilla_loot_table",
+          "name": "minecraft:gameplay/hero_of_the_village/mason_gift",
+          "weight": 10
+        },
+        {
+          "type": "lightmanscurrency:vanilla_loot_table",
+          "name": "minecraft:gameplay/hero_of_the_village/shepherd_gift",
+          "weight": 10
+        },
+        {
+          "type": "lightmanscurrency:vanilla_loot_table",
+          "name": "minecraft:gameplay/hero_of_the_village/toolsmith_gift",
+          "weight": 10
+        },
+        {
+          "type": "lightmanscurrency:vanilla_loot_table",
+          "name": "minecraft:gameplay/hero_of_the_village/weaponsmith_gift",
+          "weight": 10
+        },
+        {
+          "type": "lightmanscurrency:vanilla_loot_table",
+          "name": "minecraft:gameplay/cat_morning_gift",
+          "weight": 10
+        },
+        {
+          "type": "lightmanscurrency:vanilla_loot_table",
+          "name": "minecraft:chests/spawn_bonus_chest",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:loot_table",
+          "name": "lightmanscurrency:loot_addons/chest/tier1",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:loot_table",
+          "name": "lightmanscurrency:loot_addons/chest/tier2",
+          "weight": 8
+        },
+        {
+          "type": "minecraft:loot_table",
+          "name": "lightmanscurrency:loot_addons/chest/tier3",
+          "weight": 6
+        },
+        {
+          "type": "minecraft:loot_table",
+          "name": "lightmanscurrency:loot_addons/chest/tier4",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:loot_table",
+          "name": "lightmanscurrency:loot_addons/chest/tier5",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:loot_table",
+          "name": "lightmanscurrency:loot_addons/chest/tier6"
+        },
+        {
+          "type": "lightmanscurrency:ancient_coin",
+          "coin": "COPPER"
+        },
+        {
+          "type": "lightmanscurrency:ancient_coin",
+          "coin": "IRON"
+        },
+        {
+          "type": "lightmanscurrency:ancient_coin",
+          "coin": "GOLD"
+        },
+        {
+          "type": "lightmanscurrency:ancient_coin",
+          "coin": "EMERALD"
+        },
+        {
+          "type": "lightmanscurrency:ancient_coin",
+          "coin": "DIAMOND"
+        },
+        {
+          "type": "minecraft:loot_table",
+          "name": "lightmanscurrency:misc/ancient_netherite_coins"
+        },
+        {
+          "type": "lightmanscurrency:ancient_coin",
+          "coin": "LAPIS"
+        },
+        {
+          "type": "lightmanscurrency:ancient_coin",
+          "coin": "ENDER_PEARL"
+        }
+      ],
+      "rolls": 4.0
+    }
+  ],
+  "random_sequence": "lightmanscurrency:chest/village/idas_taiga_large_bank_vault"
+}

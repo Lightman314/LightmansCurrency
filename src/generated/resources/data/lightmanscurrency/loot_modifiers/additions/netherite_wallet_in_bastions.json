@@ -1,0 +1,8 @@
+{
+  "type": "lightmanscurrency:bonus_item",
+  "item": "lightmanscurrency:wallet_netherite",
+  "odds": 0.1,
+  "targets": [
+    "minecraft:chests/bastion_treasure"
+  ]
+}

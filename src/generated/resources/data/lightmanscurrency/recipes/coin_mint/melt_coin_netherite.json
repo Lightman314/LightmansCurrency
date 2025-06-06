@@ -1,0 +1,28 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "lightmanscurrency:configured",
+          "fileID": "lightmanscurrency:common",
+          "option": "crafting.coin_mint.canMelt"
+        },
+        {
+          "type": "lightmanscurrency:configured",
+          "fileID": "lightmanscurrency:common",
+          "option": "crafting.coin_mint.melt.netherite"
+        }
+      ],
+      "recipe": {
+        "type": "lightmanscurrency:coin_mint",
+        "ingredient": {
+          "item": "lightmanscurrency:coin_netherite"
+        },
+        "result": {
+          "item": "minecraft:netherite_ingot"
+        }
+      }
+    }
+  ]
+}

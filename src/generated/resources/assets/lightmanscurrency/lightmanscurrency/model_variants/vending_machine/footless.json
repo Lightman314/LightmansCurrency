@@ -1,0 +1,27 @@
+{
+  "dummy": true,
+  "item": "lightmanscurrency:block/vending_machine/footless/base_item",
+  "models": [
+    "lightmanscurrency:block/vending_machine/footless/base_bottom",
+    "lightmanscurrency:block/vending_machine/footless/base_top"
+  ],
+  "name": {
+    "translate": "lightmanscurrency.block_variant.default"
+  },
+  "tooltip_info": {
+    "item": true,
+    "jade": true,
+    "selection": true,
+    "tooltip": {
+      "color": "gray",
+      "translate": "lightmanscurrency.block_variant.modifier.label",
+      "with": [
+        {
+          "color": "dark_aqua",
+          "italic": true,
+          "translate": "lightmanscurrency.block_variant.modifier.footless"
+        }
+      ]
+    }
+  }
+}

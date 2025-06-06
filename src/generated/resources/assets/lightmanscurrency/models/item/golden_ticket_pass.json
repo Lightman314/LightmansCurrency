@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "lightmanscurrency:item/golden_ticket_pass",
+    "layer1": "lightmanscurrency:item/golden_ticket_pass_overlay"
+  }
+}
