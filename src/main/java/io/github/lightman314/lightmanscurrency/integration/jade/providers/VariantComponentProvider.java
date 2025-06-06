@@ -8,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_v
 import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVariantSupportingBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
-import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.resources.ResourceLocation;
@@ -60,10 +59,10 @@ public class VariantComponentProvider implements IBlockComponentProvider{
                         if(extraTooltip.drawOnJade)
                             tooltip.addAll(extraTooltip.getTooltip());
                     }
-                    if(be.isVariantLocked())
-                        tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_LOCKED.getWithStyle(ChatFormatting.GOLD,ChatFormatting.BOLD));
                 }
             }
+            if(be.isVariantLocked())
+                tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_LOCKED.getWithStyle(ChatFormatting.GOLD,ChatFormatting.BOLD));
         }
     }
     @Override

@@ -190,19 +190,15 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	public void serverTick()
 	{
 		super.serverTick();
-		List<Direction> cleanSides = new ArrayList<>();
 		boolean changed = false;
 		boolean removalChanged = false;
-		for(Direction side : Direction.values())
+		for(Direction side : new ArrayList<>(this.data.keySet()))
 		{
-			if(this.data.containsKey(side))
+			changed = true;
+			if(this.data.get(side).tickTimer())
 			{
-				changed = true;
-				if(this.data.get(side).tickTimer())
-				{
-					this.data.remove(side);
-					removalChanged = true;
-				}
+				this.data.remove(side);
+				removalChanged = true;
 			}
 		}
 		if(changed)

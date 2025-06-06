@@ -309,7 +309,6 @@ public class ModCreativeGroups {
         if(item.asItem() instanceof BlockItem bi && bi.getBlock() instanceof IVariantBlock vb && LightmansCurrency.getProxy().isClient())
         {
             List<Pair<ResourceLocation,ModelVariant>> foundVariants = new ArrayList<>();
-            LightmansCurrency.LogDebug("Checking if " + new ItemStack(item).getHoverName().getString() + " should add any variants to the creative menu!");
             for(ResourceLocation variantID : vb.getValidVariants())
             {
                 ModelVariant variant = ModelVariantDataManager.getVariant(variantID);

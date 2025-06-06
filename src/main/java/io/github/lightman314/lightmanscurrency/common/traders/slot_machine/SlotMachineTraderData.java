@@ -114,10 +114,10 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
             try{ level = LightmansCurrency.getProxy().safeGetDummyLevel();
             } catch(Throwable t) {
                 LightmansCurrency.LogError("Could not get a valid level from the trade's context or the proxy. Will have to use Java randomizer");
-                return this.getRandomizedEntry(new Random().nextInt(this.getTotalWeight()) + 1);
+                return this.getRandomizedEntry(new Random().nextInt(this.getTotalWeight()));
             }
         }
-        return this.getRandomizedEntry(level.random.nextInt(this.getTotalWeight()) + 1);
+        return this.getRandomizedEntry(level.random.nextInt(this.getTotalWeight()));
     }
 
     private SlotMachineEntry getRandomizedEntry(int rand)
@@ -125,7 +125,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
         for(SlotMachineEntry entry : this.getValidEntries())
         {
             rand -= entry.getWeight();
-            if(rand <= 0)
+            if(rand < 0)
                 return entry;
         }
         return null;

@@ -450,9 +450,9 @@ public class CommandLCAdmin {
 					{
 						wrapper.setContents(new SimpleContainer(wrapper.getContainerSize()),entity);
 						count++;
+						walletHandler.setWallet(currentWallet);
 					}
 				}
-				walletHandler.setWallet(currentWallet);
 			}
 		}
 		EasyText.sendCommandSucess(commandContext,LCText.COMMAND_ADMIN_EMPTY_WALLET_SUCCESS.get(count), true);

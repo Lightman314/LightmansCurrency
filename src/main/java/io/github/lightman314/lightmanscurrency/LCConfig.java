@@ -50,7 +50,6 @@ public final class LCConfig {
         public final CustomItemScaleConfigOption itemScaleOverrides = CustomItemScaleConfigOption.create(new CustomItemScaleData(Lists.newArrayList(Pair.of(CustomItemScaleData.create(LCTags.Items.DRAW_HALF_SIZE),0.5f))));
         public final BooleanOption drawGachaBallItem = BooleanOption.createTrue();
         public final BooleanOption gachaMachineFancyGraphics = BooleanOption.createTrue();
-        public final BooleanOption loadModelVariants = BooleanOption.createTrue();
 
         public final StringOption timeFormat = StringOption.create("MM/dd/yy hh:mmaa");
 
@@ -101,12 +100,6 @@ public final class LCConfig {
             builder.comment("Whether the Gacha Machine will render each Gacha Ball individually",
                             "Disable if you're having FPS issues near the Gacha Machine, this will make the machine render a far more simplisitic representation of its contents.")
                     .add("gachaMachineFancyGraphics",this.gachaMachineFancyGraphics);
-
-            builder.comment("Whether the Model Variant system will be loaded",
-                            "If disabled, you will be unable to select model variants with the wand (only the default model will appear)",
-                            "and all blocks with variants currently applied will only use the default model.",
-                            "Requires a resource pack reload for changes to be applied")
-                    .add("loadVariantData",this.loadModelVariants);
 
             builder.pop();
 

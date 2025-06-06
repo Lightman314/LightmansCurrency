@@ -36,7 +36,7 @@ import java.util.function.Supplier;
 @ParametersAreNonnullByDefault
 public class ModelVariant {
 
-    public static Comparator<Pair<ResourceLocation,ModelVariant>> COMPARATOR = new VariantSorter();
+    public static final Comparator<Pair<ResourceLocation,ModelVariant>> COMPARATOR = new VariantSorter();
 
     private boolean completelyInvalid = false;
     public boolean shouldRemove() { return this.completelyInvalid || (this.parentVariant != null && this.parentVariant.shouldRemove()); }
