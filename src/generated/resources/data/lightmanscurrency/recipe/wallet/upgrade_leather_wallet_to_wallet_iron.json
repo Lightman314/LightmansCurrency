@@ -1,0 +1,17 @@
+{
+  "type": "lightmanscurrency:crafting_wallet_upgrade",
+  "category": "misc",
+  "group": "wallet_crafting",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:wallet_leather"
+    },
+    {
+      "tag": "c:ingots/iron"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:wallet_iron"
+  }
+}

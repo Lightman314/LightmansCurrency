@@ -1,0 +1,32 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.canCraftATMCard"
+    }
+  ],
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:paper"
+    },
+    {
+      "tag": "c:ender_pearls"
+    },
+    {
+      "tag": "c:nuggets/iron"
+    }
+  ],
+  "result": {
+    "components": {
+      "lightmanscurrency:atm_card_data": {
+        "Locked": false,
+        "Validation": -1
+      }
+    },
+    "count": 1,
+    "id": "lightmanscurrency:atm_card"
+  }
+}

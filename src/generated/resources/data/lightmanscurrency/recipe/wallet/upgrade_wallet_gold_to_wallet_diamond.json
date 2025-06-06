@@ -1,0 +1,20 @@
+{
+  "type": "lightmanscurrency:crafting_wallet_upgrade",
+  "category": "misc",
+  "group": "wallet_upgrading",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:wallet_gold"
+    },
+    {
+      "tag": "c:gems/emerald"
+    },
+    {
+      "tag": "c:gems/diamond"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:wallet_diamond"
+  }
+}

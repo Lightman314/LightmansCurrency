@@ -1,0 +1,65 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "biomesoplenty"
+    },
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.canCraftAuctionStand"
+    }
+  ],
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "lightmanscurrency:auction_stand/biomesoplenty/magic"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "money": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:coins"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "terminal": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:network_terminal"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "trader": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:trader"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "money",
+      "trader",
+      "terminal"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:auction_stand/biomesoplenty/magic"
+    ]
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "lightmanscurrency:traders/vending_machine_large"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "money": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:coins"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "trader": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:trader"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "vending_machine": {
+      "conditions": {
+        "items": [
+          {
+            "items": "lightmanscurrency:vending_machine"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "money",
+      "trader",
+      "vending_machine"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:traders/vending_machine_large"
+    ]
+  }
+}

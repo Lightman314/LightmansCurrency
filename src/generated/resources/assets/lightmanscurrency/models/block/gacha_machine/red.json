@@ -1,0 +1,6 @@
+{
+  "parent": "lightmanscurrency:block/gacha_machine/base",
+  "textures": {
+    "main": "lightmanscurrency:block/gacha_machine/red"
+  }
+}

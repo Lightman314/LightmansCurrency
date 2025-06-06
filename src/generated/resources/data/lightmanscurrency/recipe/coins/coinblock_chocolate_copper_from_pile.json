@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "chocolate_coin_block_from_pile",
+  "key": {
+    "x": {
+      "item": "lightmanscurrency:coinpile_chocolate_copper"
+    }
+  },
+  "pattern": [
+    "xx",
+    "xx"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:coinblock_chocolate_copper"
+  }
+}

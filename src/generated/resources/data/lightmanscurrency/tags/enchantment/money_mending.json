@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "lightmanscurrency:money_mending",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:money_mending_chocolate",
+      "required": false
+    }
+  ]
+}

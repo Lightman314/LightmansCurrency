@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "g": {
+      "tag": "c:glass_blocks/colorless"
+    },
+    "w": {
+      "item": "minecraft:gray_wool"
+    },
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    }
+  },
+  "pattern": [
+    "g",
+    "x",
+    "w"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:display_case_gray"
+  }
+}

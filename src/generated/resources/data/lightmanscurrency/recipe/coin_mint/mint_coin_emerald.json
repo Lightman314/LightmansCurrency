@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.coin_mint.canMint"
+    },
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.coin_mint.mint.emerald"
+    }
+  ],
+  "type": "lightmanscurrency:coin_mint",
+  "ingredient": {
+    "tag": "c:gems/emerald"
+  },
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:coin_emerald"
+  }
+}

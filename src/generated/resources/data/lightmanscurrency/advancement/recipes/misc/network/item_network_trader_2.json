@@ -1,0 +1,72 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.canCraftNetworkTrader"
+    }
+  ],
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "lightmanscurrency:network/item_network_trader_2"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "money": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:coins"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "previous": {
+      "conditions": {
+        "items": [
+          {
+            "items": "lightmanscurrency:item_trader_server_sml"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "terminal": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:network_terminal"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "trader": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:trader"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "money",
+      "trader",
+      "terminal",
+      "previous"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:network/item_network_trader_2"
+    ]
+  }
+}

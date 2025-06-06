@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "lightmanscurrency:block/bookshelf_trader/biomesoplenty/hellbark",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "lightmanscurrency:block/bookshelf_trader/biomesoplenty/hellbark"
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/bookshelf_trader/biomesoplenty/hellbark",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/bookshelf_trader/biomesoplenty/hellbark",
+      "y": 270
+    }
+  }
+}

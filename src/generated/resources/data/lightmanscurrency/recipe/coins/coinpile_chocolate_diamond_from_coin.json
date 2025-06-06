@@ -1,0 +1,38 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "chocolate_coin_pile_from_coin",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:coin_chocolate_diamond"
+    },
+    {
+      "item": "lightmanscurrency:coin_chocolate_diamond"
+    },
+    {
+      "item": "lightmanscurrency:coin_chocolate_diamond"
+    },
+    {
+      "item": "lightmanscurrency:coin_chocolate_diamond"
+    },
+    {
+      "item": "lightmanscurrency:coin_chocolate_diamond"
+    },
+    {
+      "item": "lightmanscurrency:coin_chocolate_diamond"
+    },
+    {
+      "item": "lightmanscurrency:coin_chocolate_diamond"
+    },
+    {
+      "item": "lightmanscurrency:coin_chocolate_diamond"
+    },
+    {
+      "item": "lightmanscurrency:coin_chocolate_diamond"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:coinpile_chocolate_diamond"
+  }
+}

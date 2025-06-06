@@ -1,0 +1,54 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "lightmanscurrency:upgrades/offer_upgrade_5"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "money": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:coins"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "previous": {
+      "conditions": {
+        "items": [
+          {
+            "items": "lightmanscurrency:offer_upgrade_4"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "trader": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:trader"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "money",
+      "trader",
+      "previous"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:upgrades/offer_upgrade_5"
+    ]
+  }
+}

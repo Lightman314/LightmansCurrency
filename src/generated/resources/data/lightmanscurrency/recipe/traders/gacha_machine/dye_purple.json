@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "gacha_dyes",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:gacha_machine_white"
+    },
+    {
+      "tag": "c:dyes/purple"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:gacha_machine_purple"
+  }
+}

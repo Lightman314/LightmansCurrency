@@ -1,0 +1,11 @@
+{
+  "values": [
+    "lightmanscurrency:wallet_iron",
+    "lightmanscurrency:wallet_gold",
+    "lightmanscurrency:wallet_emerald",
+    "lightmanscurrency:wallet_diamond",
+    "lightmanscurrency:wallet_netherite",
+    "lightmanscurrency:wallet_nether_star",
+    "lightmanscurrency:wallet_ender_dragon"
+  ]
+}

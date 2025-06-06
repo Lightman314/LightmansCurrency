@@ -1,0 +1,34 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "biomesoplenty"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "card_display_trader_umbran",
+  "key": {
+    "c": {
+      "tag": "c:chests/wooden"
+    },
+    "l": {
+      "item": "biomesoplenty:umbran_log"
+    },
+    "w": {
+      "item": "minecraft:orange_wool"
+    },
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    }
+  },
+  "pattern": [
+    "  w",
+    " xl",
+    "llc"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:card_display_biomesoplenty_umbran_orange"
+  }
+}

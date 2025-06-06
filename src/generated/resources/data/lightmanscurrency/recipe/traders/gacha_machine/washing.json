@@ -1,0 +1,60 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    [
+      {
+        "item": "lightmanscurrency:gacha_machine_light_gray"
+      },
+      {
+        "item": "lightmanscurrency:gacha_machine_gray"
+      },
+      {
+        "item": "lightmanscurrency:gacha_machine_black"
+      },
+      {
+        "item": "lightmanscurrency:gacha_machine_brown"
+      },
+      {
+        "item": "lightmanscurrency:gacha_machine_red"
+      },
+      {
+        "item": "lightmanscurrency:gacha_machine_orange"
+      },
+      {
+        "item": "lightmanscurrency:gacha_machine_yellow"
+      },
+      {
+        "item": "lightmanscurrency:gacha_machine_lime"
+      },
+      {
+        "item": "lightmanscurrency:gacha_machine_green"
+      },
+      {
+        "item": "lightmanscurrency:gacha_machine_cyan"
+      },
+      {
+        "item": "lightmanscurrency:gacha_machine_light_blue"
+      },
+      {
+        "item": "lightmanscurrency:gacha_machine_blue"
+      },
+      {
+        "item": "lightmanscurrency:gacha_machine_purple"
+      },
+      {
+        "item": "lightmanscurrency:gacha_machine_magenta"
+      },
+      {
+        "item": "lightmanscurrency:gacha_machine_pink"
+      }
+    ],
+    {
+      "item": "minecraft:water_bucket"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:gacha_machine_white"
+  }
+}

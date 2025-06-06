@@ -1,0 +1,6 @@
+{
+  "parent": "lightmanscurrency:block/bookshelf_trader/base",
+  "textures": {
+    "main": "biomesoplenty:block/hellbark_planks"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "criteria": {
+    "coin": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:coins"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "background": "lightmanscurrency:textures/gui/advancements/backgrounds/currency.png",
+    "description": {
+      "translate": "advancements.lightmanscurrency.root.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "lightmanscurrency:coin_gold"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancements.lightmanscurrency.root.title"
+    }
+  },
+  "requirements": [
+    [
+      "coin"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

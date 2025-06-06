@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "lightmanscurrency:block/cash_register_modern",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "lightmanscurrency:block/cash_register_modern"
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/cash_register_modern",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/cash_register_modern",
+      "y": 270
+    }
+  }
+}

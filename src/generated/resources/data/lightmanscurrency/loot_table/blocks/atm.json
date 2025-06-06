@@ -1,0 +1,35 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "lightmanscurrency:atm",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "bottom": "true"
+              }
+            }
+          ],
+          "functions": [
+            {
+              "function": "lightmanscurrency:model_variant"
+            }
+          ],
+          "name": "lightmanscurrency:atm"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "lightmanscurrency:blocks/atm"
+}

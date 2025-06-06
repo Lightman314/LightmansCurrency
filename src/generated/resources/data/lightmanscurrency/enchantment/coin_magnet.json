@@ -1,0 +1,23 @@
+{
+  "anvil_cost": 4,
+  "description": {
+    "translate": "enchantment.lightmanscurrency.coin_magnet"
+  },
+  "effects": {
+    "lightmanscurrency:collect_coins_at_range": {}
+  },
+  "max_cost": {
+    "base": 75,
+    "per_level_above_first": 25
+  },
+  "max_level": 3,
+  "min_cost": {
+    "base": 25,
+    "per_level_above_first": 25
+  },
+  "slots": [
+    "any"
+  ],
+  "supported_items": "#lightmanscurrency:wallet/pickup",
+  "weight": 2
+}

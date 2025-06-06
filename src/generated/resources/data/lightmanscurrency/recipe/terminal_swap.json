@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "portable_terminal_swap",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:terminal"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:portable_terminal"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "lightmanscurrency:block/card_display/oak/blue",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "lightmanscurrency:block/card_display/oak/blue"
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/card_display/oak/blue",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/card_display/oak/blue",
+      "y": 270
+    }
+  }
+}

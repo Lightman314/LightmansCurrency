@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "card_display_trader_cherry",
+  "key": {
+    "c": {
+      "tag": "c:chests/wooden"
+    },
+    "l": {
+      "item": "minecraft:cherry_log"
+    },
+    "w": {
+      "item": "minecraft:gray_wool"
+    },
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    }
+  },
+  "pattern": [
+    "  w",
+    " xl",
+    "llc"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:card_display_cherry_gray"
+  }
+}

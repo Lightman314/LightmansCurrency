@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "lightmanscurrency:block/bookshelf_trader/cherry",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "lightmanscurrency:block/bookshelf_trader/cherry"
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/bookshelf_trader/cherry",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/bookshelf_trader/cherry",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "parent": "lightmanscurrency:currency/myfirstpenny",
+  "criteria": {
+    "coin_mint": {
+      "conditions": {
+        "items": [
+          {
+            "items": "lightmanscurrency:coinmint"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.lightmanscurrency.coin_mint.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "lightmanscurrency:coinmint"
+    },
+    "title": {
+      "translate": "advancements.lightmanscurrency.coin_mint.title"
+    }
+  },
+  "requirements": [
+    [
+      "coin_mint"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "minecraft:item/ender_pearl",
+    "layer1": "lightmanscurrency:item/upgrade_tier/gold"
+  }
+}

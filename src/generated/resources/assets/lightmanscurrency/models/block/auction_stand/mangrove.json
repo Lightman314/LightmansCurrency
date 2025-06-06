@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:block/auction_stand/base",
+  "textures": {
+    "log": "minecraft:block/mangrove_log",
+    "log_top": "minecraft:block/mangrove_log_top"
+  }
+}

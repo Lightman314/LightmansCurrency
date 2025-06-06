@@ -1,0 +1,38 @@
+{
+  "type": "minecraft:archaeology",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "lightmanscurrency:ancient_coin",
+          "coin": "EMERALD"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "lightmanscurrency:coin_emerald",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:emerald",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:stick"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:melon_slice"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cactus"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "lightmanscurrency:archaeology/village/desert_banker"
+}

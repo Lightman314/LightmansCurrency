@@ -1,0 +1,7 @@
+{
+  "type": "lightmanscurrency:ticket_master",
+  "ingredient": {
+    "tag": "lightmanscurrency:ticket_material/gold"
+  },
+  "result": "lightmanscurrency:golden_master_ticket"
+}

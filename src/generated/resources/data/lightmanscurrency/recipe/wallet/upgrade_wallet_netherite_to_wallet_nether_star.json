@@ -1,0 +1,17 @@
+{
+  "type": "lightmanscurrency:crafting_wallet_upgrade",
+  "category": "misc",
+  "group": "wallet_upgrading",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:wallet_netherite"
+    },
+    {
+      "tag": "c:nether_stars"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:wallet_nether_star"
+  }
+}

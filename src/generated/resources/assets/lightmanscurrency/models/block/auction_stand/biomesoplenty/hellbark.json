@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:block/auction_stand/base",
+  "textures": {
+    "log": "biomesoplenty:block/hellbark_log",
+    "log_top": "biomesoplenty:block/hellbark_log_top"
+  }
+}

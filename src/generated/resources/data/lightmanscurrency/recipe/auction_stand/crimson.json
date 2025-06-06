@@ -1,0 +1,32 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.canCraftAuctionStand"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "auction_stand",
+  "key": {
+    "g": {
+      "tag": "c:glass_blocks/colorless"
+    },
+    "l": {
+      "item": "minecraft:crimson_stem"
+    },
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    }
+  },
+  "pattern": [
+    "g",
+    "x",
+    "l"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:auction_stand_crimson"
+  }
+}

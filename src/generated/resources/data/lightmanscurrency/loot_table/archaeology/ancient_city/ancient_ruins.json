@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:archaeology",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "lightmanscurrency:ancient_coin",
+          "coin": "DIAMOND"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "lightmanscurrency:archaeology/ancient_city/ancient_ruins"
+}

@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "c": {
+      "tag": "c:chests/wooden"
+    },
+    "g": {
+      "tag": "c:glass_blocks/colorless"
+    },
+    "i": {
+      "tag": "c:ingots/iron"
+    },
+    "x": {
+      "item": "lightmanscurrency:vending_machine"
+    }
+  },
+  "pattern": [
+    "igi",
+    "igi",
+    "cxc"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:vending_machine_large"
+  }
+}

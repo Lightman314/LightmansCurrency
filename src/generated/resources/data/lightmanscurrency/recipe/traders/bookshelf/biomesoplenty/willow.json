@@ -1,0 +1,31 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "biomesoplenty"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "bookshelf_trader",
+  "key": {
+    "p": {
+      "item": "biomesoplenty:willow_planks"
+    },
+    "s": {
+      "item": "biomesoplenty:willow_slab"
+    },
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    }
+  },
+  "pattern": [
+    "ppp",
+    "sxs",
+    "ppp"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_willow"
+  }
+}

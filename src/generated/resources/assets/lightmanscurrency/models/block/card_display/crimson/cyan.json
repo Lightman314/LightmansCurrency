@@ -1,0 +1,9 @@
+{
+  "parent": "lightmanscurrency:block/card_display/base",
+  "textures": {
+    "log": "minecraft:block/crimson_stem",
+    "logtop": "minecraft:block/crimson_stem_top",
+    "plank": "minecraft:block/crimson_planks",
+    "wool": "minecraft:block/cyan_wool"
+  }
+}

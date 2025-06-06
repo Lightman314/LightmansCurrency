@@ -1,0 +1,27 @@
+{
+  "dummy": true,
+  "item": "lightmanscurrency:block/display_case/glassless/base",
+  "item_position_data": "lightmanscurrency:display_case_open",
+  "models": [
+    "lightmanscurrency:block/display_case/glassless/base"
+  ],
+  "name": {
+    "translate": "lightmanscurrency.block_variant.default"
+  },
+  "tooltip_info": {
+    "item": true,
+    "jade": true,
+    "selection": true,
+    "tooltip": {
+      "color": "gray",
+      "translate": "lightmanscurrency.block_variant.modifier.label",
+      "with": [
+        {
+          "color": "dark_aqua",
+          "italic": true,
+          "translate": "lightmanscurrency.block_variant.modifier.glassless"
+        }
+      ]
+    }
+  }
+}

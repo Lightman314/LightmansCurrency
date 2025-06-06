@@ -1,0 +1,38 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "coin_pile_from_coin",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:coin_netherite"
+    },
+    {
+      "item": "lightmanscurrency:coin_netherite"
+    },
+    {
+      "item": "lightmanscurrency:coin_netherite"
+    },
+    {
+      "item": "lightmanscurrency:coin_netherite"
+    },
+    {
+      "item": "lightmanscurrency:coin_netherite"
+    },
+    {
+      "item": "lightmanscurrency:coin_netherite"
+    },
+    {
+      "item": "lightmanscurrency:coin_netherite"
+    },
+    {
+      "item": "lightmanscurrency:coin_netherite"
+    },
+    {
+      "item": "lightmanscurrency:coin_netherite"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:coinpile_netherite"
+  }
+}

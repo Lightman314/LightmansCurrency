@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "lightmanscurrency:upgrades/hopper_upgrade"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "money": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:coins"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "trader_interface": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:trader_interface"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "money",
+      "trader_interface"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:upgrades/hopper_upgrade"
+    ]
+  }
+}

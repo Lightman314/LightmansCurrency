@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "card_display_trader_dark_oak",
+  "key": {
+    "c": {
+      "tag": "c:chests/wooden"
+    },
+    "l": {
+      "item": "minecraft:dark_oak_log"
+    },
+    "w": {
+      "item": "minecraft:yellow_wool"
+    },
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    }
+  },
+  "pattern": [
+    "  w",
+    " xl",
+    "llc"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:card_display_dark_oak_yellow"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.coin_mint.canMint"
+    },
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.coin_mint.mint.copper"
+    }
+  ],
+  "type": "lightmanscurrency:coin_mint",
+  "ingredient": {
+    "tag": "c:ingots/copper"
+  },
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:coin_copper"
+  }
+}

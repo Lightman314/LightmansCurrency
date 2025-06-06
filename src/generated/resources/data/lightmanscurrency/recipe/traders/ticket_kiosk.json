@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "g": {
+      "item": "minecraft:ink_sac"
+    },
+    "i": {
+      "tag": "c:ingots/iron"
+    },
+    "r": {
+      "tag": "c:dusts/redstone"
+    },
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    }
+  },
+  "pattern": [
+    "iii",
+    "igi",
+    "rxr"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:ticket_kiosk"
+  }
+}

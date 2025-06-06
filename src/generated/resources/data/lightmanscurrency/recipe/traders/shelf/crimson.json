@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "shelf_trader",
+  "key": {
+    "s": {
+      "item": "minecraft:crimson_slab"
+    },
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    }
+  },
+  "pattern": [
+    "x",
+    "s"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:shelf_crimson"
+  }
+}

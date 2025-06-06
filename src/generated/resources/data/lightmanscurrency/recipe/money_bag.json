@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "g": {
+      "tag": "c:nuggets/gold"
+    },
+    "l": {
+      "tag": "c:leathers"
+    },
+    "s": {
+      "tag": "c:strings"
+    }
+  },
+  "pattern": [
+    " s ",
+    "lgl",
+    "lll"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:money_bag"
+  }
+}

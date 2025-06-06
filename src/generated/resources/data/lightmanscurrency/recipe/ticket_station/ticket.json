@@ -1,0 +1,10 @@
+{
+  "type": "lightmanscurrency:ticket",
+  "ingredient": {
+    "tag": "lightmanscurrency:ticket_material/paper"
+  },
+  "masterTicket": {
+    "item": "lightmanscurrency:master_ticket"
+  },
+  "result": "lightmanscurrency:ticket"
+}

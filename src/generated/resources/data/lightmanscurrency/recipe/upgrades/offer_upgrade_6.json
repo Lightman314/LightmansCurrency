@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "tag": "c:ingots/netherite"
+  },
+  "base": {
+    "item": "lightmanscurrency:offer_upgrade_5"
+  },
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:offer_upgrade_6"
+  },
+  "template": {
+    "item": "lightmanscurrency:upgrade_smithing_template"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "parent": "lightmanscurrency:currency/wallet_crafting",
+  "criteria": {
+    "enchanted_wallet": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:wallet",
+            "predicates": {
+              "minecraft:enchantments": [
+                {
+                  "enchantments": "lightmanscurrency:coin_magnet",
+                  "levels": {
+                    "min": 1
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.lightmanscurrency.enchanted_wallet.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "components": {
+        "minecraft:enchantments": {
+          "levels": {
+            "lightmanscurrency:coin_magnet": 3
+          }
+        }
+      },
+      "count": 1,
+      "id": "lightmanscurrency:wallet_netherite"
+    },
+    "title": {
+      "translate": "advancements.lightmanscurrency.enchanted_wallet.title"
+    }
+  },
+  "requirements": [
+    [
+      "enchanted_wallet"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

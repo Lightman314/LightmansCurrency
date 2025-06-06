@@ -1,0 +1,33 @@
+{
+  "parent": "lightmanscurrency:currency/network_trader",
+  "criteria": {
+    "trader_interface": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:trader_interface"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.lightmanscurrency.trader_interface.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "lightmanscurrency:item_trader_interface"
+    },
+    "title": {
+      "translate": "advancements.lightmanscurrency.trader_interface.title"
+    }
+  },
+  "requirements": [
+    [
+      "trader_interface"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

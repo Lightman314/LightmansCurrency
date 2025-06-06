@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "b": {
+      "tag": "c:bricks"
+    },
+    "d": {
+      "tag": "c:dyes/blue"
+    }
+  },
+  "pattern": [
+    "b b",
+    "bdb",
+    " b "
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:coinjar_blue"
+  }
+}

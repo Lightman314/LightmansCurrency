@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "tag": "c:ingots/iron"
+  },
+  "base": {
+    "item": "lightmanscurrency:offer_upgrade_1"
+  },
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:offer_upgrade_2"
+  },
+  "template": {
+    "item": "lightmanscurrency:upgrade_smithing_template"
+  }
+}

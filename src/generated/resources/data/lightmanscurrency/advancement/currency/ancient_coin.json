@@ -1,0 +1,41 @@
+{
+  "parent": "lightmanscurrency:currency/myfirstpenny",
+  "criteria": {
+    "ancient_coin": {
+      "conditions": {
+        "items": [
+          {
+            "items": "lightmanscurrency:coin_ancient"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.lightmanscurrency.ancient_coin.description"
+    },
+    "frame": "goal",
+    "hidden": true,
+    "icon": {
+      "components": {
+        "lightmanscurrency:ancient_coin_type": "GOLD"
+      },
+      "count": 1,
+      "id": "lightmanscurrency:coin_ancient"
+    },
+    "title": {
+      "translate": "advancements.lightmanscurrency.ancient_coin.title"
+    }
+  },
+  "requirements": [
+    [
+      "ancient_coin"
+    ]
+  ],
+  "rewards": {
+    "function": "lightmanscurrency:unlock_ancient_coins"
+  },
+  "sends_telemetry_event": true
+}

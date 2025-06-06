@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "shelf_trader_2x2",
+  "key": {
+    "c": {
+      "tag": "c:chests/wooden"
+    },
+    "s": {
+      "item": "minecraft:crimson_slab"
+    },
+    "x": {
+      "item": "lightmanscurrency:shelf_crimson"
+    }
+  },
+  "pattern": [
+    "c",
+    "x",
+    "s"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:shelf_2x2_crimson"
+  }
+}

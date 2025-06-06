@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "i": {
+      "tag": "c:ingots/iron"
+    },
+    "n": {
+      "tag": "c:nuggets/iron"
+    },
+    "s": {
+      "item": "minecraft:stick"
+    },
+    "t": {
+      "item": "lightmanscurrency:upgrade_smithing_template"
+    }
+  },
+  "pattern": [
+    "i i",
+    "ntn",
+    " s "
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:variant_wand"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "values": [
+    "lightmanscurrency:bookshelf_trader_oak",
+    "lightmanscurrency:bookshelf_trader_spruce",
+    "lightmanscurrency:bookshelf_trader_birch",
+    "lightmanscurrency:bookshelf_trader_jungle",
+    "lightmanscurrency:bookshelf_trader_acacia",
+    "lightmanscurrency:bookshelf_trader_dark_oak",
+    "lightmanscurrency:bookshelf_trader_mangrove",
+    "lightmanscurrency:bookshelf_trader_cherry",
+    "lightmanscurrency:bookshelf_trader_bamboo",
+    "lightmanscurrency:bookshelf_trader_crimson",
+    "lightmanscurrency:bookshelf_trader_warped",
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_dead",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_magic",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_umbran",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_hellbark",
+      "required": false
+    }
+  ]
+}

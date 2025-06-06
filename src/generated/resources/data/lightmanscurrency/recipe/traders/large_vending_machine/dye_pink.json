@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "vending_machine_large_dyes",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:vending_machine_large"
+    },
+    {
+      "tag": "c:dyes/pink"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:vending_machine_large_pink"
+  }
+}

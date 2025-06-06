@@ -1,0 +1,54 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "lightmanscurrency:traders/shelf2/birch"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "money": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:coins"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "shelf": {
+      "conditions": {
+        "items": [
+          {
+            "items": "lightmanscurrency:shelf_birch"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "trader": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:trader"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "money",
+      "trader",
+      "shelf"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:traders/shelf2/birch"
+    ]
+  }
+}

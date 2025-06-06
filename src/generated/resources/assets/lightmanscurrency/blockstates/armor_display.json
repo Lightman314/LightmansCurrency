@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "bottom=false,facing=east": {
+      "model": "lightmanscurrency:block/armor_display/top",
+      "y": 90
+    },
+    "bottom=false,facing=north": {
+      "model": "lightmanscurrency:block/armor_display/top"
+    },
+    "bottom=false,facing=south": {
+      "model": "lightmanscurrency:block/armor_display/top",
+      "y": 180
+    },
+    "bottom=false,facing=west": {
+      "model": "lightmanscurrency:block/armor_display/top",
+      "y": 270
+    },
+    "bottom=true,facing=east": {
+      "model": "lightmanscurrency:block/armor_display/bottom",
+      "y": 90
+    },
+    "bottom=true,facing=north": {
+      "model": "lightmanscurrency:block/armor_display/bottom"
+    },
+    "bottom=true,facing=south": {
+      "model": "lightmanscurrency:block/armor_display/bottom",
+      "y": 180
+    },
+    "bottom=true,facing=west": {
+      "model": "lightmanscurrency:block/armor_display/bottom",
+      "y": 270
+    }
+  }
+}

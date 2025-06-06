@@ -1,0 +1,32 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.canCraftNetworkTrader"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "item_network_trader",
+  "key": {
+    "c": {
+      "tag": "c:chests/wooden"
+    },
+    "i": {
+      "tag": "c:ingots/iron"
+    },
+    "x": {
+      "item": "lightmanscurrency:item_trader_server_sml"
+    }
+  },
+  "pattern": [
+    "c",
+    "x",
+    "i"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:item_trader_server_med"
+  }
+}

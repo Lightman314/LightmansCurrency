@@ -1,0 +1,33 @@
+{
+  "anvil_cost": 4,
+  "description": {
+    "translate": "enchantment.lightmanscurrency.money_mending"
+  },
+  "effects": {
+    "lightmanscurrency:repair_with_money": {
+      "baseCost": "config;lightmanscurrency:server;enchantments.moneyMendingRepairCost",
+      "enchantmentExtraCost": [
+        {
+          "bonusCost": "config;lightmanscurrency:server;enchantments.moneyMendingInfinityCost",
+          "enchantment": "minecraft:infinity"
+        }
+      ],
+      "itemOverrides": []
+    }
+  },
+  "exclusive_set": "#c:exclusive_set/mending",
+  "max_cost": {
+    "base": 75,
+    "per_level_above_first": 25
+  },
+  "max_level": 1,
+  "min_cost": {
+    "base": 25,
+    "per_level_above_first": 25
+  },
+  "slots": [
+    "any"
+  ],
+  "supported_items": "#minecraft:enchantable/durability",
+  "weight": 2
+}

@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.coin_mint.canMelt"
+    },
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.coin_mint.melt.gold"
+    }
+  ],
+  "type": "lightmanscurrency:coin_mint",
+  "ingredient": {
+    "item": "lightmanscurrency:coin_gold"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:gold_ingot"
+  }
+}

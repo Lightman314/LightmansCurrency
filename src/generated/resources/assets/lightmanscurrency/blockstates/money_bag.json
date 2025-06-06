@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "facing=east,size=0": {
+      "model": "lightmanscurrency:block/money_bag/0",
+      "y": 270
+    },
+    "facing=east,size=1": {
+      "model": "lightmanscurrency:block/money_bag/1",
+      "y": 270
+    },
+    "facing=east,size=2": {
+      "model": "lightmanscurrency:block/money_bag/2",
+      "y": 270
+    },
+    "facing=east,size=3": {
+      "model": "lightmanscurrency:block/money_bag/3",
+      "y": 270
+    },
+    "facing=north,size=0": {
+      "model": "lightmanscurrency:block/money_bag/0",
+      "y": 180
+    },
+    "facing=north,size=1": {
+      "model": "lightmanscurrency:block/money_bag/1",
+      "y": 180
+    },
+    "facing=north,size=2": {
+      "model": "lightmanscurrency:block/money_bag/2",
+      "y": 180
+    },
+    "facing=north,size=3": {
+      "model": "lightmanscurrency:block/money_bag/3",
+      "y": 180
+    },
+    "facing=south,size=0": {
+      "model": "lightmanscurrency:block/money_bag/0"
+    },
+    "facing=south,size=1": {
+      "model": "lightmanscurrency:block/money_bag/1"
+    },
+    "facing=south,size=2": {
+      "model": "lightmanscurrency:block/money_bag/2"
+    },
+    "facing=south,size=3": {
+      "model": "lightmanscurrency:block/money_bag/3"
+    },
+    "facing=west,size=0": {
+      "model": "lightmanscurrency:block/money_bag/0",
+      "y": 90
+    },
+    "facing=west,size=1": {
+      "model": "lightmanscurrency:block/money_bag/1",
+      "y": 90
+    },
+    "facing=west,size=2": {
+      "model": "lightmanscurrency:block/money_bag/2",
+      "y": 90
+    },
+    "facing=west,size=3": {
+      "model": "lightmanscurrency:block/money_bag/3",
+      "y": 90
+    }
+  }
+}

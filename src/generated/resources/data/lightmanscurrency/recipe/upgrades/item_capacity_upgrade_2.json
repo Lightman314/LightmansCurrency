@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "tag": "c:ingots/gold"
+  },
+  "base": {
+    "item": "lightmanscurrency:item_capacity_upgrade_1"
+  },
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:item_capacity_upgrade_2"
+  },
+  "template": {
+    "item": "lightmanscurrency:upgrade_smithing_template"
+  }
+}

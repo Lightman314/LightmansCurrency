@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "lightmanscurrency:block/gacha_machine/pink",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "lightmanscurrency:block/gacha_machine/pink"
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/gacha_machine/pink",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/gacha_machine/pink",
+      "y": 270
+    }
+  }
+}

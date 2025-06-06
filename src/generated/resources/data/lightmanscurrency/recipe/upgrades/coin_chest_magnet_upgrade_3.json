@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.money_chest.canCraftMagnetUpgrade"
+    }
+  ],
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "tag": "c:ingots/gold"
+  },
+  "base": {
+    "item": "lightmanscurrency:coin_chest_magnet_upgrade_2"
+  },
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:coin_chest_magnet_upgrade_3"
+  },
+  "template": {
+    "item": "lightmanscurrency:upgrade_smithing_template"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "b": {
+      "tag": "c:bricks"
+    },
+    "d": {
+      "tag": "c:dyes/pink"
+    }
+  },
+  "pattern": [
+    "b  ",
+    "bbb",
+    "bdb"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:piggy_bank"
+  }
+}

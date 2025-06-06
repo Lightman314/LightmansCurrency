@@ -1,0 +1,22 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.coin_mint.canMelt"
+    },
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.coin_mint.melt.netherite"
+    }
+  ],
+  "type": "lightmanscurrency:coin_mint",
+  "ingredient": {
+    "item": "lightmanscurrency:coin_netherite"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:netherite_ingot"
+  }
+}

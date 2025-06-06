@@ -1,0 +1,61 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.money_chest.canCraftMagnetUpgrade"
+    }
+  ],
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "coin_chest": {
+      "conditions": {
+        "items": [
+          {
+            "items": "lightmanscurrency:coin_chest"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "lightmanscurrency:upgrades/coin_chest_magnet_upgrade_4"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "money": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:coins"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "previous": {
+      "conditions": {
+        "items": [
+          {
+            "items": "lightmanscurrency:coin_chest_magnet_upgrade_3"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "money",
+      "coin_chest",
+      "previous"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:upgrades/coin_chest_magnet_upgrade_4"
+    ]
+  }
+}

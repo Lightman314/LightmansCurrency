@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "i": {
+      "tag": "c:ingots/iron"
+    },
+    "r": {
+      "item": "minecraft:redstone_block"
+    },
+    "t": {
+      "item": "minecraft:redstone_torch"
+    },
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    }
+  },
+  "pattern": [
+    "iri",
+    "ixi",
+    "iti"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:paygate"
+  }
+}

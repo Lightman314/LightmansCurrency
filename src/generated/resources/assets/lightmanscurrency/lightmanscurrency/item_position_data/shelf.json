@@ -1,0 +1,13 @@
+{
+  "Entries": [
+    {
+      "Position": {
+        "x": 0.5,
+        "y": 0.5625,
+        "z": 0.90625
+      }
+    }
+  ],
+  "RotationType": "FACING",
+  "Scale": 0.875
+}

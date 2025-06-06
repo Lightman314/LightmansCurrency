@@ -1,0 +1,23 @@
+{
+  "type": "lightmanscurrency:crafting_wallet_upgrade",
+  "category": "misc",
+  "group": "wallet_upgrading",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:wallet_copper"
+    },
+    {
+      "tag": "c:ingots/iron"
+    },
+    {
+      "tag": "c:ingots/gold"
+    },
+    {
+      "tag": "c:gems/emerald"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:wallet_emerald"
+  }
+}

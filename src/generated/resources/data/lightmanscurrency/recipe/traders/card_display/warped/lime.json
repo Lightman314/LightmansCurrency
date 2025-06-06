@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "card_display_trader_warped",
+  "key": {
+    "c": {
+      "tag": "c:chests/wooden"
+    },
+    "l": {
+      "item": "minecraft:warped_stem"
+    },
+    "w": {
+      "item": "minecraft:lime_wool"
+    },
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    }
+  },
+  "pattern": [
+    "  w",
+    " xl",
+    "llc"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:card_display_warped_lime"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "overrides": [
+    {
+      "model": "lightmanscurrency:block/money_bag/0",
+      "predicate": {
+        "lightmanscurrency:money_bag_size": 0.0
+      }
+    },
+    {
+      "model": "lightmanscurrency:block/money_bag/1",
+      "predicate": {
+        "lightmanscurrency:money_bag_size": 1.0
+      }
+    },
+    {
+      "model": "lightmanscurrency:block/money_bag/2",
+      "predicate": {
+        "lightmanscurrency:money_bag_size": 2.0
+      }
+    },
+    {
+      "model": "lightmanscurrency:block/money_bag/3",
+      "predicate": {
+        "lightmanscurrency:money_bag_size": 3.0
+      }
+    }
+  ]
+}

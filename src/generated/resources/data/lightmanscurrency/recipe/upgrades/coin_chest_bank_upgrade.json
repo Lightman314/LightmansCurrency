@@ -1,0 +1,23 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.money_chest.canCraftBankUpgrade"
+    }
+  ],
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "tag": "c:gems/diamond"
+  },
+  "base": {
+    "tag": "lightmanscurrency:atm"
+  },
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:coin_chest_bank_upgrade"
+  },
+  "template": {
+    "item": "lightmanscurrency:upgrade_smithing_template"
+  }
+}

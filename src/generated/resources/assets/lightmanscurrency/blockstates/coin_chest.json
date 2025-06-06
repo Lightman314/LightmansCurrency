@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "facing=east,waterlogged=false": {
+      "model": "minecraft:block/chest"
+    },
+    "facing=east,waterlogged=true": {
+      "model": "minecraft:block/chest"
+    },
+    "facing=north,waterlogged=false": {
+      "model": "minecraft:block/chest"
+    },
+    "facing=north,waterlogged=true": {
+      "model": "minecraft:block/chest"
+    },
+    "facing=south,waterlogged=false": {
+      "model": "minecraft:block/chest"
+    },
+    "facing=south,waterlogged=true": {
+      "model": "minecraft:block/chest"
+    },
+    "facing=west,waterlogged=false": {
+      "model": "minecraft:block/chest"
+    },
+    "facing=west,waterlogged=true": {
+      "model": "minecraft:block/chest"
+    }
+  }
+}

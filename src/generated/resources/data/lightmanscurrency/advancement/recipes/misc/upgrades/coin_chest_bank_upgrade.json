@@ -1,0 +1,61 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.money_chest.canCraftBankUpgrade"
+    }
+  ],
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "atm": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:atm"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "coin_chest": {
+      "conditions": {
+        "items": [
+          {
+            "items": "lightmanscurrency:coin_chest"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "lightmanscurrency:upgrades/coin_chest_bank_upgrade"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "money": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:coins"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "money",
+      "coin_chest",
+      "atm"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:upgrades/coin_chest_bank_upgrade"
+    ]
+  }
+}

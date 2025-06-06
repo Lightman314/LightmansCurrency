@@ -1,0 +1,33 @@
+{
+  "parent": "lightmanscurrency:currency/wallet_crafting",
+  "criteria": {
+    "netherite_wallet": {
+      "conditions": {
+        "items": [
+          {
+            "items": "lightmanscurrency:wallet_netherite"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.lightmanscurrency.netherite_wallet.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "lightmanscurrency:wallet_netherite"
+    },
+    "title": {
+      "translate": "advancements.lightmanscurrency.netherite_wallet.title"
+    }
+  },
+  "requirements": [
+    [
+      "netherite_wallet"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

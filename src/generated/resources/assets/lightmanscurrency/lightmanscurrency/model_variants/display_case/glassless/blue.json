@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:display_case/glassless",
+  "target": "lightmanscurrency:display_case_blue",
+  "textures": {
+    "wool": "minecraft:block/blue_wool"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "tag": "c:gems/diamond"
+  },
+  "base": {
+    "item": "lightmanscurrency:item_capacity_upgrade_2"
+  },
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:item_capacity_upgrade_3"
+  },
+  "template": {
+    "item": "lightmanscurrency:upgrade_smithing_template"
+  }
+}

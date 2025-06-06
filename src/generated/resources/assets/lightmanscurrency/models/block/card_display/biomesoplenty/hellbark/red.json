@@ -1,0 +1,9 @@
+{
+  "parent": "lightmanscurrency:block/card_display/base",
+  "textures": {
+    "log": "biomesoplenty:block/hellbark_log",
+    "logtop": "biomesoplenty:block/hellbark_log_top",
+    "plank": "biomesoplenty:block/hellbark_planks",
+    "wool": "minecraft:block/red_wool"
+  }
+}

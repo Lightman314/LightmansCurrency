@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "card_display_trader_spruce",
+  "key": {
+    "c": {
+      "tag": "c:chests/wooden"
+    },
+    "l": {
+      "item": "minecraft:spruce_log"
+    },
+    "w": {
+      "item": "minecraft:light_blue_wool"
+    },
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    }
+  },
+  "pattern": [
+    "  w",
+    " xl",
+    "llc"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:card_display_spruce_light_blue"
+  }
+}

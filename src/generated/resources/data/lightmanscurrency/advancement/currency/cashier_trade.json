@@ -1,0 +1,38 @@
+{
+  "parent": "lightmanscurrency:currency/cash_register",
+  "criteria": {
+    "cashier_trade": {
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "nbt": "{VillagerData:{profession:\"lightmanscurrency:cashier\"}}"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:villager_trade"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.lightmanscurrency.cashier_trade.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "minecraft:enchanted_book"
+    },
+    "title": {
+      "translate": "advancements.lightmanscurrency.cashier_trade.title"
+    }
+  },
+  "requirements": [
+    [
+      "cashier_trade"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

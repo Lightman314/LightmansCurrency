@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "tag": "lightmanscurrency:coin_jar/normal"
+    },
+    {
+      "item": "minecraft:suspicious_stew"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:sus_jar"
+  }
+}

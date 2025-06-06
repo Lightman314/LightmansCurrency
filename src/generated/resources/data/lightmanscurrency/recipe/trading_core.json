@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "d": {
+      "item": "minecraft:dropper"
+    },
+    "p": {
+      "item": "minecraft:comparator"
+    },
+    "q": {
+      "tag": "c:gems/quartz"
+    },
+    "r": {
+      "tag": "c:dusts/redstone"
+    }
+  },
+  "pattern": [
+    "rqr",
+    "rdr",
+    "rpr"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:trading_core"
+  }
+}

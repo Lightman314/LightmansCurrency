@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "coin": {
+      "conditions": {
+        "items": [
+          {
+            "items": "lightmanscurrency:coin_chocolate_emerald"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "lightmanscurrency:coins/coinpile_chocolate_emerald_from_coin"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "money": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:event_coins/chocolate"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "money",
+      "coin"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:coins/coinpile_chocolate_emerald_from_coin"
+    ]
+  }
+}

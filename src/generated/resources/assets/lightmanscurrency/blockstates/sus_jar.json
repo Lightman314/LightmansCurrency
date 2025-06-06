@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "lightmanscurrency:block/jars/sus_jar",
+      "y": 270
+    },
+    "facing=north": {
+      "model": "lightmanscurrency:block/jars/sus_jar",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/jars/sus_jar"
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/jars/sus_jar",
+      "y": 90
+    }
+  }
+}

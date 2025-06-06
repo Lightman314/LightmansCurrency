@@ -1,0 +1,28 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.money_chest.canCraftCoinChest"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "p": {
+      "tag": "minecraft:planks"
+    },
+    "r": {
+      "item": "minecraft:comparator"
+    }
+  },
+  "pattern": [
+    "ppp",
+    "prp",
+    "ppp"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:coin_chest"
+  }
+}

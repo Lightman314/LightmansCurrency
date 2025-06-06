@@ -1,0 +1,9 @@
+{
+  "parent": "lightmanscurrency:block/card_display/base",
+  "textures": {
+    "log": "biomesoplenty:block/jacaranda_log",
+    "logtop": "biomesoplenty:block/jacaranda_log_top",
+    "plank": "biomesoplenty:block/jacaranda_planks",
+    "wool": "minecraft:block/lime_wool"
+  }
+}

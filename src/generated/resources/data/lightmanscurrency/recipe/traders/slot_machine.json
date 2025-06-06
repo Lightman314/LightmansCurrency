@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "d": {
+      "tag": "c:dusts/glowstone"
+    },
+    "g": {
+      "tag": "c:glass_blocks/colorless"
+    },
+    "i": {
+      "tag": "c:ingots/iron"
+    },
+    "r": {
+      "item": "minecraft:comparator"
+    },
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    }
+  },
+  "pattern": [
+    "igi",
+    "idi",
+    "rxr"
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:slot_machine"
+  }
+}

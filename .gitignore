@@ -28,11 +28,7 @@ repo
 
 # Custom
 Build Backups
-/src/generated/resources/.cache
-/src/generated/resources/data
-/src/generated/resources/CloserItemsPack
-/src/generated/resources/assets/*/*
-!/src/generated/resources/assets/*/lang
+.cache
 *.zip
 *.pxf
 optional_assets

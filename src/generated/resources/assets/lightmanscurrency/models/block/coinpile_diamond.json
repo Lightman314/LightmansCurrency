@@ -1,0 +1,6 @@
+{
+  "parent": "lightmanscurrency:block/coin_pile",
+  "textures": {
+    "main": "lightmanscurrency:block/coinpile_diamond"
+  }
+}

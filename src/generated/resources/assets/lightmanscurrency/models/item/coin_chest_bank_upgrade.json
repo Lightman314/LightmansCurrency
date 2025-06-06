@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "lightmanscurrency:item/coin_chest_bank_upgrade",
+    "layer1": "lightmanscurrency:item/upgrade_tier/diamond"
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "values": [
+    "#lightmanscurrency:owner_protected",
+    "lightmanscurrency:atm",
+    "lightmanscurrency:cash_register",
+    "lightmanscurrency:auction_stand_oak",
+    "lightmanscurrency:auction_stand_spruce",
+    "lightmanscurrency:auction_stand_birch",
+    "lightmanscurrency:auction_stand_jungle",
+    "lightmanscurrency:auction_stand_acacia",
+    "lightmanscurrency:auction_stand_dark_oak",
+    "lightmanscurrency:auction_stand_mangrove",
+    "lightmanscurrency:auction_stand_cherry",
+    "lightmanscurrency:auction_stand_bamboo",
+    "lightmanscurrency:auction_stand_crimson",
+    "lightmanscurrency:auction_stand_warped",
+    {
+      "id": "lightmanscurrency:auction_stand_biomesoplenty_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomesoplenty_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomesoplenty_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomesoplenty_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomesoplenty_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomesoplenty_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomesoplenty_dead",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomesoplenty_magic",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomesoplenty_umbran",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:auction_stand_biomesoplenty_hellbark",
+      "required": false
+    }
+  ]
+}
