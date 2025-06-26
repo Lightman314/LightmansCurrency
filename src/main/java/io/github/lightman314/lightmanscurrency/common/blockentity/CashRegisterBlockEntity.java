@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.validation.types.Blo
 import io.github.lightman314.lightmanscurrency.api.traders.ITraderSource;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
@@ -32,6 +33,7 @@ import javax.annotation.Nullable;
 public class CashRegisterBlockEntity extends EasyBlockEntity implements ITraderSource{
 
 	List<BlockPos> positions = new ArrayList<>();
+	public List<BlockPos> traderPositions() { return new ArrayList<>(this.positions); }
 	Component customTitle = null;
 	
 	public CashRegisterBlockEntity(BlockPos pos, BlockState state)
@@ -50,6 +52,13 @@ public class CashRegisterBlockEntity extends EasyBlockEntity implements ITraderS
 		if(stack.has(DataComponents.CUSTOM_NAME))
 			this.customTitle = stack.getHoverName();
 
+	}
+
+	public void setPositions(List<BlockPos> positions)
+	{
+		this.positions = new ArrayList<>(positions);
+		if(this.isServer())
+			BlockEntityUtil.sendUpdatePacket(this);
 	}
 	
 	public void OpenContainer(Player player)
@@ -87,6 +96,13 @@ public class CashRegisterBlockEntity extends EasyBlockEntity implements ITraderS
 	@Override
 	public Component getCustomTitle() { return this.customTitle; }
 
+	public void setCustomTitle(@Nullable Component customTitle)
+	{
+		this.customTitle = customTitle;
+		if(this.isServer())
+			BlockEntityUtil.sendUpdatePacket(this);
+	}
+
 	//Only show the search bar if we actually expect for there to be more than 1 trader linked to this machine
 	@Override
 	public boolean showSearchBox() { return this.positions.size() > 1; }
@@ -119,6 +135,8 @@ public class CashRegisterBlockEntity extends EasyBlockEntity implements ITraderS
 
 		if(tag.contains("CustomName"))
 			this.customTitle = Component.Serializer.fromJson(tag.getString("CustomName"),lookup);
+		else
+			this.customTitle = null;
 
 		super.loadAdditional(tag,lookup);
 	}

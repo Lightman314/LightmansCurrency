@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.datagen.common.tags;
 
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -229,10 +230,15 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .add(Items.PAPER)
                 .add(Items.BOOK)
                 .add(Items.WRITABLE_BOOK)
-                .add(Items.WRITTEN_BOOK);
+                .add(Items.WRITTEN_BOOK)
+                .addOptional(AllBlocks.CLIPBOARD);
         this.cTag(LCTags.Items.SETTINGS_READABLE)
                 .add(Items.PAPER)
-                .add(Items.WRITTEN_BOOK);
+                .add(Items.WRITTEN_BOOK)
+                .addOptional(AllBlocks.CLIPBOARD);
+        this.cTag(LCTags.Items.SETTINGS_READ_OR_WRITABLE)
+                .addTag(LCTags.Items.SETTINGS_WRITABLE)
+                .addTag(LCTags.Items.SETTINGS_READABLE);
         this.cTag(LCTags.Items.SETTINGS_REPLACE_WITH_WRITTEN_BOOK)
                 .add(Items.WRITABLE_BOOK)
                 .add(Items.BOOK);

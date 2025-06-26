@@ -91,7 +91,7 @@ public interface IVariantBlock {
             //Prevent opening the menu if the
             if(level.getBlockEntity(pos) instanceof IVariantSupportingBlockEntity be && be.isVariantLocked())
             {
-                player.sendSystemMessage(LCText.TOOLTIP_MODEL_VARIANT_LOCKED.getWithStyle(ChatFormatting.RED));
+                player.displayClientMessage(LCText.TOOLTIP_MODEL_VARIANT_LOCKED.getWithStyle(ChatFormatting.RED),true);
                 return true;
             }
             player.openMenu(VariantSelectMenu.providerFor(pos),pos);

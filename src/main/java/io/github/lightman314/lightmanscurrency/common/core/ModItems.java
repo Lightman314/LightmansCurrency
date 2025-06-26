@@ -30,7 +30,7 @@ public class ModItems {
 		//Coins
 		COIN_COPPER = ModRegistries.ITEMS.register("coin_copper", () -> new Item(new Item.Properties()));
 		COIN_IRON = ModRegistries.ITEMS.register("coin_iron", () -> new Item(new Item.Properties()));
-		COIN_GOLD = ModRegistries.ITEMS.register("coin_gold", () -> new Item(new Item.Properties()));
+		COIN_GOLD = ModRegistries.ITEMS.register("coin_gold", () -> new CoinItem(new Item.Properties()));
 		COIN_EMERALD = ModRegistries.ITEMS.register("coin_emerald", () -> new Item(new Item.Properties()));
 		COIN_DIAMOND = ModRegistries.ITEMS.register("coin_diamond", () -> new Item(new Item.Properties()));
 		COIN_NETHERITE = ModRegistries.ITEMS.register("coin_netherite", () -> new Item(new Item.Properties().fireResistant()));

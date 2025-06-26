@@ -62,6 +62,7 @@ public class LightmansCurrencyPacketHandler {
 		registerC2S(CPacketOpenNetworkTerminal.HANDLER);
 		registerS2C(SPacketSyncUsers.HANDLER);
 		registerC2S(CPacketAddOrRemoveTrade.HANDLER);
+		registerS2C(SPacketTaxInfo.HANDLER);
 
 		//Paygate
 		registerC2S(CPacketCollectTicketStubs.HANDLER);

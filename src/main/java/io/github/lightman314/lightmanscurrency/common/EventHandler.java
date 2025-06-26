@@ -74,6 +74,10 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void pickupItem(ItemEntityPickupEvent.Pre event)
 	{
+		//Do nothing if the player's not supposed to be able to pick up the item at this point
+		if(event.canPickup() == TriState.FALSE)
+			return;
+
 		ItemEntity ie = event.getItemEntity();
 		ItemStack pickupItem = ie.getItem();
 		Player player = event.getPlayer();

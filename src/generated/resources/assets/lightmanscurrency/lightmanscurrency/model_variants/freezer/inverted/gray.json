@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:freezer/inverted/base",
+  "target": "lightmanscurrency:freezer_gray",
+  "textures": {
+    "concrete": "minecraft:block/gray_concrete_powder"
+  }
+}

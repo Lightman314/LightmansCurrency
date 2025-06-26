@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.FreezerDoorData;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.ItemPositionDataEntry;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.ShowInCreative;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.TooltipInfo;
@@ -159,6 +160,28 @@ public class LCModelVariantProvider extends ModelVariantProvider {
                             .withTexture("exterior",VersionUtil.lcResource("block/large_vending_machine/footless/" + color.getResourceSafeName() + "_exterior"))
                             .withTexture("interior",VersionUtil.lcResource("block/large_vending_machine/footless/" + color.getResourceSafeName() + "_interior"))
                             .build())
+        );
+
+        final ResourceLocation FREEZER_INVERTED = VersionUtil.lcResource("freezer/inverted/base");
+        //Inverted Freezer Door variants
+        this.add(FREEZER_INVERTED,ModelVariant.builder()
+                .withName(LCText.BLOCK_VARIANT_DEFAULT.get())
+                .withModel(VersionUtil.lcResource("block/freezer/base_bottom")
+                        ,VersionUtil.lcResource("block/freezer/base_top"),
+                        VersionUtil.lcResource("block/freezer/inverted/door"))
+                .withItem(VersionUtil.lcResource("block/freezer/inverted/item"))
+                .withProperty(VariantProperties.FREEZER_DOOR_DATA,new FreezerDoorData(-90f,0.5f/16f,3.5f/16f))
+                .withProperty(VariantProperties.TOOLTIP_INFO,TooltipInfo.ofModifier(LCText.BLOCK_VARIANT_MODIFIER_INVERTED))
+                .asDummy()
+                .build());
+
+        ModBlocks.FREEZER.forEach((color,block) ->
+                this.add("freezer/inverted/" + color.getResourceSafeName(),
+                        ModelVariant.builder()
+                                .withParent(FREEZER_INVERTED)
+                                .withTarget(block)
+                                .withTexture("concrete",ColorHelper.GetConcreteTextureOfColor(color))
+                                .build())
         );
 
         //Debug Examples

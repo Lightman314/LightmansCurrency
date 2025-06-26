@@ -54,7 +54,8 @@ public class EasyBlockEntity extends BlockEntity implements IClientTracker, IVar
             tag.putString("Variant",this.currentVariant.toString());
         else
             tag.putBoolean("NoVariant",true);
-        tag.putBoolean("VariantLocked",this.variantLocked);
+        tag.putBoolean("" +
+                "",this.variantLocked);
         return tag;
     }
 

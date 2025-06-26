@@ -75,7 +75,7 @@ public class VariantSelectMenu extends LazyMessageMenu {
         }
         else
         {
-            if(variant != null && LCConfig.SERVER.variantBlacklist.get().contains(variant))
+            if(variant != null && LCConfig.SERVER.variantBlacklist.get().contains(variant) && !this.player.isCreative())
             {
                 LightmansCurrency.LogWarning(this.player.getName().getString() + " just tried to assign a blacklisted Model Variant (" + variant + ")!");
                 return;

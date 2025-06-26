@@ -28,7 +28,7 @@ public class EasyText {
     {
         if(text instanceof MutableComponent mc)
             return mc;
-        return EasyText.empty().append(text);
+        return text.copy();
     }
 
     public static void sendMessage(Player player, Component message) { player.sendSystemMessage(message); }

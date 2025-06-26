@@ -133,7 +133,7 @@ public class MiscTab extends SettingsSubTab {
 
     private boolean linkedToBank() {
         TraderData t = this.menu.getTrader();
-        return t != null && t.linkedToBank.get();
+        return t != null && t.isLinkedToBank();
     }
 
     private boolean showBankLink() {
@@ -143,7 +143,7 @@ public class MiscTab extends SettingsSubTab {
 
     private boolean bankLinkPossible() {
         TraderData t = this.menu.getTrader();
-        return t != null && (t.canLinkBankAccount() || t.linkedToBank.get());
+        return t != null && (t.canLinkBankAccount() || t.isLinkedToBank());
     }
 
     private boolean teamLevelVisible() {
@@ -224,7 +224,7 @@ public class MiscTab extends SettingsSubTab {
         TraderData trader = this.menu.getTrader();
         if(trader == null)
             return;
-        this.sendMessage(this.builder().setBoolean("LinkToBankAccount", !trader.linkedToBank.get()));
+        this.sendMessage(this.builder().setBoolean("LinkToBankAccount", !trader.isLinkedToBank()));
     }
 
 }

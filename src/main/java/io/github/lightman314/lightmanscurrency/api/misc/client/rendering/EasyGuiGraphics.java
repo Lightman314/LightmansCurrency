@@ -94,7 +94,6 @@ public final class EasyGuiGraphics {
     public void setColor(Vector4f color) { this.gui.setColor(color.x,color.y,color.z,color.w); }
     public void resetColor() { this.setColor(1f,1f,1f,1f); }
 
-
     //Texture Rendering
     public void renderNormalBackground(ResourceLocation image, IEasyScreen screen)
     {

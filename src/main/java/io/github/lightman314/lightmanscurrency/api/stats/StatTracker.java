@@ -9,10 +9,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class StatTracker implements IClientTracker
 {
@@ -84,6 +81,8 @@ public final class StatTracker implements IClientTracker
             } catch (Throwable t) {LightmansCurrency.LogError("Error loading stat!",t);}
         }
     }
+
+    public Set<String> getKeys() { return this.stats.keySet(); }
 
     public StatType.Instance<?,?> getStat(@Nonnull String key) { return this.stats.get(key); }
 

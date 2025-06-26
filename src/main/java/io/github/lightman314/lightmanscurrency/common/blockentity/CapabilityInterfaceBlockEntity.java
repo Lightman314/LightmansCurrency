@@ -75,18 +75,27 @@ public class CapabilityInterfaceBlockEntity extends BlockEntity implements IVari
 		return result.get();
 	}
 
-	public final void tryRunOnCoreBlockEntity(Consumer<BlockEntity> consumer) {
+	@Nullable
+	public final BlockEntity tryGetCoreBlockEntity()
+	{
 		BlockState state = this.getBlockState();
 		if(state.getBlock() instanceof ICapabilityBlock block)
 		{
 			BlockPos newPos = block.getCapabilityBlockPos(state,this.level,this.worldPosition);
 			if(newPos.equals(this.worldPosition))
-				return;
+				return null;
 			BlockEntity be = this.level.getBlockEntity(newPos);
 			if(be instanceof CapabilityInterfaceBlockEntity)
-				return;
-			consumer.accept(be);
+				return null;
+			return be;
 		}
+		return null;
+	}
+
+	public final void tryRunOnCoreBlockEntity(Consumer<BlockEntity> consumer) {
+		BlockEntity be = this.tryGetCoreBlockEntity();
+		if(be != null)
+			consumer.accept(be);
 	}
 
 	@Override

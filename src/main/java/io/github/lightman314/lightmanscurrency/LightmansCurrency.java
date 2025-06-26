@@ -17,6 +17,8 @@ import io.github.lightman314.lightmanscurrency.api.ownership.OwnershipAPI;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.builtin.PlayerOwnerProvider;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.builtin.TeamOwnerProvider;
+import io.github.lightman314.lightmanscurrency.api.settings.pretty.PrettyTextWriter;
+import io.github.lightman314.lightmanscurrency.api.settings.pretty.builtin.BookTextWriter;
 import io.github.lightman314.lightmanscurrency.api.stats.StatType;
 import io.github.lightman314.lightmanscurrency.api.stats.types.*;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
@@ -42,6 +44,8 @@ import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import io.github.lightman314.lightmanscurrency.integration.biomesoplenty.BOPCustomWoodTypes;
 import io.github.lightman314.lightmanscurrency.integration.claiming.flan.LCFlanIntegration;
 import io.github.lightman314.lightmanscurrency.integration.claiming.ftbchunks.LCFTBChunksIntegration;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.LCComputerHelper;
+import io.github.lightman314.lightmanscurrency.integration.create.LCCreate;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.integration.ftbteams.LCFTBTeams;
 import io.github.lightman314.lightmanscurrency.integration.immersiveengineering.LCImmersive;
@@ -130,6 +134,8 @@ public class LightmansCurrency {
 		IntegrationUtil.SafeRunIfLoaded("flan", LCFlanIntegration::setup, "Error setting up Flans chunk purchasing integration!");
 		IntegrationUtil.SafeRunIfLoaded("immersiveengineering", LCImmersive::registerRotationBlacklists, null);
 		IntegrationUtil.SafeRunIfLoaded("curios", () -> LCCurios.setup(eventBus), "Error setting up Curios Compatibility!");
+		IntegrationUtil.SafeRunIfLoaded("create", () -> LCCreate.init(eventBus), "Error setting up Create Integration!");
+		IntegrationUtil.SafeRunIfLoaded("computercraft", () -> LCComputerHelper.setup(eventBus),"Error setting up ComputerCraft Integration!");
 
     }
     
@@ -274,6 +280,8 @@ public class LightmansCurrency {
 		//Setup Block Protection
 		BlockProtectionHelper.ProtectBlock(b -> b instanceof IOwnableBlock);
 		BlockProtectionHelper.ProtectBlock(b -> b instanceof CoinBlock);
+
+		PrettyTextWriter.register(BookTextWriter.INSTANCE);
 
 		//Setup Mod Compats
 		IntegrationUtil.SafeRunIfLoaded("ftbteams", LCFTBTeams::setup,"Error setting up FTB Teams compat!");

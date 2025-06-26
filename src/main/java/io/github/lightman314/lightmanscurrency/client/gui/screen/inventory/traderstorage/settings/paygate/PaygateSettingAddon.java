@@ -49,7 +49,7 @@ public class PaygateSettingAddon extends MiscTabAddon {
 
     private int getSelected() {
         if(this.getTab() != null && this.getTab().menu.getTrader() instanceof PaygateTraderData paygate)
-            return paygate.conflictHandling.get().ordinal();
+            return paygate.getConflictHandling().ordinal();
         return 0;
     }
 

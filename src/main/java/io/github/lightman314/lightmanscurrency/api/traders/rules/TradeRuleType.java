@@ -17,7 +17,6 @@ public final class TradeRuleType<T extends TradeRule> {
     public final ResourceLocation type;
     private final Supplier<T> generator;
 
-
     public TradeRuleType(@Nonnull ResourceLocation type, @Nonnull Supplier<T> generator)
     {
         this.type = type;

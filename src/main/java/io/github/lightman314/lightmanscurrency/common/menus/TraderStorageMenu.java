@@ -107,12 +107,11 @@ public class TraderStorageMenu extends EasyTabbedMenu<ITraderStorageMenu,TraderS
 		this.setTab(TraderStorageTab.TAB_TRADE_BASIC, new BasicTradeEditTab(this));
 		this.setTab(TraderStorageTab.TAB_MONEY_STORAGE, new TraderMoneyStorageTab(this));
 		this.setTab(TraderStorageTab.TAB_TRADE_MULTI_PRICE, new MultiPriceTab(this));
-		this.setTab(TraderStorageTab.TAB_TRADER_LOGS, new TraderLogTab(this));
+		this.setTab(TraderStorageTab.TAB_TRADER_INFO, new TraderInfoTab(this));
 		this.setTab(TraderStorageTab.TAB_TRADER_SETTINGS, new TraderSettingsTab(this));
-		this.setTab(TraderStorageTab.TAB_TRADER_STATS, new TraderStatsTab(this));
+		this.setTab(TraderStorageTab.TAB_SETTINGS_CLIPBOARD, new SettingsClipboardTab(this));
 		this.setTab(TraderStorageTab.TAB_RULES_TRADER, new TradeRulesTab.Trader(this));
 		this.setTab(TraderStorageTab.TAB_RULES_TRADE, new TradeRulesTab.Trade(this));
-		this.setTab(TraderStorageTab.TAB_TAX_INFO, new TaxInfoTab(this));
 		if(trader != null)
 			trader.initStorageTabs(this);
 	}

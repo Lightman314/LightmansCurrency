@@ -11,6 +11,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.IIndependentProperty;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperty;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantPropertyWithDefault;
 import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
@@ -313,6 +314,7 @@ public class ModelVariant {
             }
             else
             {
+                //Parent is missing, so don't bother
                 this.completelyInvalid = true;
             }
         }
@@ -392,6 +394,23 @@ public class ModelVariant {
                 }
             }
         }
+
+        //Check for indepdent properties
+        boolean hasIndependentProperty = false;
+        for(ModelVariant v : loop.variants)
+        {
+            if(hasIndependentProperty)
+                break;
+            for(Object value : v.properties.values())
+            {
+                if(value instanceof IIndependentProperty)
+                {
+                    hasIndependentProperty = true;
+                    break;
+                }
+            }
+        }
+
         //If models are present, a custom item must also be present
         //If no textures are present, a model/item must be present
         if(hasModels != hasItem)
@@ -405,7 +424,7 @@ public class ModelVariant {
             }
             return true;
         }
-        if(!hasTextures && !hasModels)
+        if(!hasTextures && !hasModels && !hasIndependentProperty)
         {
             if(id != null)
                 LightmansCurrency.LogDebug(id + " does not have any custom models or custom textures defined");

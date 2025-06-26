@@ -1,9 +1,9 @@
 package io.github.lightman314.lightmanscurrency.api.stats;
 
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
@@ -65,7 +65,7 @@ public abstract class StatType<A,B>
         public abstract Object getDisplay();
 
         @Nonnull
-        public MutableComponent getInfoText(@Nonnull String statKey) { return Component.translatable(getTranslationKey(statKey),this.getDisplay()); }
+        public MutableComponent getInfoText(@Nonnull String statKey) { return EasyText.translatable(getTranslationKey(statKey),this.getDisplay()); }
 
     }
 }

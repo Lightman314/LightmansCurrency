@@ -122,6 +122,7 @@ public class ClientProxy extends CommonProxy{
 	private void registerVariantProperties(RegisterVariantPropertiesEvent event) {
 		//Register Variant Properties
 		event.register(VersionUtil.lcResource("item_position_data"),VariantProperties.ITEM_POSITION_DATA);
+		event.register(VersionUtil.lcResource("freezer_door"),VariantProperties.FREEZER_DOOR_DATA);
 		event.register(VersionUtil.lcResource("input_display_offset"),VariantProperties.INPUT_DISPLAY_OFFSET);
 		event.register(VersionUtil.lcResource("tooltip_info"),VariantProperties.TOOLTIP_INFO);
 		event.register(VersionUtil.lcResource("show_in_creative"),VariantProperties.SHOW_IN_CREATIVE);

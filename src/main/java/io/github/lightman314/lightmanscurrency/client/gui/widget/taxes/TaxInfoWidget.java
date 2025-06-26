@@ -63,7 +63,7 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
     @Override
     public void addChildren(@Nonnull ScreenArea area) {
         this.addChild(EasyTextButton.builder()
-                .position(area.pos.offset(80,10))
+                .position(area.pos.offset(90,1))
                 .width(60)
                 .text(LCText.GUI_TAX_COLLECTOR_TAXABLE_ACCEPT_COLLECTOR)
                 .pressAction(this::AcceptTaxCollector)

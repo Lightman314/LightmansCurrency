@@ -8,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
-import io.github.lightman314.lightmanscurrency.mixin.client.BlockStateModelLoaderAccessor;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.color.block.BlockColors;
@@ -144,7 +143,7 @@ public class VariantModelBakery {
         ResourceLocation blockID = variantBlock.getBlockID();
         if(this.defaultModels.containsKey(blockID))
             return this.defaultModels.get(blockID);
-        List<ResourceLocation> defaultModels = VariantModelHelper.getDefaultModels(block,variantBlock,this.blockStates, BlockStateModelLoaderAccessor::runPredicate);
+        List<ResourceLocation> defaultModels = VariantModelHelper.getDefaultModels(block,variantBlock,this.blockStates,BlockStateModelLoader::predicate);
         this.defaultModels.put(blockID,defaultModels);
         return defaultModels;
     }

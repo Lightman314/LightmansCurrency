@@ -14,7 +14,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -37,27 +36,16 @@ public class TooltipItem extends Item {
 	public static void insertTooltip(List<Component> tooltip, Component line) { insertTooltip(tooltip, Lists.newArrayList(line)); }
 	public static void insertTooltip(List<Component> tooltip, List<Component> lines)
 	{
-		for(int i = tooltip.size() - 1; i >= 0; --i)
+		if(tooltip.size() > 1)
 		{
-			Component line = tooltip.get(i);
-			TextColor color = line.getStyle().getColor();
-			if(color == null || color.getValue() != ChatFormatting.DARK_GRAY.getColor())
+			for(int i = lines.size() - 1; i >= 0; --i)
 			{
-				//Add to the line after this line
-				i++;
-				for(int l = lines.size() - 1; l >= 0; --l)
-					tooltip.add(i,lines.get(l));
-				return;
+				tooltip.add(1,lines.get(i));
 			}
-		}
-		if(tooltip.isEmpty())
-		{
-			tooltip.addAll(lines);
 		}
 		else
 		{
-			for(int l = lines.size(); l >= 0; --l)
-				tooltip.add(1,lines.get(l));
+			tooltip.addAll(lines);
 		}
 	}
 

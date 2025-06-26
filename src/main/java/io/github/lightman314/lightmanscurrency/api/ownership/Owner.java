@@ -40,8 +40,9 @@ public abstract class Owner implements IClientTracker {
 
     /**
      * Whether this owner is still valid/exists.
-     * @return  if this owner still exists.<br>
-     * <code>false</code> if this owner has somehow been deleted (such as a team that's been disbanded, etc.)
+     * @return If this owner still exists.<br>
+     * <code>false</code> if this owner has somehow been deleted (such as a team that's been disbanded, etc.)<br>
+     * Should alway return <code>true</code> if {@link #alwaysValid()} returns <code>true</code>
      */
     public abstract boolean stillValid();
 

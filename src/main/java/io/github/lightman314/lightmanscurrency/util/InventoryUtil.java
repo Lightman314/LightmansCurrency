@@ -489,13 +489,20 @@ public class InventoryUtil {
 		if(stack.isEmpty())
 			return new CompoundTag();
 		CompoundTag tag = (CompoundTag)stack.copyWithCount(1).save(lookup);
-		tag.putInt("Count", stack.getCount());
+		tag.putInt("count", stack.getCount());
 		return tag;
 	}
 
 	public static ItemStack loadItemNoLimits(@Nonnull CompoundTag itemTag, @Nonnull HolderLookup.Provider lookup)
 	{
-		ItemStack result = ItemStack.parseOptional(lookup,itemTag);
+		CompoundTag tag = itemTag.copy();
+		int count = tag.getInt("count");
+		if(count > 99)
+			tag.putInt("count",1);
+		ItemStack result = ItemStack.parseOptional(lookup,tag);
+		if(!result.isEmpty() && count > 99)
+			result.setCount(count);
+		//Backwards compatibility
 		if(!result.isEmpty() && itemTag.contains("Count"))
 			result.setCount(itemTag.getInt("Count"));
 		return result;

@@ -88,7 +88,7 @@ public class TraderDataCache extends CustomData implements IServerTicker {
         {
             //Create the auction house manually
             AuctionHouseTrader ah = AuctionHouseTrader.TYPE.create();
-            ah.creative.set(true);
+            ah.setCreative(true);
 
             //Generate a trader ID
             long traderID = this.getNextID();

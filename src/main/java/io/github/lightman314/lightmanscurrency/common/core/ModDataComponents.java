@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.core;
 import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.codecs.LCCodecs;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
 import io.github.lightman314.lightmanscurrency.api.upgrades.*;
 import io.github.lightman314.lightmanscurrency.common.data.types.LootTableEntry;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
@@ -45,6 +46,7 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<LootTableEntry>> LOOT_TABLE_ENTRY;
     public static final Supplier<DataComponentType<ResourceLocation>> MODEL_VARIANT;
     public static final Supplier<DataComponentType<Unit>> VARIANT_LOCK;
+    public static final Supplier<DataComponentType<SavedSettingData>> SETTINGS_DATA;
 
     //Item Attributes
     public static final Supplier<DataComponentType<Integer>> WALLET_LEVEL;
@@ -79,6 +81,7 @@ public class ModDataComponents {
         LOOT_TABLE_ENTRY = register("loot_table", builder -> builder.persistent(LootTableEntry.CODEC).networkSynchronized(LootTableEntry.STREAM_CODEC));
         MODEL_VARIANT = registerResource("model_variant");
         VARIANT_LOCK = registerUnit("variant_lock");
+        SETTINGS_DATA = register("settings_data",builder -> builder.persistent(SavedSettingData.CODEC).networkSynchronized(SavedSettingData.STREAM_CODEC));
 
         //Custom Item Attributes
         WALLET_LEVEL = registerInt("wallet_level");

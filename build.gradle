@@ -205,6 +205,9 @@ dependencies {
     //ModernFix for compatibility testing with dynamic resources
     runtimeOnly "maven.modrinth:modernfix:RU9sGOmD"
 
+    //ComputerCraft
+    implementation "maven.modrinth:cc-tweaked:${computercraft_version}"
+
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

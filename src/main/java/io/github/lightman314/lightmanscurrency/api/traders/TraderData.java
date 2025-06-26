@@ -9,12 +9,6 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.easy_data.EasyData;
-import io.github.lightman314.lightmanscurrency.api.easy_data.IEasyDataHost;
-import io.github.lightman314.lightmanscurrency.api.easy_data.categories.DataCategories;
-import io.github.lightman314.lightmanscurrency.api.easy_data.types.BoolData;
-import io.github.lightman314.lightmanscurrency.api.easy_data.types.StringData;
-import io.github.lightman314.lightmanscurrency.api.easy_data.complex.types.IconDataData;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.api.misc.IPermissions;
 import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
@@ -28,15 +22,25 @@ import io.github.lightman314.lightmanscurrency.api.ownership.IOwnable;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.FakeOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
+import io.github.lightman314.lightmanscurrency.api.settings.ISaveableSettingsHolder;
+import io.github.lightman314.lightmanscurrency.api.settings.data.LoadContext;
+import io.github.lightman314.lightmanscurrency.api.settings.SettingsNode;
+import io.github.lightman314.lightmanscurrency.api.settings.data.NodeSelections;
+import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
-import io.github.lightman314.lightmanscurrency.api.traders.easy_data.TraderNotificationReplacers;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderScreen;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageScreen;
+import io.github.lightman314.lightmanscurrency.api.traders.settings.builtin.*;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.info.InfoSubTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.info.TraderInfoClientTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.info.core.TaxInfoClientTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.info.core.TraderLogClientTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.info.core.TraderStatsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.*;
@@ -53,9 +57,10 @@ import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuPr
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
+import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.*;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
-import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableReference;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.builtin.TaxableTraderReference;
@@ -86,10 +91,6 @@ import io.github.lightman314.lightmanscurrency.api.ejection.IDumpable;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.AddRemoveAllyNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeAllyPermissionNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeOwnerNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeSettingNotification;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -137,17 +138,25 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeable, ITraderSource, ITradeRuleHost, ITaxable, IOwnable, IEasyDataHost, IPermissions {
+public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeable, ITraderSource, ITradeRuleHost, ITaxable, IOwnable, ISaveableSettingsHolder, IPermissions {
 	
 	public static final int GLOBAL_TRADE_LIMIT = 100;
+	public static final Predicate<Notification> LOGS_NORMAL_FILTER = n -> !n.getCategory().matches(NullCategory.INSTANCE);
+	public static final Predicate<Notification> LOGS_SETTINGS_FILTER = n -> n.getCategory().matches(NullCategory.INSTANCE);
 
-	private final List<EasyData<?>> easyData = new ArrayList<>();
+	private final Map<String,SettingsNode> settingsNodes = new HashMap<>();
+	@Nullable
+	@Override
+	public SettingsNode getNode(String nodeKey) { return this.settingsNodes.get(nodeKey); }
+	@Override
+	public List<SettingsNode> getAllSettingNodes() {
+		List<SettingsNode> nodes = new ArrayList<>(this.settingsNodes.values());
+		nodes.sort(SettingsNode.SORTER);
+		return new ArrayList<>(nodes);
+	}
 
 	@Override
-	public void registerData(EasyData<?> data) {
-		if(!this.easyData.contains(data))
-			this.easyData.add(data);
-	}
+	public void buildLoadContext(LoadContext.Builder builder) { builder.withOwner(this).withAllies(this.allies).withAllyPermissions(this.allyPermissions).withBlockedPermissions(this.getBlockedPermissions()); }
 
 	private boolean canMarkDirty = false;
 	public final TraderData allowMarkingDirty() { this.canMarkDirty = true; return this; }
@@ -190,7 +199,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	
 	protected final boolean hasNetworkUpgrade() { return UpgradeType.hasUpgrade(Upgrades.NETWORK, this.upgrades); }
 	protected boolean allowVoidUpgrade() { return false; }
-	protected final boolean shouldStoreGoods() { return !this.creative.get() && !UpgradeType.hasUpgrade(Upgrades.VOID,this.upgrades); }
+	protected final boolean shouldStoreGoods() { return !this.creative && !UpgradeType.hasUpgrade(Upgrades.VOID,this.upgrades); }
 
 	public boolean readyForCustomers() { return this.hasValidTrade(); }
 	
@@ -246,21 +255,27 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		this.markDirty(this::saveLevelData);
 	}
 
-	public final BoolData creative = BoolData.builder(false).host(this)
-			.key("creative").tagKey("Creative")
-			.name(LCText.DATA_ENTRY_CREATIVE.get())
-			.category(DataCategories.Traders.CREATIVE)
-			.notificationReplacer(TraderNotificationReplacers.CREATIVE_NOTIFICATION)
-			.build();
-	public boolean isCreative() { return this.creative.get(); }
+	private boolean creative = false;
+	public boolean isCreative() { return this.creative; }
+	public void setCreative(boolean creative)
+	{
+		if(this.creative == creative)
+			return;
+		this.creative = creative;
+		this.markDirty(this::saveCreativeSettings);
+	}
 
-	public final BoolData storeCreativeMoney = BoolData.builder(false).host(this)
-			.key("store_money_in_creative").tagKey("StoreCreativeMoney")
-			.name(LCText.DATA_ENTRY_STORE_CREATIVE_MONEY.get())
-			.category(DataCategories.Traders.CREATIVE)
-			.build();
+	private boolean storeCreativeMoney = false;
+	public boolean shouldStoreCreativeMoney() { return this.storeCreativeMoney; }
+	public void setStoreCreativeMoney(boolean storeCreativeMoney)
+	{
+		if(this.storeCreativeMoney == storeCreativeMoney)
+			return;
+		this.storeCreativeMoney = storeCreativeMoney;
+		this.markDirty(this::saveCreativeSettings);
+	}
 
-	public boolean canStoreMoney() { return !this.creative.get() || this.storeCreativeMoney.get(); }
+	public boolean canStoreMoney() { return !this.creative || this.storeCreativeMoney; }
 
 	private boolean isClient = false;
 	@Override
@@ -284,7 +299,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	{
 		this.allies.clear();
 		this.allies.addAll(allies);
-		this.markDirty(this::saveAllies);
+		this.markDirty(this::saveAllySettings);
 	}
 	
 	private final Map<String,Integer> allyPermissions = this.getDefaultAllyPermissions();
@@ -293,18 +308,25 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	public void overwriteAllyPermissions(Map<String,Integer> allyPermissions) {
 		this.allyPermissions.clear();
         this.allyPermissions.putAll(allyPermissions);
-		this.markDirty(this::saveAllyPermissions);
+		this.markDirty(this::saveAllyPermissionSettings);
 	}
 	
 	private Map<String,Integer> getDefaultAllyPermissions() {
 		Map<String,Integer> defaultValues = new HashMap<>();
 		defaultValues.put(Permissions.OPEN_STORAGE, 1);
+		defaultValues.put(Permissions.CHANGE_NAME, 1);
 		defaultValues.put(Permissions.EDIT_TRADES, 1);
+		defaultValues.put(Permissions.COLLECT_COINS, 0);
+		defaultValues.put(Permissions.STORE_COINS, 0);
 		defaultValues.put(Permissions.EDIT_TRADE_RULES, 1);
 		defaultValues.put(Permissions.EDIT_SETTINGS, 1);
-		defaultValues.put(Permissions.CHANGE_NAME, 1);
+		defaultValues.put(Permissions.ADD_REMOVE_ALLIES, 0);
+		defaultValues.put(Permissions.EDIT_PERMISSIONS, 0);
 		defaultValues.put(Permissions.VIEW_LOGS, 1);
-		
+		defaultValues.put(Permissions.BREAK_TRADER, 0);
+		defaultValues.put(Permissions.BANK_LINK, 0);
+		defaultValues.put(Permissions.INTERACTION_LINK, 0);
+		defaultValues.put(Permissions.TRANSFER_OWNERSHIP, 0);
 		this.modifyDefaultAllyPermissions(defaultValues);
 		return defaultValues;
 	}
@@ -358,7 +380,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		{
 			int oldLevel = this.getAllyPermissionLevel(permission);
 			this.allyPermissions.put(permission, level);
-			this.markDirty(this::saveAllyPermissions);
+			this.markDirty(this::saveAllyPermissionSettings);
 			//Push local notification
 			if(player != null)
 				this.pushLocalNotification(new ChangeAllyPermissionNotification(PlayerReference.of(player), permission, level, oldLevel));
@@ -381,23 +403,21 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	
 	private final NotificationData logger = new NotificationData();
 	public final List<Notification> getNotifications() { return this.logger.getNotifications(); }
-	public final void deleteNotification(Player player, int notificationIndex)
-	{
-		if(this.hasPermission(player, Permissions.TRANSFER_OWNERSHIP))
-		{
-			this.logger.deleteNotification(notificationIndex);
-			this.markDirty(this::saveLogger);
-		}
-	}
+	public final List<Notification> getNotifications(boolean settingsView) { return this.getNotifications(settingsView ? LOGS_SETTINGS_FILTER : LOGS_NORMAL_FILTER); }
+	public final List<Notification> getNotifications(Predicate<Notification> filter) { return this.logger.getNotifications(filter); }
 
-	public final StringData customName = StringData.builder().host(this)
-			.key("name").tagKey("Name")
-			.category(DataCategories.Traders.DISPLAY)
-			.name(LCText.DATA_ENTRY_TRADER_NAME.get())
-			.build();
-	public boolean hasCustomName() { return !this.customName.get().isBlank(); }
+	private String customName = "";
+	public boolean hasCustomName() { return !this.customName.isBlank(); }
+	public String getCustomName() { return this.customName; }
+	public void setCustomName(String newName)
+	{
+		if(newName.equals(this.customName))
+			return;
+		this.customName = newName;
+		this.markDirty(this::saveDisplaySettings);
+	}
 	
-	public IconData getDisplayIcon() { return this.customIcon.get().isNull() ? this.getIcon() : this.customIcon.get(); }
+	public IconData getDisplayIcon() { return this.customIcon.isNull() ? this.getIcon() : this.customIcon; }
 
 	public abstract IconData getIcon();
 
@@ -405,27 +425,33 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	
 	public MutableComponent getName() {
 		if(this.hasCustomName())
-			return EasyText.literal(this.customName.get());
+			return EasyText.literal(this.customName);
 		return this.getDefaultName();
 	}
 	
 	public final MutableComponent getTitle() {
-		if(this.creative.get())
+		if(this.creative)
 			return this.getName();
 		return LCText.GUI_TRADER_TITLE.get(this.getName(), this.owner.getName());
 	}
 
-	public final IconDataData customIcon = IconDataData.builder().host(this)
-			.key("trader_icon").tagKey("CustomIcon")
-			.name(LCText.DATA_ENTRY_TRADER_ICON.get())
-			.category(DataCategories.Traders.DISPLAY)
-			.build();
+	private IconData customIcon = IconData.Null();
+	public IconData getCustomIcon() { return this.customIcon; }
+	public void setCustomIcon(@Nullable IconData newIcon)
+	{
+		if(newIcon == null)
+			newIcon = IconData.Null();
+		if(newIcon.equals(this.customIcon))
+			return;
+		this.customIcon = newIcon;
+		this.markDirty(this::saveDisplaySettings);
+	}
 
 	/**
 	 * Method used to get the new {@link #customIcon} {@link IconData} when an item is used on the icon portion of the Display Settings tab.<br>
 	 * For safety, you should override {@link #getIconForItem(ItemStack, IconData)} so that unexpected issues don't appear if I change how the data is saved, etc.
 	 */
-	public IconData getIconForItem(ItemStack stack) { return this.getIconForItem(stack,this.customIcon.get()); }
+	public IconData getIconForItem(ItemStack stack) { return this.getIconForItem(stack,this.customIcon); }
 	/**
 	 * Can be overridden by child traders to make special icons from certain items<br>
 	 * (i.e. an icon that renders lava if the item stack is a lava bucket, etc.)<br><br>
@@ -457,9 +483,6 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		this.markDirty(packet);
 	}
 	private boolean blockVariantLocked = false;
-
-	@Override
-	public void onDataChanged(EasyData<?> data) { this.markDirty(data::write); }
 
 	private final MoneyStorage storedMoney = new MoneyStorage(() -> this.markDirty(this::saveStoredMoney));
 	public IMoneyHolder getStoredMoney()
@@ -558,22 +581,17 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		ResourceKey<Level> level = this.worldPosition.getDimension();
 		return level != null && QuarantineAPI.IsDimensionQuarantined(level);
 	}
-	public final BoolData linkedToBank = BoolData.builder(false).host(this)
-			.key("linked_to_bank").tagKey("LinkedToBank")
-			.name(LCText.DATA_ENTRY_TRADER_BANK_LINK.get())
-			.category(DataCategories.Traders.BANK)
-			.build();
-	public boolean canLinkBankAccount()
+	private boolean linkedToBank = false;
+	public boolean isLinkedToBank() { return this.linkedToBank; }
+	public void setLinkedToBank(boolean newValue)
 	{
-		BankReference reference = this.owner.getValidOwner().asBankReference();
-		return !this.isInQuarantine() && reference != null && reference.get() != null;
-	}
-	private void onBankLinkChanged(boolean newState)
-	{
-		if(newState)
+		if(newValue == this.linkedToBank)
+			return;
+		this.linkedToBank = newValue;
+		if(this.linkedToBank)
 		{
 			if(this.isInQuarantine())
-				this.linkedToBank.set(false);
+				this.linkedToBank = false;
 			else
 			{
 				IBankAccount account = this.getBankAccount();
@@ -584,26 +602,35 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 					this.storedMoney.clear();
 				}
 				else
-					this.linkedToBank.set(false);
+					this.linkedToBank = false;
 			}
+			if(this.linkedToBank)
+				this.markDirty(this::saveBankSettings);
 		}
+	}
+	public boolean canLinkBankAccount()
+	{
+		BankReference reference = this.owner.getValidOwner().asBankReference();
+		return !this.isInQuarantine() && reference != null && reference.get() != null;
 	}
 	
 	public boolean hasBankAccount() { return this.getBankAccount() != null; }
+	@Nullable
+	public BankReference getBankReference() {
+		if(this.linkedToBank && !this.isInQuarantine())
+			return this.owner.getValidOwner().asBankReference();
+		return null;
+	}
+	@Nullable
 	public IBankAccount getBankAccount() {
-		
-		if(this.linkedToBank.get() && !this.isInQuarantine())
-		{
-			BankReference reference = this.owner.getValidOwner().asBankReference();
-			if(reference != null)
-				return reference.get();
-		}
+		BankReference reference = this.getBankReference();
+		if(reference != null)
+			return reference.get();
 		return null;
 	}
 	
 	private SimpleContainer upgrades;
 	@Override
-	
 	public Container getUpgrades() { return this.upgrades; }
 	@Override
 	public final boolean allowUpgrade(UpgradeType type) {
@@ -668,25 +695,6 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	private boolean ignoreAllTaxes = false;
 	public boolean ShouldIgnoreAllTaxes() { return this.ignoreAllTaxes; }
 	public boolean ShouldIgnoreTaxEntryOnly(ITaxCollector entry) { return this.ignoredTaxCollectors.contains(entry.getID()); }
-	public void FlagTaxEntryToIgnore(TaxEntry entry, Player player) {
-		if(this.ignoredTaxCollectors.contains(entry.getID()))
-			return;
-		if(!LCAdminMode.isAdminPlayer(player))
-		{
-			Permissions.PermissionWarning(player, "ignore tax collector", Permissions.ADMIN_MODE);
-			return;
-		}
-		this.ignoredTaxCollectors.add(entry.getID());
-		this.markDirty(this::saveTaxSettings);
-	}
-	public void PardonTaxEntry(TaxEntry entry)
-	{
-		if(this.ignoredTaxCollectors.contains(entry.getID()))
-		{
-			this.ignoredTaxCollectors.remove(entry.getID());
-			this.markDirty(this::saveTaxSettings);
-		}
-	}
 	private boolean AllowTaxEntry(ITaxCollector entry) { return !this.ShouldIgnoreTaxEntry(entry); }
 	public boolean ShouldIgnoreTaxEntry(ITaxCollector entry) { return this.ShouldIgnoreAllTaxes() || this.ShouldIgnoreTaxEntryOnly(entry); }
 
@@ -705,11 +713,9 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 			return be;
 		return null;
 	}
-
 	
 	@Override
 	public TaxableReference getReference() { return new TaxableTraderReference(this.getID()); }
-
 	
 	@Override
 	public WorldPosition getWorldPosition() { return this.worldPosition; }
@@ -738,14 +744,34 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		this.type = type;
 		this.upgrades = new SimpleContainer(5);
 		this.upgrades.addListener(this::upgradesChanged);
-		//Add linked to bank listener
-		this.linkedToBank.addListener(this::onBankLinkChanged);
+		this.registerNodes(n -> this.settingsNodes.put(n.key,n));
 	}
 	
 	protected TraderData(TraderType<?> type, Level level, BlockPos pos) {
 		this(type);
 		this.worldPosition = WorldPosition.ofLevel(level, pos);
 		this.traderBlock = level.getBlockState(this.worldPosition.getPos()).getBlock().asItem();
+	}
+
+	protected void registerNodes(Consumer<SettingsNode> builder)
+	{
+		//Core settings
+		builder.accept(new OwnerSettings(this));
+		builder.accept(new AllySettings(this));
+		builder.accept(new PermissionSettings(this));
+		//Misc Settings
+		builder.accept(new CreativeSettings(this));
+		builder.accept(new DisplaySettings(this));
+		builder.accept(new BankSettings(this));
+		//Don't support trade rule settings quite yet
+		//node.accept(new TradeRuleSettings(this));
+	}
+
+	@Override
+	public void loadSettings(Player player, SavedSettingData data, NodeSelections selections) {
+		ISaveableSettingsHolder.super.loadSettings(player, data, selections);
+		//Mark the entire trader as changed after loading settings
+		this.markDirty(this.save(this.registryAccess()));
 	}
 
 	private void upgradesChanged(Container container)
@@ -765,7 +791,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		this.state = TraderState.PERSISTENT;
 		this.id = id;
 		this.persistentID = persistentID;
-		this.creative.set(true);
+		this.creative = true;
 		this.alwaysShowOnTerminal = true;
 	}
 	
@@ -803,24 +829,25 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		this.saveLevelData(compound);
 		this.saveTraderItem(compound);
 		this.saveOwner(compound,lookup);
-		this.saveAllies(compound);
-		this.saveAllyPermissions(compound);
+		this.saveAllySettings(compound);
+		this.saveAllyPermissionSettings(compound);
 		this.saveShowOnTerminal(compound);
 		this.saveRules(compound,lookup);
 		this.saveUpgrades(compound, lookup);
 		this.saveStoredMoney(compound);
 		this.saveLogger(compound, lookup);
+		this.saveStatistics(compound, lookup);
+
+		//Settings
+		this.saveCreativeSettings(compound);
+		this.saveDisplaySettings(compound,lookup);
+		this.saveBankSettings(compound);
 		this.saveMiscSettings(compound);
 		this.saveTaxSettings(compound);
-		this.saveStatistics(compound, lookup);
 		
 		//Save persistent trader id
 		if(!this.persistentID.isEmpty())
 			compound.putString("PersistentTraderID", this.persistentID);
-
-		//Save Easy Data
-		for(EasyData<?> data : this.easyData)
-			data.write(compound,lookup);
 
 		//Save trader-specific data
 		this.saveAdditional(compound, lookup);
@@ -847,12 +874,31 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	}
 	
 	protected final void saveOwner(CompoundTag compound,HolderLookup.Provider lookup) { compound.put("OwnerData", this.owner.save(lookup)); }
+
+	protected final void saveShowOnTerminal(CompoundTag compound) { compound.putBoolean("AlwaysShowOnTerminal", this.alwaysShowOnTerminal); }
+
+	protected final void saveRules(CompoundTag compound, HolderLookup.Provider lookup) { TradeRule.saveRules(compound, this.rules, "RuleData", lookup); }
 	
-	protected final void saveAllies(CompoundTag compound) {
+	protected final void saveUpgrades(CompoundTag compound, HolderLookup.Provider lookup) { InventoryUtil.saveAllItems("Upgrades", compound, this.upgrades, lookup); }
+	
+	protected final void saveStoredMoney(CompoundTag compound) { compound.put("StoredMoney", this.storedMoney.save()); }
+
+	protected final void saveLogger(CompoundTag compound, HolderLookup.Provider lookup) { compound.put("Logger", this.logger.save(lookup)); }
+
+	protected final void saveStatistics(CompoundTag tag, HolderLookup.Provider lookup) {
+		tag.put("Stats", this.statTracker.save(lookup));
+	}
+
+	private void saveCreativeSettings(CompoundTag tag) {
+		tag.putBoolean("Creative",this.creative);
+		tag.putBoolean("StoreCreativeMoney",this.storeCreativeMoney);
+	}
+
+	private void saveAllySettings(CompoundTag compound) {
 		PlayerReference.saveList(compound, this.allies, "Allies");
 	}
-	
-	protected final void saveAllyPermissions(CompoundTag compound) {
+
+	private void saveAllyPermissionSettings(CompoundTag compound) {
 		ListTag allyPermList = new ListTag();
 		this.allyPermissions.forEach((perm,level) -> {
 			CompoundTag tag = new CompoundTag();
@@ -866,15 +912,16 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		compound.put("AllyPermissions", allyPermList);
 	}
 
-	protected final void saveShowOnTerminal(CompoundTag compound) { compound.putBoolean("AlwaysShowOnTerminal", this.alwaysShowOnTerminal); }
-	
-	protected final void saveRules(CompoundTag compound, HolderLookup.Provider lookup) { TradeRule.saveRules(compound, this.rules, "RuleData", lookup); }
-	
-	protected final void saveUpgrades(CompoundTag compound, HolderLookup.Provider lookup) { InventoryUtil.saveAllItems("Upgrades", compound, this.upgrades, lookup); }
-	
-	protected final void saveStoredMoney(CompoundTag compound) { compound.put("StoredMoney", this.storedMoney.save()); }
+	private void saveDisplaySettings(CompoundTag tag, HolderLookup.Provider lookup)
+	{
+		tag.putString("Name",this.customName);
+		tag.put("CustomIcon",this.customIcon.save(lookup));
+	}
 
-	protected final void saveLogger(CompoundTag compound, HolderLookup.Provider lookup) { compound.put("Logger", this.logger.save(lookup)); }
+	private void saveBankSettings(CompoundTag tag)
+	{
+		tag.putBoolean("LinkedToBank",this.linkedToBank);
+	}
 
 	protected final void saveMiscSettings(CompoundTag compound) {
 		compound.putBoolean("NotificationsEnabled", this.notificationsEnabled);
@@ -887,10 +934,6 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		compound.putInt("AcceptableTaxRate", this.acceptableTaxRate);
 		compound.putBoolean("IgnoreAllTaxCollectors", this.ignoreAllTaxes);
 		compound.putLongArray("IgnoreTaxCollectors", this.ignoredTaxCollectors);
-	}
-
-	protected final void saveStatistics(CompoundTag tag, HolderLookup.Provider lookup) {
-		tag.put("Stats", this.statTracker.save(lookup));
 	}
 	
 	protected abstract void saveTrades(CompoundTag compound, HolderLookup.Provider lookup);
@@ -912,7 +955,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		
 		json.addProperty("Type", this.type.toString());
 		json.addProperty("ID", id);
-		json.addProperty("Name", this.hasCustomName() ? this.customName.get() : "Trader");
+		json.addProperty("Name", this.hasCustomName() ? this.customName : "Trader");
 		json.addProperty("OwnerName", ownerName);
 		
 		JsonArray ruleData = TradeRule.saveRulesToJson(this.rules, lookup);
@@ -991,7 +1034,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		
 		if(compound.contains("AlwaysShowOnTerminal"))
 			this.alwaysShowOnTerminal = compound.getBoolean("AlwaysShowOnTerminal");
-		
+
 		if(compound.contains("RuleData"))
 			this.rules = TradeRule.loadRules(compound, "RuleData", this, lookup);
 		
@@ -1006,17 +1049,32 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		
 		if(compound.contains("Logger"))
 			this.logger.load(compound.getCompound("Logger"), lookup);
-		
-		if(compound.contains("NotificationsEnabled"))
-			this.notificationsEnabled = compound.getBoolean("NotificationsEnabled");
-		if(compound.contains("ChatNotifications"))
-			this.notificationsToChat = compound.getBoolean("ChatNotifications");
-		if(compound.contains("TeamNotifications"))
-			this.teamNotificationLevel = compound.getInt("TeamNotifications");
 
-		if(compound.contains("AlwaysShowSearchBox"))
-			this.alwaysShowSearchBox = compound.getBoolean("AlwaysShowSearchBox");
+		if(compound.contains("Stats"))
+			this.statTracker.load(compound.getCompound("Stats"), lookup);
 
+		//Settings
+		//Creative Settings
+		if(compound.contains("Creative"))
+			this.creative = compound.getBoolean("Creative");
+		if(compound.contains("StoreCreativeMoney"))
+			this.storeCreativeMoney = compound.getBoolean("StoreCreativeMoney");
+
+		//Display Settings
+		if(compound.contains("Name"))
+			this.customName = compound.getString("Name");
+		if(compound.contains("CustomIcon"))
+		{
+			this.customIcon = IconData.load(compound.getCompound("CustomIcon"),lookup);
+			if(this.customIcon == null)
+				this.customIcon = IconData.Null();
+		}
+
+		//Bank Settings
+		if(compound.contains("LinkedToBank"))
+			this.linkedToBank = compound.getBoolean("LinkedToBank");
+
+		//Tax Settings
 		if(compound.contains("AcceptableTaxRate"))
 			this.acceptableTaxRate = compound.getInt("AcceptableTaxRate");
 		if(compound.contains("IgnoreAllTaxCollectors"))
@@ -1028,12 +1086,15 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 				this.ignoredTaxCollectors.add(val);
 		}
 
-		if(compound.contains("Stats"))
-			this.statTracker.load(compound.getCompound("Stats"), lookup);
-
-		//Load Easy Data
-		for(EasyData<?> data : this.easyData)
-			data.read(compound,lookup);
+		//Misc Settings
+		if(compound.contains("NotificationsEnabled"))
+			this.notificationsEnabled = compound.getBoolean("NotificationsEnabled");
+		if(compound.contains("ChatNotifications"))
+			this.notificationsToChat = compound.getBoolean("ChatNotifications");
+		if(compound.contains("TeamNotifications"))
+			this.teamNotificationLevel = compound.getInt("TeamNotifications");
+		if(compound.contains("AlwaysShowSearchBox"))
+			this.alwaysShowSearchBox = compound.getBoolean("AlwaysShowSearchBox");
 
 		//Load trader-specific data
 		this.loadAdditional(compound,lookup);
@@ -1057,7 +1118,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		this.owner.SetOwner(FakeOwner.of(GsonHelper.getAsString(json, "OwnerName", "Server")));
 		
 		if(json.has("Name"))
-			this.customName.set(GsonHelper.getAsString(json, "Name"));
+			this.customName = GsonHelper.getAsString(json, "Name");
 		
 		if(json.has("Rules"))
 			this.rules = TradeRule.Parse(GsonHelper.getAsJsonArray(json, "Rules"), this, lookup);
@@ -1408,7 +1469,8 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 					}
 
 					this.owner.SetOwner(newOwner);
-					this.linkedToBank.set(false);
+					this.linkedToBank = false;
+					this.markDirty(this::saveBankSettings);
 					//Send Notification
 					this.pushLocalNotification(new ChangeOwnerNotification(PlayerReference.of(player), newOwner, oldOwner));
 				}
@@ -1423,7 +1485,8 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 				if(newOwner != null && !oldOwner.matches(newOwner))
 				{
 					this.owner.SetOwner(newOwner);
-					this.linkedToBank.set(false);
+					this.linkedToBank = false;
+					this.markDirty(this::saveBankSettings);
 					//Send Notification
 					this.pushLocalNotification(new ChangeOwnerNotification(PlayerReference.of(player),newOwner,oldOwner));
 				}
@@ -1437,7 +1500,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 				if(newAlly != null && !PlayerReference.isInList(this.allies, newAlly.id))
 				{
 					this.allies.add(newAlly);
-					this.markDirty(this::saveAllies);
+					this.markDirty(this::saveAllySettings);
 
 					this.pushLocalNotification(new AddRemoveAllyNotification(PlayerReference.of(player), true, newAlly));
 				}
@@ -1450,7 +1513,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 				PlayerReference oldAlly = PlayerReference.load(message.getNBT("RemoveAlly"));
 				if(PlayerReference.removeFromList(this.allies, oldAlly))
 				{
-					this.markDirty(this::saveAllies);
+					this.markDirty(this::saveAllySettings);
 
 					this.pushLocalNotification(new AddRemoveAllyNotification(PlayerReference.of(player), false, oldAlly));
 				}
@@ -1467,28 +1530,74 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		}
 		if(message.contains("ChangeName"))
 		{
-			//LightmansCurrency.LogInfo("Received change name message of value: " + message.getString("ChangeName"));
-			this.customName.trySet(player,message.getString("ChangeName"));
-			//this.setCustomName(player, message.getString("ChangeName"));
+			if(this.hasPermission(player,Permissions.CHANGE_NAME))
+			{
+				String newName = message.getString("ChangeName");
+				if(newName.length() > 32)
+					newName = newName.substring(0,32);
+				if(newName.equals(this.customName))
+					return;
+				this.customName = newName;
+				this.pushLocalNotification(ChangeSettingNotification.simple(PlayerReference.of(player),LCText.DATA_ENTRY_TRADER_NAME.get(),this.customName));
+				this.markDirty(this::saveDisplaySettings);
+			}
 		}
 		if(message.contains("ChangeIcon"))
 		{
-			IconData newIcon = IconData.load(message.getNBT("ChangeIcon"),message.lookup);
-			if(newIcon == null) //Force the icon to be non-null
-				newIcon = IconData.Null();
-			this.customIcon.trySet(player,newIcon);
+			if(this.hasPermission(player,Permissions.CHANGE_NAME))
+			{
+				IconData newIcon = IconData.load(message.getNBT("ChangeIcon"),message.lookup);
+				if(newIcon == null) //Force the icon to be non-null
+					newIcon = IconData.Null();
+				if(this.customIcon.equals(newIcon))
+					return;
+				this.customIcon = newIcon;
+				this.pushLocalNotification(ChangeSettingNotification.dumb(PlayerReference.of(player),LCText.DATA_ENTRY_TRADER_ICON.get()));
+				this.markDirty(this::saveDisplaySettings);
+			}
 		}
 		if(message.contains("MakeCreative"))
 		{
-			this.creative.trySet(player,message.getBoolean("MakeCreative"));
+			if(LCAdminMode.isAdminPlayer(player))
+			{
+				boolean newValue = message.getBoolean("MakeCreative");
+				if(newValue != this.creative)
+				{
+					this.creative = newValue;
+					this.pushLocalNotification(new ChangeCreativeNotification(PlayerReference.of(player),this.creative));
+					this.markDirty(this::saveCreativeSettings);
+				}
+			}
 		}
 		if(message.contains("StoreCreativeMoney"))
 		{
-			this.storeCreativeMoney.trySet(player,message.getBoolean("StoreCreativeMoney"));
+			if(LCAdminMode.isAdminPlayer(player))
+			{
+				boolean newValue = message.getBoolean("StoreCreativeMoney");
+				if(newValue != this.storeCreativeMoney)
+				{
+					this.storeCreativeMoney = newValue;
+					this.pushLocalNotification(ChangeSettingNotification.simple(PlayerReference.of(player), LCText.DATA_ENTRY_STORE_CREATIVE_MONEY.get(),this.storeCreativeMoney));
+					this.markDirty(this::saveCreativeSettings);
+				}
+			}
 		}
 		if(message.contains("LinkToBankAccount"))
 		{
-			this.linkedToBank.trySet(player, message.getBoolean("LinkToBankAccount"));
+			if(this.hasPermission(player,Permissions.BANK_LINK))
+			{
+				boolean newValue = message.getBoolean("LinkToBankAccount");
+				if(newValue != this.linkedToBank)
+				{
+					this.setLinkedToBank(newValue);
+					//Extra check here, as this change may be overridden by quarantine or other such rules
+					if(this.linkedToBank == newValue)
+					{
+						this.pushLocalNotification(ChangeSettingNotification.simple(PlayerReference.of(player),LCText.DATA_ENTRY_TRADER_BANK_LINK.get(),this.linkedToBank));
+						this.markDirty(this::saveBankSettings);
+					}
+				}
+			}
 		}
 		if(message.contains("Notifications"))
 		{
@@ -1577,6 +1686,62 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 			else
 				Permissions.PermissionWarning(player,"Pickup Trader", Permissions.BREAK_TRADER);
 		}
+		if(message.contains("DeleteNotification"))
+		{
+			if(this.hasPermission(player,Permissions.TRANSFER_OWNERSHIP))
+			{
+				int index = message.getInt("DeleteNotification");
+				Predicate<Notification> filter = message.getBoolean("SettingsView") ? LOGS_SETTINGS_FILTER : LOGS_NORMAL_FILTER;
+				this.logger.deleteNotification(filter,index);
+				this.markDirty(this::saveLogger);
+			}
+		}
+		if(message.contains("AcceptTaxCollector"))
+		{
+			if(this.hasPermission(player,Permissions.EDIT_SETTINGS))
+			{
+				ITaxCollector entry = TaxAPI.API.GetTaxCollector(this,message.getLong("AcceptTaxCollector"));
+				if(entry != null && entry.IsInArea(this))
+					entry.AcceptTaxable(this);
+			}
+		}
+		if(message.contains("ForceIgnoreTaxCollector"))
+		{
+			ITaxCollector entry = TaxAPI.API.GetTaxCollector(this,message.getLong("ForceIgnoreTaxCollector"));
+			if(entry != null && entry.IsInArea(this))
+			{
+				if(this.ignoredTaxCollectors.contains(entry.getID()))
+					return;
+				if(!LCAdminMode.isAdminPlayer(player))
+				{
+					Permissions.PermissionWarning(player, "ignore tax collector", Permissions.ADMIN_MODE);
+					return;
+				}
+				this.ignoredTaxCollectors.add(entry.getID());
+				this.markDirty(this::saveTaxSettings);
+			}
+		}
+		if(message.contains("PardonTaxCollector"))
+		{
+			if(this.hasPermission(player,Permissions.EDIT_SETTINGS))
+			{
+				ITaxCollector entry = TaxAPI.API.GetTaxCollector(this,message.getLong("PardonTaxCollector"));
+				if(entry != null && this.ignoredTaxCollectors.contains(entry.getID()))
+				{
+					this.ignoredTaxCollectors.remove(entry.getID());
+					this.markDirty(this::saveTaxSettings);
+				}
+			}
+		}
+		if(message.contains("ClearStats"))
+		{
+			if(this.hasPermission(player,Permissions.EDIT_SETTINGS))
+			{
+				boolean fullClear = message.getBoolean("ClearStats");
+				this.statTracker.clear(fullClear);
+				this.markDirty(this::saveStatistics);
+			}
+		}
 	}
 	
 	@OnlyIn(Dist.CLIENT)
@@ -1592,7 +1757,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	
 	@OnlyIn(Dist.CLIENT)
 	protected void addSettingsTabs(TraderSettingsClientTab tab, List<SettingsSubTab> tabs) { }
-	
+
 	@OnlyIn(Dist.CLIENT)
 	public final List<PermissionOption> getPermissionOptions(){
 		List<PermissionOption> options = Lists.newArrayList(
@@ -1641,6 +1806,15 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	}
 
 	@OnlyIn(Dist.CLIENT)
+	public final List<InfoSubTab> getInfoTabs(TraderInfoClientTab tab) {
+		List<InfoSubTab> tabs = Lists.newArrayList(new TraderLogClientTab(tab,false),new TraderStatsClientTab(tab),new TraderLogClientTab(tab,true),new TaxInfoClientTab(tab));
+		this.addInfoTabs(tab,tabs);
+		return tabs;
+	}
+
+	protected void addInfoTabs(TraderInfoClientTab tab, List<InfoSubTab> tabs) { }
+
+	@OnlyIn(Dist.CLIENT)
 	public void onScreenInit(ITraderScreen screen, Consumer<Object> addWidget) { }
 
 	@OnlyIn(Dist.CLIENT)
@@ -1648,10 +1822,6 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 
 	@OnlyIn(Dist.CLIENT)
 	public List<MiscTabAddon> getMiscTabAddons() { return new ArrayList<>(); }
-
-	@Nullable
-	@Override
-	public Consumer<Notification> dataChangeNotifier() { return this::pushLocalNotification; }
 
 	public final void pushLocalNotification(Notification notification)
 	{

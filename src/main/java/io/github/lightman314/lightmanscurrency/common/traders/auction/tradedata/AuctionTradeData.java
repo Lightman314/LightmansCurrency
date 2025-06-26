@@ -47,6 +47,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class AuctionTradeData extends TradeData {
 
@@ -81,6 +82,7 @@ public class AuctionTradeData extends TradeData {
 	MoneyValue lastBidAmount = MoneyValue.empty();
 	public MoneyValue getLastBidAmount() { return this.lastBidAmount; }
 	PlayerReference lastBidPlayer = null;
+	@Nullable
 	public PlayerReference getLastBidPlayer() { return this.lastBidPlayer; }
 	
 	public void setStartingBid(@Nonnull MoneyValue amount) {

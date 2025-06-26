@@ -97,7 +97,7 @@ public class EasyBlock extends Block {
                 tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_ID.get(variantID.toString()).withStyle(ChatFormatting.DARK_GRAY));
         }
         if(stack.has(ModDataComponents.VARIANT_LOCK))
-            tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_LOCKED.getWithStyle(ChatFormatting.GOLD,ChatFormatting.BOLD));
+            tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_LOCKED.getWithStyle(ChatFormatting.GRAY));
         super.appendHoverText(stack,context,tooltip,tooltipFlag);
     }
 

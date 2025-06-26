@@ -1,9 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.traders.blockentity;
 
-import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
@@ -14,7 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.items.data.TraderItemData;
-import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
+import io.github.lightman314.lightmanscurrency.network.message.trader.SPacketTaxInfo;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 
@@ -101,7 +99,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		D newTrader = this.buildNewTrader();
 		newTrader.getOwner().SetOwner(PlayerOwner.of(owner));
 		if(placementStack.has(DataComponents.CUSTOM_NAME))
-			newTrader.customName.set(placementStack.getHoverName().getString());
+			newTrader.setCustomName(placementStack.getHoverName().getString());
 		return newTrader;
 	}
 
@@ -191,13 +189,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 	{
 		List<ITaxCollector> taxes = TaxAPI.API.AcknowledgeTaxCollectors(trader);
 		if(!taxes.isEmpty())
-		{
-			TextEntry firstMessage = LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER;
-			if(taxes.size() == 1 && taxes.getFirst().isServerEntry())
-				firstMessage = LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER_SERVER_ONLY;
-			EasyText.sendMessage(player, firstMessage.get());
-			EasyText.sendMessage(player, LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER_INFO.get());
-		}
+			SPacketTaxInfo.sendPacket(taxes,player);
 	}
 
 	public TraderData getRawTraderData() { return TraderAPI.API.GetTrader(this.isClient(), this.traderID); }

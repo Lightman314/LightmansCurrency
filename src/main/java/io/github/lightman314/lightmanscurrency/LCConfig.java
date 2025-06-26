@@ -69,6 +69,8 @@ public final class LCConfig {
         public final BooleanOption chestButtonAllowSideChains = BooleanOption.createFalse();
 
         public final BooleanOption pushNotificationsToChat = BooleanOption.createTrue();
+        public final BooleanOption serverTaxWarning = BooleanOption.createTrue();
+        public final BooleanOption playerTaxWarning = BooleanOption.createTrue();
 
         public final IntOption slotMachineAnimationTime = IntOption.create(100, 20, 1200);
         public final IntOption slotMachineAnimationRestTime = IntOption.create(20, 0, 1200);
@@ -179,6 +181,16 @@ public final class LCConfig {
 
             builder.pop();
 
+            builder.comment("Tax Warning Settings").push("tax_warnings");
+
+            builder.comment("Whether you should recieve a message in chat whenever you place a machine when server-wide taxes are enabled")
+                    .add("serverTaxWarning",this.serverTaxWarning);
+
+            builder.comment("Whether you should recieve a message in chat whenever you place a machine in an area that another player is taxing")
+                    .add("playerTaxWarning",this.playerTaxWarning);
+
+            builder.pop();
+
             builder.comment("Slot Machine Animation Settings").push("slot_machine");
 
             builder.comment("The number of Minecraft ticks the slot machine animation will last.",
@@ -257,6 +269,9 @@ public final class LCConfig {
         public final BooleanOption coinMintMeltableEmerald = BooleanOption.createTrue();
         public final BooleanOption coinMintMeltableDiamond = BooleanOption.createTrue();
         public final BooleanOption coinMintMeltableNetherite = BooleanOption.createTrue();
+
+        //Piglin Bartering
+        public final BooleanOption piglinsBarterCoins = BooleanOption.createTrue();
 
         //Custom Trades
         public final BooleanOption addCustomWanderingTrades = BooleanOption.createTrue();
@@ -469,6 +484,9 @@ public final class LCConfig {
             builder.pop();
 
             builder.comment("Villager Related Settings","Note: Any changes to villagers requires a full reboot to be applied due to how Minecraft/Forge registers trades.").push("villagers");
+
+            builder.comment("Whether Piglins will accept gold coins as a valid bartering item")
+                    .add("piglinsBarterCoins",this.piglinsBarterCoins);
 
             builder.comment("Whether the wandering trader will have additional trades that allow you to buy misc items with money.")
                     .add("addCustomWanderingTrades", this.addCustomWanderingTrades);

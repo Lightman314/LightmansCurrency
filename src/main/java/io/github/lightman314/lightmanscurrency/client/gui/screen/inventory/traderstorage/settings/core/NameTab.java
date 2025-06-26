@@ -71,7 +71,7 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
 
         this.nameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 25, 160, 20, EasyText.empty()));
         this.nameInput.setMaxLength(32);
-        this.nameInput.setValue(trader.customName.get());
+        this.nameInput.setValue(trader.getCustomName());
 
         this.buttonSetName = this.addChild(EasyTextButton.builder()
                 .position(screenArea.pos.offset(20,50))
@@ -115,7 +115,7 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
             //Render slot background
             gui.blit(TraderScreen.GUI_TEXTURE,this.iconArea.pos.offset(-1,-1),TraderScreen.WIDTH,0,18,18);
             //Render custom icon
-            IconData icon = trader.customIcon.get();
+            IconData icon = trader.getCustomIcon();
             if(icon != null)
                 icon.render(gui, this.iconArea.pos);
         }
@@ -131,7 +131,7 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
         if(trader == null)
             return;
 
-        this.buttonSetName.active = !this.nameInput.getValue().contentEquals(trader.customName.get());
+        this.buttonSetName.active = !this.nameInput.getValue().contentEquals(trader.getCustomName());
         this.buttonSetName.visible = canChangeName;
         this.buttonResetName.active = trader.hasCustomName();
         this.buttonResetName.visible = canChangeName;
@@ -146,7 +146,7 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
         TraderData trader = this.menu.getTrader();
         if(trader == null)
             return;
-        String customName = trader.customName.get();
+        String customName = trader.getCustomName();
         if(!customName.contentEquals(this.nameInput.getValue()))
         {
             this.sendMessage(this.builder().setString("ChangeName", this.nameInput.getValue()));

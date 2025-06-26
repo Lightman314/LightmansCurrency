@@ -29,6 +29,7 @@ import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
@@ -223,7 +224,7 @@ public class ClientEvents {
 		SyncedConfigFile.onClientLeavesServer();
 	}
 
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.HIGH)
 	//Add coin value tooltips to non CoinItem coins.
 	public static void onItemTooltip(ItemTooltipEvent event) {
 		if(event.getEntity() == null || CoinAPI.API.NoDataAvailable() || event.getContext().registries() == null)

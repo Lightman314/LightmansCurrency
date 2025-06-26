@@ -10,12 +10,14 @@ import io.github.lightman314.lightmanscurrency.datagen.common.crafting.*;
 import io.github.lightman314.lightmanscurrency.datagen.common.loot.LCLootModifierProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.loot.LCLootTableProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.tags.*;
+import io.github.lightman314.lightmanscurrency.datagen.integration.LCComputerCraftProvider;
 import io.github.lightman314.lightmanscurrency.datagen.integration.LCCuriosProvider;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -33,6 +35,10 @@ public class LCDataEventListener {
         PackOutput output = generator.getPackOutput();
         CompletableFuture<HolderLookup.Provider> lookupHolder = event.getLookupProvider();
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
+
+        //Computercraft Registry Provider
+        if(ModList.get().isLoaded("computercraft"))
+            LCDatapackProvider.registerAddon(LCComputerCraftProvider::datapackAddon);
 
         //Recipes
         generator.addProvider(event.includeServer(), new LCRecipeProvider(output,lookupHolder));
