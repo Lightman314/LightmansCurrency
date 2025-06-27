@@ -21,7 +21,8 @@ import snownee.jade.impl.ui.ItemStackElement;
 
 public class VariantComponentProvider implements IBlockComponentProvider{
 
-    public final ResourceLocation ID = VersionUtil.lcResource("model_variant");
+    public static final ResourceLocation ID = VersionUtil.lcResource("model_variant");
+    public static final ResourceLocation LOCKED_CONFIG = VersionUtil.lcResource("model_variant.locked");
     public static final VariantComponentProvider INSTANCE = new VariantComponentProvider();
 
     private VariantComponentProvider() { }
@@ -42,7 +43,7 @@ public class VariantComponentProvider implements IBlockComponentProvider{
         return IBlockComponentProvider.super.getIcon(accessor, config, currentIcon);
     }
     @Override
-    public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig iPluginConfig) {
+    public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
         if(accessor.getBlock() instanceof IVariantBlock && accessor.getBlockEntity() instanceof IVariantSupportingBlockEntity be)
         {
             ResourceLocation variantID = be.getCurrentVariant();
@@ -60,7 +61,7 @@ public class VariantComponentProvider implements IBlockComponentProvider{
                     }
                 }
             }
-            if(be.isVariantLocked())
+            if(be.isVariantLocked() && config.get(LOCKED_CONFIG))
                 tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_LOCKED.getWithStyle(ChatFormatting.GOLD,ChatFormatting.BOLD));
         }
     }

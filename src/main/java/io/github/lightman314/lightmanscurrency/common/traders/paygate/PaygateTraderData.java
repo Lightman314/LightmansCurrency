@@ -10,8 +10,6 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.easy_data.categories.DataCategories;
-import io.github.lightman314.lightmanscurrency.api.easy_data.types.EnumData;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettings;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -81,6 +79,7 @@ public class PaygateTraderData extends TraderData {
 			count += stack.getCount();
 		return count;
 	}
+	public List<ItemStack> getTicketStubStorage() { return this.storedTicketStubs; }
 	public void addTicketStub(ItemStack stub)
 	{
 		//Don't bother storing the ticket stubs if creative.
@@ -112,13 +111,15 @@ public class PaygateTraderData extends TraderData {
 	
 	protected List<PaygateTradeData> trades = PaygateTradeData.listOfSize(1);
 
-	public final EnumData<OutputConflictHandling> conflictHandling = EnumData.builder(OutputConflictHandling.DENY_SIDE_CONFLICT,v -> LCText.GUI_TRADER_PAYGATE_CONFLICT_HANDLING.get(v).get())
-			.host(this)
-			.category(DataCategories.Traders.MISC_SETTINGS)
-			.name(LCText.DATA_ENTRY_PAYGATE_CONFLICT_HANDLING.get())
-			.key("conflict_mode")
-			.tagKey("ConflictMode")
-			.build();
+	private OutputConflictHandling conflictHandling = OutputConflictHandling.DENY_SIDE_CONFLICT;
+	public OutputConflictHandling getConflictHandling() { return this.conflictHandling; }
+	public void setConflictHandling(OutputConflictHandling conflictHandling)
+	{
+		if(this.conflictHandling == conflictHandling)
+			return;
+		this.conflictHandling = conflictHandling;
+		this.markDirty(this::saveConflictSettings);
+	}
 	
 	private PaygateTraderData() { super(TYPE); }
 	public PaygateTraderData(Level level, BlockPos pos) { super(TYPE, level, pos); }
@@ -219,7 +220,7 @@ public class PaygateTraderData extends TraderData {
 		PaygateBlockEntity be = this.getPaygate();
 		if(be != null)
 		{
-			if(this.conflictHandling.get() == OutputConflictHandling.DENY_ANY)
+			if(this.conflictHandling == OutputConflictHandling.DENY_ANY)
 				return be.isActive();
 			for(Direction side : be.getActiveSides())
 			{
@@ -240,7 +241,7 @@ public class PaygateTraderData extends TraderData {
 	private void activate(int duration, int level, DirectionalSettings outputSides, @Nullable String name) {
 		PaygateBlockEntity be = this.getPaygate();
 		if(be != null)
-			be.activate(duration,level,outputSides,this.conflictHandling.get(),name);
+			be.activate(duration,level,outputSides,this.conflictHandling,name);
 	}
 
 	@Override
@@ -249,8 +250,8 @@ public class PaygateTraderData extends TraderData {
 		if(message.contains("ChangeConflictMode"))
 		{
 			OutputConflictHandling newMode = EnumUtil.enumFromOrdinal(message.getInt("ChangeConflictMode"),OutputConflictHandling.values(),null);
-			if(newMode != null)
-				this.conflictHandling.trySet(player,newMode);
+			if(newMode != null && this.hasPermission(player,Permissions.EDIT_SETTINGS))
+				this.setConflictHandling(newMode);
 		}
 	}
 
@@ -273,7 +274,7 @@ public class PaygateTraderData extends TraderData {
 		}
 		
 		//Abort if the paygate is already activated
-		if(this.isActive(trade.getOutputSides()) && !this.conflictHandling.get().allowsConflicts)
+		if(this.isActive(trade.getOutputSides()) && !this.conflictHandling.allowsConflicts)
 		{
 			LightmansCurrency.LogWarning("Paygate is already activated. It cannot be activated until the previous timer is completed.");
 			return TradeResult.FAIL_OUT_OF_STOCK;
@@ -377,6 +378,7 @@ public class PaygateTraderData extends TraderData {
 	protected void saveAdditional(CompoundTag compound) {
 		this.saveTrades(compound);
 		this.saveTicketStubs(compound);
+		this.saveConflictSettings(compound);
 	}
 
 	protected final void saveTicketStubs(CompoundTag compound) {
@@ -390,6 +392,11 @@ public class PaygateTraderData extends TraderData {
 	}
 
 	protected final void saveTrades(CompoundTag compound) { PaygateTradeData.saveAllData(compound, this.trades); }
+
+	private void saveConflictSettings(CompoundTag compound)
+	{
+		compound.putString("ConflictMode",this.conflictHandling.toString());
+	}
 
 	public void markTicketStubsDirty() { this.markDirty(this::saveTicketStubs); }
 
@@ -424,6 +431,10 @@ public class PaygateTraderData extends TraderData {
 					this.storedTicketStubs.add(stack);
 			}
 		}
+
+		if(compound.contains("ConflictMode"))
+			this.conflictHandling = EnumUtil.enumFromString(compound.getString("ConflictMode"),OutputConflictHandling.values(),OutputConflictHandling.DENY_SIDE_CONFLICT);
+
 	}
 
 	@Override

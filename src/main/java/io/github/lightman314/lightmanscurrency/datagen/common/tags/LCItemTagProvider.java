@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.datagen.common.tags;
 
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.AllItems;
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -10,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObject
 import io.github.lightman314.lightmanscurrency.common.core.variants.IOptionalKey;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.ItemTagsProvider;
 import net.minecraft.resources.ResourceLocation;
@@ -22,6 +22,8 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -236,10 +238,12 @@ public class LCItemTagProvider extends ItemTagsProvider {
         this.cTag(LCTags.Items.SETTINGS_REPLACE_WITH_WRITTEN_BOOK)
                 .add(Items.WRITABLE_BOOK)
                 .add(Items.BOOK);
+        this.cTag(LCTags.Items.SETTINGS_READ_OR_WRITABLE)
+                .addTag(LCTags.Items.SETTINGS_READABLE)
+                .addTag(LCTags.Items.SETTINGS_WRITABLE);
 
         this.cTag(LCTags.Items.VARIANT_WANDS)
-                .add(ModItems.VARIANT_WAND)
-                .addOptional(AllItems.WRENCH);
+                .add(ModItems.VARIANT_WAND);
 
         ///VANILLA TAGS
         //Add non-copper coins to beacon payment items
@@ -264,6 +268,16 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.PORTABLE_GEM_TERMINAL)
                 .add(ModItems.PORTABLE_ATM);
 
+        //Create Items
+        if(ModList.get().isLoaded("create"))
+        {
+            this.cTag(LCTags.Items.VARIANT_WANDS)
+                    .addOptional(AllItems.WRENCH);
+            this.cTag(LCTags.Items.SETTINGS_WRITABLE)
+                    .addOptional(AllBlocks.CLIPBOARD);
+            this.cTag(LCTags.Items.SETTINGS_READABLE)
+                    .addOptional(AllBlocks.CLIPBOARD);
+        }
     }
 
     private CustomTagAppender cTag(TagKey<Item> tag) { return new CustomTagAppender(this.tag(tag)); }
@@ -273,7 +287,7 @@ public class LCItemTagProvider extends ItemTagsProvider {
 
         public CustomTagAppender add(ItemLike item) { this.appender.add(item.asItem()); return this; }
         public CustomTagAppender add(Supplier<? extends ItemLike> item) { this.add(item.get()); return this; }
-        public CustomTagAppender addOptional(Supplier<? extends ItemLike> item) { this.appender.addOptional(BuiltInRegistries.ITEM.getKey(item.get().asItem())); return this; }
+        public CustomTagAppender addOptional(Supplier<? extends ItemLike> item) { this.appender.addOptional(ForgeRegistries.ITEMS.getKey(item.get().asItem())); return this; }
         public CustomTagAppender add(RegistryObjectBundle<? extends ItemLike,?> bundle) {
             bundle.forEach((key,item) -> {
                 if(key instanceof IOptionalKey ok)

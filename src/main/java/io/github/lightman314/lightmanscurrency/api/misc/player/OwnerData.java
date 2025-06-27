@@ -112,7 +112,9 @@ public final class OwnerData implements IClientTracker {
 			this.backupOwner.setParent(this);
 		}
 
-		this.onChanged.accept(this);
+		this.setChanged();
 	}
+
+	public void setChanged() { this.onChanged.accept(this); }
 	
 }

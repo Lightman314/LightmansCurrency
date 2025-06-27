@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.taxes;
 
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxReferenceType;
 import io.github.lightman314.lightmanscurrency.common.impl.TaxAPIImpl;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 
@@ -23,6 +24,11 @@ public abstract class TaxAPI {
      */
     @Nullable
     public abstract TaxReferenceType GetReferenceType(@Nonnull ResourceLocation type);
+
+    @Nullable
+    public final ITaxCollector GetTaxCollector(IClientTracker context, long collectorID) { return this.GetTaxCollector(context.isClient(),collectorID); }
+    @Nullable
+    public abstract ITaxCollector GetTaxCollector(boolean isClient, long collectorID);
 
     /**
      * Gets a list of all tax collectors that are currently active and flagged as taxing the given taxable object<br>

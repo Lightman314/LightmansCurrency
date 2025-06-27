@@ -31,6 +31,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import org.lwjgl.glfw.GLFW;
 
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletScreen;
@@ -227,7 +228,7 @@ public class ClientEvents {
 		SyncedConfigFile.onClientLeavesServer();
 	}
 
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.HIGH)
 	//Add coin value tooltips to non CoinItem coins.
 	public static void onItemTooltip(ItemTooltipEvent event) {
 		if(event.getEntity() == null || CoinAPI.API.NoDataAvailable())

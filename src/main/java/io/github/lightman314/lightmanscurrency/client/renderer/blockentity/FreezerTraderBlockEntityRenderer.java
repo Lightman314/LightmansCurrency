@@ -5,6 +5,8 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.models.VariantModelLocation;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.FreezerDoorData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.FreezerTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
@@ -17,9 +19,9 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -49,22 +51,24 @@ public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<Fre
 			Vector3f right = IRotatableBlock.getRightVect(facing);
 			Vector3f forward = IRotatableBlock.getForwardVect(facing);
 
-			//Calculate the hinge position
-			Vector3f hinge = MathUtil.VectorAdd(corner, MathUtil.VectorMult(right, 15.5f/16f), MathUtil.VectorMult(forward, 3.5f/16f));
+			FreezerDoorData doorData = FreezerDoorData.DEFAULT;
+			ModelVariant variant = ModelVariantDataManager.getVariant(blockEntity.getCurrentVariant());
+			if(variant != null && variant.getTargets().contains(freezerBlock.getBlockID()))
+				doorData = variant.getOrDefault(VariantProperties.FREEZER_DOOR_DATA,FreezerDoorData.DEFAULT);
 
-			Quaternionf rotation = MathUtil.fromAxisAngleDegree(MathUtil.getYP(), facing.get2DDataValue() * -90f + (90f * blockEntity.getDoorAngle(partialTicks)));
+			//Calculate the hinge position
+			Vector3f hinge = MathUtil.VectorAdd(corner, MathUtil.VectorMult(right, doorData.hingeX()), MathUtil.VectorMult(forward, doorData.hingeZ()));
+
+			Quaternionf rotation = MathUtil.fromAxisAngleDegree(MathUtil.getYP(), facing.get2DDataValue() * -90f + (doorData.rotation() * blockEntity.getDoorAngle(partialTicks)));
 
 			poseStack.translate(hinge.x(), hinge.y(), hinge.z());
 			poseStack.mulPose(rotation);
 
 			Minecraft mc = Minecraft.getInstance();
-			ResourceLocation doorModel = freezerBlock.getDoorModel();
-			BakedModel model = mc.getModelManager().getModel(doorModel);
-
+			BakedModel model = mc.getModelManager().getModel(freezerBlock.getDoorModel());
 
 			//Get custom freezer door model
-			ModelVariant variant = ModelVariantDataManager.getVariant(blockEntity.getCurrentVariant());
-			if(variant != null && variant.getTargets().contains(freezerBlock.getBlockID()) && variant.getModels().size() == freezerBlock.requiredModels())
+			if(variant != null && variant.isValidTarget((Block)freezerBlock) && variant.getModels().size() == freezerBlock.requiredModels())
 			{
 				VariantModelLocation newModel = VariantModelLocation.basic(blockEntity.getCurrentVariant(),freezerBlock.getBlockID(),freezerBlock.requiredModels() - 1);
 				model = ModelVariantDataManager.getModel(newModel);

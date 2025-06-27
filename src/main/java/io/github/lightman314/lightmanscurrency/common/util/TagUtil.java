@@ -24,7 +24,7 @@ public class TagUtil {
 
     public static BlockPos loadBlockPos(CompoundTag tag) { return new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z")); }
 
-    public static ListTag writeStrinList(List<String> list)
+    public static ListTag writeStringList(List<String> list)
     {
         ListTag result = new ListTag();
         for(String value : list)

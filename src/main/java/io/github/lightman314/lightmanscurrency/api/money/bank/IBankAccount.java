@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Map;

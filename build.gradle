@@ -234,6 +234,9 @@ dependencies {
     //ModernFix for compatibility testing with dynamic resources
     runtimeOnly fg.deobf("maven.modrinth:modernfix:OLk2pIh9")
 
+    //ComputerCraft
+    implementation fg.deobf("maven.modrinth:cc-tweaked:${computercraft_version}")
+
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

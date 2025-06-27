@@ -14,6 +14,7 @@ public class LCJadePlugin implements IWailaPlugin {
         registration.registerBlockIcon(VariantComponentProvider.INSTANCE,EasyBlock.class);
         registration.registerBlockComponent(VariantComponentProvider.INSTANCE,EasyBlock.class);
         registration.registerBlockComponent(PaygateComponentProvider.INSTANCE,PaygateBlock.class);
+        registration.addConfig(VariantComponentProvider.LOCKED_CONFIG,false);
     }
 
     @Override

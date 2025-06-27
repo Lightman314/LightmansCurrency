@@ -514,6 +514,7 @@ public class LCText {
     public static final TextEntry MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER = TextEntry.message(MODID,"tax_collector.placement.trader");
     public static final TextEntry MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER_SERVER_ONLY = TextEntry.message(MODID,"tax_collector.placement.trader.server_only");
     public static final TextEntry MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER_INFO = TextEntry.message(MODID,"tax_collector.placement.trader.info");
+    public static final TextEntry MESSAGE_TAX_COLLECTOR_PLACEMENT_DISABLE = TextEntry.message(MODID,"tax_collector.placement.disable");
     public static final TextEntry GUI_TAX_COLLECTOR_DEFAULT_NAME = TextEntry.gui(MODID,"tax_collector.default_name");
     public static final TextEntry GUI_TAX_COLLECTOR_DEFAULT_NAME_SERVER = TextEntry.gui(MODID,"tax_collector.default_name.server");
     public static final TextEntry TOOLTIP_TAX_COLLECTOR_BASIC = TextEntry.tooltip(MODID,"tax_collector.basic");
@@ -612,7 +613,9 @@ public class LCText {
     public static final TextEntry TOOLTIP_TRADER_OPEN_MULTI_EDIT_SELECTED = TextEntry.tooltip(MODID,"trader.open_multi_edit.selected");
     public static final TextEntry BUTTON_TRADER_SET_ALL_PRICES = TextEntry.button(MODID,"trader.set_all_prices");
     public static final TextEntry TOOLTIP_TRADER_UPGRADES = TextEntry.tooltip(MODID,"trader.upgrade");
+    public static final TextEntry TOOLTIP_TRADER_INFO = TextEntry.tooltip(MODID,"trader.info");
     public static final TextEntry TOOLTIP_TRADER_LOGS = TextEntry.tooltip(MODID,"trader.log");
+    public static final TextEntry TOOLTIP_TRADER_LOGS_SETTINGS = TextEntry.tooltip(MODID,"trader.log.settings");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS = TextEntry.tooltip(MODID,"trader.settings");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_NAME = TextEntry.tooltip(MODID,"trader.settings.name");
     public static final TextEntry GUI_TRADER_SETTINGS_CUSTOM_ICON = TextEntry.tooltip(MODID,"trader.settings.custom_icon");
@@ -651,6 +654,9 @@ public class LCText {
     public static final TextEntry BUTTON_TRADER_STORE_MONEY = TextEntry.button(MODID,"trader.money_storage.store");
     public static final TextEntry BUTTON_TRADER_COLLECT_MONEY = TextEntry.button(MODID,"trader.money_storage.collect");
     public static final TextEntry MESSAGE_TRADER_WARNING_MISSING_DATA = TextEntry.message(MODID,"trader.warning.missing_data");
+    public static final TextEntry TOOLTIP_TRADER_SETTINGS_CLIPBOARD = TextEntry.tooltip(MODID,"trader.settings_clipboard");
+    public static final TextEntry BUTTON_TRADER_SETTINGS_COPY = TextEntry.tooltip(MODID,"trader.settings_clipboard.copy");
+    public static final TextEntry BUTTON_TRADER_SETTINGS_PASTE = TextEntry.tooltip(MODID,"trader.settings_clipboard.paste");
 
     //General Trade Tooltips
     public static final TextEntry TOOLTIP_TRADE_EDIT_PRICE = TextEntry.tooltip(MODID,"trade.edit_price");
@@ -1004,20 +1010,35 @@ public class LCText {
 
     public static final TextEntry BLOCK_VARIANT_MODIFIER_GLASSLESS = TextEntry.blockVariantModifier("glassless");
     public static final TextEntry BLOCK_VARIANT_MODIFIER_FOOTLESS = TextEntry.blockVariantModifier("footless");
+    public static final TextEntry BLOCK_VARIANT_MODIFIER_INVERTED = TextEntry.blockVariantModifier("inverted");
 
+    public static final TextEntry DATA_ENTRY_LABEL = new TextEntry("data.lightmanscurrency.label");
+    public static final TextEntry DATA_NAME_FORMAT = new TextEntry("data.lightmanscurrency.name_format");
+    public static final TextEntry DATA_NAME_BACKUP = new TextEntry("data.lightmanscurrency.name_backup");
 
     //Easy Data Names/Keys
+    public static final TextEntry DATA_ENTRY_OWNER = TextEntry.dataName(MODID,"owner");
     public static final TextEntry DATA_ENTRY_CREATIVE = TextEntry.dataName(MODID,"creative");
     public static final TextEntry DATA_ENTRY_STORE_CREATIVE_MONEY = TextEntry.dataName(MODID,"store_money_in_creative");
+    public static final TextEntry DATA_ENTRY_ALLIES = TextEntry.dataName(MODID,"allies");
+    public static final TextEntry DATA_ENTRY_ALLIES_COUNT= TextEntry.dataName(MODID,"allies.count");
+    public static final TextEntry DATA_ENTRY_PERMISSIONS = TextEntry.dataName(MODID,"permissions");
+    public static final TextEntry DATA_ENTRY_PERMISSIONS_COUNT = TextEntry.dataName(MODID,"permissions.count");
     public static final TextEntry DATA_ENTRY_TRADER_NAME = TextEntry.dataName(MODID,"trader_name");
     public static final TextEntry DATA_ENTRY_TRADER_ICON = TextEntry.dataName(MODID,"trader_icon");
     public static final TextEntry DATA_ENTRY_TRADER_BANK_LINK = TextEntry.dataName(MODID,"trader.bank_link");
     public static final TextEntry DATA_ENTRY_INPUT_OUTPUT_SIDES = TextEntry.dataName(MODID,"input_output_sides");
+    public static final TextEntry DATA_ENTRY_INPUT_OUTPUT_SIDES_COUNT = TextEntry.dataName(MODID,"input_output_sides.count");
     public static final TextEntry DATA_ENTRY_PAYGATE_CONFLICT_HANDLING = TextEntry.dataName(MODID,"trader.paygate.conflict_handling");
 
     //Easy Data Categories
-    public static final TextEntry DATA_CATEGORY_TRADER_DISPLAY = TextEntry.dataCategory(MODID,"trader_display");
-    public static final TextEntry DATA_CATEGORY_TRADER_BANK = TextEntry.dataCategory(MODID,"trader_bank");
+    public static final TextEntry DATA_CATEGORY_TRADER_DISPLAY = TextEntry.dataCategory(MODID,"trader.display");
+    public static final TextEntry DATA_CATEGORY_TRADER_BANK = TextEntry.dataCategory(MODID,"trader.bank");
+    public static final TextEntry DATA_CATEGORY_TRADER_RULES = TextEntry.dataCategory(MODID,"trader.rules");
+    public static final TextEntry DATA_CATEGORY_TRADER_ALLIES = TextEntry.dataCategory(MODID,"trader.allies");
+    public static final TextEntry DATA_CATEGORY_TRADER_ALLY_PERMS = TextEntry.dataCategory(MODID,"trader.ally_perms");
+    public static final TextEntry DATA_CATEGORY_TRADER_TRADES = TextEntry.dataCategory(MODID,"trader.trades");
+    public static final TextEntry DATA_CATEGORY_OWNERSHIP = TextEntry.dataCategory(MODID,"ownership");
     public static final TextEntry DATA_CATEGORY_INPUT_SETTINGS = TextEntry.dataCategory(MODID,"input_settings");
     public static final TextEntry DATA_CATEGORY_MISC_SETTINGS = TextEntry.dataCategory(MODID,"misc_settings");
     public static final TextEntry DATA_CATEGORY_CREATIVE = TextEntry.dataCategory(MODID,"creative");

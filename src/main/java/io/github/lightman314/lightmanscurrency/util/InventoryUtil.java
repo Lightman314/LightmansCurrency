@@ -304,7 +304,7 @@ public class InventoryUtil {
 				//Calculate the amount that can fit in this slot
 				int amountToPlace = MathUtil.clamp(amountToMerge, 0, inventoryStack.getMaxStackSize() - inventoryStack.getCount());
 				//Define the orders
-				mergeOrders.add(new Pair<Integer,Integer>(i,amountToPlace));
+				mergeOrders.add(new Pair<>(i,amountToPlace));
 				//Update the pending merge count
 				amountToMerge -= amountToPlace;
 			}
@@ -318,7 +318,7 @@ public class InventoryUtil {
 				//Calculate the amount that can fit in this slot
 				int amountToPlace = MathUtil.clamp(amountToMerge, 0, stack.getMaxStackSize());
 				//Define the orders
-				mergeOrders.add(new Pair<Integer,Integer>(i,amountToPlace));
+				mergeOrders.add(new Pair<>(i,amountToPlace));
 				//Update the pending merge count
 				amountToMerge -= amountToPlace;
 			}
@@ -503,9 +503,7 @@ public class InventoryUtil {
 		for(ItemStack item : itemList)
 		{
 			if (!item.isEmpty()) {
-				CompoundTag itemTag = new CompoundTag();
-				item.save(itemTag);
-				itemTag.putInt("Count", item.getCount());
+				CompoundTag itemTag = saveItemNoLimits(item);
 				list.add(itemTag);
 			}
 		}
@@ -528,9 +526,7 @@ public class InventoryUtil {
 			ListTag list = compound.getList(key, Tag.TAG_COMPOUND);
 			for(int i = 0; i < list.size(); ++i)
 			{
-				CompoundTag itemTag = list.getCompound(i);
-				ItemStack item = ItemStack.of(itemTag);
-				item.setCount(itemTag.getInt("Count"));
+				ItemStack item = loadItemNoLimits(list.getCompound(i));
 				if(!item.isEmpty())
 					result.add(item);
 			}

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.notifications;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
@@ -23,10 +24,13 @@ public class NotificationData implements ISidedObject {
 	public List<Notification> getNotifications(@Nonnull NotificationCategory category) {
 		if(category == NotificationCategory.GENERAL)
 			return this.notifications;
+		return this.getNotifications(n -> n.getCategory().matches(category));
+	}
+	public List<Notification> getNotifications(Predicate<Notification> filter) {
 		List<Notification> result = new ArrayList<>();
 		for(Notification not : this.notifications)
 		{
-			if(category.matches(not.getCategory()))
+			if(filter.test(not))
 				result.add(not);
 		}
 		return result;
@@ -83,10 +87,13 @@ public class NotificationData implements ISidedObject {
 			this.deleteNotification(notificationIndex);
 			return;
 		}
+		this.deleteNotification(n -> n.getCategory().matches(category),notificationIndex);
+	}
+	public void deleteNotification(Predicate<Notification> filter, int notificationIndex) {
 		for(int i = 0; i < this.notifications.size(); ++i)
 		{
 			Notification n = this.notifications.get(i);
-			if(category.matches(n.getCategory()))
+			if(filter.test(n))
 			{
 				notificationIndex--;
 				if(notificationIndex < 0)

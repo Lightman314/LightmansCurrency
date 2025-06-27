@@ -5,11 +5,13 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.api.traders.ITraderSource;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -19,17 +21,16 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.network.NetworkHooks;
-import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class CashRegisterBlockEntity extends BlockEntity implements ITraderSource{
+public class CashRegisterBlockEntity extends EasyBlockEntity implements ITraderSource{
 	
 	List<BlockPos> positions = new ArrayList<>();
+	public List<BlockPos> traderPositions() { return new ArrayList<>(this.positions); }
 	Component customTitle = null;
 	
 	public CashRegisterBlockEntity(BlockPos pos, BlockState state)
@@ -48,7 +49,14 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 		if(stack.hasCustomHoverName())
 			this.customTitle = stack.getHoverName();
 	}
-	
+
+	public void setPositions(List<BlockPos> positions)
+	{
+		this.positions = new ArrayList<>(positions);
+		if(this.isServer())
+			BlockEntityUtil.sendUpdatePacket(this);
+	}
+
 	public void OpenContainer(Player player)
 	{
 		MenuProvider provider = TraderData.getTraderMenuProvider(this.worldPosition, BlockEntityValidator.of(this));
@@ -84,12 +92,19 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 	@Override
 	public Component getCustomTitle() { return this.customTitle; }
 
+	public void setCustomTitle(@Nullable Component customTitle)
+	{
+		this.customTitle = customTitle;
+		if(this.isServer())
+			BlockEntityUtil.sendUpdatePacket(this);
+	}
+
 	//Only show the search bar if we actually expect for there to be more than 1 trader linked to this machine
 	@Override
 	public boolean showSearchBox() { return this.positions.size() > 1; }
 
 	@Override
-	public void saveAdditional(@NotNull CompoundTag compound)
+	public void saveAdditional(@Nonnull CompoundTag compound)
 	{
 		
 		ListTag storageList = new ListTag();
@@ -103,15 +118,23 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 		
 		if(!storageList.isEmpty())
 			compound.put("TraderPos", storageList);
+
+		if(this.customTitle != null)
+			compound.putString("CustomName",Component.Serializer.toJson(this.customTitle));
 		
 		super.saveAdditional(compound);
 	}
 	
 	@Override
-	public void load(@NotNull CompoundTag compound)
+	public void load(@Nonnull CompoundTag compound)
 	{
 		
 		this.readPositions(compound);
+
+		if(compound.contains("CustomName"))
+			this.customTitle = Component.Serializer.fromJson(compound.getString("CustomName"));
+		else
+			this.customTitle = null;
 		
 		super.load(compound);
 		
@@ -134,8 +157,5 @@ public class CashRegisterBlockEntity extends BlockEntity implements ITraderSourc
 			}
 		}
 	}
-	
-	@Override
-	public @NotNull CompoundTag getUpdateTag() { return this.saveWithoutMetadata(); }
 	
 }

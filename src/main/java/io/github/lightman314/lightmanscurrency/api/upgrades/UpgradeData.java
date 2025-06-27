@@ -8,6 +8,7 @@ import net.minecraft.nbt.Tag;
 import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -21,8 +22,6 @@ public final class UpgradeData
     private final Map<String,Double> floatData;
     private final Map<String,String> stringData;
     private final Map<String,CompoundTag> tagData;
-
-    public boolean hasIntKey(String tag) { return this.intData.containsKey(tag); }
 
     private UpgradeData() {
         this.boolData = ImmutableMap.of();
@@ -39,6 +38,8 @@ public final class UpgradeData
         this.stringData = ImmutableMap.copyOf(stringData);
         this.tagData = ImmutableMap.copyOf(tagData);
     }
+
+    public boolean isEmpty() { return this.boolData.isEmpty() && this.intData.isEmpty() && this.floatData.isEmpty() && this.stringData.isEmpty() && this.tagData.isEmpty(); }
 
     public boolean hasBoolValue(@Nonnull String tag) { return this.boolData.containsKey(tag); }
     public boolean hasIntValue(@Nonnull String tag) { return this.intData.containsKey(tag); }
@@ -59,7 +60,17 @@ public final class UpgradeData
     public CompoundTag getCompoundValue(@Nonnull String tag) { return this.tagData.getOrDefault(tag,new CompoundTag()); }
 
     @Nonnull
-    public Mutable makeMutable() { return new Mutable(this.boolData,this.intData,this.floatData,this.stringData,this.tagData); }
+    public Mutable makeMutable() { return new Mutable(this.boolData,this.intData,this.floatData,this.stringData,copyTags(this.tagData)); }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof UpgradeData other)
+            return this.boolData.equals(other.boolData) && this.intData.equals(other.intData) && this.floatData.equals(other.floatData) && this.stringData.equals(other.stringData) && this.tagData.equals(other.tagData);
+        return false;
+    }
+
+    @Override
+    public int hashCode() { return Objects.hash(this.boolData,this.intData,this.floatData,this.stringData,this.tagData); }
 
     //1.20.1
     @Nonnull
@@ -80,7 +91,7 @@ public final class UpgradeData
     }
 
     @Nonnull
-    private static <T> ListTag writeMap(@Nonnull Map<String,T> map, @Nonnull BiConsumer<T,CompoundTag> valueWriter)
+    public static <T> ListTag writeMap(@Nonnull Map<String,T> map, @Nonnull BiConsumer<T,CompoundTag> valueWriter)
     {
         ListTag list = new ListTag();
         for(var entry : map.entrySet())
@@ -114,7 +125,7 @@ public final class UpgradeData
         return new UpgradeData(boolData,intData,floatData,stringData,tagData);
     }
 
-    private static <T> void readMap(@Nonnull Map<String,T> map, @Nonnull ListTag list, @Nonnull Function<CompoundTag,T> valueReader)
+    public static <T> void readMap(@Nonnull Map<String,T> map, @Nonnull ListTag list, @Nonnull Function<CompoundTag,T> valueReader)
     {
         for(int i = 0; i < list.size(); ++i)
         {
@@ -179,8 +190,15 @@ public final class UpgradeData
         }
 
         @Nonnull
-        public UpgradeData makeImmutable() { return new UpgradeData(this.boolData,this.intData,this.floatData,this.stringData,this.tagData); }
+        public UpgradeData makeImmutable() { return new UpgradeData(this.boolData,this.intData,this.floatData,this.stringData,copyTags(this.tagData)); }
 
+    }
+
+    private static Map<String,CompoundTag> copyTags(Map<String,CompoundTag> original)
+    {
+        Map<String,CompoundTag> copy = new HashMap<>();
+        original.forEach((key,tag) -> copy.put(key,tag.copy()));
+        return copy;
     }
 
 }

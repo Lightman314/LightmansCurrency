@@ -67,7 +67,7 @@ public class PaygateTradeButtonRenderer extends TradeRenderManager<PaygateTradeD
             //Check whether the paygate is currently active
             if(paygate.isActive(this.trade.getOutputSides()))
             {
-                alerts.add(AlertData.of(LCText.TOOLTIP_TRADER_PAYGATE_ALREADY_ACTIVE.get(),paygate.conflictHandling.get().allowsConflicts ? AlertType.NEUTRAL : AlertType.WARN));
+                alerts.add(AlertData.of(LCText.TOOLTIP_TRADER_PAYGATE_ALREADY_ACTIVE.get(),paygate.getConflictHandling().allowsConflicts ? AlertType.NEUTRAL : AlertType.WARN));
                 int seconds = MathUtil.DivideByAndRoundUp(paygate.getTimeRemaining(this.trade.getOutputSides()),20);
                 alerts.add(AlertData.neutral(LCText.TOOLTIP_TRADER_PAYGATE_TIME_REMAINING.get(EasyText.empty().append(String.valueOf(seconds)).append(LCText.TIME_UNIT_SECOND.shortText.get()))));
             }

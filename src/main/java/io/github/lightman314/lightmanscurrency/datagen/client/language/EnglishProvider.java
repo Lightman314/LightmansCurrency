@@ -527,6 +527,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER,"Traders in this area are susceptible to taxes!");
         this.translate(LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER_SERVER_ONLY,"All Traders on this server are susceptible to a server tax!");
         this.translate(LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER_INFO,"Check your traders Tax Info tab for more information.");
+        this.translate(LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_DISABLE,"Click to disable further notifications of this type");
         this.translate(LCText.GUI_TAX_COLLECTOR_DEFAULT_NAME,"%s's Taxes");
         this.translate(LCText.GUI_TAX_COLLECTOR_DEFAULT_NAME_SERVER,"Server");
         this.translate(LCText.TOOLTIP_TAX_COLLECTOR_BASIC,"Basic Settings");
@@ -639,7 +640,9 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_TRADER_OPEN_MULTI_EDIT_SELECTED,"Edit Price for All %s Selected Trade(s)");
         this.translate(LCText.BUTTON_TRADER_SET_ALL_PRICES,"Set Price for %s Trade(s)");
         this.translate(LCText.TOOLTIP_TRADER_UPGRADES,"Upgrades");
+        this.translate(LCText.TOOLTIP_TRADER_INFO,"Trader Info");
         this.translate(LCText.TOOLTIP_TRADER_LOGS,"Trader Logs");
+        this.translate(LCText.TOOLTIP_TRADER_LOGS_SETTINGS,"Settings Logs");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS,"Trader Settings");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS_NAME,"Trader Name");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS_CREATIVE,"Creative Trader");
@@ -678,6 +681,9 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.BUTTON_TRADER_STORE_MONEY,"Store Money");
         this.translate(LCText.BUTTON_TRADER_COLLECT_MONEY,"Collect Money");
         this.translate(LCText.MESSAGE_TRADER_WARNING_MISSING_DATA, "Trader Data was missing for this block. Re-initializing the trader with you as the owner!");
+        this.translate(LCText.TOOLTIP_TRADER_SETTINGS_CLIPBOARD, "Settings Clipboard");
+        this.translate(LCText.BUTTON_TRADER_SETTINGS_COPY, "Copy");
+        this.translate(LCText.BUTTON_TRADER_SETTINGS_PASTE, "Paste");
 
         //General Trade Tooltips
         this.translate(LCText.TOOLTIP_TRADE_EDIT_PRICE, "Click to Edit Price");
@@ -1074,21 +1080,39 @@ public class EnglishProvider extends TranslationProvider {
 
         this.translate(LCText.BLOCK_VARIANT_MODIFIER_GLASSLESS,"#Glassless");
         this.translate(LCText.BLOCK_VARIANT_MODIFIER_FOOTLESS,"#Footless");
+        this.translate(LCText.BLOCK_VARIANT_MODIFIER_INVERTED,"#Inverted");
 
-        //Easy Data Names/Keys
+        //Data Label
+        this.translate(LCText.DATA_ENTRY_LABEL,"%1$s: %2$s");
+        this.translate(LCText.DATA_NAME_FORMAT,"%s Settings");
+        this.translate(LCText.DATA_NAME_BACKUP,"Copied Settings");
+
+        //Data Names/Keys
+        this.translate(LCText.DATA_ENTRY_OWNER,"Owner");
         this.translate(LCText.DATA_ENTRY_CREATIVE,"Creative");
         this.translate(LCText.DATA_ENTRY_STORE_CREATIVE_MONEY,"Store Money in Creative");
+        this.translate(LCText.DATA_ENTRY_ALLIES,"Allies");
+        this.translate(LCText.DATA_ENTRY_ALLIES_COUNT,"%s Players");
+        this.translate(LCText.DATA_ENTRY_PERMISSIONS,"Permissions");
+        this.translate(LCText.DATA_ENTRY_PERMISSIONS_COUNT,"%s Perms");
         this.translate(LCText.DATA_ENTRY_TRADER_NAME,"Trader Name");
         this.translate(LCText.DATA_ENTRY_TRADER_ICON,"Trader Terminal Icon");
         this.translate(LCText.DATA_ENTRY_TRADER_BANK_LINK,"Bank Account Link");
         this.translate(LCText.DATA_ENTRY_INPUT_OUTPUT_SIDES,"Input/Output Side: ");
+        this.translate(LCText.DATA_ENTRY_INPUT_OUTPUT_SIDES_COUNT,"%1$s Input and & %2$s Output Side(s)");
         this.translate(LCText.DATA_ENTRY_PAYGATE_CONFLICT_HANDLING,"Output Conflict Handling");
 
-        //Easy Data Categories
-        this.translate(LCText.DATA_CATEGORY_TRADER_DISPLAY,"Trader Display Settings");
-        this.translate(LCText.DATA_CATEGORY_TRADER_BANK,"Trader Bank Settings");
+        //Data Categories
+        this.translate(LCText.DATA_CATEGORY_TRADER_DISPLAY,"Display Settings");
+        this.translate(LCText.DATA_CATEGORY_TRADER_BANK,"Bank Settings");
+        this.translate(LCText.DATA_CATEGORY_TRADER_RULES,"Trader Rules");
+        this.translate(LCText.DATA_CATEGORY_TRADER_ALLIES,"Allies");
+        this.translate(LCText.DATA_CATEGORY_TRADER_ALLY_PERMS,"Ally Permissions");
+        this.translate(LCText.DATA_CATEGORY_TRADER_TRADES,"Trades");
+        this.translate(LCText.DATA_CATEGORY_OWNERSHIP,"Ownership Settings");
         this.translate(LCText.DATA_CATEGORY_INPUT_SETTINGS,"Input/Output Settings");
         this.translate(LCText.DATA_CATEGORY_MISC_SETTINGS,"Misc Settings");
+        this.translate(LCText.DATA_CATEGORY_CREATIVE,"Creative Settings");
 
         //LC Statistics
         //Generic
@@ -1291,6 +1315,7 @@ public class EnglishProvider extends TranslationProvider {
 
         //Jade Plugin names
         this.add("config.jade.plugin_lightmanscurrency.model_variant","Model Variant");
+        this.add("config.jade.plugin_lightmanscurrency.model_variant.locked","Model Variant Locked Status");
         this.add("config.jade.plugin_lightmanscurrency.paygate","Paygate Info");
 
     }

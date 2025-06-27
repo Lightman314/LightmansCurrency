@@ -23,15 +23,12 @@ import io.github.lightman314.lightmanscurrency.network.message.walletslot.*;
 import io.github.lightman314.lightmanscurrency.network.message.time.*;
 import io.github.lightman314.lightmanscurrency.network.packet.CustomPacket;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 import net.minecraftforge.network.simple.SimpleChannel;
-
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 
 
 import javax.annotation.Nonnull;
@@ -71,6 +68,7 @@ public class LightmansCurrencyPacketHandler {
 		register(CPacketOpenNetworkTerminal.class, CPacketOpenNetworkTerminal.HANDLER);
 		register(SPacketSyncUsers.class, SPacketSyncUsers.HANDLER);
 		register(CPacketAddOrRemoveTrade.class, CPacketAddOrRemoveTrade.HANDLER);
+		register(SPacketTaxInfo.class, SPacketTaxInfo.HANDLER);
 
 		//Paygate
 		register(CPacketCollectTicketStubs.class, CPacketCollectTicketStubs.HANDLER);

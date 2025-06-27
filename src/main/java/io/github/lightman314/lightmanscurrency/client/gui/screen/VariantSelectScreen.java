@@ -15,11 +15,13 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBa
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.DefaultModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.menus.VariantSelectMenu;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -48,15 +50,16 @@ public class VariantSelectScreen extends EasyMenuScreen<VariantSelectMenu> imple
             this.availableVariants = ImmutableList.of();
             return;
         }
+        boolean creative = Minecraft.getInstance().player.isCreative();
         //Collect possible variants
         List<Pair<ResourceLocation,ModelVariant>> temp = new ArrayList<>();
         temp.add(Pair.of(null, DefaultModelVariant.of(this.getMenu().getVariantBlock())));
         for(ResourceLocation id : this.getMenu().getVariantBlock().getValidVariants())
         {
-            if(!LCConfig.SERVER.variantBlacklist.get().contains(id))
+            if(creative || !LCConfig.SERVER.variantBlacklist.matches(id))
             {
                 ModelVariant variant = ModelVariantDataManager.getVariant(id);
-                if(variant != null)
+                if(variant != null && (creative || !variant.getOrDefault(VariantProperties.HIDDEN)))
                     temp.add(Pair.of(id,variant));
             }
         }

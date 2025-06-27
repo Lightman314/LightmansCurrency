@@ -93,7 +93,7 @@ public class EasyBlock extends Block {
         }
         CompoundTag tag = stack.getTag();
         if(tag != null && tag.getBoolean("VariantLocked"))
-            tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_LOCKED.getWithStyle(ChatFormatting.GOLD,ChatFormatting.BOLD));
+            tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_LOCKED.getWithStyle(ChatFormatting.GRAY));
         super.appendHoverText(stack, context, tooltip, flag);
     }
 

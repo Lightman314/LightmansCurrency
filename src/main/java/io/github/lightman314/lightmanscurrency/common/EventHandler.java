@@ -65,6 +65,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.level.SaplingGrowTreeEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -81,6 +82,10 @@ public class EventHandler {
 	@SubscribeEvent
 	public static void pickupItem(EntityItemPickupEvent event)
 	{
+
+		//Do nothing if the player's not supposed to be able to pick up the item at this point
+		if(event.getResult() == Event.Result.DENY)
+			return;
 
 		ItemEntity ie = event.getItem();
 		ItemStack pickupItem = ie.getItem();
@@ -122,6 +127,7 @@ public class EventHandler {
 			if(!player.level().isClientSide)
 				WalletItem.playCollectSound(player,wallet);
 			event.setCanceled(true);
+			event.setResult(Event.Result.DENY);
 		}
 		
 	}

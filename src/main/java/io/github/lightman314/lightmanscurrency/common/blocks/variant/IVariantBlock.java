@@ -96,7 +96,7 @@ public interface IVariantBlock {
             //Prevent opening the menu if the variant is locked
             if(level.getBlockEntity(pos) instanceof IVariantSupportingBlockEntity be && be.isVariantLocked())
             {
-                player.sendSystemMessage(LCText.TOOLTIP_MODEL_VARIANT_LOCKED.getWithStyle(ChatFormatting.RED));
+                player.displayClientMessage(LCText.TOOLTIP_MODEL_VARIANT_LOCKED.getWithStyle(ChatFormatting.RED),true);
                 return true;
             }
             NetworkHooks.openScreen(sp,VariantSelectMenu.providerFor(pos),pos);

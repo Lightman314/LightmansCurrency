@@ -33,6 +33,19 @@ public abstract class ConfigOption<T> implements Supplier<T> {
     private String name = "null";
     @Nonnull
     public String getName() { return this.name; }
+    @Nullable
+    public String getFullName()
+    {
+        ConfigFile file = this.getFile();
+        if(file == null)
+            return null;
+        for(var entry : file.getAllOptions().entrySet())
+        {
+            if(entry.getValue() == this)
+                return entry.getKey();
+        }
+        return null;
+    }
     private String optionID = "null.null";
     public final void init(@Nonnull ConfigFile parent, @Nonnull String name, @Nonnull String optionID) {
         if(this.parent == null)

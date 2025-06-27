@@ -3,6 +3,10 @@
     "minecraft:paper",
     "minecraft:book",
     "minecraft:writable_book",
-    "minecraft:written_book"
+    "minecraft:written_book",
+    {
+      "id": "create:clipboard",
+      "required": false
+    }
   ]
 }

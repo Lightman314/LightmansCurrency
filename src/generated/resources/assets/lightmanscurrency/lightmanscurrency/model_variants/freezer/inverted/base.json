@@ -1,0 +1,33 @@
+{
+  "dummy": true,
+  "freezer_door": {
+    "hingeX": 0.03125,
+    "hingeZ": 0.09615385,
+    "rotation": -90.0
+  },
+  "item": "lightmanscurrency:block/freezer/inverted/item",
+  "models": [
+    "lightmanscurrency:block/freezer/base_bottom",
+    "lightmanscurrency:block/freezer/base_top",
+    "lightmanscurrency:block/freezer/inverted/door"
+  ],
+  "name": {
+    "translate": "lightmanscurrency.block_variant.default"
+  },
+  "tooltip_info": {
+    "item": true,
+    "jade": true,
+    "selection": true,
+    "tooltip": {
+      "color": "gray",
+      "translate": "lightmanscurrency.block_variant.modifier.label",
+      "with": [
+        {
+          "color": "dark_aqua",
+          "italic": true,
+          "translate": "lightmanscurrency.block_variant.modifier.inverted"
+        }
+      ]
+    }
+  }
+}

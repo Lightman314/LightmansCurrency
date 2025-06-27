@@ -12,6 +12,8 @@ public class VariantProperties {
 
     public static final VariantProperty<ItemPositionDataEntry> ITEM_POSITION_DATA = ItemPositionDataEntry.PROPERTY;
 
+    public static final VariantProperty<FreezerDoorData> FREEZER_DOOR_DATA = FreezerDoorData.PROPERTY;
+
     public static final VariantProperty<InputDisplayOffset> INPUT_DISPLAY_OFFSET = InputDisplayOffset.PROPERTY;
 
     public static final VariantProperty<TooltipInfo> TOOLTIP_INFO = TooltipInfo.PROPERTY;

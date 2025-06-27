@@ -13,18 +13,17 @@ import io.github.lightman314.lightmanscurrency.common.text.MultiLineTextEntry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
 public class TooltipItem extends Item{
-	
+
 	private final Supplier<List<Component>> tooltips;
-	
+
 	public TooltipItem(Properties properties, Supplier<List<Component>> tooltips) { super(properties); this.tooltips = tooltips; }
-	
+
 	@Override
 	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
 	{
@@ -35,26 +34,15 @@ public class TooltipItem extends Item{
 	public static void insertTooltip(List<Component> tooltip, Component line) { insertTooltip(tooltip, Lists.newArrayList(line)); }
 	public static void insertTooltip(List<Component> tooltip, List<Component> lines) {
 		List<Component> temp = new ArrayList<>();
-		for(int i = tooltip.size() - 1; i >= 0; --i)
+		if(tooltip.size() > 1)
 		{
-			Component line = tooltip.get(i);
-			TextColor color = line.getStyle().getColor();
-			if(color == null || color.getValue() != ChatFormatting.DARK_GRAY.getColor())
+			for(int i = lines.size() - 1; i >= 0; --i)
 			{
-				//Add to line after this line
-				i++;
-				for(int l = lines.size() - 1; l >= 0; --l)
-					tooltip.add(i,lines.get(l));
-				return;
+				tooltip.add(1,lines.get(i));
 			}
 		}
-		if(tooltip.isEmpty())
-			tooltip.addAll(lines);
 		else
-		{
-			for(int l = lines.size() - 1; l >= 0; --l)
-				tooltip.add(1,lines.get(l));
-		}
+			tooltip.addAll(lines);
 	}
 
 	public static void insertTooltip(List<Component> tooltip, MultiLineTextEntry entry)
@@ -84,5 +72,5 @@ public class TooltipItem extends Item{
 			return result;
 		};
 	}
-	
+
 }

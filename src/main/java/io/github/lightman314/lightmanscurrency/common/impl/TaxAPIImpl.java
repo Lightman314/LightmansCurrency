@@ -38,6 +38,10 @@ public class TaxAPIImpl extends TaxAPI {
     @Override
     public TaxReferenceType GetReferenceType(@Nonnull ResourceLocation type) { return this.referenceTypes.get(type); }
 
+    @Override
+    @Nullable
+    public ITaxCollector GetTaxCollector(boolean isClient, long collectorID) { return TaxDataCache.TYPE.get(isClient).getEntry(collectorID); }
+
     @Nonnull
     @Override
     public List<ITaxCollector> GetTaxCollectorsFor(@Nonnull ITaxable taxable) { return TaxDataCache.TYPE.get(taxable).getAllEntries().stream().filter(e -> e.ShouldTax(taxable)).map(e -> (ITaxCollector)e).toList(); }

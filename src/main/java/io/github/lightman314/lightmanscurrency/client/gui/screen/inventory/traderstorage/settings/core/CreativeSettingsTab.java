@@ -100,7 +100,7 @@ public class CreativeSettingsTab extends SettingsSubTab {
 
     private boolean storedCreativeMoney() {
         TraderData t = this.menu.getTrader();
-        return t != null && t.storeCreativeMoney.get();
+        return t != null && t.shouldStoreCreativeMoney();
     }
 
     private void ToggleCreative()
@@ -116,7 +116,7 @@ public class CreativeSettingsTab extends SettingsSubTab {
         TraderData trader = this.menu.getTrader();
         if(trader == null)
             return;
-        this.sendMessage(this.builder().setBoolean("StoreCreativeMoney", !trader.storeCreativeMoney.get()));
+        this.sendMessage(this.builder().setBoolean("StoreCreativeMoney", !trader.shouldStoreCreativeMoney()));
     }
 
     private void AddTrade()

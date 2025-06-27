@@ -35,12 +35,10 @@ public class ConfigCraftingCondition implements ICondition {
         ConfigFile file = option.getFile();
         if(file == null)
             throw new IllegalArgumentException("Config Option was not attached to a config file!");
-        for(var entry : file.getAllOptions().entrySet())
-        {
-            if(entry.getValue() == option)
-                return of(file.getFileID(),entry.getKey());
-        }
-        throw new IllegalArgumentException("Config Option was not a member of the config file!");
+        String fullKey = option.getFullName();
+        if(fullKey == null)
+            throw new IllegalArgumentException("Config Option was not a member of the config file!");
+        return of(file.getFileID(),fullKey);
     }
 
     @Override

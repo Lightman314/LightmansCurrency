@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.traders;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import com.google.common.collect.ImmutableList;
 
@@ -10,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettings;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.IDirectionalSettingsObject;
+import io.github.lightman314.lightmanscurrency.api.settings.SettingsNode;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
@@ -47,7 +49,13 @@ public abstract class InputTraderData extends TraderData implements IDirectional
 	
 	public final ImmutableList<Direction> ignoreSides;
 	private final DirectionalSettings directionalSettings = new DirectionalSettings(this);
-	
+
+	@Override
+	protected void registerNodes(Consumer<SettingsNode> builder) {
+		super.registerNodes(builder);
+		builder.accept(new InputSettingsNode(this));
+	}
+
 	@Override
 	protected void modifyDefaultAllyPermissions(Map<String,Integer> defaultValues) {
 		defaultValues.put(Permissions.InputTrader.EXTERNAL_INPUTS, 1);

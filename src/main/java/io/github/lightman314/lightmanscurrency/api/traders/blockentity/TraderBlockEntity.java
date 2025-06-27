@@ -1,9 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.traders.blockentity;
 
-import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
@@ -12,13 +10,13 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderState;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockBase;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.IOwnableBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.network.message.trader.SPacketTaxInfo;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -95,7 +93,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		D newTrader = this.buildNewTrader();
 		newTrader.getOwner().SetOwner(PlayerOwner.of(owner));
 		if(placementStack.hasCustomHoverName())
-			newTrader.customName.set(placementStack.getHoverName().getString());
+			newTrader.setCustomName(placementStack.getHoverName().getString());
 		return newTrader;
 	}
 
@@ -183,13 +181,8 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 
 	private void checkTaxes(@Nonnull Player player, @Nonnull TraderData trader) {
 		List<ITaxCollector> taxes = TaxAPI.API.AcknowledgeTaxCollectors(trader);
-		if(!taxes.isEmpty()) {
-			TextEntry firstMessage = LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER;
-			if (taxes.size() == 1 && taxes.get(0).isServerEntry())
-				firstMessage = LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER_SERVER_ONLY;
-			EasyText.sendMessage(player, firstMessage.get());
-			EasyText.sendMessage(player, LCText.MESSAGE_TAX_COLLECTOR_PLACEMENT_TRADER_INFO.get());
-		}
+		if(!taxes.isEmpty())
+			SPacketTaxInfo.sendPacket(taxes,player);
 	}
 
 	public TraderData getRawTraderData() { return TraderAPI.API.GetTrader(this, this.traderID); }

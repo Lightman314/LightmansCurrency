@@ -18,6 +18,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 
 import java.util.concurrent.CompletableFuture;
@@ -67,6 +68,8 @@ public class LCDataEventListener {
         //Integration
         if(LCCurios.isLoaded())
             generator.addProvider(event.includeServer(), new LCCuriosProvider(output,existingFileHelper,lookupHolder));
+        if(ModList.get().isLoaded("computercraft"))
+            generator.addProvider(event.includeServer(), new LCComputerCraftProvider(output));
 
     }
 
