@@ -26,7 +26,8 @@ public abstract class TaxAPI {
     public abstract TaxReferenceType GetReferenceType(@Nonnull ResourceLocation type);
 
     @Nullable
-    public final ITaxCollector GetTaxCollector(IClientTracker isClient, long collectorID) { return this.GetTaxCollector(isClient.isClient(),collectorID); }
+    public final ITaxCollector GetTaxCollector(IClientTracker context, long collectorID) { return this.GetTaxCollector(context.isClient(),collectorID); }
+    @Nullable
     public abstract ITaxCollector GetTaxCollector(boolean isClient, long collectorID);
 
     /**

@@ -740,7 +740,7 @@ public final class LCConfig {
         public final BooleanOption chocolateCoinEffects = BooleanOption.createTrue();
 
         //Variant
-        public final ResourceListOption variantBlacklist = ResourceListOption.create(ArrayList::new);
+        public final WildcardSelectorListOption variantBlacklist = WildcardSelectorListOption.create(ArrayList::new);
 
         //Claim Purchasing
         public final BooleanOption claimingAllowClaimPurchase = BooleanOption.createFalse();

@@ -21,6 +21,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
@@ -230,12 +231,10 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .add(Items.PAPER)
                 .add(Items.BOOK)
                 .add(Items.WRITABLE_BOOK)
-                .add(Items.WRITTEN_BOOK)
-                .addOptional(AllBlocks.CLIPBOARD);
+                .add(Items.WRITTEN_BOOK);
         this.cTag(LCTags.Items.SETTINGS_READABLE)
                 .add(Items.PAPER)
-                .add(Items.WRITTEN_BOOK)
-                .addOptional(AllBlocks.CLIPBOARD);
+                .add(Items.WRITTEN_BOOK);
         this.cTag(LCTags.Items.SETTINGS_READ_OR_WRITABLE)
                 .addTag(LCTags.Items.SETTINGS_WRITABLE)
                 .addTag(LCTags.Items.SETTINGS_READABLE);
@@ -245,8 +244,7 @@ public class LCItemTagProvider extends ItemTagsProvider {
 
         //Variant Supporting Items
         this.cTag(LCTags.Items.VARIANT_WANDS)
-                .add(ModItems.VARIANT_WAND)
-                .addOptional(AllItems.WRENCH);
+                .add(ModItems.VARIANT_WAND);
 
         ///VANILLA TAGS
         //Add non-copper coins to beacon payment items
@@ -275,6 +273,17 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.PORTABLE_TERMINAL)
                 .add(ModItems.PORTABLE_GEM_TERMINAL)
                 .add(ModItems.PORTABLE_ATM);
+
+        //Create Items
+        if(ModList.get().isLoaded("create"))
+        {
+            this.cTag(LCTags.Items.VARIANT_WANDS)
+                    .addOptional(AllItems.WRENCH);
+            this.cTag(LCTags.Items.SETTINGS_WRITABLE)
+                    .addOptional(AllBlocks.CLIPBOARD);
+            this.cTag(LCTags.Items.SETTINGS_READABLE)
+                    .addOptional(AllBlocks.CLIPBOARD);
+        }
 
     }
 

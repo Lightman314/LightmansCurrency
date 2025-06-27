@@ -1707,18 +1707,16 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		}
 		if(message.contains("ForceIgnoreTaxCollector"))
 		{
-			ITaxCollector entry = TaxAPI.API.GetTaxCollector(this,message.getLong("ForceIgnoreTaxCollector"));
-			if(entry != null && entry.IsInArea(this))
+			if(LCAdminMode.isAdminPlayer(player))
 			{
-				if(this.ignoredTaxCollectors.contains(entry.getID()))
-					return;
-				if(!LCAdminMode.isAdminPlayer(player))
+				ITaxCollector entry = TaxAPI.API.GetTaxCollector(this,message.getLong("ForceIgnoreTaxCollector"));
+				if(entry != null && entry.IsInArea(this))
 				{
-					Permissions.PermissionWarning(player, "ignore tax collector", Permissions.ADMIN_MODE);
-					return;
+					if(this.ignoredTaxCollectors.contains(entry.getID()))
+						return;
+					this.ignoredTaxCollectors.add(entry.getID());
+					this.markDirty(this::saveTaxSettings);
 				}
-				this.ignoredTaxCollectors.add(entry.getID());
-				this.markDirty(this::saveTaxSettings);
 			}
 		}
 		if(message.contains("PardonTaxCollector"))
@@ -1739,7 +1737,6 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 			{
 				boolean fullClear = message.getBoolean("ClearStats");
 				this.statTracker.clear(fullClear);
-				this.markDirty(this::saveStatistics);
 			}
 		}
 	}
@@ -1812,6 +1809,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		return tabs;
 	}
 
+	@OnlyIn(Dist.CLIENT)
 	protected void addInfoTabs(TraderInfoClientTab tab, List<InfoSubTab> tabs) { }
 
 	@OnlyIn(Dist.CLIENT)

@@ -16,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_v
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantPropertyWithDefault;
 import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import io.github.lightman314.lightmanscurrency.util.WildcardTargetSelector;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -226,17 +227,17 @@ public class ModelVariant {
 
         if(json.has("targetSelector"))
         {
-            List<TargetSelector> targetSelectors = new ArrayList<>();
+            List<WildcardTargetSelector> targetSelectors = new ArrayList<>();
             JsonElement targetElement = json.get("targetSelector");
             if(targetElement.isJsonPrimitive())
             {
-                targetSelectors.add(TargetSelector.parse(GsonHelper.getAsString(json,"targetSelector")));
+                targetSelectors.add(WildcardTargetSelector.parse(GsonHelper.getAsString(json,"targetSelector")));
             }
             else
             {
                 JsonArray array = GsonHelper.getAsJsonArray(json,"targetSelector");
                 for(int i = 0; i < array.size(); ++i)
-                    targetSelectors.add(TargetSelector.parse(GsonHelper.convertToString(array.get(i),"targetSelector[" + i + "]")));
+                    targetSelectors.add(WildcardTargetSelector.parse(GsonHelper.convertToString(array.get(i),"targetSelector[" + i + "]")));
             }
             //Check every block to see if it matches the target selector
             List<ResourceLocation> addedTargets = testSelectors(targetSelectors);
@@ -507,7 +508,7 @@ public class ModelVariant {
         }
     }
 
-    private static List<ResourceLocation> testSelectors(List<TargetSelector> targetSelectors)
+    private static List<ResourceLocation> testSelectors(List<WildcardTargetSelector> targetSelectors)
     {
         List<ResourceLocation> results = new ArrayList<>();
         for(Map.Entry<ResourceKey<Block>,Block> entry : BuiltInRegistries.BLOCK.entrySet())
@@ -518,55 +519,10 @@ public class ModelVariant {
         return results;
     }
 
-    private static boolean matchesSelectors(ResourceLocation id, List<TargetSelector> targetSelectors)
+    private static boolean matchesSelectors(ResourceLocation id, List<WildcardTargetSelector> targetSelectors)
     {
         String idString = id.toString();
         return targetSelectors.stream().anyMatch(s -> s.matches(idString));
-    }
-
-    private record TargetSelector(String testString, TestType test)
-    {
-        enum TestType { START(true,false), CONTAINS(true,true), END(false,true);
-            final boolean start;
-            final boolean end;
-            TestType(boolean start,boolean end) { this.start = start; this.end = end; }
-        }
-        boolean matches(String idString)
-        {
-            return switch (this.test) {
-                case START -> idString.startsWith(this.testString);
-                case CONTAINS -> idString.contains(this.testString);
-                case END -> idString.endsWith(this.testString);
-            };
-        }
-
-        public static TargetSelector parse(String selector) throws JsonSyntaxException
-        {
-            boolean end = selector.startsWith("*");
-            if(end)
-                selector = selector.substring(1);
-            boolean start = selector.endsWith("*");
-            if(start)
-                selector = selector.substring(0,selector.length() - 1);
-            if(start && !end)
-                return new TargetSelector(selector,TestType.START);
-            else if(end && !start)
-                return new TargetSelector(selector,TestType.END);
-            else
-                return new TargetSelector(selector,TestType.CONTAINS);
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder builder = new StringBuilder();
-            if(this.test.end)
-                builder.append("*");
-            builder.append(this.testString);
-            if(this.test.start)
-                builder.append("*");
-            return builder.toString();
-        }
-
     }
 
     private static class VariantSorter implements Comparator<Pair<ResourceLocation,ModelVariant>>

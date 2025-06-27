@@ -56,7 +56,7 @@ public class VariantSelectScreen extends EasyMenuScreen<VariantSelectMenu> imple
         temp.add(Pair.of(null, DefaultModelVariant.of(this.getMenu().getVariantBlock())));
         for(ResourceLocation id : this.getMenu().getVariantBlock().getValidVariants())
         {
-            if(creative || !LCConfig.SERVER.variantBlacklist.get().contains(id))
+            if(creative || !LCConfig.SERVER.variantBlacklist.matches(id))
             {
                 ModelVariant variant = ModelVariantDataManager.getVariant(id);
                 if(variant != null && (creative || !variant.getOrDefault(VariantProperties.HIDDEN)))
