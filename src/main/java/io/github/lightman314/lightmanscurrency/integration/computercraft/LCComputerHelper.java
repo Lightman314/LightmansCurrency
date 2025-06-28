@@ -41,9 +41,8 @@ public class LCComputerHelper {
 
     public static List<TraderPeripheralSource> peripheralSources = new ArrayList<>();
 
-    public static void setup()
+    public static void setup(IEventBus modBus)
     {
-        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
         LCPocketUpgrades.init(modBus);
         //Register Event Listener
         modBus.addListener(LCComputerHelper::registerPeripheralProviders);

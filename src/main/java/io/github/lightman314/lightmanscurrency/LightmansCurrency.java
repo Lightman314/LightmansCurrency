@@ -48,7 +48,7 @@ import io.github.lightman314.lightmanscurrency.integration.biomesoplenty.BOPCust
 import io.github.lightman314.lightmanscurrency.integration.bwg.BWGCustomWoodTypes;
 import io.github.lightman314.lightmanscurrency.integration.claiming.cadmus.LCCadmusIntegration;
 import io.github.lightman314.lightmanscurrency.integration.claiming.flan.LCFlanIntegration;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.LCComputerHelper;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.LCComputercraftSetup;
 import io.github.lightman314.lightmanscurrency.integration.create.LCCreate;
 import io.github.lightman314.lightmanscurrency.integration.discord.LCDiscord;
 import io.github.lightman314.lightmanscurrency.integration.claiming.ftbchunks.LCFTBChunksIntegration;
@@ -142,7 +142,7 @@ public class LightmansCurrency {
 		IntegrationUtil.SafeRunIfLoaded("flan", LCFlanIntegration::setup, "Error setting up Flans chunk purchasing integration!");
 		IntegrationUtil.SafeRunIfLoaded("immersiveengineering", LCImmersive::registerRotationBlacklists, null);
 		IntegrationUtil.SafeRunIfLoaded("create", LCCreate::init, "Error settings up Create Integration!");
-		IntegrationUtil.SafeRunIfLoaded("computercraft", LCComputerHelper::setup, "Error settings up ComputerCraft Integration!");
+		IntegrationUtil.SafeRunIfLoaded("computercraft", LCComputercraftSetup::setup, "Error settings up ComputerCraft Integration!");
 
     }
 
