@@ -531,7 +531,7 @@ public class ModelVariant {
             if(idA == null)
                 return -1;
             if(idB == null)
-                return -1;
+                return 1;
             ModelVariant varA = a.getSecond();
             ModelVariant varB = b.getSecond();
             String nameA = varA.getName().getString();
