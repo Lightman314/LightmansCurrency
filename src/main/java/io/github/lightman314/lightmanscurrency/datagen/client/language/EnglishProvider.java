@@ -1318,6 +1318,12 @@ public class EnglishProvider extends TranslationProvider {
         this.add("config.jade.plugin_lightmanscurrency.model_variant.locked","Model Variant Locked Status");
         this.add("config.jade.plugin_lightmanscurrency.paygate","Paygate Info");
 
+        //Create Attributes
+        this.add("create.item_attributes.lightmanscurrency.model_variant","Has the Model Variant '%s'");
+        this.add("create.item_attributes.lightmanscurrency.model_variant.inverted","Does not have the Model Variant '%s'");
+        this.add("create.item_attributes.lightmanscurrency.model_variant.null","Does not have any Model Variant");
+        this.add("create.item_attributes.lightmanscurrency.model_variant.null.inverted","Has any Model Variant");
+
     }
 
 }

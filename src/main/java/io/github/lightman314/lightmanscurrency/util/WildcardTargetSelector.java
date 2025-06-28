@@ -4,7 +4,7 @@ import com.google.gson.JsonSyntaxException;
 
 public record WildcardTargetSelector(String testString, TestType test)
 {
-    enum TestType { START(true,false), CONTAINS(true,true), END(false,true);
+    enum TestType { START(true,false), CONTAINS(true,true), END(false,true), EQUALS(false,false);
         final boolean start;
         final boolean end;
         TestType(boolean start,boolean end) { this.start = start; this.end = end; }
@@ -15,6 +15,7 @@ public record WildcardTargetSelector(String testString, TestType test)
             case START -> idString.startsWith(this.testString);
             case CONTAINS -> idString.contains(this.testString);
             case END -> idString.endsWith(this.testString);
+            case EQUALS -> idString.equals(this.testString);
         };
     }
 
@@ -26,12 +27,20 @@ public record WildcardTargetSelector(String testString, TestType test)
         boolean start = selector.endsWith("*");
         if(start)
             selector = selector.substring(0,selector.length() - 1);
-        if(start && !end)
-            return new WildcardTargetSelector(selector,TestType.START);
-        else if(end && !start)
-            return new WildcardTargetSelector(selector,TestType.END);
+        if(start)
+        {
+            if(end)
+                return new WildcardTargetSelector(selector,TestType.CONTAINS);
+            else
+                return new WildcardTargetSelector(selector,TestType.START);
+        }
         else
-            return new WildcardTargetSelector(selector,TestType.CONTAINS);
+        {
+            if(end)
+                return new WildcardTargetSelector(selector,TestType.END);
+            else
+                return new WildcardTargetSelector(selector,TestType.EQUALS);
+        }
     }
 
     @Override
