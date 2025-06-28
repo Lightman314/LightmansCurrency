@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "b b",
+    "bdb",
+    " b "
+  ],
+  "key": {
+    "b": {
+      "tag": "forge:ingots/brick"
+    },
+    "d": {
+      "tag": "forge:dyes/blue"
+    }
+  },
+  "result": {
+    "item": "lightmanscurrency:coinjar_blue"
+  }
+}

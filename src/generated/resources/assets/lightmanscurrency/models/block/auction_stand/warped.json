@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:block/auction_stand/base",
+  "textures": {
+    "log": "minecraft:block/warped_stem",
+    "log_top": "minecraft:block/warped_stem_top"
+  }
+}

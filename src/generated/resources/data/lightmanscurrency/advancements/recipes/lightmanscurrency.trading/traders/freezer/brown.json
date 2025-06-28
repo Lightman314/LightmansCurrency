@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:traders/freezer/brown"
+    ]
+  },
+  "criteria": {
+    "money": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:coins"
+          }
+        ]
+      }
+    },
+    "trader": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:trader"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "lightmanscurrency:traders/freezer/brown"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "money",
+      "trader",
+      "has_the_recipe"
+    ]
+  ]
+}

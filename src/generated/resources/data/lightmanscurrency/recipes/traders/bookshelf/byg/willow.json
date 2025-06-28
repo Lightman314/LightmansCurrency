@@ -1,0 +1,36 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "modid": "byg",
+          "type": "forge:mod_loaded"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "group": "bookshelf_trader",
+        "pattern": [
+          "ppp",
+          "sxs",
+          "ppp"
+        ],
+        "key": {
+          "x": {
+            "item": "lightmanscurrency:trading_core"
+          },
+          "p": {
+            "item": "byg:willow_planks"
+          },
+          "s": {
+            "item": "byg:willow_slab"
+          }
+        },
+        "result": {
+          "item": "lightmanscurrency:bookshelf_trader_byg_willow"
+        }
+      }
+    }
+  ]
+}

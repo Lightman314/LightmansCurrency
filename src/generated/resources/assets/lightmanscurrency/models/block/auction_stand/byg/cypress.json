@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:block/auction_stand/base",
+  "textures": {
+    "log": "byg:block/cypress_log",
+    "log_top": "byg:block/cypress_log_top"
+  }
+}

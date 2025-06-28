@@ -1,0 +1,36 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "modid": "biomesoplenty",
+          "type": "forge:mod_loaded"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "group": "bookshelf_trader",
+        "pattern": [
+          "ppp",
+          "sxs",
+          "ppp"
+        ],
+        "key": {
+          "x": {
+            "item": "lightmanscurrency:trading_core"
+          },
+          "p": {
+            "item": "biomesoplenty:magic_planks"
+          },
+          "s": {
+            "item": "biomesoplenty:magic_slab"
+          }
+        },
+        "result": {
+          "item": "lightmanscurrency:bookshelf_trader_biomesoplenty_magic"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "lightmanscurrency:block/card_display/base",
+  "textures": {
+    "log": "byg:block/embur_pedu",
+    "logtop": "byg:block/embur_pedu",
+    "plank": "byg:block/embur_planks"
+  }
+}

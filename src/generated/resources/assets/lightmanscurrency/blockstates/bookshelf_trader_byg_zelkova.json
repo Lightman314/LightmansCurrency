@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "lightmanscurrency:block/bookshelf_trader/byg/zelkova"
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/bookshelf_trader/byg/zelkova",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/bookshelf_trader/byg/zelkova",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "lightmanscurrency:block/bookshelf_trader/byg/zelkova",
+      "y": 90
+    }
+  }
+}

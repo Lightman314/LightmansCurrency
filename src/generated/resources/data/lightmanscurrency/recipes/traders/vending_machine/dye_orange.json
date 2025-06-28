@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "vending_machine_dyes",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:vending_machine"
+    },
+    {
+      "tag": "forge:dyes/orange"
+    }
+  ],
+  "result": {
+    "item": "lightmanscurrency:vending_machine_orange"
+  }
+}

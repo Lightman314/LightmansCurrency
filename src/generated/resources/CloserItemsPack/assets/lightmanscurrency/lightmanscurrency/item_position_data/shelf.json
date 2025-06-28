@@ -1,0 +1,17 @@
+{
+  "Scale": 0.875,
+  "RotationType": "FACING",
+  "ExtraCount": 1,
+  "offsetX": 1.0E-4,
+  "offsetY": 1.0E-4,
+  "offsetZ": -0.1,
+  "Entries": [
+    {
+      "Position": {
+        "x": 0.5,
+        "y": 0.5625,
+        "z": 0.90625
+      }
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "advancements": [
+    {
+      "conditions": [
+        {
+          "modid": "biomesoplenty",
+          "type": "forge:mod_loaded"
+        }
+      ],
+      "advancement": {
+        "parent": "minecraft:recipes/root",
+        "rewards": {
+          "recipes": [
+            "lightmanscurrency:traders/shelf2/biomesoplenty/redwood"
+          ]
+        },
+        "criteria": {
+          "money": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+              "items": [
+                {
+                  "tag": "lightmanscurrency:coins"
+                }
+              ]
+            }
+          },
+          "trader": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+              "items": [
+                {
+                  "tag": "lightmanscurrency:trader"
+                }
+              ]
+            }
+          },
+          "shelf": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+              "items": [
+                {
+                  "items": [
+                    "lightmanscurrency:shelf_biomesoplenty_redwood"
+                  ]
+                }
+              ]
+            }
+          },
+          "has_the_recipe": {
+            "trigger": "minecraft:recipe_unlocked",
+            "conditions": {
+              "recipe": "lightmanscurrency:traders/shelf2/biomesoplenty/redwood"
+            }
+          }
+        },
+        "requirements": [
+          [
+            "money",
+            "trader",
+            "shelf",
+            "has_the_recipe"
+          ]
+        ]
+      }
+    }
+  ]
+}

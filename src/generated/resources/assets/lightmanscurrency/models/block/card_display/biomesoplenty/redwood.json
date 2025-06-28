@@ -1,0 +1,8 @@
+{
+  "parent": "lightmanscurrency:block/card_display/base",
+  "textures": {
+    "log": "biomesoplenty:block/redwood_log",
+    "logtop": "biomesoplenty:block/redwood_log_top",
+    "plank": "biomesoplenty:block/redwood_planks"
+  }
+}

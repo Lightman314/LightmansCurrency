@@ -1,0 +1,55 @@
+{
+  "advancements": [
+    {
+      "conditions": [
+        {
+          "modid": "biomesoplenty",
+          "type": "forge:mod_loaded"
+        }
+      ],
+      "advancement": {
+        "parent": "minecraft:recipes/root",
+        "rewards": {
+          "recipes": [
+            "lightmanscurrency:traders/bookshelf/biomesoplenty/umbran"
+          ]
+        },
+        "criteria": {
+          "money": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+              "items": [
+                {
+                  "tag": "lightmanscurrency:coins"
+                }
+              ]
+            }
+          },
+          "trader": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+              "items": [
+                {
+                  "tag": "lightmanscurrency:trader"
+                }
+              ]
+            }
+          },
+          "has_the_recipe": {
+            "trigger": "minecraft:recipe_unlocked",
+            "conditions": {
+              "recipe": "lightmanscurrency:traders/bookshelf/biomesoplenty/umbran"
+            }
+          }
+        },
+        "requirements": [
+          [
+            "money",
+            "trader",
+            "has_the_recipe"
+          ]
+        ]
+      }
+    }
+  ]
+}

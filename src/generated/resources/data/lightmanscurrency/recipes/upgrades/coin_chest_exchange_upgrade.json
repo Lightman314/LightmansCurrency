@@ -1,0 +1,24 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "lightmanscurrency:coin_chest_exchange_craftable"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:smithing",
+        "base": {
+          "item": "lightmanscurrency:atm"
+        },
+        "addition": {
+          "tag": "forge:dusts/redstone"
+        },
+        "result": {
+          "item": "lightmanscurrency:coin_chest_exchange_upgrade"
+        }
+      }
+    }
+  ]
+}

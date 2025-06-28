@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "lightmanscurrency:block/bookshelf_trader/byg/green_enchanted"
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/bookshelf_trader/byg/green_enchanted",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/bookshelf_trader/byg/green_enchanted",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "lightmanscurrency:block/bookshelf_trader/byg/green_enchanted",
+      "y": 90
+    }
+  }
+}

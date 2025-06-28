@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "lightmanscurrency:block/shelf2/jungle"
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/shelf2/jungle",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/shelf2/jungle",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "lightmanscurrency:block/shelf2/jungle",
+      "y": 90
+    }
+  }
+}

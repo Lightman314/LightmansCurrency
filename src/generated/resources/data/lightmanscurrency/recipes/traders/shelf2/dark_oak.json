@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "shelf_trader_2x2",
+  "pattern": [
+    "c",
+    "x",
+    "s"
+  ],
+  "key": {
+    "c": {
+      "tag": "forge:chests/wooden"
+    },
+    "x": {
+      "item": "lightmanscurrency:shelf_dark_oak"
+    },
+    "s": {
+      "item": "minecraft:dark_oak_slab"
+    }
+  },
+  "result": {
+    "item": "lightmanscurrency:shelf_2x2_dark_oak"
+  }
+}

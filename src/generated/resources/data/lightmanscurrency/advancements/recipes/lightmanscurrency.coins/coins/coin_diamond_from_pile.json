@@ -1,0 +1,45 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:coins/coin_diamond_from_pile"
+    ]
+  },
+  "criteria": {
+    "money": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:coins"
+          }
+        ]
+      }
+    },
+    "pile": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "lightmanscurrency:coinpile_diamond"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "lightmanscurrency:coins/coin_diamond_from_pile"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "money",
+      "pile",
+      "has_the_recipe"
+    ]
+  ]
+}

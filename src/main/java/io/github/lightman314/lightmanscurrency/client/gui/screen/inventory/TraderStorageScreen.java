@@ -307,9 +307,7 @@ public class TraderStorageScreen extends EasyMenuScreen<TraderStorageMenu> {
 	{
 		if(this.currentTab().getTradeRuleTradeIndex() < 0)
 			return;
-		CompoundTag message = new CompoundTag();
-		message.putInt("TradeIndex", this.currentTab().getTradeRuleTradeIndex());
-		this.changeTab(TraderStorageTab.TAB_RULES_TRADE, true, message);
+		this.changeTab(TraderStorageTab.TAB_RULES_TRADE, true, LazyPacketData.builder().setInt("TradeIndex",this.currentTab().getTradeRuleTradeIndex()));
 	}
 
 }

@@ -1,0 +1,8 @@
+{
+  "parent": "lightmanscurrency:block/card_display/base",
+  "textures": {
+    "log": "byg:block/ebony_log",
+    "logtop": "byg:block/ebony_log_top",
+    "plank": "byg:block/ebony_planks"
+  }
+}

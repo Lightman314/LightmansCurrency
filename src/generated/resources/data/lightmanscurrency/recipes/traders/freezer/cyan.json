@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "freezer_crafting",
+  "pattern": [
+    "igi",
+    "igi",
+    "cxc"
+  ],
+  "key": {
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    },
+    "g": {
+      "tag": "forge:glass/colorless"
+    },
+    "i": {
+      "item": "minecraft:cyan_concrete_powder"
+    },
+    "c": {
+      "tag": "forge:chests/wooden"
+    }
+  },
+  "result": {
+    "item": "lightmanscurrency:freezer_cyan"
+  }
+}

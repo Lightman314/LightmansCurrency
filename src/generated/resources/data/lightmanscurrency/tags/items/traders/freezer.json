@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    "lightmanscurrency:freezer_white",
+    "lightmanscurrency:freezer_light_gray",
+    "lightmanscurrency:freezer_gray",
+    "lightmanscurrency:freezer",
+    "lightmanscurrency:freezer_brown",
+    "lightmanscurrency:freezer_red",
+    "lightmanscurrency:freezer_orange",
+    "lightmanscurrency:freezer_yellow",
+    "lightmanscurrency:freezer_lime",
+    "lightmanscurrency:freezer_green",
+    "lightmanscurrency:freezer_cyan",
+    "lightmanscurrency:freezer_light_blue",
+    "lightmanscurrency:freezer_blue",
+    "lightmanscurrency:freezer_purple",
+    "lightmanscurrency:freezer_magenta",
+    "lightmanscurrency:freezer_pink"
+  ]
+}

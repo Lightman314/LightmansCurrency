@@ -1,0 +1,32 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "modid": "biomesoplenty",
+          "type": "forge:mod_loaded"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "group": "shelf_trader",
+        "pattern": [
+          "x",
+          "s"
+        ],
+        "key": {
+          "x": {
+            "item": "lightmanscurrency:trading_core"
+          },
+          "s": {
+            "item": "biomesoplenty:jacaranda_slab"
+          }
+        },
+        "result": {
+          "item": "lightmanscurrency:shelf_biomesoplenty_jacaranda"
+        }
+      }
+    }
+  ]
+}

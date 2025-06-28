@@ -1,0 +1,39 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "lightmanscurrency:auction_stand_craftable"
+        },
+        {
+          "modid": "byg",
+          "type": "forge:mod_loaded"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "group": "auction_stand",
+        "pattern": [
+          "g",
+          "x",
+          "l"
+        ],
+        "key": {
+          "x": {
+            "item": "lightmanscurrency:trading_core"
+          },
+          "g": {
+            "tag": "forge:glass/colorless"
+          },
+          "l": {
+            "item": "byg:bulbis_stem"
+          }
+        },
+        "result": {
+          "item": "lightmanscurrency:auction_stand_byg_bulbis"
+        }
+      }
+    }
+  ]
+}

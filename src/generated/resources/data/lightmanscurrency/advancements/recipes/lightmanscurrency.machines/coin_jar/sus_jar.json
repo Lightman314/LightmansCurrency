@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:coin_jar/sus_jar"
+    ]
+  },
+  "criteria": {
+    "money": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:coins"
+          }
+        ]
+      }
+    },
+    "jar": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:coin_jar/all"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "lightmanscurrency:coin_jar/sus_jar"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "money",
+      "jar",
+      "has_the_recipe"
+    ]
+  ]
+}

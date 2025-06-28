@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "lightmanscurrency:block/bookshelf_trader/biomesoplenty/fir"
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/bookshelf_trader/biomesoplenty/fir",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/bookshelf_trader/biomesoplenty/fir",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "lightmanscurrency:block/bookshelf_trader/biomesoplenty/fir",
+      "y": 90
+    }
+  }
+}

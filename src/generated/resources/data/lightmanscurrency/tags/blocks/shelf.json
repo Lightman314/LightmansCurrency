@@ -1,0 +1,173 @@
+{
+  "replace": false,
+  "values": [
+    "lightmanscurrency:shelf_oak",
+    "lightmanscurrency:shelf_spruce",
+    "lightmanscurrency:shelf_birch",
+    "lightmanscurrency:shelf_jungle",
+    "lightmanscurrency:shelf_acacia",
+    "lightmanscurrency:shelf_dark_oak",
+    "lightmanscurrency:shelf_crimson",
+    "lightmanscurrency:shelf_warped",
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_cherry",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_dead",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_magic",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_umbran",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_hellbark",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_aspen",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_baobab",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_blue_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_bulbis",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_cherry",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_cika",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_cypress",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_ebony",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_ether",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_green_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_holly",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_imparius",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_lament",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_mangrove",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_maple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_nightshade",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_pine",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_rainbow_eucalyptus",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_skyris",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_witch_hazel",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_zelkova",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_sythian",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_embur",
+      "required": false
+    }
+  ]
+}

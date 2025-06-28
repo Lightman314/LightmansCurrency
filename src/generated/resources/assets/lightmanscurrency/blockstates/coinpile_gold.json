@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,waterlogged=false": {
+      "model": "lightmanscurrency:block/coinpile_gold"
+    },
+    "facing=south,waterlogged=false": {
+      "model": "lightmanscurrency:block/coinpile_gold",
+      "y": 180
+    },
+    "facing=west,waterlogged=false": {
+      "model": "lightmanscurrency:block/coinpile_gold",
+      "y": 270
+    },
+    "facing=east,waterlogged=false": {
+      "model": "lightmanscurrency:block/coinpile_gold",
+      "y": 90
+    },
+    "facing=north,waterlogged=true": {
+      "model": "lightmanscurrency:block/coinpile_gold"
+    },
+    "facing=south,waterlogged=true": {
+      "model": "lightmanscurrency:block/coinpile_gold",
+      "y": 180
+    },
+    "facing=west,waterlogged=true": {
+      "model": "lightmanscurrency:block/coinpile_gold",
+      "y": 270
+    },
+    "facing=east,waterlogged=true": {
+      "model": "lightmanscurrency:block/coinpile_gold",
+      "y": 90
+    }
+  }
+}

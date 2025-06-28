@@ -1,0 +1,6 @@
+{
+  "parent": "lightmanscurrency:block/shelf/base",
+  "textures": {
+    "main": "byg:block/baobab_planks"
+  }
+}

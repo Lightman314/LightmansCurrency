@@ -1,0 +1,78 @@
+{
+  "advancements": [
+    {
+      "conditions": [
+        {
+          "type": "lightmanscurrency:network_trader_craftable"
+        }
+      ],
+      "advancement": {
+        "parent": "minecraft:recipes/root",
+        "rewards": {
+          "recipes": [
+            "lightmanscurrency:item_trader_server_lrg"
+          ]
+        },
+        "criteria": {
+          "money": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+              "items": [
+                {
+                  "tag": "lightmanscurrency:coins"
+                }
+              ]
+            }
+          },
+          "trader": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+              "items": [
+                {
+                  "tag": "lightmanscurrency:trader"
+                }
+              ]
+            }
+          },
+          "terminal": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+              "items": [
+                {
+                  "tag": "lightmanscurrency:network_terminal"
+                }
+              ]
+            }
+          },
+          "previous": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+              "items": [
+                {
+                  "items": [
+                    "lightmanscurrency:item_trader_server_med"
+                  ]
+                }
+              ]
+            }
+          },
+          "has_the_recipe": {
+            "trigger": "minecraft:recipe_unlocked",
+            "conditions": {
+              "recipe": "lightmanscurrency:item_trader_server_lrg"
+            }
+          }
+        },
+        "requirements": [
+          [
+            "money",
+            "trader",
+            "terminal",
+            "previous",
+            "has_the_recipe"
+          ]
+        ]
+      }
+    }
+  ]
+}

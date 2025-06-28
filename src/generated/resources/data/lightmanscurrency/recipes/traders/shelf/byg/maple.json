@@ -1,0 +1,32 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "modid": "byg",
+          "type": "forge:mod_loaded"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "group": "shelf_trader",
+        "pattern": [
+          "x",
+          "s"
+        ],
+        "key": {
+          "x": {
+            "item": "lightmanscurrency:trading_core"
+          },
+          "s": {
+            "item": "byg:maple_slab"
+          }
+        },
+        "result": {
+          "item": "lightmanscurrency:shelf_byg_maple"
+        }
+      }
+    }
+  ]
+}

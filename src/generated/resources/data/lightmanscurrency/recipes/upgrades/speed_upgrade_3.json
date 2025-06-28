@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smithing",
+  "base": {
+    "item": "lightmanscurrency:speed_upgrade_2"
+  },
+  "addition": {
+    "tag": "forge:gems/emerald"
+  },
+  "result": {
+    "item": "lightmanscurrency:speed_upgrade_3"
+  }
+}

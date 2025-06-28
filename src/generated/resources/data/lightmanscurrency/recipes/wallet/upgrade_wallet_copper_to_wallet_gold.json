@@ -1,0 +1,18 @@
+{
+  "type": "lightmanscurrency:crafting_wallet_upgrade",
+  "group": "wallet_upgrading",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:wallet_copper"
+    },
+    {
+      "tag": "forge:ingots/iron"
+    },
+    {
+      "tag": "forge:ingots/gold"
+    }
+  ],
+  "result": {
+    "item": "lightmanscurrency:wallet_gold"
+  }
+}

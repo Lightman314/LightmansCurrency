@@ -1,0 +1,8 @@
+{
+  "parent": "lightmanscurrency:block/card_display/base",
+  "textures": {
+    "log": "byg:block/palo_verde_log",
+    "logtop": "byg:block/palo_verde_log_top",
+    "plank": "minecraft:block/birch_planks"
+  }
+}

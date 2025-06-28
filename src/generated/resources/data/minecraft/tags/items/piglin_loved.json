@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "lightmanscurrency:coin_gold",
+    "lightmanscurrency:coinpile_gold",
+    "lightmanscurrency:coinblock_gold"
+  ]
+}

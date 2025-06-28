@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "lightmanscurrency:block/shelf/byg/embur"
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/shelf/byg/embur",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/shelf/byg/embur",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "lightmanscurrency:block/shelf/byg/embur",
+      "y": 90
+    }
+  }
+}

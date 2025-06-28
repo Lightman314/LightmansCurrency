@@ -1,0 +1,753 @@
+{
+  "replace": false,
+  "values": [
+    "lightmanscurrency:display_case",
+    "lightmanscurrency:vending_machine",
+    "lightmanscurrency:vending_machine_light_gray",
+    "lightmanscurrency:vending_machine_gray",
+    "lightmanscurrency:vending_machine_black",
+    "lightmanscurrency:vending_machine_brown",
+    "lightmanscurrency:vending_machine_red",
+    "lightmanscurrency:vending_machine_orange",
+    "lightmanscurrency:vending_machine_yellow",
+    "lightmanscurrency:vending_machine_lime",
+    "lightmanscurrency:vending_machine_green",
+    "lightmanscurrency:vending_machine_cyan",
+    "lightmanscurrency:vending_machine_light_blue",
+    "lightmanscurrency:vending_machine_blue",
+    "lightmanscurrency:vending_machine_purple",
+    "lightmanscurrency:vending_machine_magenta",
+    "lightmanscurrency:vending_machine_pink",
+    "lightmanscurrency:vending_machine_large",
+    "lightmanscurrency:vending_machine_large_light_gray",
+    "lightmanscurrency:vending_machine_large_gray",
+    "lightmanscurrency:vending_machine_large_black",
+    "lightmanscurrency:vending_machine_large_brown",
+    "lightmanscurrency:vending_machine_large_red",
+    "lightmanscurrency:vending_machine_large_orange",
+    "lightmanscurrency:vending_machine_large_yellow",
+    "lightmanscurrency:vending_machine_large_lime",
+    "lightmanscurrency:vending_machine_large_green",
+    "lightmanscurrency:vending_machine_large_cyan",
+    "lightmanscurrency:vending_machine_large_light_blue",
+    "lightmanscurrency:vending_machine_large_blue",
+    "lightmanscurrency:vending_machine_large_purple",
+    "lightmanscurrency:vending_machine_large_magenta",
+    "lightmanscurrency:vending_machine_large_pink",
+    "lightmanscurrency:shelf_oak",
+    "lightmanscurrency:shelf_spruce",
+    "lightmanscurrency:shelf_birch",
+    "lightmanscurrency:shelf_jungle",
+    "lightmanscurrency:shelf_acacia",
+    "lightmanscurrency:shelf_dark_oak",
+    "lightmanscurrency:shelf_crimson",
+    "lightmanscurrency:shelf_warped",
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_cherry",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_dead",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_magic",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_umbran",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_biomesoplenty_hellbark",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_aspen",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_baobab",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_blue_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_bulbis",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_cherry",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_cika",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_cypress",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_ebony",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_ether",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_green_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_holly",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_imparius",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_lament",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_mangrove",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_maple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_nightshade",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_pine",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_rainbow_eucalyptus",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_skyris",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_witch_hazel",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_zelkova",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_sythian",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_byg_embur",
+      "required": false
+    },
+    "lightmanscurrency:shelf_2x2_oak",
+    "lightmanscurrency:shelf_2x2_spruce",
+    "lightmanscurrency:shelf_2x2_birch",
+    "lightmanscurrency:shelf_2x2_jungle",
+    "lightmanscurrency:shelf_2x2_acacia",
+    "lightmanscurrency:shelf_2x2_dark_oak",
+    "lightmanscurrency:shelf_2x2_crimson",
+    "lightmanscurrency:shelf_2x2_warped",
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomesoplenty_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomesoplenty_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomesoplenty_cherry",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomesoplenty_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomesoplenty_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomesoplenty_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomesoplenty_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomesoplenty_dead",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomesoplenty_magic",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomesoplenty_umbran",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_biomesoplenty_hellbark",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_aspen",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_baobab",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_blue_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_bulbis",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_cherry",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_cika",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_cypress",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_ebony",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_ether",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_green_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_holly",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_imparius",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_lament",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_mangrove",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_maple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_nightshade",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_pine",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_rainbow_eucalyptus",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_skyris",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_witch_hazel",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_zelkova",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_sythian",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:shelf_2x2_byg_embur",
+      "required": false
+    },
+    "lightmanscurrency:card_display_oak",
+    "lightmanscurrency:card_display_spruce",
+    "lightmanscurrency:card_display_birch",
+    "lightmanscurrency:card_display_jungle",
+    "lightmanscurrency:card_display_acacia",
+    "lightmanscurrency:card_display_dark_oak",
+    "lightmanscurrency:card_display_crimson",
+    "lightmanscurrency:card_display_warped",
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_cherry",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_dead",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_magic",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_umbran",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_biomesoplenty_hellbark",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_aspen",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_baobab",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_blue_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_bulbis",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_cherry",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_cika",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_cypress",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_ebony",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_ether",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_green_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_holly",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_fungal_imparius",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_imparius",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_lament",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_mangrove",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_maple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_imbued_nightshade",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_nightshade",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_palo_verde",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_pine",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_rainbow_eucalyptus",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_skyris",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_witch_hazel",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_zelkova",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_sythian",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_embur",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:card_display_byg_withering_oak",
+      "required": false
+    },
+    "lightmanscurrency:armor_display",
+    "lightmanscurrency:freezer_white",
+    "lightmanscurrency:freezer_light_gray",
+    "lightmanscurrency:freezer_gray",
+    "lightmanscurrency:freezer",
+    "lightmanscurrency:freezer_brown",
+    "lightmanscurrency:freezer_red",
+    "lightmanscurrency:freezer_orange",
+    "lightmanscurrency:freezer_yellow",
+    "lightmanscurrency:freezer_lime",
+    "lightmanscurrency:freezer_green",
+    "lightmanscurrency:freezer_cyan",
+    "lightmanscurrency:freezer_light_blue",
+    "lightmanscurrency:freezer_blue",
+    "lightmanscurrency:freezer_purple",
+    "lightmanscurrency:freezer_magenta",
+    "lightmanscurrency:freezer_pink",
+    "lightmanscurrency:item_trader_server_sml",
+    "lightmanscurrency:item_trader_server_med",
+    "lightmanscurrency:item_trader_server_lrg",
+    "lightmanscurrency:item_trader_server_xlrg",
+    "lightmanscurrency:item_trader_interface",
+    "lightmanscurrency:paygate",
+    "lightmanscurrency:ticket_kiosk",
+    "lightmanscurrency:bookshelf_trader_oak",
+    "lightmanscurrency:bookshelf_trader_spruce",
+    "lightmanscurrency:bookshelf_trader_birch",
+    "lightmanscurrency:bookshelf_trader_jungle",
+    "lightmanscurrency:bookshelf_trader_acacia",
+    "lightmanscurrency:bookshelf_trader_dark_oak",
+    "lightmanscurrency:bookshelf_trader_crimson",
+    "lightmanscurrency:bookshelf_trader_warped",
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_cherry",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_dead",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_magic",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_umbran",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_biomesoplenty_hellbark",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_aspen",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_baobab",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_blue_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_bulbis",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_cherry",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_cika",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_cypress",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_ebony",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_ether",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_fir",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_green_enchanted",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_holly",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_imparius",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_lament",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_jacaranda",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_mahogany",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_mangrove",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_maple",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_nightshade",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_palm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_pine",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_rainbow_eucalyptus",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_redwood",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_skyris",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_willow",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_witch_hazel",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_zelkova",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_sythian",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:bookshelf_trader_byg_embur",
+      "required": false
+    },
+    "lightmanscurrency:slot_machine",
+    "lightmanscurrency:coin_chest",
+    "lightmanscurrency:tax_block"
+  ]
+}

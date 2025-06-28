@@ -1,0 +1,56 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:gem_terminal_swap"
+    ]
+  },
+  "criteria": {
+    "money": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:coins"
+          }
+        ]
+      }
+    },
+    "trader": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:trader"
+          }
+        ]
+      }
+    },
+    "other": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "lightmanscurrency:gem_terminal"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "lightmanscurrency:gem_terminal_swap"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "money",
+      "trader",
+      "other",
+      "has_the_recipe"
+    ]
+  ]
+}

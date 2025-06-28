@@ -1,0 +1,24 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "lightmanscurrency:coin_chest_security_craftable"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:smithing",
+        "base": {
+          "item": "minecraft:obsidian"
+        },
+        "addition": {
+          "tag": "forge:gems/diamond"
+        },
+        "result": {
+          "item": "lightmanscurrency:coin_chest_security_upgrade"
+        }
+      }
+    }
+  ]
+}

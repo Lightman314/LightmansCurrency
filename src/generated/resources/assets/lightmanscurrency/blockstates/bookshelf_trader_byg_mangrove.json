@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "lightmanscurrency:block/bookshelf_trader/byg/mangrove"
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/bookshelf_trader/byg/mangrove",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/bookshelf_trader/byg/mangrove",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "lightmanscurrency:block/bookshelf_trader/byg/mangrove",
+      "y": 90
+    }
+  }
+}

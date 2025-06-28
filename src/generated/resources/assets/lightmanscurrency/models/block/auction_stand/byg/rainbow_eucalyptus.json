@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:block/auction_stand/base",
+  "textures": {
+    "log": "byg:block/rainbow_eucalyptus_log",
+    "log_top": "byg:block/rainbow_eucalyptus_log_top"
+  }
+}

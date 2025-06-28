@@ -1,0 +1,13 @@
+{
+  "Entries": [
+    {
+      "Position": {
+        "x": 0.5,
+        "y": 0.75,
+        "z": 0.5
+      },
+      "Scale": 0.4,
+      "RotationType": "SPINNING"
+    }
+  ]
+}

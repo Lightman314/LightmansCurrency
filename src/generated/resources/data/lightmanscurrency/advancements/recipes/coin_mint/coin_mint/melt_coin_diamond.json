@@ -1,0 +1,45 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:coin_mint/melt_coin_diamond"
+    ]
+  },
+  "criteria": {
+    "money": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:coins"
+          }
+        ]
+      }
+    },
+    "coin_mint": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "lightmanscurrency:coinmint"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "lightmanscurrency:coin_mint/melt_coin_diamond"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "money",
+      "coin_mint",
+      "has_the_recipe"
+    ]
+  ]
+}

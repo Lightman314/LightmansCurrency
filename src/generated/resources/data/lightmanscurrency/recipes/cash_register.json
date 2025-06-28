@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "iii",
+    "ede",
+    "iii"
+  ],
+  "key": {
+    "i": {
+      "tag": "forge:ingots/iron"
+    },
+    "e": {
+      "item": "minecraft:ender_pearl"
+    },
+    "d": {
+      "item": "minecraft:dropper"
+    }
+  },
+  "result": {
+    "item": "lightmanscurrency:cash_register"
+  }
+}

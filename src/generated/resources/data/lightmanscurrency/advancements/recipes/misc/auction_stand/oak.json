@@ -1,0 +1,65 @@
+{
+  "advancements": [
+    {
+      "conditions": [
+        {
+          "type": "lightmanscurrency:auction_stand_craftable"
+        }
+      ],
+      "advancement": {
+        "parent": "minecraft:recipes/root",
+        "rewards": {
+          "recipes": [
+            "lightmanscurrency:auction_stand/oak"
+          ]
+        },
+        "criteria": {
+          "money": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+              "items": [
+                {
+                  "tag": "lightmanscurrency:coins"
+                }
+              ]
+            }
+          },
+          "trader": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+              "items": [
+                {
+                  "tag": "lightmanscurrency:trader"
+                }
+              ]
+            }
+          },
+          "terminal": {
+            "trigger": "minecraft:inventory_changed",
+            "conditions": {
+              "items": [
+                {
+                  "tag": "lightmanscurrency:network_terminal"
+                }
+              ]
+            }
+          },
+          "has_the_recipe": {
+            "trigger": "minecraft:recipe_unlocked",
+            "conditions": {
+              "recipe": "lightmanscurrency:auction_stand/oak"
+            }
+          }
+        },
+        "requirements": [
+          [
+            "money",
+            "trader",
+            "terminal",
+            "has_the_recipe"
+          ]
+        ]
+      }
+    }
+  ]
+}

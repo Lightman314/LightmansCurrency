@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:block/auction_stand/base",
+  "textures": {
+    "log": "byg:block/imparius_stem",
+    "log_top": "byg:block/imparius_stem_top"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "lightmanscurrency:block/card_display/base",
+  "textures": {
+    "log": "byg:block/lament_log",
+    "logtop": "byg:block/lament_log_top",
+    "plank": "byg:block/lament_planks"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:block/auction_stand/base",
+  "textures": {
+    "log": "byg:block/embur_pedu",
+    "log_top": "byg:block/embur_pedu"
+  }
+}

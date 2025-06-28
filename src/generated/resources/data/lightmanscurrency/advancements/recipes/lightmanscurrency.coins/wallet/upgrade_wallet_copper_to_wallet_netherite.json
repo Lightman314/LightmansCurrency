@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:wallet/upgrade_wallet_copper_to_wallet_netherite"
+    ]
+  },
+  "criteria": {
+    "coin": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:coins"
+          }
+        ]
+      }
+    },
+    "wallet": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:wallet"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "lightmanscurrency:wallet/upgrade_wallet_copper_to_wallet_netherite"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "coin",
+      "wallet",
+      "has_the_recipe"
+    ]
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "#lightmanscurrency:trader_normal",
+    "#lightmanscurrency:trader_specialty",
+    "#lightmanscurrency:trader_network"
+  ]
+}

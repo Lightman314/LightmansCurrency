@@ -1,0 +1,39 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "modid": "byg",
+          "type": "forge:mod_loaded"
+        }
+      ],
+      "recipe": {
+        "type": "minecraft:crafting_shaped",
+        "group": "card_display_trader",
+        "pattern": [
+          "  w",
+          " xl",
+          "llc"
+        ],
+        "key": {
+          "x": {
+            "item": "lightmanscurrency:trading_core"
+          },
+          "l": {
+            "item": "byg:cika_log"
+          },
+          "w": {
+            "item": "minecraft:red_wool"
+          },
+          "c": {
+            "tag": "forge:chests/wooden"
+          }
+        },
+        "result": {
+          "item": "lightmanscurrency:card_display_byg_cika"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "lightmanscurrency:block/shelf2/base",
+  "textures": {
+    "main": "byg:block/blue_enchanted_planks"
+  }
+}

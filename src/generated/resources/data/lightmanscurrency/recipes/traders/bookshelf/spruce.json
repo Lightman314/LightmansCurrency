@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "bookshelf_trader",
+  "pattern": [
+    "ppp",
+    "sxs",
+    "ppp"
+  ],
+  "key": {
+    "x": {
+      "item": "lightmanscurrency:trading_core"
+    },
+    "p": {
+      "item": "minecraft:spruce_planks"
+    },
+    "s": {
+      "item": "minecraft:spruce_slab"
+    }
+  },
+  "result": {
+    "item": "lightmanscurrency:bookshelf_trader_spruce"
+  }
+}
