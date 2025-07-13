@@ -154,7 +154,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	}
 	
 	@Override
-	public ItemTradeData deserializeTrade(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { return ItemTradeData.loadData(compound, false, lookup); }
+	public ItemTradeData deserializeTrade(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { return ItemTradeData.loadData(compound, () -> new ItemTradeData(false), lookup); }
 	
 	@Override
 	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {

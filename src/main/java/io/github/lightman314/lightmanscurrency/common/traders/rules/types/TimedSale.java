@@ -4,6 +4,8 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.ICopySupportingRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
@@ -30,7 +32,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class TimedSale extends PriceTweakingTradeRule {
+public class TimedSale extends PriceTweakingTradeRule implements ICopySupportingRule {
 
 	public static final TradeRuleType<TimedSale> TYPE = new TradeRuleType<>(VersionUtil.lcResource("timed_sale"),TimedSale::new);
 	
@@ -132,7 +134,26 @@ public class TimedSale extends PriceTweakingTradeRule {
 			this.discount = compound.getInt("discount");
 		
 	}
-	
+
+	@Override
+	public void writeSettings(SavedSettingData.MutableNodeAccess node) {
+		node.setIntValue("discount",this.discount);
+		node.setLongValue("duration",this.duration);
+	}
+
+	@Override
+	public void loadSettings(SavedSettingData.NodeAccess node) {
+		this.discount = Math.max(1,node.getIntValue("discount"));
+		this.duration = node.getLongValue("duration");
+	}
+
+	@Override
+	public void resetToDefaultState() {
+		this.discount = 10;
+		this.duration = 0;
+		this.startTime = 0;
+	}
+
 	@Override
 	public void loadFromJson(JsonObject json, HolderLookup.Provider lookup) {
 		if(json.has("duration"))

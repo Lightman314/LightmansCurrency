@@ -135,13 +135,6 @@ public abstract class TradeData implements ITradeRuleHost {
 		
 		return tradeNBT;
 	}
-
-	public final CompoundTag saveWithoutRules(@Nonnull HolderLookup.Provider lookup)
-	{
-		CompoundTag tag = this.getAsNBT(lookup);
-		tag.remove("RuleData");
-		return tag;
-	}
 	
 	protected void loadFromNBT(CompoundTag nbt, @Nonnull HolderLookup.Provider lookup)
 	{

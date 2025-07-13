@@ -1,0 +1,7 @@
+{
+  "type": "lightmanscurrency:coupon",
+  "ingredient": {
+    "tag": "lightmanscurrency:ticket_material/paper"
+  },
+  "result": "lightmanscurrency:coupon"
+}

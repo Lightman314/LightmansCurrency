@@ -4,10 +4,11 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
-import io.github.lightman314.lightmanscurrency.common.crafting.input.ListRecipeInput;
+import io.github.lightman314.lightmanscurrency.common.crafting.input.TicketStationRecipeInput;
 import io.github.lightman314.lightmanscurrency.common.data.types.TicketDataCache;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketModifierSlot;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -22,8 +23,11 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.neoforged.neoforge.common.Tags;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class MasterTicketRecipe implements TicketStationRecipe {
 
     public static final MapCodec<MasterTicketRecipe> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
@@ -64,7 +68,7 @@ public class MasterTicketRecipe implements TicketStationRecipe {
 
     @Nonnull
     @Override
-    public ItemStack assemble(ListRecipeInput container, @Nonnull HolderLookup.Provider lookup) {
+    public ItemStack assemble(TicketStationRecipeInput container, @Nonnull HolderLookup.Provider lookup) {
         long nextTicketID = TicketDataCache.TYPE.isLoaded(false) ? TicketDataCache.TYPE.get(false).createNextID() : -100L;
         ItemStack dyeStack = container.getItem(0);
         Color dyeColor = TicketModifierSlot.getColorFromDye(dyeStack);
@@ -85,7 +89,7 @@ public class MasterTicketRecipe implements TicketStationRecipe {
 
     @Nonnull
     @Override
-    public ItemStack peekAtResult(@Nonnull Container container) {
+    public ItemStack peekAtResult(@Nonnull Container container,String code) {
         long nextTicketID = TicketDataCache.TYPE.getUnknown().peekNextID();
         ItemStack dyeStack = container.getItem(0);
         Color dyeColor = TicketModifierSlot.getColorFromDye(dyeStack);
@@ -94,6 +98,9 @@ public class MasterTicketRecipe implements TicketStationRecipe {
         else
             return TicketItem.CreateTicket(this.result, nextTicketID);
     }
+
+    @Override
+    public ItemStack assembleWithKiosk(ItemStack sellItem, String code) { return ItemStack.EMPTY; }
 
     @Nonnull
     @Override

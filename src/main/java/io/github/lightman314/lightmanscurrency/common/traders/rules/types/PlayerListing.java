@@ -8,6 +8,8 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.ICopySupportingRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
@@ -24,7 +26,6 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
@@ -37,7 +38,7 @@ import java.util.List;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class PlayerListing extends TradeRule {
+public class PlayerListing extends TradeRule implements ICopySupportingRule {
 
     public static final TradeRuleType<PlayerListing> TYPE = new TradeRuleType<>(VersionUtil.lcResource("player_list"),PlayerListing::new);
 
@@ -107,6 +108,28 @@ public class PlayerListing extends TradeRule {
             this.playerList = PlayerReference.loadList(compound,"Players");
         if(compound.contains("WhitelistMode"))
             this.whitelistMode = compound.getBoolean("WhitelistMode");
+    }
+
+    @Override
+    public void writeSettings(SavedSettingData.MutableNodeAccess node) {
+        node.setBooleanValue("whitelist_mode",this.whitelistMode);
+        for(int i = 0; i < this.playerList.size(); ++i)
+            node.setCompoundValue("player_" + i,this.playerList.get(i).save());
+    }
+
+    @Override
+    public void loadSettings(SavedSettingData.NodeAccess node) {
+        this.whitelistMode = node.getBooleanValue("whitelist_mode");
+        List<PlayerReference> temp = new ArrayList<>();
+        for(int i = 0; node.hasCompoundValue("player_" + i); ++i)
+            temp.add(PlayerReference.load(node.getCompoundValue("player_" + i)));
+        this.playerList = temp;
+    }
+
+    @Override
+    public void resetToDefaultState() {
+        this.whitelistMode = true;
+        this.playerList = new ArrayList<>();
     }
 
     @Override

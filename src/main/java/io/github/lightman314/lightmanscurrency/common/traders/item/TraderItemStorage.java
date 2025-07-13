@@ -253,18 +253,23 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 		}
 		return ItemStack.EMPTY;
 	}
-	
+
 	/**
 	 * Removes the requested amount of items with the given item tag from storage.
 	 * Ignores items within the given blacklist.
 	 */
 	public void removeItemTagCount(TagKey<Item> itemTag, int count, List<ItemStack> ignoreIfPossible, Item... blacklistItems) {
 		List<Item> blacklist = Lists.newArrayList(blacklistItems);
+		removeItemCount(s -> InventoryUtil.ItemHasTag(s,itemTag),count,ignoreIfPossible,s -> blacklist.stream().anyMatch(b -> s.getItem() == b));
+	}
+
+	public void removeItemCount(Predicate<ItemStack> filter, int count, List<ItemStack> ignoreIfPossible, Predicate<ItemStack> blacklist)
+	{
 		//First pass, honoring the "ignoreIfPossible" list
 		for(int i = 0; i < this.storage.size() && count > 0; ++i)
 		{
 			ItemStack stack = this.storage.get(i);
-			if(InventoryUtil.ItemHasTag(stack, itemTag) && !blacklist.contains(stack.getItem()) && !ListContains(ignoreIfPossible, stack))
+			if(filter.test(stack) && !blacklist.test(stack) && !ListContains(ignoreIfPossible, stack))
 			{
 				int amountToTake = Math.min(count, stack.getCount());
 				count-= amountToTake;
@@ -280,7 +285,7 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 		for(int i = 0; i < this.storage.size() && count > 0; ++i)
 		{
 			ItemStack stack = this.storage.get(i);
-			if(InventoryUtil.ItemHasTag(stack, itemTag) && !blacklist.contains(stack.getItem()))
+			if(filter.test(stack) && !blacklist.test(stack))
 			{
 				int amountToTake = Math.min(count, stack.getCount());
 				count-= amountToTake;

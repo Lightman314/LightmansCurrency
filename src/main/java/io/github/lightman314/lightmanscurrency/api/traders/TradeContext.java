@@ -1,11 +1,10 @@
 package io.github.lightman314.lightmanscurrency.api.traders;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
+import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
@@ -18,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.holder.MultiMoney
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.ICanCopy;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.InteractionSlot;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -41,9 +41,11 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class TradeContext {
 
 	private static long nextID = 0;
@@ -56,7 +58,7 @@ public class TradeContext {
 	private final TraderData trader;
 	public boolean hasTrader() { return this.trader != null; }
 	public TraderData getTrader() { return this.trader; }
-	
+
 	//Player Data
 	@Nullable
 	private final Player player;
@@ -71,12 +73,21 @@ public class TradeContext {
 
 	//Money/Payment related data
 	private final MultiMoneyHolder moneyHolders;
+
+	//Discount Codes
+	private final List<Supplier<Collection<Integer>>> discountCodeSources;
+	public Set<Integer> getDiscountCodes() {
+		Set<Integer> set = new HashSet<>();
+		for(var source : this.discountCodeSources)
+			set.addAll(source.get());
+		return set;
+	}
+	public boolean hasDiscountCode(String code) { return this.getDiscountCodes().contains(code.hashCode()); }
 	
 	//Interaction Slots (bucket/battery slot, etc.)
 	private final InteractionSlot interactionSlot;
 	private boolean hasInteractionSlot(String type) { return this.getInteractionSlot(type) != null; }
 	private InteractionSlot getInteractionSlot(String type) { if(this.interactionSlot == null) return null; if(this.interactionSlot.isType(type)) return this.interactionSlot; return null; }
-
 
 	//Item related data
 	private final IItemHandler itemHandler;
@@ -96,6 +107,7 @@ public class TradeContext {
 		this.trader = builder.trader;
 		this.player = builder.player;
 		this.moneyHolders = new MultiMoneyHolder(builder.moneyHandlers);
+		this.discountCodeSources = builder.discountCodeSources;
 		this.playerReference = builder.playerReference;
 		this.interactionSlot = builder.interactionSlot;
 		this.itemHandler = builder.itemHandler;
@@ -113,10 +125,8 @@ public class TradeContext {
 		return this.getAvailableFunds().containsValue(price);
 	}
 
-	@Nonnull
 	public MoneyView getAvailableFunds() { return this.moneyHolders.getStoredMoney(); }
 
-	@Nonnull
 	public List<Component> getAvailableFundsDescription() {
 		List<Component> text = new ArrayList<>();
 		this.moneyHolders.formatTooltip(text);
@@ -648,9 +658,9 @@ public class TradeContext {
 		return false;
 	}
 	
-	public static TradeContext createStorageMode(@Nonnull TraderData trader) { return new Builder(trader).build(); }
-	public static Builder create(@Nonnull TraderData trader, @Nonnull Player player) { return new Builder(trader, player,true); }
-	public static Builder create(@Nonnull TraderData trader, @Nonnull PlayerReference player) { return new Builder(trader, player); }
+	public static TradeContext createStorageMode(TraderData trader) { return new Builder(trader).build(); }
+	public static Builder create(TraderData trader, Player player) { return new Builder(trader, player,true); }
+	public static Builder create(TraderData trader, PlayerReference player) { return new Builder(trader, player); }
 
 	@MethodsReturnNonnullByDefault
 	@FieldsAreNonnullByDefault
@@ -667,6 +677,9 @@ public class TradeContext {
 		
 		//Money
 		private final List<IMoneyHolder> moneyHandlers = new ArrayList<>();
+
+		//Discount Codes
+		private final List<Supplier<Collection<Integer>>> discountCodeSources = new ArrayList<>();
 		
 		//Interaction Slots
 		@Nullable
@@ -686,12 +699,54 @@ public class TradeContext {
 		private Builder(TraderData trader, @Nullable Player player, boolean playerInteractable) {
 			this.trader = trader;
 			this.player = player;
+			if(this.player != null)
+				this.withDiscountCodes(this.player.getInventory());
 			this.playerReference = PlayerReference.of(player);
 			this.storageMode = false;
 			if(playerInteractable)
 				this.withMoneyHolder(MoneyAPI.API.GetPlayersMoneyHandler(player));
 		}
 		private Builder(TraderData trader, @Nullable PlayerReference player) { this.trader = trader; this.playerReference = player; this.player = null; this.storageMode = false; }
+
+		public Builder withDiscountCodes(Container container)
+		{
+			return this.withDiscountCodeSource(() -> {
+				Set<Integer> temp = new HashSet<>();
+				for(int i = 0; i < container.getContainerSize(); ++i)
+				{
+					ItemStack item = container.getItem(i);
+					if(InventoryUtil.ItemHasTag(item, LCTags.Items.COUPONS))
+					{
+						//Check coupon code (leaving seperate for 1.20 rewrite)
+						if(item.has(ModDataComponents.COUPON_DATA))
+							temp.add(item.get(ModDataComponents.COUPON_DATA).code());
+					}
+				}
+				return temp;
+			});
+		}
+
+		public Builder withDiscountCodes(Iterable<String> codes)
+		{
+			Set<Integer> temp = new HashSet<>();
+			for(String c : codes)
+				temp.add(c.hashCode());
+			return this.withDiscountCodeSource(() -> temp);
+		}
+
+		public Builder withDiscountHashcodes(Iterable<Integer> codes)
+		{
+			Set<Integer> temp = new HashSet<>();
+			for(int c : codes)
+				temp.add(c);
+			return this.withDiscountCodeSource(() -> temp);
+		}
+
+		public Builder withDiscountCodeSource(Supplier<Collection<Integer>> codeSource)
+		{
+			this.discountCodeSources.add(codeSource);
+			return this;
+		}
 
 		public Builder withBankAccount(@Nullable BankReference bankAccount) {
 			if(bankAccount == null)
@@ -701,6 +756,8 @@ public class TradeContext {
 		public Builder withCoinSlots(Container coinSlots) {
 			if(this.player == null)
 				return this;
+			//Try to get discount codes from the coin slots
+			this.withDiscountCodes(coinSlots);
 			return this.withMoneyHandler(MoneyAPI.API.GetContainersMoneyHandler(coinSlots, this.player), LCText.TOOLTIP_MONEY_SOURCE_SLOTS.get(), 100);
 		}
 
@@ -716,7 +773,6 @@ public class TradeContext {
 		public Builder withItemHandler(IItemHandler itemHandler) { this.itemHandler = itemHandler; return this; }
 		public Builder withFluidHandler(IFluidHandler fluidHandler) { this.fluidHandler = fluidHandler; return this; }
 		public Builder withEnergyHandler(IEnergyStorage energyHandler) { this.energyHandler = energyHandler; return this; }
-		
 		
 		public TradeContext build() { return new TradeContext(this); }
 		

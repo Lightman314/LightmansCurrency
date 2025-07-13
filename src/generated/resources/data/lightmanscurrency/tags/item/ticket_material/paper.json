@@ -4,6 +4,7 @@
     "lightmanscurrency:ticket_stub",
     "lightmanscurrency:ticket",
     "lightmanscurrency:ticket_pass",
-    "lightmanscurrency:master_ticket"
+    "lightmanscurrency:master_ticket",
+    "lightmanscurrency:coupon"
   ]
 }

@@ -10,6 +10,8 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.ICopySupportingRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
@@ -36,7 +38,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class PlayerTradeLimit extends TradeRule{
+public class PlayerTradeLimit extends TradeRule implements ICopySupportingRule {
 
 	public static final TradeRuleType<PlayerTradeLimit> TYPE = new TradeRuleType<>(VersionUtil.lcResource("player_trade_limit"),PlayerTradeLimit::new);
 	
@@ -195,7 +197,26 @@ public class PlayerTradeLimit extends TradeRule{
 		if(compound.contains("ForgetTime", Tag.TAG_LONG))
 			this.timeLimit = compound.getLong("ForgetTime");
 	}
-	
+
+	@Override
+	public void writeSettings(SavedSettingData.MutableNodeAccess node) {
+		node.setIntValue("limit",this.limit);
+		node.setLongValue("time_limit",this.timeLimit);
+	}
+
+	@Override
+	public void loadSettings(SavedSettingData.NodeAccess node) {
+		this.limit = Math.max(1,node.getIntValue("limit"));
+		this.timeLimit = node.getLongValue("time_limit");
+	}
+
+	@Override
+	public void resetToDefaultState() {
+		this.limit = 1;
+		this.timeLimit = 0;
+		this.resetMemory();
+	}
+
 	@Override
 	public void handleUpdateMessage(Player player, LazyPacketData updateInfo)
 	{

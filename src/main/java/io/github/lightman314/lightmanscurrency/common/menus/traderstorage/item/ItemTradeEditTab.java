@@ -32,7 +32,7 @@ public class ItemTradeEditTab extends TraderStorageTab{
 	
 	private int tradeIndex = -1;
 	public int getTradeIndex() { return this.tradeIndex; }
-	public ItemTradeData getTrade() { 
+	public ItemTradeData getTrade() {
 		if(this.menu.getTrader() instanceof ItemTraderData trader)
 		{
 			if(this.tradeIndex >= trader.getTradeCount() || this.tradeIndex < 0)

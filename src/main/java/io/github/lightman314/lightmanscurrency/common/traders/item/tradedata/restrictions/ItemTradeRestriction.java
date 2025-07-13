@@ -12,6 +12,8 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ticket.TicketItemTrade;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ticket.TicketKioskRestriction;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -32,7 +34,7 @@ public class ItemTradeRestriction {
 		register("equipment_chest", EquipmentRestriction.CHEST);
 		register("equipment_legs", EquipmentRestriction.LEGS);
 		register("equipment_feet", EquipmentRestriction.FEET);
-		register("ticket_kiosk", TicketKioskRestriction.INSTANCE);
+		register("ticket_kiosk", new TicketKioskRestriction(new TicketItemTrade(false)));
 		register("book", BookRestriction.INSTANCE);
 	}
 
@@ -63,9 +65,13 @@ public class ItemTradeRestriction {
 
 	public static final ItemTradeRestriction NONE = new ItemTradeRestriction();
 
+	public ResourceLocation getType() { return getId(this); }
+
 	protected ItemTradeRestriction() { }
 
-	public ItemStack modifySellItem(ItemStack sellItem, String customName, ItemTradeData trade) { return sellItem; }
+	public ItemStack modifySellItem(ItemStack sellItem, String customName, ItemTradeData trade, int index) { return sellItem; }
+
+	public boolean displayCustomName(ItemStack sellItem, ItemTradeData trade, int index) { return true; }
 
 	public boolean allowSellItem(ItemStack itemStack) { return true; }
 

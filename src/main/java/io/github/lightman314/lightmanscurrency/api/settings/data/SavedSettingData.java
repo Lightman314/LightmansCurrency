@@ -117,6 +117,8 @@ public final class SavedSettingData
         private final String node;
         private NodeAccess(SavedSettingData data, String node) { this.data = data; this.node = node + "."; }
 
+        public NodeAccess forSubNode(String subNode) { return new NodeAccess(this.data,this.node + "." + subNode); }
+
         private boolean hasNodeEntry(Map<String,?> map) { return SavedSettingData.hasNodeEntry(map,this.node); }
 
         public boolean isEmpty() {
@@ -182,6 +184,8 @@ public final class SavedSettingData
         private final Mutable data;
         private final String node;
         private MutableNodeAccess(Mutable data,String node) { this.data = data; this.node = node + "."; }
+
+        public MutableNodeAccess forSubNode(String subNode) { return new MutableNodeAccess(this.data,this.node + "." + subNode); }
 
         public boolean hasBoolValue(@Nonnull String tag) { return this.data.boolData.containsKey(this.node + tag); }
         public boolean hasIntValue(@Nonnull String tag) { return this.data.intData.containsKey(this.node + tag); }

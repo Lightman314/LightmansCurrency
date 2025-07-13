@@ -5,6 +5,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
@@ -53,6 +54,11 @@ public abstract class ItemRequirement implements Predicate<ItemStack> {
         if(item == null || item == Items.AIR)
             return getNull();
         return new ItemMatch(item,count);
+    }
+    public static ItemRequirement of(Ingredient ingredient, int count) {
+        if(ingredient == null)
+            return getNull();
+        return new IngredientRequirement(ingredient,count);
     }
 
     /**
@@ -283,6 +289,18 @@ public abstract class ItemRequirement implements Predicate<ItemStack> {
             return false;
         }
 
+    }
+
+    private static class IngredientRequirement extends ItemRequirement
+    {
+        private final Ingredient ingredient;
+        private IngredientRequirement(Ingredient ingredient, int count) { super(count); this.ingredient = ingredient; }
+        @Override
+        public boolean test(ItemStack stack) { return this.ingredient.test(stack); }
+        @Override
+        public boolean matches(@Nonnull ItemRequirement otherRequirement) {
+            return otherRequirement instanceof IngredientRequirement other && other.ingredient.equals(this.ingredient);
+        }
     }
 
     private static class NullRequirement extends ItemRequirement

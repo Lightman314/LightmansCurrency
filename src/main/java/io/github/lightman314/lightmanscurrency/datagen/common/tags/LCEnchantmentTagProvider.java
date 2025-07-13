@@ -36,6 +36,8 @@ public class LCEnchantmentTagProvider extends EnchantmentTagsProvider {
                 .addOptional(ModEnchantments.COIN_MAGNET.location());
         this.tag(EnchantmentTags.ON_RANDOM_LOOT)
                 .addTag(LCTags.Enchantments.MONEY_MENDING);
+        this.tag(EnchantmentTags.TRADEABLE)
+                .addTag(LCTags.Enchantments.MONEY_MENDING);
 
         //Make Mending Enchantments Exclusive
         this.tag(LCTags.Enchantments.EXCUSIVE_SET_MENDING)

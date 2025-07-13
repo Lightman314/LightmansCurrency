@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertType;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.display.ItemEntry;
@@ -75,7 +76,10 @@ public class AuctionTradeButtonRenderer extends TradeRenderManager<AuctionTradeD
     }
 
     @Override
-    protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) { alerts.clear(); }
+    protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) {
+        alerts.clear();
+        alerts.add(AlertData.of(LCText.TOOLTIP_TRADER_AUCTION_INFO_OWNER.get(this.trade.getOwner().getName(true)),AlertType.INVISIBLE));
+    }
 
     @Override
     public void renderAdditional(EasyWidget button, EasyGuiGraphics gui, TradeContext context) {

@@ -133,6 +133,7 @@ public abstract class TradeRule {
 	
 	protected abstract void handleUpdateMessage(Player player, LazyPacketData updateInfo);
 
+
 	public static void saveRules(CompoundTag compound, List<TradeRule> rules, String tag, HolderLookup.Provider lookup)
 	{
 		ListTag ruleData = new ListTag();

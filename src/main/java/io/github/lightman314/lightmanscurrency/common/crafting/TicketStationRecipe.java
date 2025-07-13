@@ -1,12 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.crafting;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
-import io.github.lightman314.lightmanscurrency.common.crafting.input.ListRecipeInput;
+import io.github.lightman314.lightmanscurrency.common.crafting.input.TicketStationRecipeInput;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
+import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
@@ -21,9 +20,27 @@ import net.minecraft.world.level.Level;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public interface TicketStationRecipe extends Recipe<ListRecipeInput> {
+public interface TicketStationRecipe extends Recipe<TicketStationRecipeInput> {
+
+    Predicate<String> CODE_PREDICATE = s -> {
+        if(s.isBlank())
+            return false;
+        if(s.length() > 16)
+            return false;
+        for(int i = 0; i < s.length(); ++i)
+        {
+            if(!validCodeChar(s.charAt(i)))
+                return false;
+        }
+        return true;
+    };
+
+    Predicate<String> CODE_INPUT_PREDICATE = s -> s.isEmpty() || CODE_PREDICATE.test(s);
+
+    static boolean validCodeChar(char codeChar) { return codeChar >= 'a' && codeChar <= 'z' || codeChar >= 'A' && codeChar <= 'Z' || codeChar >= '0' && codeChar <= '9'; }
 
     @Nonnull
     @Override
@@ -39,13 +56,8 @@ public interface TicketStationRecipe extends Recipe<ListRecipeInput> {
         List<ItemStack> result = new ArrayList<>();
         for(Item extraItem : extra)
             result.add(new ItemStack(extraItem));
-        for(HolderSet<Item> set : BuiltInRegistries.ITEM.getTag(tag).stream().toList())
-        {
-            for(Holder<Item> item : set.stream().toList())
-            {
-                result.add(new ItemStack(item.value()));
-            }
-        }
+        for(Holder<Item> item : BuiltInRegistries.ITEM.getTagOrEmpty(tag))
+            result.add(new ItemStack(item.value()));
         return result;
     }
 
@@ -77,11 +89,21 @@ public interface TicketStationRecipe extends Recipe<ListRecipeInput> {
     Ingredient getIngredient();
 
     @Nonnull
-    ItemStack peekAtResult(@Nonnull Container container);
+    ItemStack peekAtResult(@Nonnull Container container, @Nonnull String code);
     @Nonnull
     ItemStack exampleResult();
 
+    default boolean requiredCodeInput() { return false; }
+    default boolean validCode(String code) { return !this.requiredCodeInput() || CODE_PREDICATE.test(code); }
+
+    //Don't put "valid code" check here, as it will prevent the recipe from being visible as the code input won't appear unless they can first select the code requiring recipe
     @Override
-    default boolean matches(@Nonnull ListRecipeInput container, @Nonnull Level level) { return this.validModifier(container.getItem(0)) && this.validIngredient(container.getItem(1)); }
+    default boolean matches(@Nonnull TicketStationRecipeInput container, @Nonnull Level level) { return this.validModifier(container.getItem(0)) && this.validIngredient(container.getItem(1)); }
+
+    //Ticket Kiosk Crafting
+    default boolean matchesTicketKioskSellItem(ItemStack sellItem) { return !this.consumeModifier() && this.validModifier(sellItem); }
+    default boolean allowIgnoreKioskRecipe() { return false; }
+    ItemStack assembleWithKiosk(ItemStack sellItem,String code);
+    default ItemRequirement getKioskStorageRequirement(ItemStack sellItem) { return ItemRequirement.of(this.getIngredient(),sellItem.getCount()); }
 
 }

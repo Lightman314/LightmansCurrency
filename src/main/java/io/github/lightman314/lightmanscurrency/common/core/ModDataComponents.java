@@ -33,6 +33,7 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<List<BlockPos>>> CASH_REGISTER_TRADER_POSITIONS;
     public static final Supplier<DataComponentType<List<ItemStack>>> COIN_JAR_CONTENTS;
     public static final Supplier<DataComponentType<TicketData>> TICKET_DATA;
+    public static final Supplier<DataComponentType<CouponData>> COUPON_DATA;
     public static final Supplier<DataComponentType<TraderItemData>> TRADER_ITEM_DATA;
     public static final Supplier<DataComponentType<UpgradeData>> UPGRADE_DATA;
     public static final Supplier<DataComponentType<ExchangeUpgradeData>> EXCHANGE_UPGRADE_DATA;
@@ -68,6 +69,7 @@ public class ModDataComponents {
         CASH_REGISTER_TRADER_POSITIONS = register("cash_register_trader_positions", builder -> builder.persistent(BlockPos.CODEC.listOf()));
         COIN_JAR_CONTENTS = register("coin_jar_contents", builder -> builder.persistent(ItemStack.OPTIONAL_CODEC.listOf()).cacheEncoding());
         TICKET_DATA = register("ticket_data", builder -> builder.persistent(TicketData.CODEC).networkSynchronized(TicketData.STREAM_CODEC).cacheEncoding());
+        COUPON_DATA = register("coupon_data", builder -> builder.persistent(CouponData.CODEC).networkSynchronized(CouponData.STREAM_CODEC).cacheEncoding());
         TRADER_ITEM_DATA = register("trader_data", builder -> builder.persistent(TraderItemData.CODEC).networkSynchronized(TraderItemData.STREAM_CODEC).cacheEncoding());
         UPGRADE_DATA = register("upgrade_data", builder -> builder.persistent(UpgradeData.CODEC).networkSynchronized(UpgradeData.STREAM_CODEC));
         EXCHANGE_UPGRADE_DATA = register("exchange_upgrade_data", builder -> builder.persistent(ExchangeUpgradeData.CODEC).networkSynchronized(ExchangeUpgradeData.STREAM_CODEC));

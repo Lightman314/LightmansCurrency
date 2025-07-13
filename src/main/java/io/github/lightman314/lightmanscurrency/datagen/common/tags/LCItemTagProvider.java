@@ -209,6 +209,8 @@ public class LCItemTagProvider extends ItemTagsProvider {
         this.cTag(LCTags.Items.TICKETS_MASTER)
                 .add(ModItems.TICKET_MASTER)
                 .add(ModItems.GOLDEN_TICKET_MASTER);
+        this.cTag(LCTags.Items.COUPONS)
+                .add(ModItems.COUPON);
         //Ticket Material Tags
         this.cTag(LCTags.Items.TICKET_MATERIAL)
                 .addTag(LCTags.Items.TICKET_MATERIAL_PAPER)
@@ -218,7 +220,8 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.TICKET_STUB)
                 .add(ModItems.TICKET)
                 .add(ModItems.TICKET_PASS)
-                .add(ModItems.TICKET_MASTER);
+                .add(ModItems.TICKET_MASTER)
+                .add(ModItems.COUPON);
         this.cTag(LCTags.Items.TICKET_MATERIAL_GOLD)
                 .addTag(Tags.Items.INGOTS_GOLD)
                 .add(ModItems.GOLDEN_TICKET_STUB)

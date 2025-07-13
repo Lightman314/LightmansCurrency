@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesColl
 import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesPaidNotification;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
@@ -99,6 +100,7 @@ public class LCText {
     public static final TextEntry ITEM_TICKET = TextEntry.item(ModItems.TICKET);
     public static final TextEntry ITEM_PASS = TextEntry.item(ModItems.TICKET_PASS);
     public static final TextEntry ITEM_MASTER_TICKET = TextEntry.item(ModItems.TICKET_MASTER);
+    public static final TextEntry ITEM_COUPON = TextEntry.item(ModItems.COUPON);
     public static final TextEntry ITEM_TICKET_STUB = TextEntry.item(ModItems.TICKET_STUB);
 
     public static final TextEntry ITEM_GOLDEN_TICKET = TextEntry.item(ModItems.GOLDEN_TICKET);
@@ -549,9 +551,11 @@ public class LCText {
 
     //Ticket Station Menu
     public static final TextEntry GUI_TICKET_STATION_TITLE = TextEntry.gui(MODID,"ticket_station.title");
+    public static final TextEntry GUI_TICKET_STATION_LABEL_CODE = TextEntry.gui(MODID,"ticket_station.label.code");
     public static final TextEntry TOOLTIP_TICKET_STATION_RECIPE_INFO = TextEntry.tooltip(MODID,"ticket_station.recipe_info");
     public static final TextEntry TOOLTIP_TICKET_STATION_SELECT_RECIPE = TextEntry.tooltip(MODID,"ticket_station.select_recipe");
     public static final TextEntry TOOLTIP_TICKET_STATION_CRAFT = TextEntry.tooltip(MODID,"ticket_station.craft_ticket");
+    public static final TextEntry TOOLTIP_TICKET_KIOSK_CRAFT_NULL = TextEntry.tooltip(MODID,"ticket_kiosk.craft_ticket.null");
 
     //Trader Interface Menu
     public static final TextEntryBundle<TraderInterfaceBlockEntity.InteractionType> GUI_INTERFACE_INTERACTION_TYPE = TextEntryBundle.of(TraderInterfaceBlockEntity.InteractionType.values(),"gui.lightmanscurrency.interface.type");
@@ -717,7 +721,9 @@ public class LCText {
     public static final TextEntry TOOLTIP_TRADER_AUCTION_INFO_LAST_BIDDER = TextEntry.tooltip(MODID,"trader.auction.info.last_bidder");
     public static final TextEntry TOOLTIP_TRADER_AUCTION_INFO_LAST_BID = TextEntry.tooltip(MODID,"trader.auction.info.last_bid");
     public static final TextEntry TOOLTIP_TRADER_AUCTION_INFO_MIN_BID = TextEntry.tooltip(MODID,"trader.auction.info.min_bid");
+    public static final TextEntry TOOLTIP_TRADER_AUCTION_INFO_OWNER = TextEntry.tooltip(MODID,"trader.auction.info.owner");
     public static final TextEntry TOOLTIP_TRADER_AUCTION_TIME_REMAINING = TextEntry.tooltip(MODID,"trader.auction.time_remaining");
+
 
     //Slot Machine Specific
     public static final TextEntry TOOLTIP_TRADER_SLOT_MACHINE_EDIT_ENTRIES = TextEntry.tooltip(MODID,"trader.slot_machine.edit_entries");
@@ -814,6 +820,19 @@ public class LCText {
     public static final TextEntry BUTTON_DAILY_TRADES_RESET = TextEntry.button(MODID,"trade_rule.daily_trades.reset");
     public static final TextEntry TOOLTIP_DAILY_TRADES_RESET = TextEntry.tooltip(MODID,"trade_rule.daily_trades.reset");
     public static final TextEntry GUI_DAILY_TRADES_INFO = TextEntry.gui(MODID,"trade_rule.daily_trades.info");
+    public static final TextEntry TRADE_RULE_DISCOUNT_CODES = TextEntry.tradeRule(DiscountCodes.TYPE);
+    public static final TextEntry BUTTON_DISCOUNT_CODES_ENTRY = TextEntry.button(MODID,"trade_rule.discount_code.entry");
+    public static final TextEntry BUTTON_DISCOUNT_CODES_CREATE = TextEntry.button(MODID,"trade_rule.discount_code.create");
+    public static final TextEntry BUTTON_DISCOUNT_CODES_CHANGE = TextEntry.button(MODID,"trade_rule.discount_code.change");
+    public static final TextEntry TOOLTIP_DISCOUNT_CODES_ENTRY = TextEntry.tooltip(MODID,"trade_rule.discount_code.entry");
+    public static final TextEntry TOOLTIP_DISCOUNT_CODES_DELETE = TextEntry.tooltip(MODID,"trade_rule.discount_code.delete");
+    public static final TextEntry TOOLTIP_DISCOUNT_CODES_BACK = TextEntry.tooltip(MODID,"trade_rule.discount_code.back");
+    public static final TextEntry GUI_DISCOUNT_CODES_DISCOUNT = TextEntry.gui(MODID,"trade_rule.discount_code.discount");
+    public static final TextEntry GUI_DISCOUNT_CODES_LIMIT = TextEntry.gui(MODID,"trade_rule.discount_code.limit");
+    public static final TextEntry TRADE_RULE_DISCOUNT_CODES_INFO_SALE = TextEntry.tradeRuleMessage(DiscountCodes.TYPE,"info.sale");
+    public static final TextEntry TRADE_RULE_DISCOUNT_CODES_INFO_PURCHASE = TextEntry.tradeRuleMessage(DiscountCodes.TYPE,"info.purchase");
+    public static final TextEntry TRADE_RULE_DISCOUNT_CODES_INFO_LIMIT = TextEntry.tradeRuleMessage(DiscountCodes.TYPE,"info.limit");
+    public static final TextEntry TRADE_RULE_DISCOUNT_CODES_INFO_TIMED = TextEntry.tradeRuleMessage(DiscountCodes.TYPE,"info.timed");
 
     //Permissions
     public static final DualTextEntry PERMISSION_OPEN_STORAGE = DualTextEntry.permission(Permissions.OPEN_STORAGE);
@@ -1027,20 +1046,31 @@ public class LCText {
     public static final TextEntry DATA_ENTRY_TRADER_NAME = TextEntry.dataName(MODID,"trader_name");
     public static final TextEntry DATA_ENTRY_TRADER_ICON = TextEntry.dataName(MODID,"trader_icon");
     public static final TextEntry DATA_ENTRY_TRADER_BANK_LINK = TextEntry.dataName(MODID,"trader.bank_link");
+    public static final TextEntry DATA_ENTRY_TRADER_TAXES_RATE = TextEntry.dataName(MODID,"trader.taxes.rate");
+    public static final TextEntry DATA_ENTRY_TRADER_TAXES_IGNORE_ALL = TextEntry.dataName(MODID,"trader.taxes.ignore_all");
+    public static final TextEntry DATA_ENTRY_TRADER_TAXES_IGNORED_COUNT = TextEntry.dataName(MODID,"trader.taxes.ignored_count");
     public static final TextEntry DATA_ENTRY_INPUT_OUTPUT_SIDES = TextEntry.dataName(MODID,"input_output_sides");
     public static final TextEntry DATA_ENTRY_INPUT_OUTPUT_SIDES_COUNT = TextEntry.dataName(MODID,"input_output_sides.count");
     public static final TextEntry DATA_ENTRY_PAYGATE_CONFLICT_HANDLING = TextEntry.dataName(MODID,"trader.paygate.conflict_handling");
+    public static final TextEntry DATA_ENTRY_TRADER_TRADES = TextEntry.dataName(MODID,"trader.trades");
+    public static final TextEntry DATA_ENTRY_RULES_COUNT = TextEntry.dataName(MODID,"rules.count");
+
+    //Item Trade
+    public static final TextEntry DATA_ENTRY_ITEM_TRADE_TYPE = TextEntry.dataName(MODID,"item_trader.type");
 
     //Easy Data Categories
     public static final TextEntry DATA_CATEGORY_TRADER_DISPLAY = TextEntry.dataCategory(MODID,"trader.display");
     public static final TextEntry DATA_CATEGORY_TRADER_BANK = TextEntry.dataCategory(MODID,"trader.bank");
-    public static final TextEntry DATA_CATEGORY_TRADER_RULES = TextEntry.dataCategory(MODID,"trader.rules");
+    public static final TextEntry DATA_CATEGORY_RULES_TRADER = TextEntry.dataCategory(MODID,"trader.rules");
+    public static final TextEntry DATA_CATEGORY_RULES_TRADE = TextEntry.dataCategory(MODID,"trade.rules");
     public static final TextEntry DATA_CATEGORY_TRADER_ALLIES = TextEntry.dataCategory(MODID,"trader.allies");
     public static final TextEntry DATA_CATEGORY_TRADER_ALLY_PERMS = TextEntry.dataCategory(MODID,"trader.ally_perms");
+    public static final TextEntry DATA_CATEGORY_TRADER_TAXES = TextEntry.dataCategory(MODID,"trader.taxes");
     public static final TextEntry DATA_CATEGORY_TRADER_TRADES = TextEntry.dataCategory(MODID,"trader.trades");
     public static final TextEntry DATA_CATEGORY_OWNERSHIP = TextEntry.dataCategory(MODID,"ownership");
     public static final TextEntry DATA_CATEGORY_INPUT_SETTINGS = TextEntry.dataCategory(MODID,"input_settings");
     public static final TextEntry DATA_CATEGORY_MISC_SETTINGS = TextEntry.dataCategory(MODID,"misc_settings");
+
     public static final TextEntry DATA_CATEGORY_CREATIVE = TextEntry.dataCategory(MODID,"creative");
 
     //Command Arguments

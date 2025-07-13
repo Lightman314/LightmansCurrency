@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -13,15 +12,14 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettings;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.IDirectionalSettingsObject;
+import io.github.lightman314.lightmanscurrency.api.ticket.TicketGroupData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.IDescriptionTrade;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.api.ticket.TicketGroupData;
 import io.github.lightman314.lightmanscurrency.common.text.TimeUnitTextEntry;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.common.traders.paygate.OutputConflictHandling;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.client.PaygateTradeButtonRenderer;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;

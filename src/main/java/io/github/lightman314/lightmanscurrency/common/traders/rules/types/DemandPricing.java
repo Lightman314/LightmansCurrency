@@ -6,7 +6,9 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.ICopySupportingRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
@@ -34,7 +36,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class DemandPricing extends PriceTweakingTradeRule {
+public class DemandPricing extends PriceTweakingTradeRule implements ICopySupportingRule {
 
     public static final TradeRuleType<DemandPricing> TYPE = new TradeRuleType<>(VersionUtil.lcResource("demand_pricing"),DemandPricing::new);
 
@@ -177,6 +179,27 @@ public class DemandPricing extends PriceTweakingTradeRule {
         this.otherPrice = MoneyValue.load(compound.getCompound("OtherPrice"));
         this.smallStock = compound.getInt("SmallStock");
         this.largeStock = compound.getInt("LargeStock");
+    }
+
+    @Override
+    public void resetToDefaultState() {
+        this.otherPrice = MoneyValue.empty();
+        this.smallStock = 1;
+        this.largeStock = 100;
+    }
+
+    @Override
+    public void writeSettings(SavedSettingData.MutableNodeAccess node) {
+        node.setCompoundValue("other_price",this.otherPrice.save());
+        node.setIntValue("small_stock",this.smallStock);
+        node.setIntValue("large_stock",this.largeStock);
+    }
+
+    @Override
+    public void loadSettings(SavedSettingData.NodeAccess node) {
+        this.otherPrice = MoneyValue.load(node.getCompoundValue("other_price"));
+        this.smallStock = node.getIntValue("small_stock");
+        this.largeStock = node.getIntValue("large_stock");
     }
 
     @Override

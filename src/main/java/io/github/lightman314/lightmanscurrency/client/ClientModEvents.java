@@ -54,6 +54,7 @@ public class ClientModEvents {
 	public static void registerItemColors(RegisterColorHandlersEvent.Item event)
 	{
 		event.register(new TicketColor(),ModItems.TICKET.get(), ModItems.TICKET_PASS.get(), ModItems.TICKET_MASTER.get());
+		event.register(new CouponColor(),ModItems.COUPON.get());
 		event.register(new GoldenTicketColor(),ModItems.GOLDEN_TICKET_PASS.get(), ModItems.GOLDEN_TICKET_MASTER.get());
 		event.register(new ATMCardColor(),ModItems.ATM_CARD.get(),ModItems.PREPAID_CARD.get());
 		event.register(SusBlockColor.INSTANCE,ModBlocks.SUS_JAR.get());

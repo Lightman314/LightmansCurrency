@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.ownership.IOwnable;
 import io.github.lightman314.lightmanscurrency.api.settings.ISaveableSettingsHolder;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.entity.player.Player;
 
@@ -44,6 +45,8 @@ public class LoadContext {
     public void updateOwner(OwnerData newOwner) { this.newOwner.copyFrom(newOwner); }
     public void updateAllies(List<PlayerReference> newAllies) { this.newAllies = ImmutableList.copyOf(newAllies); }
     public void updateAllyPermissions(Map<String,Integer> newAllyPerms) { this.newAllyPermissions = ImmutableMap.copyOf(newAllyPerms); }
+
+    public boolean isServerAdmin() { return LCAdminMode.isAdminPlayer(this.player); }
 
     public boolean isAdmin() { return this.oldOwner.isAdmin(this.player) || this.newOwner.isAdmin(this.player); }
     public boolean isMember() { return this.oldOwner.isMember(this.player) || this.newOwner.isMember(this.player); }

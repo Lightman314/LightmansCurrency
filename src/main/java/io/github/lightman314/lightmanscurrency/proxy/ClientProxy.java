@@ -8,6 +8,7 @@ import com.google.common.base.Suppliers;
 
 import com.mojang.authlib.GameProfile;
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.builtin.ConfigSelectionScreen;
 import io.github.lightman314.lightmanscurrency.api.events.client.RegisterVariantPropertiesEvent;
@@ -197,13 +198,14 @@ public class ClientProxy extends CommonProxy{
 	}
 
 	@Override
-	public Level safeGetDummyLevel() throws Exception {
+	public Level safeGetDummyLevel() {
 		Level level = this.getDummyLevelFromServer();
 		if(level == null)
 			level = Minecraft.getInstance().level;
 		if(level != null)
 			return level;
-		throw new Exception("Could not get dummy level from client, as there is no active level!");
+		LightmansCurrency.LogWarning("Could not get dummy level from client, as there is no active level!");
+		return null;
 	}
 
 	@Override

@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.crafting;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
-import io.github.lightman314.lightmanscurrency.common.crafting.input.ListRecipeInput;
+import io.github.lightman314.lightmanscurrency.common.crafting.input.TicketStationRecipeInput;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -63,7 +63,7 @@ public class TicketRecipe implements TicketStationRecipe {
 
     @Nonnull
     @Override
-    public ItemStack assemble(@Nonnull ListRecipeInput container, @Nonnull HolderLookup.Provider lookup) {
+    public ItemStack assemble(@Nonnull TicketStationRecipeInput container, @Nonnull HolderLookup.Provider lookup) {
         return TicketItem.CraftTicket(container.getItem(0), this.ticketResult);
     }
 
@@ -80,9 +80,12 @@ public class TicketRecipe implements TicketStationRecipe {
 
     @Nonnull
     @Override
-    public ItemStack peekAtResult(@Nonnull Container container) {
+    public ItemStack peekAtResult(@Nonnull Container container, @Nonnull String code) {
         return TicketItem.CraftTicket(container.getItem(0), this.ticketResult);
     }
+
+    @Override
+    public ItemStack assembleWithKiosk(ItemStack sellItem, String code) { return TicketItem.CraftTicket(sellItem,this.ticketResult); }
 
     @Nonnull
     @Override
