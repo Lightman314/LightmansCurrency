@@ -79,18 +79,19 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
         {
             ItemStack item = this.trade.getSellItem(i);
             if(!item.isEmpty())
-                entries.add(ItemAndBackgroundEntry.of(item, this.getSaleItemTooltip(item, this.trade.getCustomName(i), this.trade.getEnforceNBT(i), context), this.getNBTHightlight(this.trade.getEnforceNBT(i))));
+                entries.add(ItemAndBackgroundEntry.of(item, this.getSaleItemTooltip(item, this.trade.getCustomName(i), this.trade.getEnforceNBT(i), context, i), this.getNBTHightlight(this.trade.getEnforceNBT(i))));
             else if(context.isStorageMode)
                 entries.add(this.makeEmptySlot(this.trade.getRestriction().getEmptySlotBG(),context));
         }
         return entries;
     }
 
-    private Consumer<List<Component>> getSaleItemTooltip(ItemStack stack, String customName, boolean enforceNBT, TradeContext context)
+    private Consumer<List<Component>> getSaleItemTooltip(ItemStack stack, String customName, boolean enforceNBT, TradeContext context, int index)
     {
         return tooltips -> {
+            boolean showCustomName = this.trade.getRestriction().displayCustomName(stack,this.trade,index);
             Component originalName = null;
-            if(!customName.isEmpty() && (this.trade.isSale() || this.trade.isBarter()))
+            if(showCustomName && !customName.isEmpty() && (this.trade.isSale() || this.trade.isBarter()))
             {
                 originalName = stack.getHoverName();
                 tooltips.set(0,EasyText.literal(customName).withStyle(ChatFormatting.GOLD));

@@ -2,7 +2,9 @@ package io.github.lightman314.lightmanscurrency.common.crafting;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
+import io.github.lightman314.lightmanscurrency.common.crafting.input.TicketStationRecipeInput;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
+import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
@@ -18,8 +20,26 @@ import net.minecraftforge.registries.RegistryObject;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
-public interface TicketStationRecipe extends Recipe<Container> {
+public interface TicketStationRecipe extends Recipe<TicketStationRecipeInput> {
+
+    Predicate<String> CODE_PREDICATE = s -> {
+        if(s.isBlank())
+            return false;
+        if(s.length() > 16)
+            return false;
+        for(int i = 0; i < s.length(); ++i)
+        {
+            if(!validCodeChar(s.charAt(i)))
+                return false;
+        }
+        return true;
+    };
+
+    Predicate<String> CODE_INPUT_PREDICATE = s -> s.isEmpty() || CODE_PREDICATE.test(s);
+
+    static boolean validCodeChar(char codeChar) { return codeChar >= 'a' && codeChar <= 'z' || codeChar >= 'A' && codeChar <= 'Z' || codeChar >= '0' && codeChar <= '9'; }
 
     @Nonnull
     @Override
@@ -68,11 +88,21 @@ public interface TicketStationRecipe extends Recipe<Container> {
     Ingredient getIngredient();
 
     @Nonnull
-    ItemStack peekAtResult(@Nonnull Container container);
+    ItemStack peekAtResult(@Nonnull Container container, @Nonnull String code);
     @Nonnull
     ItemStack exampleResult();
 
+    default boolean requiredCodeInput() { return false; }
+    default boolean validCode(String code) { return !this.requiredCodeInput() || CODE_PREDICATE.test(code); }
+
+    //Don't put "valid code" check here, as it will prevent the recipe from being visible as the code input won't appear unless they can first select the code requiring recipe
     @Override
-    default boolean matches(@Nonnull Container container, @Nonnull Level level) { return this.validModifier(container.getItem(0)) && this.validIngredient(container.getItem(1)); }
+    default boolean matches(@Nonnull TicketStationRecipeInput container, @Nonnull Level level) { return this.validModifier(container.getItem(0)) && this.validIngredient(container.getItem(1)); }
+
+    //Ticket Kiosk Crafting
+    default boolean matchesTicketKioskSellItem(ItemStack sellItem) { return !this.consumeModifier() && this.validModifier(sellItem); }
+    default boolean allowIgnoreKioskRecipe() { return false; }
+    ItemStack assembleWithKiosk(ItemStack sellItem,String code);
+    default ItemRequirement getKioskStorageRequirement(ItemStack sellItem) { return ItemRequirement.of(this.getIngredient(),sellItem.getCount()); }
 
 }

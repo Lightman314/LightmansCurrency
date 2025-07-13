@@ -337,6 +337,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerBasicItem(ModItems.TICKET);
         this.registerLayeredItem(ModItems.TICKET_MASTER);
         this.registerLayeredItem(ModItems.TICKET_PASS);
+        this.registerLayeredItem(ModItems.COUPON);
         this.registerBasicItem(ModItems.TICKET_STUB);
         //Golden Tickets
         this.registerBasicItem(ModItems.GOLDEN_TICKET);

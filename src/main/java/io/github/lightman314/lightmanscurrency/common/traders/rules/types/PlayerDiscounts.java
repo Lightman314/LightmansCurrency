@@ -9,6 +9,8 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.ICopySupportingRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
@@ -32,11 +34,11 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class PlayerDiscounts extends PriceTweakingTradeRule {
+public class PlayerDiscounts extends PriceTweakingTradeRule implements ICopySupportingRule {
 
 	public static final TradeRuleType<PlayerDiscounts> TYPE = new TradeRuleType<>(VersionUtil.lcResource("discount_list"),PlayerDiscounts::new);
 	
-	List<PlayerReference> playerList = new ArrayList<>();
+	private List<PlayerReference> playerList = new ArrayList<>();
 	public ImmutableList<PlayerReference> getPlayerList() { return ImmutableList.copyOf(this.playerList); }
 	int discount = 10;
 	public int getDiscount() { return this.discount; }
@@ -90,7 +92,7 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 	@Override
 	public JsonObject saveToJson(JsonObject json) {
 		json.add("Players", PlayerReference.saveJsonList(this.playerList));
-		json.addProperty("discounrd", this.discount);
+		json.addProperty("discount", this.discount);
 		return json;
 	}
 	
@@ -119,7 +121,29 @@ public class PlayerDiscounts extends PriceTweakingTradeRule {
 		if(json.has("discount"))
 			this.discount = json.get("discount").getAsInt();
 	}
-	
+
+	@Override
+	public void writeSettings(SavedSettingData.MutableNodeAccess node) {
+		node.setIntValue("discount",this.discount);
+		for(int i = 0; i < this.playerList.size(); ++i)
+			node.setCompoundValue("player_" + i,this.playerList.get(i).save());
+	}
+
+	@Override
+	public void loadSettings(SavedSettingData.NodeAccess node) {
+		this.discount = node.getIntValue("discount");
+		List<PlayerReference> temp = new ArrayList<>();
+		for(int i = 0;  node.hasCompoundValue("player_" + i);++i)
+			temp.add(PlayerReference.load(node.getCompoundValue("player_" + i)));
+		this.playerList = temp;
+	}
+
+	@Override
+	public void resetToDefaultState() {
+		this.discount = 10;
+		this.playerList = new ArrayList<>();
+	}
+
 	@Override
 	protected void handleUpdateMessage(Player player, LazyPacketData updateInfo)
 	{

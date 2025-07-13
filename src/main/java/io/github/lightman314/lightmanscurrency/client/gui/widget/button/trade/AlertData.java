@@ -24,7 +24,7 @@ public class AlertData {
 		float red = (float)(color >> 16 & 255) / 255.0f;
 		float green = (float)(color >> 8 & 255) / 255.0f;
 		float blue = (float)(color & 255) / 255.0f;
-		gui.setColor(red * mult, green * mult, blue * mult);
+		gui.setColor(red * mult, green * mult, blue * mult, this.type.alpha);
 	}
 
 	public MutableComponent getFormattedMessage() {

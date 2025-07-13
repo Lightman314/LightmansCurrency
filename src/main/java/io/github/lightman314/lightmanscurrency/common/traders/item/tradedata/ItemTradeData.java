@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.traders.item.tradedata;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.google.common.collect.Lists;
 
@@ -56,14 +57,21 @@ public class ItemTradeData extends TradeData {
 	String customName1 = "";
 	String customName2 = "";
 
-	public ItemStack getSellItem(int index)
+	protected ItemStack getSellItemInternal(int index)
 	{
 		if(index >= 0 && index < 2)
-			return this.restriction.modifySellItem(this.items.getItem(index).copy(), this.getCustomName(index), this);
+			return this.items.getItem(index);
 		return ItemStack.EMPTY;
 	}
 
-	public List<ItemStack> getRandomSellItems(ItemTraderData trader) { return this.restriction.getRandomSellItems(trader, this); }
+	public ItemStack getSellItem(int index)
+	{
+		if(index >= 0 && index < 2)
+			return this.getRestriction().modifySellItem(this.items.getItem(index).copy(), this.getCustomName(index), this,index);
+		return ItemStack.EMPTY;
+	}
+
+	public List<ItemStack> getRandomSellItems(ItemTraderData trader) { return this.getRestriction().getRandomSellItems(trader, this); }
 
 	public ItemStack getBarterItem(int index)
 	{
@@ -87,8 +95,8 @@ public class ItemTradeData extends TradeData {
 		{
 			if(index < 2)
 			{
-				if(this.restriction.allowSellItem(itemStack) || itemStack.isEmpty())
-					this.items.setItem(index, this.restriction.filterSellItem(itemStack).copy());
+				if(this.getRestriction().allowSellItem(itemStack) || itemStack.isEmpty())
+					this.items.setItem(index, this.getRestriction().filterSellItem(itemStack).copy());
 			}
 			else
 				this.items.setItem(index, itemStack.copy());
@@ -97,7 +105,7 @@ public class ItemTradeData extends TradeData {
 			LightmansCurrency.LogError("Cannot define the item trades item at index " + index + ". Must be between 0-3!");
 	}
 
-	public boolean alwaysEnforcesNBT(int slot) { return this.restriction.alwaysEnforceNBT(slot); }
+	public boolean alwaysEnforcesNBT(int slot) { return this.getRestriction().alwaysEnforceNBT(slot); }
 
 	public boolean getEnforceNBT(int slot) {
 		if(slot >= 0 && slot < 4)
@@ -127,7 +135,7 @@ public class ItemTradeData extends TradeData {
 			if(this.getItemRequirement(i).test(item))
 				return true;
 		}
-		return this.restriction.allowExtraItemInStorage(item);
+		return this.getRestriction().allowExtraItemInStorage(item);
 	}
 
 	public boolean shouldStorageItemBeSaved(ItemStack item) {
@@ -221,7 +229,7 @@ public class ItemTradeData extends TradeData {
 		}
 		else if(this.tradeType == TradeDirection.SALE || this.tradeType == TradeDirection.BARTER)
 		{
-			return this.restriction.getSaleStock(trader.getStorage(), this);
+			return this.getRestriction().getSaleStock(trader.getStorage(), this);
 		}
 		else //Other types are not handled yet.
 			return 0;
@@ -244,7 +252,7 @@ public class ItemTradeData extends TradeData {
 		}
 		else if(this.tradeType == TradeDirection.SALE || this.tradeType == TradeDirection.BARTER)
 		{
-			return this.restriction.getSaleStock(trader.getStorage(), this);
+			return this.getRestriction().getSaleStock(trader.getStorage(), this);
 		}
 		else //Other types are not handled yet.
 			return 0;
@@ -262,7 +270,7 @@ public class ItemTradeData extends TradeData {
 
 	public void RemoveItemsFromStorage(TraderItemStorage storage, List<ItemStack> soldItems)
 	{
-		this.restriction.removeItemsFromStorage(storage, soldItems);
+		this.getRestriction().removeItemsFromStorage(storage, soldItems);
 	}
 
 	@Override
@@ -299,25 +307,25 @@ public class ItemTradeData extends TradeData {
 		nbt.put(key, listNBT);
 	}
 
-	public static ItemTradeData loadData(CompoundTag compound, boolean validateRules) {
-		ItemTradeData trade = new ItemTradeData(validateRules);
+	public static ItemTradeData loadData(CompoundTag compound, Supplier<ItemTradeData> builder) {
+		ItemTradeData trade = builder.get();
 		trade.loadFromNBT(compound);
 		return trade;
 	}
 
-	public static List<ItemTradeData> loadAllData(CompoundTag nbt, boolean validateRules)
+	public static List<ItemTradeData> loadAllData(CompoundTag nbt, Supplier<ItemTradeData> builder)
 	{
-		return loadAllData(DEFAULT_KEY, nbt, validateRules);
+		return loadAllData(DEFAULT_KEY, nbt, builder);
 	}
 
-	public static List<ItemTradeData> loadAllData(String key, CompoundTag compound, boolean validateRules)
+	public static List<ItemTradeData> loadAllData(String key, CompoundTag compound, Supplier<ItemTradeData> builder)
 	{
 		List<ItemTradeData> data = new ArrayList<>();
 
 		ListTag listNBT = compound.getList(key, Tag.TAG_COMPOUND);
 
 		for(int i = 0; i < listNBT.size(); i++)
-			data.add(loadData(listNBT.getCompound(i), validateRules));
+			data.add(loadData(listNBT.getCompound(i), builder));
 
 		return data;
 	}
@@ -375,11 +383,11 @@ public class ItemTradeData extends TradeData {
 		return value;
 	}
 
-	public static List<ItemTradeData> listOfSize(int tradeCount, boolean validateRules)
+	public static List<ItemTradeData> listOfSize(int tradeCount, Supplier<ItemTradeData> builder)
 	{
 		List<ItemTradeData> data = new ArrayList<>();
 		while(data.size() < tradeCount)
-			data.add(new ItemTradeData(validateRules));
+			data.add(builder.get());
 		return data;
 	}
 
@@ -523,7 +531,7 @@ public class ItemTradeData extends TradeData {
 					int quantityDifference = productCheck.ProductQuantityDifference();
 					if(quantityDifference > 0) //More items
 						list.add(LCText.GUI_TRADE_DIFFERENCE_ITEM_QUANTITY_MORE.get(slotName, quantityDifference).withStyle(moreColor));
-					else //Less items
+					else //Fewer items
 						list.add(LCText.GUI_TRADE_DIFFERENCE_ITEM_QUANTITY_LESS.get(slotName, -quantityDifference).withStyle(lessColor));
 				}
 			}

@@ -9,16 +9,18 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonH
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
+import io.github.lightman314.lightmanscurrency.common.crafting.input.TicketStationRecipeInput;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nonnull;
@@ -33,9 +35,11 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 
 	private static final ScreenArea SELECTION_AREA = ScreenArea.of(153, 7, 16, 16);
 
+	private EditBox codeInput;
+
 	private TicketStationRecipe selectedRecipe = null;
 	public List<TicketStationRecipe> getMatchingRecipes() {
-		Container input = this.menu.blockEntity.getStorage();
+		TicketStationRecipeInput input = this.menu.blockEntity.getRecipeInput("");
 		return this.menu.getAllRecipes().stream().filter(r -> r.matches(input, this.menu.blockEntity.getLevel())).toList();
 	}
 
@@ -51,11 +55,17 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 
 		gui.renderNormalBackground(GUI_TEXTURE, this);
 
-		gui.drawString(this.title, 8, 6, 0x404040);
+		if(!this.codeInputVisible())
+			gui.drawString(this.title, 8, 6, 0x404040);
+		else //Draw the code input bg
+			gui.blit(GUI_TEXTURE,4,4,0,164,107,14);
 		gui.drawString(this.playerInventoryTitle, 8, (this.getYSize() - 94), 0x404040);
 
 		if(this.selectedRecipe != null)
-			gui.renderItem(this.selectedRecipe.peekAtResult(this.menu.blockEntity.getStorage()), SELECTION_AREA.pos);
+			gui.renderItem(this.selectedRecipe.peekAtResult(this.menu.blockEntity.getStorage(),this.getCode()), SELECTION_AREA.pos);
+
+		//Reset the color
+		gui.resetColor();
 
 	}
 
@@ -65,11 +75,19 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 		if(this.selectedRecipe != null && SELECTION_AREA.offsetPosition(this.getCorner()).isMouseInArea(gui.mousePos))
 		{
 			List<Component> tooltip = new ArrayList<>();
-			tooltip.add(LCText.TOOLTIP_TICKET_STATION_RECIPE_INFO.get(this.selectedRecipe.peekAtResult(this.menu.blockEntity.getStorage()).getHoverName()));
+			tooltip.add(LCText.TOOLTIP_TICKET_STATION_RECIPE_INFO.get(this.selectedRecipe.peekAtResult(this.menu.blockEntity.getStorage(),this.getCode()).getHoverName()));
 			if(this.getMatchingRecipes().size() > 1)
 				tooltip.add(LCText.TOOLTIP_TICKET_STATION_SELECT_RECIPE.get());
 			gui.renderComponentTooltip(tooltip);
 		}
+	}
+
+	private boolean codeInputVisible() { return this.selectedRecipe != null && this.selectedRecipe.requiredCodeInput(); }
+
+	@Override
+	protected void renderTick() {
+		if(this.codeInput != null)
+			this.codeInput.visible = this.codeInputVisible();
 	}
 
 	@Override
@@ -79,7 +97,7 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 				.position(screenArea.pos.offset(79,21))
 				.pressAction(this::craftTicket)
 				.sprite(SPRITE_ARROW)
-				.addon(EasyAddonHelper.visibleCheck(() -> this.menu.validInputs() && this.selectedRecipe != null && this.menu.roomForOutput(this.selectedRecipe)))
+				.addon(EasyAddonHelper.visibleCheck(() -> this.menu.validInputs() && this.selectedRecipe != null && this.selectedRecipe.validCode(this.getCode()) && this.menu.roomForOutput(this.selectedRecipe)))
 				.addon(EasyAddonHelper.tooltip(this::getArrowTooltip))
 				.build());
 		//Add scroll area for recipe selection.
@@ -87,15 +105,27 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 				.area(SELECTION_AREA.offsetPosition(screenArea.pos))
 				.listener(this)
 				.build());
+		//Add code input for coupon recipes
+		this.codeInput = this.addChild(TextInputUtil.stringBuilder()
+				.position(screenArea.pos.offset(7,7))
+				.width(107)
+				.maxLength(16)
+				.filter(TicketStationRecipe.CODE_INPUT_PREDICATE)
+				.handler(this.menu::setCode)
+				.startingString(this.codeInput != null ? this.codeInput.getValue() : "")
+				.noBorder()
+				.build());
 		this.validateSelectedRecipe();
 	}
 	@Override
 	protected void screenTick() { this.validateSelectedRecipe(); }
 
+	public String getCode() { return this.menu.getCode(); }
+
 	private Component getArrowTooltip()
 	{
 		if(this.selectedRecipe != null)
-			return LCText.TOOLTIP_TICKET_STATION_CRAFT.get(this.selectedRecipe.peekAtResult(this.menu.blockEntity.getStorage()).getHoverName());
+			return LCText.TOOLTIP_TICKET_STATION_CRAFT.get(this.selectedRecipe.peekAtResult(this.menu.blockEntity.getStorage(),this.getCode()).getHoverName());
 		return EasyText.empty();
 	}
 
@@ -119,7 +149,7 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 		this.validateSelectedRecipe();
 		if(this.selectedRecipe == null)
 			return;
-		this.menu.SendCraftTicketsMessage(Screen.hasShiftDown(), this.selectedRecipe.getId());
+		this.menu.SendCraftTicketsMessage(Screen.hasShiftDown(),this.selectedRecipe.getId());
 	}
 
 	@Override
@@ -143,5 +173,9 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 
 	@Override
 	public int getMaxScroll() { return this.getMatchingRecipes().size() - 1; }
+
+	//Prevent the screen from being closed when the text field is present
+	@Override
+	public boolean blockInventoryClosing() { return this.codeInputVisible(); }
 
 }

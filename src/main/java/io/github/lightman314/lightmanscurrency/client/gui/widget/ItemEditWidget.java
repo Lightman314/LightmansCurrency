@@ -325,7 +325,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		//If the items are still being collected, don't try to access the lists
 		if(rebuilding)
 			return new ArrayList<>();
-		ResourceLocation type = ItemTradeRestriction.getId(restriction);
+		ResourceLocation type = restriction.getType();
 		if(type == ItemTradeRestriction.NO_RESTRICTION_KEY && restriction != ItemTradeRestriction.NONE)
 		{
 			LightmansCurrency.LogWarning("Item Trade Restriction of class '" + restriction.getClass().getSimpleName() + "' was not registered, and is now being used to filter items.\nPlease register during the common setup so that this filtering can be done before the screen is opened to prevent in-game lag.");

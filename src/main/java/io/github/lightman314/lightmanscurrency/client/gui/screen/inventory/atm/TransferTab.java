@@ -224,6 +224,6 @@ public class TransferTab extends ATMTab {
 	}
 
 	@Override
-	public boolean blockInventoryClosing() { return this.playerMode; }
+	public boolean blockInventoryClosing() { return true; }
 
 }

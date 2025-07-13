@@ -32,7 +32,7 @@ public class EasySlot extends Slot {
 
     @Override
     public boolean mayPlace(@Nonnull ItemStack stack) {
-        if(this.locked)
+        if(this.locked || !this.active)
             return false;
         return super.mayPlace(stack);
     }

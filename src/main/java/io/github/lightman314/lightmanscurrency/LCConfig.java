@@ -717,6 +717,7 @@ public final class LCConfig {
         //Paygate Options
         public final IntOption paygateMaxDuration = IntOption.create(1200, 0);
         //Command Trader Settings
+        public final IntOption commandTraderPlacementPermission = IntOption.create(2,0,Integer.MAX_VALUE);
         public final IntOption commandTraderMaxPermissionLevel = IntOption.create(4,0,4);
 
         //Player Trading Options
@@ -1007,6 +1008,9 @@ public final class LCConfig {
             builder.pop();
 
             builder.comment("Command Trader Settings").push("command_trader");
+
+            builder.comment("The permission level required to place the command trader block")
+                    .add("placementPermissionLevel",this.commandTraderPlacementPermission);
 
             builder.comment("The maximum permission level that can be set and used by a command trader")
                     .add("maxPermissionLevel",this.commandTraderMaxPermissionLevel);

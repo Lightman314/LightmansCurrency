@@ -685,9 +685,16 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 
 	private int acceptableTaxRate = 99;
 	public final int getAcceptableTaxRate() { return this.acceptableTaxRate; }
+	public void setAcceptableTaxRate(int acceptableTaxRate) { this.acceptableTaxRate = MathUtil.clamp(acceptableTaxRate,0,99); }
 	private final List<Long> ignoredTaxCollectors = new ArrayList<>();
+	public List<Long> getIgnoredTaxCollectors() { return new ArrayList<>(this.ignoredTaxCollectors); }
+	public void setIgnoredTaxCollectors(List<Long> ignoredTaxCollectors) {
+		this.ignoredTaxCollectors.clear();
+		this.ignoredTaxCollectors.addAll(ignoredTaxCollectors);
+	}
 	private boolean ignoreAllTaxes = false;
 	public boolean ShouldIgnoreAllTaxes() { return this.ignoreAllTaxes; }
+	public void setIgnoreAllTaxes(boolean ignoreAllTaxes) { this.ignoreAllTaxes = ignoreAllTaxes; }
 	public boolean ShouldIgnoreTaxEntryOnly(ITaxCollector entry) { return this.ignoredTaxCollectors.contains(entry.getID()); }
 	private boolean AllowTaxEntry(ITaxCollector entry) { return !this.ShouldIgnoreTaxEntry(entry); }
 	public boolean ShouldIgnoreTaxEntry(ITaxCollector entry) { return this.ShouldIgnoreAllTaxes() || this.ShouldIgnoreTaxEntryOnly(entry); }
@@ -757,6 +764,9 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		builder.accept(new CreativeSettings(this));
 		builder.accept(new DisplaySettings(this));
 		builder.accept(new BankSettings(this));
+		builder.accept(new TaxSettings(this));
+		//Trader Trade Rule Settings
+		builder.accept(new TraderRuleSettings(this));
 	}
 
 	@Override
@@ -825,6 +835,8 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 
 		//Settings
 		this.saveCreativeSettings(compound);
+		this.saveDisplaySettings(compound);
+		this.saveBankSettings(compound);
 		this.saveMiscSettings(compound);
 		this.saveTaxSettings(compound);
 

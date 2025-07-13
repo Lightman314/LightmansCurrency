@@ -547,7 +547,7 @@ public class ModBlocks {
 		);
 
 		//Command Trader
-		COMMAND_TRADER = register("command_trader", () -> new CommandTraderBlock(BlockBehaviour.Properties.of()
+		COMMAND_TRADER = register("command_trader", b -> new CommandTraderItem(b,new Item.Properties()),() -> new CommandTraderBlock(BlockBehaviour.Properties.of()
 					.mapColor(MapColor.METAL)
 					.strength(3.0f,Float.POSITIVE_INFINITY)
 					.sound(SoundType.METAL)

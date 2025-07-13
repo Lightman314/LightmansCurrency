@@ -4,6 +4,8 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.ICopySupportingRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
@@ -26,7 +28,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class TradeLimit extends TradeRule{
+public class TradeLimit extends TradeRule implements ICopySupportingRule {
 
 	public static final TradeRuleType<TradeLimit> TYPE = new TradeRuleType<>(VersionUtil.lcResource("trade_limit"),TradeLimit::new);
 	
@@ -87,7 +89,23 @@ public class TradeLimit extends TradeRule{
 			this.count = compound.getInt("Count");
 		
 	}
-	
+
+	@Override
+	public void writeSettings(SavedSettingData.MutableNodeAccess node) {
+		node.setIntValue("limit",this.limit);
+	}
+
+	@Override
+	public void loadSettings(SavedSettingData.NodeAccess node) {
+		this.limit = node.getIntValue("limit");
+	}
+
+	@Override
+	public void resetToDefaultState() {
+		this.limit = 1;
+		this.count = 0;
+	}
+
 	@Override
 	public void loadFromJson(JsonObject json) {
 		if(json.has("Limit"))

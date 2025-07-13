@@ -20,6 +20,7 @@ public class ModRecipes {
 
 		TICKET = ModRegistries.RECIPE_SERIALIZERS.register("ticket", TicketRecipe.Serializer::new);
 		TICKET_MASTER = ModRegistries.RECIPE_SERIALIZERS.register("ticket_master", MasterTicketRecipe.Serializer::new);
+		COUPON = ModRegistries.RECIPE_SERIALIZERS.register("coupon", CouponRecipe.Serializer::new);
 
 	}
 	
@@ -28,5 +29,6 @@ public class ModRecipes {
 
 	public static final Supplier<RecipeSerializer<TicketRecipe>> TICKET;
 	public static final Supplier<RecipeSerializer<MasterTicketRecipe>> TICKET_MASTER;
+	public static final Supplier<RecipeSerializer<CouponRecipe>> COUPON;
 
 }

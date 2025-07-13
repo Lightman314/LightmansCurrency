@@ -85,6 +85,7 @@ public class LCTags {
         public static final TagKey<Item> TICKETS_TICKET = tag("tickets/ticket");
         public static final TagKey<Item> TICKETS_PASS = tag("tickets/pass");
         public static final TagKey<Item> TICKETS_MASTER = tag("tickets/master");
+        public static final TagKey<Item> COUPONS = tag("coupons");
         //Ticket Materials
         public static final TagKey<Item> TICKET_MATERIAL = tag("ticket_material");
         public static final TagKey<Item> TICKET_MATERIAL_PAPER = tag("ticket_material/paper");

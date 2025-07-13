@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders;
 
 import com.google.gson.JsonObject;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
@@ -54,7 +53,7 @@ public class TicketRecipeBuilder implements RecipeBuilder {
 
     @Nonnull
     @Override
-    public Item getResult() { return ModItems.TICKET_MASTER.get(); }
+    public Item getResult() { return this.result; }
 
     @Override
     public void save(@Nonnull Consumer<FinishedRecipe> consumer, @Nonnull ResourceLocation id) {

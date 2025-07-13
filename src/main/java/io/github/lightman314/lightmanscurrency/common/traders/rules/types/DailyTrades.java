@@ -7,7 +7,9 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.ICopySupportingRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
@@ -36,7 +38,7 @@ import java.util.UUID;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class DailyTrades extends TradeRule {
+public class DailyTrades extends TradeRule implements ICopySupportingRule {
 
     public static final TradeRuleType<DailyTrades> TYPE = new TradeRuleType<>(VersionUtil.lcResource("daily_trades"),DailyTrades::new);
 
@@ -146,6 +148,22 @@ public class DailyTrades extends TradeRule {
             dat.lastTimeStamp = tag.getLong("Time");
             this.data.put(id,dat);
         }
+    }
+
+    @Override
+    public void writeSettings(SavedSettingData.MutableNodeAccess node) {
+        node.setLongValue("delay",this.interactionDelay);
+    }
+
+    @Override
+    public void loadSettings(SavedSettingData.NodeAccess node) {
+        this.interactionDelay = node.getLongValue("delay");
+    }
+
+    @Override
+    public void resetToDefaultState() {
+        this.interactionDelay = TimeUtil.DURATION_DAY;
+        this.data.clear();
     }
 
     @Override

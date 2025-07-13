@@ -67,6 +67,7 @@ public class ModItems {
 		TICKET = ModRegistries.ITEMS.register("ticket", () -> new TicketItem(new Item.Properties()));
 		TICKET_PASS = ModRegistries.ITEMS.register("ticket_pass", () -> new TicketItem(new Item.Properties().rarity(Rarity.UNCOMMON)));
 		TICKET_MASTER = ModRegistries.ITEMS.register("master_ticket", () -> new TicketItem(new Item.Properties().rarity(Rarity.RARE).stacksTo(1)));
+		COUPON = ModRegistries.ITEMS.register("coupon", () -> new CouponItem(new Item.Properties()));
 		TICKET_STUB = ModRegistries.ITEMS.register("ticket_stub", () -> new Item(new Item.Properties()));
 
 		//Golden Ticket
@@ -180,6 +181,7 @@ public class ModItems {
 	public static final Supplier<Item> TICKET;
 	public static final Supplier<Item> TICKET_PASS;
 	public static final Supplier<Item> TICKET_MASTER;
+	public static final Supplier<Item> COUPON;
 	public static final Supplier<Item> TICKET_STUB;
 
 	public static final Supplier<Item> GOLDEN_TICKET;

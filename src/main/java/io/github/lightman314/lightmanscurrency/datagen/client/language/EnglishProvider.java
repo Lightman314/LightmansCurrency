@@ -112,6 +112,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.ITEM_TICKET,"Ticket");
         this.translate(LCText.ITEM_PASS,"Pass");
         this.translate(LCText.ITEM_MASTER_TICKET,"Master Ticket");
+        this.translate(LCText.ITEM_COUPON,"Coupon");
         this.translate(LCText.ITEM_TICKET_STUB,"Ticket Stub");
         this.translate(LCText.ITEM_GOLDEN_TICKET,"Golden Ticket");
         this.translate(LCText.ITEM_GOLDEN_PASS,"Golden Pass");
@@ -562,9 +563,11 @@ public class EnglishProvider extends TranslationProvider {
 
         //Ticket Station Menu
         this.translate(LCText.GUI_TICKET_STATION_TITLE,"Ticket Station");
+        this.translate(LCText.GUI_TICKET_STATION_LABEL_CODE,"Code:");
         this.translate(LCText.TOOLTIP_TICKET_STATION_RECIPE_INFO,"Will make %s");
         this.translate(LCText.TOOLTIP_TICKET_STATION_SELECT_RECIPE,"Scroll to change recipe");
         this.translate(LCText.TOOLTIP_TICKET_STATION_CRAFT,"Craft %s");
+        this.translate(LCText.TOOLTIP_TICKET_KIOSK_CRAFT_NULL,"Sell %s Directly");
 
         //Trader Interface Menu
         this.translate(LCText.GUI_INTERFACE_INTERACTION_TYPE.get(InteractionType.RESTOCK_AND_DRAIN),"Restock & Drain");
@@ -747,6 +750,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_TRADER_AUCTION_INFO_LAST_BIDDER,"%s currently has the highest bid");
         this.translate(LCText.TOOLTIP_TRADER_AUCTION_INFO_LAST_BID,"Last Bid: %s");
         this.translate(LCText.TOOLTIP_TRADER_AUCTION_INFO_MIN_BID,"Minimum Bid: %s");
+        this.translate(LCText.TOOLTIP_TRADER_AUCTION_INFO_OWNER,"Submitted By: %s");
         this.translate(LCText.TOOLTIP_TRADER_AUCTION_TIME_REMAINING,"Time Remaining: %s");
 
         //Slot Machine Specific
@@ -851,6 +855,19 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.BUTTON_DAILY_TRADES_RESET,"Reset Interaction Data");
         this.translate(LCText.TOOLTIP_DAILY_TRADES_RESET,"Forgets each players progress through the trade list, resetting them back to the initial trade");
         this.translate(LCText.GUI_DAILY_TRADES_INFO,"Players can interact with a trade %s after interacting with the previous one");
+        this.translate(LCText.TRADE_RULE_DISCOUNT_CODES,"Discount Codes");
+        this.translate(LCText.BUTTON_DISCOUNT_CODES_ENTRY,"%1$s: %2$s%% Discount");
+        this.translate(LCText.BUTTON_DISCOUNT_CODES_CREATE,"Create");
+        this.translate(LCText.BUTTON_DISCOUNT_CODES_CHANGE,"Change");
+        this.translate(LCText.TOOLTIP_DISCOUNT_CODES_ENTRY,"Click to Edit");
+        this.translate(LCText.TOOLTIP_DISCOUNT_CODES_DELETE,"Delete Discount Code");
+        this.translate(LCText.TOOLTIP_DISCOUNT_CODES_BACK,"Back to Code Selection/Creation");
+        this.translate(LCText.GUI_DISCOUNT_CODES_DISCOUNT,"Discount");
+        this.translate(LCText.GUI_DISCOUNT_CODES_LIMIT,"Limit");
+        this.translate(LCText.TRADE_RULE_DISCOUNT_CODES_INFO_SALE,"You have been given a %s%% discount from a coupon");
+        this.translate(LCText.TRADE_RULE_DISCOUNT_CODES_INFO_PURCHASE,"You will be paid %s%% more because of a coupon");
+        this.translate(LCText.TRADE_RULE_DISCOUNT_CODES_INFO_LIMIT,"You have used %1$s of your %1$s coupon uses");
+        this.translate(LCText.TRADE_RULE_DISCOUNT_CODES_INFO_TIMED,"Coupon resets after %s");
 
         //Permissions
         this.translate(LCText.PERMISSION_OPEN_STORAGE,"Open Storage","Allows player to access the Storage Menu and add or remove items from the traders storage.");
@@ -1098,14 +1115,20 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.DATA_ENTRY_TRADER_NAME,"Trader Name");
         this.translate(LCText.DATA_ENTRY_TRADER_ICON,"Trader Terminal Icon");
         this.translate(LCText.DATA_ENTRY_TRADER_BANK_LINK,"Bank Account Link");
+        this.translate(LCText.DATA_ENTRY_TRADER_TAXES_RATE,"Acceptable Tax Rate");
+        this.translate(LCText.DATA_ENTRY_TRADER_TAXES_IGNORE_ALL,"Tax Immunity");
+        this.translate(LCText.DATA_ENTRY_TRADER_TAXES_IGNORED_COUNT,"Ignored Tax Collectors");
         this.translate(LCText.DATA_ENTRY_INPUT_OUTPUT_SIDES,"Input/Output Side: ");
         this.translate(LCText.DATA_ENTRY_INPUT_OUTPUT_SIDES_COUNT,"%1$s Input and & %2$s Output Side(s)");
         this.translate(LCText.DATA_ENTRY_PAYGATE_CONFLICT_HANDLING,"Output Conflict Handling");
+        this.translate(LCText.DATA_ENTRY_RULES_COUNT,"%s Active Rules");
+        this.translate(LCText.DATA_ENTRY_TRADER_TRADES,"Trade #%s");
 
         //Data Categories
         this.translate(LCText.DATA_CATEGORY_TRADER_DISPLAY,"Display Settings");
         this.translate(LCText.DATA_CATEGORY_TRADER_BANK,"Bank Settings");
-        this.translate(LCText.DATA_CATEGORY_TRADER_RULES,"Trader Rules");
+        this.translate(LCText.DATA_CATEGORY_RULES_TRADER,"Trader Rules");
+        this.translate(LCText.DATA_CATEGORY_RULES_TRADE,"Trade Rules for Trade #%s");
         this.translate(LCText.DATA_CATEGORY_TRADER_ALLIES,"Allies");
         this.translate(LCText.DATA_CATEGORY_TRADER_ALLY_PERMS,"Ally Permissions");
         this.translate(LCText.DATA_CATEGORY_TRADER_TRADES,"Trades");

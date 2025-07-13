@@ -13,10 +13,7 @@ import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObject
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.crafting.condition.LCCraftingConditions;
-import io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders.MasterTicketRecipeBuilder;
-import io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders.MintRecipeBuilder;
-import io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders.TicketRecipeBuilder;
-import io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders.WalletUpgradeRecipeBuilder;
+import io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders.*;
 import io.github.lightman314.lightmanscurrency.datagen.util.ColorHelper;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
@@ -1008,6 +1005,15 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('t',ModItems.UPGRADE_SMITHING_TEMPLATE.get())
                 .define('s',Items.STICK)
                 .save(consumer);
+
+        //2.2.6.1
+        //Coupon
+        CouponRecipeBuilder.of(LCTags.Items.TICKET_MATERIAL_PAPER)
+                .unlockedBy("ticket_station",LazyTrigger(ModBlocks.TICKET_STATION))
+                .unlockedBy("tickets",LazyTrigger(LCTags.Items.TICKETS))
+                .unlockedBy("ticket_material",LazyTrigger(LCTags.Items.TICKET_MATERIAL))
+                .withResult(ModItems.COUPON)
+                .save(consumer,ItemID("ticket_station/",ModItems.COUPON));
 
     }
 

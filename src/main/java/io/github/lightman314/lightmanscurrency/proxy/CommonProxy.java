@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.mojang.authlib.GameProfile;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -54,11 +55,12 @@ public class CommonProxy {
 		return null;
 	}
 
-	public Level safeGetDummyLevel() throws Exception{
+	public Level safeGetDummyLevel() {
 		Level level = this.getDummyLevelFromServer();
 		if(level != null)
 			return level;
-		throw new Exception("Could not get dummy level from server, as there is no active server!");
+		LightmansCurrency.LogWarning("Could not get dummy level from server, as there is no active server!");
+		return null;
 	}
 
 	@Nullable

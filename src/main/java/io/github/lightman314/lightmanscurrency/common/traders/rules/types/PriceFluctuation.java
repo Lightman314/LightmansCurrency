@@ -8,6 +8,8 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.ICopySupportingRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
@@ -30,7 +32,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class PriceFluctuation extends PriceTweakingTradeRule {
+public class PriceFluctuation extends PriceTweakingTradeRule implements ICopySupportingRule {
 
 	public static final TradeRuleType<PriceFluctuation> TYPE = new TradeRuleType<>(VersionUtil.lcResource("price_fluctuation"),PriceFluctuation::new);
 	
@@ -106,7 +108,25 @@ public class PriceFluctuation extends PriceTweakingTradeRule {
 		this.fluctuation = compound.getInt("Fluctuation");
 		
 	}
-	
+
+	@Override
+	public void writeSettings(SavedSettingData.MutableNodeAccess node) {
+		node.setIntValue("fluctuation",this.fluctuation);
+		node.setLongValue("duration",this.duration);
+	}
+
+	@Override
+	public void loadSettings(SavedSettingData.NodeAccess node) {
+		this.fluctuation = Math.max(1,node.getIntValue("fluctuation"));
+		this.duration = Math.max(TimeUtil.DURATION_MINUTE,node.getLongValue("duration"));
+	}
+
+	@Override
+	public void resetToDefaultState() {
+		this.fluctuation = 10;
+		this.duration = TimeUtil.DURATION_DAY;
+	}
+
 	@Override
 	public JsonObject saveToJson(JsonObject json) {
 		

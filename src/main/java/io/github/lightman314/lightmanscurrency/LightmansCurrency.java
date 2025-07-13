@@ -206,6 +206,7 @@ public class LightmansCurrency {
 		TraderAPI.API.RegisterTradeRule(PriceFluctuation.TYPE);
 		TraderAPI.API.RegisterTradeRule(DemandPricing.TYPE);
 		TraderAPI.API.RegisterTradeRule(DailyTrades.TYPE);
+		TraderAPI.API.RegisterTradeRule(DiscountCodes.TYPE);
 
 		TradeRule.addLoadListener(PlayerListing.LISTENER);
 		TradeRule.addIgnoreMissing("lightmanscurrency:whitelist");
@@ -274,7 +275,8 @@ public class LightmansCurrency {
 
 		//Initialize the Item Trade Restrictions
 		ItemTradeRestriction.init();
-		//Setup the ticket data for ticket kiosks and paygate traders
+		//Set up the ticket data for paygate traders
+		//No longer used for Ticket Kiosk recipes, it will now obey kiosk-specific variants of the trades so that any trade disabling will be ignored
 		TicketData.create(ModItems.TICKET_MASTER.get(), ModItems.TICKET.get(), ModItems.TICKET_STUB.get(), LCTags.Items.TICKET_MATERIAL_PAPER);
 		TicketData.create(ModItems.GOLDEN_TICKET_MASTER.get(), ModItems.GOLDEN_TICKET.get(), ModItems.GOLDEN_TICKET_STUB.get(), LCTags.Items.TICKET_MATERIAL_GOLD);
 

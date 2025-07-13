@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.crafting;
 
 import com.google.gson.JsonObject;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
+import io.github.lightman314.lightmanscurrency.common.crafting.input.TicketStationRecipeInput;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.FriendlyByteBuf;
@@ -54,7 +54,7 @@ public class TicketRecipe implements TicketStationRecipe {
 
     @Nonnull
     @Override
-    public ItemStack assemble(@Nonnull Container container, @Nonnull RegistryAccess registryAccess) {
+    public ItemStack assemble(@Nonnull TicketStationRecipeInput container, @Nonnull RegistryAccess registryAccess) {
         return TicketItem.CraftTicket(container.getItem(0), this.ticketResult);
     }
 
@@ -71,13 +71,16 @@ public class TicketRecipe implements TicketStationRecipe {
 
     @Nonnull
     @Override
-    public ItemStack peekAtResult(@Nonnull Container container) {
+    public ItemStack peekAtResult(@Nonnull Container container, @Nonnull String code) {
         return TicketItem.CraftTicket(container.getItem(0), this.ticketResult);
     }
 
     @Nonnull
     @Override
     public ResourceLocation getId() { return this.id; }
+
+    @Override
+    public ItemStack assembleWithKiosk(ItemStack sellItem, String code) { return TicketItem.CraftTicket(sellItem,this.ticketResult); }
 
     @Nonnull
     @Override

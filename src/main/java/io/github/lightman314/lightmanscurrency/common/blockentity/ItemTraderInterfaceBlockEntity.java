@@ -155,7 +155,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	}
 	
 	@Override
-	public ItemTradeData deserializeTrade(CompoundTag compound) { return ItemTradeData.loadData(compound, false); }
+	public ItemTradeData deserializeTrade(CompoundTag compound) { return ItemTradeData.loadData(compound, () -> new ItemTradeData(false)); }
 	
 	@Override
 	protected void saveAdditional(@NotNull CompoundTag compound) {

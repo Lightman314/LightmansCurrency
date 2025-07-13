@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObject
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
+import io.github.lightman314.lightmanscurrency.common.items.CouponItem;
 import io.github.lightman314.lightmanscurrency.common.items.MoneyBagItem;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
@@ -146,6 +147,7 @@ public class ModCreativeGroups {
                     p.accept(TicketItem.CreateTicket(ModItems.TICKET_MASTER.get(),-1));
                     p.accept(TicketItem.CreateTicket(ModItems.TICKET_PASS.get(),-1));
                     p.accept(TicketItem.CreateTicket(ModItems.TICKET.get(), -1));
+                    p.accept(CouponItem.CreateCoupon(ModItems.COUPON.get(),"3.14159265358979",Color.YELLOW.hexColor));
                     //Ticket Stub
                     ezPop(p, ModItems.TICKET_STUB);
                     //Golden Tickets (with a creative default UUID)

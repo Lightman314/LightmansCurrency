@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.traders.item;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCText;
@@ -93,7 +94,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	private ItemTraderData(){ this(TYPE); }
 	protected ItemTraderData(TraderType<?> type) {
 		super(type);
-		this.trades = ItemTradeData.listOfSize(1, true);
+		this.trades = ItemTradeData.listOfSize(1, this.tradeBuilder(true));
 		this.validateTradeRestrictions();
 	}
 	
@@ -102,7 +103,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	protected ItemTraderData(TraderType<?> type, int tradeCount, Level level, BlockPos pos)
 	{
 		super(type, level, pos);
-		this.trades = ItemTradeData.listOfSize(tradeCount, true);
+		this.trades = ItemTradeData.listOfSize(tradeCount, this.tradeBuilder(true));
 		this.baseTradeCount = tradeCount;
 		this.validateTradeRestrictions();
 	}
@@ -137,7 +138,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		
 		if(compound.contains(TradeData.DEFAULT_KEY))
 		{
-			this.trades = ItemTradeData.loadAllData(compound, !this.isPersistent());
+			this.trades = ItemTradeData.loadAllData(compound, this.tradeBuilder(!this.isPersistent()));
 			this.validateTradeRestrictions();
 		}
 		if(compound.contains("BaseTradeCount"))
@@ -145,6 +146,11 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		if(this.baseTradeCount <= 0) //Reset base trade count to current trade count if the current value is invalid
 			this.baseTradeCount = this.trades.size();
 		
+	}
+
+	protected Supplier<ItemTradeData> tradeBuilder(boolean validateRules)
+	{
+		return () -> new ItemTradeData(validateRules);
 	}
 	
 	@Override
@@ -200,7 +206,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		if(this.trades.size() == tradeCount)
 			return;
 		List<ItemTradeData> oldTrades = this.trades;
-		this.trades = ItemTradeData.listOfSize(tradeCount, !this.isPersistent());
+		this.trades = ItemTradeData.listOfSize(tradeCount, this.tradeBuilder(!this.isPersistent()));
 		//Write the old trade data into the array.
 		for(int i = 0; i < oldTrades.size() && i < this.trades.size(); i++)
 		{
@@ -230,7 +236,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		if(tradeSlot < 0 || tradeSlot >= this.trades.size())
 		{
 			LightmansCurrency.LogError("Cannot get trade in index " + tradeSlot + " from a trader with only " + this.trades.size() + " trades.");
-			return new ItemTradeData(false);
+			return this.tradeBuilder(false).get();
 		}
 		return this.trades.get(tradeSlot);
 	}
