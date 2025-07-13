@@ -1014,7 +1014,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(consumer);
 
         //2.2.6.1
-        //Coupon and Coupon Clone reipces
+        //Coupon
         CouponRecipeBuilder.of(LCTags.Items.TICKET_MATERIAL_PAPER)
                 .unlockedBy("ticket_station", LazyTrigger(ModBlocks.TICKET_STATION))
                 .unlockedBy("tickets", LazyTrigger(LCTags.Items.TICKETS))

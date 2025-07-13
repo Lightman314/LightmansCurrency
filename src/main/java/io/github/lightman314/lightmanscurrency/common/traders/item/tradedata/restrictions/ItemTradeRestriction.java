@@ -34,7 +34,7 @@ public class ItemTradeRestriction {
 		register("equipment_chest", EquipmentRestriction.CHEST);
 		register("equipment_legs", EquipmentRestriction.LEGS);
 		register("equipment_feet", EquipmentRestriction.FEET);
-		register("ticket_kiosk", new TicketKioskRestriction(new TicketItemTrade(false)));
+		register("ticket_kiosk", TicketKioskRestriction.REGISTERED_INSTANCE);
 		register("book", BookRestriction.INSTANCE);
 	}
 

@@ -87,9 +87,6 @@ public class TicketKioskRestriction extends ItemTradeRestriction {
 	public int getSaleStock(TraderItemStorage traderStorage, ItemTradeData trade) {
 		if(trade != this.trade)
 			return 0;
-		MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-		if(server == null)
-			return 0;
 		List<Pair<ResourceLocation,Integer>> countByRecipe = new ArrayList<>();
 		boolean foundTicket = false;
 		int minStock = Integer.MAX_VALUE;

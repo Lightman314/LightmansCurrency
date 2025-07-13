@@ -78,7 +78,8 @@ public class AuctionTradeButtonRenderer extends TradeRenderManager<AuctionTradeD
     @Override
     protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) {
         alerts.clear();
-        alerts.add(AlertData.of(LCText.TOOLTIP_TRADER_AUCTION_INFO_OWNER.get(this.trade.getOwner().getName(true)),AlertType.INVISIBLE));
+        if(this.trade.getOwner() != null)
+            alerts.add(AlertData.of(LCText.TOOLTIP_TRADER_AUCTION_INFO_OWNER.get(this.trade.getOwner().getName(true)),AlertType.INVISIBLE));
     }
 
     @Override
