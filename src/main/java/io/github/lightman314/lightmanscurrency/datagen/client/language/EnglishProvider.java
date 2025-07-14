@@ -866,7 +866,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.GUI_DISCOUNT_CODES_LIMIT,"Limit");
         this.translate(LCText.TRADE_RULE_DISCOUNT_CODES_INFO_SALE,"You have been given a %s%% discount from a coupon");
         this.translate(LCText.TRADE_RULE_DISCOUNT_CODES_INFO_PURCHASE,"You will be paid %s%% more because of a coupon");
-        this.translate(LCText.TRADE_RULE_DISCOUNT_CODES_INFO_LIMIT,"You have used %1$s of your %1$s coupon uses");
+        this.translate(LCText.TRADE_RULE_DISCOUNT_CODES_INFO_LIMIT,"You have used %1$s of your %2$s coupon uses");
         this.translate(LCText.TRADE_RULE_DISCOUNT_CODES_INFO_TIMED,"Coupon resets after %s");
 
         //Permissions
@@ -1131,6 +1131,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.DATA_CATEGORY_RULES_TRADE,"Trade Rules for Trade #%s");
         this.translate(LCText.DATA_CATEGORY_TRADER_ALLIES,"Allies");
         this.translate(LCText.DATA_CATEGORY_TRADER_ALLY_PERMS,"Ally Permissions");
+        this.translate(LCText.DATA_CATEGORY_TRADER_TAXES,"Tax Settings");
         this.translate(LCText.DATA_CATEGORY_TRADER_TRADES,"Trades");
         this.translate(LCText.DATA_CATEGORY_OWNERSHIP,"Ownership Settings");
         this.translate(LCText.DATA_CATEGORY_INPUT_SETTINGS,"Input/Output Settings");
