@@ -98,7 +98,7 @@ public class CouponRecipeBuilder implements RecipeBuilder {
 
         @Nonnull
         @Override
-        public RecipeSerializer<?> getType() { return ModRecipes.TICKET_MASTER.get(); }
+        public RecipeSerializer<?> getType() { return ModRecipes.COUPON.get(); }
 
         @Nullable
         @Override

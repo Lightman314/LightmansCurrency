@@ -1,5 +1,5 @@
 {
-  "type": "lightmanscurrency:ticket_master",
+  "type": "lightmanscurrency:coupon",
   "ingredient": {
     "tag": "lightmanscurrency:ticket_material/paper"
   },

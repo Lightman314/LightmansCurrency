@@ -82,7 +82,7 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 		}
 	}
 
-	private boolean codeInputVisible() { return this.selectedRecipe != null && this.selectedRecipe.requiredCodeInput(); }
+	public boolean codeInputVisible() { return this.selectedRecipe != null && this.selectedRecipe.requiredCodeInput(); }
 
 	@Override
 	protected void renderTick() {
