@@ -2,7 +2,7 @@
   "dummy": true,
   "freezer_door": {
     "hingeX": 0.03125,
-    "hingeZ": 0.09615385,
+    "hingeZ": 0.21875,
     "rotation": -90.0
   },
   "item": "lightmanscurrency:block/freezer/inverted/item",

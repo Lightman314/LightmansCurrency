@@ -170,7 +170,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
                         VersionUtil.lcResource("block/freezer/base_top"),
                         VersionUtil.lcResource("block/freezer/inverted/door"))
                 .withItem(VersionUtil.lcResource("block/freezer/inverted/item"))
-                .withProperty(VariantProperties.FREEZER_DOOR_DATA,new FreezerDoorData(-90f,0.5f/16f,2.5f/26f))
+                .withProperty(VariantProperties.FREEZER_DOOR_DATA,new FreezerDoorData(-90f,0.5f/16f,3.5f/16f))
                 .withProperty(VariantProperties.TOOLTIP_INFO,TooltipInfo.ofModifier(LCText.BLOCK_VARIANT_MODIFIER_INVERTED))
                 .asDummy()
                 .build());
