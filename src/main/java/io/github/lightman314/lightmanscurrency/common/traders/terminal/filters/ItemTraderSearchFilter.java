@@ -1,5 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.traders.terminal.filters;
 
+import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.FilterUtils;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.IBasicTraderFilter;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITradeSearchFilter;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.PendingSearch;
@@ -20,6 +23,16 @@ import java.util.function.Predicate;
 public class ItemTraderSearchFilter implements IBasicTraderFilter {
 
 	public static final String ITEM = "item";
+	public static final String STOCK_COUNT = "stock";
+
+	@Override
+	public void filter(TraderData data, PendingSearch search) {
+		var stockRequirement = FilterUtils.getStockRequirement(search, data);
+		TradeContext context = TradeContext.createStorageMode(data);
+		for(TradeData trade : data.getTradeData())
+			if (stockRequirement.satisfied(trade.getStock(context)))
+				this.filterTrade(trade, search);
+	}
 
 	@Override
 	public void filterTrade(@Nonnull TradeData data, @Nonnull PendingSearch search) {

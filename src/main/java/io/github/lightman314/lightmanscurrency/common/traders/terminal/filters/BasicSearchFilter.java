@@ -17,7 +17,6 @@ public class BasicSearchFilter implements ITraderSearchFilter {
 	public static final String ID = "id";
 	public static final String TRADE_COUNT = "trades";
 	public static final String CUSTOMER_READY = "ready";
-	public static final String STOCK_COUNT = "stock";
 
 	@Override
 	public void filter(TraderData data, PendingSearch search) {
@@ -28,7 +27,6 @@ public class BasicSearchFilter implements ITraderSearchFilter {
 		FilterUtils.longRange(search,ID,data.getID());
 		FilterUtils.intRange(search,TRADE_COUNT,data.validTradeCount());
 		FilterUtils.boolCheck(search,CUSTOMER_READY,data.readyForCustomers());
-		FilterUtils.checkStock(search,data);
 	}
 
 	private Predicate<String> checkType(TraderData trader)
