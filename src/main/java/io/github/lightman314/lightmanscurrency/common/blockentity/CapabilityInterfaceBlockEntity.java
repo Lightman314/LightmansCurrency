@@ -98,7 +98,7 @@ public class CapabilityInterfaceBlockEntity extends BlockEntity implements IVari
 			if(newPos.equals(this.worldPosition))
 				return super.getCapability(cap,side);
 			BlockEntity be = this.level.getBlockEntity(newPos);
-			if(be instanceof CapabilityInterfaceBlockEntity)
+			if(be == null || be instanceof CapabilityInterfaceBlockEntity)
 				return super.getCapability(cap,side);
 			return be.getCapability(cap,side);
 		}
