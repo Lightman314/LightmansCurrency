@@ -21,12 +21,7 @@ public abstract class SettingsNode implements IClientTracker {
 
     public static final Comparator<SettingsNode> SORTER = Comparator
             .comparingInt(SettingsNode::invPriority)
-            .thenComparing((a,b) -> {
-                        String nameA = a.getName().getString();
-                        String nameB = b.getName().getString();
-                        return nameA.compareToIgnoreCase(nameB);
-                    }
-            );
+            .thenComparing(n -> n.getName().getString(),String::compareToIgnoreCase);
 
     public final String key;
     private final int priority;

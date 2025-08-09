@@ -63,6 +63,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 				.selectedState(this.commonTab::isSelected)
 				.blockSearchBox()
 				.extraTooltips(this::tradeSelectTooltip)
+				.old(this.tradeDisplay)
 				.build());
 
 		this.buttonAddTrade = this.addChild(PlainButton.builder()

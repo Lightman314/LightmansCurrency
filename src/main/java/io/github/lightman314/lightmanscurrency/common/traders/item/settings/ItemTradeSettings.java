@@ -1,15 +1,20 @@
 package io.github.lightman314.lightmanscurrency.common.traders.item.settings;
 
+import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.settings.SettingsSubNode;
 import io.github.lightman314.lightmanscurrency.api.settings.data.LoadContext;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
 import io.github.lightman314.lightmanscurrency.api.traders.settings.builtin.trades.TradeSettings;
 import io.github.lightman314.lightmanscurrency.api.traders.settings.builtin.trades.TradeSubNode;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -19,7 +24,7 @@ import java.util.function.Consumer;
 @ParametersAreNonnullByDefault
 public class ItemTradeSettings extends TradeSettings<ItemTraderData> {
 
-    public ItemTradeSettings(String key, ItemTraderData trader) { super(key, trader); }
+    public ItemTradeSettings(ItemTraderData trader) { super("item_trades",trader); }
 
     @Nullable
     @Override
@@ -51,7 +56,9 @@ public class ItemTradeSettings extends TradeSettings<ItemTraderData> {
     }
 
     @Override
-    protected void writeLines(SavedSettingData.NodeAccess data, Consumer<Component> lineWriter) { }
+    protected void writeLines(SavedSettingData.NodeAccess data, Consumer<Component> lineWriter) {
+        lineWriter.accept(formatEntry(LCText.DATA_ENTRY_TRADER_TRADE_COUNT.get(),data.getIntValue("trade_count")));
+    }
 
     private static class TradeNode extends TradeSubNode<ItemTradeData,ItemTradeSettings>
     {
@@ -69,23 +76,60 @@ public class ItemTradeSettings extends TradeSettings<ItemTraderData> {
                 node.setCompoundValue("price",trade.getCost().save());
             for(int i = 0; i < (trade.isBarter() ? 4 : 2); ++i)
             {
-                node.setCompoundValue("item_" + i, InventoryUtil.saveItemNoLimits(trade.getItem(0)));
-                node.setBooleanValue("item_" + i + "_nbt",trade.getEnforceNBT(i));
+                String prefix = "item_" + i;
+                node.setCompoundValue(prefix, InventoryUtil.saveItemNoLimits(trade.getActualItem(i)));
+                node.setBooleanValue(prefix + "_nbt",trade.getEnforceNBT(i));
                 if(i < 2)
-                    node.setStringValue("item_" + i + "_name",trade.getCustomName(0));
+                    node.setStringValue(prefix + "_name",trade.getCustomName(i));
             }
+            //Save custom trade settings
+            trade.saveAdditionalSettings(node);
         }
 
         @Override
         protected void loadTrade(SavedSettingData.NodeAccess node, ItemTradeData trade, LoadContext context) {
-
+            trade.setTradeType(EnumUtil.enumFromString(node.getStringValue("type"),TradeDirection.values(),TradeDirection.SALE));
+            if(!trade.isBarter())
+                trade.setCost(MoneyValue.load(node.getCompoundValue("price")));
+            for(int i = 0; i < (trade.isBarter() ? 4 : 2); ++i)
+            {
+                String prefix = "item_" + i;
+                if(node.hasCompoundValue(prefix))
+                    trade.setItem(InventoryUtil.loadItemNoLimits(node.getCompoundValue(prefix)),i);
+                trade.setEnforceNBT(i,node.getBooleanValue(prefix + "_nbt"));
+                if(i < 2)
+                    trade.setCustomName(i,node.getStringValue(prefix + "_name"));
+            }
+            trade.loadAdditionalSettings(node);
         }
 
         @Override
         protected void writeLines(SavedSettingData.NodeAccess data, Consumer<Component> lineWriter) {
-
-
-
+            TradeDirection type = EnumUtil.enumFromString(data.getStringValue("type"),TradeDirection.values(),TradeDirection.SALE);
+            //Trade Type
+            lineWriter.accept(formatEntry(LCText.DATA_ENTRY_TRADER_TRADE_TYPE.get(),LCText.GUI_TRADE_DIRECTION.get(type).get()));
+            //Price
+            if(type != TradeDirection.BARTER)
+                lineWriter.accept(formatEntry(LCText.DATA_ENTRY_TRADER_TRADE_PRICE.get(),MoneyValue.load(data.getCompoundValue("price")).getText()));
+            //Items
+            int count = 0;
+            for(int i = 0; i < 2; ++i)
+            {
+                ItemStack item = InventoryUtil.loadItemNoLimits(data.getCompoundValue("item_" + i));
+                count += item.getCount();
+            }
+            lineWriter.accept(type == TradeDirection.PURCHASE ? LCText.DATA_ENTRY_TRADER_TRADE_ITEM_PURCHASE_ITEMS.get(count) : LCText.DATA_ENTRY_TRADER_TRADE_ITEM_SELL_ITEMS.get(count));
+            //Barter Items
+            if(type == TradeDirection.BARTER)
+            {
+                count = 0;
+                for(int i = 2; i < 4; ++i)
+                {
+                    ItemStack item = InventoryUtil.loadItemNoLimits(data.getCompoundValue("item_" + i));
+                    count += item.getCount();
+                }
+                lineWriter.accept(LCText.DATA_ENTRY_TRADER_TRADE_ITEM_BARTER_ITEMS.get(count));
+            }
         }
 
     }

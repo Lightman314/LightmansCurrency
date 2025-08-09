@@ -701,6 +701,8 @@ public final class LCConfig {
         public final BooleanOption auctionHouseOnTerminal = BooleanOption.createTrue();
         public final IntOption auctionHouseDurationMin = IntOption.create(0,0);
         public final IntOption auctionHouseDurationMax = IntOption.create(30,1);
+        public final BooleanOption auctionHouseAllowOwnerBidding = BooleanOption.createFalse();
+        public final BooleanOption auctionHouseAllowDoubleBidding = BooleanOption.createFalse();
 
         //Bank Account Settings
         public final DoubleOption bankAccountInterestRate = DoubleOption.create(0d,0d,1d);
@@ -946,6 +948,12 @@ public final class LCConfig {
 
             builder.comment("The maxumim number of day an auction can have its duration set to.")
                     .add("maximumDuration", this.auctionHouseDurationMax);
+
+            builder.comment("Whether the players are allowed to bid on their own Auctions")
+                    .add("ownerBidding",this.auctionHouseAllowOwnerBidding);
+
+            builder.comment("Whether players are allowed to bid on an auction when they were also the previous bidder")
+                    .add("doubleBidding",this.auctionHouseAllowDoubleBidding);
 
             builder.pop();
 

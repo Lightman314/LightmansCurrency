@@ -7,7 +7,6 @@ import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesColl
 import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesPaidNotification;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
-import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
@@ -1054,6 +1053,12 @@ public class LCText {
     public static final TextEntry DATA_ENTRY_PAYGATE_CONFLICT_HANDLING = TextEntry.dataName(MODID,"trader.paygate.conflict_handling");
     public static final TextEntry DATA_ENTRY_TRADER_TRADES = TextEntry.dataName(MODID,"trader.trades");
     public static final TextEntry DATA_ENTRY_RULES_COUNT = TextEntry.dataName(MODID,"rules.count");
+    public static final TextEntry DATA_ENTRY_TRADER_TRADE_COUNT = TextEntry.dataName(MODID,"trader.trades.count");
+    public static final TextEntry DATA_ENTRY_TRADER_TRADE_TYPE = TextEntry.dataName(MODID,"trader.trades.type");
+    public static final TextEntry DATA_ENTRY_TRADER_TRADE_PRICE = TextEntry.dataName(MODID,"trader.trades.price");
+    public static final TextEntry DATA_ENTRY_TRADER_TRADE_ITEM_SELL_ITEMS = TextEntry.dataName(MODID,"trader.trades.item.sell_items");
+    public static final TextEntry DATA_ENTRY_TRADER_TRADE_ITEM_PURCHASE_ITEMS = TextEntry.dataName(MODID,"trader.trades.item.purchase_items");
+    public static final TextEntry DATA_ENTRY_TRADER_TRADE_ITEM_BARTER_ITEMS = TextEntry.dataName(MODID,"trader.trades.barter_items");
 
     //Item Trade
     public static final TextEntry DATA_ENTRY_ITEM_TRADE_TYPE = TextEntry.dataName(MODID,"item_trader.type");

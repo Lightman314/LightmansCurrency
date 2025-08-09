@@ -90,6 +90,8 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 
 	private int scrollBarHeight;
 
+	private String searchStartText = "";
+
 	/**
 	 * @deprecated Use {@link Builder#scrollBarHeight(int)} instead
 	 */
@@ -140,6 +142,15 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 		//Interaction Handler
 		this.interactionHandler = builder.interactionHandler;
 
+		//Copy inputs from old instance
+		if(builder.old != null)
+		{
+			//Copy scroll value
+			this.scroll = builder.old.scroll;
+			if(builder.old.searchBox != null)
+				this.searchStartText = builder.old.searchBox.getValue();
+		}
+
 	}
 
 	@Override
@@ -159,6 +170,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 			this.searchBoxArea = ScreenArea.of(this.titlePosition.x + this.titleWidth - 90, this.titlePosition.y - 2, 90, 12);
 			this.searchBox = this.addChild(new EditBox(this.font, this.searchBoxArea.pos.x + 2, this.searchBoxArea.pos.y + 2, this.searchBoxArea.width - 10, 10, LCText.GUI_TRADER_SEARCH_TRADES.get()));
 			this.searchBox.setBordered(false);
+			this.searchBox.setValue(this.searchStartText);
 			this.searchBox.setResponder(s -> this.lastSearch = s);
 			this.tickSearchBox();
 		}
@@ -512,7 +524,10 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 		@Nullable
 		TradeInteractionHandler interactionHandler = null;
 		BiFunction<TraderData,TradeData,List<Component>> extraTooltips = (a,b) -> null;
+		@Nullable
+		TradeButtonArea old = null;
 
+		public Builder old(@Nullable TradeButtonArea old) { this.old = old; return this; }
 		public Builder traderSource(Supplier<ITraderSource> source) { this.traderSource = source; return this; }
 		public Builder context(Supplier<TradeContext> contextSource) { return this.context(t -> contextSource.get()); }
 		public Builder context(Function<TraderData,TradeContext> contextBuilder) { this.context = contextBuilder; return this; }

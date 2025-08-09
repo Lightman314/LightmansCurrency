@@ -257,8 +257,14 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		else
 		{
 			//Open bid menu for the given trade index
-			new SPacketStartBid(this.getID(), tradeIndex).sendTo(context.getPlayer());
-			return TradeResult.SUCCESS;
+			AuctionTradeData trade = this.getTrade(tradeIndex);
+			if(trade != null && trade.allowedToBid(context.getPlayer()))
+			{
+				new SPacketStartBid(this.getID(), tradeIndex).sendTo(context.getPlayer());
+				return TradeResult.SUCCESS;
+			}
+			else
+				return TradeResult.FAIL_TRADE_RULE_DENIAL;
 		}
 	}
 	

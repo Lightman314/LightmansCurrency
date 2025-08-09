@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.blockentity.handler;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.ItemTraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler;
@@ -26,7 +25,7 @@ public class ItemInterfaceHandler extends ConfigurableSidedHandler<IItemHandler>
 	
 	private final Map<Direction,Handler> handlers = new HashMap<>();
 	
-	public ItemInterfaceHandler(ItemTraderInterfaceBlockEntity blockEntity, Supplier<TraderItemStorage> itemBufferSource) {
+	public ItemInterfaceHandler(ItemTraderInterfaceBlockEntity blockEntity) {
 		this.blockEntity = blockEntity;
 	}
 	

@@ -61,7 +61,7 @@ public class CashRegisterPeripheral extends MultiTraderPeripheral {
         if(newBE instanceof TraderBlockEntity<?> tbe)
             newPos = tbe.getBlockPos();
         else
-            throw new LuaException("Cannot find a trader at " + x + " " + y + " " + "z");
+            throw new LuaException("Cannot find a trader at " + x + " " + y + " " + z);
         if(pos.contains(newPos))
             throw new LuaException("Cannot add " + x + " " + y + " " + z + " as it's already in the list of positions!");
         pos.add(newPos);

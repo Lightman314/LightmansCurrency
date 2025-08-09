@@ -1,13 +1,17 @@
 package io.github.lightman314.lightmanscurrency.common.traders.item.tradedata;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
@@ -23,11 +27,13 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderSt
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -38,6 +44,24 @@ import javax.annotation.Nonnull;
 
 public class ItemTradeData extends TradeData {
 
+	private static final Map<ResourceLocation, Function<Boolean,ItemTradeData>> typeRegistry;
+	private static final ResourceLocation DEFAULT_TYPE = VersionUtil.lcResource("item");
+
+	static {
+		typeRegistry = new HashMap<>();
+		typeRegistry.put(DEFAULT_TYPE,ItemTradeData::new);
+	}
+
+	public static void registerCustomItemTrade(ResourceLocation typeID, Function<Boolean,ItemTradeData> builder)
+	{
+		if(typeRegistry.containsKey(typeID))
+		{
+			LightmansCurrency.LogWarning("Duplicate Item Trade Type '" + typeID + " was registered!");
+			return;
+		}
+		typeRegistry.put(typeID,builder);
+	}
+
 	@Nonnull
 	public static TradeDirection getNextInCycle(@Nonnull TradeDirection direction)
 	{
@@ -47,7 +71,14 @@ public class ItemTradeData extends TradeData {
 		return TradeDirection.fromIndex(index);
 	}
 
-	public ItemTradeData(boolean validateRules) { super(validateRules); this.resetNBTList(); }
+	protected final ResourceLocation type;
+	private ItemTradeData(boolean validateRules) { this(DEFAULT_TYPE,validateRules); }
+	public ItemTradeData(ResourceLocation type,boolean validateRules) {
+		super(validateRules);
+		this.type = type;
+		this.resetNBTList();
+	}
+	public static ItemTradeData create(boolean validateRules) { return new ItemTradeData(validateRules); }
 
 	ItemTradeRestriction restriction = ItemTradeRestriction.NONE;
 	SimpleContainer items = new SimpleContainer(4);
@@ -56,13 +87,6 @@ public class ItemTradeData extends TradeData {
 	TradeDirection tradeType = TradeDirection.SALE;
 	String customName1 = "";
 	String customName2 = "";
-
-	protected ItemStack getSellItemInternal(int index)
-	{
-		if(index >= 0 && index < 2)
-			return this.items.getItem(index);
-		return ItemStack.EMPTY;
-	}
 
 	public ItemStack getSellItem(int index)
 	{
@@ -86,6 +110,13 @@ public class ItemTradeData extends TradeData {
 			return this.getSellItem(index);
 		else if(index >= 2 && index < 4)
 			return this.getBarterItem(index - 2);
+		return ItemStack.EMPTY;
+	}
+
+	public final ItemStack getActualItem(int index)
+	{
+		if(index >= 0 && index < 4)
+			return this.items.getItem(index);
 		return ItemStack.EMPTY;
 	}
 
@@ -276,6 +307,7 @@ public class ItemTradeData extends TradeData {
 	@Override
 	public CompoundTag getAsNBT() {
 		CompoundTag tradeNBT = super.getAsNBT();
+		tradeNBT.putString("Type",this.type.toString());
 		InventoryUtil.saveAllItems("Items", tradeNBT, this.items);
 		tradeNBT.putString("TradeDirection", this.tradeType.name());
 		tradeNBT.putString("CustomName1", this.customName1);
@@ -290,6 +322,8 @@ public class ItemTradeData extends TradeData {
 			tradeNBT.putIntArray("IgnoreNBT", ignoreNBTSlots);
 		return tradeNBT;
 	}
+
+	public void saveAdditionalSettings(SavedSettingData.MutableNodeAccess node) { }
 
 	public static void saveAllData(CompoundTag nbt, List<ItemTradeData> data)
 	{
@@ -311,6 +345,19 @@ public class ItemTradeData extends TradeData {
 		ItemTradeData trade = builder.get();
 		trade.loadFromNBT(compound);
 		return trade;
+	}
+
+	public static ItemTradeData loadOfUnknownType(CompoundTag compoundTag, boolean validateRules)
+	{
+		Function<Boolean,ItemTradeData> temp = ItemTradeData::new;
+		if(compoundTag.contains("Type"))
+		{
+			ResourceLocation type = VersionUtil.parseResource(compoundTag.getString("Type"));
+			if(typeRegistry.containsKey(type))
+				temp = typeRegistry.get(type);
+		}
+		final Function<Boolean,ItemTradeData> builder = temp;
+		return loadData(compoundTag,() -> builder.apply(validateRules));
 	}
 
 	public static List<ItemTradeData> loadAllData(CompoundTag nbt, Supplier<ItemTradeData> builder)
@@ -369,6 +416,8 @@ public class ItemTradeData extends TradeData {
 			}
 		}
 	}
+
+	public void loadAdditionalSettings(SavedSettingData.NodeAccess node) {}
 
 	public static TradeDirection loadTradeType(String name)
 	{

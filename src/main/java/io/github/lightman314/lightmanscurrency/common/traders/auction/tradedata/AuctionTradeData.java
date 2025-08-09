@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.api.config.options.basic.BooleanOption;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
@@ -192,10 +193,22 @@ public class AuctionTradeData extends TradeData {
 		return false;
 	}
 
+	public boolean allowedToBid(Player player)
+	{
+		return this.allowed(this.tradeOwner,player,LCConfig.SERVER.auctionHouseAllowOwnerBidding) && this.allowed(this.lastBidPlayer,player,LCConfig.SERVER.auctionHouseAllowDoubleBidding);
+	}
+
+	private boolean allowed(@Nullable PlayerReference test, Player player, BooleanOption config)
+	{
+		return test == null || !test.is(player) || config.get();
+	}
+
 	public boolean tryMakeBid(AuctionHouseTrader trader, Player player, MoneyValue amount) {
 		if(this.cancelled)
 			return false;
 		if(!validateBidAmount(amount))
+			return false;
+		if(!this.allowedToBid(player))
 			return false;
 
 		PlayerReference oldBidder = this.lastBidPlayer;

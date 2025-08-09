@@ -95,7 +95,7 @@ public class AuctionBidTab extends TraderClientTab {
 	@Override
 	public void tick() {
 		AuctionTradeData trade = this.getTrade();
-		if(trade == null || !trade.isValid())
+		if(trade == null || !trade.isValid() || !trade.allowedToBid(this.menu.getPlayer()))
 		{
 			this.screen.closeTab();
 			return;

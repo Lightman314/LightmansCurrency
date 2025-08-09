@@ -65,6 +65,9 @@ public class AncientMoneyValue extends MoneyValue implements IItemBasedValue {
     public MoneyValue addValue(@Nonnull MoneyValue addedValue) {
         if(addedValue instanceof AncientMoneyValue other && other.type == this.type)
             return new AncientMoneyValue(this.type,this.count + other.count);
+        //Return this of the other is empty
+        if(addedValue.isEmpty())
+            return this;
         return null;
     }
 
@@ -72,13 +75,16 @@ public class AncientMoneyValue extends MoneyValue implements IItemBasedValue {
     public boolean containsValue(@Nonnull MoneyValue queryValue) {
         if(queryValue instanceof AncientMoneyValue value && value.type == this.type)
             return value.count <= this.count;
-        return false;
+        return queryValue.isEmpty();
     }
 
     @Override
     public MoneyValue subtractValue(@Nonnull MoneyValue removedValue) {
         if(removedValue instanceof AncientMoneyValue other && other.type == this.type)
             return of(this.type, this.count - other.count);
+        //Return this if the other value is empty
+        if(removedValue.isEmpty())
+            return this;
         return null;
     }
 
@@ -88,8 +94,8 @@ public class AncientMoneyValue extends MoneyValue implements IItemBasedValue {
             return this;
         if(percentage == 0)
             return MoneyValue.free();
-        if(!this.isValidPrice())
-            return this;
+        if(this.count <= 0)
+            return MoneyValue.free();
         long value = this.getCoreValue();
         //Calculate the new value
         long newValue = value * MathUtil.clamp(percentage, 0, 1000) / 100L;
@@ -100,12 +106,12 @@ public class AncientMoneyValue extends MoneyValue implements IItemBasedValue {
             if(partial > 0)
                 newValue += 1;
         }
-        if(newValue == 0)
+        if(newValue <= 0)
             return MoneyValue.free();
         return this.fromCoreValue(newValue);
     }
 
-    //No interesting on ancient coins please and thank you :)
+    //No interest on ancient coins please and thank you :)
     @Nonnull
     @Override
     public MoneyValue multiplyValue(double multiplier) { return empty(); }
@@ -129,11 +135,7 @@ public class AncientMoneyValue extends MoneyValue implements IItemBasedValue {
 
     @Nonnull
     @Override
-    public MoneyValue fromCoreValue(long value) {
-        if(!this.isValidPrice())
-            return this;
-        return of(this.type,value);
-    }
+    public MoneyValue fromCoreValue(long value) { return of(this.type,value); }
 
     @Override
     protected void saveAdditional(@Nonnull CompoundTag tag) {

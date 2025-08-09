@@ -29,6 +29,8 @@ import io.github.lightman314.lightmanscurrency.common.money.ancient_money.Ancien
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientMoneyType;
 import io.github.lightman314.lightmanscurrency.common.traders.commands.CommandTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ticket.TicketItemTrade;
+import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.advancements.LCAdvancementTriggers;
 import io.github.lightman314.lightmanscurrency.common.blocks.CoinBlock;
@@ -299,6 +301,9 @@ public class LightmansCurrency {
 		BlockProtectionHelper.ProtectBlock(b -> b instanceof CoinBlock);
 
 		PrettyTextWriter.register(BookTextWriter.INSTANCE);
+
+		//Register Custom Item Trades
+		ItemTradeData.registerCustomItemTrade(TicketItemTrade.TYPE,TicketItemTrade::new);
 
 		//Setup Mod Compats
 		IntegrationUtil.SafeRunIfLoaded("ftbteams", LCFTBTeams::setup,"Error setting up FTB Teams compat!");

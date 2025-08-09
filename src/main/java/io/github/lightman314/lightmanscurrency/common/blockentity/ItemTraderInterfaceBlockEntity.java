@@ -48,7 +48,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	
 	public ItemTraderInterfaceBlockEntity(BlockPos pos, BlockState state) {
 		super(ModBlockEntities.TRADER_INTERFACE_ITEM.get(), pos, state);
-		this.itemHandler = this.addHandler(new ItemInterfaceHandler(this, this::getItemBuffer));
+		this.itemHandler = this.addHandler(new ItemInterfaceHandler(this));
 	}
 
 	@Override
@@ -155,7 +155,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	}
 	
 	@Override
-	public ItemTradeData deserializeTrade(CompoundTag compound) { return ItemTradeData.loadData(compound, () -> new ItemTradeData(false)); }
+	public ItemTradeData deserializeTrade(CompoundTag compound) { return ItemTradeData.loadOfUnknownType(compound,false); }
 	
 	@Override
 	protected void saveAdditional(@NotNull CompoundTag compound) {
