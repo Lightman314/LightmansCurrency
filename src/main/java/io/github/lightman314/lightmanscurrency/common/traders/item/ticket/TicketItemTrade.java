@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
 import io.github.lightman314.lightmanscurrency.api.ticket.TicketGroupData;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
@@ -31,13 +32,15 @@ import java.util.List;
 @ParametersAreNonnullByDefault
 public class TicketItemTrade extends ItemTradeData {
 
+    public static final ResourceLocation TYPE = VersionUtil.lcResource("ticket_kiosk");
+
     private final TicketKioskRestriction restriction = new TicketKioskRestriction(this);
 
     private final TicketSaleData ticketData1 = new TicketSaleData(0);
     private final TicketSaleData ticketData2 = new TicketSaleData(1);
 
     public TicketItemTrade(boolean validateRules) {
-        super(validateRules);
+        super(TYPE,validateRules);
         super.setRestriction(this.restriction);
     }
 
@@ -79,6 +82,12 @@ public class TicketItemTrade extends ItemTradeData {
     }
 
     @Override
+    public void saveAdditionalSetings(SavedSettingData.MutableNodeAccess node) {
+        this.ticketData1.saveSettings(node);
+        this.ticketData2.saveSettings(node);
+    }
+
+    @Override
     public void loadFromNBT(CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
         super.loadFromNBT(tag, lookup);
 
@@ -93,9 +102,15 @@ public class TicketItemTrade extends ItemTradeData {
             updateFromOldData(this.ticketData2,1);
     }
 
+    @Override
+    public void loadAdditionalSettings(SavedSettingData.NodeAccess node) {
+        this.ticketData1.loadSettings(node);
+        this.ticketData2.loadSettings(node);
+    }
+
     private void updateFromOldData(TicketSaleData data, int index)
     {
-        ItemStack sellItem = this.getSellItemInternal(index);
+        ItemStack sellItem = this.getActualItem(index);
         if(TicketItem.isTicket(sellItem))
         {
             TicketGroupData group = TicketGroupData.getForTicket(sellItem);
@@ -144,7 +159,7 @@ public class TicketItemTrade extends ItemTradeData {
             this.code = couponCode;
         }
         public List<RecipeHolder<TicketStationRecipe>> getMatchingRecipes() {
-            ItemStack sellItem = TicketItemTrade.this.getSellItemInternal(this.index);
+            ItemStack sellItem = TicketItemTrade.this.getActualItem(this.index);
             Level level = LightmansCurrency.getProxy().safeGetDummyLevel();
             if(level != null)
             {
@@ -176,7 +191,7 @@ public class TicketItemTrade extends ItemTradeData {
                     if(holder.id().equals(this.recipeID))
                     {
                         //Don't return the trade if it doesn't match our required item
-                        if(!holder.value().matchesTicketKioskSellItem(TicketItemTrade.this.getSellItemInternal(this.index)))
+                        if(!holder.value().matchesTicketKioskSellItem(TicketItemTrade.this.getActualItem(this.index)))
                             return null;
                         return holder.value();
                     }
@@ -191,7 +206,7 @@ public class TicketItemTrade extends ItemTradeData {
         }
         public ItemStack getCraftingResult(boolean replaceName)
         {
-            ItemStack sellItem = TicketItemTrade.this.getSellItemInternal(this.index);
+            ItemStack sellItem = TicketItemTrade.this.getActualItem(this.index);
             if(!this.isRecipeMode())
                 return sellItem;
             TicketStationRecipe recipe = this.tryGetRecipe();
@@ -213,7 +228,7 @@ public class TicketItemTrade extends ItemTradeData {
         }
         public boolean isValid()
         {
-            ItemStack sellItem = TicketItemTrade.this.getSellItemInternal(this.index);
+            ItemStack sellItem = TicketItemTrade.this.getActualItem(this.index);
             TicketStationRecipe recipe = this.tryGetRecipe();
             if(recipe != null)
                 return recipe.matchesTicketKioskSellItem(sellItem) && (recipe.validCode(this.code));
@@ -231,11 +246,30 @@ public class TicketItemTrade extends ItemTradeData {
             return tag;
         }
 
+        public void saveSettings(SavedSettingData.MutableNodeAccess node)
+        {
+            String prefix = "item_" + this.index + "_ticketdata_";
+            if(this.recipeID == null)
+                node.setBooleanValue(prefix + "no_recipe",true);
+            else
+                node.setStringValue(prefix + "recipe",this.recipeID.toString());
+            node.setStringValue(prefix + "code",this.code);
+        }
+
         public void load(CompoundTag tag)
         {
             if(tag.contains("Recipe"))
                 this.recipeID = VersionUtil.parseResource(tag.getString("Recipe"));
             this.code = tag.getString("Code");
+        }
+
+        public void loadSettings(SavedSettingData.NodeAccess node)
+        {
+            String prefix = "item_" + this.index + "_ticketdata_";
+            if(node.getBooleanValue(prefix + "no_recipe"))
+                this.recipeID = null;
+            this.recipeID = VersionUtil.parseResource(node.getStringValue(prefix + "recipe"));
+            this.code = node.getStringValue(prefix + "code");
         }
 
     }

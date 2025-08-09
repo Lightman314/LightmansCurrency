@@ -140,7 +140,7 @@ public class ItemTradeNotification extends SingleLineTaxableNotification {
 				if(!this.items.get(i).matches(itn.items.get(i)))
 					return false;
 			}
-			if(itn.cost.equals(this.cost))
+			if(!itn.cost.equals(this.cost))
 				return false;
 			if(!itn.customer.equals(this.customer))
 				return false;

@@ -14,9 +14,11 @@ public class LCItemAttributes {
     public static void init() {}
 
     public static final Supplier<ItemAttributeType> VARIANT_ATTRIBUTE;
+    public static final Supplier<ItemAttributeType> COIN_ATTRIBUTE;
 
     static {
         VARIANT_ATTRIBUTE = register("model_variant", VariantAttributeType::new);
+        COIN_ATTRIBUTE = register("coin", CoinAttributeType::new);
     }
 
     private static Supplier<ItemAttributeType> register(String id,Supplier<ItemAttributeType> builder) { return REGISTRY.register(id,builder); }

@@ -1123,6 +1123,12 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.DATA_ENTRY_PAYGATE_CONFLICT_HANDLING,"Output Conflict Handling");
         this.translate(LCText.DATA_ENTRY_RULES_COUNT,"%s Active Rules");
         this.translate(LCText.DATA_ENTRY_TRADER_TRADES,"Trade #%s");
+        this.translate(LCText.DATA_ENTRY_TRADER_TRADE_COUNT,"Trades");
+        this.translate(LCText.DATA_ENTRY_TRADER_TRADE_TYPE,"Trade Type");
+        this.translate(LCText.DATA_ENTRY_TRADER_TRADE_PRICE,"Price");
+        this.translate(LCText.DATA_ENTRY_TRADER_TRADE_ITEM_SELL_ITEMS,"Selling %s Items");
+        this.translate(LCText.DATA_ENTRY_TRADER_TRADE_ITEM_PURCHASE_ITEMS,"Purchasing %s Items");
+        this.translate(LCText.DATA_ENTRY_TRADER_TRADE_ITEM_BARTER_ITEMS,"Bartering for %s Items");
 
         //Data Categories
         this.translate(LCText.DATA_CATEGORY_TRADER_DISPLAY,"Display Settings");
@@ -1347,6 +1353,8 @@ public class EnglishProvider extends TranslationProvider {
         this.add("create.item_attributes.lightmanscurrency.model_variant.inverted","Does not have the Model Variant '%s'");
         this.add("create.item_attributes.lightmanscurrency.model_variant.null","Does not have any Model Variant");
         this.add("create.item_attributes.lightmanscurrency.model_variant.null.inverted","Has any Model Variant");
+        this.add("create.item_attributes.lightmanscurrency.coin.any","Is any coin");
+        this.add("create.item_attributes.lightmanscurrency.coin.chain","Is a '%s' coin");
 
     }
 

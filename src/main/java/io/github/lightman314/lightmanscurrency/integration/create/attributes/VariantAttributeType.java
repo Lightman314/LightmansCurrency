@@ -55,11 +55,11 @@ public class VariantAttributeType implements ItemAttributeType {
     {
         private static VariantAttribute create(ResourceLocation variantID)
         {
-            if(variantID == NULL_ID)
+            if(variantID.equals(NULL_ID))
                 return NO_VARIANT_ATTRIBUTE;
             return new VariantAttribute(variantID);
         }
-        private boolean isNullType() { return this.variantID == NULL_ID; }
+        private boolean isNullType() { return this.variantID.equals(NULL_ID); }
         @Override
         public boolean appliesTo(ItemStack stack, Level world) {
             ResourceLocation variant = stack.getOrDefault(ModDataComponents.MODEL_VARIANT,null);

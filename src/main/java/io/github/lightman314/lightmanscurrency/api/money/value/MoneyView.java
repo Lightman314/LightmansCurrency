@@ -52,7 +52,6 @@ public final class MoneyView {
     /**
      * Returns the stored value with the name requested.
      */
-    
     public MoneyValue valueOf(String uniqueName) { return this.values.getOrDefault(uniqueName, MoneyValue.empty()); }
 
     /**

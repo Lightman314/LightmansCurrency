@@ -6,6 +6,7 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.function.Predicate;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -13,8 +14,12 @@ public interface IBasicTraderFilter extends ITraderSearchFilter, ITradeSearchFil
 
     @Override
     default void filter(TraderData data, PendingSearch search, HolderLookup.Provider lookup) {
+        Predicate<TradeData> tradeTest = FilterUtils.getTradeFilter(search,data);
         for(TradeData trade : data.getTradeData())
-            this.filterTrade(trade,search,lookup);
+        {
+            if(tradeTest.test(trade))
+                this.filterTrade(trade,search,lookup);
+        }
     }
 
 }

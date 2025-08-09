@@ -2,11 +2,13 @@ package io.github.lightman314.lightmanscurrency.common.traders.item;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.settings.SettingsNode;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.traders.*;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
@@ -17,6 +19,7 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.TraderItemHandler;
+import io.github.lightman314.lightmanscurrency.common.traders.item.settings.ItemTradeSettings;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.TradeOfferUpgrade;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.AddRemoveTradeNotification;
@@ -106,6 +109,11 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	}
 
 	@Override
+	protected void registerNodes(Consumer<SettingsNode> builder) {
+		builder.accept(new ItemTradeSettings(this));
+	}
+
+	@Override
 	protected boolean allowVoidUpgrade() { return true; }
 
 	@Override
@@ -145,10 +153,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 
 	}
 
-	protected Supplier<ItemTradeData> tradeBuilder(boolean validateRules)
-	{
-		return () -> new ItemTradeData(validateRules);
-	}
+	protected Supplier<ItemTradeData> tradeBuilder(boolean validateRules) { return () -> ItemTradeData.create(validateRules); }
 	
 	@Override
 	public int getTradeCount() { return this.trades.size(); }
@@ -368,7 +373,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			try {
 				JsonObject tradeData = trades.get(i).getAsJsonObject();
 				
-				ItemTradeData newTrade = new ItemTradeData(false);
+				ItemTradeData newTrade = ItemTradeData.create(false);
 				//Sell Item
 				newTrade.setItem(FileUtil.parseItemStack(GsonHelper.getAsJsonObject(tradeData, "SellItem"),lookup), 0);
 				if(tradeData.has("SellItem2"))
@@ -568,10 +573,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				//Remove the sold items from storage
 				trade.RemoveItemsFromStorage(this.getStorage(),soldItems);
 				this.markStorageDirty();
-				
-				//Push out of stock notification
-				if(!trade.hasStock(this))
-					this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
+
 			}
 
 			//Handle Stats
@@ -581,6 +583,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 
 			//Push Notification
 			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
+			//Push out of stock notification
+			if(!trade.hasStock(this))
+				this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
 
 			//Push the post-trade event
 			this.runPostTradeEvent(trade, context, price, taxesPaid);
@@ -625,10 +630,6 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				for(ItemStack item : collectableItems)
 					this.getStorage().forceAddItem(item);
 				this.markStorageDirty();
-
-				//Push out of stock notification
-				if(!trade.hasStock(this))
-					this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
 			}
 			if(!this.isCreative())
 			{
@@ -643,7 +644,10 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 
 			//Push Notification
 			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
-			
+			//Push out of stock notification
+			if(!trade.hasStock(this))
+				this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
+
 			//Push the post-trade event
 			this.runPostTradeEvent(trade, context, price, taxesPaid);
 			
@@ -707,10 +711,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 					return TradeResult.FAIL_NO_OUTPUT_SPACE;
 				}
 			}
-			
-			//Push Notification
-			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), MoneyValue.empty()));
-			
+
 			//Ignore editing internal storage if this is flagged as creative or a void upgrade is equipped
 			boolean storageChanged = false;
 			if(this.shouldStoreGoods())
@@ -725,19 +726,20 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				//Remove the item from storage
 				trade.RemoveItemsFromStorage(this.getStorage(), soldItems);
 				storageChanged = true;
-
-				//Push out of stock notification
-				if(!trade.hasStock(this))
-					this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
 			}
 			if(storageChanged)
 				this.markStorageDirty();
-			
+
+			//Push Notification
+			this.pushNotification(ItemTradeNotification.create(trade, price, context.getPlayerReference(), this.getNotificationCategory(), MoneyValue.empty()));
+			//Push out of stock notification
+			if(!trade.hasStock(this))
+				this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
+
 			//Push the post-trade event
 			this.runPostTradeEvent(trade, context, price, MoneyValue.empty());
-			
+
 			return TradeResult.SUCCESS;
-			
 		}
 		
 		return TradeResult.FAIL_INVALID_TRADE;

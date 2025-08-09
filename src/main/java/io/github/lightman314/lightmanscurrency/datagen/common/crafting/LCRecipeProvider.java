@@ -1026,7 +1026,7 @@ public class LCRecipeProvider extends RecipeProvider {
 
     }
 
-    private static void GenerateWalletRecipes(@Nonnull RecipeOutput consumer, List<Pair<Ingredient, Supplier<? extends ItemLike>>> ingredientWalletPairs)
+    protected static void GenerateWalletRecipes(@Nonnull RecipeOutput consumer, List<Pair<Ingredient, Supplier<? extends ItemLike>>> ingredientWalletPairs)
     {
         Ingredient leather = Ingredient.of(Tags.Items.LEATHERS);
         List<Ingredient> ingredients = ingredientWalletPairs.stream().map(Pair::getFirst).toList();
@@ -1065,7 +1065,7 @@ public class LCRecipeProvider extends RecipeProvider {
         }
     }
 
-    private static void GenerateLastWalletRecipeAndUpgrades(@Nonnull RecipeOutput consumer, List<Pair<Ingredient,Supplier<? extends ItemLike>>> ingredientWalletPairs)
+    protected static void GenerateLastWalletRecipeAndUpgrades(@Nonnull RecipeOutput consumer, List<Pair<Ingredient,Supplier<? extends ItemLike>>> ingredientWalletPairs)
     {
         Ingredient leather = Ingredient.of(Tags.Items.LEATHERS);
         List<Ingredient> ingredients = ingredientWalletPairs.stream().map(Pair::getFirst).toList();
@@ -1099,14 +1099,14 @@ public class LCRecipeProvider extends RecipeProvider {
         }
     }
 
-    private static void GenerateSwapRecipes(@Nonnull RecipeOutput consumer, ItemLike item1, ItemLike item2, List<Pair<String, Criterion<?>>> criteria)
+    protected static void GenerateSwapRecipes(@Nonnull RecipeOutput consumer, ItemLike item1, ItemLike item2, List<Pair<String, Criterion<?>>> criteria)
     {
         String group = ItemPath(item2) + "_swap";
         GenerateSwapRecipe(consumer, item1, item2, group, criteria);
         GenerateSwapRecipe(consumer, item2, item1, group, criteria);
     }
 
-    private static void GenerateSwapRecipe(@Nonnull RecipeOutput consumer, ItemLike item1, ItemLike item2, @Nullable String group, List<Pair<String, Criterion<?>>> criteria)
+    protected static void GenerateSwapRecipe(@Nonnull RecipeOutput consumer, ItemLike item1, ItemLike item2, @Nullable String group, List<Pair<String, Criterion<?>>> criteria)
     {
         ShapelessRecipeBuilder b = ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, item2)
                 .group(group);
@@ -1116,8 +1116,8 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(consumer, ID(ItemPath(item1) + "_swap"));
     }
 
-    private static void GenerateCoinBlockRecipes(@Nonnull RecipeOutput consumer, Supplier<? extends ItemLike> coin, Supplier<? extends ItemLike> coinPile, Supplier<? extends ItemLike> coinBlock) { GenerateCoinBlockRecipes(consumer,coin,coinPile,coinBlock,"",MoneyKnowledge()); }
-    private static void GenerateCoinBlockRecipes(@Nonnull RecipeOutput consumer, Supplier<? extends ItemLike> coin, Supplier<? extends ItemLike> coinPile, Supplier<? extends ItemLike> coinBlock, @Nonnull String prefix, @Nonnull Criterion<?> moneyKnowledge)
+    protected static void GenerateCoinBlockRecipes(@Nonnull RecipeOutput consumer, Supplier<? extends ItemLike> coin, Supplier<? extends ItemLike> coinPile, Supplier<? extends ItemLike> coinBlock) { GenerateCoinBlockRecipes(consumer,coin,coinPile,coinBlock,"",MoneyKnowledge()); }
+    protected static void GenerateCoinBlockRecipes(@Nonnull RecipeOutput consumer, Supplier<? extends ItemLike> coin, Supplier<? extends ItemLike> coinPile, Supplier<? extends ItemLike> coinBlock, @Nonnull String prefix, @Nonnull Criterion<?> moneyKnowledge)
     {
         //Coin -> Pile
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, coinPile.get())
@@ -1150,7 +1150,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(consumer, ID("coins/" + ItemPath(coin) + "_from_pile"));
     }
 
-    private static void GenerateColoredDyeAndWashRecipes(@Nonnull RecipeOutput consumer, RegistryObjectBundle<? extends ItemLike,Color> bundle, ItemLike cleanItem, @Nullable String dyeGroup, String prefix, List<Pair<String, Criterion<?>>> criteria)
+    protected static void GenerateColoredDyeAndWashRecipes(@Nonnull RecipeOutput consumer, RegistryObjectBundle<? extends ItemLike,Color> bundle, ItemLike cleanItem, @Nullable String dyeGroup, String prefix, List<Pair<String, Criterion<?>>> criteria)
     {
         List<ItemLike> coloredSet = new ArrayList<>();
         for(Color color : Color.values())
@@ -1177,8 +1177,8 @@ public class LCRecipeProvider extends RecipeProvider {
     }
 
     @Deprecated
-    private static void GenerateMintAndMeltRecipes(@Nonnull RecipeOutput consumer, Supplier<? extends ItemLike> coin, TagKey<Item> materialTag, ItemLike materialItem) { GenerateMintAndMeltRecipes(consumer,coin,materialTag,materialItem,null,null); }
-    private static void GenerateMintAndMeltRecipes(@Nonnull RecipeOutput consumer, Supplier<? extends ItemLike> coin, TagKey<Item> materialTag, ItemLike materialItem, @Nullable BooleanOption mintConfig, @Nullable BooleanOption meltConfig)
+    protected static void GenerateMintAndMeltRecipes(@Nonnull RecipeOutput consumer, Supplier<? extends ItemLike> coin, TagKey<Item> materialTag, ItemLike materialItem) { GenerateMintAndMeltRecipes(consumer,coin,materialTag,materialItem,null,null); }
+    protected static void GenerateMintAndMeltRecipes(@Nonnull RecipeOutput consumer, Supplier<? extends ItemLike> coin, TagKey<Item> materialTag, ItemLike materialItem, @Nullable BooleanOption mintConfig, @Nullable BooleanOption meltConfig)
     {
         //Mint Recipe
         MintRecipeBuilder.create(materialTag,coin.get())
@@ -1191,7 +1191,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(consumer.withConditions(lazyArray(ConfigCraftingCondition.of(LCConfig.COMMON.coinMintCanMelt),meltConfig != null ? ConfigCraftingCondition.of(meltConfig) : null)), ItemID("coin_mint/melt_", coin));
     }
 
-    private static ICondition[] lazyArray(ICondition... nullableInputs)
+    protected static ICondition[] lazyArray(ICondition... nullableInputs)
     {
         List<ICondition> list = new ArrayList<>();
         for(ICondition value : nullableInputs)
@@ -1202,29 +1202,29 @@ public class LCRecipeProvider extends RecipeProvider {
         return list.toArray(ICondition[]::new);
     }
 
-    private static Criterion<?> MoneyKnowledge() { return LazyTrigger(LCTags.Items.COINS); }
-    private static Criterion<?> TraderKnowledge() { return LazyTrigger(LCTags.Items.TRADER); }
-    private static Criterion<?> TerminalKnowledge() { return LazyTrigger(LCTags.Items.NETWORK_TERMINAL); }
+    protected static Criterion<?> MoneyKnowledge() { return LazyTrigger(LCTags.Items.COINS); }
+    protected static Criterion<?> TraderKnowledge() { return LazyTrigger(LCTags.Items.TRADER); }
+    protected static Criterion<?> TerminalKnowledge() { return LazyTrigger(LCTags.Items.NETWORK_TERMINAL); }
 
-    private static Criterion<?> LazyTrigger(ItemLike item) { return InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(item).build()); }
-    private static Criterion<?> LazyTrigger(List<? extends ItemLike> items) { return InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(items.toArray(new ItemLike[0])).build()); }
-    private static Criterion<?> LazyTrigger(Supplier<? extends ItemLike> item) { return LazyTrigger(item.get()); }
-    private static Criterion<?> LazyTrigger(TagKey<Item> tag) { return InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(tag).build()); }
+    protected static Criterion<?> LazyTrigger(ItemLike item) { return InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(item).build()); }
+    protected static Criterion<?> LazyTrigger(List<? extends ItemLike> items) { return InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(items.toArray(new ItemLike[0])).build()); }
+    protected static Criterion<?> LazyTrigger(Supplier<? extends ItemLike> item) { return LazyTrigger(item.get()); }
+    protected static Criterion<?> LazyTrigger(TagKey<Item> tag) { return InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(tag).build()); }
 
-    private static void ApplyCriteria(ShapelessRecipeBuilder builder, List<Pair<String,Criterion<?>>> criteria)
+    protected static void ApplyCriteria(ShapelessRecipeBuilder builder, List<Pair<String,Criterion<?>>> criteria)
     {
         for(Pair<String,Criterion<?>> c : criteria)
             builder.unlockedBy(c.getFirst(), c.getSecond());
     }
 
-    private static String ItemPath(ItemLike item) { return BuiltInRegistries.ITEM.getKey(item.asItem()).getPath(); }
-    private static String ItemPath(Supplier<? extends ItemLike> item) { return ItemPath(item.get()); }
-    private static ResourceLocation ItemID(String prefix, ItemLike item) { return ID(prefix + ItemPath(item)); }
-    private static ResourceLocation ItemID(Supplier<? extends ItemLike> item) { return ID(ItemPath(item)); }
-    private static ResourceLocation ItemID(String prefix, Supplier<? extends ItemLike> item) { return ID(prefix + ItemPath(item)); }
-    private static ResourceLocation WoodID(String prefix, WoodType woodType) { return ID(woodType.generateResourceLocation(prefix)); }
-    private static ResourceLocation WoodID(String prefix, WoodType woodType, String postfix) { return ID(woodType.generateResourceLocation(prefix, postfix)); }
-    private static ResourceLocation ColoredWoodID(String prefix, WoodType woodType, Color color) { return WoodID(prefix, woodType, "/" + color.getResourceSafeName()); }
-    private static ResourceLocation ID(String path) { return VersionUtil.lcResource(path); }
+    protected static String ItemPath(ItemLike item) { return BuiltInRegistries.ITEM.getKey(item.asItem()).getPath(); }
+    protected static String ItemPath(Supplier<? extends ItemLike> item) { return ItemPath(item.get()); }
+    protected static ResourceLocation ItemID(String prefix, ItemLike item) { return ID(prefix + ItemPath(item)); }
+    protected static ResourceLocation ItemID(Supplier<? extends ItemLike> item) { return ID(ItemPath(item)); }
+    protected static ResourceLocation ItemID(String prefix, Supplier<? extends ItemLike> item) { return ID(prefix + ItemPath(item)); }
+    protected static ResourceLocation WoodID(String prefix, WoodType woodType) { return ID(woodType.generateResourceLocation(prefix)); }
+    protected static ResourceLocation WoodID(String prefix, WoodType woodType, String postfix) { return ID(woodType.generateResourceLocation(prefix, postfix)); }
+    protected static ResourceLocation ColoredWoodID(String prefix, WoodType woodType, Color color) { return WoodID(prefix, woodType, "/" + color.getResourceSafeName()); }
+    protected static ResourceLocation ID(String path) { return VersionUtil.lcResource(path); }
 
 }

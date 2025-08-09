@@ -362,7 +362,6 @@ public abstract class MoneyValue {
             MoneyValue result = CoinValue.loadDeprecated(parentTag, tagName);
             return result == null ? empty() : result;
         }
-
     }
 
     public static MoneyValue loadFromJson(@Nonnull JsonElement json) throws JsonSyntaxException, ResourceLocationException {

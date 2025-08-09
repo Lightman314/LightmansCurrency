@@ -19,17 +19,17 @@ public class BasicSearchFilter implements ITraderSearchFilter {
 	public static final String TRADE_COUNT = "trades";
 	public static final String CUSTOMER_READY = "ready";
 	public static final String STOCK_COUNT = "stock";
+	public static final String TRADE_STOCK = "tradeStock";
 
 	@Override
 	public void filter(TraderData data, PendingSearch search, HolderLookup.Provider lookup) {
-
 		search.processFilter(TYPE,this.checkType(data));
 		search.processFilter(OWNER,this.checkOwner(data));
 		search.processFilter(NAME,this.checkName(data));
 		FilterUtils.longRange(search,ID,data.getID());
 		FilterUtils.intRange(search,TRADE_COUNT,data.validTradeCount());
 		FilterUtils.boolCheck(search,CUSTOMER_READY,data.readyForCustomers());
-		FilterUtils.checkStock(search,data);
+		FilterUtils.checkStockCount(search,data);
 	}
 
 	private Predicate<String> checkType(TraderData trader)

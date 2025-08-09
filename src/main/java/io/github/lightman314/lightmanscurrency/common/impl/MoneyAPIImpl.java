@@ -9,16 +9,19 @@ import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.types.IPlayerMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.function.Consumer;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public final class MoneyAPIImpl extends MoneyAPI {
 
     public static final MoneyAPI INSTANCE = new MoneyAPIImpl();
@@ -29,16 +32,15 @@ public final class MoneyAPIImpl extends MoneyAPI {
 
     private MoneyAPIImpl() {}
 
-    @Nonnull
     @Override
     public List<CurrencyType> AllCurrencyTypes() { return ImmutableList.copyOf(this.registeredCurrencyTypes.values()); }
 
     @Nullable
     @Override
-    public CurrencyType GetRegisteredCurrencyType(@Nonnull ResourceLocation id) { return this.registeredCurrencyTypes.get(id); }
+    public CurrencyType GetRegisteredCurrencyType(ResourceLocation id) { return this.registeredCurrencyTypes.get(id); }
 
     @Override
-    public void RegisterCurrencyType(@Nonnull CurrencyType type) {
+    public void RegisterCurrencyType(CurrencyType type) {
         if(this.registeredCurrencyTypes.containsKey(type.getType()))
         {
             CurrencyType existingType = this.registeredCurrencyTypes.get(type.getType());
@@ -52,9 +54,9 @@ public final class MoneyAPIImpl extends MoneyAPI {
         LightmansCurrency.LogDebug("Registered Currency Type: " + type.getType());
     }
 
-    @Nonnull
+    
     @Override
-    public IMoneyHolder GetPlayersMoneyHandler(@Nonnull Player player) {
+    public IMoneyHolder GetPlayersMoneyHandler(Player player) {
         Map<UUID,PlayerMoneyHolder> cache = player.isLocalPlayer() ? this.clientPlayerCache : this.serverPlayerCache;
         if(!cache.containsKey(player.getUUID()))
         {
@@ -71,7 +73,7 @@ public final class MoneyAPIImpl extends MoneyAPI {
     }
 
     @Override
-    protected IMoneyHandler CreateContainersMoneyHandler(@Nonnull Container container, @Nonnull Consumer<ItemStack> overflowHandler, @Nonnull IClientTracker tracker) {
+    protected IMoneyHandler CreateContainersMoneyHandler(Container container, Consumer<ItemStack> overflowHandler, IClientTracker tracker) {
         List<IMoneyHandler> handlers = new ArrayList<>();
         for(CurrencyType type : this.registeredCurrencyTypes.values())
         {
@@ -82,9 +84,9 @@ public final class MoneyAPIImpl extends MoneyAPI {
         return MoneyHandler.combine(handlers);
     }
 
-    @Nonnull
+    
     @Override
-    public IMoneyHandler GetATMMoneyHandler(@Nonnull Player player, @Nonnull Container container) {
+    public IMoneyHandler GetATMMoneyHandler(Player player, Container container) {
         List<IMoneyHandler> handlers = new ArrayList<>();
         for(CurrencyType type : this.registeredCurrencyTypes.values())
         {
@@ -96,7 +98,7 @@ public final class MoneyAPIImpl extends MoneyAPI {
     }
 
     @Override
-    public boolean ItemAllowedInMoneySlot(@Nonnull Player player, @Nonnull ItemStack stack) {
+    public boolean ItemAllowedInMoneySlot(Player player, ItemStack stack) {
         for(CurrencyType type : this.registeredCurrencyTypes.values())
         {
             if(type.allowItemInMoneySlot(player,stack))

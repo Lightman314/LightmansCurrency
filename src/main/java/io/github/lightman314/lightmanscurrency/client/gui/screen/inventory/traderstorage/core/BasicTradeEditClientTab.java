@@ -6,7 +6,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
-import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
@@ -64,6 +63,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 				.selectedState(this.commonTab::isSelected)
 				.blockSearchBox()
 				.extraTooltips(this::tradeSelectTooltip)
+				.old(this.tradeDisplay)
 				.build());
 		
 		this.buttonAddTrade = this.addChild(PlainButton.builder()

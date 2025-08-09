@@ -4,7 +4,9 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -94,12 +96,18 @@ public class PendingSearch {
         this.processUnfiltered(processor);
     }
 
+    public void setupFilter(String filter, Function<String,Supplier<Boolean>> processor)
+    {
+        this.setupStrictFilter(filter,processor);
+        this.setupUnfiltered(processor);
+    }
+
     public void processStrictFilter(String filter, Predicate<String> processor)
     {
         if(this.filteredResults.containsKey(filter))
         {
             Result<List<String>> result = this.filteredResults.get(filter);
-            if(result.passed)
+            if(result.hasPassed())
                 return;
             boolean pass = true;
             for(String string : result.value)
@@ -114,6 +122,30 @@ public class PendingSearch {
         }
     }
 
+    public void setupStrictFilter(String filter, Function<String,Supplier<Boolean>> processor)
+    {
+        if(this.filteredResults.containsKey(filter))
+        {
+            Result<List<String>> result = this.filteredResults.get(filter);
+            if(result.hasPassed())
+                return;
+            final List<Supplier<Boolean>> passed = new ArrayList<>();
+            for(String string : result.value)
+            {
+                Supplier<Boolean> r;
+                if(string.startsWith("!"))
+                {
+                    final Supplier<Boolean> original = processor.apply(string.substring(1));
+                    r = () -> !original.get();
+                }
+                else
+                    r = processor.apply(string);
+                passed.add(r);
+            }
+            result.setPendingPass(() -> passed.stream().anyMatch(Supplier::get));
+        }
+    }
+
     public void processUnfiltered(Predicate<String> processor)
     {
         for(Result<String> result : this.unfilteredResults)
@@ -125,14 +157,33 @@ public class PendingSearch {
         }
     }
 
-    public boolean hasPassed() { return this.filteredResults.values().stream().allMatch(v -> v.passed) && this.unfilteredResults.stream().allMatch(v -> v.passed); }
+    public void setupUnfiltered(Function<String,Supplier<Boolean>> processor)
+    {
+        for(Result<String> result : this.unfilteredResults)
+        {
+            Supplier<Boolean> r;
+            if(result.value.startsWith("!"))
+            {
+                final Supplier<Boolean> original = processor.apply(result.value.substring(1));
+                r = () -> !original.get();
+            }
+            else
+                r = processor.apply(result.value);
+            result.setPendingPass(r);
+        }
+    }
+
+    public boolean hasPassed() { return this.filteredResults.values().stream().allMatch(Result::hasPassed) && this.unfilteredResults.stream().allMatch(Result::hasPassed); }
 
     private static class Result<T>
     {
         final T value;
         boolean passed = false;
+        private final List<Supplier<Boolean>> pendingPasses = new ArrayList<>();
+        boolean hasPassed() { return this.passed || this.pendingPasses.stream().anyMatch(Supplier::get); }
         Result(T value) { this.value = value; }
         void setPassed(boolean passed) { this.passed = this.passed || passed; }
+        void setPendingPass(Supplier<Boolean> passed) { this.pendingPasses.add(passed); }
     }
 
 }

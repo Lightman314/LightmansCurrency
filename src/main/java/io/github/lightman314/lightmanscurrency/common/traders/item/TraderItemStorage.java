@@ -18,6 +18,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
+import org.jetbrains.annotations.Range;
 
 public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStorage>{
 
@@ -152,11 +153,12 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 		}
 		return count;
 	}
-	
+
+	@Range(to = 0, from = Integer.MAX_VALUE)
 	public int getFittableAmount(ItemStack item) {
 		if(!this.allowItem(item))
 			return 0;
-		return this.getMaxAmount() - this.getItemCount(item);
+		return Math.max(0,this.getMaxAmount() - this.getItemCount(item));
 	}
 	
 	/**
@@ -352,6 +354,9 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 	@Override
 	public @Nonnull ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
 		int amountToAdd = Math.min(stack.getCount(), this.getFittableAmount(stack));
+		//Don't bother doing math if nothing should be added
+		if(amountToAdd <= 0)
+			return stack.copy();
 		ItemStack remainder = stack.copy();
 		if(amountToAdd >= stack.getCount())
 			remainder = ItemStack.EMPTY;

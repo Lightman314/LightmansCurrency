@@ -44,25 +44,25 @@ public class LCBlockStateProvider extends BlockStateProvider {
 
     protected final ModelFile EMPTY_MODEL = this.lazyBlockModel("empty",true);
 
-    private static final ResourceLocation UPGRADE_TIER_COPPER = VersionUtil.lcResource("item/upgrade_tier/copper");
-    private static final ResourceLocation UPGRADE_TIER_IRON = VersionUtil.lcResource("item/upgrade_tier/iron");
-    private static final ResourceLocation UPGRADE_TIER_GOLD = VersionUtil.lcResource("item/upgrade_tier/gold");
-    private static final ResourceLocation UPGRADE_TIER_EMERALD = VersionUtil.lcResource("item/upgrade_tier/emerald");
-    private static final ResourceLocation UPGRADE_TIER_DIAMOND = VersionUtil.lcResource("item/upgrade_tier/diamond");
-    private static final ResourceLocation UPGRADE_TIER_NETHERITE = VersionUtil.lcResource("item/upgrade_tier/netherite");
+    protected static final ResourceLocation UPGRADE_TIER_COPPER = VersionUtil.lcResource("item/upgrade_tier/copper");
+    protected static final ResourceLocation UPGRADE_TIER_IRON = VersionUtil.lcResource("item/upgrade_tier/iron");
+    protected static final ResourceLocation UPGRADE_TIER_GOLD = VersionUtil.lcResource("item/upgrade_tier/gold");
+    protected static final ResourceLocation UPGRADE_TIER_EMERALD = VersionUtil.lcResource("item/upgrade_tier/emerald");
+    protected static final ResourceLocation UPGRADE_TIER_DIAMOND = VersionUtil.lcResource("item/upgrade_tier/diamond");
+    protected static final ResourceLocation UPGRADE_TIER_NETHERITE = VersionUtil.lcResource("item/upgrade_tier/netherite");
 
-    private static final ResourceLocation UPGRADE_ITEM_CAPACITY = VersionUtil.lcResource("item/item_capacity_upgrade");
-    private static final ResourceLocation UPGRADE_TRADE_OFFER = VersionUtil.lcResource("item/trading_core");
-    private static final ResourceLocation UPGRADE_NETWORK = VersionUtil.vanillaResource("item/ender_eye");
-    private static final ResourceLocation UPGRADE_VOID = VersionUtil.vanillaResource("item/barrier");
-    private static final ResourceLocation UPGRADE_SPEED = VersionUtil.vanillaResource("item/clock_00");
-    private static final ResourceLocation UPGRADE_HOPPER = VersionUtil.vanillaResource("item/hopper");
-    private static final ResourceLocation UPGRADE_CC_SECURITY = VersionUtil.lcResource("item/coin_chest_security_upgrade");
-    private static final ResourceLocation UPGRADE_CC_BANK = VersionUtil.lcResource("item/coin_chest_bank_upgrade");
-    private static final ResourceLocation UPGRADE_CC_EXCHANGE = VersionUtil.lcResource("item/coin_chest_exchange_upgrade");
-    private static final ResourceLocation UPGRADE_CC_MAGNET = VersionUtil.vanillaResource("item/ender_pearl");
+    protected static final ResourceLocation UPGRADE_ITEM_CAPACITY = VersionUtil.lcResource("item/item_capacity_upgrade");
+    protected static final ResourceLocation UPGRADE_TRADE_OFFER = VersionUtil.lcResource("item/trading_core");
+    protected static final ResourceLocation UPGRADE_NETWORK = VersionUtil.vanillaResource("item/ender_eye");
+    protected static final ResourceLocation UPGRADE_VOID = VersionUtil.vanillaResource("item/barrier");
+    protected static final ResourceLocation UPGRADE_SPEED = VersionUtil.vanillaResource("item/clock_00");
+    protected static final ResourceLocation UPGRADE_HOPPER = VersionUtil.vanillaResource("item/hopper");
+    protected static final ResourceLocation UPGRADE_CC_SECURITY = VersionUtil.lcResource("item/coin_chest_security_upgrade");
+    protected static final ResourceLocation UPGRADE_CC_BANK = VersionUtil.lcResource("item/coin_chest_bank_upgrade");
+    protected static final ResourceLocation UPGRADE_CC_EXCHANGE = VersionUtil.lcResource("item/coin_chest_exchange_upgrade");
+    protected static final ResourceLocation UPGRADE_CC_MAGNET = VersionUtil.vanillaResource("item/ender_pearl");
 
-    private static final ResourceLocation WALLET_MODEL_BASE = WalletItem.lazyModel("wallet_base");
+    protected static final ResourceLocation WALLET_MODEL_BASE = WalletItem.lazyModel("wallet_base");
 
     @Override
     protected void registerStatesAndModels() {
@@ -428,14 +428,14 @@ public class LCBlockStateProvider extends BlockStateProvider {
     }
 
     //ITEM MODEL REGISTRATION
-    private void registerBasicItem(Supplier<? extends ItemLike> item) { this.itemModels().basicItem(item.get().asItem()); }
-    private void registerHandheldItem(Supplier<? extends ItemLike> item) { this.itemModels().handheldItem(item.get().asItem()); }
-    private void registerLayeredItem(Supplier<? extends ItemLike> item) {
+    protected void registerBasicItem(Supplier<? extends ItemLike> item) { this.itemModels().basicItem(item.get().asItem()); }
+    protected void registerHandheldItem(Supplier<? extends ItemLike> item) { this.itemModels().handheldItem(item.get().asItem()); }
+    protected void registerLayeredItem(Supplier<? extends ItemLike> item) {
         ResourceLocation itemID = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item.get().asItem()));
         this.itemModels().basicItem(itemID).texture("layer1", VersionUtil.modResource(itemID.getNamespace(), "item/" + itemID.getPath() + "_overlay"));
     }
 
-    private void registerUpgradeItem(@Nonnull Supplier<? extends ItemLike> item, @Nonnull ResourceLocation base, @Nonnull ResourceLocation tier)
+    protected void registerUpgradeItem(@Nonnull Supplier<? extends ItemLike> item, @Nonnull ResourceLocation base, @Nonnull ResourceLocation tier)
     {
         ResourceLocation itemID = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item.get().asItem()));
         this.itemModels().getBuilder(itemID.toString())
@@ -444,7 +444,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
                 .texture("layer1",tier);
     }
 
-    private void registerWalletItem(@Nonnull Supplier<? extends ItemLike> item)
+    protected void registerWalletItem(@Nonnull Supplier<? extends ItemLike> item)
     {
         this.registerBasicItem(item);
         ResourceLocation hipModel = item.get().asItem().components().get(ModDataComponents.WALLET_MODEL.get());
@@ -457,18 +457,18 @@ public class LCBlockStateProvider extends BlockStateProvider {
         }
     }
 
-    private void registerBlockItemModel(Supplier<? extends Block> block, String itemModel, boolean check) { this.registerBlockItemModel(block, this.lazyBlockModel(itemModel, check)); }
-    private void registerBlockItemModel(Supplier<? extends Block> block, ModelFile itemModel) { this.itemModels().getBuilder(BuiltInRegistries.ITEM.getKey(block.get().asItem()).toString()).parent(itemModel); }
+    protected void registerBlockItemModel(Supplier<? extends Block> block, String itemModel, boolean check) { this.registerBlockItemModel(block, this.lazyBlockModel(itemModel, check)); }
+    protected void registerBlockItemModel(Supplier<? extends Block> block, ModelFile itemModel) { this.itemModels().getBuilder(BuiltInRegistries.ITEM.getKey(block.get().asItem()).toString()).parent(itemModel); }
 
     //BLOCK STATE REGISTRATION
-    private void registerSimpleState(Supplier<? extends Block> block) { this.registerSimpleState(block, this.lazyBlockID(block)); }
-    private void registerSimpleState(Supplier<? extends Block> block, String modelID) {
+    protected void registerSimpleState(Supplier<? extends Block> block) { this.registerSimpleState(block, this.lazyBlockID(block)); }
+    protected void registerSimpleState(Supplier<? extends Block> block, String modelID) {
         ModelFile model = this.lazyBlockModel(modelID, false);
         this.buildState(block,state -> ConfiguredModel.builder().modelFile(model).build());
         this.registerBlockItemModel(block, model);
     }
 
-    private void registerCoinPile(Supplier<? extends Block> block)
+    protected void registerCoinPile(Supplier<? extends Block> block)
     {
         String modelID = this.lazyBlockID(block);
         ResourceLocation texture = BuiltInRegistries.BLOCK.getKey(block.get()).withPrefix("block/");
@@ -478,14 +478,14 @@ public class LCBlockStateProvider extends BlockStateProvider {
                 ConfiguredModel.builder().modelFile(model).rotationY(this.getRotationY(state)).build());
         this.registerBasicItem(block);
     }
-    private void registerCoinBlock(Supplier<? extends Block> block)
+    protected void registerCoinBlock(Supplier<? extends Block> block)
     {
         String modelID = this.lazyBlockID(block);
         ResourceLocation texture = BuiltInRegistries.BLOCK.getKey(block.get()).withPrefix("block/");
         this.models().getBuilder(modelID).parent(this.lazyBlockModel("coin_block", true)).texture("main", texture);
         this.registerSimpleState(block, modelID);
     }
-    private void registerAncientCoin(Supplier<? extends Item> item)
+    protected void registerAncientCoin(Supplier<? extends Item> item)
     {
         ResourceLocation itemModel = lazyItemModelID(lazyItemID(item));
         ItemModelBuilder builder = this.itemModels().getBuilder(itemModel.toString());
@@ -501,7 +501,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
         }
 
     }
-    private void registerPaygate(Supplier<? extends Block> block, String poweredModelID, String unpoweredModelID)
+    protected void registerPaygate(Supplier<? extends Block> block, String poweredModelID, String unpoweredModelID)
     {
         ModelFile powered = this.lazyBlockModel(poweredModelID, true);
         ModelFile unpowered = this.lazyBlockModel(unpoweredModelID, true);
@@ -509,7 +509,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
                 ConfiguredModel.builder().modelFile(state.getValue(PaygateBlock.POWERED) ? powered : unpowered).rotationY(this.getRotationY(state)).build());
         this.registerBlockItemModel(block, unpowered);
     }
-    private void registerMoneyBag(Supplier<? extends Block> block, String folder)
+    protected void registerMoneyBag(Supplier<? extends Block> block, String folder)
     {
         //Block Models
         List<ModelFile> models = new ArrayList<>();
@@ -527,8 +527,8 @@ public class LCBlockStateProvider extends BlockStateProvider {
                     .model(models.get(i));
         }
     }
-    private void registerRotatable(Supplier<? extends Block> block) { this.registerRotatable(block, this.lazyBlockID(block), true); }
-    private void registerRotatable(Supplier<? extends Block> block, String modelID, boolean check)
+    protected void registerRotatable(Supplier<? extends Block> block) { this.registerRotatable(block, this.lazyBlockID(block), true); }
+    protected void registerRotatable(Supplier<? extends Block> block, String modelID, boolean check)
     {
         ModelFile model = this.lazyBlockModel(modelID, check);
         this.buildState(block,state ->
@@ -536,7 +536,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerBlockItemModel(block, model);
     }
 
-    private void registerTallRotatable(Supplier<? extends Block> block, String topModelID, String bottomModelID, String itemModelID, boolean check) {
+    protected void registerTallRotatable(Supplier<? extends Block> block, String topModelID, String bottomModelID, String itemModelID, boolean check) {
         ModelFile top = this.lazyBlockModel(topModelID, check);
         ModelFile bottom = this.lazyBlockModel(bottomModelID, check);
         this.buildState(block,state ->
@@ -544,7 +544,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerBlockItemModel(block, itemModelID, check);
     }
 
-    private void registerTallWideRotatable(Supplier<? extends Block> block, String topLeftModelID, String topRightModelID, String bottomLeftModelID, String bottomRightModelID, String itemModelID, boolean check) {
+    protected void registerTallWideRotatable(Supplier<? extends Block> block, String topLeftModelID, String topRightModelID, String bottomLeftModelID, String bottomRightModelID, String itemModelID, boolean check) {
         ModelFile topLeft = this.lazyBlockModel(topLeftModelID, check);
         ModelFile topRight = this.lazyBlockModel(topRightModelID, check);
         ModelFile bottomLeft = this.lazyBlockModel(bottomLeftModelID, check);
@@ -554,31 +554,31 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.registerBlockItemModel(block, itemModelID, check);
     }
 
-    private String lazyColoredID(String prefix, Color color) { return this.lazyColoredID(prefix, color, ""); }
-    private String lazyColoredID(String prefix, Color color, String postFix) { return prefix + color.getResourceSafeName() + postFix; }
-    private String lazyWoodenID(String prefix, WoodType type) { return type.generateResourceLocation(prefix); }
-    private String lazyWoodenID(String prefix, WoodType type, String postFix) { return type.generateResourceLocation(prefix, postFix); }
+    protected String lazyColoredID(String prefix, Color color) { return this.lazyColoredID(prefix, color, ""); }
+    protected String lazyColoredID(String prefix, Color color, String postFix) { return prefix + color.getResourceSafeName() + postFix; }
+    protected String lazyWoodenID(String prefix, WoodType type) { return type.generateResourceLocation(prefix); }
+    protected String lazyWoodenID(String prefix, WoodType type, String postFix) { return type.generateResourceLocation(prefix, postFix); }
 
-    private String lazyItemID(Supplier<? extends ItemLike> item) { return BuiltInRegistries.ITEM.getKey(item.get().asItem()).getPath(); }
-    private String lazyBlockID(Supplier<? extends Block> block) { return BuiltInRegistries.BLOCK.getKey(block.get()).getPath(); }
+    protected String lazyItemID(Supplier<? extends ItemLike> item) { return BuiltInRegistries.ITEM.getKey(item.get().asItem()).getPath(); }
+    protected String lazyBlockID(Supplier<? extends Block> block) { return BuiltInRegistries.BLOCK.getKey(block.get()).getPath(); }
 
-    private ResourceLocation lazyItemModelID(String modelID) { return VersionUtil.lcResource(modelID.startsWith("item/") ? modelID : "item/" + modelID); }
-    private ResourceLocation lazyBlockModelID(String modelID) { return VersionUtil.lcResource(modelID.startsWith("block/") ? modelID : "block/" + modelID); }
+    protected ResourceLocation lazyItemModelID(String modelID) { return VersionUtil.lcResource(modelID.startsWith("item/") ? modelID : "item/" + modelID); }
+    protected ResourceLocation lazyBlockModelID(String modelID) { return VersionUtil.lcResource(modelID.startsWith("block/") ? modelID : "block/" + modelID); }
 
-    private ModelFile lazyBlockModel(String modelID, boolean check) { return check ? new ModelFile.ExistingModelFile(this.lazyBlockModelID(modelID), this.models().existingFileHelper) : new ModelFile.UncheckedModelFile(this.lazyBlockModelID(modelID)); }
+    protected ModelFile lazyBlockModel(String modelID, boolean check) { return check ? new ModelFile.ExistingModelFile(this.lazyBlockModelID(modelID), this.models().existingFileHelper) : new ModelFile.UncheckedModelFile(this.lazyBlockModelID(modelID)); }
 
-    private int getRotationY(BlockState state)
+    protected int getRotationY(BlockState state)
     {
         if(state.getBlock() instanceof IRotatableBlock rb)
             return rb.getRotationY(state);
         return 0;
     }
 
-    private ModelFile getTopBottomModel(BlockState state, ModelFile top, ModelFile bottom) {
+    protected ModelFile getTopBottomModel(BlockState state, ModelFile top, ModelFile bottom) {
         return state.getValue(ITallBlock.ISBOTTOM) ? bottom : top;
     }
 
-    private ModelFile getTopBottomLeftRightModel(BlockState state, ModelFile topLeft, ModelFile topRight, ModelFile bottomLeft, ModelFile bottomRight) {
+    protected ModelFile getTopBottomLeftRightModel(BlockState state, ModelFile topLeft, ModelFile topRight, ModelFile bottomLeft, ModelFile bottomRight) {
         if(state.getValue(ITallBlock.ISBOTTOM))
             return state.getValue(IWideBlock.ISLEFT) ? bottomLeft : bottomRight;
         return state.getValue(IWideBlock.ISLEFT) ? topLeft : topRight;

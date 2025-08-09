@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.traders.trade;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.annotation.Nonnull;
 
@@ -69,7 +70,7 @@ public abstract class TradeData implements ITradeRuleHost {
 		MoneyValue taxAmount = MoneyValue.empty();
 		for(ITaxCollector entry : trader.getApplicableTaxes())
 			taxAmount = taxAmount.addValue(cost.percentageOfValue(entry.getTaxRate()));
-		return cost.addValue(taxAmount);
+		return Objects.requireNonNullElseGet(cost.addValue(taxAmount),MoneyValue::empty);
 	}
 	public MoneyValue getCostWithTaxes(TradeContext context)
 	{
@@ -101,6 +102,8 @@ public abstract class TradeData implements ITradeRuleHost {
 			return 0;
 		MoneyValue storedMoney = trader.getStoredMoney().getStoredMoney().valueOf(this.getCost().getUniqueName());
 		MoneyValue price = this.getCostWithTaxes(trader);
+		if(!price.isValidPrice())
+			return 0;
 		return (int)(storedMoney.getCoreValue() / price.getCoreValue());
 	}
 

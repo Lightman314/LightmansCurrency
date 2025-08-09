@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
@@ -13,6 +14,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.Trade
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget.IItemEditListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown.DropdownWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -60,9 +63,6 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	EditBox customNameInput;
 	
 	ItemEditWidget itemEdit = null;
-	
-	EasyButton buttonToggleTradeType;
-	PlainButton buttonToggleNBTEnforcement;
 
 	private int selection = -1;
 
@@ -96,16 +96,22 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		this.customNameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 15 + labelWidth, screenArea.y + 38, screenArea.width - 28 - labelWidth, 18, EasyText.empty()));
 		if(this.selection >= 0 && this.selection < 2 && trade != null)
 			this.customNameInput.setValue(trade.getCustomName(this.selection));
-		
-		this.buttonToggleTradeType = this.addChild(EasyTextButton.builder()
-				.position(screenArea.pos.offset(113,15))
+
+		this.addChild(DropdownWidget.builder()
+				.position(screenArea.pos.offset(113,18))
 				.width(80)
-				.pressAction(this::ToggleTradeType)
+				.option(LCText.GUI_TRADE_DIRECTION.get(TradeDirection.SALE))
+				.option(LCText.GUI_TRADE_DIRECTION.get(TradeDirection.PURCHASE))
+				.option(LCText.GUI_TRADE_DIRECTION.get(TradeDirection.BARTER))
+				.selected(trade == null ? 0 : Math.max(0,trade.getTradeDirection().index))
+				.selectAction(this::ChangeTradeType)
 				.build());
-		this.buttonToggleNBTEnforcement = this.addChild(PlainButton.builder()
+
+		this.addChild(PlainButton.builder()
 				.position(screenArea.pos.offset(113,4))
 				.pressAction(this::ToggleNBTEnforcement)
 				.sprite(IconAndButtonUtil.SPRITE_CHECK(this::getEnforceNBTState))
+				.addon(EasyAddonHelper.visibleCheck(this::isNBTButtonVisible))
 				.build());
 
 	}
@@ -177,13 +183,6 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		this.customNameInput.visible = this.selection >= 0 && this.selection < 2 && !this.getTrade().isPurchase();
 		if(this.customNameInput.visible && !this.customNameInput.getValue().contentEquals(this.getTrade().getCustomName(this.selection)))
 			this.commonTab.setCustomName(this.selection, this.customNameInput.getValue());
-		this.buttonToggleTradeType.setMessage(LCText.GUI_TRADE_DIRECTION.get(this.getTrade().getTradeDirection()).get());
-	}
-	
-	@Override
-	public void tick() {
-		//Change NBT toggle button visibility
-		this.buttonToggleNBTEnforcement.visible = this.isNBTButtonVisible();
 	}
 
 	private boolean isNBTButtonVisible() {
@@ -275,10 +274,10 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	@Override
 	public void onItemClicked(ItemStack item) { this.commonTab.setSelectedItem(this.selection, item); }
 	
-	private void ToggleTradeType(EasyButton button) {
+	private void ChangeTradeType(int index) {
 		if(this.getTrade() != null)
 		{
-			this.commonTab.setType(ItemTradeData.getNextInCycle(this.getTrade().getTradeDirection()));
+			this.commonTab.setType(TradeDirection.fromIndex(index));
 			this.itemEdit.refreshSearch();
 		}
 	}
