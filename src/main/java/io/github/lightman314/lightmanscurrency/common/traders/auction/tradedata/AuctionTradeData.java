@@ -202,7 +202,7 @@ public class AuctionTradeData extends TradeData {
 
 	private boolean allowed(@Nullable PlayerReference test, Player player, BooleanOption config)
 	{
-		return test != null && test.is(player) && !config.get();
+		return test == null || !test.is(player) || config.get();
 	}
 	
 	public boolean tryMakeBid(AuctionHouseTrader trader, Player player, MoneyValue amount) {

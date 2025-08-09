@@ -75,7 +75,7 @@ public class AncientMoneyValue extends MoneyValue implements IItemBasedValue {
     public boolean containsValue(@Nonnull MoneyValue queryValue) {
         if(queryValue instanceof AncientMoneyValue value && value.type == this.type)
             return value.count <= this.count;
-        return false;
+        return queryValue.isEmpty();
     }
 
     @Override

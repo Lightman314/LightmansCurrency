@@ -1354,7 +1354,9 @@ public class EnglishProvider extends TranslationProvider {
         this.add("create.item_attributes.lightmanscurrency.model_variant.null","Does not have any Model Variant");
         this.add("create.item_attributes.lightmanscurrency.model_variant.null.inverted","Has any Model Variant");
         this.add("create.item_attributes.lightmanscurrency.coin.any","Is any coin");
+        this.add("create.item_attributes.lightmanscurrency.coin.any.inverted","Is not a coin");
         this.add("create.item_attributes.lightmanscurrency.coin.chain","Is a '%s' coin");
+        this.add("create.item_attributes.lightmanscurrency.coin.chain.inverted","Is not a '%s' coin");
 
     }
 

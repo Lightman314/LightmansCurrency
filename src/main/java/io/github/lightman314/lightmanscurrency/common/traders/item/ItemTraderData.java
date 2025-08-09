@@ -110,6 +110,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 
 	@Override
 	protected void registerNodes(Consumer<SettingsNode> builder) {
+		super.registerNodes(builder);
 		builder.accept(new ItemTradeSettings(this));
 	}
 
