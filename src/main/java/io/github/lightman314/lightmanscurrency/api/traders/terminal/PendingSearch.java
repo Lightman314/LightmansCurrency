@@ -1,7 +1,9 @@
 package io.github.lightman314.lightmanscurrency.api.traders.terminal;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.MethodsReturnNonnullByDefault;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.function.Function;
@@ -136,12 +138,18 @@ public class PendingSearch {
                 if(string.startsWith("!"))
                 {
                     final Supplier<Boolean> original = processor.apply(string.substring(1));
-                    r = () -> !original.get();
+                    if(original != null)
+                        r = () -> !original.get();
+                    else
+                        r = null;
                 }
                 else
                     r = processor.apply(string);
-                passed.add(r);
+                if(r != null)
+                    passed.add(r);
             }
+            if(passed.isEmpty())
+                return;
             result.setPendingPass(() -> passed.stream().anyMatch(Supplier::get));
         }
     }
@@ -165,7 +173,10 @@ public class PendingSearch {
             if(result.value.startsWith("!"))
             {
                 final Supplier<Boolean> original = processor.apply(result.value.substring(1));
-                r = () -> !original.get();
+                if(original != null)
+                    r = () -> !original.get();
+                else
+                    r = null;
             }
             else
                 r = processor.apply(result.value);
@@ -183,7 +194,11 @@ public class PendingSearch {
         boolean hasPassed() { return this.passed || this.pendingPasses.stream().anyMatch(Supplier::get); }
         Result(T value) { this.value = value; }
         void setPassed(boolean passed) { this.passed = this.passed || passed; }
-        void setPendingPass(Supplier<Boolean> passed) { this.pendingPasses.add(passed); }
+        void setPendingPass(@Nullable Supplier<Boolean> passed) {
+            if(passed == null)
+                return;
+            this.pendingPasses.add(passed);
+        }
     }
 
 }

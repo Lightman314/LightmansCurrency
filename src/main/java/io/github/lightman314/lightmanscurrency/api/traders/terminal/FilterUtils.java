@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.traders.terminal;
 
+import com.google.common.base.Predicates;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
@@ -7,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.B
 import net.minecraft.MethodsReturnNonnullByDefault;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
@@ -63,11 +65,11 @@ public class FilterUtils {
 
     public static Predicate<Integer> intRange(PendingSearch search, String filter)
     {
-        AtomicReference<Predicate<Integer>> holder = new AtomicReference<>();
+        AtomicReference<Predicate<Integer>> holder = new AtomicReference<>(null);
         search.setupUnfiltered((input) -> {
             try {
-                if(!input.startsWith(filter))
-                    return PredicateWithResult.createNull(holder);
+                if(!input.startsWith(filter) || holder.get() != null)
+                    return null;
                 input = input.substring(filter.length());
                 if(input.startsWith(">="))
                 {
@@ -107,14 +109,14 @@ public class FilterUtils {
                     final int start = Integer.parseInt(split[0]);
                     final int end = Integer.parseInt(split[1]);
                     if(end < start)
-                        return PredicateWithResult.createNull(holder);
+                        return null;
                     return PredicateWithResult.create(v -> (startInclusive && v == start) || (endInclusive && v == end) || (v < end && v > start),holder);
                 }
                 //Unsupported integer range input
-                return PredicateWithResult.createNull(holder);
-            } catch (NumberFormatException e) { return PredicateWithResult.createNull(holder); }
+                return null;
+            } catch (NumberFormatException e) { return null; }
         });
-        return holder.get();
+        return Objects.requireNonNullElseGet(holder.get(),Predicates::alwaysTrue);
     }
 
     public static void longRange(PendingSearch search, String filter,long value) { search.processUnfiltered(longRange(filter,value)); }
@@ -164,7 +166,7 @@ public class FilterUtils {
         search.setupUnfiltered((input) -> {
             try {
                 if(!input.startsWith(filter))
-                    return PredicateWithResult.createNull(holder);
+                    return null;
                 input = input.substring(filter.length());
                 if(input.startsWith(">="))
                 {
@@ -204,14 +206,14 @@ public class FilterUtils {
                     final long start = Long.parseLong(split[0]);
                     final long end = Long.parseLong(split[1]);
                     if(end < start)
-                        return PredicateWithResult.createNull(holder);
+                        return null;
                     return PredicateWithResult.create(v -> (startInclusive && v == start) || (endInclusive && v == end) || (v < end && v > start),holder);
                 }
                 //Unsupported integer range input
-                return PredicateWithResult.createNull(holder);
-            } catch (NumberFormatException e) { return PredicateWithResult.createNull(holder); }
+                return null;
+            } catch (NumberFormatException e) { return null; }
         });
-        return holder.get();
+        return Objects.requireNonNullElseGet(holder.get(),Predicates::alwaysTrue);
     }
 
     public static void floatRange(PendingSearch search, String filter,float value) { search.processUnfiltered(floatRange(filter,value)); }
@@ -261,7 +263,7 @@ public class FilterUtils {
         search.setupUnfiltered((input) -> {
             try {
                 if(!input.startsWith(filter))
-                    return PredicateWithResult.createNull(holder);
+                    return null;
                 input = input.substring(filter.length());
                 if(input.startsWith(">="))
                 {
@@ -301,14 +303,14 @@ public class FilterUtils {
                     final float start = Float.parseFloat(split[0]);
                     final float end = Float.parseFloat(split[1]);
                     if(end < start)
-                        return PredicateWithResult.createNull(holder);
+                        return null;
                     return PredicateWithResult.create(v -> (startInclusive && v == start) || (endInclusive && v == end) || (v < end && v > start),holder);
                 }
                 //Unsupported integer range input
-                return PredicateWithResult.createNull(holder);
-            } catch (NumberFormatException e) { return PredicateWithResult.createNull(holder); }
+                return null;
+            } catch (NumberFormatException e) { return null; }
         });
-        return holder.get();
+        return Objects.requireNonNullElseGet(holder.get(),Predicates::alwaysTrue);
     }
 
     public static void checkStockCount(PendingSearch search, TraderData trader) {
@@ -328,7 +330,5 @@ public class FilterUtils {
         Predicate<Integer> stockTest = intRange(search,BasicSearchFilter.TRADE_STOCK);
         return t -> stockTest.test(t.getStock(context));
     }
-
-
 
 }

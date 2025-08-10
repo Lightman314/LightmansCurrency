@@ -118,7 +118,10 @@ public abstract class TradeData implements ITradeRuleHost {
 			return 0;
 		MoneyValue storedMoney = trader.getStoredMoney().getStoredMoney().valueOf(this.getCost().getUniqueName());
 		MoneyValue price = this.getCostWithTaxes(context);
-		return (int) MathUtil.SafeDivide(storedMoney.getCoreValue(), price.getCoreValue(), 1);
+		long stock = MathUtil.SafeDivide(storedMoney.getCoreValue(), price.getCoreValue(), 1);
+		if(stock > Integer.MAX_VALUE)
+			return Integer.MAX_VALUE;
+		return (int)stock;
 	}
 
 	private final boolean validateRules;
