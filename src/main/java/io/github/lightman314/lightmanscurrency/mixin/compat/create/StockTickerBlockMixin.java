@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -46,21 +47,21 @@ public class StockTickerBlockMixin {
             if(!level.isClientSide && be instanceof StockTickerBlockEntityAccessor accessor && !accessor.getReceivedPayments().isEmpty())
             {
                 IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(player);
-                if(walletHandler == null)
+                if(walletHandler == null || !WalletItem.isWallet(walletHandler.getWallet()))
                     return;
                 SmartInventory payments = accessor.getReceivedPayments();
                 for (int i = 0; i < payments.getSlots(); i++)
                 {
                     ItemStack item = payments.getItem(i);
-                    if(CoinAPI.API.IsCoin(payments.getItem(i),false))
+                    if(CoinAPI.API.IsAllowedInCoinContainer(payments.getItem(i),false))
                     {
                         ItemStack wallet = walletHandler.getWallet();
                         ItemStack leftovers = WalletItem.PickupCoin(wallet,item);
-                        int removedAmount = item.getCount() - leftovers.getCount();
-                        if(removedAmount == item.getCount())
-                            payments.setItem(i,ItemStack.EMPTY);
-                        else
-                            payments.setItem(i,item.split(removedAmount));
+                        //Nothing was inserted, ignore further interactions
+                        if(InventoryUtil.ItemsFullyMatch(item,leftovers))
+                            continue;
+                        //Put the items that didn't fit in the slot
+                        payments.setItem(i,leftovers);
                     }
                 }
                 //If we emptied all payment items into the wallet, play the item pickup sounds and cancel the original interaction
