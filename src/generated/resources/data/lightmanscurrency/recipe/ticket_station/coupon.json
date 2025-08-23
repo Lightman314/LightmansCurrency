@@ -1,5 +1,9 @@
 {
   "type": "lightmanscurrency:coupon",
+  "durability": {
+    "max": 99,
+    "min": 0
+  },
   "ingredient": {
     "tag": "lightmanscurrency:ticket_material/paper"
   },

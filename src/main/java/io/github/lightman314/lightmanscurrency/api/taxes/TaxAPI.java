@@ -30,6 +30,11 @@ public abstract class TaxAPI {
     @Nullable
     public abstract ITaxCollector GetTaxCollector(boolean isClient, long collectorID);
 
+    @Nullable
+    public final ITaxCollector GetServerTaxCollector(IClientTracker context) { return this.GetServerTaxCollector(context.isClient()); }
+    @Nonnull
+    public abstract ITaxCollector GetServerTaxCollector(boolean isClient);
+
     /**
      * Gets a list of all tax collectors that are currently active and flagged as taxing the given taxable object<br>
      * Note: A tax collector will not be considered active on a taxable object unless {@link #AcknowledgeTaxCollectors(ITaxable)} is called first

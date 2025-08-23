@@ -553,7 +553,7 @@ public class TraderDataCache extends CustomData implements IServerTicker {
                         AuctionTradeData trade = pad.createAuction();
                         if(trade != null)
                         {
-                            ah.addTrade(trade, true);
+                            ah.addTrade(trade, null, true);
                             LightmansCurrency.LogInfo("Successfully added Persistent Auction '" + pad.id + "' into the auction house.");
                         }
                     }

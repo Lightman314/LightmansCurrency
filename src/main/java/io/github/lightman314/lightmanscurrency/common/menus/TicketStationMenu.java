@@ -28,6 +28,8 @@ public class TicketStationMenu extends LazyMessageMenu {
 	
 	private final Container output = new SimpleContainer(1);
 
+    public TicketStationRecipe.ExtraData getExtraData() { return new TicketStationRecipe.ExtraData(this.code,this.durability); }
+
 	private String code = "";
 	public String getCode() { return this.code; }
 	public void setCode(String code)
@@ -36,6 +38,15 @@ public class TicketStationMenu extends LazyMessageMenu {
 		if(this.isClient())
 			this.SendMessage(this.builder().setString("ChangeCode",code));
 	}
+
+    private int durability = 0;
+    public int getDurability() { return this.durability; }
+    public void setDurability(int durability)
+    {
+        this.durability = durability;
+        if(this.isClient())
+            this.SendMessage(this.builder().setInt("ChangeDurability",durability));
+    }
 	
 	public final TicketStationBlockEntity blockEntity;
 
@@ -68,13 +79,13 @@ public class TicketStationMenu extends LazyMessageMenu {
 		{
 			for(int x = 0; x < 9; x++)
 			{
-				this.addSlot(new Slot(inventory, x + y * 9 + 9, 8 + x * 18, 56 + y * 18));
+				this.addSlot(new Slot(inventory, x + y * 9 + 9, 8 + x * 18, 76 + y * 18));
 			}
 		}
 		//Player hotbar
 		for(int x = 0; x < 9; x++)
 		{
-			this.addSlot(new Slot(inventory, x, 8 + x * 18, 114));
+			this.addSlot(new Slot(inventory, x, 8 + x * 18, 134));
 		}
 	}
 	
@@ -127,8 +138,8 @@ public class TicketStationMenu extends LazyMessageMenu {
 
 	public boolean validInputs()
 	{
-		TicketStationRecipeInput input = this.blockEntity.getRecipeInput(this.getCode());
-		return this.getAllRecipes().stream().anyMatch(r -> r.value().matches(input, this.blockEntity.getLevel()) && r.value().validCode(this.getCode()));
+		TicketStationRecipeInput input = this.blockEntity.getRecipeInput(this.getExtraData());
+		return this.getAllRecipes().stream().anyMatch(r -> r.value().matches(input, this.blockEntity.getLevel()) && r.value().validData(this.getExtraData()));
 	}
 	
 	public boolean roomForOutput(TicketStationRecipe recipe)
@@ -138,7 +149,7 @@ public class TicketStationMenu extends LazyMessageMenu {
 		ItemStack outputStack = this.output.getItem(0);
 		if(outputStack.isEmpty())
 			return true;
-		return InventoryUtil.ItemMatches(recipe.peekAtResult(this.blockEntity.getStorage(),this.getCode()), outputStack) && outputStack.getMaxStackSize() > outputStack.getCount();
+		return InventoryUtil.ItemMatches(recipe.peekAtResult(this.blockEntity.getStorage(),this.getExtraData()), outputStack) && outputStack.getMaxStackSize() > outputStack.getCount();
 	}
 	
 	public void craftTickets(boolean fullStack, @Nonnull ResourceLocation recipeID)
@@ -148,7 +159,7 @@ public class TicketStationMenu extends LazyMessageMenu {
 			return;
 		TicketStationRecipe recipe = holder.value();
 
-		if(!recipe.matches(this.blockEntity.getRecipeInput(this.getCode()), this.blockEntity.getLevel()) || !recipe.validCode(this.getCode()))
+		if(!recipe.matches(this.blockEntity.getRecipeInput(this.getExtraData()), this.blockEntity.getLevel()) || !recipe.validData(this.getExtraData()))
 			return;
 
 		if(!this.roomForOutput(recipe))
@@ -171,7 +182,7 @@ public class TicketStationMenu extends LazyMessageMenu {
 
 	private boolean assemble(@Nonnull TicketStationRecipe recipe)
 	{
-		TicketStationRecipeInput input = this.blockEntity.getRecipeInput(this.getCode());
+		TicketStationRecipeInput input = this.blockEntity.getRecipeInput(this.getExtraData());
 		if(this.roomForOutput(recipe) && recipe.matches(input, this.blockEntity.getLevel()))
 		{
 			ItemStack result = recipe.assemble(input, this.blockEntity.getLevel().registryAccess());
@@ -198,6 +209,8 @@ public class TicketStationMenu extends LazyMessageMenu {
 			this.craftTickets(message.getBoolean("CraftTickets"), message.getResourceLocation("Recipe"));
 		if(message.contains("ChangeCode"))
 			this.setCode(message.getString("ChangeCode"));
+        if(message.contains("ChangeDurability"))
+            this.setDurability(message.getInt("ChangeDurability"));
 	}
 
 }

@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.Dir
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
+import io.github.lightman314.lightmanscurrency.api.ticket.TicketCollectionResult;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderScreen;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
@@ -301,32 +302,29 @@ public class PaygateTraderData extends TraderData {
 				return TradeResult.FAIL_CANNOT_AFFORD;
 			}
 
-			boolean hasPass = context.hasPass(trade.getTicketID());
+			boolean hasPass = context.hasInfinitePass(trade.getTicketID());
 
 			if(!hasPass)
 			{
 
 				ItemStack ticketStub = trade.getTicketStub();
 
-				//Abort if not enough room to put the ticket stub
-				if(!trade.shouldStoreTicketStubs() && !context.canFitItem(ticketStub))
-				{
-					LightmansCurrency.LogInfo("Not enough room for the ticket stub. Aborting trade!");
-					return TradeResult.FAIL_NO_OUTPUT_SPACE;
-				}
-
 				//Trade is valid, collect the ticket
-				if(!context.collectTicket(trade.getTicketID()))
+                TicketCollectionResult result = context.collectTicket(trade.getTicketID());
+				if(result.failed)
 				{
-					LightmansCurrency.LogError("Unable to collect the ticket. Aborting Trade!");
+					LightmansCurrency.LogDebug("Unable to collect the ticket. Aborting Trade!");
 					return TradeResult.FAIL_CANNOT_AFFORD;
 				}
 
 				//Store the ticket stub if flagged to do so
-				if(trade.shouldStoreTicketStubs())
-					this.addTicketStub(ticketStub);
-				else //Give the ticket stub
-					context.putItem(ticketStub);
+                if(result.spawnTicketStub)
+                {
+                    if(trade.shouldStoreTicketStubs())
+                        this.addTicketStub(ticketStub);
+                    else //Give the ticket stub
+                        context.putItem(ticketStub);
+                }
 
 			}
 			

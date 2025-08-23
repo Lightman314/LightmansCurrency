@@ -22,7 +22,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -46,8 +45,7 @@ public class TicketItemTrade extends ItemTradeData {
 
     @Override
     public void setRestriction(ItemTradeRestriction restriction) { }
-
-    @Nonnull
+    
     @Override
     public ItemTradeRestriction getRestriction() { return this.restriction; }
 
@@ -74,7 +72,7 @@ public class TicketItemTrade extends ItemTradeData {
     }
 
     @Override
-    public CompoundTag getAsNBT(@Nonnull HolderLookup.Provider lookup) {
+    public CompoundTag getAsNBT(HolderLookup.Provider lookup) {
         CompoundTag tag = super.getAsNBT(lookup);
         tag.put("TicketData1",this.ticketData1.save());
         tag.put("TicketData2",this.ticketData2.save());
@@ -88,7 +86,7 @@ public class TicketItemTrade extends ItemTradeData {
     }
 
     @Override
-    public void loadFromNBT(CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
+    public void loadFromNBT(CompoundTag tag, HolderLookup.Provider lookup) {
         super.loadFromNBT(tag, lookup);
 
         if(tag.contains("TicketData1"))
@@ -123,7 +121,7 @@ public class TicketItemTrade extends ItemTradeData {
                 //Try to find the exact recipe for a ticket, just in case it defaults to the pass recipe
                 for(RecipeHolder<TicketStationRecipe> recipe : this.ticketData1.getMatchingRecipes())
                 {
-                    if(recipe.value().assembleWithKiosk(masterTicket,data.code).getItem() == sellItem.getItem())
+                    if(recipe.value().assembleWithKiosk(masterTicket,data.getData()).getItem() == sellItem.getItem())
                     {
                         data.recipeID = recipe.id();
                         return;
@@ -151,6 +149,7 @@ public class TicketItemTrade extends ItemTradeData {
                 this.recipeID = allRecipes.getFirst().id();
             }
         }
+        TicketStationRecipe.ExtraData getData() { return new TicketStationRecipe.ExtraData(this.code,this.durability); }
         String code = "";
         public String getCode() { return this.code; }
         public void setCode(String couponCode) {
@@ -158,6 +157,9 @@ public class TicketItemTrade extends ItemTradeData {
                 couponCode = couponCode.substring(0,16);
             this.code = couponCode;
         }
+        int durability = 0;
+        public int getDurability() { return this.durability; }
+        public void setDurability(int durability) { this.durability = durability; }
         public List<RecipeHolder<TicketStationRecipe>> getMatchingRecipes() {
             ItemStack sellItem = TicketItemTrade.this.getActualItem(this.index);
             Level level = LightmansCurrency.getProxy().safeGetDummyLevel();
@@ -204,6 +206,11 @@ public class TicketItemTrade extends ItemTradeData {
             TicketStationRecipe recipe = this.tryGetRecipe();
             return recipe != null && recipe.requiredCodeInput();
         }
+        public boolean requestingDurabilityInput()
+        {
+            TicketStationRecipe recipe = this.tryGetRecipe();
+            return recipe != null && recipe.requiredDurabilityInput();
+        }
         public ItemStack getCraftingResult(boolean replaceName)
         {
             ItemStack sellItem = TicketItemTrade.this.getActualItem(this.index);
@@ -212,7 +219,7 @@ public class TicketItemTrade extends ItemTradeData {
             TicketStationRecipe recipe = this.tryGetRecipe();
             if(recipe != null)
             {
-                ItemStack result = recipe.assembleWithKiosk(sellItem,this.code);
+                ItemStack result = recipe.assembleWithKiosk(sellItem,this.getData());
                 if(result.isEmpty())
                     return result;
                 result.setCount(sellItem.getCount());
@@ -231,7 +238,7 @@ public class TicketItemTrade extends ItemTradeData {
             ItemStack sellItem = TicketItemTrade.this.getActualItem(this.index);
             TicketStationRecipe recipe = this.tryGetRecipe();
             if(recipe != null)
-                return recipe.matchesTicketKioskSellItem(sellItem) && (recipe.validCode(this.code));
+                return recipe.matchesTicketKioskSellItem(sellItem) && (recipe.validData(this.getData()));
             return sellItem.isEmpty() || InventoryUtil.ItemHasTag(sellItem,LCTags.Items.TICKET_MATERIAL);
         }
         public boolean isPotentiallyRecipeMode() { return !TicketItemTrade.this.isPurchase() && !this.getMatchingRecipes().isEmpty(); }
@@ -243,6 +250,7 @@ public class TicketItemTrade extends ItemTradeData {
             if(this.recipeID != null)
                 tag.putString("Recipe",this.recipeID.toString());
             tag.putString("Code",this.code);
+            tag.putInt("Durability",this.durability);
             return tag;
         }
 
@@ -254,6 +262,7 @@ public class TicketItemTrade extends ItemTradeData {
             else
                 node.setStringValue(prefix + "recipe",this.recipeID.toString());
             node.setStringValue(prefix + "code",this.code);
+            node.setIntValue(prefix + "durability",this.durability);
         }
 
         public void load(CompoundTag tag)
@@ -261,6 +270,7 @@ public class TicketItemTrade extends ItemTradeData {
             if(tag.contains("Recipe"))
                 this.recipeID = VersionUtil.parseResource(tag.getString("Recipe"));
             this.code = tag.getString("Code");
+            this.durability = tag.getInt("Durability");
         }
 
         public void loadSettings(SavedSettingData.NodeAccess node)
@@ -270,6 +280,7 @@ public class TicketItemTrade extends ItemTradeData {
                 this.recipeID = null;
             this.recipeID = VersionUtil.parseResource(node.getStringValue(prefix + "recipe"));
             this.code = node.getStringValue(prefix + "code");
+            this.durability = node.getIntValue(prefix + "durability");
         }
 
     }

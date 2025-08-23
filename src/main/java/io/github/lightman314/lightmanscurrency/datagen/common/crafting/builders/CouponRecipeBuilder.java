@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders
 
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.crafting.CouponRecipe;
+import io.github.lightman314.lightmanscurrency.common.crafting.durability.DurabilityData;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
@@ -25,6 +26,7 @@ public class CouponRecipeBuilder implements RecipeBuilder {
 
     private final Ingredient ingredient;
     private Item result;
+    private DurabilityData durability = new DurabilityData(true,0,99);
 
     private final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
 
@@ -37,6 +39,9 @@ public class CouponRecipeBuilder implements RecipeBuilder {
     @Nonnull
     public CouponRecipeBuilder withResult(@Nonnull Supplier<? extends ItemLike> result) { return this.withResult(result.get()); }
     public CouponRecipeBuilder withResult(@Nonnull ItemLike result) { this.result = result.asItem(); return this; }
+
+    public CouponRecipeBuilder withDurabilityRange(int min, int max) { return this.withDurabilityRange(false,min,max); }
+    public CouponRecipeBuilder withDurabilityRange(boolean allowInfinte,int min, int max) { this.durability = new DurabilityData(allowInfinte,min,max); return this; }
 
     @Nonnull
     @Override
@@ -58,7 +63,7 @@ public class CouponRecipeBuilder implements RecipeBuilder {
                 .rewards(AdvancementRewards.Builder.recipe(id))
                 .requirements(AdvancementRequirements.Strategy.OR);
         this.criteria.forEach(advancement$builder::addCriterion);
-        consumer.accept(id, new CouponRecipe(this.ingredient, this.result),advancement$builder.build(id.withPrefix("recipes/ticket_machine/")));
+        consumer.accept(id, new CouponRecipe(this.ingredient,this.result,this.durability),advancement$builder.build(id.withPrefix("recipes/ticket_machine/")));
     }
 
     private void ensureValid(ResourceLocation id) {

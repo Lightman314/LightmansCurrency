@@ -115,7 +115,7 @@ public class NumberDisplay extends ValueDisplayData {
         return df.format(value);
     }
 
-    private int getMaxDecimal()
+    public int getMaxDecimal()
     {
         double minFraction = this.getDisplayValue(1) % 1d;
         if(minFraction > 0d)

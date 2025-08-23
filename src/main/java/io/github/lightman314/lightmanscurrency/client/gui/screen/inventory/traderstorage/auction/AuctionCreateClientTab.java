@@ -2,6 +2,8 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -10,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
@@ -38,6 +41,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreateTab> {
 
@@ -107,12 +112,14 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 				.width(screenArea.width - 119)
 				.text(this::getBidModeText)
 				.pressAction(this::TogglePriceTarget)
+				.addon(EasyAddonHelper.activeCheck(this::isUnlocked))
 				.build());
 
 		this.buttonToggleOvertime = this.addChild(PlainButton.builder()
 				.position(screenArea.pos.offset(15,26))
 				.pressAction(this::ToggleOvertime)
 				.sprite(IconAndButtonUtil.SPRITE_CHECK(() -> this.pendingAuction.isOvertimeAllowed()))
+				.addon(EasyAddonHelper.activeCheck(this::isUnlocked))
 				.build());
 		this.overtimeTextArea = ScreenArea.of(26, 27, this.getFont().width(LCText.GUI_TRADER_AUCTION_OVERTIME.get()),10);
 
@@ -126,14 +133,16 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 				.minDuration(minDuration)
 				.maxDuration(Math.max(LCConfig.SERVER.auctionHouseDurationMax.get(), LCConfig.SERVER.auctionHouseDurationMin.get()) * TimeUtil.DURATION_DAY)
 				.startTime(AuctionTradeData.GetDefaultDuration())
+				.addon(EasyAddonHelper.activeCheck(this::isUnlocked))
 				.build());
 		
 		//Submit Button
-		this.buttonSubmitAuction = this.addChild(EasyTextButton.builder()
-				.position(screenArea.pos.offset(40,-20))
-				.width(screenArea.width - 80)
-				.text(LCText.BUTTON_TRADER_AUCTION_CREATE)
+		this.buttonSubmitAuction = this.addChild(IconButton.builder()
+				.position(screenArea.pos.offset(screenArea.width - 41,120))
+				.icon(IconUtil.ICON_PLUS)
 				.pressAction(this::submitAuction)
+				.addon(EasyAddonHelper.activeCheck(this::canSubmit))
+				.addon(EasyAddonHelper.tooltips(this::getSubmitButtonTooltips,TooltipHelper.DEFAULT_TOOLTIP_WIDTH,true))
 				.build());
 		this.buttonSubmitAuction.active = false;
 		
@@ -142,12 +151,12 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 				.pressAction(this::submitPersistentAuction)
 				.icon(IconUtil.ICON_PERSISTENT_DATA)
 				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_PERSISTENT_CREATE_AUCTION))
+				.addon(EasyAddonHelper.visibleCheck(this::isAdminMode))
 				.build());
-		this.buttonSubmitPersistentAuction.visible = LCAdminMode.isAdminPlayer(this.screen.getPlayer());
 		this.buttonSubmitPersistentAuction.active = false;
 		
 		int idWidth = this.getFont().width(LCText.GUI_PERSISTENT_ID.get());
-		this.persistentAuctionIDInput = this.addChild((new EditBox(this.getFont(), screenArea.x + idWidth + 2, screenArea.y - 40, screenArea.width - idWidth - 2, 18, EasyText.empty())));
+		this.persistentAuctionIDInput = this.addChild((new EditBox(this.getFont(), screenArea.x + idWidth + 2, screenArea.y - 20, screenArea.width - idWidth - 2, 18, EasyText.empty())));
 		this.persistentAuctionIDInput.visible = LCAdminMode.isAdminPlayer(this.screen.getPlayer());
 		
 	}
@@ -175,7 +184,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 			TextRenderUtil.drawCenteredText(gui, LCText.GUI_TRADER_AUCTION_CREATE_SUCCESS.getWithStyle(ChatFormatting.BOLD), this.screen.getXSize() / 2, 34, 0x404040);
 		
 		if(LCAdminMode.isAdminPlayer(this.screen.getPlayer()))
-			gui.drawString(LCText.GUI_PERSISTENT_ID.get(), 0, -35, 0xFFFFFF);
+			gui.drawString(LCText.GUI_PERSISTENT_ID.get(), 0, -15, 0xFFFFFF);
 		
 	}
 
@@ -183,6 +192,57 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
 		if(this.overtimeTextArea.offsetPosition(this.screen.getCorner()).isMouseInArea(gui.mousePos))
 			gui.renderComponentTooltip(TooltipHelper.splitTooltips(LCText.TOOLTIP_TRADER_AUCTION_OVERTIME.get()));
+	}
+
+	private boolean isUnlocked() { return !this.locked; }
+
+	private boolean canSubmit() {
+		if(this.isUnlocked() && this.pendingAuction.isValid())
+		{
+			if(LCAdminMode.isAdminPlayer(this.menu.getPlayer()))
+				return true;
+			if(this.menu.getTrader() instanceof AuctionHouseTrader ah)
+			{
+				if(LCAdminMode.isAdminPlayer(this.menu.getPlayer()))
+					return true;
+				MoneyValue price = LCConfig.SERVER.auctionHouseSubmitPrice.get();
+				if(!price.isEmpty())
+				{
+					IMoneyHandler handler = MoneyAPI.API.GetPlayersMoneyHandler(this.menu.getPlayer());
+					if(!handler.extractMoney(price,true).isEmpty())
+						return false;
+				}
+				int count = ah.getPlayerTradeCount(this.menu.getPlayer());
+				return count < LCConfig.SERVER.auctionHousePlayerLimit.get();
+			}
+		}
+		return false;
+	}
+
+	private boolean isAdminMode() { return LCAdminMode.isAdminPlayer(this.menu.getPlayer()); }
+
+	private List<Component> getSubmitButtonTooltips()
+	{
+		List<Component> tooltip = new ArrayList<>();
+		if(this.menu.getTrader() instanceof AuctionHouseTrader ah)
+		{
+			if(this.canSubmit())
+				tooltip.add(LCText.BUTTON_TRADER_AUCTION_CREATE.getWithStyle(ChatFormatting.BOLD));
+			MoneyValue price = LCConfig.SERVER.auctionHouseSubmitPrice.get();
+			if(!price.isEmpty())
+				tooltip.add(LCText.TOOLTIP_TRADER_AUCTION_PRICE.get(price.getText()));
+			int feePercent = LCConfig.SERVER.auctionHouseFeePercentage.get();
+			if(feePercent > 0)
+				tooltip.add(LCText.TOOLTIP_TRADER_AUCTION_FEE_WARNING.get(feePercent));
+			if(!LCAdminMode.isAdminPlayer(this.menu.getPlayer()))
+			{
+				int count = ah.getPlayerTradeCount(this.menu.getPlayer());
+				int limit = LCConfig.SERVER.auctionHousePlayerLimit.get();
+				if(count >= limit)
+					tooltip.addAll(LCText.TOOLTIP_TRADER_AUCTION_LIMIT_EXCEEDED.get(limit,count));
+			}
+		}
+		return tooltip;
 	}
 
 	@Override
@@ -196,15 +256,6 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 				this.screen.ChangeTab(TraderStorageTab.TAB_TRADE_BASIC);
 				return;
 			}
-		}
-		if(this.locked)
-		{
-			this.buttonTogglePriceMode.active = this.buttonSubmitAuction.active = false;
-		}
-		else
-		{
-			this.buttonTogglePriceMode.active = true;
-			this.buttonSubmitAuction.active = this.pendingAuction.isValid();
 		}
 		
 		if(LCAdminMode.isAdminPlayer(this.screen.getPlayer()))

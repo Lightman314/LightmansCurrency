@@ -77,7 +77,7 @@ public class LCClientPlugin implements REIClientPlugin {
         //Click area for the Coin Mint is on the arrow
         registry.registerClickArea(screen -> new Rectangle(screen.getGuiLeft() + 80, screen.getGuiTop() + 21, 22, 16), MintScreen.class, CoinMintCategory.ID);
         //Click area for the Ticket Station is on the title text as the arrow is already a clickable button
-        registry.registerClickArea(screen -> new Rectangle(screen.getGuiLeft() + 8, screen.getGuiTop() + 6, 100,screen.codeInputVisible() ? 0 : 10), TicketStationScreen.class, TicketStationCategory.ID);
+        registry.registerClickArea(screen -> new Rectangle(screen.getGuiLeft() + 8, screen.getGuiTop() + 6, 100,10), TicketStationScreen.class, TicketStationCategory.ID);
         //Focus Stack Provider
         registry.registerFocusedStack(((screen, mouse) -> {
             if(screen instanceof EasyMenuScreen<?> s)

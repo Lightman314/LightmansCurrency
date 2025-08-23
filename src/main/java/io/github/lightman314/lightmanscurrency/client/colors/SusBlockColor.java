@@ -5,27 +5,27 @@ import io.github.lightman314.lightmanscurrency.common.items.CoinJarItem;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.color.item.ItemColor;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.FastColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@ParametersAreNonnullByDefault
 public class SusBlockColor implements BlockColor, ItemColor {
 
     public static final SusBlockColor INSTANCE = new SusBlockColor();
 
     @Override
-    public int getColor(@Nonnull BlockState state, @Nullable BlockAndTintGetter level, @Nullable BlockPos pos, int layer) {
+    public int getColor(BlockState state, @Nullable BlockAndTintGetter level, @Nullable BlockPos pos, int layer) {
         if(layer == 0 && level.getBlockEntity(pos) instanceof CoinJarBlockEntity jarBlock)
             return jarBlock.getColor();
         return 0xFFFFFF;
     }
 
     @Override
-    public int getColor(@Nonnull ItemStack stack, int layer) {
+    public int getColor(ItemStack stack, int layer) {
         if(layer == 0)
             return CoinJarItem.getJarColor(stack) | 0xFF000000;
         return 0xFFFFFFFF;

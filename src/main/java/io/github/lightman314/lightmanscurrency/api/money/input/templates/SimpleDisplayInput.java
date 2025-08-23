@@ -14,6 +14,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
+import java.text.DecimalFormat;
 
 public abstract class SimpleDisplayInput extends MoneyInputHandler {
 
@@ -52,7 +53,7 @@ public abstract class SimpleDisplayInput extends MoneyInputHandler {
                         .consumer())
                 .maxLength(this.maxLength())
                 .handler(this::onValueChanges)
-                .startingValue(this.getTextFromDisplay(this.currentValue()))
+                .startingString(this.getStartingText())
                 .build());
 
     }
@@ -114,8 +115,16 @@ public abstract class SimpleDisplayInput extends MoneyInputHandler {
             this.input.setValue(text);
     }
 
+    protected String getStartingText() {
+        double value = this.getTextFromDisplay(this.currentValue());
+        DecimalFormat df = new DecimalFormat();
+        df.setMaximumFractionDigits(this.getRelevantDecimals());
+        return df.format(value);
+    }
+
     @Nonnull
     protected abstract MoneyValue getValueFromInput(double inputValue);
     protected abstract double getTextFromDisplay(@Nonnull MoneyValue value);
+    protected int getRelevantDecimals() { return 0; }
 
 }

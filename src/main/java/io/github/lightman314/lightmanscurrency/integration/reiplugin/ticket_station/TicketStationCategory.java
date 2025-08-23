@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.integration.reiplugin.ticket_sta
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TicketStationScreen;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import me.shedaniel.math.Point;
@@ -37,11 +38,11 @@ public class TicketStationCategory implements DisplayCategory<TicketStationDispl
     public List<Widget> setupDisplay(TicketStationDisplay display, Rectangle bounds) {
         List<Widget> widgets = new ArrayList<>();
 
-        Point startPoint = new Point(bounds.getCenterX() - 59, bounds.getCenterY() - 13);
+        Point startPoint = new Point(bounds.getCenterX() - 59, bounds.getCenterY() - 20);
         widgets.add(Widgets.createRecipeBase(bounds));
 
         //Background
-        widgets.add(Widgets.createTexturedWidget(TicketStationScreen.GUI_TEXTURE, startPoint.x, startPoint.y, 0, 138, 118, 26));
+        widgets.add(Widgets.createTexturedWidget(TicketStationScreen.GUI_TEXTURE, startPoint.x, startPoint.y, 0, TicketStationScreen.HEIGHT, 118, 40));
 
         //Modifier Slot
         widgets.add(Widgets.createSlot(new Point(startPoint.x + 1, startPoint.y + 5))
@@ -60,6 +61,28 @@ public class TicketStationCategory implements DisplayCategory<TicketStationDispl
                 .entries(display.getOutputEntries().getFirst())
                 .disableBackground()
                 .markOutput());
+
+        //Code Input
+        if(display.codeInputs)
+        {
+            widgets.add(Widgets.createTexturedWidget(TicketStationScreen.GUI_TEXTURE,startPoint.x,startPoint.y + 26,0,TicketStationScreen.HEIGHT + 40,107,14));
+            widgets.add(Widgets.createLabel(new Point(startPoint.x + 3, startPoint.y + 29), EasyText.literal("ExampleCode")));
+        }
+        //Durability Input
+        if(display.durabilityData.isValid())
+        {
+            widgets.add(Widgets.createTexturedWidget(TicketStationScreen.GUI_TEXTURE,startPoint.x + 107,startPoint.y + 26,107,TicketStationScreen.HEIGHT + 40,11,14));
+            List<Component> lines = new ArrayList<>();
+            int min = display.durabilityData.min;
+            int max = display.durabilityData.max;
+            boolean allowInfinite = display.durabilityData.allowInfinite || min <= 0;
+            if(min <= 0)
+                min = 1;
+            lines.add(LCText.JEI_INFO_TICKET_DURABILITY.get(min,max));
+            if(allowInfinite)
+                lines.add(LCText.JEI_INFO_TICKET_DURABILITY_INFINITE.get());
+            widgets.add(Widgets.createTooltip(new Rectangle(startPoint.x + 107,startPoint.y + 26,11,14),lines));
+        }
 
         return widgets;
     }

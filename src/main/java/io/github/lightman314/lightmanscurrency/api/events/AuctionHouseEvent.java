@@ -3,45 +3,54 @@ package io.github.lightman314.lightmanscurrency.api.events;
 import java.util.List;
 import java.util.Objects;
 
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class AuctionHouseEvent extends Event {
 
 	protected final AuctionHouseTrader auctionHouse;
-	@Nonnull
 	public AuctionHouseTrader getAuctionHouse() { return this.auctionHouse; }
 	
-	protected AuctionHouseEvent(@Nonnull AuctionHouseTrader auctionHouse) { this.auctionHouse = auctionHouse; }
+	protected AuctionHouseEvent(AuctionHouseTrader auctionHouse) { this.auctionHouse = auctionHouse; }
 	
 	public static class AuctionEvent extends AuctionHouseEvent {
 		
 		protected AuctionTradeData auction;
-		@Nonnull
+		
 		public AuctionTradeData getAuction() { return this.auction; }
 
-		protected AuctionEvent(@Nonnull AuctionHouseTrader auctionHouse, @Nonnull AuctionTradeData auction) { super(auctionHouse); this.auction = auction; }
+		protected AuctionEvent(AuctionHouseTrader auctionHouse, AuctionTradeData auction) { super(auctionHouse); this.auction = auction; }
 		
 		public static class CreateAuctionEvent extends AuctionEvent {
-			
+
+			protected final Player player;
+			@Nullable
+			public Player getPlayer() { return this.player; }
+
 			protected final boolean persistent;
 			public boolean isPersistent() { return this.persistent; }
 			
-			protected CreateAuctionEvent(AuctionHouseTrader auctionHouse, AuctionTradeData auction, boolean persistent) {
+			protected CreateAuctionEvent(AuctionHouseTrader auctionHouse, AuctionTradeData auction, @Nullable Player player, boolean persistent) {
 				super(auctionHouse, auction);
 				this.persistent = persistent;
+				this.player = player;
 			}
 			
 			public static final class Pre extends CreateAuctionEvent implements ICancellableEvent {
 
-				public Pre(@Nonnull AuctionHouseTrader auctionHouse, @Nonnull AuctionTradeData auction, boolean persistent) { super(auctionHouse, auction, persistent); }
+				public Pre(AuctionHouseTrader auctionHouse, AuctionTradeData auction, @Nullable Player player, boolean persistent) { super(auctionHouse, auction,player,persistent); }
 				
 				public void setAuction(AuctionTradeData auction) {
 					Objects.requireNonNull(auction);
@@ -57,7 +66,7 @@ public class AuctionHouseEvent extends Event {
 			}
 			
 			public static final class Post extends CreateAuctionEvent {
-				public Post(@Nonnull AuctionHouseTrader auctionHouse, @Nonnull AuctionTradeData auction, boolean persistent) { super(auctionHouse, auction, persistent); }
+				public Post(AuctionHouseTrader auctionHouse, AuctionTradeData auction, @Nullable Player player, boolean persistent) { super(auctionHouse, auction, player, persistent); }
 			}
 			
 		}
@@ -65,10 +74,9 @@ public class AuctionHouseEvent extends Event {
 		public static class CancelAuctionEvent extends AuctionEvent {
 
 			protected final Player player;
-			@Nonnull
 			public Player getPlayer() { return this.player; }
 			
-			public CancelAuctionEvent(@Nonnull AuctionHouseTrader auctionHouse, @Nonnull AuctionTradeData auction, @Nonnull Player player) {
+			public CancelAuctionEvent(AuctionHouseTrader auctionHouse, AuctionTradeData auction, Player player) {
 				super(auctionHouse, auction);
 				this.player = player;
 			}
@@ -80,22 +88,35 @@ public class AuctionHouseEvent extends Event {
 			public boolean hadBidder() { return this.auction.getLastBidPlayer() != null; }
 			
 			List<ItemStack> items;
-			@Nonnull
-			public List<ItemStack> getItems() { return this.items; }
-			public void setItems(@Nonnull List<ItemStack> bidderRewards) { this.items = Objects.requireNonNull(bidderRewards); }
-
-			MoneyValue paymentAmount;
-			@Nonnull
-			public MoneyValue getPayment() { return this.paymentAmount; }
-			public void setPayment(@Nonnull MoneyValue paymentAmount) { this.paymentAmount = Objects.requireNonNull(paymentAmount); }
 			
-			public AuctionCompletedEvent(@Nonnull AuctionHouseTrader auctionHouse, @Nonnull AuctionTradeData auction) {
+			public List<ItemStack> getItems() { return this.items; }
+			public void setItems(List<ItemStack> bidderRewards) { this.items = Objects.requireNonNull(bidderRewards); }
+
+			MoneyValue highestBid;
+			MoneyValue paymentAmount;
+			MoneyValue feeAmount;
+			
+			public MoneyValue getHighestBid() { return this.highestBid; }
+
+			public int getAuctionFeePercent() { return LCConfig.SERVER.auctionHouseFeePercentage.get(); }
+
+			public MoneyValue getFeePayment() { return this.feeAmount; }
+			public void setFeePayment(MoneyValue feePayment) { this.feeAmount = Objects.requireNonNull(feePayment); }
+
+			public MoneyValue getPaymentAmount() { return this.paymentAmount; }
+			public void setPaymentAmount(MoneyValue paymentAmount) { this.paymentAmount = Objects.requireNonNull(paymentAmount); }
+
+			public AuctionCompletedEvent(AuctionHouseTrader auctionHouse, AuctionTradeData auction) {
 				super(auctionHouse, auction);
 				this.items = this.auction.getAuctionItems();
 				if(this.hadBidder())
-					this.paymentAmount = this.auction.getLastBidAmount();
+				{
+					this.highestBid = this.auction.getLastBidAmount();
+					this.feeAmount = this.highestBid.percentageOfValue(this.getAuctionFeePercent());
+					this.paymentAmount = this.highestBid.subtractValue(this.feeAmount);
+				}
 				else
-					this.paymentAmount = MoneyValue.empty();
+					this.highestBid = this.paymentAmount = this.feeAmount = MoneyValue.empty();
 			}
 			
 		}
@@ -103,14 +124,14 @@ public class AuctionHouseEvent extends Event {
 		public static class AuctionBidEvent extends AuctionEvent {
 
 			protected final Player bidder;
-			@Nonnull
+			
 			public Player getBidder() { return this.bidder; }
 			
 			protected MoneyValue bidAmount;
-			@Nonnull
+			
 			public MoneyValue getBidAmount() { return this.bidAmount; }
 			
-			protected AuctionBidEvent(@Nonnull AuctionHouseTrader auctionHouse, @Nonnull AuctionTradeData auction, @Nonnull Player bidder, @Nonnull MoneyValue bidAmount) {
+			protected AuctionBidEvent(AuctionHouseTrader auctionHouse, AuctionTradeData auction, Player bidder, MoneyValue bidAmount) {
 				super(auctionHouse, auction);
 				this.bidder = bidder;
 				this.bidAmount = bidAmount;
@@ -118,9 +139,9 @@ public class AuctionHouseEvent extends Event {
 
 			public static class Pre extends AuctionBidEvent implements ICancellableEvent{
 
-				public void setBidAmount(@Nonnull MoneyValue bidAmount) { this.bidAmount = Objects.requireNonNull(bidAmount); }
+				public void setBidAmount(MoneyValue bidAmount) { this.bidAmount = Objects.requireNonNull(bidAmount); }
 				
-				public Pre(@Nonnull AuctionHouseTrader auctionHouse, @Nonnull AuctionTradeData auction, @Nonnull Player bidder, @Nonnull MoneyValue bidAmount) {
+				public Pre(AuctionHouseTrader auctionHouse, AuctionTradeData auction, Player bidder, MoneyValue bidAmount) {
 					super(auctionHouse, auction, bidder, bidAmount);
 				}
 				
@@ -128,7 +149,7 @@ public class AuctionHouseEvent extends Event {
 			
 			public static class Post extends AuctionBidEvent {
 				
-				public Post(@Nonnull AuctionHouseTrader auctionHouse, @Nonnull AuctionTradeData auction, @Nonnull Player bidder, @Nonnull MoneyValue bidAmount) {
+				public Post(AuctionHouseTrader auctionHouse, AuctionTradeData auction, Player bidder, MoneyValue bidAmount) {
 					super(auctionHouse, auction, bidder, bidAmount);
 				}
 			}

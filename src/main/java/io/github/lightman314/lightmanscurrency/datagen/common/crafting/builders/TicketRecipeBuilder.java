@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders
 
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketRecipe;
+import io.github.lightman314.lightmanscurrency.common.crafting.durability.DurabilityData;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
@@ -25,6 +26,7 @@ public class TicketRecipeBuilder implements RecipeBuilder {
     private Ingredient masterIngredient;
     private final Ingredient ingredient;
     private final Item result;
+    private DurabilityData durability = DurabilityData.NULL;
 
     private final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
 
@@ -40,7 +42,9 @@ public class TicketRecipeBuilder implements RecipeBuilder {
     public TicketRecipeBuilder withMasterTicket(@Nonnull ItemLike item) { this.masterIngredient = Ingredient.of(item); return this; }
     @Nonnull
     public TicketRecipeBuilder withMasterTicket(@Nonnull Ingredient ingredient) { this.masterIngredient = ingredient; return this; }
-
+    @Nonnull
+    public TicketRecipeBuilder withDurabilityRange(int min, int max) { return this.withDurabilityRange(false,min,max); }
+    public TicketRecipeBuilder withDurabilityRange(boolean allowInfinite,int min, int max) { this.durability = new DurabilityData(allowInfinite,min,max); return this; }
 
     @Nonnull
     @Override
@@ -63,7 +67,7 @@ public class TicketRecipeBuilder implements RecipeBuilder {
                 .rewards(AdvancementRewards.Builder.recipe(id))
                 .requirements(AdvancementRequirements.Strategy.OR);
         this.criteria.forEach(advancement$builder::addCriterion);
-        consumer.accept(id, new TicketRecipe(this.masterIngredient, this.ingredient, this.result), advancement$builder.build(id.withPrefix("recipes/ticket_machine/")));
+        consumer.accept(id, new TicketRecipe(this.masterIngredient,this.ingredient,this.result,this.durability), advancement$builder.build(id.withPrefix("recipes/ticket_machine/")));
     }
 
     private void ensureValid(ResourceLocation id) {

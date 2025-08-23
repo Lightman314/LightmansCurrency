@@ -48,7 +48,7 @@ public class ScrollTextDisplay extends EasyWidget {
 		this.validateScroll(text.size());
 		int i = this.getStartingIndex(text.size());
 		int columnWidth = this.getColumnWidth();
-		int bottom = this.getY() + this.height;
+		int bottom = this.getHeight();
 		for(int yPos = 2; yPos < bottom && i >= 0 && i < text.size();)
 		{
 			int rowHeight = 0;
@@ -68,8 +68,8 @@ public class ScrollTextDisplay extends EasyWidget {
 		}
 		
 	}
-	
-	private void validateScroll(int listSize)
+
+    private void validateScroll(int listSize)
 	{
 		if(this.scroll * columnCount >= listSize)
 			this.scroll = MathUtil.clamp(this.scroll, 0, (listSize / columnCount - 1));

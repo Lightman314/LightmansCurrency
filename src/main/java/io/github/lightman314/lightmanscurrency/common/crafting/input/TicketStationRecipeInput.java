@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.crafting.input;
 
+import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
@@ -11,16 +12,15 @@ import java.util.List;
 @ParametersAreNonnullByDefault
 public class TicketStationRecipeInput extends ListRecipeInput {
 
-    private final String code;
-    public String getCode() { return this.code; }
+    public final TicketStationRecipe.ExtraData data;
 
-    public TicketStationRecipeInput(Container container, String code) {
+    public TicketStationRecipeInput(Container container, TicketStationRecipe.ExtraData data) {
         super(container);
-        this.code = code;
+        this.data = data;
     }
 
-    public TicketStationRecipeInput(List<ItemStack> items, String code) {
+    public TicketStationRecipeInput(List<ItemStack> items, TicketStationRecipe.ExtraData data) {
         super(items);
-        this.code = code;
+        this.data = data;
     }
 }

@@ -37,9 +37,12 @@ public class EasyAddonHelper {
     public static WidgetAddon tooltip(@Nonnull Supplier<Component> tooltip) { return new TooltipAddon(() -> toList(tooltip.get())); }
     public static WidgetAddon tooltips(@Nonnull Supplier<List<Component>> tooltip) { return new TooltipAddon(tooltip); }
 
-    public static WidgetAddon tooltips(@Nonnull Supplier<List<Component>> tooltip, int width) { return new TooltipSplitterAddon(tooltip,width); }
-    public static WidgetAddon tooltip(@Nonnull Component tooltip, int width) { return new TooltipSplitterAddon(tooltip, width); }
-    public static WidgetAddon tooltip(@Nonnull TextEntry tooltip, int width) { return new TooltipSplitterAddon(tooltip.get(), width); }
+    public static WidgetAddon tooltips(@Nonnull Supplier<List<Component>> tooltip, int width) { return tooltips(tooltip,width,false); }
+    public static WidgetAddon tooltips(@Nonnull Supplier<List<Component>> tooltip, int width, boolean ignoreActive) { return new TooltipSplitterAddon(tooltip,width,ignoreActive); }
+    public static WidgetAddon tooltip(@Nonnull Component tooltip, int width) { return tooltip(tooltip,width,false); }
+    public static WidgetAddon tooltip(@Nonnull Component tooltip, int width, boolean ignoreActive) { return new TooltipSplitterAddon(tooltip,width,ignoreActive); }
+    public static WidgetAddon tooltip(@Nonnull TextEntry tooltip, int width) { return tooltip(tooltip,width,false); }
+    public static WidgetAddon tooltip(@Nonnull TextEntry tooltip, int width, boolean ignoreActive) { return new TooltipSplitterAddon(tooltip.get(),width,ignoreActive); }
 
     //Fancier Tooltip Modifiers
     @Deprecated
@@ -106,9 +109,10 @@ public class EasyAddonHelper {
     {
         private final Supplier<List<Component>> tooltip;
         private final int width;
-        TooltipSplitterAddon(@Nonnull Component tooltip, int width) { this(Lists.newArrayList(tooltip),width); }
-        TooltipSplitterAddon(@Nonnull List<Component> tooltip, int width) { this(() -> tooltip,width); }
-        TooltipSplitterAddon(@Nonnull Supplier<List<Component>> tooltip, int width) { this.tooltip = tooltip; this.width = width; }
+        private final boolean ignoreActive;
+        TooltipSplitterAddon(@Nonnull Component tooltip, int width, boolean ignoreActive) { this(Lists.newArrayList(tooltip),width,ignoreActive); }
+        TooltipSplitterAddon(@Nonnull List<Component> tooltip, int width, boolean ignoreActive) { this(() -> tooltip,width,ignoreActive); }
+        TooltipSplitterAddon(@Nonnull Supplier<List<Component>> tooltip, int width, boolean ignoreActive) { this.tooltip = tooltip; this.width = width; this.ignoreActive = ignoreActive; }
 
         @Override
         public List<Component> getTooltipText(int mouseX, int mouseY) { return null; }
@@ -116,10 +120,13 @@ public class EasyAddonHelper {
         @Override
         public void renderTooltip(EasyGuiGraphics gui) {
             EasyWidget w = this.getWidget();
-            if(w != null && w.isActive() && w.getArea().isMouseInArea(gui.mousePos))
+            if(w != null && (this.ignoreActive || w.isActive()) && w.getArea().isMouseInArea(gui.mousePos))
             {
                 List<FormattedCharSequence> t = new ArrayList<>();
-                for(Component c : this.tooltip.get())
+                List<Component> lines = this.tooltip.get();
+                if(lines.isEmpty())
+                    return;
+                for(Component c : lines)
                     t.addAll(gui.font.split(c,this.width));
                 gui.renderTooltip(t);
             }

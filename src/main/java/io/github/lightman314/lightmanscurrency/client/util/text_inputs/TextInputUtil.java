@@ -38,6 +38,7 @@ public class TextInputUtil {
 		@Nullable
 		private Predicate<String> filter = null;
 		private Function<String,T> parser;
+		private Function<T,String> writer = String::valueOf;
 		String startingValue = "";
 		private int maxLength = 32;
 		private Component message = EasyText.empty();
@@ -45,7 +46,14 @@ public class TextInputUtil {
 
 		public Builder<T> font(Font font) { this.font = font; return this; }
 		public Builder<T> startingString(String value) { this.startingValue = value; return this; }
-		public Builder<T> startingValue(T value) { return this.startingString(String.valueOf(value)); }
+		public Builder<T> startingValue(T value) {
+			//Trick numbers to
+			if((value instanceof Double d && d == 0) || (value instanceof Float f && f == 0))
+				this.startingString("0");
+			else
+				this.startingString(String.valueOf(value));
+			return this;
+		}
 		public Builder<T> maxLength(int maxLength) { this.maxLength = maxLength; return this; }
 		public Builder<T> message(Component message) { this.message = Objects.requireNonNull(message); return this; }
 
@@ -61,10 +69,13 @@ public class TextInputUtil {
 		public Builder<T> handler(Consumer<T> handler) { this.handler = handler; return this; }
 		public Builder<T> filter(Predicate<String> filter) { this.filter = filter; return this; }
 		public Builder<T> parser(Function<String,T> parser) { this.parser = parser; return this; }
+		public Builder<T> writer(Function<T,String> writer) { this.writer = writer; return this; }
 
 		public Builder<T> noBorder() { this.renderBG = false; return this; }
 
 		public Builder<T> apply(Consumer<Builder<T>> application) { application.accept(this); return this; }
+
+		public TextBoxWrapper.Builder<T> wrap() { return TextBoxWrapper.builder(this.build(),this.parser,this.writer); }
 
 		public EditBox build() {
 			EditBox box = new EditBox(this.font, this.area.x,this.area.y,this.area.width,this.area.height,this.message);

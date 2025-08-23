@@ -208,8 +208,15 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
         List<String> result = new ArrayList<>();
         for(int i = 0; i < limit && i < notifications.size(); ++i)
         {
-            for(MutableComponent line : notifications.get(i).getMessageLines())
-                result.add(line.getString());
+            Notification not = notifications.get(i);
+            boolean first = true;
+            for(MutableComponent line : not.getMessageLines())
+            {
+                String l = line.getString();
+                if(first && not.getCount() > 1)
+                    l = "[" + not.getCount() + "] " + l;
+                result.add(l);
+            }
         }
         return result.toArray(String[]::new);
     }

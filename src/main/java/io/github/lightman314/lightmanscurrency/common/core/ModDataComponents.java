@@ -12,7 +12,7 @@ import io.github.lightman314.lightmanscurrency.common.items.data.ATMCardData;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.data.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Unit;
@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+@SuppressWarnings("deprecation")
 public class ModDataComponents {
 
     public static void init() {}
@@ -32,7 +33,10 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<WalletData>> WALLET_DATA;
     public static final Supplier<DataComponentType<List<BlockPos>>> CASH_REGISTER_TRADER_POSITIONS;
     public static final Supplier<DataComponentType<List<ItemStack>>> COIN_JAR_CONTENTS;
+    @Deprecated
     public static final Supplier<DataComponentType<TicketData>> TICKET_DATA;
+    public static final Supplier<DataComponentType<Long>> TICKET_ID;
+    public static final Supplier<DataComponentType<Integer>> TICKET_USES;
     public static final Supplier<DataComponentType<CouponData>> COUPON_DATA;
     public static final Supplier<DataComponentType<TraderItemData>> TRADER_ITEM_DATA;
     public static final Supplier<DataComponentType<UpgradeData>> UPGRADE_DATA;
@@ -69,6 +73,8 @@ public class ModDataComponents {
         CASH_REGISTER_TRADER_POSITIONS = register("cash_register_trader_positions", builder -> builder.persistent(BlockPos.CODEC.listOf()));
         COIN_JAR_CONTENTS = register("coin_jar_contents", builder -> builder.persistent(ItemStack.OPTIONAL_CODEC.listOf()).cacheEncoding());
         TICKET_DATA = register("ticket_data", builder -> builder.persistent(TicketData.CODEC).networkSynchronized(TicketData.STREAM_CODEC).cacheEncoding());
+        TICKET_ID = registerLong("ticket_id");
+        TICKET_USES = registerInt("ticket_uses");
         COUPON_DATA = register("coupon_data", builder -> builder.persistent(CouponData.CODEC).networkSynchronized(CouponData.STREAM_CODEC).cacheEncoding());
         TRADER_ITEM_DATA = register("trader_data", builder -> builder.persistent(TraderItemData.CODEC).networkSynchronized(TraderItemData.STREAM_CODEC).cacheEncoding());
         UPGRADE_DATA = register("upgrade_data", builder -> builder.persistent(UpgradeData.CODEC).networkSynchronized(UpgradeData.STREAM_CODEC));
@@ -102,9 +108,10 @@ public class ModDataComponents {
 
     private static <T> Supplier<DataComponentType<T>> register(@Nonnull String name, @Nonnull UnaryOperator<DataComponentType.Builder<T>> builder) { return ModRegistries.DATA_COMPONENTS.register(name, () -> builder.apply(DataComponentType.builder()).build()); }
     private static Supplier<DataComponentType<Unit>> registerUnit(@Nonnull String name) { return register(name,builder -> builder.persistent(Unit.CODEC).networkSynchronized(StreamCodec.unit(Unit.INSTANCE))); }
-    private static Supplier<DataComponentType<Boolean>> registerBool(@Nonnull String name) { return register(name,builder -> builder.persistent(Codec.BOOL).networkSynchronized(StreamCodec.of(FriendlyByteBuf::writeBoolean,FriendlyByteBuf::readBoolean))); }
-    private static Supplier<DataComponentType<Integer>> registerInt(@Nonnull String name) { return register(name,builder -> builder.persistent(Codec.INT).networkSynchronized(StreamCodec.of(FriendlyByteBuf::writeInt,FriendlyByteBuf::readInt))); }
-    private static Supplier<DataComponentType<Float>> registerFloat(@Nonnull String name) { return register(name,builder -> builder.persistent(Codec.FLOAT).networkSynchronized(StreamCodec.of(FriendlyByteBuf::writeFloat,FriendlyByteBuf::readFloat))); }
+    private static Supplier<DataComponentType<Boolean>> registerBool(@Nonnull String name) { return register(name,builder -> builder.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)); }
+    private static Supplier<DataComponentType<Integer>> registerInt(@Nonnull String name) { return register(name,builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)); }
+    private static Supplier<DataComponentType<Long>> registerLong(@Nonnull String name) { return register(name,builder -> builder.persistent(Codec.LONG).networkSynchronized(ByteBufCodecs.VAR_LONG)); }
+    private static Supplier<DataComponentType<Float>> registerFloat(@Nonnull String name) { return register(name,builder -> builder.persistent(Codec.FLOAT).networkSynchronized(ByteBufCodecs.FLOAT)); }
     private static Supplier<DataComponentType<ResourceLocation>> registerResource(@Nonnull String name) { return register(name,builder -> builder.persistent(ResourceLocation.CODEC).networkSynchronized(ResourceLocation.STREAM_CODEC)); }
 
 }

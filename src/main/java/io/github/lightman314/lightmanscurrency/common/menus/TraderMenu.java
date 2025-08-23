@@ -1,23 +1,24 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.menus.MoneySlot;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.*;
+import io.github.lightman314.lightmanscurrency.api.traders.discount_codes.TypedInputSource;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.IMoneyCollectionMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.InteractionSlot;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -27,31 +28,28 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu, IMoneyCollectionMenu {
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
+public class TraderMenu extends LazyMessageMenu implements IValidatedMenu, ITraderMenu, IMoneyCollectionMenu {
 
 	private final Supplier<ITraderSource> traderSource;
 	@Nullable
 	@Override
 	public ITraderSource getTraderSource() { return this.traderSource.get(); }
 
-	@Nonnull
 	@Override
 	public Player getPlayer() { return this.player; }
 
-	@Nonnull
 	@Override
 	public List<Slot> getSlots() { return ImmutableList.copyOf(this.slots); }
 
-	@Nonnull
 	@Override
 	public ItemStack getHeldItem() { return this.getCarried(); }
 	@Override
-	public void setHeldItem(@Nonnull ItemStack stack) { this.setCarried(stack); }
-
-	private final Map<Long,TradeContext> contextCache = new HashMap<>();
+	public void setHeldItem(ItemStack stack) { this.setCarried(stack); }
 	
 	public static final int SLOT_OFFSET = 15;
 	
@@ -59,12 +57,16 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 	public InteractionSlot getInteractionSlot() { return this.interactionSlot; }
 
 	private final Container coins;
+
+    private final TypedInputSource discountCodes = new TypedInputSource();
+    @Override
+    public Set<String> getTypedDiscountCodes() { return this.discountCodes.getCodes(); }
 	
 	List<Slot> coinSlots = new ArrayList<>();
 	public List<Slot> getCoinSlots() { return this.coinSlots; }
 
 	private final MenuValidator validator;
-	@Nonnull
+	
 	@Override
 	public MenuValidator getValidator() { return this.validator; }
 
@@ -87,12 +89,10 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 		}
 	}
 
-	@Nonnull
+	
 	public TradeContext getContext(@Nullable TraderData trader) {
 		long traderID = trader == null ? -1 : trader.getID();
-		if(!this.contextCache.containsKey(traderID) || this.contextCache.get(traderID).getTrader() != trader)
-			this.contextCache.put(traderID, TradeContext.create(trader, this.player).withCoinSlots(this.coins).withInteractionSlot(this.interactionSlot).build());
-		return this.contextCache.get(traderID);
+        return TradeContext.create(trader,this.player).withCoinSlots(this.coins).withInteractionSlot(this.interactionSlot).withDiscountCodes(this.discountCodes).build();
 	}
 
 	protected void init(Inventory inventory) {
@@ -129,7 +129,7 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 	private boolean traderSourceValid() {  return this.traderSource != null && this.traderSource.get() != null && this.traderSource.get().getTraders() != null && !this.traderSource.get().getTraders().isEmpty(); }
 
 	@Override
-	public void removed(@Nonnull Player player) {
+	public void removed(Player player) {
 		super.removed(player);
 		this.clearContainer(player, this.coins);
 		this.clearContainer(player, this.interactionSlot.container);
@@ -183,7 +183,7 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 	}
 	
 	@Override
-	public @Nonnull ItemStack quickMoveStack(@Nonnull Player playerEntity, int index)
+	public ItemStack quickMoveStack(Player playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
@@ -234,6 +234,34 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 			trader.CollectStoredMoney(this.player);
 		}
 	}
+
+    @Override
+    public void submitDiscountCode(String code)
+    {
+        if(code.isEmpty())
+            return;
+        this.discountCodes.addCode(code);
+        if(this.isClient())
+            this.SendMessage(this.builder().setString("AddCode",code));
+    }
+
+    @Override
+    public void removeDiscountCode(String code)
+    {
+        if(code.isEmpty())
+            return;
+        this.discountCodes.removeCode(code);
+        if(this.isClient())
+            this.SendMessage(this.builder().setString("RemoveCode",code));
+    }
+
+    @Override
+    public void clearDiscountCodes()
+    {
+        this.discountCodes.clearCodes();
+        if(this.isClient())
+            this.SendMessage(this.builder().setFlag("ClearCodes"));
+    }
 	
 	public static class TraderMenuBlockSource extends TraderMenu
 	{
@@ -252,6 +280,17 @@ public class TraderMenu extends EasyMenu implements IValidatedMenu, ITraderMenu,
 			super(ModMenus.TRADER_NETWORK_ALL.get(), windowID, inventory, ITraderSource.NetworkTraderSource(inventory.player.level().isClientSide), validator);
 		}
 	}
+
+    @Override
+    public void HandleMessage(LazyPacketData message)
+    {
+        if(message.contains("AddCode"))
+            this.submitDiscountCode(message.getString("AddCode"));
+        if(message.contains("RemoveCode"))
+            this.removeDiscountCode(message.getString("RemoveCode"));
+        if(message.contains("ClearCodes"))
+            this.clearDiscountCodes();
+    }
 	
 	
 }

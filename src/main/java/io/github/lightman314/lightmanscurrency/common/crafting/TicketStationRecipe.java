@@ -2,11 +2,16 @@ package io.github.lightman314.lightmanscurrency.common.crafting;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
+import io.github.lightman314.lightmanscurrency.common.crafting.durability.DurabilityData;
 import io.github.lightman314.lightmanscurrency.common.crafting.input.TicketStationRecipeInput;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
@@ -17,12 +22,14 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public interface TicketStationRecipe extends Recipe<TicketStationRecipeInput> {
 
     Predicate<String> CODE_PREDICATE = s -> {
@@ -42,16 +49,14 @@ public interface TicketStationRecipe extends Recipe<TicketStationRecipeInput> {
 
     static boolean validCodeChar(char codeChar) { return codeChar >= 'a' && codeChar <= 'z' || codeChar >= 'A' && codeChar <= 'Z' || codeChar >= '0' && codeChar <= '9'; }
 
-    @Nonnull
     @Override
     default RecipeType<TicketStationRecipe> getType() { return RecipeTypes.TICKET.get(); }
 
-    @Nonnull
     @Override
     default ItemStack getToastSymbol() { return new ItemStack(ModBlocks.TICKET_STATION.get()); }
 
-    @Nonnull
-    static List<ItemStack> exampleModifierList(@Nonnull TagKey<Item> tag, @Nonnull Item... extra)
+    
+    static List<ItemStack> exampleModifierList(TagKey<Item> tag, Item... extra)
     {
         List<ItemStack> result = new ArrayList<>();
         for(Item extraItem : extra)
@@ -60,18 +65,17 @@ public interface TicketStationRecipe extends Recipe<TicketStationRecipeInput> {
             result.add(new ItemStack(item.value()));
         return result;
     }
-
-    @Nonnull
-    static List<ItemStack> exampleTicketList(@Nonnull Supplier<? extends ItemLike> item) { return exampleTicketList(item.get().asItem()); }
-    @Nonnull
-    static List<ItemStack> exampleTicketList(@Nonnull Ingredient ingredient)
+    
+    static List<ItemStack> exampleTicketList(Supplier<? extends ItemLike> item) { return exampleTicketList(item.get().asItem()); }
+    
+    static List<ItemStack> exampleTicketList(Ingredient ingredient)
     {
         List<ItemStack> result = new ArrayList<>();
         for(ItemStack item : ingredient.getItems())
             result.addAll(exampleTicketList(item.getItem()));
         return result;
     }
-    static List<ItemStack> exampleTicketList(@Nonnull Item item)
+    static List<ItemStack> exampleTicketList(Item item)
     {
         List<ItemStack> result = new ArrayList<>();
         for(Color color : Color.values())
@@ -81,29 +85,55 @@ public interface TicketStationRecipe extends Recipe<TicketStationRecipeInput> {
 
     boolean consumeModifier();
 
-    boolean validModifier(@Nonnull ItemStack stack);
-    @Nonnull
+    boolean validModifier(ItemStack stack);
+    
     List<ItemStack> jeiModifierList();
-    boolean validIngredient(@Nonnull ItemStack stack);
-    @Nonnull
+    boolean validIngredient(ItemStack stack);
+    
     Ingredient getIngredient();
 
-    @Nonnull
-    ItemStack peekAtResult(@Nonnull Container container, @Nonnull String code);
-    @Nonnull
+    
+    ItemStack peekAtResult(Container container, ExtraData data);
+    
     ItemStack exampleResult();
+
+    default boolean validData(ExtraData data) { return this.validCode(data.code) && this.validDurability(data.durability); }
 
     default boolean requiredCodeInput() { return false; }
     default boolean validCode(String code) { return !this.requiredCodeInput() || CODE_PREDICATE.test(code); }
 
+    default boolean requiredDurabilityInput() { return this.getDurabilityData().isValid(); }
+    default boolean validDurability(int durability) { return this.getDurabilityData().test(durability); }
+    default DurabilityData getDurabilityData() { return DurabilityData.NULL; }
+    default int validateDurability(int value, boolean roundUp)
+    {
+        DurabilityData data = this.getDurabilityData();
+        if(!data.isValid())
+            return value;
+        if(value > data.max)
+            value = data.max;
+        if(value < data.min)
+        {
+            if(data.allowInfinite && !roundUp)
+                value = 0;
+            else
+                value = data.min;
+        }
+        return value;
+    }
+
     //Don't put "valid code" check here, as it will prevent the recipe from being visible as the code input won't appear unless they can first select the code requiring recipe
     @Override
-    default boolean matches(@Nonnull TicketStationRecipeInput container, @Nonnull Level level) { return this.validModifier(container.getItem(0)) && this.validIngredient(container.getItem(1)); }
+    default boolean matches(TicketStationRecipeInput container, Level level) { return this.validModifier(container.getItem(0)) && this.validIngredient(container.getItem(1)); }
 
     //Ticket Kiosk Crafting
     default boolean matchesTicketKioskSellItem(ItemStack sellItem) { return !this.consumeModifier() && this.validModifier(sellItem); }
     default boolean allowIgnoreKioskRecipe() { return false; }
-    ItemStack assembleWithKiosk(ItemStack sellItem,String code);
+    ItemStack assembleWithKiosk(ItemStack sellItem,ExtraData data);
     default ItemRequirement getKioskStorageRequirement(ItemStack sellItem) { return ItemRequirement.of(this.getIngredient(),sellItem.getCount()); }
+
+    record ExtraData(String code, int durability) { public static final ExtraData EMPTY = new ExtraData("",0); }
+
+    static StreamCodec<ByteBuf,Item> itemStreamCodec() { return ResourceLocation.STREAM_CODEC.map(BuiltInRegistries.ITEM::get, BuiltInRegistries.ITEM::getKey); }
 
 }

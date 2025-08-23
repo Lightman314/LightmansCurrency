@@ -22,7 +22,6 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.neoforged.neoforge.common.Tags;
 
-import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
@@ -42,8 +41,8 @@ public class MasterTicketRecipe implements TicketStationRecipe {
     private ResourceLocation resultID() { return BuiltInRegistries.ITEM.getKey(this.result); }
 
     //Constructor for codec
-    private MasterTicketRecipe(@Nonnull Ingredient ingredient, @Nonnull ResourceLocation resultID) { this(ingredient, BuiltInRegistries.ITEM.get(resultID)); }
-    public MasterTicketRecipe(@Nonnull Ingredient ingredient, @Nonnull Item result)
+    private MasterTicketRecipe(Ingredient ingredient, ResourceLocation resultID) { this(ingredient, BuiltInRegistries.ITEM.get(resultID)); }
+    public MasterTicketRecipe(Ingredient ingredient, Item result)
     {
         this.ingredient = ingredient;
         this.result = result;
@@ -51,24 +50,24 @@ public class MasterTicketRecipe implements TicketStationRecipe {
 
     @Override
     public boolean consumeModifier() { return true; }
-    @Nonnull
+    
     @Override
     public List<ItemStack> jeiModifierList() { return TicketStationRecipe.exampleModifierList(Tags.Items.DYES, Items.AIR); }
-    @Nonnull
+    
     @Override
     public Ingredient getIngredient() { return this.ingredient; }
-    @Nonnull
+    
     @Override
     public ItemStack exampleResult() { return TicketItem.CreateTicket(this.result, -1, 0xFFFF00); }
 
     @Override
-    public boolean validModifier(@Nonnull ItemStack stack) { return stack.isEmpty() || stack.is(Tags.Items.DYES); }
+    public boolean validModifier(ItemStack stack) { return stack.isEmpty() || stack.is(Tags.Items.DYES); }
     @Override
-    public boolean validIngredient(@Nonnull ItemStack stack) { return this.ingredient.test(stack); }
+    public boolean validIngredient(ItemStack stack) { return this.ingredient.test(stack); }
 
-    @Nonnull
+    
     @Override
-    public ItemStack assemble(TicketStationRecipeInput container, @Nonnull HolderLookup.Provider lookup) {
+    public ItemStack assemble(TicketStationRecipeInput container, HolderLookup.Provider lookup) {
         long nextTicketID = TicketDataCache.TYPE.isLoaded(false) ? TicketDataCache.TYPE.get(false).createNextID() : -100L;
         ItemStack dyeStack = container.getItem(0);
         Color dyeColor = TicketModifierSlot.getColorFromDye(dyeStack);
@@ -79,17 +78,17 @@ public class MasterTicketRecipe implements TicketStationRecipe {
     @Override
     public boolean canCraftInDimensions(int width, int height) { return true; }
 
-    @Nonnull
+    
     @Override
-    public ItemStack getResultItem(@Nonnull HolderLookup.Provider lookup) {
+    public ItemStack getResultItem(HolderLookup.Provider lookup) {
         long nextTicketID = TicketDataCache.TYPE.getUnknown().peekNextID();
         int color = TicketItem.GetDefaultTicketColor(nextTicketID);
         return TicketItem.CreateTicket(this.result, nextTicketID, color, 1);
     }
 
-    @Nonnull
+    
     @Override
-    public ItemStack peekAtResult(@Nonnull Container container,String code) {
+    public ItemStack peekAtResult(Container container,ExtraData data) {
         long nextTicketID = TicketDataCache.TYPE.getUnknown().peekNextID();
         ItemStack dyeStack = container.getItem(0);
         Color dyeColor = TicketModifierSlot.getColorFromDye(dyeStack);
@@ -100,17 +99,17 @@ public class MasterTicketRecipe implements TicketStationRecipe {
     }
 
     @Override
-    public ItemStack assembleWithKiosk(ItemStack sellItem, String code) { return ItemStack.EMPTY; }
+    public ItemStack assembleWithKiosk(ItemStack sellItem, ExtraData data) { return ItemStack.EMPTY; }
 
-    @Nonnull
+    
     @Override
     public RecipeSerializer<?> getSerializer() { return ModRecipes.TICKET_MASTER.get(); }
 
-    @Nonnull
-    private static MasterTicketRecipe fromNetwork(@Nonnull RegistryFriendlyByteBuf buffer) {
+    
+    private static MasterTicketRecipe fromNetwork(RegistryFriendlyByteBuf buffer) {
         return new MasterTicketRecipe(Ingredient.CONTENTS_STREAM_CODEC.decode(buffer), ResourceLocation.STREAM_CODEC.decode(buffer));
     }
-    private static void toNetwork(@Nonnull RegistryFriendlyByteBuf buffer, @Nonnull MasterTicketRecipe recipe) {
+    private static void toNetwork(RegistryFriendlyByteBuf buffer, MasterTicketRecipe recipe) {
         Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.ingredient);
         ResourceLocation.STREAM_CODEC.encode(buffer,recipe.resultID());
     }
@@ -118,10 +117,8 @@ public class MasterTicketRecipe implements TicketStationRecipe {
     public static class Serializer implements RecipeSerializer<MasterTicketRecipe>
     {
 
-        @Nonnull
         @Override
         public MapCodec<MasterTicketRecipe> codec() { return CODEC; }
-        @Nonnull
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, MasterTicketRecipe> streamCodec() { return STREAM_CODEC; }
 

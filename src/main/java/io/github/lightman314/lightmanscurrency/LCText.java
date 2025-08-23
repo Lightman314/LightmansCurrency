@@ -276,6 +276,7 @@ public class LCText {
     public static final TextEntry TOOLTIP_PREPAID_CARD_DELETE_WARNING = TextEntry.tooltip(MODID,"prepaid_card.delete_warning");
 
     public static final TextEntry TOOLTIP_TICKET_ID = TextEntry.tooltip(MODID,"ticket.id");
+    public static final TextEntry TOOLTIP_TICKET_USES = TextEntry.tooltip(MODID,"ticket.uses");
     public static final TextEntry TOOLTIP_PASS = TextEntry.tooltip(MODID,"pass");
     public static final MultiLineTextEntry TOOLTIP_ITEM_TRADER = MultiLineTextEntry.tooltip(MODID,"trader.item");
     public static final MultiLineTextEntry TOOLTIP_ITEM_TRADER_ARMOR = MultiLineTextEntry.tooltip(MODID,"trader.item.armor");
@@ -551,6 +552,8 @@ public class LCText {
     //Ticket Station Menu
     public static final TextEntry GUI_TICKET_STATION_TITLE = TextEntry.gui(MODID,"ticket_station.title");
     public static final TextEntry GUI_TICKET_STATION_LABEL_CODE = TextEntry.gui(MODID,"ticket_station.label.code");
+    public static final TextEntry GUI_TICKET_STATION_LABEL_DURABILITY = TextEntry.gui(MODID,"ticket_station.label.durability");
+    public static final TextEntry GUI_TICKET_STATION_LABEL_DURABILITY_INFINITE = TextEntry.gui(MODID,"ticket_station.label.durability.inf");
     public static final TextEntry TOOLTIP_TICKET_STATION_RECIPE_INFO = TextEntry.tooltip(MODID,"ticket_station.recipe_info");
     public static final TextEntry TOOLTIP_TICKET_STATION_SELECT_RECIPE = TextEntry.tooltip(MODID,"ticket_station.select_recipe");
     public static final TextEntry TOOLTIP_TICKET_STATION_CRAFT = TextEntry.tooltip(MODID,"ticket_station.craft_ticket");
@@ -606,6 +609,7 @@ public class LCText {
     public static final TextEntry TOOLTIP_TRADER_OPEN_STORAGE = TextEntry.tooltip(MODID,"trader.open_storage");
     public static final TextEntry TOOLTIP_TRADER_COLLECT_COINS = TextEntry.tooltip(MODID,"trader.collect_coins");
     public static final TextEntry TOOLTIP_TRADER_NETWORK_BACK = TextEntry.tooltip(MODID,"trader.network.back");
+    public static final TextEntry TOOLTIP_TRADER_DISCOUNT_CODES = TextEntry.tooltip(MODID,"trader.discount_codes");
     public static final TextEntry TOOLTIP_TRADER_OPEN_TRADES = TextEntry.tooltip(MODID,"trader.open_trades");
     public static final TextEntry TOOLTIP_TRADER_TRADE_RULES_TRADER = TextEntry.tooltip(MODID,"trader.trade_rules.trader");
     public static final TextEntry TOOLTIP_TRADER_TRADE_RULES_TRADE = TextEntry.tooltip(MODID,"trader.trade_rules.trade");
@@ -713,6 +717,9 @@ public class LCText {
     public static final TextEntry BUTTON_TRADER_AUCTION_PRICE_MODE_STARTING_BID = TextEntry.button(MODID,"trader.auction.price_mode.starting_bid");
     public static final TextEntry BUTTON_TRADER_AUCTION_PRICE_MODE_MIN_BID_SIZE = TextEntry.button(MODID,"trader.auction.price_mode.min_bid_size");
     public static final TextEntry BUTTON_TRADER_AUCTION_CREATE = TextEntry.button(MODID,"trader.auction.create");
+    public static final TextEntry TOOLTIP_TRADER_AUCTION_PRICE = TextEntry.tooltip(MODID,"trader.auction.price");
+    public static final TextEntry TOOLTIP_TRADER_AUCTION_FEE_WARNING = TextEntry.tooltip(MODID,"trader.auction.fee_warning");
+    public static final MultiLineTextEntry TOOLTIP_TRADER_AUCTION_LIMIT_EXCEEDED = MultiLineTextEntry.tooltip(MODID,"trader.auction.limit_exceeded");
     public static final TextEntry GUI_TRADER_AUCTION_ITEMS = TextEntry.gui(MODID,"trader.auction.items");
     public static final TextEntry GUI_TRADER_AUCTION_CREATE_SUCCESS = TextEntry.gui(MODID,"trader.auction.create.success");
     public static final TextEntry TOOLTIP_TRADER_AUCTION_INFO_NO_BIDDER = TextEntry.tooltip(MODID,"trader.auction.info.no_bidder");
@@ -968,6 +975,7 @@ public class LCText {
     public static final TextEntry NOTIFICATION_AUCTION_CANCEL = TextEntry.notification(AuctionHouseCancelNotification.TYPE);
     public static final TextEntry NOTIFICATION_AUCTION_SELLER_NO_BID = TextEntry.notification(AuctionHouseSellerNobidNotification.TYPE);
     public static final TextEntry NOTIFICATION_AUCTION_SELLER = TextEntry.notification(AuctionHouseSellerNotification.TYPE);
+    public static final TextEntry NOTIFICATION_AUCTION_SELLER_FEE = TextEntry.notification(AuctionHouseSellerNotification.TYPE,"fee");
     //Bank Notifications
     public static final TextEntry NOTIFICATION_BANK_INTEREST = TextEntry.notification(BankInterestNotification.TYPE);
     public static final TextEntry NOTIFICATION_BANK_TRANSFER = TextEntry.notification(BankTransferNotification.TYPE);
@@ -1252,6 +1260,8 @@ public class LCText {
 
     //JEI Info
     public static final TextEntry JEI_INFO_TICKET_STUB = TextEntry.jeiInfo(MODID,"ticket_stub");
+    public static final TextEntry JEI_INFO_TICKET_DURABILITY = TextEntry.jeiInfo(MODID,"ticket.durability");
+    public static final TextEntry JEI_INFO_TICKET_DURABILITY_INFINITE = TextEntry.jeiInfo(MODID,"ticket.durability.allows_infinite");
     //Curios
     public static final TextEntry CURIOS_SLOT_WALLET = TextEntry.curiosSlot("wallet");
 

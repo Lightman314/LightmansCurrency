@@ -156,7 +156,7 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 
 	public boolean canAfford(TradeContext context) {
 		if(this.isTicketTrade())
-			return context.hasTicket(this.ticketID) || context.hasPass(this.ticketID);
+			return context.hasTicket(this.ticketID) || context.hasInfinitePass(this.ticketID);
 		else
 			return context.hasFunds(this.cost);
 	}

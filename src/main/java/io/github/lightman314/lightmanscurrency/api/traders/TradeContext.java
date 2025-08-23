@@ -2,9 +2,8 @@ package io.github.lightman314.lightmanscurrency.api.traders;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
+import java.util.function.Consumer;
 
-import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
@@ -15,9 +14,11 @@ import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHold
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MultiMoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.ticket.TicketCollectionResult;
+import io.github.lightman314.lightmanscurrency.api.traders.discount_codes.CouponSource;
+import io.github.lightman314.lightmanscurrency.api.traders.discount_codes.IDiscountCodeSource;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.ICanCopy;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.InteractionSlot;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -75,14 +76,29 @@ public class TradeContext {
 	private final MultiMoneyHolder moneyHolders;
 
 	//Discount Codes
-	private final List<Supplier<Collection<Integer>>> discountCodeSources;
+	private final List<IDiscountCodeSource> discountCodeSources;
 	public Set<Integer> getDiscountCodes() {
 		Set<Integer> set = new HashSet<>();
 		for(var source : this.discountCodeSources)
-			set.addAll(source.get());
+			set.addAll(source.getDiscountCodes());
 		return set;
 	}
-	public boolean hasDiscountCode(String code) { return this.getDiscountCodes().contains(code.hashCode()); }
+	public boolean hasDiscountCode(String code) {
+        for(IDiscountCodeSource source : this.discountCodeSources)
+        {
+            if(source.containsCode(code))
+                return true;
+        }
+        return false;
+    }
+    public void consumeDiscountCode(String code)
+    {
+        for(IDiscountCodeSource source : this.discountCodeSources)
+        {
+            if(source.consumeCode(code))
+                return;
+        }
+    }
 	
 	//Interaction Slots (bucket/battery slot, etc.)
 	private final InteractionSlot interactionSlot;
@@ -107,7 +123,8 @@ public class TradeContext {
 		this.trader = builder.trader;
 		this.player = builder.player;
 		this.moneyHolders = new MultiMoneyHolder(builder.moneyHandlers);
-		this.discountCodeSources = builder.discountCodeSources;
+		this.discountCodeSources = builder.discountCodes;
+        this.discountCodeSources.sort(Comparator.comparingInt(IDiscountCodeSource::priority).reversed());
 		this.playerReference = builder.playerReference;
 		this.interactionSlot = builder.interactionSlot;
 		this.itemHandler = builder.itemHandler;
@@ -214,7 +231,8 @@ public class TradeContext {
 	}
 	
 	/**
-	 * Whether a ticket with the given ticket id is present in the item handler, and can be successfully removed without issue.
+	 * Whether a ticket with the given ticket id is present in the item handler, and can be successfully removed without issue.<br>
+     * As of v2.2.6.3, also returns true if a pass with said ID is present
 	 */
 	public boolean hasTicket(long ticketID) {
 		if(this.hasItemHandler())
@@ -222,7 +240,7 @@ public class TradeContext {
 			for(int i = 0; i < this.itemHandler.getSlots(); ++i)
 			{
 				ItemStack stack = this.itemHandler.getStackInSlot(i);
-				if(TicketItem.isTicket(stack))
+				if(TicketItem.isTicket(stack) || TicketItem.isPass(stack))
 				{
 					long id = TicketItem.GetTicketID(stack);
 					if(id == ticketID)
@@ -241,7 +259,7 @@ public class TradeContext {
 			for(int i = 0; i < inventory.getContainerSize(); ++i)
 			{
 				ItemStack stack = inventory.getItem(i);
-				if(TicketItem.isTicket(stack))
+				if(TicketItem.isTicket(stack) || TicketItem.isPass(stack))
 				{
 					long id = TicketItem.GetTicketID(stack);
 					if(id == ticketID)
@@ -254,7 +272,9 @@ public class TradeContext {
 
 	/**
 	 * Whether a ticket with the given ticket id is present in the item handler, and can be successfully removed without issue.
+     * @deprecated Use {@link #collectTicket(long)} for all ticket/pass interactions
 	 */
+    @Deprecated(since = "2.2.6.3")
 	public boolean hasPass(long ticketID) {
 		if(this.hasItemHandler())
 		{
@@ -285,6 +305,41 @@ public class TradeContext {
 		}
 		return false;
 	}
+
+    /**
+     * Whether a pass with infinite uses and the given ticket id is present in the item handler
+     */
+    public boolean hasInfinitePass(long ticketID)
+    {
+        if(this.hasItemHandler())
+        {
+            for(int i = 0; i < this.itemHandler.getSlots(); ++i)
+            {
+                ItemStack stack = this.itemHandler.getStackInSlot(i);
+                if(TicketItem.isInfinitePass(stack))
+                {
+                    long id = TicketItem.GetTicketID(stack);
+                    if(id == ticketID)
+                        return true;
+                }
+            }
+        }
+        else if(this.hasPlayer())
+        {
+            Inventory inventory = this.player.getInventory();
+            for(int i = 0; i < inventory.getContainerSize(); ++i)
+            {
+                ItemStack stack = inventory.getItem(i);
+                if(TicketItem.isInfinitePass(stack))
+                {
+                    long id = TicketItem.GetTicketID(stack);
+                    if(id == ticketID)
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
 	
 	/**
 	 * Removes the given item stack from the item handler.
@@ -368,9 +423,12 @@ public class TradeContext {
 	 * Removes the given ticket from the item handler.
 	 * @return Whether the extraction was successful. Will return false if it could not be extracted correctly.
 	 */
-	public boolean collectTicket(long ticketID) {
+	public TicketCollectionResult collectTicket(long ticketID) {
 		if(this.hasTicket(ticketID))
 		{
+            //Don't consume anything if a pass with infinite durability is present
+            if(this.hasInfinitePass(ticketID))
+                return TicketCollectionResult.PASS;
 			if(this.hasItemHandler())
 			{
 				for(int i = 0; i < this.itemHandler.getSlots(); ++i) {
@@ -383,9 +441,25 @@ public class TradeContext {
 							ItemStack extractStack = stack.copy();
 							extractStack.setCount(1);
 							if(InventoryUtil.RemoveItemCount(this.itemHandler, extractStack))
-								return true;
+								return TicketCollectionResult.PASS_WITH_STUB;
 						}
 					}
+                    else if(TicketItem.isPass(stack))
+                    {
+                        long id = TicketItem.GetTicketID(stack);
+                        if(id == ticketID)
+                        {
+                            ItemStack extra = TicketItem.damageTicket(stack);
+                            boolean spawnStub = extra.isEmpty() && stack.isEmpty();
+                            if(!extra.isEmpty())
+                            {
+                                extra = ItemHandlerHelper.insertItem(this.itemHandler,extra,false);
+                                if(!extra.isEmpty() && this.player != null)
+                                    ItemHandlerHelper.giveItemToPlayer(this.player,extra);
+                            }
+                            return TicketCollectionResult.pass(spawnStub);
+                        }
+                    }
 				}
 			}
 			else if(this.hasPlayer())
@@ -401,13 +475,25 @@ public class TradeContext {
 						{
 							inventory.removeItem(i, 1);
 							inventory.setChanged();
-							return true;
+							return TicketCollectionResult.PASS_WITH_STUB;
 						}
 					}
+                    else if(TicketItem.isPass(stack))
+                    {
+                        long id = TicketItem.GetTicketID(stack);
+                        if(id == ticketID)
+                        {
+                            ItemStack extra = TicketItem.damageTicket(stack);
+                            boolean spawnStub = extra.isEmpty() && stack.isEmpty();
+                            if(!extra.isEmpty())
+                                ItemHandlerHelper.giveItemToPlayer(this.player,extra);
+                            return TicketCollectionResult.pass(spawnStub);
+                        }
+                    }
 				}
 			}
 		}
-		return false;
+		return TicketCollectionResult.FAIL;
 	}
 	
 	public boolean canFitItem(ItemStack item)
@@ -674,13 +760,10 @@ public class TradeContext {
 		private final Player player;
 		@Nullable
 		private final PlayerReference playerReference;
-		
 		//Money
 		private final List<IMoneyHolder> moneyHandlers = new ArrayList<>();
-
 		//Discount Codes
-		private final List<Supplier<Collection<Integer>>> discountCodeSources = new ArrayList<>();
-		
+		private final List<IDiscountCodeSource> discountCodes = new ArrayList<>();
 		//Interaction Slots
 		@Nullable
 		private InteractionSlot interactionSlot;
@@ -700,7 +783,7 @@ public class TradeContext {
 			this.trader = trader;
 			this.player = player;
 			if(this.player != null)
-				this.withDiscountCodes(this.player.getInventory());
+				this.withDiscountCodes(this.player.getInventory(),s -> ItemHandlerHelper.giveItemToPlayer(this.player,s));
 			this.playerReference = PlayerReference.of(player);
 			this.storageMode = false;
 			if(playerInteractable)
@@ -708,43 +791,11 @@ public class TradeContext {
 		}
 		private Builder(TraderData trader, @Nullable PlayerReference player) { this.trader = trader; this.playerReference = player; this.player = null; this.storageMode = false; }
 
-		public Builder withDiscountCodes(Container container)
-		{
-			return this.withDiscountCodeSource(() -> {
-				Set<Integer> temp = new HashSet<>();
-				for(int i = 0; i < container.getContainerSize(); ++i)
-				{
-					ItemStack item = container.getItem(i);
-					if(InventoryUtil.ItemHasTag(item, LCTags.Items.COUPONS))
-					{
-						//Check coupon code (leaving seperate for 1.20 rewrite)
-						if(item.has(ModDataComponents.COUPON_DATA))
-							temp.add(item.get(ModDataComponents.COUPON_DATA).code());
-					}
-				}
-				return temp;
-			});
-		}
+		public Builder withDiscountCodes(Container container, Consumer<ItemStack> overflowHandler) { return this.withDiscountCodes(new CouponSource(container,overflowHandler)); }
 
-		public Builder withDiscountCodes(Iterable<String> codes)
+		public Builder withDiscountCodes(IDiscountCodeSource codeSource)
 		{
-			Set<Integer> temp = new HashSet<>();
-			for(String c : codes)
-				temp.add(c.hashCode());
-			return this.withDiscountCodeSource(() -> temp);
-		}
-
-		public Builder withDiscountHashcodes(Iterable<Integer> codes)
-		{
-			Set<Integer> temp = new HashSet<>();
-			for(int c : codes)
-				temp.add(c);
-			return this.withDiscountCodeSource(() -> temp);
-		}
-
-		public Builder withDiscountCodeSource(Supplier<Collection<Integer>> codeSource)
-		{
-			this.discountCodeSources.add(codeSource);
+			this.discountCodes.add(codeSource);
 			return this;
 		}
 
@@ -756,8 +807,6 @@ public class TradeContext {
 		public Builder withCoinSlots(Container coinSlots) {
 			if(this.player == null)
 				return this;
-			//Try to get discount codes from the coin slots
-			this.withDiscountCodes(coinSlots);
 			return this.withMoneyHandler(MoneyAPI.API.GetContainersMoneyHandler(coinSlots, this.player), LCText.TOOLTIP_MONEY_SOURCE_SLOTS.get(), 100);
 		}
 

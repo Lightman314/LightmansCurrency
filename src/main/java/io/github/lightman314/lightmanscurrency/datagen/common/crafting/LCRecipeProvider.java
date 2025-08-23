@@ -824,6 +824,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(consumer, ItemID("ticket_station/", ModItems.TICKET));
         TicketRecipeBuilder.of(LCTags.Items.TICKET_MATERIAL_PAPER, ModItems.TICKET_PASS.get())
                 .withMasterTicket(ModItems.TICKET_MASTER.get())
+                .withDurabilityRange(true,2,99)
                 .unlockedBy("ticket_station", LazyTrigger(ModBlocks.TICKET_STATION))
                 .unlockedBy("tickets", LazyTrigger(LCTags.Items.TICKETS))
                 .unlockedBy("ticket_material", LazyTrigger(LCTags.Items.TICKET_MATERIAL))
@@ -845,6 +846,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(consumer, ItemID("ticket_station/", ModItems.GOLDEN_TICKET));
         TicketRecipeBuilder.of(LCTags.Items.TICKET_MATERIAL_GOLD, ModItems.GOLDEN_TICKET_PASS.get())
                 .withMasterTicket(ModItems.GOLDEN_TICKET_MASTER.get())
+                .withDurabilityRange(true,2,99)
                 .unlockedBy("ticket_station", LazyTrigger(ModBlocks.TICKET_STATION))
                 .unlockedBy("tickets", LazyTrigger(LCTags.Items.TICKETS))
                 .unlockedBy("ticket_material", LazyTrigger(LCTags.Items.TICKET_MATERIAL))
