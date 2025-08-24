@@ -309,7 +309,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
     }
 
     private void submitPersistentAuction(EasyButton button) {
-        new CPacketCreatePersistentAuction(this.pendingAuction.getAsNBT(this.registryAccess()), this.persistentAuctionIDInput.getValue()).send();
+        new CPacketCreatePersistentAuction(this.pendingAuction.getAsNBT(), this.persistentAuctionIDInput.getValue()).send();
     }
 
     @Override

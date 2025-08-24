@@ -58,7 +58,7 @@ public class CouponRecipe implements TicketStationRecipe {
     public Ingredient getIngredient() { return this.ingredient; }
     
     @Override
-    public ItemStack exampleResult() { return CouponItem.CreateCoupon(this.result, ""); }
+    public ItemStack exampleResult() { return CouponItem.CreateCoupon(this.result, "",0); }
     @Override
     public boolean requiredCodeInput() { return true; }
     @Override
@@ -78,8 +78,7 @@ public class CouponRecipe implements TicketStationRecipe {
     public boolean canCraftInDimensions(int width, int height) { return true; }
 
     @Override
-    public ItemStack getResultItem(RegistryAccess lookup) { return CouponItem.CreateCoupon(this.result,""); }
-
+    public ItemStack getResultItem(RegistryAccess lookup) { return CouponItem.CreateCoupon(this.result,"",0); }
     
     @Override
     public ItemStack peekAtResult(Container container, ExtraData data) {

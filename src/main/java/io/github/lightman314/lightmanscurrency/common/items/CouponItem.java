@@ -29,7 +29,7 @@ public class CouponItem extends Item {
 
     public static int GetCouponCode(ItemStack coupon)
     {
-        CompoundTag tag = new CompoundTag();
+        CompoundTag tag = coupon.getTag();
         if(tag != null && tag.contains("CouponCode"))
             return tag.getInt("CouponCode");
         return 0;
@@ -39,7 +39,6 @@ public class CouponItem extends Item {
     {
         if(coupon.isEmpty() || !(coupon.getItem() instanceof CouponItem))
             return 0xFFFFFF;
-
         CompoundTag tag = coupon.getTag();
         if(tag == null || !tag.contains("CouponColor"))
             return 0xFFFFFF;

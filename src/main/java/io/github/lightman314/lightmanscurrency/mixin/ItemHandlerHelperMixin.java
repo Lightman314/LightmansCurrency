@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.Mixin;
 @Mixin(ItemHandlerHelper.class)
 public class ItemHandlerHelperMixin {
 
-    @WrapMethod(method = "giveItemToPlayer(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;)V")
+    @WrapMethod(method = "giveItemToPlayer(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/ItemStack;)V",remap = false)
     private static void giveItemToPlayerIntercept(Player player, ItemStack item, Operation<Void> original)
     {
         if(!LCConfig.COMMON.interceptInventoryHelper.get())

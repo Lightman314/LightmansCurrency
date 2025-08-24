@@ -1,5 +1,10 @@
 {
   "type": "lightmanscurrency:ticket",
+  "durability": {
+    "allowInfinite": true,
+    "max": 99,
+    "min": 2
+  },
   "ingredient": {
     "tag": "lightmanscurrency:ticket_material/gold"
   },

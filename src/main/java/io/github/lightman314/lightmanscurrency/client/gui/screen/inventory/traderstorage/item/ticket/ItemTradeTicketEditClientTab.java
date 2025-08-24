@@ -39,7 +39,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.RecipeHolder;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -420,7 +419,7 @@ public class ItemTradeTicketEditClientTab extends TraderStorageClientTab<ItemTra
         if(this.selection >= 0 && this.selection < 2 && !trade.isPurchase())
         {
             TicketItemTrade.TicketSaleData data = trade.getTicketData(this.selection);
-            List<RecipeHolder<TicketStationRecipe>> matchingRecipes = data.getMatchingRecipes();
+            List<TicketStationRecipe> matchingRecipes = data.getMatchingRecipes();
             if(matchingRecipes.isEmpty())
                 return false;
             int deltaIndex = deltaX > 0 ? 1 : -1;
@@ -428,7 +427,7 @@ public class ItemTradeTicketEditClientTab extends TraderStorageClientTab<ItemTra
             int previousIndex = deltaIndex > 0 ? -1 : matchingRecipes.size() + 1;
             for(int i = 0; i < matchingRecipes.size(); ++i)
             {
-                if(Objects.equals(matchingRecipes.get(i).id(),currentRecipe))
+                if(Objects.equals(matchingRecipes.get(i).getId(),currentRecipe))
                 {
                     previousIndex = i;
                     break;
@@ -440,7 +439,7 @@ public class ItemTradeTicketEditClientTab extends TraderStorageClientTab<ItemTra
             if(newIndex < 0)
                 newIndex = matchingRecipes.size() - 1;
             //Change the recipe
-            this.commonTab.ChangeRecipe(matchingRecipes.get(newIndex).id(),this.selection);
+            this.commonTab.ChangeRecipe(matchingRecipes.get(newIndex).getId(),this.selection);
             this.validateDurability();
             return true;
         }
