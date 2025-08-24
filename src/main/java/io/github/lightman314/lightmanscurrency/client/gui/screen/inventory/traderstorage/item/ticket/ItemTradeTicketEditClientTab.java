@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
@@ -14,14 +15,17 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget.IItemEditListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown.DropdownWidget;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextBoxWrapper;
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
+import io.github.lightman314.lightmanscurrency.common.crafting.durability.DurabilityData;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.item.ticket.ItemTradeTicketEditTab;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ticket.TicketItemTrade;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
@@ -29,11 +33,13 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.Ite
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -68,12 +74,11 @@ public class ItemTradeTicketEditClientTab extends TraderStorageClientTab<ItemTra
     TradeButton tradeDisplay;
     MoneyValueWidget priceSelection;
     EditBox customNameInput;
-    EditBox codeInput;
+    TextBoxWrapper<String> codeInput;
 
     ItemEditWidget itemEdit = null;
     ScreenArea recipeArea = null;
 
-    EasyButton buttonToggleTradeType;
     PlainButton buttonToggleNBTEnforcement;
 
     private int selection = -1;
@@ -113,16 +118,38 @@ public class ItemTradeTicketEditClientTab extends TraderStorageClientTab<ItemTra
                 .width(screenArea.width - 28)
                 .maxLength(16)
                 .handler(v -> this.commonTab.ChangeCode(v,this.selection))
+                .wrap()
+                .addon(EasyAddonHelper.visibleCheck(this::codeInputVisible))
                 .build());
         if(this.selection >= 0 && this.selection < 2 && trade != null)
             this.codeInput.setValue(trade.getTicketData(this.selection).getCode());
 
+        //Durability +/- buttons
+        this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(screenArea.width - 24,98))
+                .sprite(IconAndButtonUtil.SPRITE_PLUS)
+                .pressAction(this::incrementDurability)
+                .addon(EasyAddonHelper.visibleCheck(this::durabilityInputVisible))
+                .addon(EasyAddonHelper.activeCheck(this::canAddDurability))
+                .build());
+        this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(screenArea.width - 24,108))
+                .sprite(IconAndButtonUtil.SPRITE_MINUS)
+                .pressAction(this::decrementDurability)
+                .addon(EasyAddonHelper.visibleCheck(this::durabilityInputVisible))
+                .addon(EasyAddonHelper.activeCheck(this::canRemoveDurability))
+                .build());
+
         this.recipeArea = ScreenArea.of((screenArea.width / 2) - 8,100,18,18);
 
-        this.buttonToggleTradeType = this.addChild(EasyTextButton.builder()
-                .position(screenArea.pos.offset(113,15))
+        this.addChild(DropdownWidget.builder()
+                .position(screenArea.pos.offset(113,18))
                 .width(80)
-                .pressAction(this::ToggleTradeType)
+                .option(LCText.GUI_TRADE_DIRECTION.get(TradeDirection.SALE))
+                .option(LCText.GUI_TRADE_DIRECTION.get(TradeDirection.PURCHASE))
+                .option(LCText.GUI_TRADE_DIRECTION.get(TradeDirection.BARTER))
+                .selected(trade == null ? 0 : Math.max(0,trade.getTradeDirection().index))
+                .selectAction(this::ChangeTradeType)
                 .build());
         this.buttonToggleNBTEnforcement = this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(113,4))
@@ -165,7 +192,21 @@ public class ItemTradeTicketEditClientTab extends TraderStorageClientTab<ItemTra
             gui.drawString(LCText.GUI_NAME.get(), 13, 42, 0x404040);
 
         if(this.codeInput.visible)
-            gui.drawString(LCText.GUI_TICKET_STATION_LABEL_CODE.get(), 13, 62, 0x404040);
+            gui.drawString(LCText.GUI_TICKET_STATION_LABEL_CODE.get(), 15, 62, 0x404040);
+
+        //Draw the durability input
+        if(this.durabilityInputVisible())
+        {
+            int durability = this.getDurability();
+            Component child;
+            if(durability <= 0)
+                child = LCText.GUI_TICKET_STATION_LABEL_DURABILITY_INFINITE.get();
+            else
+                child = EasyText.literal(String.valueOf(durability));
+            Component text = LCText.GUI_TICKET_STATION_LABEL_DURABILITY.get(child);
+            int width = gui.font.width(text);
+            gui.drawString(text,this.screen.getXSize() - 26 - width,105,0x404040);
+        }
 
         //Render Recipe Selection
         if(this.selection >= 0 && this.selection < 2 && trade.getTicketData(this.selection).isPotentiallyRecipeMode())
@@ -245,13 +286,27 @@ public class ItemTradeTicketEditClientTab extends TraderStorageClientTab<ItemTra
         if(this.customNameInput.visible && !this.customNameInput.getValue().contentEquals(trade.getCustomName(this.selection)))
             this.commonTab.setCustomName(this.selection, this.customNameInput.getValue());
         this.codeInput.visible = this.selection >= 0 && this.selection < 2 && !trade.isPurchase() && trade.getTicketData(this.selection).requestingCodeInput();
-        this.buttonToggleTradeType.setMessage(LCText.GUI_TRADE_DIRECTION.get(this.getTrade().getTradeDirection()).get());
     }
 
     @Override
     public void tick() {
         //Change NBT toggle button visibility
         this.buttonToggleNBTEnforcement.visible = this.isNBTButtonVisible();
+    }
+
+    private boolean codeInputVisible()
+    {
+        TicketItemTrade trade = this.getTrade();
+        if(trade != null && this.selection >= 0 && this.selection < 2 && !trade.isPurchase())
+            return trade.getTicketData(this.selection).requestingCodeInput();
+        return false;
+    }
+    private boolean durabilityInputVisible()
+    {
+        TicketItemTrade trade = this.getTrade();
+        if(trade != null && this.selection >= 0 && this.selection < 2 && !trade.isPurchase())
+            return trade.getTicketData(this.selection).requestingDurabilityInput();
+        return false;
     }
 
     private boolean isNBTButtonVisible() {
@@ -344,10 +399,10 @@ public class ItemTradeTicketEditClientTab extends TraderStorageClientTab<ItemTra
     @Override
     public void onItemClicked(ItemStack item) { this.commonTab.setSelectedItem(this.selection, item); }
 
-    private void ToggleTradeType(EasyButton button) {
+    private void ChangeTradeType(int index) {
         if(this.getTrade() != null)
         {
-            this.commonTab.setType(ItemTradeData.getNextInCycle(this.getTrade().getTradeDirection()));
+            this.commonTab.setType(TradeDirection.fromIndex(index));
             this.itemEdit.refreshSearch();
         }
     }
@@ -365,7 +420,7 @@ public class ItemTradeTicketEditClientTab extends TraderStorageClientTab<ItemTra
         if(this.selection >= 0 && this.selection < 2 && !trade.isPurchase())
         {
             TicketItemTrade.TicketSaleData data = trade.getTicketData(this.selection);
-            List<TicketStationRecipe> matchingRecipes = data.getMatchingRecipes();
+            List<RecipeHolder<TicketStationRecipe>> matchingRecipes = data.getMatchingRecipes();
             if(matchingRecipes.isEmpty())
                 return false;
             int deltaIndex = deltaX > 0 ? 1 : -1;
@@ -373,7 +428,7 @@ public class ItemTradeTicketEditClientTab extends TraderStorageClientTab<ItemTra
             int previousIndex = deltaIndex > 0 ? -1 : matchingRecipes.size() + 1;
             for(int i = 0; i < matchingRecipes.size(); ++i)
             {
-                if(Objects.equals(getId(matchingRecipes.get(i)),currentRecipe))
+                if(Objects.equals(matchingRecipes.get(i).id(),currentRecipe))
                 {
                     previousIndex = i;
                     break;
@@ -385,12 +440,74 @@ public class ItemTradeTicketEditClientTab extends TraderStorageClientTab<ItemTra
             if(newIndex < 0)
                 newIndex = matchingRecipes.size() - 1;
             //Change the recipe
-            this.commonTab.ChangeRecipe(getId(matchingRecipes.get(newIndex)),this.selection);
+            this.commonTab.ChangeRecipe(matchingRecipes.get(newIndex).id(),this.selection);
+            this.validateDurability();
             return true;
         }
         return false;
     }
 
-    private static ResourceLocation getId(@Nullable TicketStationRecipe recipe) { return recipe == null ? null : recipe.getId(); }
+    private int getDurability()
+    {
+        TicketItemTrade trade = this.getTrade();
+        if(trade == null)
+            return 0;
+        if(this.selection >= 0 && this.selection < 2)
+            return trade.getTicketData(this.selection).getDurability();
+        return 0;
+    }
+    @Nullable
+    private TicketStationRecipe getRecipe()
+    {
+        TicketItemTrade trade = this.getTrade();
+        if(trade == null)
+            return null;
+        if(this.selection >= 0 && this.selection < 2)
+            return trade.getTicketData(this.selection).tryGetRecipe();
+        return null;
+    }
+    private void validateDurability()
+    {
+        TicketStationRecipe recipe = this.getRecipe();
+        if(recipe == null)
+            return;
+        int oldValue = this.getDurability();
+        int newValue = recipe.validateDurability(oldValue,false);
+        if(newValue != oldValue)
+            this.commonTab.ChangeDurability(newValue,this.selection);
+    }
+    public void incrementDurability()
+    {
+        TicketStationRecipe recipe = this.getRecipe();
+        if(!this.durabilityInputVisible() || recipe == null)
+            return;
+        int current = this.getDurability();
+        int add = Screen.hasShiftDown() ? 10 : 1;
+        if(Screen.hasControlDown())
+            add *= 10;
+        this.commonTab.ChangeDurability(recipe.validateDurability(current + add,true),this.selection);
+    }
+    public void decrementDurability()
+    {
+        TicketStationRecipe recipe = this.getRecipe();
+        if(!this.durabilityInputVisible() || recipe == null)
+            return;
+        int current = this.getDurability();
+        int remove = Screen.hasShiftDown() ? 10 : 1;
+        if(Screen.hasControlDown())
+            remove *= 10;
+        this.commonTab.ChangeDurability(recipe.validateDurability(current - remove,false),this.selection);
+    }
+    private boolean canAddDurability() {
+        TicketStationRecipe recipe = this.getRecipe();
+        return recipe != null && this.getDurability() < recipe.getDurabilityData().max;
+    }
+    private boolean canRemoveDurability() {
+        TicketStationRecipe recipe = this.getRecipe();
+        if(recipe == null)
+            return false;
+        DurabilityData data = recipe.getDurabilityData();
+        return data.allowInfinite ? this.getDurability() > 0 : this.getDurability() > data.min;
+    }
 
 }

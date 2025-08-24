@@ -8,10 +8,15 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.FakeOwner;
+import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
+import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionCreateTab;
@@ -80,7 +85,8 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
 	@Override
 	public int getTradeCount() { return (int)this.trades.stream().filter(AuctionTradeData::isValid).count(); }
-	
+
+    public int getPlayerTradeCount(Player player) { return (int)this.trades.stream().filter(AuctionTradeData::isValid).filter(trade -> trade.isOwner(player)).count(); }
 	public AuctionTradeData getTrade(int tradeIndex) {
 		try {
 			return this.trades.get(tradeIndex);
@@ -229,24 +235,58 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 	@Override
 	public void removeTrade(Player requestor) {}
 	
-	public void addTrade(AuctionTradeData trade, boolean persistent) {
+	public boolean addTrade(AuctionTradeData trade, @Nullable Player player, boolean persistent) {
 		
-		CreateAuctionEvent.Pre e1 = new CreateAuctionEvent.Pre(this, trade, persistent);
+		CreateAuctionEvent.Pre e1 = new CreateAuctionEvent.Pre(this, trade, player, persistent);
 		if(MinecraftForge.EVENT_BUS.post(e1))
-			return;
+			return false;
 		trade = e1.getAuction();
 		
 		trade.startTimer();
 		if(trade.isValid())
 		{
+            //Validate the player trade limits
+            if(player != null && !LCAdminMode.isAdminPlayer(player))
+            {
+                int tradeCount = this.getPlayerTradeCount(player);
+                int limit = LCConfig.SERVER.auctionHousePlayerLimit.get();
+                if(tradeCount >= limit)
+                {
+                    LightmansCurrency.LogInfo("Player has exceeded their auction limit. Limit: " + limit + " Count: " + tradeCount);
+                    return false;
+                }
+                //Otherwise attempt to collect the submission fee
+                MoneyValue price = LCConfig.SERVER.auctionHouseSubmitPrice.get();
+                if(!price.isEmpty())
+                {
+                    IMoneyHandler handler = MoneyAPI.API.GetPlayersMoneyHandler(player);
+                    if(handler.extractMoney(price,true).isEmpty())
+                    {
+                        handler.extractMoney(price,false);
+                        //Store the submission fee in the server tax
+                        if(LCConfig.SERVER.auctionHouseStoreFeeInServerTax.get())
+                        {
+                            ITaxCollector serverTax = TaxAPI.API.GetServerTaxCollector(this);
+                            serverTax.PayTaxesDirectly(this,price);
+                        }
+                    }
+                    else
+                    {
+                        LightmansCurrency.LogInfo("Player does not have enough money to pay the submission fee");
+                        return false;
+                    }
+                }
+            }
 			this.trades.add(trade);
 			this.markTradesDirty();
 			
-			CreateAuctionEvent.Post e2 = new CreateAuctionEvent.Post(this, trade, persistent);
+			CreateAuctionEvent.Post e2 = new CreateAuctionEvent.Post(this, trade, player, persistent);
 			MinecraftForge.EVENT_BUS.post(e2);
+            return true;
 		}
 		else
 			LightmansCurrency.LogError("Auction Trade is not fully valid. Unable to add it to the list.");
+        return false;
 	}
 
 	@Override

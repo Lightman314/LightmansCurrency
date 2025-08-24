@@ -154,7 +154,7 @@ dependencies {
     //implementation fg.deobf("mezz.jei:jei-1.19.4-common-api:13.1.0.2")
     //implementation fg.deobf("mezz.jei:jei-1.19.4-forge-api:13.1.0.2")
     //JEI when not working on plugin, to save compile/runClient time
-    compileOnly fg.deobf("curse.maven:jei-238222:4595492")
+    compileOnly fg.deobf("curse.maven:jei-238222:6600311")
 
     //REI
     compileOnly fg.deobf("me.shedaniel:RoughlyEnoughItems-api-forge:$rei_version")

@@ -2,13 +2,15 @@ package io.github.lightman314.lightmanscurrency.common.items;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -18,23 +20,31 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class TicketItem extends Item{
 
 
 	public TicketItem(Properties properties) { super(properties); }
 
 	@Override
-	public void appendHoverText(@Nonnull ItemStack stack, @Nullable Level level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
+	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flagIn)
 	{
 		if(isPass(stack))
-			tooltip.add(LCText.TOOLTIP_PASS.get());
+        {
+            tooltip.add(LCText.TOOLTIP_PASS.get());
+            int uses = getUseCount(stack);
+            if(uses > 0)
+                tooltip.add(LCText.TOOLTIP_TICKET_USES.get(uses).withStyle(ChatFormatting.GRAY));
+        }
+
 		long ticketID = GetTicketID(stack);
 		if(ticketID >= -2)
 			tooltip.add(LCText.TOOLTIP_TICKET_ID.get(ticketID));
 		super.appendHoverText(stack,level,tooltip,flagIn);
 	}
 
-	public void inventoryTick(@Nonnull ItemStack stack, @Nonnull Level level, @Nonnull Entity entity, int slot, boolean selected) {
+	public void inventoryTick(ItemStack stack, Level level, Entity entity, int slot, boolean selected) {
 		GetTicketID(stack);
 	}
 
@@ -51,6 +61,8 @@ public class TicketItem extends Item{
 			return false;
 		return ticket.getItem() instanceof TicketItem && InventoryUtil.ItemHasTag(ticket, LCTags.Items.TICKETS_PASS);
 	}
+
+    public static boolean isInfinitePass(ItemStack ticket) { return isPass(ticket) && getUseCount(ticket) <= 0; }
 
 	public static boolean isTicketOrPass(ItemStack ticket)  { return isTicket(ticket) || isPass(ticket); }
 
@@ -90,7 +102,7 @@ public class TicketItem extends Item{
 		return Color.getFromIndex(ticketID).hexColor;
 	}
 
-	public static ItemStack CraftTicket(@Nonnull ItemStack master, @Nonnull Item item)
+	public static ItemStack CraftTicket(ItemStack master, Item item)
 	{
 		if(isMasterTicket(master))
 			return CreateTicket(item, GetTicketID(master), GetTicketColor(master));
@@ -108,13 +120,46 @@ public class TicketItem extends Item{
 		return ticket;
 	}
 
-	public static ItemStack CreateExampleTicket(@Nonnull Item item, @Nonnull Color color)
-	{
-		ItemStack ticket = new ItemStack(item);
-		CompoundTag tag = ticket.getOrCreateTag();
-		tag.putInt("TicketColor", color.hexColor);
-		return ticket;
-	}
+    public static int getUseCount(ItemStack ticket)
+    {
+        CompoundTag tag = ticket.getTag();
+        if(tag != null && tag.contains("TicketUses"))
+            return tag.getInt("TicketUses");
+        return 0;
+    }
+
+    public static void setUseCount(ItemStack ticket, int useCount)
+    {
+        CompoundTag tag = ticket.getOrCreateTag();
+        tag.putInt("TicketUses",useCount);
+    }
+
+    public static ItemStack damageTicket(ItemStack ticket)
+    {
+        ItemStack result = ItemStack.EMPTY;
+        int uses = getUseCount(ticket);
+        if(uses > 0)
+        {
+            if(ticket.getCount() > 1)
+            {
+                ticket = ticket.split(1);
+                result = ticket;
+            }
+            if(uses == 1)
+                ticket.shrink(1);
+            else
+                setUseCount(ticket,uses - 1);
+        }
+        return result;
+    }
+
+    public static ItemStack CreateExampleTicket(Item item, Color color)
+    {
+        ItemStack ticket = new ItemStack(item);
+        CompoundTag tag = ticket.getOrCreateTag();
+        tag.putInt("TicketColor", color.hexColor);
+        return ticket;
+    }
 
 	public static void SetTicketColor(ItemStack ticket, Color color) { SetTicketColor(ticket, color.hexColor); }
 

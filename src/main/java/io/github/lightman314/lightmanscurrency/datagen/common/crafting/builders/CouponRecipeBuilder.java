@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders
 
 import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
+import io.github.lightman314.lightmanscurrency.common.crafting.durability.DurabilityData;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.CriterionTriggerInstance;
@@ -26,6 +27,7 @@ public class CouponRecipeBuilder implements RecipeBuilder {
 
     private final Ingredient ingredient;
     private Item result;
+    private DurabilityData durability = new DurabilityData(true,0,99);
 
     private final Advancement.Builder advancement = Advancement.Builder.recipeAdvancement();
 
@@ -38,6 +40,9 @@ public class CouponRecipeBuilder implements RecipeBuilder {
     @Nonnull
     public CouponRecipeBuilder withResult(@Nonnull Supplier<? extends ItemLike> result) { return this.withResult(result.get()); }
     public CouponRecipeBuilder withResult(@Nonnull ItemLike result) { this.result = result.asItem(); return this; }
+
+    public CouponRecipeBuilder withDurabilityRange(int min, int max) { return this.withDurabilityRange(false,min,max); }
+    public CouponRecipeBuilder withDurabilityRange(boolean allowInfinite,int min, int max) { this.durability = new DurabilityData(allowInfinite,min,max); return this; }
 
     @Nonnull
     @Override
@@ -55,7 +60,7 @@ public class CouponRecipeBuilder implements RecipeBuilder {
     public void save(@Nonnull Consumer<FinishedRecipe> consumer, @Nonnull ResourceLocation id) {
         this.ensureValid(id);
         this.advancement.parent(ROOT_RECIPE_ADVANCEMENT).addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id)).rewards(AdvancementRewards.Builder.recipe(id)).requirements(RequirementsStrategy.OR);
-        consumer.accept(new Result(id, this.ingredient,this.result,this.advancement, id.withPrefix("recipes/ticket_machine/")));
+        consumer.accept(new Result(id, this.ingredient,this.result,this.durability,this.advancement, id.withPrefix("recipes/ticket_machine/")));
     }
 
     private void ensureValid(ResourceLocation id) {
@@ -74,14 +79,16 @@ public class CouponRecipeBuilder implements RecipeBuilder {
         private final ResourceLocation id;
         private final Ingredient ingredient;
         private final Item result;
+        private final DurabilityData durability;
         private final Advancement.Builder advancement;
         private final ResourceLocation advancementId;
 
-        public Result(@Nonnull ResourceLocation id, @Nonnull Ingredient ingredient, @Nonnull Item result, @Nonnull Advancement.Builder advancement, @Nonnull ResourceLocation advancementId)
+        public Result(@Nonnull ResourceLocation id, @Nonnull Ingredient ingredient, @Nonnull Item result, DurabilityData durability, @Nonnull Advancement.Builder advancement, @Nonnull ResourceLocation advancementId)
         {
             this.id = id;
             this.ingredient = ingredient;
             this.result = result;
+            this.durability = durability;
             this.advancement = advancement;
             this.advancementId = advancementId;
         }
@@ -90,6 +97,7 @@ public class CouponRecipeBuilder implements RecipeBuilder {
         public void serializeRecipeData(@Nonnull JsonObject json) {
             json.add("ingredient", this.ingredient.toJson());
             json.addProperty("result", ForgeRegistries.ITEMS.getKey(this.result).toString());
+            json.add("durability",this.durability.write());
         }
 
         @Nonnull

@@ -188,6 +188,8 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
             this.keyboardListeners.add(l);
         if(child instanceof EasyWidgetWithChildren w && !w.addChildrenBeforeThis())
             w.addChildren();
+        if(child instanceof IWidgetWrapper w)
+            this.addChild(w.getWrappedWidget());
         return child;
     }
 
@@ -215,6 +217,8 @@ public abstract class EasyMenuScreen<T extends AbstractContainerMenu> extends Ab
             this.keyboardListeners.remove(l);
         if(child instanceof EasyWidgetWithChildren w)
             w.removeChildren();
+        if(child instanceof IWidgetWrapper w)
+            this.removeChild(w.getWrappedWidget());
     }
 
     @Override

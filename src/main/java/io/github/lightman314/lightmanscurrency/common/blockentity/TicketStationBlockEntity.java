@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.blockentity;
 
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
 import io.github.lightman314.lightmanscurrency.common.crafting.input.TicketStationRecipeInput;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
@@ -16,7 +17,7 @@ public class TicketStationBlockEntity extends EasyBlockEntity {
 	SimpleContainer storage = new SimpleContainer(2);
 	public Container getStorage() { return this.storage; }
 
-	public TicketStationRecipeInput getRecipeInput(String code) { return new TicketStationRecipeInput(this.storage,code); }
+	public TicketStationRecipeInput getRecipeInput(TicketStationRecipe.ExtraData data) { return new TicketStationRecipeInput(this.storage,data); }
 	
 	public TicketStationBlockEntity(BlockPos pos, BlockState state)
 	{

@@ -5,13 +5,9 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import mezz.jei.api.constants.VanillaTypes;
-import mezz.jei.api.forge.ForgeTypes;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;
 import mezz.jei.api.runtime.IClickableIngredient;
 import mezz.jei.api.runtime.IIngredientManager;
-import mezz.jei.common.input.ClickableIngredient;
-import mezz.jei.common.util.ImmutableRect2i;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
@@ -61,15 +57,10 @@ public class JEIScreenArea<T extends EasyMenuScreen<?>> implements IGuiContainer
         return IGuiContainerHandler.super.getClickableIngredientUnderMouse(screen, mouseX, mouseY);
     }
 
-    private Optional<IClickableIngredient<?>> createClickable(ItemStack item,ScreenArea area) {
-        return this.manager.createTypedIngredient(VanillaTypes.ITEM_STACK,item)
-                .map(t -> new ClickableIngredient<>(t,asRect(area)));
-    }
-    private Optional<IClickableIngredient<?>> createClickable(FluidStack fluid,ScreenArea area) {
-        return this.manager.createTypedIngredient(ForgeTypes.FLUID_STACK,fluid)
-                .map(t -> new ClickableIngredient<>(t,asRect(area)));
-    }
+    private Optional<IClickableIngredient<?>> createClickable(ItemStack item,ScreenArea area) { return mapOptional(this.manager.createClickableIngredient(item,asRect(area),true)); }
+    private Optional<IClickableIngredient<?>> createClickable(FluidStack fluid,ScreenArea area) { return mapOptional(this.manager.createClickableIngredient(fluid,asRect(area),true)); }
 
-    private static ImmutableRect2i asRect(ScreenArea area) { return new ImmutableRect2i(area.x,area.y,area.width,area.height); }
+    private static Rect2i asRect(ScreenArea area) { return new Rect2i(area.x,area.y,area.width,area.height); }
+    private static <T> Optional<IClickableIngredient<?>> mapOptional(Optional<IClickableIngredient<T>> input) { return Optional.ofNullable(input.orElse(null)); }
 
 }

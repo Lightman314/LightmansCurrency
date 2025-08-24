@@ -7,7 +7,9 @@
   "mixins": [
     "AbstractContainerMenuAccessor",
     "EntityMixin",
+    "GiveCommandMixin",
     "InventoryMenuMixin",
+    "ItemHandlerHelperMixin",
     "MerchantMenuMixin",
     "ShapedAndShapelessRecipeMixin",
     "TemplatePoolAccess",

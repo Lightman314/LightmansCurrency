@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders
 
 import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
+import io.github.lightman314.lightmanscurrency.common.crafting.durability.DurabilityData;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.CriterionTriggerInstance;
@@ -26,6 +27,7 @@ public class TicketRecipeBuilder implements RecipeBuilder {
     private Ingredient masterIngredient;
     private final Ingredient ingredient;
     private final Item result;
+    private DurabilityData durability = DurabilityData.NULL;
 
     private final Advancement.Builder advancement = Advancement.Builder.recipeAdvancement();
 
@@ -42,6 +44,8 @@ public class TicketRecipeBuilder implements RecipeBuilder {
     @Nonnull
     public TicketRecipeBuilder withMasterTicket(@Nonnull Ingredient ingredient) { this.masterIngredient = ingredient; return this; }
 
+    public TicketRecipeBuilder withDurabilityRange(int min, int max) { return this.withDurabilityRange(false,min,max); }
+    public TicketRecipeBuilder withDurabilityRange(boolean allowInfinite, int min, int max) { this.durability = new DurabilityData(allowInfinite,min,max); return this; }
 
     @Nonnull
     @Override
@@ -59,7 +63,7 @@ public class TicketRecipeBuilder implements RecipeBuilder {
     public void save(@Nonnull Consumer<FinishedRecipe> consumer, @Nonnull ResourceLocation id) {
         this.ensureValid(id);
         this.advancement.parent(ROOT_RECIPE_ADVANCEMENT).addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id)).rewards(AdvancementRewards.Builder.recipe(id)).requirements(RequirementsStrategy.OR);
-        consumer.accept(new Result(id, this.masterIngredient, this.ingredient, this.result, this.advancement, id.withPrefix("recipes/ticket_machine/")));
+        consumer.accept(new Result(id, this.masterIngredient, this.ingredient, this.result, this.durability, this.advancement, id.withPrefix("recipes/ticket_machine/")));
     }
 
     private void ensureValid(ResourceLocation id) {
@@ -79,15 +83,17 @@ public class TicketRecipeBuilder implements RecipeBuilder {
         private final Ingredient masterIngredient;
         private final Ingredient ingredient;
         private final Item result;
+        private final DurabilityData durability;
         private final Advancement.Builder advancement;
         private final ResourceLocation advancementId;
 
-        public Result(@Nonnull ResourceLocation id, @Nonnull Ingredient masterIngredient, @Nonnull Ingredient ingredient, @Nonnull Item result, @Nonnull Advancement.Builder advancement, @Nonnull ResourceLocation advancementId)
+        public Result(@Nonnull ResourceLocation id, @Nonnull Ingredient masterIngredient, @Nonnull Ingredient ingredient, @Nonnull Item result, DurabilityData durability, @Nonnull Advancement.Builder advancement, @Nonnull ResourceLocation advancementId)
         {
             this.id = id;
             this.masterIngredient = masterIngredient;
             this.ingredient = ingredient;
             this.result = result;
+            this.durability = durability;
             this.advancement = advancement;
             this.advancementId = advancementId;
         }
@@ -97,6 +103,8 @@ public class TicketRecipeBuilder implements RecipeBuilder {
             json.add("masterTicket", this.masterIngredient.toJson());
             json.add("ingredient", this.ingredient.toJson());
             json.addProperty("result", ForgeRegistries.ITEMS.getKey(this.result).toString());
+            if(this.durability.isValid())
+                json.add("durability",this.durability.write());
         }
 
         @Nonnull

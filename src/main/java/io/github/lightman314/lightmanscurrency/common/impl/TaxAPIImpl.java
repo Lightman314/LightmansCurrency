@@ -44,6 +44,10 @@ public class TaxAPIImpl extends TaxAPI {
 
     @Nonnull
     @Override
+    public ITaxCollector GetServerTaxCollector(boolean isClient) { return TaxDataCache.TYPE.get(isClient).getServerEntry(); }
+
+    @Nonnull
+    @Override
     public List<ITaxCollector> GetTaxCollectorsFor(@Nonnull ITaxable taxable) { return TaxDataCache.TYPE.get(taxable).getAllEntries().stream().filter(e -> e.ShouldTax(taxable)).map(e -> (ITaxCollector)e).toList(); }
 
     @Nonnull

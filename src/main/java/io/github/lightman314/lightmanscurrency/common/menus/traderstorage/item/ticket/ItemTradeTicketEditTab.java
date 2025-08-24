@@ -77,6 +77,24 @@ public class ItemTradeTicketEditTab extends ItemTradeEditTab {
         }
     }
 
+    public void ChangeDurability(int durability, int index)
+    {
+        TicketItemTrade trade = this.getTrade();
+        if(trade != null)
+        {
+            TicketItemTrade.TicketSaleData data = trade.getTicketData(index);
+            if(data == null)
+                return;
+            data.setDurability(durability);
+            if(this.isClient())
+            {
+                this.menu.SendMessage(this.builder()
+                        .setInt("Slot",index)
+                        .setInt("ChangeDurability",durability));
+            }
+        }
+    }
+
     @Override
     public void receiveMessage(LazyPacketData message) {
         super.receiveMessage(message);
@@ -89,6 +107,8 @@ public class ItemTradeTicketEditTab extends ItemTradeEditTab {
                 this.ChangeRecipe(null,slot);
             if(message.contains("ChangeCode"))
                 this.ChangeCode(message.getString("ChangeCode"),slot);
+            if(message.contains("ChangeDurability"))
+                this.ChangeDurability(message.getInt("ChangeDurability"),slot);
         }
 
     }

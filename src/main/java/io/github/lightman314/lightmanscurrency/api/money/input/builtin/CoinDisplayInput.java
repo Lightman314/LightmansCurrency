@@ -55,4 +55,12 @@ public class CoinDisplayInput extends SimpleDisplayInput {
         }
         return valueNumber;
     }
+
+    @Override
+    protected int getRelevantDecimals() {
+        if(this.chain.getDisplayData() instanceof NumberDisplay nd)
+            return nd.getMaxDecimal();
+        return 0;
+    }
+
 }

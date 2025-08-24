@@ -286,7 +286,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_PREPAID_CARD_DELETE_WARNING,"Card will disappear once emptied");
 
         this.translate(LCText.TOOLTIP_TICKET_ID, "TicketID: %s");
-        this.translate(LCText.TOOLTIP_PASS, "Will not be consumed by Paygates");
+        this.translate(LCText.TOOLTIP_TICKET_USES, "Uses Remaining: %s");
+        this.translate(LCText.TOOLTIP_PASS, "Will not be instantly consumed by Paygates");
         this.translate(LCText.TOOLTIP_ITEM_TRADER, "Item Trader:","Trades: %s","Can be used to Sell, Purchase, or Barter items with other players");
         this.translate(LCText.TOOLTIP_ITEM_TRADER_ARMOR, "Armor Trader:", "Trades: %s","Can be used to Sell, Purchase, or Barter armor pieces with other players");
         this.translate(LCText.TOOLTIP_ITEM_TRADER_TICKET, "Ticket Trader:", "Trades: %s", "Can be used to Sell, Purchase, or Barter tickets and ticket materials with other players","A master ticket is required in order to sell tickets","Tickets being sold can consume ticket materials from storage to print a new ticket for the customer");
@@ -564,6 +565,8 @@ public class EnglishProvider extends TranslationProvider {
         //Ticket Station Menu
         this.translate(LCText.GUI_TICKET_STATION_TITLE,"Ticket Station");
         this.translate(LCText.GUI_TICKET_STATION_LABEL_CODE,"Code:");
+        this.translate(LCText.GUI_TICKET_STATION_LABEL_DURABILITY,"Uses: %s");
+        this.translate(LCText.GUI_TICKET_STATION_LABEL_DURABILITY_INFINITE,"∞");
         this.translate(LCText.TOOLTIP_TICKET_STATION_RECIPE_INFO,"Will make %s");
         this.translate(LCText.TOOLTIP_TICKET_STATION_SELECT_RECIPE,"Scroll to change recipe");
         this.translate(LCText.TOOLTIP_TICKET_STATION_CRAFT,"Craft %s");
@@ -633,6 +636,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_TRADER_OPEN_STORAGE,"Open Trader Storage");
         this.translate(LCText.TOOLTIP_TRADER_COLLECT_COINS,"Collect Stored Money:");
         this.translate(LCText.TOOLTIP_TRADER_NETWORK_BACK,"Back to Network Terminal");
+        this.translate(LCText.TOOLTIP_TRADER_DISCOUNT_CODES,"Apply Discount Codes");
         this.translate(LCText.TOOLTIP_TRADER_OPEN_TRADES,"Return to Trades");
         this.translate(LCText.TOOLTIP_TRADER_TRADE_RULES_TRADER,"Trader Rules");
         this.translate(LCText.TOOLTIP_TRADER_TRADE_RULES_TRADE,"Edit Trade-Specific Rules");
@@ -743,6 +747,9 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.BUTTON_TRADER_AUCTION_PRICE_MODE_STARTING_BID,"Start Bid");
         this.translate(LCText.BUTTON_TRADER_AUCTION_PRICE_MODE_MIN_BID_SIZE,"Bid Size");
         this.translate(LCText.BUTTON_TRADER_AUCTION_CREATE,"Create Auction");
+        this.translate(LCText.TOOLTIP_TRADER_AUCTION_PRICE,"Costs %s to submit an auction");
+        this.translate(LCText.TOOLTIP_TRADER_AUCTION_FEE_WARNING,"%s%% of the final bid will be collected as a fee for using the auction house");
+        this.translate(LCText.TOOLTIP_TRADER_AUCTION_LIMIT_EXCEEDED,"You cannot submit more than %1$s auctions at once","You currently have %2$s active auctions");
         this.translate(LCText.GUI_TRADER_AUCTION_ITEMS,"Items:");
         this.translate(LCText.GUI_TRADER_AUCTION_CREATE_SUCCESS,"Successfully Created!");
         this.translate(LCText.TOOLTIP_TRADER_AUCTION_INFO_NO_BIDDER,"Nobody has bid yet");
@@ -1032,6 +1039,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.NOTIFICATION_AUCTION_CANCEL,"The auction for %s has been canceled");
         this.translate(LCText.NOTIFICATION_AUCTION_SELLER_NO_BID,"Your auction for %s was not bid on within the time limit");
         this.translate(LCText.NOTIFICATION_AUCTION_SELLER,"%1$s won your auction for %2$s with a bid of %3$s");
+        this.translate(LCText.NOTIFICATION_AUCTION_SELLER_FEE,"%1$s was actually granted, and %2$s was kept as an Auction Fee");
         //Bank Notifications
         this.translate(LCText.NOTIFICATION_BANK_INTEREST,"Gained %s in interest");
         this.translate(LCText.NOTIFICATION_BANK_TRANSFER,"%1$s transferred %2$s %3$s %4$s");
@@ -1325,6 +1333,8 @@ public class EnglishProvider extends TranslationProvider {
 
         //JEI Info
         this.translate(LCText.JEI_INFO_TICKET_STUB, "A broken ticket returned to the customer when a ticket is used on a Paygate");
+        this.translate(LCText.JEI_INFO_TICKET_DURABILITY, "Result can have a custom durability between %1$s and %2$s");
+        this.translate(LCText.JEI_INFO_TICKET_DURABILITY_INFINITE, "Result can also have infinite durability");
         //Curios
         this.translate(LCText.CURIOS_SLOT_WALLET,"Wallet");
 

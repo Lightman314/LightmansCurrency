@@ -179,6 +179,19 @@ public class TaxEntry implements ITaxCollector {
         return amountToPay;
     }
 
+    public final void PayTaxesDirectly(@Nullable ITaxable taxable, @Nonnull MoneyValue taxes)
+    {
+        if(!taxes.isEmpty())
+        {
+            this.depositMoney(taxes);
+            if(taxable != null)
+            {
+                this.PushNotification(TaxesCollectedNotification.create(taxable.getName(),taxes,new TaxEntryCategory(this.getName(),this.id)));
+                this.stats.OnTaxesCollected(taxable,taxes);
+            }
+        }
+    }
+
     //Linked Bank Account?
     private boolean linkToBank = false;
     public void setLinkedToBank(boolean newState) { this.linkToBank = newState; this.markBankStateDirty(); }

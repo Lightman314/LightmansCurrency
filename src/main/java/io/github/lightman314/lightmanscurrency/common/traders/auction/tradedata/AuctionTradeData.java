@@ -9,6 +9,8 @@ import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.BooleanOption;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
+import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
+import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBidNotification;
@@ -270,15 +272,23 @@ public class AuctionTradeData extends TradeData {
 			if(this.tradeOwner != null)
 			{
 				AuctionPlayerStorage sellerStorage = trader.getStorage(this.tradeOwner);
-				sellerStorage.giveMoney(event.getPayment());
+				sellerStorage.giveMoney(event.getPaymentAmount());
 			}
+
+            //Pay the fee
+            MoneyValue fee = event.getFeePayment();
+            if(!fee.isEmpty() && LCConfig.SERVER.auctionHouseStoreFeeInServerTax.get())
+            {
+                ITaxCollector serverTax = TaxAPI.API.GetServerTaxCollector(trader);
+                serverTax.PayTaxesDirectly(trader,fee);
+            }
 
 			//Post notification to the auction winner
 			NotificationAPI.API.PushPlayerNotification(this.lastBidPlayer.id, new AuctionHouseBuyerNotification(this));
 
 			//Post notification to the auction owner
 			if(this.tradeOwner != null)
-				NotificationAPI.API.PushPlayerNotification(this.tradeOwner.id, new AuctionHouseSellerNotification(this));
+				NotificationAPI.API.PushPlayerNotification(this.tradeOwner.id, new AuctionHouseSellerNotification(this,event.getPaymentAmount(),event.getFeePayment()));
 		}
 		else
 		{

@@ -85,11 +85,14 @@ public class AuctionCreateTab extends TraderStorageTab {
 				//LightmansCurrency.LogInfo("Failed to create the auction as the auction is not valid.");
 				return;
 			}
-			trader.addTrade(trade, false);
-			//Delete the contents of the auctionItems
-			this.auctionItems.clearContent();
+            boolean success = trader.addTrade(trade,this.menu.getPlayer(),false);
+            if(success)
+            {
+                //Delete the contents of the auction items
+                this.auctionItems.clearContent();
+            }
 			//Send response message to the client
-			this.menu.SendMessage(this.builder().setBoolean("AuctionCreated", true));
+			this.menu.SendMessage(this.builder().setBoolean("AuctionCreated", success));
 			for(EasySlot slot : this.slots) slot.locked = true;
 			//LightmansCurrency.LogInfo("Successfully created the auction!");
 		}

@@ -40,6 +40,9 @@ public class ImpactorMoneyInputHandler extends SimpleDisplayInput {
         return 0;
     }
 
+    @Override
+    protected int getRelevantDecimals() { return this.currency.decimals(); }
+
     @Nonnull
     @Override
     public MutableComponent inputName() { return LCImpactorCompat.convertComponent(this.currency.singular()); }

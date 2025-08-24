@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.config.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.events.DroplistConfigGenerator;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.client.config.CustomItemScaleConfigOption;
 import io.github.lightman314.lightmanscurrency.client.config.CustomItemScaleData;
@@ -356,6 +357,10 @@ public final class LCConfig {
         public final BooleanOption structureAncientCity = BooleanOption.createTrue();
         public final BooleanOption structureIDAS = BooleanOption.createTrue();
 
+        //Mixin Options
+        public final BooleanOption interceptGiveCommand = BooleanOption.createTrue();
+        public final BooleanOption interceptInventoryHelper = BooleanOption.createTrue();
+
         //Early Load Compat Options
         public final BooleanOption compatImpactor = BooleanOption.createTrue();
 
@@ -621,6 +626,14 @@ public final class LCConfig {
 
             builder.pop();
 
+            builder.comment("Mixin Options").push("mixins");
+
+            builder.comment("Whether coins given to a player with the /give command should be intercepted by the players wallet if one is equipped")
+                    .add("giveCommandIntercept",this.interceptGiveCommand);
+
+            builder.comment("Whether coins give to the player via Forges ItemHandlerHelper utilities should be intercepted by the players wallet if one is equipped")
+                    .add("itemHelperIntercept",this.interceptInventoryHelper);
+
             builder.push("compat");
 
             builder.comment("Whether the Impactor compat will be initialized.",
@@ -703,6 +716,10 @@ public final class LCConfig {
         public final IntOption auctionHouseDurationMax = IntOption.create(30,1);
         public final BooleanOption auctionHouseAllowOwnerBidding = BooleanOption.createFalse();
         public final BooleanOption auctionHouseAllowDoubleBidding = BooleanOption.createFalse();
+        public final IntOption auctionHouseFeePercentage = IntOption.create(0,0,99);
+        public final MoneyValueOption auctionHouseSubmitPrice = MoneyValueOption.create(MoneyValue::empty);
+        public final BooleanOption auctionHouseStoreFeeInServerTax = BooleanOption.createTrue();
+        public final IntOption auctionHousePlayerLimit = IntOption.create(Integer.MAX_VALUE,0,Integer.MAX_VALUE);
 
         //Bank Account Settings
         public final DoubleOption bankAccountInterestRate = DoubleOption.create(0d,0d,1d);
@@ -955,14 +972,30 @@ public final class LCConfig {
             builder.comment("Whether players are allowed to bid on an auction when they were also the previous bidder")
                     .add("doubleBidding",this.auctionHouseAllowDoubleBidding);
 
+            builder.comment("The percentage of the final bid that will be collected as a fee instead of being given to the auctions owner when the auction is completed")
+                    .add("auctionFeeRate",this.auctionHouseFeePercentage);
+
+            builder.comment("A flat fee paid on the creation of an auction by the player submitting it",
+                            "If they are unable to pay this fee, they will not be able to submit any auctions")
+                    .add("auctionSubmitFee",this.auctionHouseSubmitPrice);
+
+            builder.comment("Whether the auction fees collected should be stored in the server-wide tax collector as taxes",
+                            "Includes both the submission fee and the fee taken from the final bid",
+                            "Useful for those who wish to keep trade of auction fees collected, and/or don't want money to destroyed in this process")
+                    .add("storeFeeInServerTax",this.auctionHouseStoreFeeInServerTax);
+
+            builder.comment("The maximum number of pending auctions each player is allowed to have",
+                            "Set to 0 to only allow auctions to be posted by admins in LC Admin Mode, or to limit the Auction House to only Persistent Auctions")
+                    .add("playerLimit",this.auctionHousePlayerLimit);
+
             builder.pop();
 
             builder.comment("Bank Account Settings").push("bank_accounts");
 
             builder.comment("The interest rate that bank accounts will earn just by existing.",
-                        "Setting to 0 will disable interesting and all interest-related ticks from happening.",
-                        "Note: Rate of 1.0 will result in doubling the accounts money each interest tick.",
-                        "Rate of 0.01 is equal to a 1% interest rate.")
+                            "Setting to 0 will disable interesting and all interest-related ticks from happening.",
+                            "Note: Rate of 1.0 will result in doubling the accounts money each interest tick.",
+                            "Rate of 0.01 is equal to a 1% interest rate.")
                     .add("interest", this.bankAccountInterestRate);
 
             builder.comment("Whether interest applied to small amounts of money are guaranteed to give at least *some* money as long as there's money in the account.",

@@ -100,13 +100,16 @@ public class DiscountCodes extends PriceTweakingTradeRule implements ICopySuppor
     public void afterTrade(TradeEvent.PostTradeEvent event) {
         TradeContext context = event.getContext();
         this.rules.forEach((code,rule) -> {
-            if(context.hasDiscountCode(code) && rule.limit > 0)
+            if(context.hasDiscountCode(code))
             {
-                rule.memory.addEntry(context.getPlayerReference().id);
-                rule.memory.clearExpiredData(rule.timeLimit);
-                event.markDirty();
+                context.consumeDiscountCode(code);
+                if(rule.limit > 0)
+                {
+                    rule.memory.addEntry(context.getPlayerReference().id);
+                    event.markDirty();
+                }
             }
-            else if(rule.memory.clearExpiredData(rule.timeLimit))
+            if(rule.memory.clearExpiredData(rule.timeLimit))
                 event.markDirty();
         });
     }

@@ -6,12 +6,15 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.common.DiscountCodeTab;
 import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
 
@@ -41,11 +44,13 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderS
 	private final ScreenPosition INFO_WIDGET_POSITION = ScreenPosition.of(TraderMenu.SLOT_OFFSET + 160, HEIGHT - 96);
 
 	private final TraderClientTab DEFAULT_TAB = new TraderInteractionTab(this);
+	private final TraderClientTab CODE_TAB = new DiscountCodeTab(this);
 
 	IconButton buttonOpenStorage;
 	IconButton buttonCollectCoins;
 
 	IconButton buttonOpenTerminal;
+    IconButton buttonSubmitCodes;
 
 	TraderClientTab currentTab = DEFAULT_TAB;
 	@Override
@@ -90,9 +95,13 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderS
 				.addon(EasyAddonHelper.visibleCheck(this::showTerminalButton))
 				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_NETWORK_BACK))
 				.build());
-		this.buttonOpenTerminal.visible = this.showTerminalButton();
+        this.buttonSubmitCodes = this.addChild(IconButton.builder()
+                .pressAction(this::OpenCodeSelection)
+                .icon(IconData.of(ModItems.COUPON))
+                .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_DISCOUNT_CODES))
+                .build());
 
-		this.rightEdgePositioner.addWidgets(this.buttonOpenTerminal, this.buttonOpenStorage, this.buttonCollectCoins);
+		this.rightEdgePositioner.addWidgets(this.buttonOpenTerminal,this.buttonOpenStorage,this.buttonCollectCoins,this.buttonSubmitCodes);
 
 		//Allow traders to add custom buttons if this is a single trader
 		if(this.menu.isSingleTrader())
@@ -164,6 +173,14 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderS
 		if(this.showTerminalButton())
 			new CPacketOpenNetworkTerminal().send();
 	}
+
+    private void OpenCodeSelection()
+    {
+        if(this.currentTab instanceof DiscountCodeTab codeTab)
+            this.closeTab();
+        else
+            this.setTab(CODE_TAB);
+    }
 
 	@Override
 	public boolean blockInventoryClosing() { return this.currentTab.blockInventoryClosing(); }

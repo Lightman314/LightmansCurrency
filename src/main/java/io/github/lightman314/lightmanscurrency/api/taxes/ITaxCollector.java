@@ -8,6 +8,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public interface ITaxCollector extends IClientTracker {
 
@@ -82,5 +83,14 @@ public interface ITaxCollector extends IClientTracker {
      */
     @Nonnull
     MoneyValue CalculateAndPayTaxes(@Nonnull ITaxable taxable, @Nonnull MoneyValue taxableAmount);
+
+    /**
+     * Pays a pre-calculated amount of taxes to this tax collector<br>
+     * Stats and notification will only be sent if the Taxable is null,
+     * otherwise all this does is directly place the money into the tax collectors money storage.
+     * @param taxable The taxable machine that is paying the taxes. May be <code>null</code>
+     * @param taxes The amount of taxes to be paid to the tax collector.
+     */
+    void PayTaxesDirectly(@Nullable ITaxable taxable, @Nonnull MoneyValue taxes);
 
 }

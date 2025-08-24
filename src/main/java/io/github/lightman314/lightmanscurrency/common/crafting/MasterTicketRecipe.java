@@ -77,7 +77,7 @@ public class MasterTicketRecipe implements TicketStationRecipe {
 
 
     @Override
-    public ItemStack peekAtResult(Container container,String code) {
+    public ItemStack peekAtResult(Container container,ExtraData data) {
         long nextTicketID = TicketDataCache.TYPE.getUnknown().peekNextID();
         ItemStack dyeStack = container.getItem(0);
         Color dyeColor = TicketModifierSlot.getColorFromDye(dyeStack);
@@ -88,12 +88,10 @@ public class MasterTicketRecipe implements TicketStationRecipe {
     }
 
     @Override
-    public ItemStack assembleWithKiosk(ItemStack sellITem, String code) { return ItemStack.EMPTY; }
-
+    public ItemStack assembleWithKiosk(ItemStack sellITem, ExtraData data) { return ItemStack.EMPTY; }
 
     @Override
     public ResourceLocation getId() { return this.id; }
-
 
     @Override
     public RecipeSerializer<?> getSerializer() { return ModRecipes.TICKET_MASTER.get(); }
