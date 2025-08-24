@@ -13,6 +13,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
 
@@ -97,7 +99,7 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderS
 
         this.buttonSubmitCodes = this.addChild(IconButton.builder()
                 .pressAction(this::OpenCodeSelection)
-                .icon(IconUtil.ICON_DISCOUNT_LIST)
+                .icon(IconData.of(ModItems.COUPON))
                 .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_DISCOUNT_CODES))
                 .build());
 

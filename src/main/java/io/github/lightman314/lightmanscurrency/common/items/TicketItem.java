@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.items.data.TicketData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -44,7 +45,7 @@ public class TicketItem extends Item {
         {
             tooltip.add(LCText.TOOLTIP_PASS.get());
             if(stack.has(ModDataComponents.TICKET_USES))
-                tooltip.add(LCText.TOOLTIP_TICKET_USES.get(stack.get(ModDataComponents.TICKET_USES)));
+                tooltip.add(LCText.TOOLTIP_TICKET_USES.get(stack.get(ModDataComponents.TICKET_USES)).withStyle(ChatFormatting.GRAY));
         }
 		long ticketID = GetTicketID(stack);
 		if(ticketID >= -2)
@@ -120,6 +121,9 @@ public class TicketItem extends Item {
 		return ticket;
 	}
 
+    public static int getUseCount(ItemStack ticket) { return ticket.getOrDefault(ModDataComponents.TICKET_USES,0); }
+    public static void setUseCount(ItemStack ticket, int useCount) { ticket.set(ModDataComponents.TICKET_USES,useCount); }
+
     /**
      * Decrements the {@link ModDataComponents#TICKET_USES} value by one
      * @param ticket The Ticket or Coupon that should be damaged
@@ -128,18 +132,18 @@ public class TicketItem extends Item {
     public static ItemStack damageTicket(ItemStack ticket)
     {
         ItemStack result = ItemStack.EMPTY;
-        if(ticket.has(ModDataComponents.TICKET_USES))
+        int uses = getUseCount(ticket);
+        if(uses > 0)
         {
             if(ticket.getCount() > 1)
             {
                 ticket = ticket.split(1);
                 result = ticket;
             }
-            int uses = ticket.get(ModDataComponents.TICKET_USES);
-            if(uses <= 1)
+            if(uses == 1)
                 ticket.shrink(1);
             else
-                ticket.set(ModDataComponents.TICKET_USES,uses - 1);
+                setUseCount(ticket,uses - 1);
         }
         return result;
     }

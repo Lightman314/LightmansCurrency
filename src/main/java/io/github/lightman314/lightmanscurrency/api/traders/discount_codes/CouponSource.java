@@ -3,6 +3,8 @@ package io.github.lightman314.lightmanscurrency.api.traders.discount_codes;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
+import io.github.lightman314.lightmanscurrency.common.items.CouponItem;
+import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.Container;
@@ -47,8 +49,7 @@ public class CouponSource implements IDiscountCodeSource {
             if(InventoryUtil.ItemHasTag(item, LCTags.Items.COUPONS))
             {
                 //Check coupon code (leaving seperate for 1.20 rewrite)
-                if(item.has(ModDataComponents.COUPON_DATA))
-                    temp.add(item.get(ModDataComponents.COUPON_DATA).code());
+                temp.add(CouponItem.GetCouponCode(item));
             }
         }
         return temp;
@@ -61,8 +62,7 @@ public class CouponSource implements IDiscountCodeSource {
         if(InventoryUtil.ItemHasTag(item, LCTags.Items.COUPONS))
         {
             //Check coupon code (leaving seperate for 1.20 rewrite)
-            if(item.has(ModDataComponents.COUPON_DATA))
-                return code == item.get(ModDataComponents.COUPON_DATA).code();
+            return code == CouponItem.GetCouponCode(item);
         }
         return false;
     }
@@ -76,17 +76,14 @@ public class CouponSource implements IDiscountCodeSource {
             ItemStack item = this.container.getStackInSlot(i).copy();
             if(InventoryUtil.ItemHasTag(item, LCTags.Items.COUPONS))
             {
-                //Check coupon code (leaving seperate for 1.20 rewrite)
-                if(item.has(ModDataComponents.COUPON_DATA))
+                int c = CouponItem.GetCouponCode(item);
+                if(hash == c)
                 {
-                    int c = item.get(ModDataComponents.COUPON_DATA).code();
-                    if(hash == c)
-                    {
-                        if(item.has(ModDataComponents.TICKET_USES))
-                            targets.add(Pair.of(i,item.get(ModDataComponents.TICKET_USES)));
-                        else //Found a non-damageable coupon, so don't break anything
-                            return true;
-                    }
+                    int uses = TicketItem.getUseCount(item);
+                    if(uses < 0) //Found a non-damageable coupon, so don't break anything
+                        return true;
+                    else
+                        targets.add(Pair.of(i,item.get(ModDataComponents.TICKET_USES)));
                 }
             }
         }
@@ -108,10 +105,10 @@ public class CouponSource implements IDiscountCodeSource {
                 continue;
             }
             //Damage the item
-            int uses = extracted.get(ModDataComponents.TICKET_USES);
+            int uses = TicketItem.getUseCount(extracted);
             if(uses > 1)
             {
-                extracted.set(ModDataComponents.TICKET_USES,uses - 1);
+                TicketItem.setUseCount(extracted,uses - 1);
                 this.quickInsert(target,extracted);
             }
             //If only 1 use left, simply delete the coupon

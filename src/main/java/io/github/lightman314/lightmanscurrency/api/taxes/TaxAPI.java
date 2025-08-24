@@ -30,7 +30,7 @@ public abstract class TaxAPI {
     @Nullable
     public abstract ITaxCollector GetTaxCollector(boolean isClient, long collectorID);
 
-    @Nullable
+    @Nonnull
     public final ITaxCollector GetServerTaxCollector(IClientTracker context) { return this.GetServerTaxCollector(context.isClient()); }
     @Nonnull
     public abstract ITaxCollector GetServerTaxCollector(boolean isClient);

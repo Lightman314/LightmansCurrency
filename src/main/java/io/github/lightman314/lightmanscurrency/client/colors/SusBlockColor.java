@@ -19,7 +19,7 @@ public class SusBlockColor implements BlockColor, ItemColor {
 
     @Override
     public int getColor(BlockState state, @Nullable BlockAndTintGetter level, @Nullable BlockPos pos, int layer) {
-        if(layer == 0 && level.getBlockEntity(pos) instanceof CoinJarBlockEntity jarBlock)
+        if(layer == 0 && level != null && pos != null && level.getBlockEntity(pos) instanceof CoinJarBlockEntity jarBlock)
             return jarBlock.getColor();
         return 0xFFFFFF;
     }

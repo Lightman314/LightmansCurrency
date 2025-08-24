@@ -86,9 +86,7 @@ public class TicketRecipe implements TicketStationRecipe {
     }
 
     @Override
-    public ItemStack peekAtResult(Container container, ExtraData data) {
-        return TicketItem.CraftTicket(container.getItem(0), this.ticketResult);
-    }
+    public ItemStack peekAtResult(Container container, ExtraData data) { return this.applyDurability(TicketItem.CraftTicket(container.getItem(0), this.ticketResult),data); }
 
     @Override
     public ItemStack assembleWithKiosk(ItemStack sellItem, ExtraData data) { return this.applyDurability(TicketItem.CraftTicket(sellItem,this.ticketResult),data); }

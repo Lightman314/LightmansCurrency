@@ -216,6 +216,7 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
                 if(first && not.getCount() > 1)
                     l = "[" + not.getCount() + "] " + l;
                 result.add(l);
+                first = false;
             }
         }
         return result.toArray(String[]::new);

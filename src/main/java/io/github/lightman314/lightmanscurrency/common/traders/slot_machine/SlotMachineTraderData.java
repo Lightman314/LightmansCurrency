@@ -57,7 +57,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.items.IItemHandler;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.text.DecimalFormat;
@@ -131,7 +130,6 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
         return null;
     }
 
-    @Nonnull
     public final List<Component> getSlotMachineInfo()
     {
         List<Component> tooltips = new ArrayList<>();
@@ -157,11 +155,11 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     }
 
     private final TraderItemStorage storage = new TraderItemStorage(this);
-    @Nonnull
+    
     public final TraderItemStorage getStorage() { return this.storage; }
 
     private SlotMachineTraderData() { super(TYPE); }
-    public SlotMachineTraderData(@Nonnull Level level, @Nonnull BlockPos pos) { super(TYPE, level, pos); }
+    public SlotMachineTraderData(Level level, BlockPos pos) { super(TYPE, level, pos); }
 
     private final ImmutableList<SlotMachineTrade> trade = ImmutableList.of(new SlotMachineTrade(this));
 
@@ -202,15 +200,15 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     public boolean hasValidTrade() { return this.entries.stream().anyMatch(SlotMachineEntry::isValid) && this.isPriceValid(); }
 
     @Override
-    protected void saveTrades(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { }
+    protected void saveTrades(CompoundTag compound, HolderLookup.Provider lookup) { }
 
     @Override
-    protected MenuProvider getTraderMenuProvider(@Nonnull MenuValidator validator) { return new SlotMachineMenuProvider(this.getID(), validator); }
+    protected MenuProvider getTraderMenuProvider(MenuValidator validator) { return new SlotMachineMenuProvider(this.getID(), validator); }
 
-    private record SlotMachineMenuProvider(long traderID, @Nonnull MenuValidator validator) implements EasyMenuProvider {
+    private record SlotMachineMenuProvider(long traderID, MenuValidator validator) implements EasyMenuProvider {
 
         @Override
-        public AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory inventory, @Nonnull Player player) { return new SlotMachineMenu(windowID, inventory, this.traderID, this.validator); }
+        public AbstractContainerMenu createMenu(int windowID, Inventory inventory, Player player) { return new SlotMachineMenu(windowID, inventory, this.traderID, this.validator); }
 
     }
 
@@ -220,7 +218,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     public final void markPriceDirty() { this.markDirty(this::savePrice); }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+    protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
         super.saveAdditional(compound,lookup);
         this.saveStorage(compound,lookup);
         this.saveLastRewards(compound,lookup);
@@ -228,9 +226,9 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
         this.savePrice(compound);
     }
 
-    protected final void saveStorage(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { this.storage.save(compound,"Storage",lookup); }
+    protected final void saveStorage(CompoundTag compound, HolderLookup.Provider lookup) { this.storage.save(compound,"Storage",lookup); }
 
-    protected final void saveLastRewards(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+    protected final void saveLastRewards(CompoundTag compound, HolderLookup.Provider lookup) {
         ListTag itemList = new ListTag();
         for(ItemStack reward : this.lastReward)
         {
@@ -241,7 +239,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
         compound.put("LastReward", itemList);
     }
 
-    protected final void saveEntries(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+    protected final void saveEntries(CompoundTag compound, HolderLookup.Provider lookup) {
         ListTag list = new ListTag();
         for(SlotMachineEntry entry : this.entries)
             list.add(entry.save(lookup));
@@ -251,7 +249,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     protected final void savePrice(CompoundTag compound) { compound.put("Price", this.price.save()); }
 
     @Override
-    protected void loadAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+    protected void loadAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
         super.loadAdditional(compound,lookup);
         if(compound.contains("Storage"))
             this.storage.load(compound, "Storage", lookup);
@@ -279,7 +277,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     }
 
     @Override
-    protected void saveAdditionalToJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) {
+    protected void saveAdditionalToJson(JsonObject json, HolderLookup.Provider lookup) {
         //Price
         json.add("Price", this.price.toJson());
         //Entries
@@ -293,7 +291,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     }
 
     @Override
-    protected void loadAdditionalFromJson(JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
+    protected void loadAdditionalFromJson(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
 
         if(json.has("Price"))
             this.price = MoneyValue.loadFromJson(json.get("Price"));
@@ -315,12 +313,12 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
 
     //No need for persistent data
     @Override
-    protected void saveAdditionalPersistentData(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+    protected void saveAdditionalPersistentData(CompoundTag compound, HolderLookup.Provider lookup) {
         this.saveLastRewards(compound,lookup);
     }
 
     @Override
-    protected void loadAdditionalPersistentData(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+    protected void loadAdditionalPersistentData(CompoundTag compound, HolderLookup.Provider lookup) {
         if(compound.contains("LastReward"))
         {
             this.lastReward = new ArrayList<>();
@@ -337,7 +335,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     @Override
     protected void getAdditionalContents(List<ItemStack> results) { results.addAll(this.storage.getSplitContents()); }
 
-    @Nonnull
+    
     @Override
     public List<SlotMachineTrade> getTradeData() { return this.trade; }
 
@@ -439,7 +437,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     public boolean canMakePersistent() { return true; }
 
     @Override
-    public void initStorageTabs(@Nonnull ITraderStorageMenu menu) {
+    public void initStorageTabs(ITraderStorageMenu menu) {
 
         //Set basic tab to Entry Edit Tab
         menu.setTab(TraderStorageTab.TAB_TRADE_BASIC, new SlotMachineEntryTab(menu));
@@ -460,7 +458,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     }
 
     @Override
-    public boolean allowExtraction(@Nonnull ItemStack stack) { return !this.isItemRelevant(stack); }
+    public boolean allowExtraction(ItemStack stack) { return !this.isItemRelevant(stack); }
 
     @Override
     public int getStorageStackLimit() {

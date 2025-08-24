@@ -7,6 +7,7 @@ import net.minecraft.network.codec.StreamCodec;
 
 import java.util.Objects;
 
+@Deprecated(since = "2.2.6.3")
 public record CouponData(int code, int color) {
 
     public static final Codec<CouponData> CODEC = RecordCodecBuilder.create(builder ->
