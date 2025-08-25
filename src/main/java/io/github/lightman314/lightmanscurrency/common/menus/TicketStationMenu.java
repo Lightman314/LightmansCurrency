@@ -207,6 +207,8 @@ public class TicketStationMenu extends LazyMessageMenu {
 			this.craftTickets(message.getBoolean("CraftTickets"), message.getResourceLocation("Recipe"));
 		if(message.contains("ChangeCode"))
 			this.setCode(message.getString("ChangeCode"));
+        if(message.contains("ChangeDurability"))
+            this.setDurability(message.getInt("ChangeDurability"));
 	}
 
 }

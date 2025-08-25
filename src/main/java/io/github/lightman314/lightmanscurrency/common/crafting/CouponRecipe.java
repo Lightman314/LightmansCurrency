@@ -62,6 +62,9 @@ public class CouponRecipe implements TicketStationRecipe {
     @Override
     public boolean requiredCodeInput() { return true; }
     @Override
+    public DurabilityData getDurabilityData() { return this.durability; }
+
+    @Override
     public boolean validModifier(ItemStack stack) { return stack.isEmpty() || stack.is(Tags.Items.DYES); }
     @Override
     public boolean validIngredient(ItemStack stack) { return this.ingredient.test(stack); }

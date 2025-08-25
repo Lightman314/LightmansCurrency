@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.items;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
@@ -54,6 +55,7 @@ public class CouponItem extends Item {
         CompoundTag tag = stack.getOrCreateTag();
         tag.putInt("CouponCode",code.hashCode());
         tag.putInt("CouponColor",color);
+        LightmansCurrency.LogDebug("Crafted Coupon with code '" + code + "' and durability '" + durability + "'!");
         //Set durability
         if(durability > 0)
             TicketItem.setUseCount(stack,durability);

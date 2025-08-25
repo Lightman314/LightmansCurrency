@@ -58,7 +58,9 @@ public class TicketRecipe implements TicketStationRecipe {
     @Override
     public boolean validIngredient(ItemStack stack) { return this.ingredient.test(stack); }
 
-    
+    @Override
+    public DurabilityData getDurabilityData() { return this.durability; }
+
     @Override
     public ItemStack assemble(TicketStationRecipeInput container, RegistryAccess registryAccess) { return this.applyDurability(TicketItem.CraftTicket(container.getItem(0), this.ticketResult),container.data); }
 
