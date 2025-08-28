@@ -35,24 +35,9 @@ public class ConfiguredItemListing implements VillagerTrades.ItemListing
     public MerchantOffer getOffer(@Nonnull Entity trader, @Nonnull RandomSource random) {
         try {
             int attempts = 0;
-            MerchantOffer offer;
-            do {
-                offer = this.tradeSource.getOffer(trader, random);
-            } while(offer == null && attempts++ < 10);
-
-            if(attempts > 1)
-            {
-                if(offer == null)
-                {
-                    LightmansCurrency.LogDebug("Original Item Listing Class: " + this.tradeSource.getClass().getName());
-                    throw new NullPointerException("The original Item Listing of the converted trade returned a null trade offer " + attempts + " times!");
-                }
-                else
-                {
-                    LightmansCurrency.LogDebug("Original Item Listing Class: " + this.tradeSource.getClass().getName());
-                    LightmansCurrency.LogDebug("Converted Trade took " + attempts + " attempts to receive a non-null trade offer from the original Item Listing!");
-                }
-            }
+            MerchantOffer offer = this.tradeSource.getOffer(trader, random);
+            if(offer == null)
+                return null;
 
             assert offer != null;
             VillagerTradeMod mod = this.modSupplier.get();
@@ -64,7 +49,7 @@ public class ConfiguredItemListing implements VillagerTrades.ItemListing
 
             return new MerchantOffer(itemA, itemB, itemC, offer.getUses(), offer.getMaxUses(), offer.getXp(), offer.getPriceMultiplier(), offer.getDemand());
         } catch(Throwable t) {
-            LightmansCurrency.LogDebug("Error converting trade:", t);
+            LightmansCurrency.LogWarning("Error converting trade:", t);
             return null;
         }
     }
