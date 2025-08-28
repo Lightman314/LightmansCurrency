@@ -13,10 +13,7 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 @MethodsReturnNonnullByDefault
@@ -69,7 +66,7 @@ public class CouponSource implements IDiscountCodeSource {
     @Override
     public boolean consumeCode(String code) {
         int hash = code.hashCode();
-        List<Pair<Integer,Integer>> targets = null;
+        List<Pair<Integer,Integer>> targets = new ArrayList<>();
         for(int i = 0; i < this.container.getSlots(); ++i)
         {
             ItemStack item = this.container.getStackInSlot(i).copy();
