@@ -135,6 +135,11 @@ dependencies {
     compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
     localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
 
+    //Patchouli
+    implementation "maven.modrinth:patchouli:1.21.1-92-neoforge"
+    runtimeOnly "maven.modrinth:open-loader:Szobbnyh"
+    runtimeOnly "maven.modrinth:prickle:jGBdTRi5"
+
     //REI
     compileOnly "me.shedaniel:RoughlyEnoughItems-api-neoforge:$rei_version"
     compileOnly "me.shedaniel:RoughlyEnoughItems-default-plugin-neoforge:$rei_version"

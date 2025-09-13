@@ -1,9 +1,12 @@
 package io.github.lightman314.lightmanscurrency.util;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class ListUtil {
@@ -37,5 +40,25 @@ public class ListUtil {
 
     @Nonnull
     public static <T> T randomItemFromCollection(@Nonnull Collection<T> collection, @Nonnull Supplier<T> emptyEntry) { return randomItemFromList(collection.stream().toList(),emptyEntry); }
+
+    @Nullable
+    public static <T> T weightedRandomItemFromList(List<T> list, Function<T,Integer> weightGetter)
+    {
+        int totalWeight = 0;
+        for(T entry : list)
+            totalWeight += weightGetter.apply(entry);
+        if(totalWeight <= 0)
+            return null;
+        int random = new Random().nextInt(totalWeight);
+        int index = 0;
+        while(index < list.size())
+        {
+            T entry = list.get(index++);
+            random -= weightGetter.apply(entry);
+            if(random < 0)
+                return entry;
+        }
+        return null;
+    }
 
 }

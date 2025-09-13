@@ -579,27 +579,6 @@ public class InventoryUtil {
 		return itemList;
 	}
 
-	public static List<ItemRequirement> combineRequirements(ItemRequirement... requirements)
-	{
-		List<ItemRequirement> list = new ArrayList<>();
-		for(ItemRequirement requirement : requirements)
-		{
-			if(!requirement.isNull())
-			{
-                for (ItemRequirement r : list) {
-                    if(r.tryMerge(requirement))
-                        break;
-                }
-				if(!requirement.isNull())
-					list.add(requirement);
-			}
-		}
-		return list;
-	}
-
-
-
-
     
     /**
      * Determines whether the two item stacks are the same item/nbt. Ignores quantity of the items in the stack

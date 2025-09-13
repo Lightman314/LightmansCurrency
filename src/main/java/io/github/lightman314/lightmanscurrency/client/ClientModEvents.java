@@ -210,6 +210,8 @@ public class ClientModEvents {
 		event.register(ModMenus.ATM_CARD.get(), ATMCardScreen::new);
 
 		event.register(ModMenus.VARIANT_SELECT.get(), VariantSelectScreen::new);
+
+        event.register(ModMenus.ITEM_FILTER.get(), ItemFilterScreen::new);
 	}
 
 	@SubscribeEvent

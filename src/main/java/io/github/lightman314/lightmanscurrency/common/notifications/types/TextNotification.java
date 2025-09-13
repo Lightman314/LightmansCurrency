@@ -17,13 +17,13 @@ public class TextNotification extends SingleLineNotification {
 
 	public static final NotificationType<TextNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("text"),TextNotification::new);
 	
-	private MutableComponent text = EasyText.literal("");
+	private Component text = EasyText.literal("");
 	private NotificationCategory category = NullCategory.INSTANCE;
 
 	private TextNotification() {}
 
-	public TextNotification(MutableComponent text){ this(text, NullCategory.INSTANCE); }
-	public TextNotification(MutableComponent text, NotificationCategory category) { this.text = text; this.category = category; }
+	public TextNotification(Component text){ this(text, NullCategory.INSTANCE); }
+	public TextNotification(Component text, NotificationCategory category) { this.text = text; this.category = category; }
 
 	public static Supplier<Notification> create(MutableComponent text) { return () -> new TextNotification(text); }
 	public static Supplier<Notification> create(MutableComponent text, NotificationCategory category) { return () -> new TextNotification(text, category); }
@@ -38,7 +38,7 @@ public class TextNotification extends SingleLineNotification {
 
 	@Nonnull
 	@Override
-	public MutableComponent getMessage() { return text; }
+	public MutableComponent getMessage() { return EasyText.makeMutable(text); }
 
 	@Override
 	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {

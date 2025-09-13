@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permis
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
@@ -95,7 +96,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 				.icon(IconUtil.ICON_TRADER_ALT)
 				.addon(EasyAddonHelper.activeCheck(this.commonTab::canOpenMultiEdit))
 				.addon(EasyAddonHelper.visibleCheck(this.commonTab::allowTradeSelection))
-				.addon(EasyAddonHelper.tooltip(this::multiEditTooltip))
+				.addon(EasyAddonHelper.tooltips(this::multiEditTooltip, TooltipHelper.DEFAULT_TOOLTIP_WIDTH))
 				.build());
 
 		this.screen.getRightEdgePositioner().addWidgets(this.buttonSelectAllTrades,this.buttonOpenMultiEdit);
@@ -138,7 +139,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	private IconData selectAllIcon() { return this.commonTab.allTradesSelected() ? IconUtil.ICON_MINUS : IconUtil.ICON_PLUS; }
 	private Component selectAllTooltip() { return this.commonTab.allTradesSelected() ? LCText.TOOLTIP_TRADER_DESELECT_ALL_TRADES.get() : LCText.TOOLTIP_TRADER_SELECT_ALL_TRADES.get(); }
 
-	private Component multiEditTooltip() { return LCText.TOOLTIP_TRADER_OPEN_MULTI_EDIT_SELECTED.get(this.commonTab.selectedCount()); }
+	private List<Component> multiEditTooltip() { return Lists.newArrayList(LCText.TOOLTIP_TRADER_OPEN_MULTI_EDIT_SELECTED.get(this.commonTab.selectedCount())); }
 
 	@Override
 	public void HandleTradeInputInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data, int index) {

@@ -36,6 +36,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITrader
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.api.traders.settings.builtin.*;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.info.InfoSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.info.TraderInfoClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.info.core.TaxInfoClientTab;
@@ -48,6 +49,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.addons.MiscTabAddon;
 import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVariantSupportingBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
+import io.github.lightman314.lightmanscurrency.common.core.ModStats;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.TraderEjectionData;
 import io.github.lightman314.lightmanscurrency.common.items.data.TraderItemData;
@@ -68,9 +70,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHo
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
-import io.github.lightman314.lightmanscurrency.util.EnumUtil;
-import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import io.github.lightman314.lightmanscurrency.util.*;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
@@ -106,7 +106,6 @@ import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEv
 import io.github.lightman314.lightmanscurrency.network.message.trader.SPacketSyncUsers;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -291,6 +290,8 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	@Override
 	public final OwnerData getOwner() { return this.owner; }
 
+    private long lastInteraction = 0;
+    public long getLastInteractionTime() { return this.lastInteraction; }
 	public final StatTracker statTracker = new StatTracker(() -> {},this);
 
 	private final List<PlayerReference> allies = new ArrayList<>();
@@ -689,6 +690,8 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	}
 	public boolean supportsMultiPriceEditing() { return true; }
 
+    public List<TradeDirection> validDirectionOptions() { return List.of(); }
+
 	private int acceptableTaxRate = 99;
 	public final int getAcceptableTaxRate() { return this.acceptableTaxRate; }
 	public void setAcceptableTaxRate(int acceptableTaxRate) { this.acceptableTaxRate = MathUtil.clamp(acceptableTaxRate,0,99); }
@@ -802,11 +805,17 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		this.creative = true;
 		this.alwaysShowOnTerminal = true;
 	}
+
+    protected final void markDirtyNoPacket() {
+        if(this.isClient || !this.canMarkDirty)
+            return;
+        TraderDataCache.TYPE.get(false).markTraderDirty(null);
+    }
 	
 	protected final void markDirty(CompoundTag updateData) {
 		if(this.isClient || !this.canMarkDirty)
 			return;
-		updateData.putLong("ID", this.id);
+        updateData.putLong("ID", this.id);
 		TraderDataCache.TYPE.get(false).markTraderDirty(updateData);
 	}
 
@@ -822,7 +831,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		if(this.isClient || !this.canMarkDirty)
 			return;
 		CompoundTag updateData = new CompoundTag();
-		updateWriter.accept(updateData,LookupHelper.getRegistryAccess());
+		updateWriter.accept(updateData,this.registryAccess());
 		this.markDirty(updateData);
 	}
 	
@@ -895,6 +904,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 
 	protected final void saveStatistics(CompoundTag tag, HolderLookup.Provider lookup) {
 		tag.put("Stats", this.statTracker.save(lookup));
+        tag.putLong("LastInteraction",this.lastInteraction);
 	}
 
 	private void saveCreativeSettings(CompoundTag tag) {
@@ -1060,6 +1070,8 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 
 		if(compound.contains("Stats"))
 			this.statTracker.load(compound.getCompound("Stats"), lookup);
+        if(compound.contains("LastInteraction"))
+            this.lastInteraction = compound.getLong("LastInteraction");
 
 		//Settings
 		//Creative Settings
@@ -1236,9 +1248,11 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		return event;
 	}
 
-	public void runPostTradeEvent(TradeData trade, TradeContext context, MoneyValue cost, MoneyValue taxesPaid)
+	public void runPostTradeEvent(TradeData trade, TradeContext context, MoneyValue cost, MoneyValue taxesPaid) { this.runPostTradeEvent(trade,context,cost,taxesPaid,new ArrayList<>()); }
+	public void runPostTradeEvent(TradeData trade, TradeContext context, MoneyValue cost, MoneyValue taxesPaid,Object product) { this.runPostTradeEvent(trade,context,cost,taxesPaid,Lists.newArrayList(product)); }
+	public void runPostTradeEvent(TradeData trade, TradeContext context, MoneyValue cost, MoneyValue taxesPaid,List<?> product)
 	{
-		PostTradeEvent event = new PostTradeEvent(trade, context, cost, taxesPaid);
+		PostTradeEvent event = new PostTradeEvent(trade,context,cost,taxesPaid,product);
 		
 		//Trader trade rules
 		for(TradeRule rule : this.rules)
@@ -1433,8 +1447,13 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		{
 			//Increment trades executed
 			this.incrementStat(StatKeys.Traders.TRADES_EXECUTED,1);
+            this.lastInteraction = TimeUtil.getCurrentTime();
 			//Mark Stats as changed
 			this.markStatsDirty();
+            Player player = context.getPlayer();
+            //Award stats
+            if(player != null)
+                player.awardStat(ModStats.STAT_TRADES);
 		}
 		return result;
 	}

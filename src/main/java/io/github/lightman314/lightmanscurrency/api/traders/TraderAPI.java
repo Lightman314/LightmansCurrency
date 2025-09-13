@@ -3,6 +3,8 @@ package io.github.lightman314.lightmanscurrency.api.traders;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITradeSearchFilter;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITraderSearchFilter;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.SortTypeKey;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.TerminalSortType;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.impl.TraderAPIImpl;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
@@ -151,6 +153,29 @@ public abstract class TraderAPI {
      * @see #RegisterTradeSearchFilter(ITradeSearchFilter)
      */
     public abstract <T extends ITraderSearchFilter & ITradeSearchFilter> void RegisterSearchFilter(@Nonnull T filter);
+
+    /**
+     * Registers the given {@link TerminalSortType} as a valid sort type option
+     */
+    public abstract void RegisterSortType(TerminalSortType sortType);
+
+    @Nullable
+    public abstract TerminalSortType GetSortType(ResourceLocation key);
+    @Nullable
+    public abstract TerminalSortType GetSortType(SortTypeKey key);
+
+    /**
+     * Returns a list of all registered {@link TerminalSortType}'s
+     * @see #RegisterSortType(TerminalSortType)
+     */
+    public abstract List<TerminalSortType> GetAllSortTypes();
+
+    /**
+     * Returns a list of keys for all registered {@link TerminalSortType}
+     * @see #GetSortType(ResourceLocation)
+     * @see #GetAllSortTypes()
+     */
+    public abstract List<SortTypeKey> GetAllSortTypeKeys();
 
     /**
      * @deprecated Use {@link #GetTrader(IClientTracker, long)} instead.

@@ -7,9 +7,14 @@ import java.util.Objects;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.SortTypeKey;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.TerminalSortType;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown.DropdownWidget;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
@@ -29,6 +34,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 
@@ -40,6 +46,8 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 	private int searchWidth = 118;
 	private static int scroll = 0;
 	private static String lastSearch = "";
+    private DropdownWidget sortSelection;
+    private List<TerminalSortType> sortTypeCache;
 	
 	ScrollBarWidget scrollBar;
 
@@ -51,10 +59,29 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 	private List<TraderData> traderList(){
 		List<TraderData> traderList = TraderAPI.API.GetAllNetworkTraders(true);
 		//No longer need to remove the auction house, as the 'showInTerminal' function now confirms the auction houses enabled/visible status.
-		traderList.sort(TerminalSorter.getDefaultSorter());
+		traderList.sort(TerminalSorter.getDefaultSorter(getLatestSorter()));
 		return traderList;
 	}
 	private List<TraderData> filteredTraderList = new ArrayList<>();
+    private static TerminalSortType latestSorter = null;
+    private static TerminalSortType getLatestSorter()
+    {
+        if(latestSorter == null)
+        {
+            //Utilize the default sort option
+            latestSorter = getConfiguredSortType();
+            //If the default option doesn't exist, use the highest priority option instead
+            if(latestSorter == null)
+                latestSorter = TraderAPI.API.GetAllSortTypes().getFirst();
+        }
+        return latestSorter;
+    }
+    @Nullable
+    private static TerminalSortType getConfiguredSortType()
+    {
+        SortTypeKey key = SortTypeKey.parse(LCConfig.CLIENT.terminalDefaultSorting.get());
+        return TraderAPI.API.GetSortType(key);
+    }
 
 	public NetworkTerminalScreen(TerminalMenu menu, Inventory inventory, Component ignored)
 	{
@@ -91,7 +118,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 
 		screenArea = this.calculateSize();
 
-		this.searchWidth = 50 + ((this.columns - 1) * NetworkTraderButton.WIDTH);
+		this.searchWidth = (this.columns - 1) * NetworkTraderButton.WIDTH;
 
 		this.searchField = this.addChild(new EditBox(this.font, screenArea.x + 28, screenArea.y + 10, this.searchWidth - 17, 9, this.searchField, LCText.GUI_NETWORK_TERMINAL_SEARCH.get()));
 		this.searchField.setBordered(false);
@@ -99,6 +126,23 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 		this.searchField.setTextColor(0xFFFFFF);
 		this.searchField.setValue(lastSearch);
 		this.searchField.setResponder(this::onSearchChanged);
+
+        //Sort Type Selection
+        this.sortTypeCache = TraderAPI.API.GetAllSortTypes();
+        this.addChild(DropdownWidget.builder()
+                .position(screenArea.pos.offset(screenArea.width - NetworkTraderButton.WIDTH + 18,8))
+                .width(NetworkTraderButton.WIDTH - 44)
+                .options(this.sortTypeCache.stream().map(TerminalSortType::getName).toList())
+                .selected(this.getStartingSortIndex())
+                .selectAction(this::changeSortType)
+                .build());
+
+        this.addChild(PlainButton.builder()
+                .position(screenArea.pos.offset(screenArea.width - NetworkTraderButton.WIDTH,8))
+                .sprite(Sprite.SimpleSprite(GUI_TEXTURE,100,14,12,12))
+                .addon(EasyAddonHelper.visibleCheck(this::canSaveSortType))
+                .pressAction(this::saveSortType)
+                .build());
 
 		this.addChild(IconButton.builder()
 				.position(screenArea.pos.offset(screenArea.width - 24,4))
@@ -204,11 +248,13 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 		if(!extra.isBlank())
 		{
 			fullSearch = fullSearch.append(extra);
-			if(!extra.endsWith(" "))
-				fullSearch.append(" ");
 		}
 		if(!this.searchField.getValue().isBlank())
-			fullSearch.append(this.searchField.getValue());
+        {
+            if(!fullSearch.isEmpty())
+                fullSearch.append(" ");
+            fullSearch.append(this.searchField.getValue());
+        }
 		this.filteredTraderList = TraderAPI.API.FilterTraders(this.traderList(), fullSearch.toString());
 		//Validate the scroll
 		this.validateScroll();
@@ -239,6 +285,21 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 
 	@Override
 	public int getMaxScroll() { return IScrollable.calculateMaxScroll(this.columns * this.rows, this.columns, this.filteredTraderList.size()); }
+
+    private int getStartingSortIndex() { return Math.max(0,this.sortTypeCache.indexOf(getLatestSorter())); }
+
+    private boolean canSaveSortType() { return getConfiguredSortType() != latestSorter; }
+
+    private void changeSortType(int newIndex)
+    {
+        if(this.sortTypeCache != null && newIndex >= 0 && newIndex < this.sortTypeCache.size())
+        {
+            latestSorter = this.sortTypeCache.get(newIndex);
+            this.updateTraderList();
+        }
+    }
+
+    private void saveSortType() { LCConfig.CLIENT.terminalDefaultSorting.set(getLatestSorter().getKey().toString()); }
 
 	private void OpenAllTraders(EasyButton button) { new CPacketOpenTrades(-1).send(); }
 

@@ -33,7 +33,10 @@ public class EasyScreenHelper {
     public static void RenderTooltips(@Nonnull EasyGuiGraphics gui, @Nonnull List<ITooltipSource> tooltipSources)
     {
         for(ITooltipSource tooltipSource : tooltipSources)
-            tooltipSource.renderTooltip(gui);
+        {
+            if(tooltipSource.renderTooltip(gui))
+                return;
+        }
     }
 
     public static List<Component> getTooltipFromItem(ItemStack item) { return item.isEmpty() ? new ArrayList<>() : Screen.getTooltipFromItem(Minecraft.getInstance(), item); }

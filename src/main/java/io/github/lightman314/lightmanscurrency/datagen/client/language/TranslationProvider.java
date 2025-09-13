@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.text.*;
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
@@ -104,6 +105,14 @@ public abstract class TranslationProvider extends LanguageProvider {
     protected final void translateAncientCoinInitial(@Nonnull AncientCoinType type, @Nonnull String text)
     {
         this.translate(new TextEntry(type.initialKey()),text);
+    }
+
+
+    protected final void translateGuide(ResourceLocation guide, String name, String landingText)
+    {
+        String prefix = "guide." + guide.getNamespace() + "." + guide.getPath() + ".";
+        this.add(prefix + "name",name);
+        this.add(prefix + "landing_text",landingText);
     }
 
 }

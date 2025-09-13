@@ -34,7 +34,7 @@ public class BookTraderBlockEntityRenderer implements BlockEntityRenderer<BookTr
             ItemTradeData trade = trader.getTrade(tradeSlot);
             if(trade.hasStock(trader))
             {
-                BookRenderer renderer = GetRenderer(ItemTraderBlockEntityRenderer.GetRenderItems(trade));
+                BookRenderer renderer = GetRenderer(ItemTraderBlockEntityRenderer.GetRenderItems(trade,trader));
 
                 if(renderer != null)
                 {

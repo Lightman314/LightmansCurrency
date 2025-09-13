@@ -16,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.common.core.ModStats;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
@@ -341,6 +342,32 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
 	}
 
+    public void AwardAuctionWinStat(PlayerReference lastBidder)
+    {
+        Player player = lastBidder.getPlayer();
+        if(player != null)
+            player.awardStat(ModStats.STAT_AUCTION_WINS);
+        else
+        {
+            AuctionPlayerStorage storage = this.getStorage(lastBidder);
+            storage.pendingWinStats++;
+            this.markDirtyNoPacket();
+        }
+    }
+
+    public void onPlayerJoin(Player player)
+    {
+        if(this.storage.containsKey(player.getUUID()))
+        {
+            AuctionPlayerStorage storage = this.getStorage(player);
+            if(storage.pendingWinStats > 0)
+            {
+                player.awardStat(ModStats.STAT_AUCTION_WINS,storage.pendingWinStats);
+                storage.pendingWinStats = 0;
+                this.markDirtyNoPacket();
+            }
+        }
+    }
 	
     @Override
 	public List<? extends TradeData> getTradeData() { return this.trades == null ? new ArrayList<>() : this.trades; }

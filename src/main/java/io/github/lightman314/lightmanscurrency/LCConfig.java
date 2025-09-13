@@ -8,6 +8,8 @@ import io.github.lightman314.lightmanscurrency.api.config.options.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.events.DroplistConfigGenerator;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.SortTypeKey;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.types.SortByName;
 import io.github.lightman314.lightmanscurrency.client.config.CustomItemScaleConfigOption;
 import io.github.lightman314.lightmanscurrency.client.config.CustomItemScaleData;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
@@ -81,6 +83,7 @@ public final class LCConfig {
         public final IntOption terminalColumnLimit = IntOption.create(4,2,100);
         public final IntOption terminalRowLimit = IntOption.create(16,4,100);
         public final StringOption terminalBonusFilters = StringOption.create("ready:true");
+        public final StringOption terminalDefaultSorting = StringOption.create(SortByName.INSTANCE.getID().toString());
 
         public final BooleanOption debugScreens = BooleanOption.createFalse();
 
@@ -151,6 +154,12 @@ public final class LCConfig {
 
             builder.comment("A default search filter that will be automatically added to the search parameters")
                     .add("searchFilter",this.terminalBonusFilters);
+
+            builder.comment("The default sorting mode that will be automatically selected when you first open the terminal",
+                            "Note: The game will remember your last selection option within the same session, so editing this after the screen has been opened will not change anything until you close and re-open your game.",
+                            "Options: ",
+                            SortTypeKey.getExampleListSupplier(true))
+                    .add("defaultSortMode",this.terminalDefaultSorting);
 
             builder.pop();
 

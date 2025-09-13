@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.core.MultiPriceClientTab;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
@@ -60,8 +61,20 @@ public class MultiPriceTab extends TraderStorageTab {
             trader.markTradesDirty();
             if(this.isClient())
                 this.menu.SendMessage(this.builder().setMoneyValue("SetAllPrices",price));
-            else
-                this.menu.ChangeTab(TraderStorageTab.TAB_TRADE_BASIC);
+        }
+    }
+
+    public void setTradeDirection(TradeDirection direction)
+    {
+        TraderData trader = this.menu.getTrader();
+        if(trader != null)
+        {
+            //Edit All Trades
+            for(TradeData trade : this.getSelectedTrades())
+                trade.setTradeDirection(direction);
+            trader.markTradesDirty();
+            if(this.isClient())
+                this.menu.SendMessage(this.builder().setInt("SetAllTradeTypes",direction.ordinal()));
         }
     }
 
@@ -69,6 +82,8 @@ public class MultiPriceTab extends TraderStorageTab {
     public void receiveMessage(LazyPacketData message) {
         if(message.contains("SetAllPrices"))
             this.setPrices(message.getMoneyValue("SetAllPrices"));
+        if(message.contains("SetAllTradeTypes"))
+            this.setTradeDirection(TradeDirection.fromIndex(message.getInt("SetAllTradeTypes")));
     }
 
     @Override

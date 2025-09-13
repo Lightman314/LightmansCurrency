@@ -3,8 +3,11 @@ package io.github.lightman314.lightmanscurrency.common.blockentity.trader;
 import java.util.List;
 import java.util.UUID;
 
+import io.github.lightman314.lightmanscurrency.api.filter.FilterAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.IItemTradeFilter;
+import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -126,9 +129,9 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 					{
 						if(thisTrade.hasStock(trader) || trader.isCreative())
 						{
-							ItemStack item = thisTrade.getSellItem(0);
+							ItemStack item = getDisplayItem(thisTrade,trader,0);
 							if(item.isEmpty())
-								item = thisTrade.getSellItem(1);
+								item = getDisplayItem(thisTrade,trader,1);
 							armorStand.setItemSlot(slot, item);
 						}
 						else
@@ -139,6 +142,19 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 			
 		}
 	}
+
+    private static ItemStack getDisplayItem(ItemTradeData trade, ItemTraderData trader, int index)
+    {
+        ItemStack internalItem = trade.getActualItem(index);
+        IItemTradeFilter filter = FilterAPI.tryGetFilter(internalItem);
+        if(filter != null && trade.allowFilters())
+        {
+            List<ItemStack> displayItems = filter.getDisplayableItems(internalItem,trader.getStorage());
+            return ListUtil.randomItemFromList(displayItems,ItemStack.EMPTY);
+        }
+        else
+            return trade.getSellItem(index);
+    }
 
 	public void killIntrudingArmorStands() {
 		ArmorStand armorStand = this.getArmorStand();

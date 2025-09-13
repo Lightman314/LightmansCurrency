@@ -32,14 +32,21 @@ public abstract class LCPeripheral implements IPeripheral {
         boolean wasEmpty = !this.computers.hasComputers();
         this.computers.add(computer);
         if(wasEmpty && this.eventListener())
-            NeoForge.EVENT_BUS.register(this);
+            this.onFirstAttachment();
     }
+
+    protected void onFirstAttachment() { NeoForge.EVENT_BUS.register(this); }
 
     @Override
     public void detach(IComputerAccess computer) {
         this.computers.remove(computer);
         if(this.eventListener() && !this.computers.hasComputers())
-            NeoForge.EVENT_BUS.unregister(this);
+            this.onLastDetachment();
+    }
+
+    protected void onLastDetachment()
+    {
+        NeoForge.EVENT_BUS.unregister(this);
     }
 
 }

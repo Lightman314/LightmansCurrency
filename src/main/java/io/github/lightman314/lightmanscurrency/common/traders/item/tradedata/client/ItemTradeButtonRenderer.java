@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.cl
 
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.filter.FilterAPI;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
@@ -12,9 +13,11 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
+import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.IItemTradeFilter;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -25,6 +28,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +38,9 @@ import java.util.function.Consumer;
 public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
 
     public static final ResourceLocation NBT_SLOT = VersionUtil.lcResource("item/empty_nbt_highlight");
+    public static final ResourceLocation FILTER_SLOT = VersionUtil.lcResource("item/filter_highlight");
     public static final Pair<ResourceLocation,ResourceLocation> NBT_BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS,NBT_SLOT);
+    public static final Pair<ResourceLocation,ResourceLocation> FILTER_BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS,FILTER_SLOT);
 
     public ItemTradeButtonRenderer(ItemTradeData trade) { super(trade); }
 
@@ -77,13 +83,45 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
         List<DisplayEntry> entries = new ArrayList<>();
         for(int i = 0; i < 2; ++i)
         {
-            ItemStack item = this.trade.getSellItem(i);
-            if(!item.isEmpty())
-                entries.add(ItemAndBackgroundEntry.of(item, this.getSaleItemTooltip(item, this.trade.getCustomName(i), this.trade.getEnforceNBT(i), context, i), this.getNBTHightlight(this.trade.getEnforceNBT(i))));
-            else if(context.isStorageMode)
-                entries.add(this.makeEmptySlot(this.trade.getRestriction().getEmptySlotBG(),context));
+            DisplayEntry entry = this.getSaleItemEntry(context,i);
+            if(entry != null)
+                entries.add(entry);
         }
         return entries;
+    }
+
+    @Nullable
+    private DisplayEntry getSaleItemEntry(TradeContext context, int index)
+    {
+        ItemStack internalItem = this.trade.getActualItem(index);
+        IItemTradeFilter filter = FilterAPI.tryGetFilter(internalItem);
+        if(filter != null && this.trade.allowFilters() && filter.getFilter(internalItem) != null && context.getTrader() instanceof ItemTraderData trader)
+        {
+            List<ItemStack> displayItems;
+            if(this.trade.isSale())
+                displayItems = filter.getDisplayableItems(internalItem,trader.getStorage());
+            else
+                displayItems = filter.getDisplayableItems(internalItem,null);
+            ItemStack displayItem = ListUtil.randomItemFromList(displayItems,internalItem);
+            List<Component> tooltip = new ArrayList<>();
+            List<Component> customTooltip = filter.getCustomTooltip(internalItem);
+            if(customTooltip != null)
+                tooltip.addAll(customTooltip);
+            this.addItemEditInfo(tooltip,context);
+            //Stock Info
+            if(!context.isStorageMode && context.hasPlayerReference())
+            {
+                tooltip.add(LCText.TOOLTIP_TRADE_INFO_TITLE.getWithStyle(ChatFormatting.GOLD));
+                tooltip.add(this.getStockTooltip(trader.isCreative(), this.trade.getStock(context)));
+            }
+            return ItemAndBackgroundEntry.of(displayItem,tooltip,FILTER_BACKGROUND);
+        }
+        ItemStack item = this.trade.getSellItem(index);
+        if(!item.isEmpty())
+            return ItemAndBackgroundEntry.of(item, this.getSaleItemTooltip(item, this.trade.getCustomName(index), this.trade.getEnforceNBT(index), context, index), this.getNBTHightlight(this.trade.getEnforceNBT(index)));
+        else if(context.isStorageMode)
+            return this.makeEmptySlot(this.trade.getRestriction().getEmptySlotBG(),context);
+        return null;
     }
 
     private Consumer<List<Component>> getSaleItemTooltip(ItemStack stack, String customName, boolean enforceNBT, TradeContext context, int index)
@@ -98,7 +136,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
             }
 
             this.addNBTWarning(tooltips, this.trade.isPurchase(), enforceNBT);
-            this.addItemEditInfo(tooltips, context.isStorageMode, context);
+            this.addItemEditInfo(tooltips, context);
 
             //Stop here if this is in storage mode, and there's no custom name
             if(context.isStorageMode && originalName == null)
@@ -125,13 +163,35 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
         List<DisplayEntry> entries = new ArrayList<>();
         for(int i = 0; i < 2; ++i)
         {
-            ItemStack item = this.trade.getBarterItem(i);
-            if(!item.isEmpty())
-                entries.add(ItemAndBackgroundEntry.of(item, this.getBarterTooltips(this.trade.getEnforceNBT(i + 2), context.isStorageMode, context), this.getNBTHightlight(this.trade.getEnforceNBT(i + 2))));
-            else if(context.isStorageMode)
-                entries.add(this.makeEmptySlot(EasySlot.BACKGROUND,context));
+            DisplayEntry entry = this.getBarterEntry(context,i);
+            if(entry != null)
+                entries.add(entry);
         }
         return entries;
+    }
+
+    @Nullable
+    private DisplayEntry getBarterEntry(TradeContext context, int index)
+    {
+        ItemStack internalItem = this.trade.getActualItem(index + 2);
+        IItemTradeFilter filter = FilterAPI.tryGetFilter(internalItem);
+        if(filter != null && this.trade.allowFilters() && filter.getFilter(internalItem) != null && context.getTrader() instanceof ItemTraderData trader)
+        {
+            List<ItemStack> displayItems = filter.getDisplayableItems(internalItem,null);
+            ItemStack displayItem = ListUtil.randomItemFromList(displayItems,internalItem);
+            List<Component> tooltip = new ArrayList<>();
+            List<Component> customTooltip = filter.getCustomTooltip(internalItem);
+            if(customTooltip != null)
+                tooltip.addAll(customTooltip);
+            this.addItemEditInfo(tooltip,context);
+            return ItemAndBackgroundEntry.of(displayItem,tooltip,FILTER_BACKGROUND);
+        }
+        ItemStack item = this.trade.getBarterItem(index);
+        if(!item.isEmpty())
+            return ItemAndBackgroundEntry.of(item, this.getBarterTooltips(this.trade.getEnforceNBT(index + 2), context), this.getNBTHightlight(this.trade.getEnforceNBT(index + 2)));
+        else if(context.isStorageMode)
+            return this.makeEmptySlot(EasySlot.BACKGROUND,context);
+        return null;
     }
 
     private DisplayEntry makeEmptySlot(Pair<ResourceLocation,ResourceLocation> background, TradeContext context)
@@ -143,9 +203,9 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
         return enforceNBT ? null : NBT_BACKGROUND;
     }
 
-    private void addItemEditInfo(@Nonnull List<Component> tooltips, boolean isStorageMode, TradeContext context)
+    private void addItemEditInfo(@Nonnull List<Component> tooltips, TradeContext context)
     {
-        if(isStorageMode && this.hasPermission(context,Permissions.EDIT_TRADES))
+        if(context.isStorageMode && this.hasPermission(context,Permissions.EDIT_TRADES))
             tooltips.addFirst(LCText.TOOLTIP_TRADE_ITEM_EDIT_SHIFT.getWithStyle(ChatFormatting.YELLOW));
     }
 
@@ -155,10 +215,10 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
             tooltips.addFirst((purchase ? LCText.TOOLTIP_TRADE_ITEM_NBT_WARNING_PURCHASE.get() : LCText.TOOLTIP_TRADE_ITEM_NBT_WARNING_SALE.get()).withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD));
     }
 
-    private Consumer<List<Component>> getBarterTooltips(boolean enforceNBT, boolean isStorageMode, TradeContext context) {
+    private Consumer<List<Component>> getBarterTooltips(boolean enforceNBT, TradeContext context) {
         return tooltips -> {
             this.addNBTWarning(tooltips, true, enforceNBT);
-            this.addItemEditInfo(tooltips, isStorageMode, context);
+            this.addItemEditInfo(tooltips, context);
         };
     }
 

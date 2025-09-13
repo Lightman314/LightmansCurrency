@@ -43,8 +43,6 @@ public class IntOption extends ConfigOption<Integer> {
     public static IntOption create(@Nonnull Supplier<Integer> defaultValue) { return new IntOption(defaultValue, Integer.MIN_VALUE, Integer.MAX_VALUE); }
     public static IntOption create(@Nonnull Supplier<Integer> defaultValue, int lowerLimit) { return new IntOption(defaultValue, lowerLimit, Integer.MAX_VALUE); }
     public static IntOption create(@Nonnull Supplier<Integer> defaultValue, int lowerLimit, int upperLimit) { return new IntOption(defaultValue, lowerLimit, upperLimit); }
-//
-
 
     private static class Parser implements ConfigParser<Integer>
     {

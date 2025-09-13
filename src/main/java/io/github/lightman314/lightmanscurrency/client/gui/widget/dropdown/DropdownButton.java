@@ -4,25 +4,28 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ILateRender;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
-public class DropdownButton extends EasyWidget implements ILateRender, IMouseListener {
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
+public class DropdownButton extends EasyWidget implements ILateRender, IMouseListener, ITooltipSource {
 	
 	private final Component optionText;
 	private final Runnable onPress;
 
-	private DropdownButton(@Nonnull Builder builder)
+	private DropdownButton(Builder builder)
 	{
 		super(builder);
 		this.onPress = builder.pressAction;
@@ -30,7 +33,7 @@ public class DropdownButton extends EasyWidget implements ILateRender, IMouseLis
 	}
 
 	@Override
-	public void lateRender(@Nonnull EasyGuiGraphics gui) {
+	public void lateRender(EasyGuiGraphics gui) {
 		if(this.isVisible())
 		{
 			gui.pushOffset(this);
@@ -66,13 +69,16 @@ public class DropdownButton extends EasyWidget implements ILateRender, IMouseLis
 	}
 
 	@Override
-	public void renderWidget(@Nonnull EasyGuiGraphics gui) {}
+	public void renderWidget(EasyGuiGraphics gui) {}
 
-	@Nonnull
 	public static Builder builder() { return new Builder(); }
 
-	@MethodsReturnNonnullByDefault
-	@FieldsAreNonnullByDefault
+    @Override
+    public boolean renderTooltip(EasyGuiGraphics gui) { return this.isMouseOver(gui.mousePos); }
+
+    @Override
+    public List<Component> getTooltipText(int mouseX, int mouseY) { return null; }
+
 	public static class Builder extends EasyBuilder<Builder>
 	{
 		private Builder() { super(20,DropdownWidget.HEIGHT); }

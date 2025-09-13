@@ -13,6 +13,8 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
+import java.util.function.Predicate;
+
 public class EquipmentRestriction extends ItemTradeRestriction {
 
 	private final EquipmentSlot equipmentType;
@@ -37,8 +39,11 @@ public class EquipmentRestriction extends ItemTradeRestriction {
 	{
 		return this.equippable(itemStack);
 	}
-	
-	private boolean equippable(ItemStack item) {
+
+    @Override
+    public Predicate<ItemStack> modifyFilter(Predicate<ItemStack> filter) { return item -> this.allowSellItem(item) && filter.test(item); }
+
+    private boolean equippable(ItemStack item) {
 		try { return item.canEquip(this.equipmentType, safeGetDummyArmorStand()) || this.vanillaEquippable(item); }
 		catch(Throwable e) { return this.vanillaEquippable(item); }
 	}

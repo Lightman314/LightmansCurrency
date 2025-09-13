@@ -51,7 +51,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.items.IItemHandler;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
@@ -130,7 +129,7 @@ public class GachaTrader extends InputTraderData {
     protected void saveTrades(CompoundTag compound, HolderLookup.Provider lookup) { }
 
     @Override
-    protected MenuProvider getTraderMenuProvider(@Nonnull MenuValidator validator) { return new GachaMachineMenuProvider(this.getID(),validator); }
+    protected MenuProvider getTraderMenuProvider(MenuValidator validator) { return new GachaMachineMenuProvider(this.getID(),validator); }
 
     private record GachaMachineMenuProvider(long traderID, MenuValidator validator) implements EasyMenuProvider {
         @Nullable
@@ -198,7 +197,6 @@ public class GachaTrader extends InputTraderData {
         results.addAll(this.storage.getSplitContents());
     }
 
-    @Nonnull
     @Override
     public List<GachaTradeData> getTradeData() { return this.trades; }
 
@@ -272,7 +270,7 @@ public class GachaTrader extends InputTraderData {
         this.pushNotification(GachaTradeNotification.create(result,cost,context.getPlayerReference(),this.getNotificationCategory(),taxesPaid));
 
         //Push the post-trade event
-        this.runPostTradeEvent(trade, context, price, taxesPaid);
+        this.runPostTradeEvent(trade, context, price, taxesPaid, gachaBall);
 
         return TradeResult.SUCCESS;
     }

@@ -54,6 +54,7 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<ResourceLocation>> MODEL_VARIANT;
     public static final Supplier<DataComponentType<Unit>> VARIANT_LOCK;
     public static final Supplier<DataComponentType<SavedSettingData>> SETTINGS_DATA;
+    public static final Supplier<DataComponentType<FilterData>> FILTER_DATA;
 
     //Item Attributes
     public static final Supplier<DataComponentType<Integer>> WALLET_LEVEL;
@@ -93,6 +94,7 @@ public class ModDataComponents {
         MODEL_VARIANT = registerResource("model_variant");
         VARIANT_LOCK = registerUnit("variant_lock");
         SETTINGS_DATA = register("settings_data",builder -> builder.persistent(SavedSettingData.CODEC).networkSynchronized(SavedSettingData.STREAM_CODEC));
+        FILTER_DATA = register("filter_data",builder -> builder.persistent(FilterData.CODEC).networkSynchronized(FilterData.STREAM_CODEC));
 
         //Custom Item Attributes
         WALLET_LEVEL = registerInt("wallet_level");

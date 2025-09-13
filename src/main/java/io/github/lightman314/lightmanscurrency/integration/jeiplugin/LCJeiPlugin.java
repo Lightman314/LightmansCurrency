@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationReci
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.menus.MintMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
+import io.github.lightman314.lightmanscurrency.integration.jeiplugin.misc.ItemFilterGhostIngredientHandler;
 import io.github.lightman314.lightmanscurrency.integration.jeiplugin.util.JEIScreenArea;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import mezz.jei.api.IModPlugin;
@@ -87,22 +88,25 @@ public class LCJeiPlugin implements IModPlugin{
 	}
 
 	@Override
-	public void registerGuiHandlers(IGuiHandlerRegistration zones)
+	public void registerGuiHandlers(IGuiHandlerRegistration registration)
 	{
-		this.registerExclusionZones(zones,TraderScreen.class);
-		this.registerExclusionZones(zones,SlotMachineScreen.class);
-		this.registerExclusionZones(zones,GachaMachineScreen.class);
-		this.registerExclusionZones(zones,TraderStorageScreen.class);
-		this.registerExclusionZones(zones,ATMScreen.class);
-		this.registerExclusionZones(zones,TaxCollectorScreen.class);
-		this.registerExclusionZones(zones,CoinChestScreen.class);
-		this.registerExclusionZones(zones,EjectionRecoveryScreen.class);
-		this.registerExclusionZones(zones,PlayerTradeScreen.class);
-		this.registerExclusionZones(zones,TraderInterfaceScreen.class);
-		this.registerExclusionZones(zones,WalletScreen.class);
-		this.registerExclusionZones(zones,WalletBankScreen.class);
-		this.registerExclusionZones(zones,TeamManagerScreen.class);
-		this.registerExclusionZones(zones,NotificationScreen.class);
+		this.registerExclusionZones(registration,TraderScreen.class);
+		this.registerExclusionZones(registration,SlotMachineScreen.class);
+		this.registerExclusionZones(registration,GachaMachineScreen.class);
+		this.registerExclusionZones(registration,TraderStorageScreen.class);
+		this.registerExclusionZones(registration,ATMScreen.class);
+		this.registerExclusionZones(registration,TaxCollectorScreen.class);
+		this.registerExclusionZones(registration,CoinChestScreen.class);
+		this.registerExclusionZones(registration,EjectionRecoveryScreen.class);
+		this.registerExclusionZones(registration,PlayerTradeScreen.class);
+		this.registerExclusionZones(registration,TraderInterfaceScreen.class);
+		this.registerExclusionZones(registration,WalletScreen.class);
+		this.registerExclusionZones(registration,WalletBankScreen.class);
+		this.registerExclusionZones(registration,TeamManagerScreen.class);
+		this.registerExclusionZones(registration,NotificationScreen.class);
+
+        registration.addGhostIngredientHandler(ItemFilterScreen.class,new ItemFilterGhostIngredientHandler());
+
 	}
 	
 	@Override

@@ -8,6 +8,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.filter.FilterAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.ItemPositionData;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.custom_models.CustomModelDataManager;
@@ -17,7 +18,9 @@ import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_v
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.IItemTradeFilter;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -56,13 +59,27 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 		renderItems(blockEntity, partialTicks, pose, buffer, lightLevel, id);
 	}
 	
-	public static List<ItemStack> GetRenderItems(ItemTradeData trade) {
+	public static List<ItemStack> GetRenderItems(ItemTradeData trade,ItemTraderData trader) {
 		List<ItemStack> result = new ArrayList<>();
 		for(int i = 0; i < 2; ++i)
 		{
-			ItemStack item = trade.getSellItem(i);
-			if(!item.isEmpty())
-				result.add(item);
+            ItemStack internalItem = trade.getActualItem(i);
+            IItemTradeFilter filter = FilterAPI.tryGetFilter(internalItem);
+            if(filter != null && filter.getFilter(internalItem) != null)
+            {
+                List<ItemStack> displayItems;
+                if(trade.isSale())
+                    displayItems = filter.getDisplayableItems(internalItem,trader.getStorage());
+                else
+                    displayItems = filter.getDisplayableItems(internalItem,null);
+                result.add(ListUtil.randomItemFromList(displayItems,internalItem));
+            }
+            else
+            {
+                ItemStack item = trade.getSellItem(i);
+                if(!item.isEmpty())
+                    result.add(item);
+            }
 		}
 		return result;
 	}
@@ -91,7 +108,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 			{
 
 				ItemTradeData trade = trader.getTrade(tradeSlot);
-				List<ItemStack> renderItems = GetRenderItems(trade);
+				List<ItemStack> renderItems = GetRenderItems(trade,trader);
 				if(!renderItems.isEmpty())
 				{
 

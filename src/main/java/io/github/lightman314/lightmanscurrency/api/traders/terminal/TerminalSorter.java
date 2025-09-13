@@ -2,11 +2,17 @@ package io.github.lightman314.lightmanscurrency.api.traders.terminal;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.TerminalSortType;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.types.SortByID;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
+import net.minecraft.MethodsReturnNonnullByDefault;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Comparator;
+import java.util.Objects;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class TerminalSorter {
 
     private TerminalSorter() {}
@@ -26,14 +32,14 @@ public class TerminalSorter {
         public SortingOptions withUnnamedLowPriority(boolean priority) { this.unnamedAtBottom = priority; return this; }
         public SortingOptions withUnnamedLowPriorityFromConfig() { return this.withUnnamedLowPriority(LCConfig.SERVER.moveUnnamedTradersToBottom.get()); }
     }
+    
+    public static Comparator<TraderData> getDefaultSorter() { return getDefaultSorter(SortByID.INSTANCE); }
+    public static Comparator<TraderData> getDefaultSorter(TerminalSortType sorter) { return getSorter(options().withCreativePriority(true).withAuctionHousePriority(true).withEmptyLowPriority(true).withUnnamedLowPriorityFromConfig(),sorter); }
 
-    @Nonnull
-    public static Comparator<TraderData> getDefaultSorter() { return getSorter(options().withCreativePriority(true).withAuctionHousePriority(true).withEmptyLowPriority(true).withUnnamedLowPriorityFromConfig()); }
+    public static Comparator<TraderData> getSorter(SortingOptions options) { return getSorter(options,SortByID.INSTANCE); }
+    public static Comparator<TraderData> getSorter(SortingOptions options,TerminalSortType sorter) { return new TraderSorter(options,sorter); }
 
-    @Nonnull
-    public static Comparator<TraderData> getSorter(@Nonnull SortingOptions options) { return new TraderSorter(options); }
-
-    private record TraderSorter(@Nonnull SortingOptions options) implements Comparator<TraderData> {
+    private record TraderSorter(SortingOptions options,TerminalSortType sorter) implements Comparator<TraderData> {
 
         @Override
         public int compare(TraderData a, TraderData b) {
@@ -70,13 +76,8 @@ public class TerminalSorter {
                         return 1;
                 }
 
-                //Sort by trader name
-                int sort = a.getName().getString().toLowerCase().compareTo(b.getName().getString().toLowerCase());
-                //Sort by owner name if trader name is equal
-                if (sort == 0)
-                    sort = a.getOwner().getName().getString().compareToIgnoreCase(b.getOwner().getName().getString());
-
-                return sort;
+                //Sort by selected sort type
+                return Objects.requireNonNullElse(this.sorter,SortByID.INSTANCE).compare(a, b);
 
             } catch (Throwable t) { return 0; }
         }

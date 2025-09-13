@@ -17,6 +17,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -398,7 +399,7 @@ public abstract class ConfigFile {
         if(section.parent != null)
         {
             Consumer<String> w = section.parent.lineConsumer(writer);
-            writeComments(section.comments, w);
+            writeComments(section.comments.getComments(), w);
             w.accept("[" + section.fullName() + "]");
         }
         //Write Options
@@ -412,6 +413,13 @@ public abstract class ConfigFile {
         return s -> writer.println("\t".repeat(Math.max(0, depth)) + s);
     }
 
+    public static List<String> parseSource(List<Supplier<List<String>>> commentSource)
+    {
+        List<String> list = new ArrayList<>();
+        for(Supplier<List<String>> source : commentSource)
+            list.addAll(source.get());
+        return list;
+    }
     public static void writeComments(List<String> comments, Consumer<String> writer) {
         for(String c : comments)
         {
@@ -433,7 +441,7 @@ public abstract class ConfigFile {
         private ConfigSection build(ConfigFile file) { return this.root.build(null, file); }
         private ConfigBuilder() {}
 
-        private final List<String> comments = new ArrayList<>();
+        private final ConfigComments.Builder comments = ConfigComments.builder();
 
         private ConfigSectionBuilder currentSection = this.root;
 
@@ -445,7 +453,7 @@ public abstract class ConfigFile {
             else
                 this.currentSection = this.currentSection.addChild(newSection);
 
-            this.currentSection.comments.addAll(this.comments);
+            this.currentSection.comments = this.comments.build();
             this.comments.clear();
             return this;
         }
@@ -468,7 +476,21 @@ public abstract class ConfigFile {
             return this;
         }
 
-        public ConfigBuilder comment(String... comment) { this.comments.addAll(ImmutableList.copyOf(comment)); return this; }
+        /**
+         * Adds the given comments to the comment cache, and they will be attached to the next added section/option<br>
+         * Supports the following inputs:<br>
+         * - {@link String}<br>
+         * - {@link net.minecraft.network.chat.Component Component}<br>
+         * - {@link Supplier}<br>
+         * - {@link Collection}<br>
+         * {@link Supplier Suppliers} and {@link Collection Collections} must contain/supply another supported input,
+         * but otherwise can contain the other (i.e. A Supplier may supply a List of String or Component values)
+         */
+        public ConfigBuilder comment(Object... comment)
+        {
+            this.comments.add(comment);
+            return this;
+        }
 
         public ConfigBuilder add(String optionName, ConfigOption<?> option) {
             if(invalidName(optionName))
@@ -481,7 +503,7 @@ public abstract class ConfigFile {
                 return this;
             }
             this.currentSection.addOption(optionName, option);
-            option.setComments(this.comments);
+            option.setComments(this.comments.build());
             this.comments.clear();
             return this;
         }
@@ -505,7 +527,7 @@ public abstract class ConfigFile {
                 return childName;
             return this.fullName() + "." + childName;
         }
-        private final List<String> comments;
+        private final ConfigComments comments;
         private final List<ConfigSection> sectionsInOrder;
         private final Map<String,ConfigSection> sections;
         private final List<Pair<String,ConfigOption<?>>> optionsInOrder;
@@ -522,7 +544,7 @@ public abstract class ConfigFile {
             this.name = builder.name;
             this.depth = builder.depth;
             this.parent = parent;
-            this.comments = ImmutableList.copyOf(builder.comments);
+            this.comments = builder.comments;
             this.optionsInOrder = ImmutableList.copyOf(builder.optionsInOrder);
             this.options = ImmutableMap.copyOf(builder.options);
             this.options.forEach((key,option) -> option.init(file, key, this.fullNameOfChild(key)));
@@ -552,7 +574,7 @@ public abstract class ConfigFile {
             return this.fullName() + "." + childName;
         }
         private final int depth;
-        private final List<String> comments = new ArrayList<>();
+        private ConfigComments comments = ConfigComments.EMPTY;
         private final List<ConfigSectionBuilder> sectionsInOrder = new ArrayList<>();
         private final Map<String,ConfigSectionBuilder> sections = new HashMap<>();
         private final List<Pair<String,ConfigOption<?>>> optionsInOrder = new ArrayList<>();

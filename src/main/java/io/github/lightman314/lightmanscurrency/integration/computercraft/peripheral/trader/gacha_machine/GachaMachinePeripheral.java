@@ -2,6 +2,8 @@ package io.github.lightman314.lightmanscurrency.integration.computercraft.periph
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.api.peripheral.IPeripheral;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.GachaMachineBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaStorage;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
@@ -10,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.integration.computercraft.periphe
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +20,10 @@ public class GachaMachinePeripheral extends TraderPeripheral<GachaMachineBlockEn
 
     public GachaMachinePeripheral(GachaMachineBlockEntity gachaMachineBlockEntity) { super(gachaMachineBlockEntity); }
     public GachaMachinePeripheral(GachaTrader trader) { super(trader); }
+
+    @Nullable
+    @Override
+    protected IPeripheral wrapTrade(TradeData trade) throws LuaException { return this; }
 
     @Override
     public String getType() { return "lc_trader_gacha"; }

@@ -46,7 +46,6 @@ public class PlayerDiscounts extends PriceTweakingTradeRule implements ICopySupp
 	public void setDiscount(int discount) { this.discount = MathUtil.clamp(discount, 1, 100); }
 	
 	private PlayerDiscounts() { super(TYPE); }
-
 	
 	@Override
 	public IconData getIcon() { return IconUtil.ICON_DISCOUNT_LIST; }

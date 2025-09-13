@@ -2,11 +2,15 @@ package io.github.lightman314.lightmanscurrency.integration.computercraft.periph
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.api.peripheral.IPeripheral;
+import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import net.minecraft.core.Direction;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +20,9 @@ public abstract class InputTraderPeripheral<BE extends TraderBlockEntity<T>,T ex
 
     public InputTraderPeripheral(BE be) { super(be); }
     public InputTraderPeripheral(T trader) { super(trader); }
+
+    public static InputTraderPeripheral<TraderBlockEntity<InputTraderData>,InputTraderData> createSimpleInput(TraderBlockEntity<InputTraderData> blockEntity) { return new Simple(blockEntity); }
+    public static InputTraderPeripheral<TraderBlockEntity<InputTraderData>,InputTraderData> createSimpleInput(InputTraderData trader) { return new Simple(trader); }
 
     @Override
     public Set<String> getAdditionalTypes() {
@@ -72,6 +79,34 @@ public abstract class InputTraderPeripheral<BE extends TraderBlockEntity<T>,T ex
                 sides.add(side.toString());
         }
         return sides.toArray(String[]::new);
+    }
+
+    private static final class Simple extends InputTraderPeripheral<TraderBlockEntity<InputTraderData>,InputTraderData>
+    {
+
+        private Simple(TraderBlockEntity<InputTraderData> blockEntity) { super(blockEntity); }
+        private Simple(InputTraderData trader) { super(trader); }
+
+        @Nullable
+        @Override
+        protected IPeripheral wrapTrade(TradeData trade) throws LuaException {
+            int index = this.getTrader().indexOfTrade(trade);
+            return TradeWrapper.createSimple(() -> {
+                TraderData trader = this.safeGetTrader();
+                if(trader != null)
+                {
+                    if(index < 0 || index >= trader.getTradeCount())
+                        return null;
+                    return trader.getTrade(index);
+                }
+                return null;
+            },this::safeGetTrader);
+        }
+
+        @Override
+        public String getType() {
+            return "";
+        }
     }
 
 }

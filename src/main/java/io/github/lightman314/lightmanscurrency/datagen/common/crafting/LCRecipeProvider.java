@@ -46,8 +46,6 @@ public class LCRecipeProvider extends RecipeProvider {
 
     public LCRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> pRegistries) { super(output, pRegistries); }
 
-    private static final String ADV_PREFIX = "recipes/misc/";
-
     @Override
     protected void buildRecipes(@Nonnull RecipeOutput consumer) {
 
@@ -1024,6 +1022,36 @@ public class LCRecipeProvider extends RecipeProvider {
                 .withResult(ModItems.COUPON)
                 .save(consumer,ItemID("ticket_station/",ModItems.COUPON));
 
+        //2.2.6.4
+        //Item Trade Filter
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC,ModItems.ITEM_TRADE_FILTER.get())
+                .unlockedBy("paper",LazyTrigger(Items.PAPER))
+                .unlockedBy("traders",TraderKnowledge())
+                .pattern("  n")
+                .pattern(" p ")
+                .pattern("n  ")
+                .define('n',Tags.Items.NUGGETS_IRON)
+                .define('p',Items.PAPER)
+                .save(consumer);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC,ModItems.ITEM_TRADE_FILTER.get())
+                .unlockedBy("paper",LazyTrigger(Items.PAPER))
+                .unlockedBy("traders",TraderKnowledge())
+                .unlockedBy("filter",LazyTrigger(ModItems.ITEM_TRADE_FILTER))
+                .requires(ModItems.ITEM_TRADE_FILTER.get())
+                .save(consumer,VersionUtil.lcResource("item_trade_filter_reset"));
+
+        //Patchouli guide book
+        //TODO add once the book is ready
+        /*if(ModList.get().isLoaded("patchouli"))
+        {
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC,ItemModBook.forBook(VersionUtil.lcResource("trader_guide")))
+                    .requires(Items.BOOK)
+                    .requires(ModItems.TRADING_CORE.get())
+                    .unlockedBy("trader",TraderKnowledge())
+                    .unlockedBy("money",MoneyKnowledge())
+                    .save(consumer.withConditions(new ModLoadedCondition("patchouli")),VersionUtil.lcResource("guide/trader_guide"));
+        }*/
 
 
     }

@@ -2,19 +2,22 @@ package io.github.lightman314.lightmanscurrency.integration.computercraft.periph
 
 import com.google.common.base.Predicates;
 import com.mojang.datafixers.util.Either;
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.lua.LuaValues;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
-import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.api.stats.StatType;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.AccessTrackingPeripheral;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -23,6 +26,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -80,6 +85,9 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
         return trader;
     }
 
+    @Nullable
+    protected abstract IPeripheral wrapTrade(TradeData trade) throws LuaException;
+
     @Override
     public Set<String> getAdditionalTypes() { return Set.of(BASE_TYPE); }
 
@@ -89,6 +97,9 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
             return other.source.equals(this.source) && super.equals(peripheral);
         return false;
     }
+
+    @Override
+    protected boolean eventListener() { return true; }
 
     @LuaFunction(mainThread = true)
     public boolean isValid() {
@@ -114,11 +125,7 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
     public LCLuaTable getOwner() throws LuaException {
         TraderData trader = this.getTrader();
         Owner owner = trader.getOwner().getValidOwner();
-        LCLuaTable table = LCLuaTable.fromTag(owner.save(trader.registryAccess()));
-        //Protect the players UUID
-        if(owner instanceof PlayerOwner po)
-            table.put("Player",po.player.getName(false));
-        return table;
+        return LCLuaTable.fromTag(owner.save(trader.registryAccess()));
     }
 
     @LuaFunction(mainThread = true)
@@ -174,15 +181,26 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
     }
 
     @LuaFunction(mainThread = true)
-    public String[] getLogs(Object[] args) throws LuaException {
+    public int getPlayerPermissionLevel(String playerName,String permission) throws LuaException {
+        TraderData trader = this.getTrader();
+        PlayerReference player = PlayerReference.of(false,playerName);
+        if(player == null)
+            return 0;
+        return trader.getPermissionLevel(player,permission);
+    }
+
+    @LuaFunction(mainThread = true)
+    public LCLuaTable[] getLogs(IArguments args) throws LuaException {
         Predicate<Notification> filter = Predicates.alwaysTrue();
         int limit = 0;
         Tuple<Boolean,Boolean> argsLoaded = new Tuple<>(false,false);
-        if(args.length > 0)
+        if(args.count() > 0)
         {
-            for(int i = 0; i < 2; ++i)
+            if(args.count() > 2)
+                throw new LuaException("Too many arguments, expected a max of 2");
+            for(int i = 0; i < 2 && i < args.count(); ++i)
             {
-                Object arg = args[i];
+                Object arg = args.get(i);
                 if(arg instanceof Number num)
                 {
                     if(argsLoaded.getA())
@@ -205,21 +223,20 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
         //View all if limit is 0 (or less)
         if(limit <= 0)
             limit = notifications.size();
-        List<String> result = new ArrayList<>();
+        List<LCLuaTable> result = new ArrayList<>();
         for(int i = 0; i < limit && i < notifications.size(); ++i)
         {
             Notification not = notifications.get(i);
-            boolean first = true;
+            LCLuaTable entry = new LCLuaTable();
+            entry.put("Timestamp",not.getTimeStamp());
+            entry.put("Count",not.getCount());
+            List<String> lines = new ArrayList<>();
             for(MutableComponent line : not.getMessageLines())
-            {
-                String l = line.getString();
-                if(first && not.getCount() > 1)
-                    l = "[" + not.getCount() + "] " + l;
-                result.add(l);
-                first = false;
-            }
+                lines.add(line.getString());
+            entry.put("Text",lines.toArray(String[]::new));
+            result.add(entry);
         }
-        return result.toArray(String[]::new);
+        return result.toArray(LCLuaTable[]::new);
     }
 
     @LuaFunction(mainThread = true)
@@ -297,6 +314,51 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
         public String getType() { return BASE_TYPE; }
         @Override
         public Set<String> getAdditionalTypes() { return Set.of(); }
+        @Nullable
+        @Override
+        protected IPeripheral wrapTrade(TradeData trade) throws LuaException {
+            int index = this.getTrader().indexOfTrade(trade);
+            return TradeWrapper.createSimple(() -> {
+                TraderData trader = this.safeGetTrader();
+                if(trader != null && index >= 0 && index < trader.getTradeCount())
+                    return trader.getTrade(index);
+                return null;
+            },this::safeGetTrader);
+        }
+    }
+
+    //Listen to trade events
+    @SubscribeEvent(priority = EventPriority.LOWEST,receiveCanceled = true)
+    public void preTradeEvent(TradeEvent.PreTradeEvent event)
+    {
+        TraderData trader = this.safeGetTrader();
+        //Only push event if relevant to this specific peripheral
+        if(event.getTrader() == trader)
+        {
+            try {
+                IPeripheral tradeWrapper = this.wrapTrade(event.getTrade());
+                LCLuaTable player = LCLuaTable.fromPlayer(event.getPlayerReference());
+                boolean canceled = event.isCanceled();
+                this.getConnectedComputers().queueEvent("lc_trade_pre",this,event.getTradeIndex(),tradeWrapper,player);
+            } catch (LuaException ignored) {}
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void postTradeEvent(TradeEvent.PostTradeEvent event)
+    {
+        TraderData trader = this.safeGetTrader();
+        //Only push event if relevant to this specific peripheral
+        if(event.getTrader() == trader)
+        {
+            try {
+                IPeripheral tradeWrapper = this.wrapTrade(event.getTrade());
+                LCLuaTable player = LCLuaTable.fromPlayer(event.getPlayerReference());
+                LCLuaTable finalPrice = LCLuaTable.fromMoney(event.getPricePaid());
+                LCLuaTable taxesPaid = LCLuaTable.fromMoney(event.getTaxesPaid());
+                this.getConnectedComputers().queueEvent("lc_trade",this,event.getTradeIndex(),tradeWrapper,player,finalPrice,taxesPaid);
+            } catch (LuaException ignored) {}
+        }
     }
 
 

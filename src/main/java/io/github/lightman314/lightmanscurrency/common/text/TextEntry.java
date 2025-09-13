@@ -51,6 +51,7 @@ public final class TextEntry {
         ResourceLocation id = BuiltInRegistries.VILLAGER_PROFESSION.getKey(profession.get());
         return "entity.minecraft.villager." + id.getNamespace() + "." + id.getPath();
     });}
+    public static TextEntry stat(ResourceLocation stat) { return new TextEntry("stat." + stat.getNamespace() + "." + stat.getPath()); }
     public static TextEntry creativeTab(String modid, String name) { return new TextEntry("itemGroup." + modid + "." + name); }
     public static TextEntry keyBind(String modid, String name) { return new TextEntry("key." + modid + "." + name); }
     public static TextEntry sound(String modid, String name) { return new TextEntry(modid + ".subtitle." + name); }
@@ -73,6 +74,8 @@ public final class TextEntry {
     public static TextEntry notification(ResourceLocation type) { return new TextEntry("notification." + type.getNamespace() + "." + type.getPath()); }
     public static TextEntry notification(NotificationType<?> type, String extra) { return notification(type.type,extra); }
     public static TextEntry notification(ResourceLocation type, String extra) { return new TextEntry("notification." + type.getNamespace() + "." + type.getPath() + "." + extra); }
+    public static TextEntry terminalSortType(String modid, String id) { return new TextEntry("gui." + modid + ".terminal.sort_type." + id); }
+
 
     public static TextEntry dataName(String modid, String key) { return new TextEntry("data." + modid + ".name." + key); }
     public static TextEntry dataCategory(String modid, String key) { return new TextEntry("data." + modid + ".category." + key); }

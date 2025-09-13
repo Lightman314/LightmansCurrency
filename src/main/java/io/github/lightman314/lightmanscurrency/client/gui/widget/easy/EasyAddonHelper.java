@@ -118,19 +118,20 @@ public class EasyAddonHelper {
         public List<Component> getTooltipText(int mouseX, int mouseY) { return null; }
 
         @Override
-        public void renderTooltip(EasyGuiGraphics gui) {
+        public boolean renderTooltip(EasyGuiGraphics gui) {
             EasyWidget w = this.getWidget();
             if(w != null && (this.ignoreActive || w.isActive()) && w.getArea().isMouseInArea(gui.mousePos))
             {
                 List<FormattedCharSequence> t = new ArrayList<>();
                 List<Component> lines = this.tooltip.get();
-                if(lines.isEmpty())
-                    return;
+                if(lines == null || lines.isEmpty())
+                    return false;
                 for(Component c : lines)
                     t.addAll(gui.font.split(c,this.width));
                 gui.renderTooltip(t);
+                return true;
             }
-
+            return false;
         }
     }
 

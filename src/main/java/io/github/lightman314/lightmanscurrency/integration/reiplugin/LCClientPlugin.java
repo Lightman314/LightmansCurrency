@@ -22,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
 import io.github.lightman314.lightmanscurrency.integration.reiplugin.coin_mint.CoinMintCategory;
 import io.github.lightman314.lightmanscurrency.integration.reiplugin.coin_mint.CoinMintDisplay;
 import io.github.lightman314.lightmanscurrency.integration.reiplugin.coin_mint.CoinMintTransferHandler;
+import io.github.lightman314.lightmanscurrency.integration.reiplugin.misc.ItemFilterDraggableStackVisitor;
 import io.github.lightman314.lightmanscurrency.integration.reiplugin.ticket_station.TicketStationCategory;
 import io.github.lightman314.lightmanscurrency.integration.reiplugin.ticket_station.TicketStationDisplay;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
@@ -95,6 +96,8 @@ public class LCClientPlugin implements REIClientPlugin {
             }
             return CompoundEventResult.pass();
         }));
+        //Draggable Stack visitors
+        registry.registerDraggableStackVisitor(new ItemFilterDraggableStackVisitor());
     }
 
     @Override

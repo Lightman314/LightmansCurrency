@@ -36,7 +36,6 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.File;
@@ -301,7 +300,7 @@ public class TraderDataCache extends CustomData implements IServerTicker {
         return fileData;
     }
 
-    private void loadPersistentTrader(@Nonnull JsonObject fileData, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
+    private void loadPersistentTrader(JsonObject fileData, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
         boolean hadNone = true;
         if(fileData.has(PERSISTENT_TRADER_SECTION))
         {
@@ -420,10 +419,11 @@ public class TraderDataCache extends CustomData implements IServerTicker {
             this.tickers.add(t);
     }
 
-    public void markTraderDirty(CompoundTag updateData)
+    public void markTraderDirty(@Nullable CompoundTag updateData)
     {
         this.setChanged();
-        this.sendSyncPacket(this.updatePacket(updateData));
+        if(updateData != null)
+            this.sendSyncPacket(this.updatePacket(updateData));
     }
 
     private LazyPacketData.Builder updatePacket(CompoundTag updateData) { return this.builder().setCompound("UpdateTrader",updateData); }
@@ -577,6 +577,9 @@ public class TraderDataCache extends CustomData implements IServerTicker {
 
     @Override
     public void onPlayerJoin(ServerPlayer player) {
+        //Test for pending auction house stat rewards so that we don't send any pending stats that we don't need to
+        if(this.getAuctionHouse() instanceof AuctionHouseTrader ah)
+            ah.onPlayerJoin(player);
         this.sendSyncPacket(this.builder().setFlag("ClearTraders"),player);
         this.traderData.forEach((id,trader) -> this.sendSyncPacket(this.updatePacket(trader.save(player.registryAccess())),player));
     }

@@ -26,6 +26,7 @@ public class AuctionPlayerStorage {
 	public MoneyStorage getStoredCoins() { return this.storedCoins; }
 	private final List<ItemStack> storedItems = new ArrayList<>();
 	public List<ItemStack> getStoredItems() { return this.storedItems; }
+    public int pendingWinStats = 0;
 	
 	public AuctionPlayerStorage(PlayerReference player) { this.owner = player; }
 	
@@ -40,6 +41,8 @@ public class AuctionPlayerStorage {
 		for (ItemStack storedItem : this.storedItems)
 			itemList.add(InventoryUtil.saveItemNoLimits(storedItem,lookup));
 		compound.put("StoredItems", itemList);
+        if(this.pendingWinStats > 0)
+            compound.putInt("PendingStats",this.pendingWinStats);
 		
 		return compound;
 	}
@@ -58,6 +61,9 @@ public class AuctionPlayerStorage {
 			if(!stack.isEmpty())
 				this.storedItems.add(stack);
 		}
+
+        if(compound.contains("PendingStats"))
+            this.pendingWinStats = compound.getInt("PendingStats");
 		
 	}
 	
@@ -69,9 +75,7 @@ public class AuctionPlayerStorage {
 	
 	public void giveItem(ItemStack item) {
 		if(!item.isEmpty())
-		{
 			this.storedItems.add(item);
-		}
 	}
 	
 	public void collectItems(Player player) {

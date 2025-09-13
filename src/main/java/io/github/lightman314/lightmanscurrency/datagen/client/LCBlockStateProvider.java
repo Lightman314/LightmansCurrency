@@ -425,6 +425,10 @@ public class LCBlockStateProvider extends BlockStateProvider {
         //Variant Wand
         this.registerHandheldItem(ModItems.VARIANT_WAND);
 
+        //2.2.6.4
+        this.itemModels().basicItem(VersionUtil.lcResource("trader_guide"));
+        this.registerBasicItem(ModItems.ITEM_TRADE_FILTER);
+
     }
 
     //ITEM MODEL REGISTRATION

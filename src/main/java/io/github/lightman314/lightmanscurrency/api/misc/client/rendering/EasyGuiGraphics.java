@@ -240,7 +240,7 @@ public final class EasyGuiGraphics {
     public void renderTooltip(List<FormattedCharSequence> tooltip) { this.pushOffset(this.mousePos).renderTooltip(tooltip, 0,0); this.popOffset(); }
     public void renderTooltip(List<FormattedCharSequence> tooltip, int x, int y) { if(tooltip.isEmpty()) return; this.gui.renderTooltip(this.font, tooltip, this.offset.x + x, this.offset.y + y); }
     public void renderTooltip(ItemStack item) { this.pushOffset(this.mousePos).renderTooltip(item, 0,0); this.popOffset(); }
-    public void renderTooltip(ItemStack item, int x, int y) { this.gui.renderTooltip(this.font, item, x, y); }
+    public void renderTooltip(ItemStack item, int x, int y) { this.gui.renderTooltip(this.font, item, this.offset.x + x, this.offset.y + y); }
 
     //Text Related Rendering
     public void drawString(String text, int x, int y, int color) { this.gui.drawString(this.font, text, this.offset.x + x, this.offset.y + y, color, false); }

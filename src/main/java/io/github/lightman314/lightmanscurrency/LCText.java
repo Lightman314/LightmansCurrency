@@ -7,10 +7,12 @@ import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesColl
 import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesPaidNotification;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.types.*;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.core.ModStats;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.seasonal_events.chocolate.ChocolateEventCoins;
@@ -139,6 +141,8 @@ public class LCText {
     public static final TextEntry ITEM_UPGRADE_TEMPLATE = TextEntry.item(ModItems.UPGRADE_SMITHING_TEMPLATE);
 
     public static final TextEntry ITEM_VARIANT_WAND = TextEntry.item(ModItems.VARIANT_WAND);
+
+    public static final TextEntry ITEM_ITEM_TRADE_FILTER = TextEntry.item(ModItems.ITEM_TRADE_FILTER);
 
     //Blocks
     public static final TextEntry BLOCK_COINPILE_COPPER = TextEntry.block(ModBlocks.COINPILE_COPPER);
@@ -305,6 +309,9 @@ public class LCText {
     public static final TextEntry TOOLTIP_MODEL_VARIANT_ID = TextEntry.tooltip(MODID,"model_variant.id");
     public static final TextEntry TOOLTIP_MODEL_VARIANT_LOCKED = TextEntry.tooltip(MODID,"model_variant.locked");
 
+    public static final TextEntry TOOLTIP_ITEM_TRADE_FILTER_ITEM_LABEL = TextEntry.tooltip(MODID,"item_trade_filter.label.items");
+    public static final TextEntry TOOLTIP_ITEM_TRADE_FILTER_TAG_LABEL = TextEntry.tooltip(MODID,"item_trade_filter.label.tags");
+
     public static final TextEntry TOOLTIP_TRADER_ITEM_WITH_DATA = TextEntry.tooltip(MODID,"trader.item.contains_data");
     public static final TextEntry TOOLTIP_TRADER_ITEM_WITH_DATA_TRADER_ID = TextEntry.tooltip(MODID,"trader.item.contains_data.trader_id");
     public static final TextEntry TOOLTIP_ANARCHY_WARNING = TextEntry.tooltip(MODID,"ownable.anarchy_warning");
@@ -416,6 +423,13 @@ public class LCText {
     public static final TextEntry TOOLTIP_NETWORK_TERMINAL_TRADE_COUNT = TextEntry.tooltip(MODID,"terminal.info.trade_count");
     public static final TextEntry TOOLTIP_NETWORK_TERMINAL_OUT_OF_STOCK_COUNT = TextEntry.tooltip(MODID,"terminal.info.trade_count.out_of_stock");
     public static final TextEntry TOOLTIP_NETWORK_TERMINAL_AUCTION_HOUSE = TextEntry.tooltip(MODID,"terminal.info.auction_house");
+
+    //Terminal Sort Types
+    public static final DualTextEntry SORT_TYPE_NAME = DualTextEntry.terminalSortType(SortByName.INSTANCE);
+    public static final DualTextEntry SORT_TYPE_ID = DualTextEntry.terminalSortType(SortByID.INSTANCE);
+    public static final DualTextEntry SORT_TYPE_OFFERS = DualTextEntry.terminalSortType(SortByOffers.INSTANCE);
+    public static final DualTextEntry SORT_TYPE_POPULARITY = DualTextEntry.terminalSortType(SortByPopularity.INSTANCE);
+    public static final DualTextEntry SORT_TYPE_RECENT = DualTextEntry.terminalSortType(SortByRecent.INSTANCE);
 
     //Notification Menu
     public static final TextEntry BUTTON_NOTIFICATIONS_MARK_AS_READ = TextEntry.button(MODID,"notifications.mark_read");
@@ -619,6 +633,7 @@ public class LCText {
     public static final TextEntry TOOLTIP_TRADER_DESELECT_ALL_TRADES = TextEntry.tooltip(MODID,"trader.all_trades.deselect");
     public static final TextEntry TOOLTIP_TRADER_OPEN_MULTI_EDIT_SELECTED = TextEntry.tooltip(MODID,"trader.open_multi_edit.selected");
     public static final TextEntry BUTTON_TRADER_SET_ALL_PRICES = TextEntry.button(MODID,"trader.set_all_prices");
+    public static final TextEntry BUTTON_TRADER_SET_ALL_DIRECTIONS = TextEntry.button(MODID,"trader.set_all_trade_directions");
     public static final TextEntry TOOLTIP_TRADER_UPGRADES = TextEntry.tooltip(MODID,"trader.upgrade");
     public static final TextEntry TOOLTIP_TRADER_INFO = TextEntry.tooltip(MODID,"trader.info");
     public static final TextEntry TOOLTIP_TRADER_LOGS = TextEntry.tooltip(MODID,"trader.log");
@@ -775,6 +790,7 @@ public class LCText {
     public static final TextEntry TRADE_RULE_PLAYER_TRADE_LIMIT = TextEntry.tradeRule(PlayerTradeLimit.TYPE);
     public static final TextEntry TRADE_RULE_PLAYER_TRADE_LIMIT_DENIAL_TIMED = TextEntry.tradeRuleMessage(PlayerTradeLimit.TYPE,"denial.timed");
     public static final TextEntry TRADE_RULE_PLAYER_TRADE_LIMIT_DENIAL = TextEntry.tradeRuleMessage(PlayerTradeLimit.TYPE,"denial");
+    public static final TextEntry TRADE_RULE_PLAYER_TRADE_LIMIT_DENIAL_TIME_REMAINING = TextEntry.tradeRuleMessage(PlayerTradeLimit.TYPE,"denial.time_remaining");
     public static final TextEntry TRADE_RULE_PLAYER_TRADE_LIMIT_DENIAL_LIMIT = TextEntry.tradeRuleMessage(PlayerTradeLimit.TYPE,"denial.limit");
     public static final TextEntry TRADE_RULE_PLAYER_TRADE_LIMIT_INFO_TIMED = TextEntry.tradeRuleMessage(PlayerTradeLimit.TYPE,"info.timed");
     public static final TextEntry TRADE_RULE_PLAYER_TRADE_LIMIT_INFO = TextEntry.tradeRuleMessage(PlayerTradeLimit.TYPE,"info");
@@ -1086,6 +1102,11 @@ public class LCText {
 
     public static final TextEntry DATA_CATEGORY_CREATIVE = TextEntry.dataCategory(MODID,"creative");
 
+    //Stats
+    public static final TextEntry STAT_TRADE_INTERACTIONS = TextEntry.stat(ModStats.STAT_TRADES);
+    public static final TextEntry STAT_AUCTION_BIDS = TextEntry.stat(ModStats.STAT_AUCTION_BIDS);
+    public static final TextEntry STAT_AUCTION_WINS = TextEntry.stat(ModStats.STAT_AUCTION_WINS);
+
     //Command Arguments
     public static final TextEntry ARGUMENT_MONEY_VALUE_NOT_A_COIN = TextEntry.argument("money_value.not_a_coin");
     public static final TextEntry ARGUMENT_MONEY_VALUE_NOT_AN_ANCIENT_COIN = TextEntry.argument("money_value.not_an_ancient_coin");
@@ -1248,6 +1269,7 @@ public class LCText {
     //Seasonal Events
     public static final TextEntry SEASONAL_EVENT_CHRISTMAS = TextEntry.message(MODID,"seasonal_event.christmas");
     public static final TextEntry SEASONAL_EVENT_VALENTINES = TextEntry.message(MODID,"seasonal_event.valentines");
+    public static final TextEntry SEASONAL_EVENT_HALLOWEEN = TextEntry.message(MODID,"seasonal_event.halloween");
     public static final TextEntry SEASONAL_EVENT_BIRTHDAY = TextEntry.message(MODID,"seasonal_event.birthday");
 
     //Resource Pack Names

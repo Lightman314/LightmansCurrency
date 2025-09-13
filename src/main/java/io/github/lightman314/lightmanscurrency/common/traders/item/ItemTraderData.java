@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -18,6 +19,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.TraderItemHandler;
 import io.github.lightman314.lightmanscurrency.common.traders.item.settings.ItemTradeSettings;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.TradeOfferUpgrade;
@@ -62,7 +64,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.items.IItemHandler;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -81,7 +82,6 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	public IItemHandler getItemHandler(Direction relativeSide) { return this.itemHandler.getHandler(relativeSide); }
 	
 	protected TraderItemStorage storage = new TraderItemStorage(this);
-	@Nonnull
 	public final TraderItemStorage getStorage() { return this.storage; }
 	public void markStorageDirty() { this.markDirty(this::saveStorage); }
 
@@ -117,7 +117,10 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	@Override
 	protected boolean allowVoidUpgrade() { return true; }
 
-	@Override
+    @Override
+    public List<TradeDirection> validDirectionOptions() { return ImmutableList.of(TradeDirection.SALE,TradeDirection.PURCHASE,TradeDirection.BARTER); }
+
+    @Override
 	public void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
 		super.saveAdditional(compound,lookup);
 		
@@ -589,7 +592,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
 
 			//Push the post-trade event
-			this.runPostTradeEvent(trade, context, price, taxesPaid);
+			this.runPostTradeEvent(trade,context,price,taxesPaid,soldItems);
 			
 			return TradeResult.SUCCESS;
 			
@@ -650,7 +653,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 				this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
 
 			//Push the post-trade event
-			this.runPostTradeEvent(trade, context, price, taxesPaid);
+			this.runPostTradeEvent(trade,context,price,taxesPaid,collectableItems);
 			
 			return TradeResult.SUCCESS;
 			
@@ -737,8 +740,9 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			if(!trade.hasStock(this))
 				this.pushNotification(OutOfStockNotification.create(this.getNotificationCategory(), tradeIndex));
 
+            List<List<ItemStack>> product = Lists.newArrayList(soldItems,collectableItems);
 			//Push the post-trade event
-			this.runPostTradeEvent(trade, context, price, MoneyValue.empty());
+			this.runPostTradeEvent(trade,context,price,MoneyValue.empty(),product);
 
 			return TradeResult.SUCCESS;
 		}

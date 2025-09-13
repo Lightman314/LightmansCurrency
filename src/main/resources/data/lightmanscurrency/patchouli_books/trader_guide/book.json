@@ -1,0 +1,13 @@
+{
+	"name": "guide.lightmanscurrency.trader_guide.name",
+	"landing_text": "guide.lightmanscurrency.trader_guide.landing_text",
+	"version": 1,
+	"creative_tab":"lightmanscurrency:coins",
+	"use_resource_pack": true,
+	"book_texture":"lightmanscurrency:textures/gui/trader_guide/book.png",
+	"filler_texture":"lightmanscurrency:textures/gui/trader_guide/page_filler.png",
+	"model":"lightmanscurrency:trader_guide",
+	"macros":{
+		"$(br3)":"$(br2)$(br)"
+	}
+}

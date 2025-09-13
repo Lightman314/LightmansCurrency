@@ -32,6 +32,8 @@ public final class ChocolateEventCoins {
     public static final EventRange CHRISTMAS = EventRange.create(12,1,12,31);
     //Valentine's event for the day before to the day after
     public static final EventRange VALENTINES = EventRange.create(2,13,2,15);
+    //Halloween
+    public static final EventRange HALLOWEEN = EventRange.create(10,25,10,31);
 
     public static ChainData getChainData()
     {

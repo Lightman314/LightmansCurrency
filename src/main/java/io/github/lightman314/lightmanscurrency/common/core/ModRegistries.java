@@ -17,6 +17,7 @@ import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.npc.VillagerProfession;
@@ -112,6 +113,10 @@ public class ModRegistries {
 		CRITERION_TRIGGERS.register(bus);
 		LCAdvancementTriggers.init();
 
+        //Stats
+        CUSTOM_STAT.register(bus);
+        ModStats.init();
+
 		//LC Custom Registries
 		EJECTION_DATA.register(bus);
 		ModEjectionDataTypes.init();
@@ -157,6 +162,8 @@ public class ModRegistries {
 	public static final DeferredRegister<DataComponentType<?>> ENCHANTMENT_EFFECT_COMPONENTS = DeferredRegister.create(BuiltInRegistries.ENCHANTMENT_EFFECT_COMPONENT_TYPE,LightmansCurrency.MODID);
 
 	public static final DeferredRegister<CriterionTrigger<?>> CRITERION_TRIGGERS = DeferredRegister.create(BuiltInRegistries.TRIGGER_TYPES,LightmansCurrency.MODID);
+
+    public static final DeferredRegister<ResourceLocation> CUSTOM_STAT = DeferredRegister.create(BuiltInRegistries.CUSTOM_STAT,LightmansCurrency.MODID);
 
 	//Custom Registries
 	public static final DeferredRegister<EjectionDataType> EJECTION_DATA = DeferredRegister.create(LCRegistries.EJECTION_DATA_KEY,LightmansCurrency.MODID);

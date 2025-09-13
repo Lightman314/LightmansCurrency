@@ -94,6 +94,7 @@ public class ModCreativeGroups {
                     //Perhaps example prepaid card?
                     //Trading Core
                     ezPop(p, ModItems.TRADING_CORE);
+                    ezPop(p, ModItems.ITEM_TRADE_FILTER);
                     //Variant Wand
                     ezPop(p, ModItems.VARIANT_WAND);
                     //Event Coins

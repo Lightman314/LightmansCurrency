@@ -423,8 +423,13 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
             //Push Notification
             this.pushNotification(SlotMachineTradeNotification.create(loot, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
 
+            List<Object> product = new ArrayList<>();
+            if(loot.isMoney())
+                product.add(loot.getMoneyValue());
+            else
+                product.addAll(InventoryUtil.copyList(loot.items));
             //Push the post-trade event
-            this.runPostTradeEvent(trade, context, price, taxesPaid);
+            this.runPostTradeEvent(trade,context,price,taxesPaid,product);
 
             return TradeResult.SUCCESS;
 

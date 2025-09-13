@@ -10,11 +10,10 @@ import io.github.lightman314.lightmanscurrency.api.config.options.basic.BooleanO
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
-import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
-import io.github.lightman314.lightmanscurrency.common.data.types.TaxDataCache;
+import io.github.lightman314.lightmanscurrency.common.core.ModStats;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBidNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBuyerNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseCancelNotification;
@@ -22,7 +21,6 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.auctio
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseSellerNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionPlayerStorage;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.PersistentAuctionData;
@@ -242,6 +240,9 @@ public class AuctionTradeData extends TradeData {
 			this.startTime = currentTime;
 			this.duration = OVERTIME_DURATION;
 		}
+
+        //Reward the player with a bid stat
+        player.awardStat(ModStats.STAT_AUCTION_BIDS);
 		
 		return true;
 	}
@@ -290,10 +291,14 @@ public class AuctionTradeData extends TradeData {
 			
 			//Post notification to the auction winner
 			NotificationAPI.API.PushPlayerNotification(this.lastBidPlayer.id, new AuctionHouseBuyerNotification(this));
-			
+
 			//Post notification to the auction owner
 			if(this.tradeOwner != null)
 				NotificationAPI.API.PushPlayerNotification(this.tradeOwner.id, new AuctionHouseSellerNotification(this,event.getPaymentAmount(),event.getFeePayment()));
+
+            //Award victory stat
+            trader.AwardAuctionWinStat(this.lastBidPlayer);
+
 		}
 		else
 		{

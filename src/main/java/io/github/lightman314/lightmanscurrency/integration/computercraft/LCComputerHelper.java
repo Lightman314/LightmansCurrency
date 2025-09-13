@@ -11,11 +11,13 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTra
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.CashRegisterPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.TerminalPeripheral;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.InputTraderPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.auction.AuctionHousePeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.gacha_machine.GachaMachinePeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.item.ItemTraderPeripheral;
@@ -88,6 +90,8 @@ public class LCComputerHelper {
             if(result != null)
                 return result;
         }
+        if(be.getTraderData() instanceof InputTraderData)
+            return InputTraderPeripheral.createSimpleInput((TraderBlockEntity<InputTraderData>)be);
         return TraderPeripheral.createSimple((TraderBlockEntity<TraderData>)be);
     }
 
@@ -98,6 +102,8 @@ public class LCComputerHelper {
             if(result != null)
                 return result;
         }
+        if(trader instanceof InputTraderData it)
+            return InputTraderPeripheral.createSimpleInput(it);
         return TraderPeripheral.createSimple(trader);
     }
 
