@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.api.filter;
 
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.IItemTradeFilter;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.item.ItemStack;
 
@@ -42,6 +41,12 @@ public class FilterAPI {
                 return result;
         }
         return null;
+    }
+
+    public static boolean itemHasFilter(ItemStack stack)
+    {
+        IItemTradeFilter filter = tryGetFilter(stack);
+        return filter != null && filter.getFilter(stack) != null;
     }
 
 }

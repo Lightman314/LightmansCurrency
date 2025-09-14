@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.items.data.FilterData;
 import io.github.lightman314.lightmanscurrency.common.menus.ItemFilterMenu;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.IItemTradeFilter;
+import io.github.lightman314.lightmanscurrency.api.filter.IItemTradeFilter;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;

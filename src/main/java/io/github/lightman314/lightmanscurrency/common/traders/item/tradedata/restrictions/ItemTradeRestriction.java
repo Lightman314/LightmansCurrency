@@ -12,7 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.filter.FilterAPI;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ticket.TicketKioskRestriction;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.IItemTradeFilter;
+import io.github.lightman314.lightmanscurrency.api.filter.IItemTradeFilter;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;

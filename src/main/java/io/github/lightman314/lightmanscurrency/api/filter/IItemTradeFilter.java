@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.common.traders.item.tradedata;
+package io.github.lightman314.lightmanscurrency.api.filter;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;

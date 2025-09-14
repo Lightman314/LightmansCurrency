@@ -13,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.IItemTradeFilter;
+import io.github.lightman314.lightmanscurrency.api.filter.IItemTradeFilter;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -98,7 +98,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
         if(filter != null && this.trade.allowFilters() && filter.getFilter(internalItem) != null && context.getTrader() instanceof ItemTraderData trader)
         {
             List<ItemStack> displayItems;
-            if(this.trade.isSale())
+            if(this.trade.isSale() || this.trade.isBarter())
                 displayItems = filter.getDisplayableItems(internalItem,trader.getStorage());
             else
                 displayItems = filter.getDisplayableItems(internalItem,null);
@@ -175,7 +175,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
     {
         ItemStack internalItem = this.trade.getActualItem(index + 2);
         IItemTradeFilter filter = FilterAPI.tryGetFilter(internalItem);
-        if(filter != null && this.trade.allowFilters() && filter.getFilter(internalItem) != null && context.getTrader() instanceof ItemTraderData trader)
+        if(filter != null && filter.getFilter(internalItem) != null && context.getTrader() instanceof ItemTraderData trader)
         {
             List<ItemStack> displayItems = filter.getDisplayableItems(internalItem,null);
             ItemStack displayItem = ListUtil.randomItemFromList(displayItems,internalItem);

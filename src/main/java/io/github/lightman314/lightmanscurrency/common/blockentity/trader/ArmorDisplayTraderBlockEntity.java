@@ -6,7 +6,7 @@ import java.util.UUID;
 import io.github.lightman314.lightmanscurrency.api.filter.FilterAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.IItemTradeFilter;
+import io.github.lightman314.lightmanscurrency.api.filter.IItemTradeFilter;
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -147,9 +147,13 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
     {
         ItemStack internalItem = trade.getActualItem(index);
         IItemTradeFilter filter = FilterAPI.tryGetFilter(internalItem);
-        if(filter != null && trade.allowFilters())
+        if(filter != null && filter.getFilter(internalItem) != null && trade.allowFilters())
         {
-            List<ItemStack> displayItems = filter.getDisplayableItems(internalItem,trader.getStorage());
+            List<ItemStack> displayItems;
+            if(trade.isSale() || trade.isBarter())
+                displayItems = filter.getDisplayableItems(internalItem,trader.getStorage());
+            else
+                displayItems = filter.getDisplayableItems(internalItem,null);
             return ListUtil.randomItemFromList(displayItems,ItemStack.EMPTY);
         }
         else

@@ -18,7 +18,7 @@ import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_v
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.IItemTradeFilter;
+import io.github.lightman314.lightmanscurrency.api.filter.IItemTradeFilter;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.client.Minecraft;
@@ -65,10 +65,10 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 		{
             ItemStack internalItem = trade.getActualItem(i);
             IItemTradeFilter filter = FilterAPI.tryGetFilter(internalItem);
-            if(filter != null && filter.getFilter(internalItem) != null)
+            if(filter != null && filter.getFilter(internalItem) != null && trade.allowFilters())
             {
                 List<ItemStack> displayItems;
-                if(trade.isSale())
+                if(trade.isSale() || trade.isBarter())
                     displayItems = filter.getDisplayableItems(internalItem,trader.getStorage());
                 else
                     displayItems = filter.getDisplayableItems(internalItem,null);

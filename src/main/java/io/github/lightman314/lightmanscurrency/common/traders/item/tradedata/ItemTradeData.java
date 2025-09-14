@@ -13,6 +13,7 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.filter.FilterAPI;
+import io.github.lightman314.lightmanscurrency.api.filter.IItemTradeFilter;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
@@ -126,7 +127,7 @@ public class ItemTradeData extends TradeData {
 		{
 			if(index < 2)
 			{
-                if(FilterAPI.tryGetFilter(itemStack) != null && this.allowFilters())
+                if(FilterAPI.itemHasFilter(itemStack) && this.allowFilters())
                     this.items.setItem(index,itemStack); //Always allow filter items unless explicitly blocked
 				else if(this.getRestriction().allowSellItem(itemStack) || itemStack.isEmpty())
 					this.items.setItem(index, this.getRestriction().filterSellItem(itemStack).copy());
@@ -138,7 +139,7 @@ public class ItemTradeData extends TradeData {
 			LightmansCurrency.LogError("Cannot define the item trades item at index " + index + ". Must be between 0-3!");
 	}
 
-    public boolean isNotStrict(int slot) { return !this.getEnforceNBT(slot) || FilterAPI.tryGetFilter(this.getActualItem(slot)) != null; }
+    public boolean isNotStrict(int slot) { return !this.getEnforceNBT(slot) || FilterAPI.itemHasFilter(this.getActualItem(slot)); }
 
 	public boolean alwaysEnforcesNBT(int slot) { return this.getRestriction().alwaysEnforceNBT(slot); }
 
@@ -159,7 +160,7 @@ public class ItemTradeData extends TradeData {
             //Custom ItemTradeFilter items
             ItemStack rawItem = this.getActualItem(slot);
             IItemTradeFilter filter = FilterAPI.tryGetFilter(rawItem);
-            if(filter != null && this.allowFilters())
+            if(filter != null && (slot >= 2 || this.allowFilters()))
             {
                 Predicate<ItemStack> predicate = filter.getFilter(rawItem);
                 if(predicate != null)
@@ -632,7 +633,7 @@ public class ItemTradeData extends TradeData {
 			{
 				//Set the item to the held item
 				ItemStack sellItem = this.getSellItem(index);
-                if(FilterAPI.tryGetFilter(heldItem) != null && this.allowFilters())
+                if(FilterAPI.itemHasFilter(heldItem) && this.allowFilters())
                     sellItem = this.getActualItem(index);
 				if(data.shiftHeld() || (sellItem.isEmpty() && heldItem.isEmpty()))
 				{
@@ -661,8 +662,6 @@ public class ItemTradeData extends TradeData {
 			{
 				//Set the item to the held item
 				ItemStack barterItem = this.getBarterItem(index);
-                if(FilterAPI.tryGetFilter(heldItem) != null && this.allowFilters())
-                    barterItem = this.getActualItem(index + 2);
 				if(data.shiftHeld() || (barterItem.isEmpty() && heldItem.isEmpty()))
 				{
 					//Open Item Edit for this slot
@@ -697,7 +696,7 @@ public class ItemTradeData extends TradeData {
 		{
 			//Set the item to the held item
 			ItemStack sellItem = this.getSellItem(index);
-            if(FilterAPI.tryGetFilter(heldItem) != null && this.allowFilters()) //Compare it to the internal item if a filter is present
+            if(FilterAPI.itemHasFilter(heldItem) && this.allowFilters()) //Compare it to the internal item if a filter is present
                 sellItem = this.getActualItem(index);
 			if(sellItem.isEmpty() && heldItem.isEmpty())
 				return;
@@ -746,7 +745,7 @@ public class ItemTradeData extends TradeData {
 			{
 				//Set the item to the held item
 				ItemStack sellItem = this.getSellItem(index);
-                if(FilterAPI.tryGetFilter(heldItem) != null && this.allowFilters())
+                if(FilterAPI.itemHasFilter(heldItem) && this.allowFilters())
                     sellItem = this.getActualItem(index);
 				if(data.shiftHeld() || (sellItem.isEmpty() && heldItem.isEmpty()))
 				{
