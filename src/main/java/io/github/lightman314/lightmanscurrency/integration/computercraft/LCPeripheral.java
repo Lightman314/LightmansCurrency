@@ -28,14 +28,18 @@ public abstract class LCPeripheral implements IPeripheral {
         boolean wasEmpty = !this.computers.hasComputers();
         this.computers.add(computer);
         if(wasEmpty && this.eventListener())
-            MinecraftForge.EVENT_BUS.register(this);
+            this.onFirstAttachment();
     }
+
+    protected void onFirstAttachment() { MinecraftForge.EVENT_BUS.register(this); }
 
     @Override
     public void detach(IComputerAccess computer) {
         this.computers.remove(computer);
         if(this.eventListener() && !this.computers.hasComputers())
-            MinecraftForge.EVENT_BUS.unregister(this);
+            this.onLastDetachment();
     }
+
+    protected void onLastDetachment() { MinecraftForge.EVENT_BUS.unregister(this); }
 
 }

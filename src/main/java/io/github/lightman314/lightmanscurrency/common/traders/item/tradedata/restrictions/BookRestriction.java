@@ -10,6 +10,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.util.function.Predicate;
+
 public class BookRestriction extends ItemTradeRestriction{
 
     public static BookRestriction INSTANCE = new BookRestriction();
@@ -22,6 +24,9 @@ public class BookRestriction extends ItemTradeRestriction{
 
     @Override
     public boolean allowSellItem(ItemStack itemStack) { return CanSellAsBook(itemStack); }
+
+    @Override
+    public Predicate<ItemStack> modifyFilter(Predicate<ItemStack> filter) { return item -> this.allowSellItem(item) && filter.test(item); }
 
     @Override
     public boolean allowItemSelectItem(ItemStack itemStack) { return CanSellAsBook(itemStack); }

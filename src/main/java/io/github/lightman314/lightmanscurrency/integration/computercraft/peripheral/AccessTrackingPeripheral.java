@@ -6,12 +6,15 @@ import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPerip
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class AccessTrackingPeripheral extends LCPeripheral {
 
+    List<AccessTrackingPeripheral> children = new ArrayList<>();
     @Nullable
     private AccessTrackingPeripheral parent;
-    public void setParent(@Nonnull AccessTrackingPeripheral parent) { this.parent = parent; }
+    public void setParent(@Nonnull AccessTrackingPeripheral parent) { this.parent = parent; this.parent.children.add(this); }
 
     protected boolean childStillValid(IPeripheral child) { return true; }
 
@@ -25,6 +28,20 @@ public abstract class AccessTrackingPeripheral extends LCPeripheral {
         if(this.parent != null)
             return this.parent.getConnectedComputers();
         return this.computers;
+    }
+
+    @Override
+    protected void onFirstAttachment() {
+        super.onFirstAttachment();
+        for(AccessTrackingPeripheral child : this.children)
+            child.onFirstAttachment();
+    }
+
+    @Override
+    protected void onLastDetachment() {
+        super.onLastDetachment();
+        for(AccessTrackingPeripheral child : this.children)
+            child.onLastDetachment();
     }
 
     @Override

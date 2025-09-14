@@ -5,12 +5,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.filter.FilterAPI;
+import io.github.lightman314.lightmanscurrency.api.filter.IItemTradeFilter;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
@@ -126,7 +129,9 @@ public class ItemTradeData extends TradeData {
 		{
 			if(index < 2)
 			{
-				if(this.getRestriction().allowSellItem(itemStack) || itemStack.isEmpty())
+                if(FilterAPI.itemHasFilter(itemStack) && this.allowFilters())
+                    this.items.setItem(index,itemStack);
+				else if(this.getRestriction().allowSellItem(itemStack) || itemStack.isEmpty())
 					this.items.setItem(index, this.getRestriction().filterSellItem(itemStack).copy());
 			}
 			else
@@ -135,6 +140,8 @@ public class ItemTradeData extends TradeData {
 		else
 			LightmansCurrency.LogError("Cannot define the item trades item at index " + index + ". Must be between 0-3!");
 	}
+
+    public boolean isNotStrict(int slot) { return !this.getEnforceNBT(slot) || FilterAPI.itemHasFilter(this.getActualItem(slot)); }
 
 	public boolean alwaysEnforcesNBT(int slot) { return this.getRestriction().alwaysEnforceNBT(slot); }
 
@@ -152,16 +159,31 @@ public class ItemTradeData extends TradeData {
 	public ItemRequirement getItemRequirement(int slot) {
 		if(slot >= 0 && slot < 4)
 		{
+            //Custom ItemTradeFilter items
+            ItemStack rawItem = this.getActualItem(slot);
+            IItemTradeFilter filter = FilterAPI.tryGetFilter(rawItem);
+            if(filter != null && (slot >= 2 || this.allowFilters()))
+            {
+                Predicate<ItemStack> predicate = filter.getFilter(rawItem);
+                if(predicate != null)
+                {
+                    if(slot < 2)
+                        predicate = this.getRestriction().modifyFilter(predicate);
+                    return ItemRequirement.fromFilter(rawItem,predicate);
+                }
+            }
+            ItemStack item = this.getItem(slot);
 			if(this.getEnforceNBT(slot))
-				return ItemRequirement.of(this.getItem(slot));
+				return ItemRequirement.of(item);
 			else
-				return ItemRequirement.ofItemNoNBT(this.getItem(slot));
+				return ItemRequirement.ofItemNoNBT(item);
 		}
 		return ItemRequirement.getNull();
 	}
 
 	public boolean allowItemInStorage(ItemStack item) {
-		for(int i = 0; i < (this.isBarter() ? 4 : 2); ++i)
+        int max = this.isBarter() ? 4 : 2;
+		for(int i = 0; i < max; ++i)
 		{
 			if(this.getItemRequirement(i).test(item))
 				return true;
@@ -175,7 +197,7 @@ public class ItemTradeData extends TradeData {
 			//Only loop through sale items, as purchase items don't matter as far as storage is concerned.
 			for(int i = 0; i < 2; ++i)
 			{
-				if(!this.getEnforceNBT(i) && this.getItemRequirement(i).test(item))
+				if(this.isNotStrict(i) && this.getItemRequirement(i).test(item))
 					return true;
 			}
 		}
@@ -204,7 +226,14 @@ public class ItemTradeData extends TradeData {
 	@Override
 	public TradeDirection getTradeDirection() { return this.tradeType; }
 
-	public boolean isSale() { return this.tradeType == TradeDirection.SALE; }
+    @Override
+    public void setTradeDirection(TradeDirection direction) {
+        if(direction == TradeDirection.OTHER)
+            return;
+        this.setTradeType(direction);
+    }
+
+    public boolean isSale() { return this.tradeType == TradeDirection.SALE; }
 	public boolean isPurchase() { return this.tradeType == TradeDirection.PURCHASE; }
 	public boolean isBarter() { return this.tradeType == TradeDirection.BARTER; }
 
@@ -212,6 +241,8 @@ public class ItemTradeData extends TradeData {
 
 	@Nonnull
 	public ItemTradeRestriction getRestriction() { return this.restriction; }
+
+    public final boolean allowFilters() { return this.getRestriction().allowFilters(); }
 
 	public void setRestriction(ItemTradeRestriction restriction) { this.restriction = restriction; }
 
@@ -224,18 +255,18 @@ public class ItemTradeData extends TradeData {
 	}
 
 	public boolean sellItemsDefined() {
-		return !this.getSellItem(0).isEmpty() || !this.getSellItem(1).isEmpty();
+		return this.getItemRequirement(0).isValid() || this.getItemRequirement(1).isValid();
 	}
 
 	public boolean barterItemsDefined() {
-		return !this.getBarterItem(0).isEmpty() || !this.getBarterItem(1).isEmpty();
+		return this.getItemRequirement(2).isValid() || this.getItemRequirement(3).isValid();
 	}
 
 	public boolean hasStock(ItemTraderData trader)
 	{
 		if(!this.sellItemsDefined())
 			return false;
-		return stockCount(trader) > 0;
+		return this.stockCount(trader) > 0;
 	}
 
 	public boolean hasSpace(ItemTraderData trader, List<ItemStack> collectableItems)
@@ -610,6 +641,8 @@ public class ItemTradeData extends TradeData {
 			{
 				//Set the item to the held item
 				ItemStack sellItem = this.getSellItem(index);
+                if(FilterAPI.itemHasFilter(heldItem) && this.allowFilters())
+                    sellItem = this.getActualItem(index);
 				if(data.shiftHeld() || (sellItem.isEmpty() && heldItem.isEmpty()))
 				{
 					//Open Item Edit for this slot if holding shift or both held & current item is empty
@@ -637,6 +670,8 @@ public class ItemTradeData extends TradeData {
 			{
 				//Set the item to the held item
 				ItemStack barterItem = this.getBarterItem(index);
+                if(FilterAPI.itemHasFilter(heldItem) && this.allowFilters())
+                    barterItem = this.getActualItem(index + 2);
 				if(data.shiftHeld() || (barterItem.isEmpty() && heldItem.isEmpty()))
 				{
 					//Open Item Edit for this slot
@@ -671,6 +706,8 @@ public class ItemTradeData extends TradeData {
 		{
 			//Set the item to the held item
 			ItemStack sellItem = this.getSellItem(index);
+            if(FilterAPI.itemHasFilter(heldItem) && this.allowFilters())
+                sellItem = this.getActualItem(index);
 			if(sellItem.isEmpty() && heldItem.isEmpty())
 				return;
 			if(InventoryUtil.ItemMatches(sellItem, heldItem) && button == 1)
@@ -690,6 +727,8 @@ public class ItemTradeData extends TradeData {
 		{
 			//Set the item to the held item
 			ItemStack barterItem = this.getItem(index);
+            if(FilterAPI.itemHasFilter(heldItem) && this.allowFilters())
+                barterItem = this.getActualItem(index);
 			if(barterItem.isEmpty() && heldItem.isEmpty())
 				return;
 			if(InventoryUtil.ItemMatches(barterItem, heldItem) && button == 1)
@@ -718,6 +757,8 @@ public class ItemTradeData extends TradeData {
 			{
 				//Set the item to the held item
 				ItemStack sellItem = this.getSellItem(index);
+                if(FilterAPI.itemHasFilter(heldItem) && this.allowFilters())
+                    sellItem = this.getActualItem(index);
 				if(data.shiftHeld() || (sellItem.isEmpty() && heldItem.isEmpty()))
 				{
 					//Open Item Edit for this slot

@@ -1,0 +1,59 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "filter": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "lightmanscurrency:item_trade_filter"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "lightmanscurrency:item_trade_filter_reset"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "paper": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:paper"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "traders": {
+      "conditions": {
+        "items": [
+          {
+            "tag": "lightmanscurrency:trader"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "paper",
+      "traders",
+      "filter",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:item_trade_filter_reset"
+    ]
+  },
+  "sends_telemetry_event": false
+}

@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
+import io.github.lightman314.lightmanscurrency.common.core.ModStats;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBidNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseBuyerNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.AuctionHouseCancelNotification;
@@ -238,6 +239,9 @@ public class AuctionTradeData extends TradeData {
 			this.duration = OVERTIME_DURATION;
 		}
 
+        //Reward the player with a bid stat
+        player.awardStat(ModStats.STAT_AUCTION_BIDS);
+
 		return true;
 	}
 
@@ -289,6 +293,10 @@ public class AuctionTradeData extends TradeData {
 			//Post notification to the auction owner
 			if(this.tradeOwner != null)
 				NotificationAPI.API.PushPlayerNotification(this.tradeOwner.id, new AuctionHouseSellerNotification(this,event.getPaymentAmount(),event.getFeePayment()));
+
+            //Award victory stat
+            trader.AwardAuctionWinStat(this.lastBidPlayer);
+
 		}
 		else
 		{

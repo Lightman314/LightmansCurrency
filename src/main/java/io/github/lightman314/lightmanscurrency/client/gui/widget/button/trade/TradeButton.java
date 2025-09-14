@@ -183,18 +183,18 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 	}
 
 	@Override
-	public void renderTooltip(EasyGuiGraphics gui) {
+	public boolean renderTooltip(@Nonnull EasyGuiGraphics gui) {
 
 		if(!this.isMouseOver(gui.mousePos))
-			return;
+			return false;
 
 		TradeRenderManager<?> tr = this.getTradeRenderer();
 		if(tr == null)
-			return;
+			return false;
 
 		TradeContext context = this.getContext();
 		if(context == null)
-			return;
+			return false;
 
 		int mouseX = gui.mousePos.x;
 		int mouseY = gui.mousePos.y;
@@ -212,7 +212,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 			if(display.getFirst().isMouseOver(this.getX(), this.getY(), display.getSecond(), mouseX, mouseY))
 			{
 				if(display.getFirst().trySelfRenderTooltip(gui))
-					return;
+					return true;
 				this.tryAddTooltip(tooltips, display.getFirst().getTooltip());
 			}
 		}
@@ -222,7 +222,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 			if(display.getFirst().isMouseOver(this.getX(), this.getY(), display.getSecond(), mouseX, mouseY))
 			{
 				if(display.getFirst().trySelfRenderTooltip(gui))
-					return;
+					return true;
 				this.tryAddTooltip(tooltips, display.getFirst().getTooltip());
 			}
 		}
@@ -237,9 +237,10 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 
 
 		if(tooltips.isEmpty())
-			return;
+			return false;
 
 		gui.renderComponentTooltip(tooltips);
+        return true;
 	}
 
 	@Override

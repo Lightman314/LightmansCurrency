@@ -25,6 +25,7 @@ import io.github.lightman314.lightmanscurrency.api.stats.StatType;
 import io.github.lightman314.lightmanscurrency.api.stats.types.*;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.types.*;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientCoinSorter;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientMoneyType;
 import io.github.lightman314.lightmanscurrency.common.traders.commands.CommandTrader;
@@ -261,6 +262,13 @@ public class LightmansCurrency {
 		TraderAPI.API.RegisterSearchFilter(new SlotMachineSearchFilter());
 		TraderAPI.API.RegisterSearchFilter(new AuctionSearchFilter());
 		TraderAPI.API.RegisterSearchFilter(new DescriptionSearchFilter());
+
+        //Register Terminal Sort Types
+        TraderAPI.API.RegisterSortType(SortByName.INSTANCE);
+        TraderAPI.API.RegisterSortType(SortByID.INSTANCE);
+        TraderAPI.API.RegisterSortType(SortByOffers.INSTANCE);
+        TraderAPI.API.RegisterSortType(SortByPopularity.INSTANCE);
+        TraderAPI.API.RegisterSortType(SortByRecent.INSTANCE);
 
 		//Register Tax Reference Types (in case I add more taxable blocks in the future)
 		TaxAPI.API.RegisterReferenceType(TaxableTraderReference.TYPE);

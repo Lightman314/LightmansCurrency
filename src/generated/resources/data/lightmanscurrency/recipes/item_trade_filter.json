@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "n": {
+      "tag": "forge:nuggets/iron"
+    },
+    "p": {
+      "item": "minecraft:paper"
+    }
+  },
+  "pattern": [
+    "  n",
+    " p ",
+    "n  "
+  ],
+  "result": {
+    "item": "lightmanscurrency:item_trade_filter"
+  },
+  "show_notification": true
+}

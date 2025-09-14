@@ -1017,6 +1017,26 @@ public class LCRecipeProvider extends RecipeProvider {
                 .withResult(ModItems.COUPON)
                 .save(consumer,ItemID("ticket_station/",ModItems.COUPON));
 
+
+        //2.2.6.4
+        //Item Trade Filter
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC,ModItems.ITEM_TRADE_FILTER.get())
+                .unlockedBy("paper",LazyTrigger(Items.PAPER))
+                .unlockedBy("traders",TraderKnowledge())
+                .pattern("  n")
+                .pattern(" p ")
+                .pattern("n  ")
+                .define('n',Tags.Items.NUGGETS_IRON)
+                .define('p',Items.PAPER)
+                .save(consumer);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC,ModItems.ITEM_TRADE_FILTER.get())
+                .unlockedBy("paper",LazyTrigger(Items.PAPER))
+                .unlockedBy("traders",TraderKnowledge())
+                .unlockedBy("filter",LazyTrigger(ModItems.ITEM_TRADE_FILTER))
+                .requires(ModItems.ITEM_TRADE_FILTER.get())
+                .save(consumer,VersionUtil.lcResource("item_trade_filter_reset"));
+
     }
 
     protected static void GenerateWalletRecipes(@Nonnull Consumer<FinishedRecipe> consumer, List<Pair<Ingredient, Supplier<? extends ItemLike>>> ingredientWalletPairs)

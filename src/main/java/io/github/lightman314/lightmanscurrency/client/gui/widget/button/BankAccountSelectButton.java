@@ -47,9 +47,10 @@ public class BankAccountSelectButton extends EasyButton implements ITooltipWidge
     }
 
     @Override
-    public void renderTooltip(EasyGuiGraphics gui) {
+    public boolean renderTooltip(@Nonnull EasyGuiGraphics gui) {
         if(gui.font.width(this.accountName()) > (this.width - 22))
-            ITooltipWidget.super.renderTooltip(gui);
+            return ITooltipWidget.super.renderTooltip(gui);
+        return false;
     }
 
     @Override

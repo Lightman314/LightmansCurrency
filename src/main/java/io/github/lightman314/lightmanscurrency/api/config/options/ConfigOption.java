@@ -1,9 +1,9 @@
 package io.github.lightman314.lightmanscurrency.api.config.options;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.config.ConfigComments;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
@@ -20,10 +20,10 @@ public abstract class ConfigOption<T> implements Supplier<T> {
 
     public enum LoadSource { FILE, COMMAND, SYNC }
 
-    private List<String> comments = new ArrayList<>();
-    public final void setComments(@Nonnull List<String> comments) {
-        if(this.comments instanceof ArrayList<String>)
-            this.comments = ImmutableList.copyOf(comments);
+    private ConfigComments comments = ConfigComments.EMPTY;
+    public final void setComments(ConfigComments comments) {
+        if(this.comments == ConfigComments.EMPTY)
+            this.comments = comments;
         else
             LightmansCurrency.LogWarning("Attempted to define an options comments twice!");
     }
@@ -59,9 +59,9 @@ public abstract class ConfigOption<T> implements Supplier<T> {
     }
     @Nonnull
     public final List<String> getComments() {
-        List<String> cl = new ArrayList<>(this.comments);
-        cl.addAll(this.bonusComments());
-        return cl;
+        List<String> list = this.comments.getComments();
+        list.addAll(this.bonusComments());
+        return list;
     }
 
     private final Supplier<T> defaultValue;
@@ -70,6 +70,8 @@ public abstract class ConfigOption<T> implements Supplier<T> {
 
     protected ConfigOption(@Nonnull Supplier<T> defaultValue) { this.defaultValue = defaultValue; }
 
+
+
     @Nonnull
     protected List<String> bonusComments() {
         String bonus = this.bonusComment();
@@ -77,7 +79,6 @@ public abstract class ConfigOption<T> implements Supplier<T> {
             return new ArrayList<>();
         return Lists.newArrayList(bonus);
     }
-
     @Nullable
     protected String bonusComment() { return null; }
 

@@ -37,6 +37,7 @@ public abstract class TradeData implements ITradeRuleHost {
 	List<TradeRule> rules = new ArrayList<>();
 
 	public abstract TradeDirection getTradeDirection();
+    public void setTradeDirection(TradeDirection direction) {}
 
 	public boolean validCost() { return this.getCost().isValidPrice(); }
 

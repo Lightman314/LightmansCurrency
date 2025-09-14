@@ -33,6 +33,7 @@ public class DropdownWidget extends EasyWidgetWithChildren implements IMouseList
 	boolean open = false;
 
 	int currentlySelected;
+    public int getCurrentlySelected() { return this.currentlySelected; }
 	public void setCurrentlySelected(int currentlySelected) { this.currentlySelected = MathUtil.clamp(currentlySelected,0,this.options.size() - 1); }
 
 	private final List<Component> options;

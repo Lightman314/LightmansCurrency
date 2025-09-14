@@ -25,7 +25,7 @@ import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -69,15 +69,17 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 					{
 						for(int i = 0; i < 2; ++i)
 						{
-							if(InventoryUtil.ItemMatches(item, trade.getBarterItem(i)))
-								return true;
+                            ItemRequirement requirement = trade.getItemRequirement(i + 2);
+                            if(requirement.test(item))
+                                return true;
 						}
 					}
 					else if(trade.isPurchase())
 					{
 						for(int i = 0; i < 2; ++i)
 						{
-							if(InventoryUtil.ItemMatches(item, trade.getSellItem(i)))
+                            ItemRequirement requirement = trade.getItemRequirement(i);
+							if(requirement.test(item))
 								return true;
 						}
 					}
@@ -96,7 +98,8 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 					{
 						for(int i = 0; i < 2; ++i)
 						{
-							if(InventoryUtil.ItemMatches(item, trade.getSellItem(i)))
+                            ItemRequirement requirement = trade.getItemRequirement(i);
+							if(requirement.test(item))
 								return true;
 						}
 					}

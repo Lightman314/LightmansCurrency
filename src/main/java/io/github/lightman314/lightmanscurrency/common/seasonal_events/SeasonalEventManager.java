@@ -100,6 +100,7 @@ public class SeasonalEventManager {
         List<EventData> list = new ArrayList<>();
         list.add(ChocolateEventCoins.lazyEvent(ChocolateEventCoins.CHRISTMAS,"builtin/christmas",LCText.SEASONAL_EVENT_CHRISTMAS.get()));
         list.add(ChocolateEventCoins.lazyEvent(ChocolateEventCoins.VALENTINES,"builtin/valentines",LCText.SEASONAL_EVENT_VALENTINES.get()));
+        list.add(ChocolateEventCoins.lazyEvent(ChocolateEventCoins.HALLOWEEN,"builtin/halloween",LCText.SEASONAL_EVENT_HALLOWEEN.get()));
         //Special birthday event for playing on my birthday
         list.add(EventData.builder("builtin/birthday")
                 .dateRange(EventRange.create(3,29,3,29))

@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.common.villager_merchant.CustomPr
 import io.github.lightman314.lightmanscurrency.common.loot.LootModifiers;
 import net.minecraft.commands.synchronization.ArgumentTypeInfo;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.npc.VillagerProfession;
@@ -90,6 +91,9 @@ public class ModRegistries {
 		LOOT_ITEM_FUNCTION_TYPES.register(bus);
 		ModLootFunctionTypes.init();
 
+        CUSTOM_STAT.register(bus);
+        ModStats.init();
+
 		//LC Custom Registries
 		EJECTION_DATA.register(bus);
 		ModEjectionDataTypes.init();
@@ -125,6 +129,8 @@ public class ModRegistries {
 	public static final DeferredRegister<LootPoolEntryType> LOOT_POOL_ENTRY_TYPES = DeferredRegister.create(Registries.LOOT_POOL_ENTRY_TYPE, LightmansCurrency.MODID);
 
 	public static final DeferredRegister<LootItemFunctionType> LOOT_ITEM_FUNCTION_TYPES = DeferredRegister.create(Registries.LOOT_FUNCTION_TYPE,LightmansCurrency.MODID);
+
+    public static final DeferredRegister<ResourceLocation> CUSTOM_STAT = DeferredRegister.create(Registries.CUSTOM_STAT,LightmansCurrency.MODID);
 
 	//Custom Registries
 	public static final DeferredRegister<EjectionDataType> EJECTION_DATA = DeferredRegister.create(LCRegistries.EJECTION_DATA_KEY,LightmansCurrency.MODID);

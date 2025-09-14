@@ -12,6 +12,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.util.function.Predicate;
+
 public class EquipmentRestriction extends ItemTradeRestriction {
 
 	private final EquipmentSlot equipmentType;
@@ -30,7 +32,10 @@ public class EquipmentRestriction extends ItemTradeRestriction {
 	{
 		return this.equippable(itemStack);
 	}
-	
+
+    @Override
+    public Predicate<ItemStack> modifyFilter(Predicate<ItemStack> filter) { return item -> this.allowSellItem(item) && filter.test(item); }
+
 	@Override
 	public boolean allowItemSelectItem(ItemStack itemStack)
 	{

@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.text;
 
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.TerminalSortType;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -21,5 +23,12 @@ public class DualTextEntry {
     public static DualTextEntry resourcePack(String modid, String name) { return new DualTextEntry("resourcepack." + modid + "." + name,"resourcepack." + modid + "." + name + ".description"); }
 
     public static DualTextEntry permission(String permission) { return new DualTextEntry("permission.lightmanscurrency." + permission,"permission.lightmanscurrency." + permission + ".tooltip"); }
+
+    public static DualTextEntry terminalSortType(TerminalSortType type) { return terminalSortType(type.getID()); }
+    public static DualTextEntry terminalSortType(ResourceLocation type) { return terminalSortType(type.getNamespace(),type.getPath()); }
+    public static DualTextEntry terminalSortType(String modid,String name) {
+        String key = "gui." + modid + ".terminal.sort_type." + name;
+        return new DualTextEntry(key,key + ".inverted");
+    }
 
 }

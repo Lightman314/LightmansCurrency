@@ -20,6 +20,8 @@ public abstract class TradeWrapper<T extends TradeData> extends AccessTrackingPe
     private final Supplier<TraderData> trader;
     public TradeWrapper(Supplier<T> tradeSource, Supplier<TraderData> trader) { this.source = tradeSource; this.trader = trader; }
 
+    public static TradeWrapper<TradeData> createSimple(Supplier<TradeData> tradeSource, Supplier<TraderData> trader) { return new Simple(tradeSource,trader); }
+
     @Override
     public Set<String> getAdditionalTypes() { return Set.of(BASE_TYPE); }
 
@@ -62,5 +64,15 @@ public abstract class TradeWrapper<T extends TradeData> extends AccessTrackingPe
     public boolean isBarter() throws LuaException { return this.getTrade().getTradeDirection() == TradeDirection.BARTER; }
     @LuaFunction(mainThread = true)
     public boolean isOther() throws LuaException { return this.getTrade().getTradeDirection() == TradeDirection.OTHER; }
+
+    private static final class Simple extends TradeWrapper<TradeData>
+    {
+
+        public Simple(Supplier<TradeData> tradeSource, Supplier<TraderData> trader) { super(tradeSource, trader); }
+        @Override
+        public String getType() { return BASE_TYPE; }
+        @Override
+        public Set<String> getAdditionalTypes() { return Set.of(); }
+    }
 
 }

@@ -9,6 +9,8 @@ import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITradeSearchFilter;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.PendingSearch;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.SortTypeKey;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.TerminalSortType;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import net.minecraft.resources.ResourceLocation;
@@ -16,10 +18,7 @@ import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class TraderAPIImpl extends TraderAPI {
 
@@ -27,6 +26,7 @@ public class TraderAPIImpl extends TraderAPI {
 
     private final Map<String, TraderType<?>> traderRegistry = new HashMap<>();
     private final Map<String, TradeRuleType<?>> tradeRuleRegistry = new HashMap<>();
+    private final Map<ResourceLocation, TerminalSortType> sortTypeRegistry = new HashMap<>();
 
     private final List<ITraderSearchFilter> traderSearchFilters = new ArrayList<>();
     private final List<ITradeSearchFilter> tradeSearchFilters = new ArrayList<>();
@@ -80,7 +80,8 @@ public class TraderAPIImpl extends TraderAPI {
     public boolean FilterTrader(@Nonnull TraderData data, @Nonnull String search) {
         if(search.isBlank())
             return true;
-        return this.FilterTrader(data,PendingSearch.of(search));
+        PendingSearch results = PendingSearch.of(search);
+        return this.FilterTrader(data,results);
     }
 
     //Local private copy so that we don't have to re-process the string during the for loop of FilterTraders
@@ -96,14 +97,16 @@ public class TraderAPIImpl extends TraderAPI {
     @Nonnull
     @Override
     public List<TraderData> FilterTraders(@Nonnull List<TraderData> data, @Nonnull String search) {
+
         if(search.isBlank())
             return data;
 
         PendingSearch temp = PendingSearch.of(search);
+
         List<TraderData> results = new ArrayList<>();
         for(TraderData trader : data)
         {
-            if(this.FilterTrader(trader,search))
+            if(this.FilterTrader(trader,temp))
                 results.add(trader);
         }
         return results;
@@ -128,7 +131,7 @@ public class TraderAPIImpl extends TraderAPI {
         PendingSearch results = search.copy();
         //Check for failed filters
         for(ITradeSearchFilter filter : this.tradeSearchFilters)
-            filter.filterTrade(trade,search);
+            filter.filterTrade(trade,results);
         return results.hasPassed();
     }
 
@@ -151,6 +154,54 @@ public class TraderAPIImpl extends TraderAPI {
     public <T extends ITraderSearchFilter & ITradeSearchFilter> void RegisterSearchFilter(@Nonnull T filter) {
         this.RegisterTraderSearchFilter(filter);
         this.RegisterTradeSearchFilter(filter);
+    }
+
+    @Override
+    public void RegisterSortType(TerminalSortType sortType) {
+        Objects.requireNonNull(sortType,"Terminal Sort Type cannot be null!");
+        if(this.sortTypeRegistry.containsKey(sortType.getID()))
+        {
+            LightmansCurrency.LogWarning("Attempted to register duplicate TerminalSortType '" + sortType.getID() + "'!");
+            return;
+        }
+        this.sortTypeRegistry.put(sortType.getID(),sortType);
+    }
+
+    @Nullable
+    @Override
+    public TerminalSortType GetSortType(ResourceLocation key) { return this.sortTypeRegistry.get(key); }
+
+    @Nullable
+    @Override
+    public TerminalSortType GetSortType(SortTypeKey key) {
+        TerminalSortType type = this.GetSortType(key.id());
+        if(type != null && key.inverted())
+            return type.getInverted();
+        return type;
+    }
+
+    @Override
+    public List<TerminalSortType> GetAllSortTypes() {
+        List<TerminalSortType> list = new ArrayList<>(this.sortTypeRegistry.values());
+        list.sort(Comparator.comparingInt(TerminalSortType::sortPriority).reversed());
+        List<TerminalSortType> result = new ArrayList<>();
+        for(TerminalSortType type : list)
+        {
+            result.add(type);
+            if(type.supportsInverted())
+            {
+                TerminalSortType inverted = type.getInverted();
+                if(inverted != null)
+                    result.add(inverted);
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<SortTypeKey> GetAllSortTypeKeys() {
+        List<TerminalSortType> types = GetAllSortTypes();
+        return types.stream().map(TerminalSortType::getKey).toList();
     }
 
     @Nullable

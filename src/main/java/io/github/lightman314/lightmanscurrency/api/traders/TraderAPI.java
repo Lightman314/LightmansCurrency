@@ -3,6 +3,8 @@ package io.github.lightman314.lightmanscurrency.api.traders;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITradeSearchFilter;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITraderSearchFilter;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.SortTypeKey;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.TerminalSortType;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.impl.TraderAPIImpl;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
@@ -28,7 +30,7 @@ public abstract class TraderAPI {
     public static void registerTrader(@Nonnull TraderType<?> type) { API.RegisterTrader(type); }
 
     /**
-     * Registers the given {@link TraderType}, allowing {@link TraderData} of that type to be saved & loaded from the Trader Save Data.
+     * Registers the given {@link TraderType}, allowing {@link TraderData} of that type to be saved &amp; loaded from the Trader Save Data.
      */
     public abstract void RegisterTrader(@Nonnull TraderType<?> type);
 
@@ -98,7 +100,7 @@ public abstract class TraderAPI {
     public static void registerSearchFilter(@Nonnull ITraderSearchFilter filter) { API.RegisterTraderSearchFilter(filter); }
 
     /**
-     * Registers the given {@link ITraderSearchFilter}, allowing the ability to search traders via {@link #FilterTrader(TraderData, String)} & {@link #FilterTraders(List, String)}
+     * Registers the given {@link ITraderSearchFilter}, allowing the ability to search traders via {@link #FilterTrader(TraderData, String)} &amp; {@link #FilterTraders(List, String)}
      */
     public abstract void RegisterTraderSearchFilter(@Nonnull ITraderSearchFilter filter);
 
@@ -130,7 +132,7 @@ public abstract class TraderAPI {
     public abstract List<TraderData> FilterTraders(@Nonnull List<TraderData> data, @Nonnull String searchText);
 
     /**
-     * Registers the given {@link ITradeSearchFilter}, allowing the ability to search traders via {@link #FilterTrade(TradeData,String)} & {@link #FilterTrades(List,String)}
+     * Registers the given {@link ITradeSearchFilter}, allowing the ability to search traders via {@link #FilterTrade(TradeData,String)} &amp; {@link #FilterTrades(List,String)}
      */
     public abstract void RegisterTradeSearchFilter(@Nonnull ITradeSearchFilter filter);
     /**
@@ -145,11 +147,34 @@ public abstract class TraderAPI {
     public abstract List<TradeData> FilterTrades(@Nonnull List<TradeData> trades, @Nonnull String searchText);
 
     /**
-     *  Registers the given {@link ITraderSearchFilter} & {@link ITradeSearchFilter} so that the trader & its trades can be filtered.
+     *  Registers the given {@link ITraderSearchFilter} &amp; {@link ITradeSearchFilter} so that the trader &amp; its trades can be filtered.
      * @see #RegisterTraderSearchFilter(ITraderSearchFilter)
      * @see #RegisterTradeSearchFilter(ITradeSearchFilter)
      */
     public abstract <T extends ITraderSearchFilter & ITradeSearchFilter> void RegisterSearchFilter(@Nonnull T filter);
+
+    /**
+     * Registers the given {@link TerminalSortType} as a valid sort type option
+     */
+    public abstract void RegisterSortType(TerminalSortType sortType);
+
+    @Nullable
+    public abstract TerminalSortType GetSortType(ResourceLocation key);
+    @Nullable
+    public abstract TerminalSortType GetSortType(SortTypeKey key);
+
+    /**
+     * Returns a list of all registered {@link TerminalSortType}'s
+     * @see #RegisterSortType(TerminalSortType)
+     */
+    public abstract List<TerminalSortType> GetAllSortTypes();
+
+    /**
+     * Returns a list of keys for all registered {@link TerminalSortType}
+     * @see #GetSortType(ResourceLocation)
+     * @see #GetAllSortTypes()
+     */
+    public abstract List<SortTypeKey> GetAllSortTypeKeys();
 
     /**
      * @deprecated Use {@link #GetTrader(IClientTracker, long)} instead.

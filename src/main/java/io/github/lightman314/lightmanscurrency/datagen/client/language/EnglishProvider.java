@@ -12,8 +12,10 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.OutputConflictHandling;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceLocation;
 
 public class EnglishProvider extends TranslationProvider {
 
@@ -151,6 +153,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.ITEM_UPGRADE_TEMPLATE,"Smithing Template");
 
         this.translate(LCText.ITEM_VARIANT_WAND,"Variant Wand");
+
+        this.translate(LCText.ITEM_ITEM_TRADE_FILTER,"Custom Item Trade Filter");
 
         //Blocks
         this.translate(LCText.BLOCK_COINPILE_COPPER,"Copper Coinpile");
@@ -308,12 +312,15 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_CASH_REGISTER, "Can be used to link and interact with multiple local traders from the same menu");
         this.translate(LCText.TOOLTIP_COIN_JAR,"Coin Jar:","When placed, up to 64 coins can be inserted by interacting with the jar while holding a coin","If mined with silk touch the jar will drop with the coins still inside","If mined without silk touch the jar will break and its contents will be dropped instead");
         this.translate(LCText.TOOLTIP_COIN_JAR_COLORED,"Can be dyed in a crafting table");
-        this.translate(LCText.TOOLTIP_MONEY_BAG,"Money Bag: When placed, up to 576 coins can be inserted by interacting with the bag while holding a coin","Interacting with the bag with an empty hand will extract a random coin from the bag","When mined the bag will drop with the coins still inside","Bag increases in size the more coins are contained within","In a pinch a sufficiently full bag can be used as a blunt weapon");
+        this.translate(LCText.TOOLTIP_MONEY_BAG,"When placed, up to 576 coins can be inserted by interacting with the bag while holding a coin","Interacting with the bag with an empty hand will extract a random coin from the bag","When mined the bag will drop with the coins still inside","Bag increases in size the more coins are contained within","In a pinch a sufficiently full bag can be used as a blunt weapon");
         this.translate(LCText.TOOLTIP_COLORED_ITEM, "Color: %s");
         this.translate(LCText.TOOLTIP_VARIANT_WAND, "Right click on most Lightman's Currency blocks to select a model variant","Not all blocks have variants by default, but more can be added via resource pack");
         this.translate(LCText.TOOLTIP_MODEL_VARIANT_NAME, "Variant: %s");
         this.translate(LCText.TOOLTIP_MODEL_VARIANT_ID, "Variant ID: %s");
         this.translate(LCText.TOOLTIP_MODEL_VARIANT_LOCKED, "Variant is Locked");
+
+        this.translate(LCText.TOOLTIP_ITEM_TRADE_FILTER_ITEM_LABEL, "Items:");
+        this.translate(LCText.TOOLTIP_ITEM_TRADE_FILTER_TAG_LABEL, "Item Tags:");
 
         this.translate(LCText.TOOLTIP_TRADER_ITEM_WITH_DATA,"Linked to existing Trader Data");
         this.translate(LCText.TOOLTIP_TRADER_ITEM_WITH_DATA_TRADER_ID,"Trader ID: %s");
@@ -427,6 +434,13 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_NETWORK_TERMINAL_TRADE_COUNT,"%s trade(s)");
         this.translate(LCText.TOOLTIP_NETWORK_TERMINAL_OUT_OF_STOCK_COUNT,"%s trade(s) out of stock");
         this.translate(LCText.TOOLTIP_NETWORK_TERMINAL_AUCTION_HOUSE,"%s auction(s) available");
+
+        //Terminal Sort Types
+        this.translate(LCText.SORT_TYPE_NAME,"Name (A->Z)","Name (Z->A)");
+        this.translate(LCText.SORT_TYPE_ID,"Oldest","Newest");
+        this.translate(LCText.SORT_TYPE_OFFERS,"Most Offers","Least Offers");
+        this.translate(LCText.SORT_TYPE_POPULARITY,"Popular","Unpopular");
+        this.translate(LCText.SORT_TYPE_RECENT,"Recent Activity","Older Activity");
 
         //Notification Menu
         this.translate(LCText.BUTTON_NOTIFICATIONS_MARK_AS_READ,"Mark As Read");
@@ -644,8 +658,9 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_TRADER_EDIT_TRADES,"Edit Trades");
         this.translate(LCText.TOOLTIP_TRADER_SELECT_ALL_TRADES,"Select All Trades");
         this.translate(LCText.TOOLTIP_TRADER_DESELECT_ALL_TRADES,"Deselect All Trades");
-        this.translate(LCText.TOOLTIP_TRADER_OPEN_MULTI_EDIT_SELECTED,"Edit Price for All %s Selected Trade(s)");
+        this.translate(LCText.TOOLTIP_TRADER_OPEN_MULTI_EDIT_SELECTED,"Edit Basic Settings for All %s Selected Trade(s)");
         this.translate(LCText.BUTTON_TRADER_SET_ALL_PRICES,"Set Price for %s Trade(s)");
+        this.translate(LCText.BUTTON_TRADER_SET_ALL_DIRECTIONS,"Set %s Types");
         this.translate(LCText.TOOLTIP_TRADER_UPGRADES,"Upgrades");
         this.translate(LCText.TOOLTIP_TRADER_INFO,"Trader Info");
         this.translate(LCText.TOOLTIP_TRADER_LOGS,"Trader Logs");
@@ -811,6 +826,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TRADE_RULE_PLAYER_TRADE_LIMIT,"Player Trade Limit");
         this.translate(LCText.TRADE_RULE_PLAYER_TRADE_LIMIT_DENIAL_TIMED,"You have done this trade %1$s times within the last %2$s");
         this.translate(LCText.TRADE_RULE_PLAYER_TRADE_LIMIT_DENIAL,"You have done this trade %s times already");
+        this.translate(LCText.TRADE_RULE_PLAYER_TRADE_LIMIT_DENIAL_TIME_REMAINING,"You can interact again in %s");
         this.translate(LCText.TRADE_RULE_PLAYER_TRADE_LIMIT_DENIAL_LIMIT,"Limit is %s");
         this.translate(LCText.TRADE_RULE_PLAYER_TRADE_LIMIT_INFO_TIMED,"You have done this trade %1$s of %2$s times within the last %3$s");
         this.translate(LCText.TRADE_RULE_PLAYER_TRADE_LIMIT_INFO,"You have done this trade %1$s of %2$s times");
@@ -1152,6 +1168,11 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.DATA_CATEGORY_MISC_SETTINGS,"Misc Settings");
         this.translate(LCText.DATA_CATEGORY_CREATIVE,"Creative Settings");
 
+        //Vanilla Stats
+        this.translate(LCText.STAT_TRADE_INTERACTIONS,"Traded with Trading Machines");
+        this.translate(LCText.STAT_AUCTION_BIDS,"Auction Bids Placed");
+        this.translate(LCText.STAT_AUCTION_WINS,"Auctions Won");
+
         //LC Statistics
         //Generic
         this.translate(StatKeys.Generic.MONEY_EARNED,"Money Earned: %s");
@@ -1321,6 +1342,7 @@ public class EnglishProvider extends TranslationProvider {
         //Seasonal Events
         this.translate(LCText.SEASONAL_EVENT_CHRISTMAS,"It's Christmas Time! Here, have some chocolate!");
         this.translate(LCText.SEASONAL_EVENT_VALENTINES,"It's nearing Valentines! Here, have some chocolate!");
+        this.translate(LCText.SEASONAL_EVENT_HALLOWEEN,"Tick or Treat!");
         this.translate(LCText.SEASONAL_EVENT_BIRTHDAY,"It's Lightman's Birthday! Here's a gift from me to you!");
 
         //Resource Pack Names
@@ -1367,6 +1389,10 @@ public class EnglishProvider extends TranslationProvider {
         this.add("create.item_attributes.lightmanscurrency.coin.any.inverted","Is not a coin");
         this.add("create.item_attributes.lightmanscurrency.coin.chain","Is a '%s' coin");
         this.add("create.item_attributes.lightmanscurrency.coin.chain.inverted","Is not a '%s' coin");
+
+        final ResourceLocation TRADER_GUIDE = VersionUtil.lcResource("trader_guide");
+        //Patchouli
+        this.translateGuide(TRADER_GUIDE,"Trading Guide (WIP)","A guide to Buying and Selling your way to unfathomable riches");
 
     }
 

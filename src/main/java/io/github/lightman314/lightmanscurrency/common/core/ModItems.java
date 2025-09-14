@@ -156,6 +156,9 @@ public class ModItems {
 		//Variant Wand
 		VARIANT_WAND = ModRegistries.ITEMS.register("variant_wand",() -> new Item(new Item.Properties().stacksTo(1)));
 
+        //Item Trade Filter
+        ITEM_TRADE_FILTER = ModRegistries.ITEMS.register("item_trade_filter",() -> new FilterItem(new Item.Properties()));
+
 	}
 	
 	//Hold the items for public access
@@ -245,5 +248,7 @@ public class ModItems {
 	public static final Supplier<Item> PREPAID_CARD;
 
 	public static final Supplier<Item> VARIANT_WAND;
+
+	public static final Supplier<Item> ITEM_TRADE_FILTER;
 
 }

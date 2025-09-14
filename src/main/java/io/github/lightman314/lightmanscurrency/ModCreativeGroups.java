@@ -91,6 +91,7 @@ public class ModCreativeGroups {
                     ezPop(p, ModItems.ATM_CARD);
                     //Trading Core
                     ezPop(p, ModItems.TRADING_CORE);
+                    ezPop(p, ModItems.ITEM_TRADE_FILTER);
                     //Variant Wand
                     ezPop(p, ModItems.VARIANT_WAND);
                     //Event Coins

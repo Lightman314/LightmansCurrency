@@ -2,6 +2,8 @@ package io.github.lightman314.lightmanscurrency.integration.computercraft.periph
 
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.api.peripheral.IPeripheral;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
@@ -12,6 +14,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,6 +45,13 @@ public class PaygatePeripheral extends TraderPeripheral<PaygateBlockEntity,Payga
                 return trader.getTrade(index);
             return null;
         };
+    }
+
+    @Nullable
+    @Override
+    protected IPeripheral wrapTrade(TradeData trade) throws LuaException {
+        int index = this.getTrader().indexOfTrade(trade);
+        return new PaygateTradeWrapper(this.tradeSource(index),this::safeGetTrader);
     }
 
     @LuaFunction(mainThread = true)

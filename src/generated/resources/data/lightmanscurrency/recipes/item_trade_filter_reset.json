@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "lightmanscurrency:item_trade_filter"
+    }
+  ],
+  "result": {
+    "item": "lightmanscurrency:item_trade_filter"
+  }
+}

@@ -35,6 +35,7 @@ import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -61,7 +62,6 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.text.DecimalFormat;
@@ -160,8 +160,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     }
 
     private final TraderItemStorage storage = new TraderItemStorage(this);
-    
-    @Nonnull
+
     public final TraderItemStorage getStorage() { return this.storage; }
 
     private SlotMachineTraderData() { super(TYPE); }
@@ -429,8 +428,13 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
             //Push Notification
             this.pushNotification(SlotMachineTradeNotification.create(loot, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
 
+            List<Object> product = new ArrayList<>();
+            if(loot.isMoney())
+                product.add(loot.getMoneyValue());
+            else
+                product.addAll(InventoryUtil.copyList(loot.items));
             //Push the post-trade event
-            this.runPostTradeEvent(trade, context, price, taxesPaid);
+            this.runPostTradeEvent(trade, context, price, taxesPaid, product);
 
             return TradeResult.SUCCESS;
 

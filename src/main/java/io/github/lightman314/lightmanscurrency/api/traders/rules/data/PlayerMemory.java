@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.traders.rules.data;
 
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -13,7 +14,12 @@ public class PlayerMemory {
 
     private final Map<UUID, List<Long>> memory = new HashMap<>();
 
-    public int getCount(TradeEvent event, long timeLimit) { return getCount(event.getContext().getPlayerReference().id,timeLimit); }
+    public int getCount(TradeEvent event, long timeLimit) {
+        PlayerReference pr = event.getPlayerReference();
+        if(pr != null)
+            return getCount(pr.id,timeLimit);
+        return 0;
+    }
 
     public int getCount(UUID player, long timeLimit) {
         int count = 0;
@@ -30,6 +36,37 @@ public class PlayerMemory {
         return count;
     }
 
+    public long getTimeRemaining(TradeEvent event, long timeLimit)
+    {
+        PlayerReference pr = event.getPlayerReference();
+        if(pr != null)
+            return this.getTimeRemaining(pr.id,timeLimit);
+        return 0;
+    }
+    public long getTimeRemaining(UUID player, long timeLimit)
+    {
+        if(this.memory.containsKey(player))
+        {
+            long minTime = Long.MAX_VALUE;
+            List<Long> eventTimes = this.memory.get(player);
+            if(timeLimit <= 0)
+                return Long.MAX_VALUE;
+            for(Long eventTime : eventTimes) {
+                if(TimeUtil.compareTime(timeLimit,eventTime))
+                    minTime = Math.min(minTime,eventTime);
+            }
+            if(minTime < Long.MAX_VALUE)
+                return Math.max(timeLimit + minTime - TimeUtil.getCurrentTime(),0);
+        }
+        return 0;
+    }
+
+    public void addEntry(TradeEvent event)
+    {
+        PlayerReference pr = event.getPlayerReference();
+        if(pr != null)
+            this.addEntry(pr.id);
+    }
     public void addEntry(UUID player)
     {
         List<Long> list = this.memory.getOrDefault(player,new ArrayList<>());
@@ -88,6 +125,23 @@ public class PlayerMemory {
                     for(long time : tag.getLongArray("Times"))
                         eventTimes.add(time);
                     this.memory.put(tag.getUUID("ID"),eventTimes);
+                }
+                //Load from old data
+                else if(tag.contains("id"))
+                {
+                    List<Long> eventTimes = new ArrayList<>();
+                    if(tag.contains("count"))
+                    {
+                        int count = tag.getInt("count");
+                        while(count-- > 0)
+                            eventTimes.add(TimeUtil.getCurrentTime());
+                    }
+                    if(tag.contains("times",Tag.TAG_LONG_ARRAY))
+                    {
+                        for(long time : tag.getLongArray("times"))
+                            eventTimes.add(time);
+                    }
+                    this.memory.put(tag.getUUID("id"),eventTimes);
                 }
             }
         }

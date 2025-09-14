@@ -1,11 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.traders.rules.types;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LCText;
@@ -13,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.ICopySupportingRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.data.PlayerMemory;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.PlayerTradeLimitTab;
@@ -26,7 +21,6 @@ import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
@@ -49,7 +43,7 @@ public class PlayerTradeLimit extends TradeRule implements ICopySupportingRule {
 	public long getTimeLimit() { return this.timeLimit; }
 	public void setTimeLimit(long timeLimit) { this.timeLimit = timeLimit; }
 	
-	Map<UUID,List<Long>> memory = new HashMap<>();
+	private final PlayerMemory memory = new PlayerMemory();
 	public void resetMemory() { this.memory.clear(); }
 	
 	private PlayerTradeLimit() { super(TYPE); }
@@ -61,11 +55,16 @@ public class PlayerTradeLimit extends TradeRule implements ICopySupportingRule {
 	@Override
 	public void beforeTrade(PreTradeEvent event) {
 		
-		int tradeCount = getTradeCount(event.getPlayerReference().id);
+		int tradeCount = this.memory.getCount(event,this.timeLimit);
 		if(tradeCount >= this.limit)
 		{
 			if(this.enforceTimeLimit())
-				event.addDenial(LCText.TRADE_RULE_PLAYER_TRADE_LIMIT_DENIAL_TIMED.get(tradeCount, new TimeUtil.TimeData(this.getTimeLimit()).getString()));
+            {
+                event.addDenial(LCText.TRADE_RULE_PLAYER_TRADE_LIMIT_DENIAL_TIMED.get(tradeCount, new TimeUtil.TimeData(this.getTimeLimit()).getString()));
+                long timeRemaining = this.memory.getTimeRemaining(event,this.timeLimit);
+                if(timeRemaining > 0)
+                    event.addDenial(LCText.TRADE_RULE_PLAYER_TRADE_LIMIT_DENIAL_TIME_REMAINING.get(new TimeUtil.TimeData(timeRemaining).getString()));
+            }
 			else
 				event.addDenial(LCText.TRADE_RULE_PLAYER_TRADE_LIMIT_DENIAL.get(tradeCount));
 			event.addDenial(LCText.TRADE_RULE_PLAYER_TRADE_LIMIT_DENIAL_LIMIT.get(this.limit));
@@ -82,71 +81,18 @@ public class PlayerTradeLimit extends TradeRule implements ICopySupportingRule {
 	@Override
 	public void afterTrade(PostTradeEvent event) {
 		
-		this.addEvent(event.getPlayerReference().id, TimeUtil.getCurrentTime());
-		
-		this.clearExpiredData();
+		this.memory.addEntry(event);
+        this.memory.clearExpiredData(this.timeLimit);
 		
 		event.markDirty();
 		
-	}
-	
-	private void addEvent(UUID player, Long time)
-	{
-		List<Long> eventTimes = new ArrayList<>();
-		if(this.memory.containsKey(player))
-			eventTimes = this.memory.get(player);
-		eventTimes.add(time);
-		this.memory.put(player, eventTimes);
-	}
-	
-	private void clearExpiredData()
-	{
-		if(!this.enforceTimeLimit())
-			return;
-		List<UUID> emptyEntries = new ArrayList<>();
-		this.memory.forEach((id, eventTimes) ->{
-			for(int i = 0; i < eventTimes.size(); i++)
-			{
-				if(!TimeUtil.compareTime(this.timeLimit, eventTimes.get(i)))
-				{
-					eventTimes.remove(i);
-					i--;
-				}
-			}
-			if(eventTimes.isEmpty())
-				emptyEntries.add(id);
-		});
-		emptyEntries.forEach(id -> this.memory.remove(id));
-	}
-	
-	private int getTradeCount(UUID playerID)
-	{
-		int count = 0;
-		if(this.memory.containsKey(playerID))
-		{
-			List<Long> eventTimes = this.memory.get(playerID);
-			if(!this.enforceTimeLimit())
-				return eventTimes.size();
-			for (Long eventTime : eventTimes) {
-				if (TimeUtil.compareTime(this.timeLimit, eventTime))
-					count++;
-			}
-		}
-		return count;
 	}
 	
 	@Override
 	protected void saveAdditional(CompoundTag compound) {
 		
 		compound.putInt("Limit", this.limit);
-		ListTag memoryList = new ListTag();
-		this.memory.forEach((id, eventTimes) ->{
-			CompoundTag thisMemory = new CompoundTag();
-			thisMemory.putUUID("id", id);
-			thisMemory.putLongArray("times", eventTimes);
-			memoryList.add(thisMemory);
-		});
-		compound.put("Memory", memoryList);
+		this.memory.save(compound);
 		compound.putLong("ForgetTime", this.timeLimit);
 	}
 	
@@ -163,35 +109,7 @@ public class PlayerTradeLimit extends TradeRule implements ICopySupportingRule {
 		
 		if(compound.contains("Limit", Tag.TAG_INT))
 			this.limit = compound.getInt("Limit");
-		if(compound.contains("Memory", Tag.TAG_LIST))
-		{
-			this.memory.clear();
-			ListTag memoryList = compound.getList("Memory", Tag.TAG_COMPOUND);
-			for(int i = 0; i < memoryList.size(); i++)
-			{
-				CompoundTag thisMemory = memoryList.getCompound(i);
-				UUID id = null;
-				List<Long> eventTimes = new ArrayList<>();
-				if(thisMemory.contains("id"))
-					id = thisMemory.getUUID("id");
-				if(thisMemory.contains("count", Tag.TAG_INT))
-				{
-					int count = thisMemory.getInt("count");
-					for(int z = 0; z < count; z++)
-					{
-						eventTimes.add(TimeUtil.getCurrentTime());
-					}
-				}
-				if(thisMemory.contains("times", Tag.TAG_LONG_ARRAY))
-				{
-					for(long time : thisMemory.getLongArray("times"))
-					{
-						eventTimes.add(time);
-					}
-				}
-				this.memory.put(id, eventTimes);
-			}
-		}
+		this.memory.load(compound);
 		if(compound.contains("ForgetTime", Tag.TAG_LONG))
 			this.timeLimit = compound.getLong("ForgetTime");
 	}
@@ -229,48 +147,13 @@ public class PlayerTradeLimit extends TradeRule implements ICopySupportingRule {
 	@Override
 	public CompoundTag savePersistentData() {
 		CompoundTag data = new CompoundTag();
-		ListTag memoryList = new ListTag();
-		this.memory.forEach((id, eventTimes) ->{
-			CompoundTag thisMemory = new CompoundTag();
-			thisMemory.putUUID("id", id);
-			thisMemory.putLongArray("times", eventTimes);
-			memoryList.add(thisMemory);
-		});
-		data.put("Memory", memoryList);
+		this.memory.save(data);
 		return data;
 	}
 	
 	@Override
 	public void loadPersistentData(CompoundTag data) {
-		if(data.contains("Memory", Tag.TAG_LIST))
-		{
-			this.memory.clear();
-			ListTag memoryList = data.getList("Memory", Tag.TAG_COMPOUND);
-			for(int i = 0; i < memoryList.size(); i++)
-			{
-				CompoundTag thisMemory = memoryList.getCompound(i);
-				UUID id = null;
-				List<Long> eventTimes = new ArrayList<>();
-				if(thisMemory.contains("id"))
-					id = thisMemory.getUUID("id");
-				if(thisMemory.contains("count", Tag.TAG_INT))
-				{
-					int count = thisMemory.getInt("count");
-					for(int z = 0; z < count; z++)
-					{
-						eventTimes.add(0L);
-					}
-				}
-				if(thisMemory.contains("times", Tag.TAG_LONG_ARRAY))
-				{
-					for(long time : thisMemory.getLongArray("times"))
-					{
-						eventTimes.add(time);
-					}
-				}
-				this.memory.put(id, eventTimes);
-			}
-		}
+		this.memory.load(data);
 	}
 	
 	@Override

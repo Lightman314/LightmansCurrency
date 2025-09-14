@@ -32,17 +32,14 @@ public class EnumOption<T extends Enum<T>> extends ConfigOption<T> {
     @Nullable
     @Override
     protected String bonusComment() {
-        StringBuilder builder = new StringBuilder("Options: ");
-        boolean comma = false;
+        StringBuilder builder = new StringBuilder();
         for(T option : clazz.getEnumConstants())
         {
-            if(comma)
+            if(!builder.isEmpty())
                 builder.append(", ");
-            else
-                comma = true;
             builder.append(option.name());
         }
-        return builder.toString();
+        return "Options: " + builder;
     }
 
     public static <T extends Enum<T>> EnumOption<T> create(@Nonnull T defaultValue) { return new EnumOption<>(() -> defaultValue, (Class<T>)defaultValue.getClass()); }

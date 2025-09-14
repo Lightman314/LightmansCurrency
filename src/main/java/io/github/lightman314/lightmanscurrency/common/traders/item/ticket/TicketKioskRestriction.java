@@ -76,6 +76,9 @@ public class TicketKioskRestriction extends ItemTradeRestriction {
 		return InventoryUtil.ItemHasTag(itemStack, LCTags.Items.TICKET_MATERIAL) && !InventoryUtil.ItemHasTag(itemStack, LCTags.Items.TICKETS);
 	}
 
+    @Override
+    public boolean allowFilters() { return false; }
+
 	@Override
 	public boolean allowExtraItemInStorage(ItemStack itemStack) {
 		return InventoryUtil.ItemHasTag(itemStack, LCTags.Items.TICKET_MATERIAL);

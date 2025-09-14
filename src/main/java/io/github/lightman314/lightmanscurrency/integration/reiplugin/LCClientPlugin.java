@@ -21,6 +21,7 @@ import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationReci
 import io.github.lightman314.lightmanscurrency.common.items.colored.ColoredItem;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
 import io.github.lightman314.lightmanscurrency.integration.reiplugin.coin_mint.*;
+import io.github.lightman314.lightmanscurrency.integration.reiplugin.misc.ItemFilterDraggableStackVisitor;
 import io.github.lightman314.lightmanscurrency.integration.reiplugin.ticket_station.*;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import me.shedaniel.math.Rectangle;
@@ -91,6 +92,9 @@ public class LCClientPlugin implements REIClientPlugin {
             }
             return CompoundEventResult.pass();
         }));
+
+        registry.registerDraggableStackVisitor(new ItemFilterDraggableStackVisitor());
+
     }
 
     @Override

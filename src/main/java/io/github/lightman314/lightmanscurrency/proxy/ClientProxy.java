@@ -117,7 +117,9 @@ public class ClientProxy extends CommonProxy{
 		MenuScreens.register(ModMenus.ATM_CARD.get(), ATMCardScreen::new);
 
 		MenuScreens.register(ModMenus.VARIANT_SELECT.get(), VariantSelectScreen::new);
-    	
+
+		MenuScreens.register(ModMenus.ITEM_FILTER.get(), ItemFilterScreen::new);
+
     	//Register Tile Entity Renderers
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::create);
     	BlockEntityRenderers.register(ModBlockEntities.FREEZER_TRADER.get(), FreezerTraderBlockEntityRenderer::create);
