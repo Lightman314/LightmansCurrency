@@ -670,8 +670,6 @@ public class ItemTradeData extends TradeData {
 			{
 				//Set the item to the held item
 				ItemStack barterItem = this.getBarterItem(index);
-                if(FilterAPI.itemHasFilter(heldItem) && this.allowFilters())
-                    barterItem = this.getActualItem(index + 2);
 				if(data.shiftHeld() || (barterItem.isEmpty() && heldItem.isEmpty()))
 				{
 					//Open Item Edit for this slot
@@ -727,8 +725,6 @@ public class ItemTradeData extends TradeData {
 		{
 			//Set the item to the held item
 			ItemStack barterItem = this.getItem(index);
-            if(FilterAPI.itemHasFilter(heldItem) && this.allowFilters())
-                barterItem = this.getActualItem(index);
 			if(barterItem.isEmpty() && heldItem.isEmpty())
 				return;
 			if(InventoryUtil.ItemMatches(barterItem, heldItem) && button == 1)
