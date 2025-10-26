@@ -104,6 +104,8 @@ public class PaygateTraderData extends TraderData {
 	}
 	public void collectTicketStubs(Player player)
 	{
+        if(!this.hasPermission(player,Permissions.OPEN_STORAGE))
+            return;
 		for(ItemStack stub : this.storedTicketStubs)
 			ItemHandlerHelper.giveItemToPlayer(player, stub);
 		this.storedTicketStubs.clear();

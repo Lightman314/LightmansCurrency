@@ -30,7 +30,7 @@ public class CPacketRequestNBT extends ClientToServerPacket {
 		protected void handle(@Nonnull CPacketRequestNBT message, @Nonnull IPayloadContext context, @Nonnull Player player) {
 			BlockEntity blockEntity = player.level().getBlockEntity(message.pos);
 			if(blockEntity != null)
-				BlockEntityUtil.sendUpdatePacket(blockEntity);
+				BlockEntityUtil.sendUpdatePacket(blockEntity,player);
 		}
 	}
 

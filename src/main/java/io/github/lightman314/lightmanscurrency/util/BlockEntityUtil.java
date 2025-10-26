@@ -8,6 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -35,6 +36,12 @@ public class BlockEntityUtil
     {
     	ClientboundBlockEntityDataPacket packet = ClientboundBlockEntityDataPacket.create(tileEntity, (be,lookup) -> compound);
         sendUpdatePacket(tileEntity.getLevel(), tileEntity.getBlockPos(), packet);
+    }
+
+    public static void sendUpdatePacket(BlockEntity blockEntity, Player player)
+    {
+        if(player instanceof ServerPlayer sp)
+            sp.connection.send(ClientboundBlockEntityDataPacket.create(blockEntity));
     }
 
     private static void sendUpdatePacket(Level world, BlockPos pos, ClientboundBlockEntityDataPacket packet)
