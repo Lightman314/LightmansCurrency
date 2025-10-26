@@ -276,6 +276,7 @@ public class LightmansCurrency {
 		MenuValidatorType.register(BlockEntityValidator.TYPE);
 		MenuValidatorType.register(BlockValidator.TYPE);
 		MenuValidatorType.register(EntityValidator.TYPE);
+		MenuValidatorType.register(ItemValidator.TYPE);
 
 		//Initialize the Item Trade Restrictions
 		ItemTradeRestriction.init();

@@ -1,17 +1,16 @@
 package io.github.lightman314.lightmanscurrency.integration.curios;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
-import io.github.lightman314.lightmanscurrency.common.items.PortableATMItem;
-import io.github.lightman314.lightmanscurrency.common.items.PortableTerminalItem;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -24,31 +23,34 @@ import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 import top.theillusivec4.curios.api.type.inventory.ICurioStacksHandler;
 import top.theillusivec4.curios.api.type.inventory.IDynamicStackHandler;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 @ApiStatus.Internal
 public class LCCuriosInternal {
 
     public static final String WALLET_SLOT = "wallet";
 
     @Nullable
-    private static ICuriosItemHandler getCurios(@Nonnull LivingEntity entity) {
+    private static ICuriosItemHandler getCurios(LivingEntity entity) {
         return CuriosApi.getCuriosInventory(entity).orElse(null);
     }
 
     @Nullable
-    private static ICurioStacksHandler getStacks(@Nonnull LivingEntity entity, @Nonnull String slot) {
+    private static ICurioStacksHandler getStacks(LivingEntity entity, String slot) {
         ICuriosItemHandler handler = getCurios(entity);
         if(handler != null)
             return handler.getStacksHandler(slot).orElse(null);
         return null;
     }
 
-    public static boolean hasWalletSlot(@Nonnull LivingEntity entity)
+    public static boolean hasWalletSlot(LivingEntity entity)
     {
         try {
             ICurioStacksHandler handler = getStacks(entity,WALLET_SLOT);
@@ -57,8 +59,7 @@ public class LCCuriosInternal {
         return false;
     }
 
-    @Nonnull
-    public static ItemStack getCuriosWalletItem(@Nonnull LivingEntity entity)
+    public static ItemStack getCuriosWalletItem(LivingEntity entity)
     {
         try {
             ICurioStacksHandler handler = getStacks(entity,WALLET_SLOT);
@@ -68,8 +69,8 @@ public class LCCuriosInternal {
         return ItemStack.EMPTY;
     }
 
-    @Nonnull
-    public static ItemStack getVisibleCuriosWalletItem(@Nonnull LivingEntity entity)
+    
+    public static ItemStack getVisibleCuriosWalletItem(LivingEntity entity)
     {
         try {
             ICurioStacksHandler handler = getStacks(entity,WALLET_SLOT);
@@ -84,7 +85,7 @@ public class LCCuriosInternal {
         return ItemStack.EMPTY;
     }
 
-    public static void setCuriosWalletItem(@Nonnull LivingEntity entity, @Nonnull ItemStack item)
+    public static void setCuriosWalletItem(LivingEntity entity, ItemStack item)
     {
         try {
             ICurioStacksHandler handler = getStacks(entity,WALLET_SLOT);
@@ -93,7 +94,7 @@ public class LCCuriosInternal {
         } catch (Throwable t) { LightmansCurrency.LogError("Error with Curios Integration!", t); }
     }
 
-    public static boolean getCuriosWalletVisiblity(@Nonnull LivingEntity entity)
+    public static boolean getCuriosWalletVisiblity(LivingEntity entity)
     {
         try {
             ICurioStacksHandler handler = getStacks(entity,WALLET_SLOT);
@@ -103,7 +104,7 @@ public class LCCuriosInternal {
         return false;
     }
 
-    public static boolean hasItem(@Nonnull LivingEntity entity, @Nonnull Predicate<ItemStack> check)
+    public static boolean hasItem(LivingEntity entity, Predicate<ItemStack> check)
     {
         try {
             ICuriosItemHandler handler = getCurios(entity);
@@ -123,12 +124,23 @@ public class LCCuriosInternal {
         return false;
     }
 
-    public static boolean hasPortableTerminal(@Nonnull LivingEntity entity) { return hasItem(entity,stack -> stack.getItem() instanceof PortableTerminalItem); }
-
-    public static boolean hasPortableATM(@Nonnull LivingEntity entity) { return hasItem(entity, stack -> stack.getItem() instanceof PortableATMItem); }
+    @Nullable
+    public static Item lookupItem(LivingEntity entity, Predicate<ItemStack> test)
+    {
+        AtomicReference<Item> result = new AtomicReference<>(null);
+        hasItem(entity, stack -> {
+            if(test.test(stack))
+            {
+                result.set(stack.getItem());
+                return true;
+            }
+            return false;
+        });
+        return result.get();
+    }
 
     @Nullable
-    public static ItemStack getRandomItem(@Nonnull LivingEntity entity, @Nonnull Predicate<ItemStack> check)
+    public static ItemStack getRandomItem(LivingEntity entity, Predicate<ItemStack> check)
     {
         try {
             ICuriosItemHandler handler = getCurios(entity);
@@ -158,7 +170,7 @@ public class LCCuriosInternal {
         modBus.addListener(LCCuriosInternal::registerCuriosItems);
     }
 
-    private static void registerCuriosItems(@Nonnull FMLCommonSetupEvent event)
+    private static void registerCuriosItems(FMLCommonSetupEvent event)
     {
         BuiltInRegistries.ITEM.forEach(item -> {
             if(item instanceof WalletItem walletItem)
@@ -170,7 +182,7 @@ public class LCCuriosInternal {
     {
         private static final ICurioItem INSTANCE = new WalletCurio();
 
-        @Nonnull
+        
         @Override
         public ICurio.SoundInfo getEquipSound(SlotContext slotContext, ItemStack stack) {
             return new ICurio.SoundInfo(SoundEvents.ARMOR_EQUIP_LEATHER.value(),1f,1f);
@@ -187,7 +199,7 @@ public class LCCuriosInternal {
             return true;
         }
 
-        @Nonnull
+        
         @Override
         public ICurio.DropRule getDropRule(SlotContext context, DamageSource source, boolean recentlyHit, ItemStack stack) {
             if(ModGameRules.safeGetCustomBool(context.entity().level(), ModGameRules.KEEP_WALLET, false))

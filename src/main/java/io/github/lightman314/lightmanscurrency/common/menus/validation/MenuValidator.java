@@ -3,13 +3,16 @@ package io.github.lightman314.lightmanscurrency.common.menus.validation;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class MenuValidator {
 
     public final MenuValidatorType type;
@@ -22,7 +25,9 @@ public abstract class MenuValidator {
         //LightmansCurrency.LogDebug("Encoded MenuValidator of type '" + this.type.type);
     }
 
-    protected abstract void encodeAdditional(@Nonnull FriendlyByteBuf buffer);
+    protected abstract void encodeAdditional(FriendlyByteBuf buffer);
+
+    public final boolean isNull() { return this == SimpleValidator.NULL; }
 
     public final void save()
     {
@@ -32,12 +37,11 @@ public abstract class MenuValidator {
         //LightmansCurrency.LogDebug("Saved MenuValidator of type '" + this.type.type);
     }
 
-    protected abstract void saveAdditional(@Nonnull CompoundTag tag);
+    protected abstract void saveAdditional(CompoundTag tag);
 
-    public abstract boolean stillValid(@Nonnull Player player);
+    public abstract boolean stillValid(Player player);
 
-    @Nonnull
-    public static MenuValidator decode(@Nonnull FriendlyByteBuf buffer)
+    public static MenuValidator decode(FriendlyByteBuf buffer)
     {
         try {
             ResourceLocation type = VersionUtil.parseResource(buffer.readUtf());
@@ -52,8 +56,8 @@ public abstract class MenuValidator {
         } catch(Throwable t) { LightmansCurrency.LogError("Error decoding MenuValidator!"); return SimpleValidator.NULL; }
     }
 
-    @Nonnull
-    public static MenuValidator load(@Nonnull CompoundTag tag)
+    
+    public static MenuValidator load(CompoundTag tag)
     {
         try {
             ResourceLocation type = VersionUtil.parseResource(tag.getString("Type"));

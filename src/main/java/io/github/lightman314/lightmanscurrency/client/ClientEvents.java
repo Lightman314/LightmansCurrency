@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.common.enchantments.MoneyMendingE
 import io.github.lightman314.lightmanscurrency.common.items.PortableATMItem;
 import io.github.lightman314.lightmanscurrency.common.items.PortableTerminalItem;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.types.ItemValidator;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketOpenATM;
@@ -27,6 +28,7 @@ import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
@@ -101,10 +103,26 @@ public class ClientEvents {
 			//Open portable terminal/atm from curios slot
 			if(LCCurios.isLoaded() && event.getAction() == GLFW.GLFW_PRESS)
 			{
-				if(event.getKey() == KEY_PORTABLE_TERMINAL.getKey().getValue() && LCCurios.hasPortableTerminal(minecraft.player))
-					new CPacketOpenNetworkTerminal(true).send();
-				else if(event.getKey() == KEY_PORTABLE_ATM.getKey().getValue() && LCCurios.hasPortableATM(minecraft.player))
-					CPacketOpenATM.sendToServer();
+                boolean fail = true;
+				if(event.getKey() == KEY_PORTABLE_TERMINAL.getKey().getValue())
+                {
+                    Item terminal = LCCurios.lookupPortableTerminal(minecraft.player);
+                    if(terminal != null)
+                    {
+                        new CPacketOpenNetworkTerminal(new ItemValidator(terminal)).send();
+                        fail = false;
+                    }
+
+                }
+				if(fail && event.getKey() == KEY_PORTABLE_ATM.getKey().getValue())
+                {
+                    Item atm = LCCurios.lookupPortableATM(minecraft.player);
+                    if(atm != null)
+                    {
+                        new CPacketOpenATM(atm).send();
+                        //fail = false; Placeholder if I ever add a new button here
+                    }
+                }
 			}
 		}
 		

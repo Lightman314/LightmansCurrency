@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.network.message.trader;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
-import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
@@ -30,12 +29,13 @@ public class CPacketOpenStorage extends ClientToServerPacket {
 		protected H() { super(TYPE, easyCodec(CPacketOpenStorage::encode,CPacketOpenStorage::decode)); }
 		@Override
 		protected void handle(@Nonnull CPacketOpenStorage message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			MenuValidator validator = SimpleValidator.NULL;
 			if(player.containerMenu instanceof IValidatedMenu tm)
-				validator = tm.getValidator();
-			TraderData trader = TraderAPI.getApi().GetTrader(false, message.traderID);
-			if(trader != null)
-				trader.openStorageMenu(player, validator);
+            {
+                MenuValidator validator = tm.getValidator();
+                TraderData trader = TraderAPI.getApi().GetTrader(false, message.traderID);
+                if(trader != null)
+                    trader.openStorageMenu(player, validator);
+            }
 		}
 	}
 
