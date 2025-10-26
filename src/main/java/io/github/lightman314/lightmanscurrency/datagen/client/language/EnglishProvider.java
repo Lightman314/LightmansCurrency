@@ -1,15 +1,19 @@
 package io.github.lightman314.lightmanscurrency.datagen.client.language;
 
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplayData;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.InteractionType;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.ActiveMode;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
+import io.github.lightman314.lightmanscurrency.api.traders.attachments.builtin.ExternalAuthorizationAttachment;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
+import io.github.lightman314.lightmanscurrency.common.text.MultiLineTextEntry;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.OutputConflictHandling;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
@@ -418,7 +422,7 @@ public class EnglishProvider extends TranslationProvider {
 
         this.translate(LCText.TOOLTIP_SLOT_MACHINE_TO_INFO,"Click to view possible results");
         this.translate(LCText.TOOLTIP_SLOT_MACHINE_TO_INTERACT,"Click to return to slots");
-        this.translate(LCText.TOOLTIP_SLOT_MACHINE_ROLL_ONCE, "Try your luck!","Costs %1$s");
+        this.translate(LCText.TOOLTIP_SLOT_MACHINE_ROLL_ONCE, "Try your luck!","Costs %2$s");
         this.translate(LCText.TOOLTIP_SLOT_MACHINE_ROLL_MULTI, "Try your luck %1$s times!","Costs %2$s per roll");
         this.translate(LCText.TOOLTIP_SLOT_MACHINE_NORMAL_COST, "Normally costs %s");
         this.translate(LCText.TOOLTIP_SLOT_MACHINE_COST_FREE, "nothing");
@@ -455,31 +459,10 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.BUTTON_TEAM_MEMBER_DEMOTE,"Demote");
         this.translate(LCText.TOOLTIP_TEAM_BANK,"Bank Account Settings");
         this.translate(LCText.BUTTON_TEAM_BANK_CREATE,"Create Bank Account");
-        this.translate(LCText.BUTTON_TEAM_BANK_LIMIT,"Limit To: %s");
-        this.translate(LCText.TOOLTIP_TEAM_SALARY_INFO,"Salary Information");
-        this.translate(LCText.GUI_TEAM_SALARY_INFO_DISABLED,"Auto-Salary is currently DISABLED");
-        this.translate(LCText.GUI_TEAM_SALARY_INFO_DELAY,"Auto-Salary will occur every %s");
-        this.translate(LCText.GUI_TEAM_SALARY_INFO_NEXT_TRIGGER,"Next Salary in %s");
-        this.translate(LCText.GUI_TEAM_SALARY_INFO_SALARY_MEMBERS,"Members will be paid %s");
-        this.translate(LCText.GUI_TEAM_SALARY_INFO_SALARY_ADMINS,"Admins will be paid %s");
-        this.translate(LCText.GUI_TEAM_SALARY_INFO_REQUIRED_FUNDS,"Required Salary Funds:");
-        this.translate(LCText.GUI_TEAM_SALARY_INFO_CURRENT_REQUIRED_FUNDS,"Currently Required Salary Funds:");
-        this.translate(LCText.GUI_TEAM_SALARY_INFO_INSUFFICIENT_FUNDS,"Not enough funds are currently available to pay the next salary!");
-        this.translate(LCText.GUI_TEAM_SALARY_INFO_POSSIBLE_INSUFFICIENT_FUNDS,"If all members login, we will not have enough funds to pay the next salary!");
-        this.translate(LCText.GUI_TEAM_SALARY_INFO_LAST_ATTEMPT_FAILED,"Last attempt to pay the salary failed!");
-        this.translate(LCText.TOOLTIP_TEAM_SALARY_SETTINGS,"Salary Settings");
-        this.translate(LCText.BUTTON_TEAM_SALARY_SETTINGS_ENABLE,"Enable Auto-Salary");
-        this.translate(LCText.BUTTON_TEAM_SALARY_SETTINGS_DISABLE,"Disable Auto-Salary");
-        this.translate(LCText.GUI_TEAM_SALARY_SETTINGS_NOTIFICATION,"Push Notification");
-        this.translate(LCText.GUI_TEAM_SALARY_SETTINGS_DELAY,"Auto-Salary Delay");
-        this.translate(LCText.GUI_TEAM_SALARY_SETTINGS_REQUIRE_LOGIN,"Require Login");
-        this.translate(LCText.BUTTON_TEAM_SALARY_SETTINGS_TRIGGER_SALARY,"Trigger Salary Payment");
-        this.translate(LCText.TOOLTIP_TEAM_SALARY_PAYMENTS,"Salary Payment Settings");
-        this.translate(LCText.TOOLTIP_TEAM_SALARY_PAYMENTS_CREATIVE_ENABLE,"Enable Creative Salary");
-        this.translate(LCText.TOOLTIP_TEAM_SALARY_PAYMENTS_CREATIVE_DISABLE,"Disable Creative Salary");
-        this.translate(LCText.GUI_TEAM_SALARY_PAYMENTS_MEMBER_SALARY,"Member Salary:");
-        this.translate(LCText.GUI_TEAM_SALARY_PAYMENTS_ADMIN_SALARY_SEPERATION,"Seperate Admin Salaries");
-        this.translate(LCText.GUI_TEAM_SALARY_PAYMENTS_ADMIN_SALARY,"Admin Salary:");
+        this.translate(LCText.GUI_TEAM_BANK_ACCESS,"Limit account access to:");
+        this.translate(LCText.GUI_TEAM_BANK_SALARY_EDIT,"Limit salary editing to:");
+        this.translate(LCText.GUI_TEAM_SALARY_TARGET_MEMBERS,"Team Members");
+        this.translate(LCText.GUI_TEAM_SALARY_TARGET_ADMINS,"Team Admins (and Owner)");
         this.translate(LCText.TOOLTIP_TEAM_STATS,"Team Statistics");
         this.translate(LCText.TOOLTIP_TEAM_NAME,"Name");
         this.translate(LCText.BUTTON_TEAM_RENAME,"Rename Team");
@@ -505,6 +488,42 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_ATM_TRANSFER_MODE_PLAYER,"Select From Players");
         this.translate(LCText.TOOLTIP_ATM_TRANSFER_MODE_LIST,"Select From List");
         this.translate(LCText.TOOLTIP_ATM_TRANSFER_TRIGGER,"Transfer %1$s to %2$s");
+
+        //ATM Salary Section
+        this.translate(LCText.TOOLTIP_BANK_SALARY,"Salaries");
+        this.translate(LCText.GUI_BANK_SALARY_NAME,"%1$s Salary #%2$s");
+        //Salary List Subtab
+        this.translate(LCText.TOOLTIP_BANK_SALARY_LIST,"Selection");
+        this.translate(LCText.BUTTON_BANK_SALARY_LIST_CREATE,"Create Salary");
+        this.translate(LCText.BUTTON_BANK_SALARY_LIST_VIEW,"View");
+        this.translate(LCText.BUTTON_BANK_SALARY_LIST_EDIT,"Edit");
+        //Salary Info Subtab
+        this.translate(LCText.TOOLTIP_BANK_SALARY_INFO,"Salary Information");
+        this.translate(LCText.GUI_BANK_SALARY_INFO_DISABLED,"Auto-Salary is currently DISABLED");
+        this.translate(LCText.GUI_BANK_SALARY_INFO_DELAY,"Auto-Salary will occur every %s");
+        this.translate(LCText.GUI_BANK_SALARY_INFO_NEXT_TRIGGER,"Next Salary in %s");
+        this.translate(LCText.GUI_BANK_SALARY_INFO_SALARY,"Targets will be paid %s");
+        this.translate(LCText.GUI_BANK_SALARY_INFO_REQUIRED_FUNDS,"Required Salary Funds: %s");
+        this.translate(LCText.GUI_BANK_SALARY_INFO_CURRENT_REQUIRED_FUNDS,"Currently Required Salary Funds: %s");
+        this.translate(LCText.GUI_BANK_SALARY_INFO_INSUFFICIENT_FUNDS,"Not enough funds are currently available to pay the next salary!");
+        this.translate(LCText.GUI_BANK_SALARY_INFO_POSSIBLE_INSUFFICIENT_FUNDS,"If all targets login, we will not have enough funds to pay the next salary!");
+        this.translate(LCText.GUI_BANK_SALARY_INFO_LAST_ATTEMPT_FAILED,"Last attempt to pay the salary failed!");
+        //Salary Settings Subtab
+        this.translate(LCText.TOOLTIP_BANK_SALARY_SETTINGS,"Salary Settings");
+        this.translate(LCText.BUTTON_BANK_SALARY_SETTINGS_ENABLE,"Enable Auto-Salary");
+        this.translate(LCText.BUTTON_BANK_SALARY_SETTINGS_DISABLE,"Disable Auto-Salary");
+        this.translate(LCText.GUI_BANK_SALARY_SETTINGS_NOTIFICATION,"Push Notification");
+        this.translate(LCText.GUI_BANK_SALARY_SETTINGS_DELAY,"Auto-Salary Delay");
+        this.translate(LCText.GUI_BANK_SALARY_SETTINGS_REQUIRE_LOGIN,"Require Login");
+        this.translate(LCText.BUTTON_BANK_SALARY_SETTINGS_TRIGGER_SALARY,"Trigger Salary Payment");
+        //Salary Payment Subtab
+        this.translate(LCText.TOOLTIP_BANK_SALARY_PAYMENTS,"Salary Payment Settings");
+        this.translate(LCText.TOOLTIP_BANK_SALARY_PAYMENTS_CREATIVE_ENABLE,"Enable Creative Salary");
+        this.translate(LCText.TOOLTIP_BANK_SALARY_PAYMENTS_CREATIVE_DISABLE,"Disable Creative Salary");
+        this.translate(LCText.GUI_BANK_SALARY_PAYMENTS_MEMBER_SALARY,"Salary:");
+        //Salary Target Subtab
+        this.translate(LCText.TOOLTIP_BANK_SALARY_TARGETS,"Targets");
+        this.translate(LCText.GUI_BANK_SALARY_TARGETS_CUSTOM,"Custom Targets:");
 
         //Coin Chest
         this.translate(LCText.BUTTON_EXCHANGE_UPGRADE_EXCHANGE_WHILE_OPEN_YES,"Always Allowed");
@@ -706,6 +725,11 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS_CLIPBOARD, "Settings Clipboard");
         this.translate(LCText.BUTTON_TRADER_SETTINGS_COPY, "Copy");
         this.translate(LCText.BUTTON_TRADER_SETTINGS_PASTE, "Paste");
+        this.translate(LCText.TOOLTIP_TRADER_SETTINGS_EXTERNAL_AUTH,"External Authorization");
+        this.translate(LCText.TOOLTIP_TRADER_SETTINGS_EXTERNAL_AUTH_SELECT,"Click to Select Access Level");
+        this.translate(LCText.GUI_TRADER_SETTINGS_EXTERNAL_AUTH_ACCESS_LEVEL.get(ExternalAuthorizationAttachment.AccessLevel.NONE),"No Access");
+        this.translate(LCText.GUI_TRADER_SETTINGS_EXTERNAL_AUTH_ACCESS_LEVEL.get(ExternalAuthorizationAttachment.AccessLevel.ALLY),"Ally Level Access");
+        this.translate(LCText.GUI_TRADER_SETTINGS_EXTERNAL_AUTH_ACCESS_LEVEL.get(ExternalAuthorizationAttachment.AccessLevel.ADMIN),"Full Administrator Access");
 
         //General Trade Tooltips
         this.translate(LCText.TOOLTIP_TRADE_EDIT_PRICE, "Click to Edit Price");
@@ -777,9 +801,13 @@ public class EnglishProvider extends TranslationProvider {
 
         //Slot Machine Specific
         this.translate(LCText.TOOLTIP_TRADER_SLOT_MACHINE_EDIT_ENTRIES,"Edit Entries");
-        this.translate(LCText.GUI_TRADER_SLOT_MACHINE_WEIGHT_LABEL,"Weight: ");
+        this.translate(LCText.GUI_TRADER_SLOT_MACHINE_ODDS_INPUT_LABEL_PRE,"Chance: ");
+        this.translate(LCText.GUI_TRADER_SLOT_MACHINE_ODDS_INPUT_LABEL_SUF,"%%");
+        this.translate(LCText.GUI_TRADER_SLOT_MACHINE_CUSTOM_ICON_LABEL,"Custom Icons");
         this.translate(LCText.GUI_TRADER_SLOT_MACHINE_ENTRY_LABEL,"Entry #%s");
         this.translate(LCText.GUI_TRADER_SLOT_MACHINE_ODDS_LABEL,"Chance: %s%%");
+        this.translate(LCText.GUI_TRADER_SLOT_MACHINE_FAIL_CHANCE,"Fail Chance: %s%%");
+        this.translate(LCText.GUI_TRADER_SLOT_MACHINE_INVALID_ODDS,"Total Odds Exceed 100%%");
         this.translate(LCText.TOOLTIP_TRADER_SLOT_MACHINE_EDIT_PRICE,"Edit Price");
 
         //Command Trader Specific
@@ -908,6 +936,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.PERMISSION_TRANSFER_OWNERSHIP, "Transfer Ownership","Allows the player to change the owner of this machine to any valid player or team");
         this.translate(LCText.PERMISSION_INTERACTION_LINK, "Setup Interface","Allows the player to set up a Trader Interface that can automatically restock and/or drain product from this machines storage");
         this.translate(LCText.PERMISSION_EDIT_INPUTS,"Change Input & Output Settings","Allows the player to change which sides of the machine can have product inserted or extracted from them");
+        this.translate(LCText.PERMISSION_EXTERNAL_AUTHORIZATION,"Authorize External Devices","Allows the player to give external devices, such as computers, ally or admin permissions for automation purposes");
 
         //Inventory Buttons
         this.translate(LCText.TOOLTIP_NOTIFICATION_BUTTON,"Open Notification Manager");
@@ -1097,6 +1126,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.NOTIFICATION_TRADE_PAYGATE_PASS,"%1$s activated the paygate for %3$s using Pass ID: %2$s");
         this.translate(LCText.NOTIFICATION_TRADE_PAYGATE_MONEY,"%1$s activated the paygate for %3$s for %2$s");
         this.translate(LCText.NOTIFICATION_TRADE_SLOT_MACHINE,"%1$s paid %2$s and won %3$s");
+        this.translate(LCText.NOTIFICATION_TRADE_SLOT_MACHINE_FAIL,"nothing");
         this.translate(LCText.NOTIFICATION_TRADE_COMMAND,"%1$s paid %2$s to run %3$s");
         this.translate(LCText.NOTIFICATION_TRADE_GACHA,"%1$s paid %2$s and won %3$s");
         //Item Notification Parts
@@ -1116,6 +1146,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.BLOCK_VARIANT_ARMOR_SKINS.get(2),"Ari");
         this.translate(LCText.BLOCK_VARIANT_ARMOR_SKINS.get(3),"Kai");
         this.translate(LCText.BLOCK_VARIANT_ARMOR_SKINS.get(4),"Garrett");
+        this.translate(LCText.BLOCK_VARIANT_INNER_CORNER,"Inner Corner");
+        this.translate(LCText.BLOCK_VARIANT_OUTER_CORNER,"Outer Corner");
 
         this.translate(LCText.BLOCK_VARIANT_ARMOR_SKIN_HEROBRINE,"Herobrine");
 
@@ -1142,6 +1174,10 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.DATA_ENTRY_TRADER_TAXES_RATE,"Acceptable Tax Rate");
         this.translate(LCText.DATA_ENTRY_TRADER_TAXES_IGNORE_ALL,"Tax Immunity");
         this.translate(LCText.DATA_ENTRY_TRADER_TAXES_IGNORED_COUNT,"Ignored Tax Collectors");
+        this.translate(LCText.DATA_ENTRY_TRADER_NOTIFICATIONS_ENABLED,"Notifications Enabled");
+        this.translate(LCText.DATA_ENTRY_TRADER_NOTIFICATIONS_TO_CHAT,"Chat Notifications");
+        this.translate(LCText.DATA_ENTRY_TRADER_TEAM_NOTIFICATION_LEVEL,"Team Notification Level");
+        this.translate(LCText.DATA_ENTRY_TRADER_ALWAYS_SHOW_SEARCH_BOX,"Show Search Box");
         this.translate(LCText.DATA_ENTRY_INPUT_OUTPUT_SIDES,"Input/Output Side: ");
         this.translate(LCText.DATA_ENTRY_INPUT_OUTPUT_SIDES_COUNT,"%1$s Input and & %2$s Output Side(s)");
         this.translate(LCText.DATA_ENTRY_PAYGATE_CONFLICT_HANDLING,"Output Conflict Handling");
@@ -1164,6 +1200,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.DATA_CATEGORY_TRADER_TAXES,"Tax Settings");
         this.translate(LCText.DATA_CATEGORY_TRADER_TRADES,"Trades");
         this.translate(LCText.DATA_CATEGORY_OWNERSHIP,"Ownership Settings");
+        this.translate(LCText.DATA_CATEGORY_MISC,"Miscellaneous Settings");
         this.translate(LCText.DATA_CATEGORY_INPUT_SETTINGS,"Input/Output Settings");
         this.translate(LCText.DATA_CATEGORY_MISC_SETTINGS,"Misc Settings");
         this.translate(LCText.DATA_CATEGORY_CREATIVE,"Creative Settings");
@@ -1220,6 +1257,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.COMMAND_BANK_VIEW_DOESNT_EXIST,"Error accessing the bank account!");
 
         this.translate(LCText.COMMAND_CONFIG_RELOAD, "Reloading config files");
+        this.translate(LCText.COMMAND_CONFIG_RELOAD_FILE, "Reloaded %s");
         this.translate(LCText.COMMAND_CONFIG_EDIT_SUCCESS, "%1$s set to %2$s");
         this.translate(LCText.COMMAND_CONFIG_EDIT_FAIL_PARSE, "Error parsing input: %s");
         this.translate(LCText.COMMAND_CONFIG_EDIT_LIST_REMOVE_SUCCESS,"%1$s successfully removed");
@@ -1375,6 +1413,421 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.REI_GROUP_ANCIENT_COINS,"Ancient Coins");
         this.translate(LCText.REI_GROUP_GACHA_MACHINE,"Gacha Machines");
 
+        //Generic Config Translations
+        this.translate(LCText.CONFIG_TITLE_FILES,"%s Config Files");
+        this.translate(LCText.CONFIG_TITLE_SEPERATOR," -> ");
+        this.translate(LCText.CONFIG_LABEL_FILE,"File: %s");
+        this.translate(LCText.CONFIG_OPTION_COUNT,"%s Config Options");
+        this.translate(LCText.CONFIG_OPTION_DEFAULT,"Default: %s");
+        this.translate(LCText.CONFIG_OPTION_RANGE,"Range: %1$s -> %2$s");
+        this.translate(LCText.CONFIG_OPTION_OPTIONS,"Options: %s");
+        this.translate(LCText.CONFIG_OPTION_LIST_COUNT,"%s Entries");
+        this.translate(LCText.CONFIG_OPTION_LIST_ENTRY,"Entry #%s");
+        this.translate(LCText.CONFIG_OPTION_LIST_ADD,"Add Entry");
+        this.translate(LCText.CONFIG_OPTION_LIST_REMOVE,"Delete this entry");
+        this.translate(LCText.CONFIG_OPTION_EDIT,"Edit");
+        this.translate(LCText.CONFIG_OPTION_EDIT_TOOLTIP,"Click to Edit");
+        this.translate(LCText.CONFIG_OPTION_NOT_SUPPORTED,"Not Supported");
+        this.translate(LCText.CONFIG_UNDO,"Undo");
+        this.translate(LCText.CONFIG_UNDO_ALL,"Reset Changes");
+        this.translate(LCText.CONFIG_RESET_DEFAULT,"Reset to Default");
+        this.translate(LCText.CONFIG_BACK,"Back");
+
+        this.translate(LCText.CONFIG_TRADE_MOD_COST,"Cost Replacement:");
+        this.translate(LCText.CONFIG_TRADE_MOD_COST_REGIONAL,"Regional Cost Replacement:");
+        this.translate(LCText.CONFIG_TRADE_MOD_RESULT,"Result Replacement:");
+        this.translate(LCText.CONFIG_TRADE_MOD_RESULT_REGIONAL,"Regional Result Replacement:");
+        this.translate(LCText.CONFIG_TRADE_MOD_REGION_ID,"Villager Region");
+        this.translate(LCText.CONFIG_TRADE_MOD_PROFESSION,"Villager Profession");
+
+        //Config Files
+        /// Client Config
+        this.translateConfigName(LCConfig.CLIENT,"Client Config");
+        //Quality
+        this.translateConfigSection(LCConfig.CLIENT,"quality","Quality Settings","Contains settings related to increasing or lowering rendering quality to help improve FPS in areas with a lot of machines.");
+        this.translateConfigOption(LCConfig.CLIENT.itemRenderLimit,"Item Trader Render Limit",
+                "Maximum number of items each Item Trader can renderBG (per-trade) as stock. Lower to decrease client-lag in trader-rich areas.",
+                "Setting to 0 will disable item rendering entirely, so use with caution.");
+        this.translateConfigOption(LCConfig.CLIENT.itemScaleOverrides,"Item Scale Overrides",
+                "A list of item ids or item tags that should be rendered by Item Traders at a different scale.");
+        this.translateConfigOption(LCConfig.CLIENT.drawGachaBallItem,"Gacha Ball Full Render",
+                "Whether the Gacha Ball should render the item inside",
+                "Enabling will double the number of items being rendered, and can cause FPS issues near Gacha Machines if their fancy graphics are enabled");
+        this.translateConfigOption(LCConfig.CLIENT.gachaMachineFancyGraphics,"Gacha Machine Fancy Graphics",
+                "Whether the Gacha Machine will render each Gacha Ball individually",
+                "Disable if you're having FPS issues near the Gacha Machine, this will make the machine render a far more simplisitic representation of its contents.");
+        //Time
+        this.translateConfigSection(LCConfig.CLIENT,"time","Time Formatting Settings");
+        this.translateConfigOption(LCConfig.CLIENT.timeFormat,"Time Formatting","How Notification Timestamps are displayed.","Follows SimpleDateFormat formatting: https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html");
+        //Wallet Slot
+        this.translateConfigSection(LCConfig.CLIENT,"wallet_slot","Wallet Slot Settings","Does nothing when Curios is installed.","0 0 is the top-left corner of the menu, with x moving it further right and y moving it further down");
+        this.translateConfigOption(LCConfig.CLIENT.walletSlot,"Wallet Slot Position","The position of the wallet slot in the players inventory menu.");
+        this.translateConfigOption(LCConfig.CLIENT.walletSlotCreative,"Creative Wallet Slot Position","The position of the wallet slot in the players creative inventory menu.");
+        this.translateConfigOption(LCConfig.CLIENT.walletButtonOffset,"Wallet Button Offset","The position of \"Open Wallet\" button relative to the wallet slot.");
+        //Wallet Overlay
+        this.translateConfigSection(LCConfig.CLIENT,"wallet_hud","Wallet Overlay Settings");
+        this.translateConfigOption(LCConfig.CLIENT.walletOverlayEnabled,"Enabled","Whether an overlay should be drawn on your HUD displaying your equipped wallets current contents.");
+        this.translateConfigOption(LCConfig.CLIENT.walletOverlayCorner,"Overlay Corner","The corner of the screen that the overlay should be drawn on.");
+        this.translateConfigOption(LCConfig.CLIENT.walletOverlayPosition,"Overlay Offset","The distance/offset from the corner that the overlay will be drawn at.");
+        this.translateConfigOption(LCConfig.CLIENT.walletOverlayType,"Overlay Type","The method that should be used to draw the contents.");
+        //Network Terminal
+        this.translateConfigSection(LCConfig.CLIENT,"network_terminal","Network Terminal Settings");
+        this.translateConfigOption(LCConfig.CLIENT.terminalColumnLimit,"Column Limit","The maximum number of columns the Network Terminal is allowed to display");
+        this.translateConfigOption(LCConfig.CLIENT.terminalRowLimit,"Row Limit","The maximum number of rows the Network Terminal is allowed to display");
+        this.translateConfigOption(LCConfig.CLIENT.terminalBonusFilters,"Bonus Search Filters","A default search filter that will be automatically added to the search parameters");
+        this.translateConfigOption(LCConfig.CLIENT.terminalDefaultSorting,"Default Sort Mode","The default sorting mode that will be automatically selected when you first open the terminal",
+                "Note: The game will remember your last selection option within the same session, so editing this after the screen has been opened will not change anything until you close and re-open your game.");
+        //Inventory Button
+        this.translateConfigSection(LCConfig.CLIENT,"inventory_buttons","Inventory Button Settings");
+        this.translateConfigOption(LCConfig.CLIENT.notificationAndTeamButtonPosition,"Normal Position","The position that the notification & team manager buttons will be placed at in the players inventory.");
+        this.translateConfigOption(LCConfig.CLIENT.notificationAndTeamButtonCreativePosition,"Creative Position","The position that the notification & team manager buttons will be placed at in the creative players inventory.");
+        //Chest Button
+        this.translateConfigSection(LCConfig.CLIENT,"chest_buttons","Chest Button Settings");
+        this.translateConfigOption(LCConfig.CLIENT.chestButtonVisible,"Enabled","Whether the 'Move Coins into Wallet' button will appear in the top-right corner of the Chest Screen if there are coins in the chest that can be collected.");
+        this.translateConfigOption(LCConfig.CLIENT.chestButtonAllowSideChains,"Collect Side-Chain Coins","Whether the 'Move Coins into Wallet' button should collect coins from a side-chain.",
+                "By default these would be the coin pile and coin block variants of the coins.");
+        //Notification
+        this.translateConfigSection(LCConfig.CLIENT,"notification","Notification Settings");
+        this.translateConfigOption(LCConfig.CLIENT.pushNotificationsToChat,"Notifications In Chat","Whether notifications should be posted in your in-game chat when you receive them.");
+        //Tax Warning
+        this.translateConfigSection(LCConfig.CLIENT,"tax_warnings","Tax Warning Settings");
+        this.translateConfigOption(LCConfig.CLIENT.serverTaxWarning,"Server Tax Warning","Whether you should recieve a message in chat whenever you place a machine when server-wide taxes are enabled");
+        this.translateConfigOption(LCConfig.CLIENT.playerTaxWarning,"Player Tax Warning","Whether you should recieve a message in chat whenever you place a machine in an area that another player is taxing");
+        //Slot Machine
+        this.translateConfigSection(LCConfig.CLIENT,"slot_machine","Slot Machine Animation Settings");
+        this.translateConfigOption(LCConfig.CLIENT.slotMachineAnimationTime,"Animation Duration","The number of Minecraft ticks the slot machine animation will last.",
+                "Note: 20 ticks = 1 second",
+                "Must be at least 20 ticks (1s) for coding reasons.");
+        this.translateConfigOption(LCConfig.CLIENT.slotMachineAnimationRestTime,"Rest Duration","The number of Minecraft ticks the slot machine will pause before repeating the animation.");
+        //Sound Settings
+        this.translateConfigSection(LCConfig.CLIENT,"sounds","Sound Settings");
+        this.translateConfigOption(LCConfig.CLIENT.moneyMendingClink,"Money Mending Sound","Whether the Money Mending enchantment should make a noise when triggered.");
+        //Debug
+        this.translateConfigSection(LCConfig.CLIENT,"debug","Debug Settings");
+        this.translateConfigOption(LCConfig.CLIENT.debugScreens,"Debug Screen BG","Whether LC screens should render a white background for easier debugging & screenshots","Mostly used for creating wiki/guidebook content");
+
+        /// Common Config
+        this.translateConfigName(LCConfig.COMMON,"Common Config");
+        this.translateConfigOption(LCConfig.COMMON.debugLevel,"Logging Level","Level of debug messages to be shown in the logs.","0-All debug messages. 1-Warnings/Errors only. 2-Errors only. 3-No debug messages.","Note: All debug messages will still be sent debug.log regardless of settings.");
+        //Crafting
+        this.translateConfigSection(LCConfig.COMMON,"crafting","Crafting Settings","/reload required for any changes made here to take effect.","Disabling will not remove any existing items/blocks from the world, nor prevent their use.");
+        this.translateConfigOption(LCConfig.COMMON.canCraftNetworkTraders,"Network Traders","Whether Network Traders can be crafted.","Disabling does NOT disable the recipes of Network Upgrades or the Trading Terminals.");
+        this.translateConfigOption(LCConfig.COMMON.canCraftTraderInterfaces,"Trader Interfaces","Whether Trader Interface blocks can be crafted.");
+        this.translateConfigOption(LCConfig.COMMON.canCraftAuctionStands,"Auction Stands","Whether Auction Stand blocks can be crafted.");
+        this.translateConfigOption(LCConfig.COMMON.canCraftTaxBlock,"Tax Collector","Whether Tax Collector blocks can be crafted.");
+        this.translateConfigOption(LCConfig.COMMON.canCraftATMCard,"ATM Card","Whether ATM Cards can be crafted.");
+        //Crafting -> Coin Mint
+        this.translateConfigSection(LCConfig.COMMON,"crafting.coin_mint","Coin Mint Crafting");
+        this.translateConfigOption(LCConfig.COMMON.canCraftCoinMint,"Coin Mint Machine","Whether the Coin Mint machine can be crafted.");
+        this.translateConfigOption(LCConfig.COMMON.coinMintCanMint,"Can Mint Coins","Whether or not built-in coin mint recipes that turn resources into coins will be loaded.");
+        this.translateConfigOption(LCConfig.COMMON.coinMintCanMelt,"Can Melt Coins","Whether or not built-in coin mint recipes that turn coins back into resources will be loaded.");
+        //Crafting -> Coin Mint -> Mint
+        this.translateConfigSection(LCConfig.COMMON,"crafting.coin_mint.mint","Targeted Minting Options","Does nothing if \"Can Mint Coins\" is already false/disabled.");
+        this.translateConfigOption(LCConfig.COMMON.coinMintMintableCopper,"Copper Coins","Whether the default mint recipe to mint copper coins from copper ingots will be loaded.");
+        this.translateConfigOption(LCConfig.COMMON.coinMintMintableIron,"Iron Coins","Whether the default mint recipe to mint iron coins from iron ingots will be loaded.");
+        this.translateConfigOption(LCConfig.COMMON.coinMintMintableGold,"Gold Coins","Whether the default mint recipe to mint gold coins from gold ingots will be loaded.");
+        this.translateConfigOption(LCConfig.COMMON.coinMintMintableEmerald,"Emerald Coins","Whether the default mint recipe to mint emerald coins from emeralds will be loaded.");
+        this.translateConfigOption(LCConfig.COMMON.coinMintMintableDiamond,"Diamond Coins","Whether the default mint recipe to mint diamond coins from diamonds will be loaded.");
+        this.translateConfigOption(LCConfig.COMMON.coinMintMintableNetherite,"Netherite Coins","Whether the default mint recipe to mint netherite coins from netherite ingots will be loaded.");
+        //Crafting -> Coin Mint -> Melt
+        this.translateConfigSection(LCConfig.COMMON,"crafting.coin_mint.melt","Targeted Melting Options","Does nothing if \"Can Melt Coins\" is already false/disabled.");
+        this.translateConfigOption(LCConfig.COMMON.coinMintMeltableCopper,"Copper Coins","Whether the default mint recipe to melt copper coins back into copper ingots will be loaded.");
+        this.translateConfigOption(LCConfig.COMMON.coinMintMeltableIron,"Iron Coins","Whether the default mint recipe to melt iron coins back into iron ingots will be loaded.");
+        this.translateConfigOption(LCConfig.COMMON.coinMintMeltableGold,"Gold Coins","Whether the default mint recipe to melt gold coins back into gold ingots will be loaded.");
+        this.translateConfigOption(LCConfig.COMMON.coinMintMeltableEmerald,"Emerald Coins","Whether the default mint recipe to melt emerald coins back into emeralds will be loaded.");
+        this.translateConfigOption(LCConfig.COMMON.coinMintMeltableDiamond,"Diamond Coins","Whether the default mint recipe to melt diamond coins back into diamonds will be loaded.");
+        this.translateConfigOption(LCConfig.COMMON.coinMintMeltableNetherite,"Netherite Coins","Whether the default mint recipe to melt netherite coins back into netherite ingots will be loaded.");
+        //Crafting -> Money Chest
+        this.translateConfigSection(LCConfig.COMMON,"crafting.money_chest","Money Chest Crafting");
+        this.translateConfigOption(LCConfig.COMMON.canCraftCoinChest,"Money Chest","Whether the Money Chest can be crafted.","Disabling does NOT disable the recipes of Money Chest Upgrades.");
+        this.translateConfigOption(LCConfig.COMMON.canCraftCoinChestUpgradeExchange,"Exchange Upgrade","Whether the Money Chest Exchange Upgrade can be crafted.");
+        this.translateConfigOption(LCConfig.COMMON.canCraftCoinChestUpgradeMagnet,"Magnet Upgrade","Whether the Money Chest Magnet Upgrades can be crafted.");
+        this.translateConfigOption(LCConfig.COMMON.canCraftCoinChestUpgradeBank,"Bank Upgrade","Whether the Money Chest Bank Upgrade can be crafted.");
+        this.translateConfigOption(LCConfig.COMMON.canCraftCoinChestUpgradeSecurity,"Security Upgrade","Whether the Money Chest Security Upgrade can be crafted.");
+        //Events
+        this.translateConfigSection(LCConfig.COMMON,"events","Event Settings");
+        this.translateConfigOption(LCConfig.COMMON.chocolateEventCoins,"Chocolate Coins","Whether the Chocolate Event Coins will be added to the coin data.",
+                "Note: Disabling will not remove any Chocolate Coin items that already exist, this simply makes them no longer function as money");
+        this.translateConfigOption(LCConfig.COMMON.eventStartingRewards,"Event Starting Rewards","Whether custom events defined in the 'SeasonalEvents.json' config can give players the one-time reward for logging in during the event.");
+        this.translateConfigOption(LCConfig.COMMON.eventLootReplacements,"Event Loot Replacements","Whether custom events can replace a portion (or all) of the default loot with custom event loot.");
+        //Villagers
+        this.translateConfigSection(LCConfig.COMMON,"villagers","Villager Related Settings","Note: Any changes to villagers requires a full reboot to be applied due to how Minecraft/Forge registers trades.");
+        this.translateConfigOption(LCConfig.COMMON.piglinsBarterCoins,"Piglins Barter Coins","Whether Piglins will accept gold coins as a valid bartering item");
+        this.translateConfigOption(LCConfig.COMMON.addCustomWanderingTrades,"Custom Wandering Trades","Whether the wandering trader will have additional trades that allow you to buy misc items with money.");
+        this.translateConfigOption(LCConfig.COMMON.addBankerVillager,"Banker Trade Offers","Whether the banker villager profession (ATM) will have any registered trades.","The banker sells Lightman's Currency items for coins.");
+        this.translateConfigOption(LCConfig.COMMON.addCashierVillager,"Cashier Trade Offers","Whether the cashier villager profession (Cash Register) will have any registered trades.","The cashier sells an amalgamation of vanilla traders products for coins.");
+        //Villagers -> Modifications
+        this.translateConfigSection(LCConfig.COMMON,"villagers.modification","Villager Trade Modification","Note: Changes made only apply to newly generated trades. Villagers with trades already defined will not be changed.");
+        this.translateConfigOption(LCConfig.COMMON.changeVanillaTrades,"Change Vanilla Trade Offers","Whether vanilla villagers should have the Emeralds from their trades replaced with coins.");
+        this.translateConfigOption(LCConfig.COMMON.changeModdedTrades,"Change Modded Trade Offers","Whether vanilla villagers added by other mods should have the Emeralds from their trades replaced with coins.");
+        this.translateConfigOption(LCConfig.COMMON.changeWanderingTrades,"Change Wandering Trader Offers","Whether the wandering trader should have the emeralds from their trades replaced with the default replacement coin.");
+        this.translateConfigOption(LCConfig.COMMON.defaultEmeraldReplacementMod,"Default Replacement Item","The default coin to replace a trades emeralds with.");
+        this.translateConfigOption(LCConfig.COMMON.professionEmeraldReplacementOverrides,"Profession Replacement Items","List of replacement coin overrides for each villager profession.");
+        //Loot
+        this.translateConfigSection(LCConfig.COMMON,"loot","Loot Options");
+        this.translateConfigOption(LCConfig.COMMON.lootItem1,"Loot Item Tier 1","Tier 1 loot item.","Applies to loot table loot type \"lightmanscurrency:configured_item\" with \"tier\":1, which is used in all \"lightmanscurrency:loot_addons\" loot tables configured below.");
+        this.translateConfigOption(LCConfig.COMMON.lootItem2,"Loot Item Tier 2","Tier 2 loot item.","Applies to loot table loot type \"lightmanscurrency:configured_item\" with \"tier\":2, which is used in all \"lightmanscurrency:loot_addons\" loot tables configured below.");
+        this.translateConfigOption(LCConfig.COMMON.lootItem3,"Loot Item Tier 3","Tier 3 loot item.","Applies to loot table loot type \"lightmanscurrency:configured_item\" with \"tier\":3, which is used in all \"lightmanscurrency:loot_addons\" loot tables configured below.");
+        this.translateConfigOption(LCConfig.COMMON.lootItem4,"Loot Item Tier 4","Tier 4 loot item.","Applies to loot table loot type \"lightmanscurrency:configured_item\" with \"tier\":4, which is used in all \"lightmanscurrency:loot_addons\" loot tables configured below.");
+        this.translateConfigOption(LCConfig.COMMON.lootItem5,"Loot Item Tier 5","Tier 5 loot item.","Applies to loot table loot type \"lightmanscurrency:configured_item\" with \"tier\":5, which is used in all \"lightmanscurrency:loot_addons\" loot tables configured below.");
+        this.translateConfigOption(LCConfig.COMMON.lootItem6,"Loot Item Tier 6","Tier 6 loot item.","Applies to loot table loot type \"lightmanscurrency:configured_item\" with \"tier\":6, which is used in all \"lightmanscurrency:loot_addons\" loot tables configured below.");
+        //Loot -> Entities
+        this.translateConfigSection(LCConfig.COMMON,"loot.entities","Entity Loot Settings");
+        this.translateConfigOption(LCConfig.COMMON.enableEntityDrops,"Enabled","Whether coins can be dropped by entities.");
+        this.translateConfigOption(LCConfig.COMMON.allowSpawnerEntityDrops,"Spawner Drops","Whether coins can be dropped by entities that were spawned by the vanilla spawner.");
+        this.translateConfigOption(LCConfig.COMMON.allowFakePlayerCoinDrops,"Fake Player Drops","Whether modded machines that emulate player behaviour can trigger coin drops from entities.",
+                "Set to false to help prevent autmated coin farming.");
+        //Loot -> Entities -> Lists
+        this.translateConfigSection(LCConfig.COMMON,"loot.entities.lists","Entity Drop Lists","Accepts the following inputs:",
+                "Entity IDs. e.g. \"minecraft:cow\"",
+                "Entity Tags. e.g. \"#minecraft:skeletons\"",
+                "Every entity provided by a mod. e.g. \"minecraft:*\"",
+                "Note: If an entity meets multiple criteria, it will drop the lowest tier loot that matches (starting with normal T1 -> T6 then boss T1 -> T6)");
+        this.translateConfigOption(LCConfig.COMMON.entityDropsT1,"Tier 1","List of Entities that will drop loot from the \"lightmanscurrency:loot_addons/entity/tier1\" loot table.","Requires a player kill to trigger coin drops.");
+        this.translateConfigOption(LCConfig.COMMON.entityDropsT2,"Tier 2","List of Entities that will drop loot from the \"lightmanscurrency:loot_addons/entity/tier2\" loot table.","Requires a player kill to trigger coin drops.");
+        this.translateConfigOption(LCConfig.COMMON.entityDropsT3,"Tier 3","List of Entities that will drop loot from the \"lightmanscurrency:loot_addons/entity/tier3\" loot table.","Requires a player kill to trigger coin drops.");
+        this.translateConfigOption(LCConfig.COMMON.entityDropsT4,"Tier 4","List of Entities that will drop loot from the \"lightmanscurrency:loot_addons/entity/tier4\" loot table.","Requires a player kill to trigger coin drops.");
+        this.translateConfigOption(LCConfig.COMMON.entityDropsT5,"Tier 5","List of Entities that will drop loot from the \"lightmanscurrency:loot_addons/entity/tier5\" loot table.","Requires a player kill to trigger coin drops.");
+        this.translateConfigOption(LCConfig.COMMON.entityDropsT6,"Tier 6","List of Entities that will drop loot from the \"lightmanscurrency:loot_addons/entity/tier6\" loot table.","Requires a player kill to trigger coin drops.");
+        this.translateConfigOption(LCConfig.COMMON.bossEntityDropsT1,"Boss Tier 1","List of Entities that will drop loot from the \"lightmanscurrency:loot_addons/boss/tier1\" loot table.","Does NOT require a player kill to trigger coin drops.");
+        this.translateConfigOption(LCConfig.COMMON.bossEntityDropsT2,"Boss Tier 2","List of Entities that will drop loot from the \"lightmanscurrency:loot_addons/boss/tier2\" loot table.","Does NOT require a player kill to trigger coin drops.");
+        this.translateConfigOption(LCConfig.COMMON.bossEntityDropsT3,"Boss Tier 3","List of Entities that will drop loot from the \"lightmanscurrency:loot_addons/boss/tier3\" loot table.","Does NOT require a player kill to trigger coin drops.");
+        this.translateConfigOption(LCConfig.COMMON.bossEntityDropsT4,"Boss Tier 4","List of Entities that will drop loot from the \"lightmanscurrency:loot_addons/boss/tier4\" loot table.","Does NOT require a player kill to trigger coin drops.");
+        this.translateConfigOption(LCConfig.COMMON.bossEntityDropsT5,"Boss Tier 5","List of Entities that will drop loot from the \"lightmanscurrency:loot_addons/boss/tier5\" loot table.","Does NOT require a player kill to trigger coin drops.");
+        this.translateConfigOption(LCConfig.COMMON.bossEntityDropsT6,"Boss Tier 6","List of Entities that will drop loot from the \"lightmanscurrency:loot_addons/boss/tier6\" loot table.","Does NOT require a player kill to trigger coin drops.");
+        //Loot -> Chest
+        this.translateConfigSection(LCConfig.COMMON,"loot.chests","Chest Loot Settings");
+        this.translateConfigOption(LCConfig.COMMON.enableChestLoot,"Enabled","Whether coins can spawn in chests.");
+        //Loot -> Chest -> Lists
+        this.translateConfigSection(LCConfig.COMMON,"loot.chests.lists","Chest Spawn Lists");
+        this.translateConfigOption(LCConfig.COMMON.chestDropsT1,"Tier 1","List of Loot Tables that will also spawn loot from the \"lightmanscurrency:loot_addons/chest/tier1\" loot table.");
+        this.translateConfigOption(LCConfig.COMMON.chestDropsT2,"Tier 2","List of Loot Tables that will also spawn loot from the \"lightmanscurrency:loot_addons/chest/tier2\" loot table.");
+        this.translateConfigOption(LCConfig.COMMON.chestDropsT3,"Tier 3","List of Loot Tables that will also spawn loot from the \"lightmanscurrency:loot_addons/chest/tier3\" loot table.");
+        this.translateConfigOption(LCConfig.COMMON.chestDropsT4,"Tier 4","List of Loot Tables that will also spawn loot from the \"lightmanscurrency:loot_addons/chest/tier4\" loot table.");
+        this.translateConfigOption(LCConfig.COMMON.chestDropsT5,"Tier 5","List of Loot Tables that will also spawn loot from the \"lightmanscurrency:loot_addons/chest/tier5\" loot table.");
+        this.translateConfigOption(LCConfig.COMMON.chestDropsT6,"Tier 6","List of Loot Tables that will also spawn loot from the \"lightmanscurrency:loot_addons/chest/tier6\" loot table.");
+        //Structure Settings
+        this.translateConfigSection(LCConfig.COMMON,"structures","Structure Settings","Requires a /reload command to be applied correctly");
+        this.translateConfigOption(LCConfig.COMMON.structureVillageHouses,"Spawn Custom Village Houses","Whether new village structures will have a chance to spawn in vanilla villages");
+        this.translateConfigOption(LCConfig.COMMON.structureAncientCity,"Spawn Custom Ancient City Pieces","Whether new structures will have a chance to spawn in ancient cities");
+        //1.20.1 exclusive, but for the sake of easier translating I'm still going to translate it
+        this.add(ConfigFile.translationForOption(LCConfig.COMMON.getFileID(),"structures.idasStructures"),"IDAS Structura");
+        this.translate(new MultiLineTextEntry(ConfigFile.translationForComment(LCConfig.COMMON.getFileID(),"structures.idasStructures")),
+                "Whether new special structures designed for Integrated Dungeons and Structures compatibility can spawn",
+                "Does nothing if IDAS is not installed");
+        //Mixin
+        this.translateConfigSection(LCConfig.COMMON,"mixins","Mixin Options");
+        this.translateConfigOption(LCConfig.COMMON.interceptGiveCommand,"Intercept Give Command","Whether coins given to a player with the /give command should be intercepted by the players wallet if one is equipped");
+        this.translateConfigOption(LCConfig.COMMON.interceptInventoryHelper,"Intecept Item Helper","Whether coins give to the player via Forges ItemHandlerHelper utilities should be intercepted by the players wallet if one is equipped");
+        //Compat
+        this.translateConfigSection(LCConfig.COMMON,"compat","Mod Compat Options");
+        this.translateConfigOption(LCConfig.COMMON.compatImpactor,"Enable Compactor Node","Whether the Impactor compat will be initialized.",
+                "Requires a full reboot for changes to be applied!");
+
+        /// Server Config
+        this.translateConfigName(LCConfig.SERVER,"Server Config");
+        //Notification
+        this.translateConfigSection(LCConfig.SERVER,"notifications","Notification Settings");
+        this.translateConfigOption(LCConfig.SERVER.notificationLimit,"Notification Limit",
+                "The maximum number of notifications each player and/or machine can have before old entries are deleted.",
+                "Lower if you encounter packet size problems.");
+        //Machine Protection
+        this.translateConfigSection(LCConfig.SERVER,"machine_protection","Machine Protection Settings");
+        this.translateConfigOption(LCConfig.SERVER.safelyEjectMachineContents,"Safe Ejection",
+                "Whether illegally broken traders (such as being replaced with /setblock, or modded machines that break blocks) will safely eject their block/contents into a temporary storage area for the owner to collect safely.",
+                "If disabled, illegally broken traders will throw their items on the ground, and can thus be griefed by modded machines.",
+                "Value ignored if anarchyMode is enabled!");
+        this.translateConfigOption(LCConfig.SERVER.anarchyMode,"Anarchy Mode",
+                "Whether block break protection will be disabled completely.",
+                "Enable with caution as this will allow players to grief and rob other players shops and otherwise protected machinery.");
+        this.translateConfigOption(LCConfig.SERVER.quarantinedDimensions,"Quarantined Dimensions",
+                "A list of dimension ids that are quarantined from all cross-dimensional interactions.",
+                "This includes disabling Trader Interfaces, Network Traders & Terminals (personal trader interactions & cash registers will still function), and all Bank Account access.",
+                "Mostly intended to be used to allow the existence of 'Creative Dimensions' where money can be cheated in by your average player, but should not affect a players inventory/bank balance in the 'normal' dimensions.");
+        //Coin Mint
+        this.translateConfigSection(LCConfig.SERVER,"coin_mint","Coin Mint Settings");
+        this.translateConfigOption(LCConfig.SERVER.coinMintDefaultDuration,"Mint Duration",
+                "Default number of ticks it takes to process a Coin Mint recipe.",
+                "Does not apply to Coin Mint recipes with a defined \"duration\" input.");
+        this.translateConfigOption(LCConfig.SERVER.coinMintSoundVolume,"Volume","The volume of the noise played whenever the Coin Mint finishes the crafting process.");
+        this.translateConfigSection(LCConfig.SERVER,"wallet","Wallet Settings");
+        this.translateConfigOption(LCConfig.SERVER.walletCanExchange, "Exchange Ability List",
+                "The lowest level wallet capable of exchanging coins.");
+        this.translateConfigOption(LCConfig.SERVER.walletCanPickup,"Pickup Ability List",
+                "The lowest level wallet capable of automatically collecting coins while equipped.");
+        this.translateConfigOption(LCConfig.SERVER.walletCanBank,"Bank Ability List",
+                "The lowest level wallet capable of allowing transfers to/from your bank account.");
+        this.translateConfigOption(LCConfig.SERVER.walletCapacityUpgradeable,"Capacity is Upgradeable",
+                "Whether wallets can have additional slots added by using an upgrade item on them from their inventory",
+                "By default diamonds are the only valid upgrade item, but this can be changed by a datapack");
+        this.translateConfigOption(LCConfig.SERVER.walletDropsManualSpawn,"Manully Spawn Drops",
+                "Whether Wallet Drops should be manually spawned into the world instead of the default behaviour of being passed to the PlayerDropsEvent",
+                "Wallet Drops will be either the Wallet itself, or the coins dropped when the `coinDropPercent` game rule is greater than 0.");
+        //Money Bag
+        this.translateConfigSection(LCConfig.SERVER,"money_bag","Money Bag Settings");
+        this.translateConfigOption(LCConfig.SERVER.moneyBagBaseAttack,"Base Attack","The base Attack Damage that an empty Money Bag will have (not counting the base 1 attack damage the player has)");
+        this.translateConfigOption(LCConfig.SERVER.moneyBagAttackPerSize,"Scaling Attack","The additional Attack Damage added by each additional size (up to a size of 3)");
+        this.translateConfigOption(LCConfig.SERVER.moneyBagBaseAtkSpeed,"Base Attack Speed","The base Attack Speed that an empty Money Bag will have (not counting the base 4 attack speed the player has)",
+                "Is negative because you typically want to make weapons such as these attack slower (vanilla sword attack speed is 1.5, which can be obtained with a value of -2.5)");
+        this.translateConfigOption(LCConfig.SERVER.moneyBagAtkSpeedPerSize,"Scaling Attack Speed",
+                "The additional Attack Speed added by each additional size (up to a size of 3)",
+                "Is negative because you typically want to make weapons such as these attack slower",
+                "Note: If the total attack speed additions are more than -4.0, the player will be unable to get a full-strength attack with that size of Money Bag.");
+        this.translateConfigOption(LCConfig.SERVER.moneyBagBaseFallDamage,"Base Fall Damage","The base fall damage per distance an empty Money Bag will have");
+        this.translateConfigOption(LCConfig.SERVER.moneyBagFallDamagerPerSize,"Scaling Fall Damage","The additional fall damage per distance added by each additional size (up to a size of 3)");
+        this.translateConfigOption(LCConfig.SERVER.moneyBagMaxFallDamageBase,"Base Fall Damage Limit","The base upper limit for fall damage that an empty Money Bag will have");
+        this.translateConfigOption(LCConfig.SERVER.moneyBagMaxFallDamagePerSize,"Scaling Fall Damage Limit","The additional upper limit for fall damage added by each additional size (up to a size of 3)");
+        this.translateConfigOption(LCConfig.SERVER.moneyBagCoinLossChance,"Coin Loss Chance",
+                "The chance of the Money Bag dropping a random coin when it's used to attack another entity or when it falls a significant distance",
+                "0.0 is a 0% chance, and 1.0 is a 100% chance");
+        this.translateConfigOption(LCConfig.SERVER.moneyBagCoinLossFallDistance,"Coin Loss Fall Distance","The minimum distance a Money Bag must fall before it has a chance to drop coins when it lands");
+        //Upgrades
+        this.translateConfigSection(LCConfig.SERVER,"upgrades","Upgrade Settings");
+        //Upgrades -> Item Capacity
+        this.translateConfigSection(LCConfig.SERVER,"upgrades.item_capacity","Item Capacity Upgrade");
+        this.translateConfigOption(LCConfig.SERVER.itemCapacityUpgrade1,"T1 Capacity","The amount of item storage added by the Item Capacity Upgrade (Iron)");
+        this.translateConfigOption(LCConfig.SERVER.itemCapacityUpgrade2,"T2 Capacity","The amount of item storage added by the Item Capacity Upgrade (Gold)");
+        this.translateConfigOption(LCConfig.SERVER.itemCapacityUpgrade3,"T3 Capacity","The amount of item storage added by the Item Capacity Upgrade (Diamond)");
+        this.translateConfigOption(LCConfig.SERVER.itemCapacityUpgrade4,"T4 Capacity","The amount of item storage added by the Item Capacity Upgrade (Netherite)");
+        //Upgrades -> Interaction
+        this.translateConfigSection(LCConfig.SERVER,"upgrades.interaction_upgrade","Interaction Upgrade");
+        this.translateConfigOption(LCConfig.SERVER.interactionUpgrade1,"T1 Bonus Selections","The amount of bonus selections added by the Interaction Upgrade (Emerald)");
+        this.translateConfigOption(LCConfig.SERVER.interactionUpgrade2,"T2 Bonus Selections","The amount of bonus selections added by the Interaction Upgrade (Diamond)");
+        this.translateConfigOption(LCConfig.SERVER.interactionUpgrade3,"T3 Bonus Selections","The amount of bonus selections added by the Interaction Upgrade (Netherite)");
+        //Upgrades -> Money Chest Magnet
+        this.translateConfigSection(LCConfig.SERVER,"upgrades.money_chest_magnet","Money Chest Magnet Upgrade");
+        this.translateConfigOption(LCConfig.SERVER.coinChestMagnetRange1,"T1 Magnet Radius","The radius (in meters) of the Money Chest Magnet Upgrade (Copper)'s coin collection.");
+        this.translateConfigOption(LCConfig.SERVER.coinChestMagnetRange2,"T2 Magnet Radius","The radius (in meters) of the Money Chest Magnet Upgrade (Iron)'s coin collection.");
+        this.translateConfigOption(LCConfig.SERVER.coinChestMagnetRange3,"T3 Magnet Radius","The radius (in meters) of the Money Chest Magnet Upgrade (Gold)'s coin collection.");
+        this.translateConfigOption(LCConfig.SERVER.coinChestMagnetRange4,"T4 Magnet Radius","The radius (in meters) of the Money Chest Magnet Upgrade (Emerald)'s coin collection.");
+        //Enchantments
+        this.translateConfigSection(LCConfig.SERVER,"enchantments","Enchantment Settings");
+        this.translateConfigOption(LCConfig.SERVER.enchantmentTickDelay,"Tick Delay",
+                "The delay (in ticks) between Money Mending & Coin Magnet ticks.",
+                "Increase if my enchantments are causing extreme lag.",
+                "Note: 20 ticks = 1s");
+        this.translateConfigOption(LCConfig.SERVER.moneyMendingRepairCost,"MM Repair Cost","The cost required to repair a single item durability point with the Money Mending enchantment.");
+        this.translateConfigOption(LCConfig.SERVER.moneyMendingInfinityCost,"MM Extra Infinity Cost","The additional cost to repair an item with Infinity applied to it.");
+        this.translateConfigOption(LCConfig.SERVER.coinMagnetBaseRange,"CM Base Range","The coin collection radius of the Coin Magnet I enchantment.");
+        this.translateConfigOption(LCConfig.SERVER.coinMagnetLeveledRange,"CM Leveled Range","The increase in the coin collection radius added by each additional level of the Coin Magnet enchantment.");
+        this.translateConfigOption(LCConfig.SERVER.coinMagnetCalculationCap,"CM Calculation Cap",
+                "The final level of Coin Magnet that will result in increased range calculations.",
+                "Increase if you have another mod that increases the max level of the Coin Magnet enchantment",
+                "and you wish for those levels to actually apply an effect.");
+        //Auction House
+        this.translateConfigSection(LCConfig.SERVER,"auction_house","Auction House Settings");
+        this.translateConfigOption(LCConfig.SERVER.auctionHouseEnabled,"Enabled",
+                "Whether the Auction House will be automatically generated and accessible.",
+                "If disabled after players have interacted with it, items & money in the auction house cannot be accessed until re-enabled.",
+                "If disabled, it is highly recommended that you also disable the Crafting -> Auction Stand option in the common config.");
+        this.translateConfigOption(LCConfig.SERVER.auctionHouseOnTerminal,"Show On Terminal",
+                "Whether the Auction House will appear in the trading terminal.",
+                "If false, you will only be able to access the Auction House from an Auction Stand.");
+        this.translateConfigOption(LCConfig.SERVER.auctionHouseDurationMin,"Min Auction Duration",
+                "The minimum number of days an auction can have its duration set to.",
+                "If given a 0 day minimum, the minimum auction duration will be 1 hour.");
+        this.translateConfigOption(LCConfig.SERVER.auctionHouseDurationMax,"Max Auction Duration","The maxumim number of day an auction can have its duration set to.");
+        this.translateConfigOption(LCConfig.SERVER.auctionHouseAllowOwnerBidding,"Allow Owner Bids","Whether the players are allowed to bid on their own Auctions");
+        this.translateConfigOption(LCConfig.SERVER.auctionHouseAllowDoubleBidding,"Allow Double Bids","Whether players are allowed to bid on an auction when they were also the previous bidder");
+        this.translateConfigOption(LCConfig.SERVER.auctionHouseFeePercentage,"Auction % Fee","The percentage of the final bid that will be collected as a fee instead of being given to the auctions owner when the auction is completed");
+        this.translateConfigOption(LCConfig.SERVER.auctionHouseSubmitPrice,"Auction Submit Fee",
+                "A flat fee paid on the creation of an auction by the player submitting it",
+                "If they are unable to pay this fee, they will not be able to submit any auctions");
+        this.translateConfigOption(LCConfig.SERVER.auctionHouseStoreFeeInServerTax,"Store Auction Fee",
+                "Whether the auction fees collected should be stored in the server-wide tax collector as taxes",
+                "Includes both the submission fee and the fee taken from the final bid",
+                "Useful for those who wish to keep track of auction fees collected, and/or don't want money to destroyed in this process");
+        this.translateConfigOption(LCConfig.SERVER.auctionHousePlayerLimit,"Auction Limit",
+                "The maximum number of pending auctions each player is allowed to have",
+                "Set to 0 to only allow auctions to be posted by admins in LC Admin Mode, or to limit the Auction House to only Persistent Auctions");
+        //Bank Account
+        this.translateConfigSection(LCConfig.SERVER,"bank_accounts","Bank Account Settings");
+        this.translateConfigOption(LCConfig.SERVER.bankAccountInterestRate,"Interest Rate",
+                "The interest rate that bank accounts will earn just by existing.",
+                "Setting to 0 will disable interest and all interest-related ticks from happening.",
+                "Note: Rate of 1.0 will result in doubling the accounts money each interest tick.",
+                "Rate of 0.01 is equal to a 1% interest rate.");
+        this.translateConfigOption(LCConfig.SERVER.bankAccountForceInterest,"Force Some Interest",
+                "Whether interest applied to small amounts of money are guaranteed to give at least *some* money as long as there's money in the account.",
+                "Example 1% interest applied to a bank account with only 1 copper coin will always give *at least* 1 copper coin.");
+        this.translateConfigOption(LCConfig.SERVER.bankAccountInterestNotification,"Interest Notification",
+                "Whether players will receive a personal notification whenever their bank account collects interest.",
+                "Regardless of this value, the bank accounts logs will always display the interest interaction.");
+        this.translateConfigOption(LCConfig.SERVER.bankAccountInterestTime,"Interest Delay",
+                "The number of minecraft ticks that will pass before interest is applied.",
+                "Helpful Notes:",
+                "1s = 20 ticks",
+                "1m = 1200 ticks",
+                "1h = 72000 ticks",
+                "1 day = 1728000 ticks",
+                "1 week = 12096000 ticks",
+                "30 days = 51840000 ticks",
+                "365 days = 630720000 ticks");
+        this.translateConfigOption(LCConfig.SERVER.bankAccountInterestLimits,"Interest Limits",
+                "A list of upper interest limits.",
+                "Example:",
+                "Adding \"1n\" to this list will make it so that players will get no more than 1 netherite coin worth of interest even if they would normally get more.");
+        this.translateConfigOption(LCConfig.SERVER.bankAccountInterestBlacklist,"Interest Blacklist",
+                "A list of Money Value unique ids that should not have interest applied to them.",
+                "Example:",
+                "Adding \"lightmanscurrency:coins!chocolate_coins\" will prevent chocolate coins from getting interest,",
+                "Adding \"lightmanscurrency:coins!*\" will prevent all built-in money types from getting interest");
+        //Network Terminal
+        this.translateConfigSection(LCConfig.SERVER,"terminal","Network Terminal Settings");
+        this.translateConfigOption(LCConfig.SERVER.openTerminalCommand,"Terminal Command","Whether the /lcterminal command will exist allowing players to access the Trading Terminal without the physical item/block");
+        this.translateConfigOption(LCConfig.SERVER.moveUnnamedTradersToBottom,"Sort Unnamed To Bottom","Whether Traders with no defined Custom Name will be sorted to the bottom of the Trader list on the Network Terminal.");
+        //Paygate
+        this.translateConfigSection(LCConfig.SERVER,"paygate","Paygate Settings");
+        this.translateConfigOption(LCConfig.SERVER.paygateMaxDuration,"Max Duration","The maximum number of ticks that a paygate can be set to output a redstone signal for.");
+        //Command Trader
+        this.translateConfigSection(LCConfig.SERVER,"command_trader","Command Trader Settings");
+        this.translateConfigOption(LCConfig.SERVER.commandTraderPlacementPermission,"Placement Permission","The permission level required to place the command trader block");
+        this.translateConfigOption(LCConfig.SERVER.commandTraderMaxPermissionLevel,"Max Command Permission","The maximum permission level that can be set and used by a command trader");
+        //Player Trading Options
+        this.translateConfigSection(LCConfig.SERVER,"player_trading","Player <-> Player Trading Options");
+        this.translateConfigOption(LCConfig.SERVER.playerTradingRange,"Trading Range",
+                "The maximum distance allowed between players in order for a player trade to persist.",
+                "-1 will always allow trading regardless of dimension.",
+                "0 will allow infinite distance but require that both players be in the same dimension.");
+        //Taxes
+        this.translateConfigSection(LCConfig.SERVER,"taxes","Tax Settings");
+        this.translateConfigOption(LCConfig.SERVER.taxCollectorAdminOnly,"Admin Only Activation",
+                "Whether Tax Collectors can only be activated by an Admin in LC Admin Mode.",
+                "Will not prevent players from crafting, placing, or configuring Tax Collectors.");
+        this.translateConfigOption(LCConfig.SERVER.taxCollectorMaxRate,"Max Tax Rate",
+                "The maximum tax rate (in %) a Tax Collector is allowed to enforce.",
+                "Note: The sum of multiple tax collectors rates can still exceed this number.",
+                "If a machine reaches a total tax rate of 100% it will forcibly prevent all monetary interactions until this is resolved.");
+        this.translateConfigOption(LCConfig.SERVER.taxCollectorMaxRadius,"Max Radius","The maximum radius of a Tax Collectors area in meters.");
+        this.translateConfigOption(LCConfig.SERVER.taxCollectorMaxHeight,"Max Height","The maximum height of a Tax Collectors area in meters.");
+        this.translateConfigOption(LCConfig.SERVER.taxCollectorMaxVertOffset,"Max Vert Offset",
+                "The maximum vertical offset of a Tax Collectors area in meters.",
+                "Note: Vertical offset can be negative, so this will also enforce the lowest value.");
+        //Chocolate Coins
+        this.translateConfigSection(LCConfig.SERVER,"chocolate_coins","Chocolate Coin Settings");
+        this.translateConfigOption(LCConfig.SERVER.chocolateCoinEffects,"Chocolate Effects","Whether the Chocolate Coins will give players custom potion and/or healing effects on consumption.");
+        //Model Variants
+        this.translateConfigSection(LCConfig.SERVER,"model_variants","Model Variant Settings");
+        this.translateConfigOption(LCConfig.SERVER.variantBlacklist,"Variant Blacklist","A list of Model Variant ids that will be hidden from the Variant Select Menu on the client, and cannot be selected in said menu.");
+        //Compat
+        this.translateConfigSection(LCConfig.SERVER,"compat","Mod Compatibility Options");
+        //Compat -> Claim Purchasing
+        this.translateConfigSection(LCConfig.SERVER,"compat.claim_purchasing","Claim Purchasing Settings","Settings for compatbility with FTB Chunks, Cadmus, and Flan");
+        this.translateConfigOption(LCConfig.SERVER.claimingAllowClaimPurchase,"Can Purchase Claims","Whether the `/lcclaims buy claim` command will be accessible to players.");
+        this.translateConfigOption(LCConfig.SERVER.claimingClaimPrice,"Claim Price","The price per claim chunk purchased.");
+        this.translateConfigOption(LCConfig.SERVER.claimingMaxClaimCount,"Max Bonus Claims",
+                "The maximum number of extra claim chunks allowed to be purchased with this command.",
+                "Note: This count includes extra claim chunks given to the player/team via normal FTB Chunks methods as well (if applicable).");
+        this.translateConfigOption(LCConfig.SERVER.claimingAllowForceloadPurchase,"Can Purchase Forceloads","Whether the `/lcclaims buy forceload` command will be accessible to players.");
+        this.translateConfigOption(LCConfig.SERVER.claimingForceloadPrice,"Forceload Price","The price per forceload chunk purchased.");
+        this.translateConfigOption(LCConfig.SERVER.claimingMaxForceloadCount,"Max Bonus Forceloads",
+                "The maximum number of extra forceload chunks allowed to be purchased with this command.",
+                "Note: This count includes extra forceload chunks given to the player/team via normal FTB Chunks methods as well (if applicable).");
+        //Compat -> Claim Purchasing -> Flan
+        this.translateConfigSection(LCConfig.SERVER,"compat.claim_purchasing.flan","Flan Settings");
+        this.translateConfigOption(LCConfig.SERVER.flanClaimingBlocksPerChunk,"Blocks per 'Chunk'","Blocks that will be added with each 'claim' purchased");
+        //1.20.1 exclusive here perhaps?
+
         //Jade Plugin names
         this.add("config.jade.plugin_lightmanscurrency.model_variant","Model Variant");
         this.add("config.jade.plugin_lightmanscurrency.model_variant.locked","Model Variant Locked Status");
@@ -1389,10 +1842,17 @@ public class EnglishProvider extends TranslationProvider {
         this.add("create.item_attributes.lightmanscurrency.coin.any.inverted","Is not a coin");
         this.add("create.item_attributes.lightmanscurrency.coin.chain","Is a '%s' coin");
         this.add("create.item_attributes.lightmanscurrency.coin.chain.inverted","Is not a '%s' coin");
+        this.add("create.item_attributes.lightmanscurrency.wallet_ability.pickup","Is a Wallet that can pick up coins");
+        this.add("create.item_attributes.lightmanscurrency.wallet_ability.pickup.inverted","Is not a Wallet that can pick up coins");
+        this.add("create.item_attributes.lightmanscurrency.wallet_ability.exchange","Is a Wallet that can exchange coins");
+        this.add("create.item_attributes.lightmanscurrency.wallet_ability.exchange.inverted","Is not a Wallet that can exchange coins");
+        this.add("create.item_attributes.lightmanscurrency.wallet_ability.bank","Is a Wallet that can access your bank accounts");
+        this.add("create.item_attributes.lightmanscurrency.wallet_ability.bank.inverted","Is not a Wallet that can access your bank accounts");
 
         final ResourceLocation TRADER_GUIDE = VersionUtil.lcResource("trader_guide");
         //Patchouli
         this.translateGuide(TRADER_GUIDE,"Trading Guide (WIP)","A guide to Buying and Selling your way to unfathomable riches");
+
 
     }
 

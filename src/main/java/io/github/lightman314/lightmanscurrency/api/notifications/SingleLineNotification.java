@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.notifications;
 
 import com.google.common.collect.Lists;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
@@ -10,8 +10,8 @@ import java.util.List;
 public abstract class SingleLineNotification extends Notification {
 
     @Override
-    public final List<MutableComponent> getMessageLines() { return Lists.newArrayList(this.getMessage()); }
+    public final List<Component> getMessageLines() { return Lists.newArrayList(this.getMessage()); }
 
-    protected abstract MutableComponent getMessage();
+    protected abstract Component getMessage();
 
 }

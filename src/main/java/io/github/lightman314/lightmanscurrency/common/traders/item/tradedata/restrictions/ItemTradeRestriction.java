@@ -18,11 +18,17 @@ import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ItemTradeRestriction {
 
 	public static final ResourceLocation NO_RESTRICTION_KEY = VersionUtil.lcResource("none");
@@ -107,6 +113,7 @@ public class ItemTradeRestriction {
 		return minStock;
 	}
 
+    @Nullable
 	public List<ItemStack> getRandomSellItems(ItemTraderData trader, ItemTradeData trade)
 	{
 		List<ItemStack> randomItems = ItemRequirement.getRandomItemsMatchingRequirements(trader.getStorage(), trade.getItemRequirement(0), trade.getItemRequirement(1), trader.isCreative());

@@ -82,7 +82,7 @@ public class CoinContainerMoneyHandler extends MoneyHandler {
 
     public static void queryContainerContents(@Nonnull Container container, @Nonnull MoneyView.Builder builder)
     {
-        for(ChainData chain : CoinAPI.API.AllChainData())
+        for(ChainData chain : CoinAPI.getApi().AllChainData())
         {
             long totalValue = 0;
             for(int i = 0; i < container.getContainerSize(); ++i)
@@ -98,7 +98,7 @@ public class CoinContainerMoneyHandler extends MoneyHandler {
     private static long takeObjectsOfValue(@Nonnull CoinValue valueToTake, @Nonnull Container container)
     {
         long value = valueToTake.getCoreValue();
-        ChainData chainData = CoinAPI.API.ChainData(valueToTake.getChain());
+        ChainData chainData = CoinAPI.getApi().ChainData(valueToTake.getChain());
         if(chainData == null)
             return value;
         List<CoinEntry> coinList = chainData.getAllEntries(true);

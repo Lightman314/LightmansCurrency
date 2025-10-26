@@ -10,13 +10,16 @@ import io.github.lightman314.lightmanscurrency.api.taxes.notifications.SingleLin
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.traders.commands.tradedata.CommandTrade;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Supplier;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class CommandTradeNotification extends SingleLineTaxableNotification {
 
     public static final NotificationType<CommandTradeNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("command_trade"),CommandTradeNotification::new);
@@ -39,20 +42,17 @@ public class CommandTradeNotification extends SingleLineTaxableNotification {
 
     public static Supplier<Notification> create(CommandTrade trade, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) { return () -> new CommandTradeNotification(trade,cost,customer,traderData,taxesPaid); }
 
-    @Nonnull
     @Override
     protected NotificationType<?> getType() { return TYPE; }
 
-    @Nonnull
     @Override
     public NotificationCategory getCategory() { return this.traderData; }
 
-    @Nonnull
     @Override
-    protected MutableComponent getNormalMessage() { return LCText.NOTIFICATION_TRADE_COMMAND.get(this.customer,this.cost.getText("NULL"),this.command); }
+    protected Component getNormalMessage() { return LCText.NOTIFICATION_TRADE_COMMAND.get(this.customer,this.cost.getText("NULL"),this.command); }
 
     @Override
-    protected void saveNormal(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+    protected void saveNormal(CompoundTag compound, HolderLookup.Provider lookup) {
         compound.put("TraderInfo", this.traderData.save(lookup));
         compound.putString("Command",this.command);
         compound.put("Price",this.cost.save());
@@ -60,7 +60,7 @@ public class CommandTradeNotification extends SingleLineTaxableNotification {
     }
 
     @Override
-    protected void loadNormal(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+    protected void loadNormal(CompoundTag compound, HolderLookup.Provider lookup) {
 
         this.traderData = new TraderCategory(compound.getCompound("TraderInfo"),lookup);
         this.command = compound.getString("Command");
@@ -70,7 +70,7 @@ public class CommandTradeNotification extends SingleLineTaxableNotification {
     }
 
     @Override
-    protected boolean canMerge(@Nonnull Notification other) {
+    protected boolean canMerge(Notification other) {
         if(other instanceof CommandTradeNotification ctn)
         {
             if(!ctn.traderData.matches(this.traderData))

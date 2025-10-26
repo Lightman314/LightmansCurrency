@@ -76,15 +76,15 @@ public class ModItems {
 		GOLDEN_TICKET_STUB = ModRegistries.ITEMS.register("golden_ticket_stub", () -> new Item(new Item.Properties()));
 		
 		//Wallets
-		WALLET_LEATHER = ModRegistries.ITEMS.register("wallet_leather", () -> new WalletItem(0, 6, WalletItem.lazyModel("wallet_leather"), false, 0, 0, new Item.Properties()));
-		WALLET_COPPER = ModRegistries.ITEMS.register("wallet_copper", () -> new WalletItem(0, 6, WalletItem.lazyModel("wallet_copper"), new Item.Properties()));
-		WALLET_IRON = ModRegistries.ITEMS.register("wallet_iron", () -> new WalletItem(1, 12, WalletItem.lazyModel("wallet_iron"), new Item.Properties()));
-		WALLET_GOLD = ModRegistries.ITEMS.register("wallet_gold", () -> new WalletItem(2, 18, WalletItem.lazyModel("wallet_gold"), new Item.Properties()));
-		WALLET_EMERALD = ModRegistries.ITEMS.register("wallet_emerald", () -> new WalletItem(3, 24, WalletItem.lazyModel("wallet_emerald"), new Item.Properties()));
-		WALLET_DIAMOND = ModRegistries.ITEMS.register("wallet_diamond", () -> new WalletItem(4, 30, WalletItem.lazyModel("wallet_diamond"), new Item.Properties()));
-		WALLET_NETHERITE = ModRegistries.ITEMS.register("wallet_netherite", () -> new WalletItem(5, 36, WalletItem.lazyModel("wallet_netherite"), new Item.Properties().rarity(Rarity.RARE).fireResistant()));
-		WALLET_NETHER_STAR = ModRegistries.ITEMS.register("wallet_nether_star", () -> new WalletItem(6, 54, WalletItem.lazyModel("wallet_nether_star"), true, 1, WalletItem.MAX_WALLET_SLOTS - 54, new Item.Properties().rarity(Rarity.EPIC).fireResistant()));
-		WALLET_ENDER_DRAGON = ModRegistries.ITEMS.register("wallet_ender_dragon", () -> new WalletItem(6, 42, WalletItem.lazyModel("wallet_ender_dragon"), false, 3, WalletItem.MAX_WALLET_SLOTS - 42, SoundEntry.builder()
+		WALLET_LEATHER = ModRegistries.ITEMS.register("wallet_leather", () -> new WalletItem( 6, WalletItem.lazyModel("wallet_leather"), false, 0, 0, new Item.Properties()));
+		WALLET_COPPER = ModRegistries.ITEMS.register("wallet_copper", () -> new WalletItem(6, WalletItem.lazyModel("wallet_copper"), new Item.Properties()));
+		WALLET_IRON = ModRegistries.ITEMS.register("wallet_iron", () -> new WalletItem(12, WalletItem.lazyModel("wallet_iron"), new Item.Properties()));
+		WALLET_GOLD = ModRegistries.ITEMS.register("wallet_gold", () -> new WalletItem(18, WalletItem.lazyModel("wallet_gold"), new Item.Properties()));
+		WALLET_EMERALD = ModRegistries.ITEMS.register("wallet_emerald", () -> new WalletItem(24, WalletItem.lazyModel("wallet_emerald"), new Item.Properties()));
+		WALLET_DIAMOND = ModRegistries.ITEMS.register("wallet_diamond", () -> new WalletItem(30, WalletItem.lazyModel("wallet_diamond"), new Item.Properties()));
+		WALLET_NETHERITE = ModRegistries.ITEMS.register("wallet_netherite", () -> new WalletItem(36, WalletItem.lazyModel("wallet_netherite"), new Item.Properties().rarity(Rarity.RARE).fireResistant()));
+		WALLET_NETHER_STAR = ModRegistries.ITEMS.register("wallet_nether_star", () -> new WalletItem(54, WalletItem.lazyModel("wallet_nether_star"), true, 1, WalletItem.MAX_WALLET_SLOTS - 54, new Item.Properties().rarity(Rarity.EPIC).fireResistant()));
+		WALLET_ENDER_DRAGON = ModRegistries.ITEMS.register("wallet_ender_dragon", () -> new WalletItem(42, WalletItem.lazyModel("wallet_ender_dragon"), false, 3, WalletItem.MAX_WALLET_SLOTS - 42, SoundEntry.builder()
 				.add(50,WalletItem.DEFAULT_COIN_COLLECT_SOUND)
 				.addVanilla(25,"entity.ender_dragon.growl")
 				.addVanilla(25,"entity.ender_dragon.ambient")

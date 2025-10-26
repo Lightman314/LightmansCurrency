@@ -2,7 +2,10 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.GhostSlot;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
@@ -13,8 +16,6 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.items.data.FilterData;
 import io.github.lightman314.lightmanscurrency.common.menus.ItemFilterMenu;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -99,6 +100,9 @@ public class ItemFilterScreen extends EasyMenuScreen<ItemFilterMenu> implements 
                     .build());
         }
 
+        //Create a ghost slot provider
+        this.addChild(new GhostSlot<>(this.fakeSlotArea,this::setFakeSlotItem,ItemStack.class).asProvider());
+
     }
 
     @Override
@@ -132,6 +136,8 @@ public class ItemFilterScreen extends EasyMenuScreen<ItemFilterMenu> implements 
 
     @Override
     protected void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
+        if(!this.menu.getCarried().isEmpty())
+            return;
         if(this.filterItemArea.isMouseInArea(gui.mousePos))
             gui.renderTooltip(this.menu.getTargetedStack());
         else if(this.fakeSlotArea.isMouseInArea(gui.mousePos) && !this.fakeSlotItem.isEmpty())

@@ -8,6 +8,9 @@
       }
     }
   ],
-  "RotationType": "SPINNING",
+  "RotationType": {
+    "type": "lightmanscurrency:spinning",
+    "speed": 2.0
+  },
   "Scale": 0.75
 }

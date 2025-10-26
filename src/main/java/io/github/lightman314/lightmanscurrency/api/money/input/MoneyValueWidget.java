@@ -1,11 +1,13 @@
 package io.github.lightman314.lightmanscurrency.api.money.input;
 
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.WidgetStateSprite;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown.DropdownWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
@@ -16,11 +18,10 @@ import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,18 +29,19 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class MoneyValueWidget extends EasyWidgetWithChildren {
 
 
     public static final int HEIGHT = 69;
     public static final int WIDTH = 176;
 
-    public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/coinvalueinput.png");
-    public static final Sprite SPRITE_FREE_TOGGLE = Sprite.SimpleSprite(GUI_TEXTURE, 40, HEIGHT, 10, 10);
-    public static final Sprite SPRITE_UP_ARROW = Sprite.SimpleSprite(GUI_TEXTURE, 0, HEIGHT, 20, 10);
-    public static final Sprite SPRITE_DOWN_ARROW = Sprite.SimpleSprite(GUI_TEXTURE, 20, HEIGHT, 20, 10);
-    public static final Sprite SPRITE_LEFT_ARROW = Sprite.SimpleSprite(GUI_TEXTURE, 50, HEIGHT, 10, 20);
-    public static final Sprite SPRITE_RIGHT_ARROW = Sprite.SimpleSprite(GUI_TEXTURE, 60, HEIGHT, 10, 20);
+    public static final FixedSizeSprite SPRITE_FREE_TOGGLE = WidgetStateSprite.lazyHoverable(VersionUtil.lcResource("common/widgets/button_freetoggle"),10,10);
+    public static final FixedSizeSprite SPRITE_UP_ARROW = SpriteUtil.BUTTON_BIGARROW_UP;
+    public static final FixedSizeSprite SPRITE_DOWN_ARROW = SpriteUtil.BUTTON_BIGARROW_DOWN;
+    public static final FixedSizeSprite SPRITE_LEFT_ARROW = SpriteUtil.BUTTON_BIGARROW_LEFT;
+    public static final FixedSizeSprite SPRITE_RIGHT_ARROW = SpriteUtil.BUTTON_BIGARROW_RIGHT;
 
     /**
      * @deprecated No longer necessary as you can just not define the consumer within the builder now
@@ -61,11 +63,11 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
     private final Map<String,MoneyInputHandler> availableHandlers;
     private final List<String> handlerKeys = new ArrayList<>();
     private MoneyInputHandler currentHandler = null;
-    @Nonnull
+    
     public String getCurrentHandlerType() { return this.currentHandler == null ? "" : this.currentHandler.getUniqueName(); }
     @Nullable
     public MoneyInputHandler getCurrentHandler() { return this.currentHandler; }
-    public void tryMatchHandler(@Nonnull MoneyValue value)
+    public void tryMatchHandler(MoneyValue value)
     {
         if(this.getCurrentHandler().isForValue(value))
             return;
@@ -85,14 +87,14 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
     }
 
     private MoneyValue currentValue;
-    @Nonnull
+    
     public final MoneyValue getCurrentValue() { return this.currentValue; }
     private final Consumer<MoneyValue> changeHandler;
     private final Consumer<MoneyValueWidget> handlerChangeConsumer;
 
     private final MoneyValueWidget oldWidget;
 
-    private MoneyValueWidget(@Nonnull Builder builder)
+    private MoneyValueWidget(Builder builder)
     {
         super(builder);
         this.changeHandler = builder.handler;
@@ -110,7 +112,7 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
         Minecraft mc = Minecraft.getInstance();
         Player player = mc.player;
         Map<String,MoneyInputHandler> handlers = new HashMap<>();
-        for(CurrencyType type : MoneyAPI.API.AllCurrencyTypes())
+        for(CurrencyType type : MoneyAPI.getApi().AllCurrencyTypes())
         {
             for(Object h : type.getInputHandlers(player))
             {
@@ -159,7 +161,7 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
     }
 
     @Override
-    public void addChildren(@Nonnull ScreenArea area) {
+    public void addChildren(ScreenArea area) {
 
         this.setHandler(this.findDefaultHandler());
 
@@ -200,7 +202,7 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
         }
     }
 
-    private void setHandler(@Nonnull MoneyInputHandler handler)
+    private void setHandler(MoneyInputHandler handler)
     {
         if(this.currentHandler == handler)
             return;
@@ -246,11 +248,11 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
     }
 
     @Override
-    protected void renderWidget(@Nonnull EasyGuiGraphics gui) {
+    protected void renderWidget(EasyGuiGraphics gui) {
 
         //Render the Background
         if(this.drawBG)
-            gui.blit(GUI_TEXTURE, 0, 0, 0, 0, WIDTH, HEIGHT);
+            SpriteUtil.GENERIC_BACKGROUND.render(gui,0,0,WIDTH,HEIGHT);
 
         //Draw widget
         if(this.currentHandler != null)
@@ -281,7 +283,7 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
         this.changeHandler.accept(newValue);
     }
 
-    public void changeValue(@Nonnull MoneyValue newValue)
+    public void changeValue(MoneyValue newValue)
     {
         if(newValue.isFree() && !this.allowFreeInput)
             newValue = MoneyValue.empty();
@@ -295,10 +297,8 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
     @Override
     public boolean hideFromMouse() { return true; }
 
-    @Nonnull
     public static Builder builder() { return new Builder(); }
 
-    @MethodsReturnNonnullByDefault
     @FieldsAreNonnullByDefault
     public static class Builder extends EasyBuilder<Builder>
     {
@@ -325,6 +325,7 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
         public Builder startingValue(@Nullable TradeData trade) { if(trade == null) return this; return this.startingValue(trade.getCost()); }
         public Builder drawBG() { return this.drawBG(true); }
         public Builder drawBG(boolean drawBG) { this.drawBG = drawBG; return this; }
+        public Builder allowFreeInputs(boolean allowFree) { this.allowFree = allowFree; return this; }
         public Builder blockFreeInputs() { this.allowFree = false; return this; }
         public Builder allowHandlerChange(boolean allowHandlerChange) { this.allowHandlerChange = () -> allowHandlerChange; return this; }
         public Builder allowHandlerChange(Supplier<Boolean> allowHandlerChange) { this.allowHandlerChange = allowHandlerChange; return this; }

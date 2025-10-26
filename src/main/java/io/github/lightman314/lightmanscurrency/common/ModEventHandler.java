@@ -81,8 +81,8 @@ public class ModEventHandler {
                 ModItems.WALLET_EMERALD.get(),ModItems.WALLET_DIAMOND.get(),ModItems.WALLET_NETHERITE.get(),
                 ModItems.WALLET_NETHER_STAR.get());
         //Money Handler/Viewers for Players
-        event.registerEntity(CapabilityMoneyHandler.MONEY_HANDLER_ENTITY, EntityType.PLAYER, (player, c) -> MoneyAPI.API.GetPlayersMoneyHandler(player));
-        event.registerEntity(CapabilityMoneyViewer.MONEY_VIEWER_ENTITY, EntityType.PLAYER, (player,c) -> MoneyAPI.API.GetPlayersMoneyHandler(player));
+        event.registerEntity(CapabilityMoneyHandler.MONEY_HANDLER_ENTITY, EntityType.PLAYER, (player, c) -> MoneyAPI.getApi().GetPlayersMoneyHandler(player));
+        event.registerEntity(CapabilityMoneyViewer.MONEY_VIEWER_ENTITY, EntityType.PLAYER, (player,c) -> MoneyAPI.getApi().GetPlayersMoneyHandler(player));
 
         //Money Handler for the Bank Card
         event.registerItem(CapabilityMoneyHandler.MONEY_HANDLER_ITEM, (stack,c) -> new ATMCardMoneyHandler(stack),ModItems.ATM_CARD.get());

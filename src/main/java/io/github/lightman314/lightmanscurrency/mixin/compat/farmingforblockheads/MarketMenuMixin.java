@@ -40,7 +40,7 @@ public abstract class MarketMenuMixin {
     private boolean lightmanscurrency$selectingEntry = false;
 
     @Unique
-    private boolean lightmanscurrency$hasCoinInInputSlot() { return CoinAPI.API.IsCoin(this.getInputContainer().getItem(0),false); }
+    private boolean lightmanscurrency$hasCoinInInputSlot() { return CoinAPI.getApi().IsCoin(this.getInputContainer().getItem(0),false); }
 
     @Inject(at = @At("HEAD"),method = "removed")
     private void removed(Player player, CallbackInfo callback)
@@ -73,7 +73,7 @@ public abstract class MarketMenuMixin {
         if(costItems.length == 1)
         {
             ItemStack costItem = costItems[0];
-            if(CoinAPI.API.IsCoin(costItem,false))
+            if(CoinAPI.getApi().IsCoin(costItem,false))
             {
 
                 //Confirm that the input slot is empty
@@ -84,7 +84,7 @@ public abstract class MarketMenuMixin {
                 //Attempt to collect money from wallet
                 MoneyView availableFunds = WalletHelpers.getWalletMoney(this.getPlayer());
 
-                ChainData chain = CoinAPI.API.ChainDataOfCoin(costItem);
+                ChainData chain = CoinAPI.getApi().ChainDataOfCoin(costItem);
 
                 long value = chain.getCoreValue(costItem);
 
@@ -111,7 +111,7 @@ public abstract class MarketMenuMixin {
                     ItemStack coin = costItem.copy();
                     coin.setCount(coinToAdd);
 
-                    IMoneyHolder handler = MoneyAPI.API.GetPlayersMoneyHandler(this.getPlayer());
+                    IMoneyHolder handler = MoneyAPI.getApi().GetPlayersMoneyHandler(this.getPlayer());
 
                     if(handler.extractMoney(fundsToExtract,true).isEmpty())
                     {

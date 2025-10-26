@@ -1,0 +1,11 @@
+{
+  "dummy": true,
+  "item": "lightmanscurrency:block/card_display/base_outer_corner",
+  "item_position_data": "lightmanscurrency:variants/card_display/outer_corner",
+  "models": [
+    "lightmanscurrency:block/card_display/base_outer_corner"
+  ],
+  "name": {
+    "translate": "lightmanscurrency.block_variant.outer_corner"
+  }
+}

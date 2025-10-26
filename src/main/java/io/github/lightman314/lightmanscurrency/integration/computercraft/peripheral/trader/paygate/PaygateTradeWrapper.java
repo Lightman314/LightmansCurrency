@@ -1,13 +1,25 @@
 package io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.paygate;
 
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.api.lua.LuaValues;
+import dan200.computercraft.api.peripheral.IComputerAccess;
+import dan200.computercraft.core.util.ArgumentHelpers;
+import io.github.lightman314.lightmanscurrency.LCTags;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.PeripheralMethod;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCArgumentHelper;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.TradeWrapper;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +36,6 @@ public class PaygateTradeWrapper extends TradeWrapper<PaygateTradeData> {
     public String getType() { return "lc_trade_paygate"; }
 
     @Override
-    @LuaFunction(mainThread = true)
     public LCLuaTable getPrice() throws LuaException {
         PaygateTradeData trade = this.getTrade();
         if(trade.isTicketTrade())
@@ -39,10 +50,44 @@ public class PaygateTradeWrapper extends TradeWrapper<PaygateTradeData> {
             return super.getPrice();
     }
 
-    @LuaFunction(mainThread = true)
-    public boolean storesTicketStubs() throws LuaException { return this.getTrade().shouldStoreTicketStubs(); }
+    public boolean setTicketPrice(IComputerAccess computer,IArguments args) throws LuaException
+    {
+        long ticketID = args.getLong(0);
+        int color = args.getInt(1);
+        Item ticket;
+        try {
+            Item item = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(args.getString(2)));
+            if(item instanceof TicketItem && InventoryUtil.ItemHasTag(new ItemStack(item),LCTags.Items.TICKETS_MASTER))
+                ticket = item;
+            else
+                throw new Exception("Pass to bad argument exception!");
+        } catch (Exception exception) {
+            throw LuaValues.badArgumentOf(args,2,"master_ticket");
+        }
+        PaygateTradeData trade = this.getTrade();
+        if(this.hasPermission(computer))
+        {
+            trade.setTicket(TicketItem.CreateTicket(ticket,ticketID,color));
+            this.markTradeDirty();
+            return true;
+        }
+        return false;
+    }
 
-    @LuaFunction(mainThread = true)
+    public boolean storesTicketStubs() throws LuaException { return this.getTrade().shouldStoreTicketStubs(); }
+    public boolean setStoresTicketStubs(IComputerAccess computer,IArguments args) throws LuaException
+    {
+        boolean newState = args.getBoolean(0);
+        PaygateTradeData trade = this.getTrade();
+        if(this.hasPermission(computer) && trade.shouldStoreTicketStubs() != newState)
+        {
+            trade.setStoreTicketStubs(newState);
+            this.markTradeDirty();
+            return true;
+        }
+        return false;
+    }
+
     public LCLuaTable getDuration() throws LuaException {
         int duration = this.getTrade().getDuration();
         LCLuaTable table = new LCLuaTable();
@@ -50,14 +95,57 @@ public class PaygateTradeWrapper extends TradeWrapper<PaygateTradeData> {
         table.put("text",PaygateTradeData.formatDurationDisplay(duration));
         return table;
     }
+    public boolean setDuration(IComputerAccess computer,IArguments args) throws LuaException
+    {
+        int newDuration = args.getInt(0);
+        PaygateTradeData trade = this.getTrade();
+        if(this.hasPermission(computer))
+        {
+            if(trade.getDuration() != newDuration)
+            {
+                trade.setDuration(newDuration);
+                this.markTradeDirty();
+                return true;
+            }
+        }
+        return false;
+    }
 
-    @LuaFunction(mainThread = true)
     public int getRedstoneLevel() throws LuaException { return this.getTrade().getRedstoneLevel(); }
+    public boolean setRedstoneLevel(IComputerAccess computerAccess,IArguments args) throws LuaException
+    {
+        int newLevel = args.getInt(0);
+        ArgumentHelpers.assertBetween(newLevel,1,15,"Redstone level is not in range (%s)");
+        PaygateTradeData trade = this.getTrade();
+        if(this.hasPermission(computerAccess))
+        {
+            if(trade.getRedstoneLevel() != newLevel)
+            {
+                trade.setRedstoneLevel(newLevel);
+                this.markTradeDirty();
+                return true;
+            }
+        }
+        return false;
+    }
 
-    @LuaFunction(mainThread = true)
     public String getDescription() throws LuaException { return this.getTrade().getDescription(); }
+    public boolean setDescription(IComputerAccess computer,IArguments args) throws LuaException
+    {
+        String newDescription = args.getString(0);
+        PaygateTradeData trade = this.getTrade();
+        if(this.hasPermission(computer))
+        {
+            if(!trade.getDescription().equals(newDescription))
+            {
+                trade.setDescription(newDescription);
+                this.markTradeDirty();
+                return true;
+            }
+        }
+        return false;
+    }
 
-    @LuaFunction(mainThread = true)
     public String[] getTooltip() throws LuaException {
         String tooltip = this.getTrade().getTooltip();
         if(tooltip.isBlank())
@@ -65,8 +153,29 @@ public class PaygateTradeWrapper extends TradeWrapper<PaygateTradeData> {
         List<String> lines = new ArrayList<>(Arrays.asList(tooltip.split("\\\\n")));
         return lines.toArray(String[]::new);
     }
+    public boolean setTooltip(IComputerAccess computer,IArguments args) throws LuaException
+    {
+        StringBuilder tooltipBuilder = new StringBuilder();
+        for(int i = 0; i < args.count(); ++i)
+        {
+            if(!tooltipBuilder.isEmpty())
+                tooltipBuilder.append("\\n");
+            tooltipBuilder.append(args.getString(i));
+        }
+        String newTooltip = tooltipBuilder.toString();
+        PaygateTradeData trade = this.getTrade();
+        if(this.hasPermission(computer))
+        {
+            if(!trade.getTooltip().equals(newTooltip))
+            {
+                trade.setTooltip(newTooltip);
+                this.markTradeDirty();
+                return true;
+            }
+        }
+        return false;
+    }
 
-    @LuaFunction(mainThread = true)
     public LCLuaTable getOutputSides() throws LuaException {
         PaygateTradeData trade = this.getTrade();
         LCLuaTable table = new LCLuaTable();
@@ -74,7 +183,37 @@ public class PaygateTradeWrapper extends TradeWrapper<PaygateTradeData> {
             table.put(side.toString(),trade.allowOutputSide(side));
         return table;
     }
+    public boolean setOutputSide(IComputerAccess computer,IArguments args) throws LuaException
+    {
+        Direction side = LCArgumentHelper.parseEnum(args,0,Direction.class);
+        boolean newState = args.getBoolean(1);
+        PaygateTradeData trade = this.getTrade();
+        if(this.hasPermission(computer) && trade.allowOutputSide(side) != newState)
+        {
+            trade.getOutputSides().setState(side,newState ? DirectionalSettingsState.OUTPUT : DirectionalSettingsState.NONE);
+            this.markTradeDirty();
+            return true;
+        }
+        return false;
+    }
 
-
-
+    @Override
+    protected void registerMethods(PeripheralMethod.Registration registration) {
+        super.registerMethods(registration);
+        //Override of getPrice method to allow for
+        //registration.register(PeripheralMethod.builder("getPrice").simple(this::getPrice));
+        registration.register(PeripheralMethod.builder("setTicketPrice").withContext(this::setTicketPrice));
+        registration.register(PeripheralMethod.builder("storesTicketStubs").simple(this::storesTicketStubs));
+        registration.register(PeripheralMethod.builder("setStoresTicketStubs").withContext(this::setStoresTicketStubs));
+        registration.register(PeripheralMethod.builder("getDuration").simple(this::getDuration));
+        registration.register(PeripheralMethod.builder("setDuration").withContext(this::setDuration));
+        registration.register(PeripheralMethod.builder("getRedstoneLevel").simple(this::getRedstoneLevel));
+        registration.register(PeripheralMethod.builder("setRedstoneLevel").withContext(this::setRedstoneLevel));
+        registration.register(PeripheralMethod.builder("getDescription").simple(this::getDescription));
+        registration.register(PeripheralMethod.builder("setDuration").withContext(this::setDuration));
+        registration.register(PeripheralMethod.builder("getTooltip").simpleArray(this::getTooltip));
+        registration.register(PeripheralMethod.builder("setTooltip").withContext(this::setTooltip));
+        registration.register(PeripheralMethod.builder("getOutputSides").simple(this::getOutputSides));
+        registration.register(PeripheralMethod.builder("setOutputSides").withContext(this::setOutputSide));
+    }
 }

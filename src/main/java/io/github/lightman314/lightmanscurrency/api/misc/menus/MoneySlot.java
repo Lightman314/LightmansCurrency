@@ -25,7 +25,7 @@ public class MoneySlot extends EasyMultiBGSlot {
         super(container, index, x, y);
         this.player = player;
         List<Pair<ResourceLocation,ResourceLocation>> temp = new ArrayList<>();
-        for(CurrencyType type : MoneyAPI.API.AllCurrencyTypes())
+        for(CurrencyType type : MoneyAPI.getApi().AllCurrencyTypes())
             type.addMoneySlotBackground(temp::add, rl -> temp.add(Pair.of(InventoryMenu.BLOCK_ATLAS,rl)));
         this.backgrounds = ImmutableList.copyOf(temp);
     }
@@ -37,7 +37,7 @@ public class MoneySlot extends EasyMultiBGSlot {
     public boolean mayPlace(@Nonnull ItemStack stack) {
         if(this.locked)
             return false;
-        return MoneyAPI.API.ItemAllowedInMoneySlot(this.player,stack);
+        return MoneyAPI.getApi().ItemAllowedInMoneySlot(this.player,stack);
     }
 
 }

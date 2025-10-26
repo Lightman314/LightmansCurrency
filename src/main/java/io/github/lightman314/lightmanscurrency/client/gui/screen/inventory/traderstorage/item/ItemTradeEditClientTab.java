@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.item;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
@@ -10,28 +11,29 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInt
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget.IItemEditListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown.DropdownWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.item.ItemTradeEditTab;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEditTab> implements TradeInteractionHandler, IItemEditListener, IMouseListener {
 
 	private static final int X_OFFSET = 13;
@@ -40,8 +42,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	private static final int ROWS = 3;
 	
 	public ItemTradeEditClientTab(Object screen, ItemTradeEditTab commonTab) { super(screen, commonTab); }
-	
-	@Nonnull
+
 	@Override
 	public IconData getIcon() { return IconData.Null(); }
 
@@ -109,7 +110,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		this.addChild(PlainButton.builder()
 				.position(screenArea.pos.offset(113,4))
 				.pressAction(this::ToggleNBTEnforcement)
-				.sprite(IconAndButtonUtil.SPRITE_CHECK(this::getEnforceNBTState))
+				.sprite(SpriteUtil.createCheckbox(this::getEnforceNBTState))
 				.addon(EasyAddonHelper.visibleCheck(this::isNBTButtonVisible))
 				.build());
 
@@ -126,7 +127,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	public void closeAction() { this.selection = -1; }
 
 	@Override
-	public void renderBG(@Nonnull EasyGuiGraphics gui) {
+	public void renderBG(EasyGuiGraphics gui) {
 		
 		if(this.getTrade() == null)
 			return;
@@ -136,7 +137,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 		//Render a down arrow over the selected position
 		gui.resetColor();
 
-		gui.blit(TraderScreen.GUI_TEXTURE, this.getArrowPosition(), 10, TraderScreen.WIDTH + 8, 18, 8, 6);
+        SpriteUtil.SMALL_ARROW_DOWN.render(gui,this.getArrowPosition(),10);
 		
 		if(this.customNameInput.visible)
 			gui.drawString(LCText.GUI_NAME.get(), 13, 42, 0x404040);
@@ -193,13 +194,13 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	}
 
 	@Override
-	public void OpenMessage(@Nonnull LazyPacketData message) {
+	public void OpenMessage(LazyPacketData message) {
 		if(message.contains("StartingSlot"))
 			this.selection = message.getInt("StartingSlot");
 	}
 
 	@Override
-	public void HandleTradeInputInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data, int index) {
+	public void HandleTradeInputInteraction(TraderData trader, TradeData trade, TradeInteractionData data, int index) {
 		if(trade instanceof ItemTradeData t)
 		{
 			ItemStack heldItem = this.menu.getHeldItem();
@@ -224,7 +225,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	}
 
 	@Override
-	public void HandleTradeOutputInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data,int index) {
+	public void HandleTradeOutputInteraction(TraderData trader, TradeData trade, TradeInteractionData data,int index) {
 		if(trade instanceof ItemTradeData t)
 		{
 			ItemStack heldItem = this.menu.getHeldItem();
@@ -254,7 +255,7 @@ public class ItemTradeEditClientTab extends TraderStorageClientTab<ItemTradeEdit
 	}
 
 	@Override
-	public void HandleOtherTradeInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data) { }
+	public void HandleOtherTradeInteraction(TraderData trader, TradeData trade, TradeInteractionData data) { }
 	
 	@Override
 	public boolean onMouseClicked(double mouseX, double mouseY, int button) {

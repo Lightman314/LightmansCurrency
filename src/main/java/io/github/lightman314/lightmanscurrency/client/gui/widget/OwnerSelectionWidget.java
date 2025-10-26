@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.PotentialOwner;
@@ -12,23 +13,21 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class OwnerSelectionWidget extends EasyWidgetWithChildren implements IScrollable {
-
-    public static final ResourceLocation SEARCH_BOX_TEXTURE = VersionUtil.lcResource("textures/gui/item_edit.png");
 
     private final Supplier<OwnerData> currentOwner;
     private final Consumer<Owner> setOwner;
@@ -38,7 +37,7 @@ public class OwnerSelectionWidget extends EasyWidgetWithChildren implements IScr
     private EditBox searchBox;
     private int scroll = 0;
 
-    private OwnerSelectionWidget(@Nonnull Builder builder)
+    private OwnerSelectionWidget(Builder builder)
     {
         super(builder);
         this.currentOwner = builder.selectedOwner;
@@ -58,13 +57,13 @@ public class OwnerSelectionWidget extends EasyWidgetWithChildren implements IScr
     protected void renderTick() { this.list.tick(); }
 
     @Override
-    protected void renderWidget(@Nonnull EasyGuiGraphics gui) {
+    protected void renderWidget(EasyGuiGraphics gui) {
         //Render search box background
-        gui.blit(SEARCH_BOX_TEXTURE, this.width - 90, 0, 18, 0, 90, 12);
+        SpriteUtil.SEARCH_FIELD.render(gui,this.width - 90,0,90);
     }
 
     @Override
-    public void addChildren(@Nonnull ScreenArea area) {
+    public void addChildren(ScreenArea area) {
         this.searchBox = this.addChild(new EditBox(Minecraft.getInstance().font, area.pos.x + this.width - 88, area.pos.y + 2, 79, 9, this.searchBox, EasyText.empty()));
         this.searchBox.setBordered(false);
         this.searchBox.setResponder(this::modifySearch);
@@ -93,7 +92,7 @@ public class OwnerSelectionWidget extends EasyWidgetWithChildren implements IScr
         }
     }
 
-    private void modifySearch(@Nonnull String newSearch)
+    private void modifySearch(String newSearch)
     {
         this.list.updateCache(newSearch);
         this.validateScroll();
@@ -125,10 +124,8 @@ public class OwnerSelectionWidget extends EasyWidgetWithChildren implements IScr
     @Override
     public int getMaxScroll() { return IScrollable.calculateMaxScroll(this.rows, this.list.getOwners().size()); }
 
-    @Nonnull
     public static Builder builder() { return new Builder(); }
 
-    @MethodsReturnNonnullByDefault
     @FieldsAreNonnullByDefault
     public static class Builder extends EasyBuilder<Builder>
     {

@@ -1,12 +1,12 @@
 package io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.paygate;
 
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.PeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.TraderPeripheral;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -29,7 +29,6 @@ public class PaygatePeripheral extends TraderPeripheral<PaygateBlockEntity,Payga
     @Override
     public String getType() { return "lc_trader_paygate"; }
 
-    @LuaFunction(mainThread = true)
     public LCLuaTable[] getTicketStubStorage() throws LuaException {
         List<LCLuaTable> list = new ArrayList<>();
         for(ItemStack stub : this.getTrader().getTicketStubStorage())
@@ -54,7 +53,6 @@ public class PaygatePeripheral extends TraderPeripheral<PaygateBlockEntity,Payga
         return new PaygateTradeWrapper(this.tradeSource(index),this::safeGetTrader);
     }
 
-    @LuaFunction(mainThread = true)
     public PaygateTradeWrapper[] getTrades() throws LuaException {
         List<PaygateTradeWrapper> list = new ArrayList<>();
         PaygateTraderData trader = this.getTrader();
@@ -63,7 +61,6 @@ public class PaygatePeripheral extends TraderPeripheral<PaygateBlockEntity,Payga
         return list.toArray(PaygateTradeWrapper[]::new);
     }
 
-    @LuaFunction(mainThread = true)
     public LCLuaTable getRedstoneState() throws LuaException {
         PaygateBlockEntity be = this.getBlockEntity();
         if(be == null)
@@ -90,4 +87,11 @@ public class PaygatePeripheral extends TraderPeripheral<PaygateBlockEntity,Payga
         return table;
     }
 
+    @Override
+    protected void registerMethods(PeripheralMethod.Registration registration) {
+        super.registerMethods(registration);
+        registration.register(PeripheralMethod.builder("getTicketStubStorage").simpleArray(this::getTicketStubStorage));
+        registration.register(PeripheralMethod.builder("getTrades").simpleArray(this::getTrades));
+        registration.register(PeripheralMethod.builder("getRedstoneState").simple(this::getRedstoneState));
+    }
 }

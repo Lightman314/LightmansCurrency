@@ -1,10 +1,11 @@
 package io.github.lightman314.lightmanscurrency.api.ownership.listing.builtin;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.PotentialOwner;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.util.ItemStackHelper;
 import net.minecraft.network.chat.Component;
 
@@ -23,7 +24,7 @@ public class PotentialPlayerOwner extends PotentialOwner {
     @Override
     public IconData getIcon() {
         if(this.icon == null)
-            this.icon = IconData.of(ItemStackHelper.skullForPlayer(this.player.getName(this.isClient())));
+            this.icon = ItemIcon.ofItem(ItemStackHelper.skullForPlayer(this.player.getName(this.isClient())));
         return this.icon;
     }
 

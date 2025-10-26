@@ -61,7 +61,7 @@ public final class CoinValuePair
         int quantity = GsonHelper.getAsInt(json, "Amount", 1);
         if(quantity <= 0)
             throw new JsonSyntaxException("Coin Amount (" + quantity + ") is <= 0!");
-        else if(CoinAPI.API.ChainDataOfCoin(coin) == null)
+        else if(CoinAPI.getApi().ChainDataOfCoin(coin) == null)
             throw new JsonSyntaxException("Coin Item " + BuiltInRegistries.ITEM.getKey(coin) + " is not a valid coin!");
         return from(chainData, coin, quantity);
     }

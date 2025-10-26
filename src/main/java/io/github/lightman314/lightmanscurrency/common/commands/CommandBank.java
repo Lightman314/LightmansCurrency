@@ -22,7 +22,6 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.api.teams.TeamAPI;
-import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.commands.arguments.MoneyValueArgument;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.data.types.BankDataCache;
@@ -127,7 +126,7 @@ public class CommandBank {
     static int giveAll(CommandContext<CommandSourceStack> commandContext, boolean notifyPlayers) throws  CommandSyntaxException
     {
         MoneyValue amount = MoneyValueArgument.getMoneyValue(commandContext,"amount");
-        return giveTo(commandContext.getSource(), BankAPI.API.GetAllBankReferences(false), amount, notifyPlayers);
+        return giveTo(commandContext.getSource(), BankAPI.getApi().GetAllBankReferences(false), amount, notifyPlayers);
     }
 
     static int giveAllPlayers(CommandContext<CommandSourceStack> commandContext, boolean notifyPlayers) throws CommandSyntaxException
@@ -153,7 +152,7 @@ public class CommandBank {
         long teamID = LongArgumentType.getLong(commandContext, "teamID");
         MoneyValue amount = MoneyValueArgument.getMoneyValue(commandContext, "amount");
         CommandSourceStack source = commandContext.getSource();
-        ITeam team = TeamAPI.API.GetTeam(false, teamID);
+        ITeam team = TeamAPI.getApi().GetTeam(false, teamID);
         if(team == null)
         {
             EasyText.sendCommandFail(source, LCText.COMMAND_BANK_TEAM_NULL.get(teamID));
@@ -173,7 +172,7 @@ public class CommandBank {
         Component bankName = null;
         for(BankReference account : accounts)
         {
-            if(BankAPI.API.BankDepositFromServer(account.get(),amount, notifyPlayers))
+            if(BankAPI.getApi().BankDepositFromServer(account.get(),amount, notifyPlayers))
             {
                 count++;
                 if(count == 1)
@@ -196,7 +195,7 @@ public class CommandBank {
     static int takeAll(CommandContext<CommandSourceStack> commandContext, boolean notifyPlayers) throws CommandSyntaxException
     {
         MoneyValue amount = MoneyValueArgument.getMoneyValue(commandContext,"amount");
-        return takeFrom(commandContext.getSource(), BankAPI.API.GetAllBankReferences(false), amount, notifyPlayers);
+        return takeFrom(commandContext.getSource(), BankAPI.getApi().GetAllBankReferences(false), amount, notifyPlayers);
     }
 
     static int takeAllPlayers(CommandContext<CommandSourceStack> commandContext, boolean notifyPlayers) throws CommandSyntaxException
@@ -222,7 +221,7 @@ public class CommandBank {
         long teamID = LongArgumentType.getLong(commandContext, "teamID");
         MoneyValue amount = MoneyValueArgument.getMoneyValue(commandContext, "amount");
         CommandSourceStack source = commandContext.getSource();
-        ITeam team = TeamAPI.API.GetTeam(false, teamID);
+        ITeam team = TeamAPI.getApi().GetTeam(false, teamID);
         if(team == null)
         {
             EasyText.sendCommandFail(source, LCText.COMMAND_BANK_TEAM_NULL.get(teamID));
@@ -243,7 +242,7 @@ public class CommandBank {
         MoneyValue largestAmount = MoneyValue.empty();
         for(BankReference account : accounts)
         {
-            Pair<Boolean, MoneyValue> result = BankAPI.API.BankWithdrawFromServer(account.get(), amount, notifyPlayers);
+            Pair<Boolean, MoneyValue> result = BankAPI.getApi().BankWithdrawFromServer(account.get(), amount, notifyPlayers);
             if(result.getFirst())
             {
                 count++;
@@ -333,10 +332,10 @@ public class CommandBank {
         }
     }
 
-    private static int viewTeamAccount(CommandContext<CommandSourceStack> context) throws CommandSyntaxException
+    private static int viewTeamAccount(CommandContext<CommandSourceStack> context)
     {
         long teamID = LongArgumentType.getLong(context,"teamID");
-        ITeam team = TeamAPI.API.GetTeam(false,teamID);
+        ITeam team = TeamAPI.getApi().GetTeam(false,teamID);
         if(team == null)
         {
             EasyText.sendCommandFail(context,LCText.COMMAND_BANK_TEAM_NULL.get(teamID));

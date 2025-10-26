@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
@@ -10,22 +11,24 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.BasicTradeEditTab;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends TraderStorageClientTab<T> implements TradeInteractionHandler {
 
 	public BasicTradeEditClientTab(Object screen, T commonTab) {
@@ -33,7 +36,6 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 		//this.commonTab.overrideTabChangeHandler(this.screen::ChangeTab);
 	}
 
-	@Nonnull
 	@Override
 	public IconData getIcon() { return IconUtil.ICON_TRADELIST; }
 
@@ -70,14 +72,14 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 		this.buttonAddTrade = this.addChild(PlainButton.builder()
 				.position(screenArea.pos.offset(screenArea.width - 25, 4))
 				.pressAction(this::AddTrade)
-				.sprite(IconAndButtonUtil.SPRITE_PLUS)
+				.sprite(SpriteUtil.BUTTON_SIGN_PLUS)
 				.addon(EasyAddonHelper.visibleCheck(this::addRemoveVisible))
 				.addon(EasyAddonHelper.activeCheck(this::addActive))
 				.build());
 		this.buttonRemoveTrade = this.addChild(PlainButton.builder()
 				.position(screenArea.pos.offset(screenArea.width - 14, 4))
 				.pressAction(this::RemoveTrade)
-				.sprite(IconAndButtonUtil.SPRITE_MINUS)
+				.sprite(SpriteUtil.BUTTON_SIGN_MINUS)
 				.addon(EasyAddonHelper.visibleCheck(this::addRemoveVisible))
 				.addon(EasyAddonHelper.activeCheck(this::removeActive))
 				.build());
@@ -104,7 +106,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	}
 
 	@Override
-	public void renderBG(@Nonnull EasyGuiGraphics gui) { }
+	public void renderBG(EasyGuiGraphics gui) { }
 
 	@Override
 	protected void closeAction() {
@@ -142,7 +144,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	private List<Component> multiEditTooltip() { return Lists.newArrayList(LCText.TOOLTIP_TRADER_OPEN_MULTI_EDIT_SELECTED.get(this.commonTab.selectedCount())); }
 
 	@Override
-	public void HandleTradeInputInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data, int index) {
+	public void HandleTradeInputInteraction(TraderData trader, TradeData trade, TradeInteractionData data, int index) {
 		if(trader.hasPermission(this.menu.getPlayer(), Permissions.EDIT_TRADES))
 		{
 			if(data.ctrlHeld())
@@ -155,7 +157,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	}
 
 	@Override
-	public void HandleTradeOutputInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data, int index) {
+	public void HandleTradeOutputInteraction(TraderData trader, TradeData trade, TradeInteractionData data, int index) {
 		if(trader.hasPermission(this.menu.getPlayer(), Permissions.EDIT_TRADES))
 		{
 			if(data.ctrlHeld())
@@ -168,7 +170,7 @@ public class BasicTradeEditClientTab<T extends BasicTradeEditTab> extends Trader
 	}
 
 	@Override
-	public void HandleOtherTradeInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data) {
+	public void HandleOtherTradeInteraction(TraderData trader, TradeData trade, TradeInteractionData data) {
 		if(trader.hasPermission(this.menu.getPlayer(), Permissions.EDIT_TRADES))
 		{
 			if(data.ctrlHeld())

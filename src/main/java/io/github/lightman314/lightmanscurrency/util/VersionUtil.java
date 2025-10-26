@@ -25,7 +25,7 @@ public class VersionUtil {
     
     public static ResourceLocation vanillaResource(String path) { return ResourceLocation.withDefaultNamespace(path); }
 
-    public static Event postEvent(Event event) {
+    public static <T extends Event> T postEvent(T event) {
         NeoForge.EVENT_BUS.post(event);
         return event;
     }

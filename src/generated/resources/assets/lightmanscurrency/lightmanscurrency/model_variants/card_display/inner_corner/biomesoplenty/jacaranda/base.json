@@ -1,0 +1,9 @@
+{
+  "parent": "lightmanscurrency:card_display/inner_corner/base",
+  "dummy": true,
+  "textures": {
+    "log": "biomesoplenty:block/jacaranda_log",
+    "logtop": "biomesoplenty:block/jacaranda_log_top",
+    "plank": "biomesoplenty:block/jacaranda_planks"
+  }
+}

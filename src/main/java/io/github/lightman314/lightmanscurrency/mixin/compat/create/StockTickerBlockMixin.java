@@ -48,7 +48,7 @@ public class StockTickerBlockMixin {
                 for (int i = 0; i < payments.getSlots(); i++)
                 {
                     ItemStack item = payments.getItem(i);
-                    if(CoinAPI.API.IsAllowedInCoinContainer(item,false))
+                    if(CoinAPI.getApi().IsAllowedInCoinContainer(item,false))
                     {
                         ItemStack leftovers = walletHandler.PickupCoins(item);
                         //Nothing was inserted, ignore further interactions

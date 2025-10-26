@@ -2,10 +2,11 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketChestQuickCollect;
 import net.minecraft.FieldsAreNonnullByDefault;
@@ -32,7 +33,7 @@ public class ChestCoinCollectButton extends IconButton {
     }
 
     private static IconData getIcon() {
-        return IconData.of(CoinAPI.API.getEquippedWallet(Minecraft.getInstance().player));
+        return ItemIcon.ofItem(CoinAPI.getApi().getEquippedWallet(Minecraft.getInstance().player));
     }
 
     private boolean shouldBeVisible()
@@ -42,7 +43,7 @@ public class ChestCoinCollectButton extends IconButton {
         Minecraft mc = Minecraft.getInstance();
         if(mc != null)
         {
-            ItemStack wallet = CoinAPI.API.getEquippedWallet(mc.player);
+            ItemStack wallet = CoinAPI.getApi().getEquippedWallet(mc.player);
             if(WalletItem.isWallet(wallet))
             {
                 final boolean allowSideChains = LCConfig.CLIENT.chestButtonAllowSideChains.get();
@@ -51,7 +52,7 @@ public class ChestCoinCollectButton extends IconButton {
                 for(int i = 0; i < container.getContainerSize(); ++i)
                 {
                     ItemStack item = container.getItem(i);
-                    if(CoinAPI.API.IsAllowedInCoinContainer(item, allowSideChains))
+                    if(CoinAPI.getApi().IsAllowedInCoinContainer(item, allowSideChains))
                         return true;
                 }
             }

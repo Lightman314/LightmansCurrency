@@ -33,7 +33,7 @@ public class GachaMachineMenu extends LazyMessageMenu implements IValidatedMenu,
     private final long traderID;
 
     @Nullable
-    public GachaTrader getTrader() { if(TraderAPI.API.GetTrader(this,this.traderID) instanceof GachaTrader trader) return trader; return null; }
+    public GachaTrader getTrader() { if(TraderAPI.getApi().GetTrader(this,this.traderID) instanceof GachaTrader trader) return trader; return null; }
 
     private final Container coins;
 

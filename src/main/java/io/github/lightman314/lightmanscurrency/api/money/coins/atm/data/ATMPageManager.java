@@ -44,7 +44,7 @@ public final class ATMPageManager {
         this.commandProcessor = commandProcessor;
         this.selected = selected;
         Map<String,ATMData> mapTemp = new HashMap<>();
-        for(ChainData chain : CoinAPI.API.AllChainData())
+        for(ChainData chain : CoinAPI.getApi().AllChainData())
         {
             if(chain.hasATMData() && chain.isVisibleTo(player))
                 mapTemp.put(chain.chain, chain.getAtmData());

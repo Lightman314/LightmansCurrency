@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVaria
 import io.github.lightman314.lightmanscurrency.common.core.ModLootFunctionTypes;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
@@ -27,8 +26,7 @@ public class ModelVariantLootFunction implements LootItemFunction {
 
     @Override
     public ItemStack apply(ItemStack stack, LootContext lootContext) {
-        Level level = lootContext.getLevel();
-        if(lootContext.getParam(LootContextParams.BLOCK_ENTITY) instanceof IVariantSupportingBlockEntity be)
+        if(lootContext.hasParam(LootContextParams.BLOCK_ENTITY) && lootContext.getParam(LootContextParams.BLOCK_ENTITY) instanceof IVariantSupportingBlockEntity be)
             IVariantSupportingBlockEntity.copyDataToItem(be,stack);
         return stack;
     }

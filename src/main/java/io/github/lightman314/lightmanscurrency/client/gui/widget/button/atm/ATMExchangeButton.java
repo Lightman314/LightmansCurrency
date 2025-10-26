@@ -9,7 +9,8 @@ import com.mojang.blaze3d.MethodsReturnNonnullByDefault;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FlexibleSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMExchangeButtonData;
@@ -34,18 +35,20 @@ public class ATMExchangeButton extends EasyButton {
 	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
 		
 		//Render background to width
-		int yOffset = this.isHovered != this.selected.test(this) ? 18 : 0;
 		if(this.active)
 			gui.resetColor();
 		else
 			gui.setColor(0.5f,0.5f,0.5f);
+
 		//Draw background of size
-		gui.blitNineSplit(ATMScreen.BUTTON_TEXTURE,0,0,this.width,this.height,0,yOffset,256,18,2);
+        boolean highlighted = this.isHoveredOrFocused() != this.selected.test(this);
+        FlexibleSizeSprite sprite = highlighted ? SpriteUtil.BUTTON_GRAY_HOVERED : SpriteUtil.BUTTON_GRAY;
+        sprite.render(gui,0,0,this.width,this.height);
 		
 		//Draw the icons
 		for(ATMIconData icon : this.data.getIcons())
 		{
-			try { icon.render(this, gui, this.isHovered);
+			try { icon.render(this, gui, highlighted);
 			} catch(Throwable t) { LightmansCurrency.LogError("Error rendering ATM Conversion Button icon.", t); }
 		}
 

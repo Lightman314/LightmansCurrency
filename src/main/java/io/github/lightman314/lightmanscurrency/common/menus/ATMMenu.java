@@ -2,15 +2,18 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
+import io.github.lightman314.lightmanscurrency.api.money.bank.salary.SalaryData;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.bank.menu.IBankAccountAdvancedMenu;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
+import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 
 import io.github.lightman314.lightmanscurrency.common.data.types.BankDataCache;
@@ -37,7 +40,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 	public Player getPlayer() { return this.player; }
 	
 	private final SimpleContainer coinInput = new SimpleContainer(9);
-	private final IMoneyHandler moneyHandler = MoneyAPI.API.GetATMMoneyHandler(this.player, this.coinInput);
+	private final IMoneyHandler moneyHandler = MoneyAPI.getApi().GetATMMoneyHandler(this.player, this.coinInput);
 	public SimpleContainer getCoinInput() { return this.coinInput; }
 	public IMoneyHandler getMoneyHandler() { return this.moneyHandler; }
 	private final List<CoinSlot> coinSlots;
@@ -202,8 +205,39 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 			if(ba != null)
 				ba.resetCards();
 		}
+        if(message.contains("CreateSalaryOption"))
+        {
+            IBankAccount ba = this.getBankAccount();
+            if(this.canEditSalaries() && ba instanceof BankAccount account)
+            {
+                account.createNewSalary();
+                int newSelection = account.getSalaries().size() - 1;
+                this.SendMessageToClient(this.builder().setInt("SelectSalary",newSelection));
+                LightmansCurrency.LogDebug("Created Salary on the server!\n" + account.getName().getString() + " now has " + account.getSalaries().size() + " Salaries!");
+            }
+            else
+                LightmansCurrency.LogDebug("Failed to create salary on the server!");
+        }
+        if(message.contains("EditSalary"))
+        {
+            IBankAccount ba = this.getBankAccount();
+            if(ba != null && this.canEditSalaries())
+            {
+                int salaryIndex = message.getInt("EditSalary");
+                List<SalaryData> data = ba.getSalaries();
+                if(salaryIndex >= 0 && salaryIndex < data.size())
+                    data.get(salaryIndex).HandleEditMessage(this.player,message);
+            }
+        }
 	}
 
+    private boolean canEditSalaries()
+    {
+        BankReference br = this.getBankAccountReference();
+        if(br == null)
+            return false;
+        return br.salaryPermission(this.player) >= SalaryData.PERM_EDIT;
+    }
 
 
 }

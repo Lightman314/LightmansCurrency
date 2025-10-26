@@ -24,11 +24,11 @@ public abstract class DepositWithdrawNotification extends SingleLineNotification
 	public static final NotificationType<Custom> CUSTOM_TYPE = new NotificationType<>(VersionUtil.lcResource("bank_deposit_trader"),DepositWithdrawNotification::createTrader);
 	public static final NotificationType<Server> SERVER_TYPE = new NotificationType<>(VersionUtil.lcResource("bank_deposit_server"),DepositWithdrawNotification::createServer);
 
-	protected MutableComponent accountName;
+	protected Component accountName;
 	protected boolean isDeposit;
 	protected MoneyValue amount = MoneyValue.empty();
 
-	protected DepositWithdrawNotification(MutableComponent accountName, boolean isDeposit, MoneyValue amount) { this.accountName = accountName; this.isDeposit = isDeposit; this.amount = amount; }
+	protected DepositWithdrawNotification(Component accountName, boolean isDeposit, MoneyValue amount) { this.accountName = accountName; this.isDeposit = isDeposit; this.amount = amount; }
 	protected DepositWithdrawNotification() {}
 	
 	@Nonnull
@@ -49,7 +49,7 @@ public abstract class DepositWithdrawNotification extends SingleLineNotification
 		this.amount = MoneyValue.safeLoad(compound, "Amount");
 	}
 	
-	protected abstract MutableComponent getName();
+	protected abstract Component getName();
 	
 	@Nonnull
 	@Override
@@ -67,7 +67,7 @@ public abstract class DepositWithdrawNotification extends SingleLineNotification
 		public Player(PlayerReference player, MutableComponent accountName, boolean isDeposit, MoneyValue amount) { super(accountName, isDeposit, amount); this.player = player; }
 		
 		@Override
-		protected MutableComponent getName() { return this.player.getNameComponent(true); }
+		protected Component getName() { return this.player.getNameComponent(true); }
 		
 		@Nonnull
         @Override
@@ -95,14 +95,14 @@ public abstract class DepositWithdrawNotification extends SingleLineNotification
 	}
 	
 	public static class Custom extends DepositWithdrawNotification {
-		MutableComponent objectName;
+		Component objectName;
 
 		private Custom() {}
-		public Custom(String objectName, MutableComponent accountName, boolean isDeposit, MoneyValue amount) { this(EasyText.literal(objectName),accountName,isDeposit,amount); }
-		public Custom(MutableComponent objectName, MutableComponent accountName, boolean isDeposit, MoneyValue amount) { super(accountName, isDeposit, amount); this.objectName = objectName; }
+		public Custom(String objectName, Component accountName, boolean isDeposit, MoneyValue amount) { this(EasyText.literal(objectName),accountName,isDeposit,amount); }
+		public Custom(Component objectName, Component accountName, boolean isDeposit, MoneyValue amount) { super(accountName, isDeposit, amount); this.objectName = objectName; }
 
 		@Override
-		protected MutableComponent getName() { return this.objectName; }
+		protected Component getName() { return this.objectName; }
 		
 		@Nonnull
         @Override
@@ -137,7 +137,7 @@ public abstract class DepositWithdrawNotification extends SingleLineNotification
 		public static Supplier<Notification> create(@Nonnull MutableComponent accountName, boolean isDeposit, @Nonnull MoneyValue amount) { return () -> new Server(accountName,isDeposit,amount); }
 
 		@Override
-		protected MutableComponent getName() { return LCText.NOTIFICATION_BANK_DEPOSIT_WITHDRAW_SERVER.get(); }
+		protected Component getName() { return LCText.NOTIFICATION_BANK_DEPOSIT_WITHDRAW_SERVER.get(); }
 
 		@Nonnull
         @Override

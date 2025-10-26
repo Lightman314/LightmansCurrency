@@ -48,17 +48,17 @@ public class WalletInventoryWrapper extends Inventory {
         WalletDataWrapper wrapper = WalletItem.getDataWrapper(wallet);
         Container walletContents = wrapper.getContents();
         MoneyStorage cost = new MoneyStorage(() -> {});
-        IMoneyHandler walletMoney = MoneyAPI.API.GetContainersMoneyHandler(walletContents,this.player);
+        IMoneyHandler walletMoney = MoneyAPI.getApi().GetContainersMoneyHandler(walletContents,this.player);
         List<ItemStack> coinsToAdd = new ArrayList<>();
         for(BigItemStack stack : paymentItems.getStacks())
         {
-            if(CoinAPI.API.IsCoin(stack.stack,false))
+            if(CoinAPI.getApi().IsCoin(stack.stack,false))
             {
                 int countToExtract = stack.count;
                 countToExtract -= this.queryPaymentItems(stack);
                 if(countToExtract > 0)
                 {
-                    ChainData chain = CoinAPI.API.ChainDataOfCoin(stack.stack);
+                    ChainData chain = CoinAPI.getApi().ChainDataOfCoin(stack.stack);
                     cost.addValue(CoinValue.fromNumber(chain,chain.getCoreValue(stack.stack) * stack.count));
                     coinsToAdd.add(stack.stack.copyWithCount(countToExtract));
                 }
@@ -125,7 +125,7 @@ public class WalletInventoryWrapper extends Inventory {
                     ItemHandlerHelper.giveItemToPlayer(this.player,item);
             }
             if(finished)
-                CoinAPI.API.CoinExchangeAllUp(walletContents);
+                CoinAPI.getApi().CoinExchangeAllUp(walletContents);
             WalletItem.getDataWrapper(wallet).setContents(walletContents,this.player);
             walletHandler.setWallet(wallet);
             return;

@@ -10,13 +10,16 @@ import io.github.lightman314.lightmanscurrency.common.notifications.categories.T
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Supplier;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class PaygateNotification extends SingleLineTaxableNotification {
 
 	public static final NotificationType<PaygateNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("paygate_trade"),PaygateNotification::new);
@@ -53,18 +56,15 @@ public class PaygateNotification extends SingleLineTaxableNotification {
 
 	public static Supplier<Notification> createTicket(PaygateTradeData trade, boolean usedPass, PlayerReference customer, TraderCategory traderData) { return () -> new PaygateNotification(trade, MoneyValue.empty(), usedPass, customer, traderData, MoneyValue.empty()); }
 	public static Supplier<Notification> createMoney(PaygateTradeData trade, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) { return () -> new PaygateNotification(trade, cost, false, customer, traderData, taxesPaid); }
-	
-	@Nonnull
+
     @Override
 	protected NotificationType<PaygateNotification> getType() { return TYPE; }
 
-	@Nonnull
 	@Override
 	public NotificationCategory getCategory() { return this.traderData; }
 
-	@Nonnull
     @Override
-	public MutableComponent getNormalMessage() {
+	public Component getNormalMessage() {
 		
 		if(this.ticketID >= -1)
 		{
@@ -79,7 +79,7 @@ public class PaygateNotification extends SingleLineTaxableNotification {
 	}
 
 	@Override
-	protected void saveNormal(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	protected void saveNormal(CompoundTag compound, HolderLookup.Provider lookup) {
 
 		compound.put("TraderInfo", this.traderData.save(lookup));
 		compound.putInt("Duration", this.duration);
@@ -95,7 +95,7 @@ public class PaygateNotification extends SingleLineTaxableNotification {
 	}
 
 	@Override
-	protected void loadNormal(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	protected void loadNormal(CompoundTag compound, HolderLookup.Provider lookup) {
 		
 		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"),lookup);
 		this.duration = compound.getInt("Duration");
@@ -110,7 +110,7 @@ public class PaygateNotification extends SingleLineTaxableNotification {
 	}
 
 	@Override
-	protected boolean canMerge(@Nonnull Notification other) {
+	protected boolean canMerge(Notification other) {
 		if(other instanceof PaygateNotification pn)
 		{
 			if(!pn.traderData.matches(this.traderData))

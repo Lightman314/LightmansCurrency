@@ -36,7 +36,7 @@ public class CPacketAddOrRemoveTrade extends ClientToServerPacket {
 		protected H() { super(TYPE, easyCodec(CPacketAddOrRemoveTrade::encode,CPacketAddOrRemoveTrade::decode)); }
 		@Override
 		protected void handle(@Nonnull CPacketAddOrRemoveTrade message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			TraderData trader = TraderAPI.API.GetTrader(false, message.traderID);
+			TraderData trader = TraderAPI.getApi().GetTrader(false, message.traderID);
 			if(trader != null)
 			{
 				if(message.isTradeAdd)

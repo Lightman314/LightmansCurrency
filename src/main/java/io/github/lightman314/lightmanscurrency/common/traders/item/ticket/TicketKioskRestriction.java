@@ -6,9 +6,12 @@ import java.util.List;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LCTags;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ticket.TicketItemTrade.TicketSaleData;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketSlot;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
@@ -38,7 +41,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction {
 	{
 		if(trade != this.trade)
 			return sellItem;
-		TicketItemTrade.TicketSaleData data = this.trade.getTicketData(index);
+		TicketSaleData data = this.trade.getTicketData(index);
 		if(data == null)
 			return sellItem;
 		return data.getCraftingResult(true);
@@ -48,7 +51,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction {
 	public boolean displayCustomName(ItemStack sellItem, ItemTradeData trade, int index) {
 		if(trade != this.trade)
 			return true;
-		TicketItemTrade.TicketSaleData data = this.trade.getTicketData(index);
+		TicketSaleData data = this.trade.getTicketData(index);
 		return data != null && data.isRecipeMode();
 	}
 
@@ -87,15 +90,17 @@ public class TicketKioskRestriction extends ItemTradeRestriction {
 	@Override
 	public int getSaleStock(TraderItemStorage traderStorage, ItemTradeData trade) {
 		if(trade != this.trade)
-			return 0;
+        {
+            LightmansCurrency.LogWarning("Attempted to get stock for a ticket trade that didn't match its restriction!");
+            return 0;
+        }
 		List<Pair<ResourceLocation,Integer>> countByRecipe = new ArrayList<>();
-		boolean foundTicket = false;
 		int minStock = Integer.MAX_VALUE;
 		List<ItemRequirement> requirements = new ArrayList<>();
 		for(int i = 0; i < 2; ++i)
 		{
-			ItemStack sellItem = trade.getSellItem(i);
-			TicketItemTrade.TicketSaleData data = this.trade.getTicketData(i);
+			ItemStack sellItem = trade.getActualItem(i);
+			TicketSaleData data = this.trade.getTicketData(i);
 			if(data.isRecipeMode())
 			{
 				TicketStationRecipe recipe = data.tryGetRecipe();
@@ -109,7 +114,9 @@ public class TicketKioskRestriction extends ItemTradeRestriction {
 			}
 		}
 		if(requirements.isEmpty())
-			return 0;
+        {
+            return 0;
+        }
 		for(ItemRequirement entry : requirements)
 		{
 			if(entry.getCount() > 0)
@@ -128,6 +135,20 @@ public class TicketKioskRestriction extends ItemTradeRestriction {
 		list.add(requirement);
 	}
 
+    @Override
+    public List<ItemStack> getRandomSellItems(ItemTraderData trader, ItemTradeData trade) {
+        if(trade != this.trade)
+            return null;
+        List<ItemStack> results = new ArrayList<>();
+        List<ItemRequirement> normalSellItems;
+        for(int i = 0; i < 2; ++i)
+        {
+            TicketSaleData data = this.trade.getTicketData(i);
+            results.add(data.getCraftingResult(true));
+        }
+        return results;
+    }
+
 	@Override
 	public void removeItemsFromStorage(TraderItemStorage traderStorage, List<ItemStack> soldItems)
 	{
@@ -138,6 +159,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction {
 		for(int i = 0; i < 2; ++i)
 		{
 			ItemStack sellItem = this.trade.getSellItem(i);
+            ItemStack actualItem = this.trade.getActualItem(i);
 			TicketItemTrade.TicketSaleData data = this.trade.getTicketData(i);
 			if(data.isRecipeMode())
 			{
@@ -150,8 +172,8 @@ public class TicketKioskRestriction extends ItemTradeRestriction {
 			{
 				this.removeFromStorage(sellItem,traderStorage);
 				ignoreIfPossible.add(sellItem);
+                ignoreIfPossible.add(actualItem);
 			}
-
 		}
 		//Attempt to remove the tickets from storage "normally".
 		//Keep track of how many need to be printed.

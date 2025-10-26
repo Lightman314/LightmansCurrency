@@ -5,27 +5,28 @@ import io.github.lightman314.lightmanscurrency.api.ownership.OwnerType;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnershipAPI;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.PotentialOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.IPotentialOwnerProvider;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class OwnershipAPIImpl extends OwnershipAPI {
-
-    public static final OwnershipAPI INSTANCE = new OwnershipAPIImpl();
 
     private final Map<ResourceLocation,OwnerType> registeredOwnerTypes = new HashMap<>();
     private final List<IPotentialOwnerProvider> potentialOwnerProviders = new ArrayList<>();
 
-    private OwnershipAPIImpl() {}
+    public OwnershipAPIImpl() {}
 
     @Override
-    public void registerOwnerType(@Nonnull OwnerType type) {
+    public void registerOwnerType(OwnerType type) {
         if(this.registeredOwnerTypes.containsKey(type.getID()))
         {
             OwnerType existing = this.registeredOwnerTypes.get(type.getID());
@@ -41,10 +42,10 @@ public class OwnershipAPIImpl extends OwnershipAPI {
 
     @Nullable
     @Override
-    public OwnerType getOwnerType(@Nonnull ResourceLocation id) { return this.registeredOwnerTypes.get(id); }
+    public OwnerType getOwnerType(ResourceLocation id) { return this.registeredOwnerTypes.get(id); }
 
     @Override
-    public void registerPotentialOwnerProvider(@Nonnull IPotentialOwnerProvider provider) {
+    public void registerPotentialOwnerProvider(IPotentialOwnerProvider provider) {
         if(this.potentialOwnerProviders.contains(provider))
         {
             LightmansCurrency.LogError("Tried to register Potential Owner Provider " + provider.getClass().getSimpleName() + " twice!");
@@ -54,7 +55,7 @@ public class OwnershipAPIImpl extends OwnershipAPI {
     }
 
     @Override
-    public List<PotentialOwner> getPotentialOwners(@Nonnull Player player) {
+    public List<PotentialOwner> getPotentialOwners(Player player) {
         List<PotentialOwner> results = new ArrayList<>();
         for(IPotentialOwnerProvider provider : this.potentialOwnerProviders)
             results.addAll(provider.collectPotentialOwners(player));

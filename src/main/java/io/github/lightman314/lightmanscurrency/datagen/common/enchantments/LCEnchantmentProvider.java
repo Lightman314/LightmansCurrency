@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.datagen.common.enchantments;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCTags;
+import io.github.lightman314.lightmanscurrency.api.config.holder_sets.ItemListOptionSet;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.common.enchantments.data.RepairWithMoneyData;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
@@ -15,18 +16,20 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+
+@ParametersAreNonnullByDefault
 public class LCEnchantmentProvider {
 
-    public static void bootstrap(@Nonnull BootstrapContext<Enchantment> context)
+    public static void bootstrap(BootstrapContext<Enchantment> context)
     {
         HolderGetter<Item> itemLookup = context.lookup(Registries.ITEM);
         HolderGetter<Enchantment> enchantmentLookup = context.lookup(Registries.ENCHANTMENT);
         context.register(ModEnchantments.COIN_MAGNET,
                 Enchantment.enchantment(
                         Enchantment.definition(
-                                itemLookup.getOrThrow(LCTags.Items.WALLET_PICKUP),
+                                ItemListOptionSet.create(LCConfig.SERVER.walletCanPickup),
                                 2, 3,
                                 Enchantment.dynamicCost(25,25),
                                 Enchantment.dynamicCost(75,25),

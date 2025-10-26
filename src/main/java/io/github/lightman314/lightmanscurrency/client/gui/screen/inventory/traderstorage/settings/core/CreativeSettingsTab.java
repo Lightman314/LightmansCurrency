@@ -2,28 +2,31 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketAddOrRemoveTrade;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class CreativeSettingsTab extends SettingsSubTab {
 
-    public CreativeSettingsTab(@Nonnull TraderSettingsClientTab parent) { super(parent); }
+    public CreativeSettingsTab(TraderSettingsClientTab parent) { super(parent); }
 
     EasyButton buttonToggleCreative;
     EasyButton buttonAddTrade;
@@ -31,7 +34,6 @@ public class CreativeSettingsTab extends SettingsSubTab {
 
     PlainButton buttonToggleStoreMoney;
 
-    @Nonnull
     @Override
     public IconData getIcon() { return IconUtil.ICON_CREATIVE; }
 
@@ -68,13 +70,13 @@ public class CreativeSettingsTab extends SettingsSubTab {
         this.buttonToggleStoreMoney = this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(35,110))
                 .pressAction(this::ToggleStoreMoney)
-                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::storedCreativeMoney))
+                .sprite(SpriteUtil.createCheckbox(this::storedCreativeMoney))
                 .build());
 
     }
 
     @Override
-    public void renderBG(@Nonnull EasyGuiGraphics gui) {
+    public void renderBG(EasyGuiGraphics gui) {
 
         TraderData trader = this.menu.getTrader();
         if(trader == null)

@@ -1,0 +1,9 @@
+{
+  "parent": "lightmanscurrency:card_display/inner_corner/base",
+  "dummy": true,
+  "textures": {
+    "log": "minecraft:block/jungle_log",
+    "logtop": "minecraft:block/jungle_log_top",
+    "plank": "minecraft:block/jungle_planks"
+  }
+}

@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionDataType;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
@@ -13,7 +14,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderState;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.menus.containers.NonEmptyContainer;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -85,7 +86,7 @@ public class TraderEjectionData extends EjectionData {
     @Override
     public IconData getSplitButtonIcon() {
         if(this.data instanceof PreSplitData psd)
-            return IconData.of(psd.item);
+            return ItemIcon.ofItem(psd.item);
         return super.getSplitButtonIcon();
     }
     @Override
@@ -110,7 +111,7 @@ public class TraderEjectionData extends EjectionData {
             //Delete the Trader Data as there is no longer an item linked to it,
             //and we can safely assume the ejection system is working properly at this point
             if(this.isServer())
-                TraderAPI.API.DeleteTrader(trader);
+                TraderAPI.getApi().DeleteTrader(trader);
         }
     }
 
@@ -157,7 +158,7 @@ public class TraderEjectionData extends EjectionData {
             this.contents = InventoryUtil.buildInventory(this.item);
         }
 
-        private TraderData getTrader(@Nonnull IClientTracker context) { return TraderAPI.API.GetTrader(context,this.traderID); }
+        private TraderData getTrader(@Nonnull IClientTracker context) { return TraderAPI.getApi().GetTrader(context,this.traderID); }
         @Nonnull
         public OwnerData getOwner(@Nonnull IClientTracker context) {
             TraderData trader = this.getTrader(context);

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
@@ -15,11 +16,10 @@ import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.menus.teams.TeamManagementClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.teams.tabs.TeamNameAndOwnerTab;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.item.Items;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ public class TeamNameAndOwnerClientTab extends TeamManagementClientTab<TeamNameA
 
     @Nonnull
     @Override
-    public IconData getIcon() { return IconData.of(Items.WRITABLE_BOOK); }
+    public IconData getIcon() { return IconUtil.ICON_SHOW_LOGGER; }
 
     @Override
     public MutableComponent getTooltip() { return this.isOwnerAccess() ? LCText.TOOLTIP_TEAM_NAME_AND_OWNER.get() : LCText.TOOLTIP_TEAM_NAME.get(); }

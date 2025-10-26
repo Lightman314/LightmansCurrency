@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
@@ -30,7 +31,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDat
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
@@ -92,6 +93,7 @@ public class GachaTrader extends InputTraderData {
     private final GachaItemHandler handler = new GachaItemHandler(this);
     private final GachaStorage storage = new GachaStorage(this::getMaxItems);
     public GachaStorage getStorage() { return this.storage; }
+    public IItemHandler getStorageWrapper() { return this.handler.getFullyAuthorizedHandler(); }
 
     public IItemHandler getItemHandler(Direction side) { return this.handler.getHandler(side); }
 
@@ -100,7 +102,7 @@ public class GachaTrader extends InputTraderData {
     public void markStorageDirty() { this.markDirty(this::saveStorage); }
 
     @Override
-    public IconData getIcon() { return IconData.of(GachaBallItem.createWithItemAndColor(new ItemStack(ModItems.TRADING_CORE.get()),Color.YELLOW)); }
+    public IconData getIcon() { return ItemIcon.ofItem(GachaBallItem.createWithItemAndColor(new ItemStack(ModItems.TRADING_CORE.get()),Color.YELLOW)); }
 
     @Override
     protected boolean allowAdditionalUpgradeType(UpgradeType type) { return type == Upgrades.ITEM_CAPACITY; }
@@ -174,7 +176,7 @@ public class GachaTrader extends InputTraderData {
     }
 
     @Override
-    public IconData inputSettingsTabIcon() { return IconData.of(Items.HOPPER); }
+    public IconData inputSettingsTabIcon() { return ItemIcon.ofItem(Items.HOPPER); }
 
     @Override
     public MutableComponent inputSettingsTabTooltip() { return LCText.TOOLTIP_TRADER_SETTINGS_INPUT_ITEM.get(); }

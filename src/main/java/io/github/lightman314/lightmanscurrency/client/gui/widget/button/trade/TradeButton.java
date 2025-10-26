@@ -6,16 +6,24 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FlexibleSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.NormalSprite;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.GhostSlot;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IGhostSlotProvider;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -27,23 +35,22 @@ import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 
-public class TradeButton extends EasyButton implements ITooltipSource {
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
+public class TradeButton extends EasyButton implements ITooltipSource, IGhostSlotProvider {
 
-	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource( "textures/gui/trade.png");
-	
-	public static  final int ARROW_WIDTH = 22;
-	public static  final int ARROW_HEIGHT = 18;
-	
-	public static  final int TEMPLATE_WIDTH = 212;
-	
+    public static final FixedSizeSprite ALERT_SPRITE = new NormalSprite(SpriteSource.create(VersionUtil.lcResource("common/widgets/trade_alert"),22,18));
+
 	public static final int BUTTON_HEIGHT = 18;
 	
 	private final Supplier<TradeData> tradeSource;
 	public TradeData getTrade() { return this.tradeSource.get(); }
+    @Nullable
 	public TradeRenderManager<?> getTradeRenderer() {
 		TradeData trade = this.getTrade();
 		if(trade != null)
@@ -57,7 +64,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 
 	private final boolean displayOnly;
 
-	private TradeButton(@Nonnull Builder builder)
+	private TradeButton(Builder builder)
 	{
 		super(builder);
 		this.tradeSource = builder.trade;
@@ -85,7 +92,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 	public void move(int x, int y) { this.setPosition(x, y); }
 	
 	@Override
-	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
+	public void renderWidget(EasyGuiGraphics gui) {
 		
 		TradeRenderManager<?> tr = this.getTradeRenderer();
 		if(tr == null)
@@ -117,7 +124,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 		
 	}
 	
-	private void renderBackground(@Nonnull EasyGuiGraphics gui, boolean isHovered, boolean selected)
+	private void renderBackground(EasyGuiGraphics gui, boolean isHovered, boolean selected)
 	{
 		if(this.width < 8)
 		{
@@ -128,41 +135,31 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 			gui.resetColor();
 		else
 			gui.setColor(0.5f,0.5f,0.5f);
-		
-		int vOffset = isHovered ? BUTTON_HEIGHT : 0;
-		if(selected)
-			vOffset += 2 * BUTTON_HEIGHT;
-		
-		//Render the left
-		gui.blit(GUI_TEXTURE, 0, 0, 0, vOffset, 4, BUTTON_HEIGHT);
-		//Render the middle
-		int xOff = 4;
-		while(xOff < this.width - 4)
-		{
-			int xRend = Math.min(this.width - 4 - xOff, TEMPLATE_WIDTH - 8);
-			gui.blit(GUI_TEXTURE, xOff, 0, 4, vOffset, xRend, BUTTON_HEIGHT);
-			xOff += xRend;
-		}
-		//Render the right
-		gui.blit(GUI_TEXTURE, this.width - 4, 0, TEMPLATE_WIDTH - 4, vOffset, 4, BUTTON_HEIGHT);
+
+        FlexibleSizeSprite sprite;
+        if(selected)
+            sprite = isHovered ? SpriteUtil.BUTTON_TRADE_GREEN_HOVERED : SpriteUtil.BUTTON_TRADE_GREEN;
+        else
+            sprite = isHovered ? SpriteUtil.BUTTON_GRAY_HOVERED : SpriteUtil.BUTTON_GRAY;
+
+        sprite.render(gui,0,0,this.width,this.height);
 
 	}
 	
-	private void renderArrow(@Nonnull EasyGuiGraphics gui, @Nonnull ScreenPosition position, boolean isHovered, boolean selected)
+	private void renderArrow(EasyGuiGraphics gui, ScreenPosition position, boolean isHovered, boolean selected)
 	{
 
 		if(this.active)
 			gui.resetColor();
 		else
 			gui.setColor(0.5f,0.5f,0.5f);
-		
-		int vOffset = isHovered || selected ? ARROW_HEIGHT : 0;
 
-		gui.blit(GUI_TEXTURE, position, TEMPLATE_WIDTH, vOffset, ARROW_WIDTH, ARROW_HEIGHT);
+        FixedSizeSprite sprite = isHovered || selected ? SpriteUtil.ARROW_WHITE : SpriteUtil.ARROW_GRAY;
+        sprite.render(gui,position);
 		
 	}
 	
-	private void renderAlert(@Nonnull EasyGuiGraphics gui, @Nonnull ScreenPosition position, @Nullable List<AlertData> alerts, boolean isHovered)
+	private void renderAlert(EasyGuiGraphics gui, ScreenPosition position, @Nullable List<AlertData> alerts, boolean isHovered)
 	{
 		
 		if(alerts == null || alerts.isEmpty())
@@ -170,7 +167,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 		alerts.sort(AlertData::compare);
 
 		alerts.getFirst().setShaderColor(gui, this.active ? 1f : 0.5f, isHovered);
-		gui.blit(GUI_TEXTURE, position, TEMPLATE_WIDTH + ARROW_WIDTH, 0, ARROW_WIDTH, ARROW_HEIGHT);
+        ALERT_SPRITE.render(gui,position);
 		
 	}
 	
@@ -246,14 +243,14 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 	@Override
 	public List<Component> getTooltipText(int mouseX, int mouseY) { return null; }
 	
-	private void tryAddTooltip(@Nonnull List<Component> tooltips, @Nullable List<Component> add)
+	private void tryAddTooltip(List<Component> tooltips, @Nullable List<Component> add)
 	{
 		if(add == null)
 			return;
 		tooltips.addAll(add);
 	}
 	
-	private void tryAddAlertTooltips(@Nonnull List<Component> tooltips, @Nullable List<AlertData> alerts)
+	private void tryAddAlertTooltips(List<Component> tooltips, @Nullable List<AlertData> alerts)
 	{
 		if(alerts == null)
 			return;
@@ -262,7 +259,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 			tooltips.add(alert.getFormattedMessage());
 	}
 
-	public void HandleInteractionClick(int mouseX, int mouseY, int button, @Nonnull TradeInteractionHandler handler)
+	public void HandleInteractionClick(int mouseX, int mouseY, int button, TradeInteractionHandler handler)
 	{
 		if(!this.visible || !this.isMouseOver(mouseX, mouseY))
 			return;
@@ -310,7 +307,7 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 		ScreenPosition position = tr.alertPosition(context);
 		int left = this.getX() + position.x;
 		int top = this.getY() + position.y;
-		return mouseX >= left && mouseX < left + ARROW_WIDTH && mouseY >= top && mouseY < top + ARROW_HEIGHT;
+		return mouseX >= left && mouseX < left + 22 && mouseY >= top && mouseY < top + 18;
 	}
 	
 	public static List<Pair<DisplayEntry,DisplayData>> getInputDisplayData(TradeRenderManager<?> tr, TradeContext context)
@@ -343,7 +340,20 @@ public class TradeButton extends EasyButton implements ITooltipSource {
 
 	public static Builder builder() { return new Builder(); }
 
-	@MethodsReturnNonnullByDefault
+    @Nullable
+    @Override
+    public List<GhostSlot<?>> getGhostSlots() {
+        if(!this.isVisible())
+            return null;
+        List<GhostSlot<?>> results = new ArrayList<>();
+        TradeContext context = this.getContext();
+        TradeRenderManager<?> renderManager = this.getTradeRenderer();
+        if(context != null && renderManager != null && Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> screen && screen.getMenu() instanceof ITraderStorageMenu menu)
+            return renderManager.getGhostSlots(context,menu,this.getPosition());
+        return null;
+    }
+
+    @MethodsReturnNonnullByDefault
 	@FieldsAreNonnullByDefault
 	public static class Builder extends EasyButtonBuilder<Builder>
 	{

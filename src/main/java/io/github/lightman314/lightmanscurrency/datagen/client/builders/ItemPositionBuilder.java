@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.datagen.client.builders;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.RotationHandler;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import org.joml.Vector3f;
 
@@ -15,7 +16,7 @@ public final class ItemPositionBuilder {
 
     private boolean hasGlobalScale = false;
     private float globalScale = 0f;
-    private String globalRotationType = null;
+    private RotationHandler globalRotationType = null;
     private int globalExtraCount = 0;
     private Vector3f globalExtraOffset = null;
     private int globalMinLight = 0;
@@ -25,7 +26,7 @@ public final class ItemPositionBuilder {
 
     public static ItemPositionBuilder builder() { return new ItemPositionBuilder(); }
 
-    public ItemPositionBuilder withGlobalRotationType(String rotationType) { this.globalRotationType = rotationType; return this; }
+    public ItemPositionBuilder withGlobalRotationType(RotationHandler rotationType) { this.globalRotationType = rotationType; return this; }
     public ItemPositionBuilder withGlobalScale(float globalScale) { this.hasGlobalScale = true; this.globalScale = globalScale; return this; }
     public ItemPositionBuilder withGlobalExtraCount(int extraCount) { this.globalExtraCount = extraCount; return this; }
     public ItemPositionBuilder withGlobalExtraOffset(Vector3f extraOffset) { this.globalExtraOffset = extraOffset; return this; }
@@ -45,7 +46,7 @@ public final class ItemPositionBuilder {
         if(this.hasGlobalScale)
             json.addProperty("Scale", this.globalScale);
         if(this.globalRotationType != null)
-            json.addProperty("RotationType", this.globalRotationType);
+            json.add("RotationType", this.globalRotationType.write());
         if(this.globalExtraCount > 0)
             json.addProperty("ExtraCount", this.globalExtraCount);
         if(this.globalExtraOffset != null)
@@ -77,7 +78,7 @@ public final class ItemPositionBuilder {
             if(entry.minLight >= 0)
                 entryData.addProperty("MinLight",entry.minLight);
             if(entry.rotationType != null)
-                entryData.addProperty("RotationType", entry.rotationType);
+                entryData.add("RotationType", entry.rotationType.write());
             entryList.add(entryData);
         }
         json.add("Entries", entryList);
@@ -96,7 +97,7 @@ public final class ItemPositionBuilder {
         private Vector3f extraOffset = null;
         private float scale = -1f;
         private int minLight = -1;
-        String rotationType = null;
+        RotationHandler rotationType = null;
 
         private PositionEntryBuilder(ItemPositionBuilder parent,Vector3f position) { this.parent = parent; this.position = position; }
 
@@ -104,7 +105,7 @@ public final class ItemPositionBuilder {
         public PositionEntryBuilder withExtraOffset(Vector3f extraOffset) { this.extraOffset = extraOffset; return this; }
         public PositionEntryBuilder withScale(float scale) { this.scale = scale; return this; }
         public PositionEntryBuilder withMinLight(int minLight) { this.minLight = minLight; return this; }
-        public PositionEntryBuilder withRotationType(String rotationType) { this.rotationType = rotationType; return this; }
+        public PositionEntryBuilder withRotationType(RotationHandler rotationType) { this.rotationType = rotationType; return this; }
 
         public ItemPositionBuilder back() { return this.parent; }
 

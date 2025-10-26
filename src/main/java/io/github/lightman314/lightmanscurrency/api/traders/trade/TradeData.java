@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
@@ -20,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEve
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -28,11 +29,13 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class TradeData implements ITradeRuleHost {
 
 	public static final String DEFAULT_KEY = "Trades";
 
-	@Nonnull
+	
 	protected MoneyValue cost = MoneyValue.empty();
 	
 	List<TradeRule> rules = new ArrayList<>();
@@ -44,7 +47,7 @@ public abstract class TradeData implements ITradeRuleHost {
 	
 	public boolean isValid() { return this.validCost(); }
 
-	@Nonnull
+	
 	public MoneyValue getCost() { return this.cost; }
 
 	/**
@@ -52,8 +55,8 @@ public abstract class TradeData implements ITradeRuleHost {
 	 * Will run the {@link TradeCostEvent} to calculate any price changes,
 	 * and will cache the results to save framerate for client-side displays.
 	 */
-	@Nonnull
-	public final MoneyValue getCost(@Nonnull TradeContext context) {
+	
+	public final MoneyValue getCost(TradeContext context) {
 		if(!context.hasTrader() || !this.validCost())
 			return this.getCost();
 		MoneyValue baseCost = TradeRule.getBaseCost(this,context);
@@ -65,7 +68,7 @@ public abstract class TradeData implements ITradeRuleHost {
 	 * Gets the cost after all taxes are applied.
 	 * Assumes that this is a purchase trade.
 	 */
-	public MoneyValue getCostWithTaxes(@Nonnull TraderData trader)
+	public MoneyValue getCostWithTaxes(TraderData trader)
 	{
 		MoneyValue cost = TradeRule.getBaseCost(this,TradeContext.createStorageMode(trader));
 		MoneyValue taxAmount = MoneyValue.empty();
@@ -87,13 +90,13 @@ public abstract class TradeData implements ITradeRuleHost {
 		return cost;
 	}
 	
-	public void setCost(@Nonnull MoneyValue value) { this.cost = value; }
+	public void setCost(MoneyValue value) { this.cost = value; }
 
-	public boolean outOfStock(@Nonnull TradeContext context) { return !this.hasStock(context); }
+	public boolean outOfStock(TradeContext context) { return !this.hasStock(context); }
 
-	public boolean hasStock(@Nonnull TradeContext context) { return this.getStock(context) > 0; }
+	public boolean hasStock(TradeContext context) { return this.getStock(context) > 0; }
 
-	public abstract int getStock(@Nonnull TradeContext context);
+	public abstract int getStock(TradeContext context);
 
 	public final int stockCountOfCost(TraderData trader)
 	{
@@ -134,7 +137,7 @@ public abstract class TradeData implements ITradeRuleHost {
 			TradeRule.ValidateTradeRuleList(this.rules, this);
 	}
 	
-	public CompoundTag getAsNBT(@Nonnull HolderLookup.Provider lookup)
+	public CompoundTag getAsNBT(HolderLookup.Provider lookup)
 	{
 		CompoundTag tradeNBT = new CompoundTag();
 		tradeNBT.put("Price", this.cost.save());
@@ -143,7 +146,7 @@ public abstract class TradeData implements ITradeRuleHost {
 		return tradeNBT;
 	}
 	
-	protected void loadFromNBT(CompoundTag nbt, @Nonnull HolderLookup.Provider lookup)
+	protected void loadFromNBT(CompoundTag nbt, HolderLookup.Provider lookup)
 	{
 		this.cost = MoneyValue.safeLoad(nbt, "Price");
 		//Set whether it's free or not
@@ -195,7 +198,7 @@ public abstract class TradeData implements ITradeRuleHost {
 		}
 	}
 	
-	@Nonnull
+	
 	@Override
 	public List<TradeRule> getRules() { return new ArrayList<>(this.rules); }
 
@@ -228,7 +231,7 @@ public abstract class TradeData implements ITradeRuleHost {
 	public abstract List<Component> GetDifferenceWarnings(TradeComparisonResult differences);
 	
 	@OnlyIn(Dist.CLIENT)
-	@Nonnull
+	
 	public abstract TradeRenderManager<?> getButtonRenderer();
 
 	/**
@@ -240,7 +243,7 @@ public abstract class TradeData implements ITradeRuleHost {
 	 * @param data A {@link TradeInteractionData} instance containing all relevant client-side data such as the mouse position/button or whether the SHIFT key was held
 	 * @param heldItem The item being held by the player.
 	 */
-	public abstract void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem);
+	public abstract void OnInputDisplayInteraction(BasicTradeEditTab tab, int index, TradeInteractionData data, ItemStack heldItem);
 
 	/**
 	 * Called when an output display is clicked on in display mode.
@@ -251,7 +254,7 @@ public abstract class TradeData implements ITradeRuleHost {
 	 * @param data A {@link TradeInteractionData} instance containing all relevant client-side data such as the mouse position or whether the SHIFT key was held
 	 * @param heldItem The item being held by the player.
 	 */
-	public abstract void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem);
+	public abstract void OnOutputDisplayInteraction(BasicTradeEditTab tab, int index, TradeInteractionData data, ItemStack heldItem);
 
 	/**
 	 * Called when the trade is clicked on in display mode, but the mouse wasn't over any of the input or output slots.
@@ -261,9 +264,8 @@ public abstract class TradeData implements ITradeRuleHost {
 	 * @param data A {@link TradeInteractionData} instance containing all relevant client-side data such as the mouse position or whether the SHIFT key was held
 	 * @param heldItem The item currently being held by the player.
 	 */
-	public abstract void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem);
+	public abstract void OnInteraction(BasicTradeEditTab tab, TradeInteractionData data, ItemStack heldItem);
 
-	@Nonnull
 	public final List<Integer> getRelevantInventorySlots(TradeContext context, List<Slot> slots) {
 		List<Integer> results = new ArrayList<>();
 		this.collectRelevantInventorySlots(context, slots, results);

@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/outer_corner/biomesoplenty/magic/base",
+  "target": "lightmanscurrency:card_display_biomesoplenty_magic_gray",
+  "textures": {
+    "wool": "minecraft:block/gray_wool"
+  }
+}

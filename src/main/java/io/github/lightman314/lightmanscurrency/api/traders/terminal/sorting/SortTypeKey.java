@@ -13,7 +13,7 @@ public record SortTypeKey(ResourceLocation id, boolean inverted) {
     public static String getExampleList(boolean quotes)
     {
         StringBuilder builder = new StringBuilder();
-        for(SortTypeKey key : TraderAPI.API.GetAllSortTypeKeys())
+        for(SortTypeKey key : TraderAPI.getApi().GetAllSortTypeKeys())
         {
             if(!builder.isEmpty())
                 builder.append(",");

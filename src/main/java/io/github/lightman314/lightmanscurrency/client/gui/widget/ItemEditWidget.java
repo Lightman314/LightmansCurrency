@@ -10,6 +10,10 @@ import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.NormalSprite;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -45,16 +49,17 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.ItemLike;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollable, ITooltipSource {
-
-	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource( "textures/gui/item_edit.png");
 
 	private static ItemEditWidget latestInstance = null;
 	private static boolean rebuilding = false;
+
+    public static final FixedSizeSprite STACK_SIZE_SPRITE = new NormalSprite(SpriteSource.create(VersionUtil.lcResource("common/widgets/stack_size_area"),18,18));
 
 	private static final List<Function<CreativeModeTab,Boolean>> ITEM_GROUP_BLACKLIST = new ArrayList<>();
 
@@ -101,10 +106,10 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 	private static final List<ItemInsertRule> ITEM_ADDITIONS = new ArrayList<>();
 	public static void AddExtraItem(ItemStack item) { ITEM_ADDITIONS.add(ItemInsertRule.atEnd(item)); }
-	public static void AddExtraItemAfter(ItemStack item, @Nonnull Item afterItem) { ITEM_ADDITIONS.add(ItemInsertRule.afterItem(item, afterItem)); }
-	public static void AddExtraItemAfter(ItemStack item, @Nonnull Predicate<ItemStack> afterItem) { ITEM_ADDITIONS.add(ItemInsertRule.afterCheck(item, afterItem)); }
-	public static void AddExtraItemBefore(ItemStack item, @Nonnull Item beforeItem) { ITEM_ADDITIONS.add(ItemInsertRule.beforeItem(item, beforeItem)); }
-	public static void AddExtraItemBefore(ItemStack item, @Nonnull Predicate<ItemStack> beforeItem) { ITEM_ADDITIONS.add(ItemInsertRule.beforeCheck(item, beforeItem)); }
+	public static void AddExtraItemAfter(ItemStack item, Item afterItem) { ITEM_ADDITIONS.add(ItemInsertRule.afterItem(item, afterItem)); }
+	public static void AddExtraItemAfter(ItemStack item, Predicate<ItemStack> afterItem) { ITEM_ADDITIONS.add(ItemInsertRule.afterCheck(item, afterItem)); }
+	public static void AddExtraItemBefore(ItemStack item, Item beforeItem) { ITEM_ADDITIONS.add(ItemInsertRule.beforeItem(item, beforeItem)); }
+	public static void AddExtraItemBefore(ItemStack item, Predicate<ItemStack> beforeItem) { ITEM_ADDITIONS.add(ItemInsertRule.beforeCheck(item, beforeItem)); }
 
 	public static boolean isItemAllowed(ItemStack item) {
 		for(Predicate<ItemStack> blacklist : ITEM_BLACKLIST)
@@ -144,7 +149,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 	private EditBox getOldSearchInput() { return this.oldItemEdit != null ? this.oldItemEdit.searchInput : null; }
 	private String getOldSearchString() { return this.oldItemEdit != null ? this.oldItemEdit.searchString : ""; }
 
-	private ItemEditWidget(@Nonnull Builder builder)
+	private ItemEditWidget(Builder builder)
 	{
 		super(builder);
 		latestInstance = this;
@@ -311,7 +316,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 	private static boolean notYetInList(ItemStack stack) { return allItems.stream().noneMatch(s -> InventoryUtil.ItemMatches(s, stack)); }
 
-	@Nonnull
+	
 	private List<ItemStack> getFilteredItems()
 	{
 		if(this.listener.restrictItemEditItems())
@@ -323,7 +328,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		return new ArrayList<>(allItems);
 	}
 
-	@Nonnull
+	
 	private List<ItemStack> getFilteredItems(ItemTradeRestriction restriction)
 	{
 		//If the items are still being collected, don't try to access the lists
@@ -367,7 +372,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 	public void refreshSearch() { this.modifySearch(this.searchString); }
 
-	public void modifySearch(@Nonnull String newSearch)
+	public void modifySearch(String newSearch)
 	{
 		this.searchString = newSearch.toLowerCase();
 
@@ -415,7 +420,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 	}
 
 	@Override
-	public void addChildren(@Nonnull ScreenArea area) {
+	public void addChildren(ScreenArea area) {
 		this.searchInput = this.addChild(new EditBox(this.font, area.x + this.searchOffset.x + 2, area.y + this.searchOffset.y + 2, 79, 9, this.getOldSearchInput(), LCText.GUI_ITEM_EDIT_SEARCH.get()));
 		this.searchInput.setBordered(false);
 		this.searchInput.setMaxLength(32);
@@ -443,7 +448,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 	}
 
 	@Override
-	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
+	public void renderWidget(EasyGuiGraphics gui) {
 		//Removed search check as this is now handled by EditBox#setResponder
 
 		int index = this.scroll * this.columns;
@@ -456,7 +461,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 				int xPos = x * 18;
 				//Render the slot background
 				gui.resetColor();
-				gui.blit(GUI_TEXTURE, xPos, yPos, 0, 0, 18, 18);
+                SpriteUtil.EMPTY_SLOT_NORMAL.render(gui,xPos,yPos);
 				//Render the slots item
 				gui.renderItem(this.getQuantityFixedStack(this.searchResultItems.get(index)), xPos + 1, yPos + 1);
 				index++;
@@ -465,10 +470,10 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 		//Render the search field
 		gui.resetColor();
-		gui.blit(GUI_TEXTURE, this.searchOffset, 18, 0, 90, 12);
+        SpriteUtil.SEARCH_FIELD.render(gui,this.searchOffset,90);
 
 		//Render the quantity scroll area
-		gui.blit(GUI_TEXTURE, this.stackSizeOffset, 108, 0, 18, 18);
+        STACK_SIZE_SPRITE.render(gui,this.stackSizeOffset);
 
 	}
 
@@ -600,10 +605,10 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		}
 
 		public static ItemInsertRule atEnd(ItemStack insertStack) { return new ItemInsertRule(insertStack, null, null); }
-		public static ItemInsertRule afterItem(ItemStack insertStack, @Nonnull Item item) { return new ItemInsertRule(insertStack, (s) -> s.getItem() == item, null); }
-		public static ItemInsertRule afterCheck(ItemStack insertStack, @Nonnull Predicate<ItemStack> check) { return new ItemInsertRule(insertStack, check, null); }
-		public static ItemInsertRule beforeItem(ItemStack insertStack, @Nonnull Item item) { return new ItemInsertRule(insertStack, null, (s) -> s.getItem() == item); }
-		public static ItemInsertRule beforeCheck(ItemStack insertStack, @Nonnull Predicate<ItemStack> check) { return new ItemInsertRule(insertStack, null, check); }
+		public static ItemInsertRule afterItem(ItemStack insertStack, Item item) { return new ItemInsertRule(insertStack, (s) -> s.getItem() == item, null); }
+		public static ItemInsertRule afterCheck(ItemStack insertStack, Predicate<ItemStack> check) { return new ItemInsertRule(insertStack, check, null); }
+		public static ItemInsertRule beforeItem(ItemStack insertStack, Item item) { return new ItemInsertRule(insertStack, null, (s) -> s.getItem() == item); }
+		public static ItemInsertRule beforeCheck(ItemStack insertStack, Predicate<ItemStack> check) { return new ItemInsertRule(insertStack, null, check); }
 
 		public boolean shouldInsertBefore(ItemStack insertedItem) { return this.beforeItemCheck.test(insertedItem); }
 		public boolean shouldInsertAfter(ItemStack insertedItem) { return this.afterItemCheck.test(insertedItem); }
@@ -611,12 +616,9 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 	}
 
-	@Nonnull
 	public static Builder builder() { return new Builder(); }
 
-	@MethodsReturnNonnullByDefault
 	@FieldsAreNonnullByDefault
-	@ParametersAreNonnullByDefault
 	public static class Builder extends EasyBuilder<Builder>
 	{
 		private Builder() { super(18,18); }

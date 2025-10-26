@@ -20,7 +20,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEvent;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
@@ -235,7 +235,7 @@ public abstract class TradeRule {
 	{
 		boolean changed = false;
 		//Add missing rules
-		for(TradeRuleType<?> ruleType : TraderAPI.API.GetAllTradeRuleTypes())
+		for(TradeRuleType<?> ruleType : TraderAPI.getApi().GetAllTradeRuleTypes())
 		{
 			TradeRule rule = ruleType.createNew();
 			if(rule != null && host.allowTradeRule(rule) && rule.allowHost(host) && !HasTradeRule(rules,rule.type.type))
@@ -295,7 +295,7 @@ public abstract class TradeRule {
 	
 	public static TradeRule CreateRule(ResourceLocation type)
 	{
-		TradeRuleType<?> ruleType = TraderAPI.API.GetTradeRuleType(type);
+		TradeRuleType<?> ruleType = TraderAPI.getApi().GetTradeRuleType(type);
 		if(ruleType != null)
 			return ruleType.createNew();
 		LightmansCurrency.LogError("Could not find a TradeRuleType of type '" + type + "'. Unable to create the Trade Rule.");
@@ -306,7 +306,7 @@ public abstract class TradeRule {
 	public static TradeRule Deserialize(CompoundTag compound, HolderLookup.Provider lookup)
 	{
 		String thisType = compound.contains("Type") ? compound.getString("Type") : compound.getString("type");
-		TradeRuleType<?> ruleType = TraderAPI.API.GetTradeRuleType(VersionUtil.parseResource(thisType));
+		TradeRuleType<?> ruleType = TraderAPI.getApi().GetTradeRuleType(VersionUtil.parseResource(thisType));
 		if(ruleType != null)
 			return ruleType.load(compound, lookup);
 		if(IGNORE_MISSING.contains(thisType))
@@ -318,7 +318,7 @@ public abstract class TradeRule {
 	
 	public static TradeRule Deserialize(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
 		String thisType = GsonHelper.getAsString(json, "Type");
-		TradeRuleType<?> ruleType = TraderAPI.API.GetTradeRuleType(VersionUtil.parseResource(thisType));
+		TradeRuleType<?> ruleType = TraderAPI.getApi().GetTradeRuleType(VersionUtil.parseResource(thisType));
 		if(ruleType != null)
 		{
 			TradeRule rule = ruleType.loadFromJson(json, lookup);

@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.integration.computercraft;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.TraderPeripheral;
 
 import javax.annotation.Nullable;
 import java.util.function.Function;

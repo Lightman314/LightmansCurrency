@@ -29,7 +29,7 @@ public class CPacketLazyMenu extends ClientToServerPacket {
         @Override
         protected void handle(@Nonnull CPacketLazyMenu message, @Nonnull IPayloadContext context, @Nonnull Player player) {
             if(player.containerMenu instanceof LazyMessageMenu menu && menu.containerId == menu.containerId)
-                menu.HandleMessage(message.data);
+                menu.handleMessage(message.data);
         }
     }
 

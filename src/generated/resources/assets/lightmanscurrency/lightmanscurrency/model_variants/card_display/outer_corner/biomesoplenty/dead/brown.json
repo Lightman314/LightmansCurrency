@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/outer_corner/biomesoplenty/dead/base",
+  "target": "lightmanscurrency:card_display_biomesoplenty_dead_brown",
+  "textures": {
+    "wool": "minecraft:block/brown_wool"
+  }
+}

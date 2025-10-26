@@ -7,29 +7,33 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.common.config.VillagerTradeModsOption;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.mods.ConfiguredTradeMod.ModBuilder;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.npc.VillagerProfession;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class VillagerTradeMods {
 
 
     private final Map<String,ConfiguredTradeMod> modMap;
+    public final Map<String,ConfiguredTradeMod> getModMap() { return this.modMap; }
     public int getSize() { return this.modMap.size(); }
-    private VillagerTradeMods(@Nonnull Builder builder)
+    private VillagerTradeMods(Builder builder)
     {
         Map<String,ConfiguredTradeMod> temp = new HashMap<>();
-        builder.dataMap.forEach((key,subBuilder) -> temp.put(key, subBuilder.build()));
+        builder.dataMap.forEach((key,subBuilder) -> temp.put(key, subBuilder.build(false)));
         this.modMap = ImmutableMap.copyOf(temp);
     }
-    private VillagerTradeMods(@Nonnull Map<String,ConfiguredTradeMod> map) { this.modMap = ImmutableMap.copyOf(map); }
-    public VillagerTradeMods(@Nonnull List<String> parseableData)
+    public VillagerTradeMods(Map<String,ConfiguredTradeMod> map) { this.modMap = ImmutableMap.copyOf(map); }
+    public VillagerTradeMods(List<String> parseableData)
     {
         Map<String,ConfiguredTradeMod> temp = new HashMap<>();
         for(String data : parseableData)
@@ -58,7 +62,7 @@ public class VillagerTradeMods {
         return data;
     }
 
-    private Pair<String,ConfiguredTradeMod> tryParseEntry(@Nonnull String entry) throws ConfigParsingException
+    private Pair<String,ConfiguredTradeMod> tryParseEntry(String entry) throws ConfigParsingException
     {
         String[] split = entry.split("-",2);
         if(split.length < 2)
@@ -68,8 +72,8 @@ public class VillagerTradeMods {
         ConfiguredTradeMod mod = ConfiguredTradeMod.tryParse(split[1],false);
         return Pair.of(profession,mod);
     }
-    @Nonnull
-    public VillagerTradeMods edit(@Nonnull String value, @Nonnull String key, boolean isSet) throws ConfigParsingException
+    
+    public VillagerTradeMods edit(String value, String key, boolean isSet) throws ConfigParsingException
     {
         if(isSet)
         {
@@ -90,7 +94,7 @@ public class VillagerTradeMods {
         }
     }
 
-    public final VillagerTradeMod getModFor(@Nonnull String trader) {
+    public final ConfiguredTradeMod getModFor(String trader) {
         if(this.modMap.containsKey(trader))
             return this.modMap.get(trader);
         return LCConfig.COMMON.defaultEmeraldReplacementMod.get();
@@ -106,21 +110,19 @@ public class VillagerTradeMods {
 
         private Builder() {}
 
-        @Nonnull
-        public ModBuilder forProfession(@Nonnull VillagerProfession profession) { return this.forProfession(BuiltInRegistries.VILLAGER_PROFESSION.getKey(profession)); }
-        public ModBuilder forProfession(@Nonnull ResourceLocation profession) { return this.forProfession(profession.toString()); }
-        @Nonnull
-        public ModBuilder forProfession(@Nonnull String profession)
+        
+        public ModBuilder forProfession(VillagerProfession profession) { return this.forProfession(BuiltInRegistries.VILLAGER_PROFESSION.getKey(profession)); }
+        public ModBuilder forProfession(ResourceLocation profession) { return this.forProfession(profession.toString()); }
+        
+        public ModBuilder forProfession(String profession)
         {
             if(!this.dataMap.containsKey(profession))
                 this.dataMap.put(profession,ConfiguredTradeMod.builder(this));
             return this.dataMap.get(profession);
         }
-
-        @Nonnull
+        
         public VillagerTradeMods build() { return new VillagerTradeMods(this); }
 
-        @Nonnull
         public VillagerTradeModsOption buildOption() { return VillagerTradeModsOption.create(this::build); }
 
     }

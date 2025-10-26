@@ -44,7 +44,7 @@ public class CPacketSubmitBid extends ClientToServerPacket {
 			if(player.containerMenu instanceof TraderMenu menu)
 			{
 				//Get the auction house
-				TraderData data = TraderAPI.API.GetTrader(false, message.auctionHouseID);
+				TraderData data = TraderAPI.getApi().GetTrader(false, message.auctionHouseID);
 				if(data instanceof AuctionHouseTrader ah)
 					ah.makeBid(player, menu, message.tradeIndex, message.bidAmount);
 			}

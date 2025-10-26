@@ -1,37 +1,36 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.IRotatableWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
+import java.util.function.Function;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 @OnlyIn(Dist.CLIENT)
 public class SmallTabButton extends EasyButton implements ITooltipSource, IRotatableWidget {
 
-	public static final ResourceLocation GUI_TEXTURE = IconAndButtonUtil.WIDGET_TEXTURE;
+    public static final int SIZE = 20;
+    public static final int NEGATIVE_SIZE = 20 * -1;
 
-	public static final Pair<ResourceLocation,ScreenPosition> NORMAL = Pair.of(GUI_TEXTURE,ScreenPosition.of(210,100));
-	public static final Pair<ResourceLocation,ScreenPosition> YELLOW = Pair.of(GUI_TEXTURE,ScreenPosition.of(170,0));
-	public static final Pair<ResourceLocation,ScreenPosition> RED = Pair.of(GUI_TEXTURE,ScreenPosition.of(130,0));
-
-	public static final int SIZE = 20;
-	public static final int NEGATIVE_SIZE = 20 * -1;
+	public static final Function<WidgetRotation,FixedSizeSprite> NORMAL = TabSpriteSource.createBuiltin("common/widgets/small_tabs/normal",SIZE);
+	public static final Function<WidgetRotation,FixedSizeSprite> YELLOW = TabSpriteSource.createBuiltin("common/widgets/small_tabs/yellow",SIZE);
+	public static final Function<WidgetRotation,FixedSizeSprite> RED = TabSpriteSource.createBuiltin("common/widgets/small_tabs/red",SIZE);
 
 	public boolean hideTooltip = false;
 
@@ -56,19 +55,22 @@ public class SmallTabButton extends EasyButton implements ITooltipSource, IRotat
 	}
 
 	@Override
-	public void setRotation(@Nonnull WidgetRotation rotation) { this.rotation = rotation; }
+	public void setRotation(WidgetRotation rotation) { this.rotation = rotation; }
 
 	@Override
-	public void renderWidget(@Nonnull EasyGuiGraphics gui)
+	public void renderWidget(EasyGuiGraphics gui)
 	{
 		//Set the texture & color for the button
 		gui.resetColor();
 
-        int xOffset = this.rotation.ordinal() < 2 ? 0 : this.width;
-        int yOffset = (this.rotation.ordinal() % 2 == 0 ? 0 : 2 * this.height) + (this.active ? 0 : this.height);
-		Pair<ResourceLocation,ScreenPosition> sprite = this.getSprite();
         //Render the background
-		gui.blit(sprite.getFirst(), 0, 0, sprite.getSecond().x + xOffset, sprite.getSecond().y + yOffset, this.width, this.height);
+		FixedSizeSprite sprite = this.getSprite().apply(this.rotation);
+        if(sprite.getWidth() != SIZE || sprite.getHeight() != SIZE)
+        {
+            LightmansCurrency.LogError("Small Tab Button received a tab sprite that isn't 20x20 pixels!",new Throwable());
+            return;
+        }
+        sprite.render(gui,0,0,this);
 
 		float m = this.active ? 1f : 0.5f;
 		gui.setColor(m,m,m);
@@ -85,12 +87,11 @@ public class SmallTabButton extends EasyButton implements ITooltipSource, IRotat
 			case BOTTOM -> ScreenPosition.of(2,1);
 			case LEFT -> ScreenPosition.of(3,2);
 			case RIGHT -> ScreenPosition.of(1,2);
-			default -> ScreenPosition.of(2,2);
 		};
 	}
 
-	protected Pair<ResourceLocation,ScreenPosition> getSprite() {
-		Pair<ResourceLocation,ScreenPosition> result = this.tab.getSprite();
+	protected Function<WidgetRotation,FixedSizeSprite> getSprite() {
+        Function<WidgetRotation,FixedSizeSprite> result = this.tab.getSprite();
 		return result == null ? NORMAL : result;
 	}
 
@@ -103,12 +104,9 @@ public class SmallTabButton extends EasyButton implements ITooltipSource, IRotat
 		return null;
 	}
 
-	@Nonnull
 	public static Builder builder() { return new Builder(); }
 
-	@MethodsReturnNonnullByDefault
 	@FieldsAreNonnullByDefault
-	@ParametersAreNonnullByDefault
 	public static class Builder extends EasyButtonBuilder<Builder>
 	{
 

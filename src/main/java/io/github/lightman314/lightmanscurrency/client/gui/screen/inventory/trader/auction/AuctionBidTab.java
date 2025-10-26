@@ -15,7 +15,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.network.message.auction.CPacketSubmitBid;
 
 import javax.annotation.Nonnull;
@@ -26,7 +26,7 @@ public class AuctionBidTab extends TraderClientTab {
 	private final int tradeIndex;
 	
 	private AuctionHouseTrader getAuctionHouse() {
-		TraderData data = TraderAPI.API.GetTrader(true, this.auctionHouseID);
+		TraderData data = TraderAPI.getApi().GetTrader(true, this.auctionHouseID);
 		if(data instanceof AuctionHouseTrader)
 			return (AuctionHouseTrader)data;
 		return null;

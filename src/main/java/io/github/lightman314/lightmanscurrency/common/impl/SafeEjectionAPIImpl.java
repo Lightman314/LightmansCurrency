@@ -9,33 +9,32 @@ import io.github.lightman314.lightmanscurrency.common.data.types.EjectionDataCac
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.OldEjectionDataHelper;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SafeEjectionAPIImpl extends SafeEjectionAPI {
 
-    public static final SafeEjectionAPI INSTANCE = new SafeEjectionAPIImpl();
+    public SafeEjectionAPIImpl() {}
 
-    private SafeEjectionAPIImpl() {}
-
-    @Nonnull
     @Override
     public List<EjectionData> getAllData(boolean isClient) { return EjectionDataCache.TYPE.get(isClient).getData(); }
 
-    @Nonnull
     @Override
-    public List<EjectionData> getDataForPlayer(@Nonnull Player player) { return getAllData(IClientTracker.entityWrapper(player)).stream().filter(d -> d.canAccess(player) && !d.isEmpty()).toList(); }
+    public List<EjectionData> getDataForPlayer(Player player) { return getAllData(IClientTracker.entityWrapper(player)).stream().filter(d -> d.canAccess(player) && !d.isEmpty()).toList(); }
 
     @Nullable
     @Override
-    public EjectionData parseData(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
+    public EjectionData parseData(CompoundTag tag, HolderLookup.Provider lookup) {
         if(!tag.contains("type"))
             return OldEjectionDataHelper.parseOldData(tag,lookup);
         EjectionDataType type = LCRegistries.EJECTION_DATA.get(VersionUtil.parseResource(tag.getString("type")));
@@ -51,7 +50,7 @@ public class SafeEjectionAPIImpl extends SafeEjectionAPI {
     }
 
     @Override
-    public void handleEjection(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull EjectionData data) {
+    public void handleEjection(Level level, BlockPos pos, EjectionData data) {
         if(level.isClientSide)
             return;
         EjectionDataCache d = EjectionDataCache.TYPE.get(false);

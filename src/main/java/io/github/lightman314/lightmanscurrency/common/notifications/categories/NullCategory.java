@@ -1,8 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.categories;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategoryType;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
@@ -22,7 +23,7 @@ public class NullCategory extends NotificationCategory {
 	
 	@Nonnull
 	@Override
-	public IconData getIcon() { return IconData.of(Items.BARRIER); }
+	public IconData getIcon() { return ItemIcon.ofItem(Items.BARRIER); }
 
 	@Nonnull
 	@Override

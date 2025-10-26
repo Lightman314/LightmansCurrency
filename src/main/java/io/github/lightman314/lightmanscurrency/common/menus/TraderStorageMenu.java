@@ -69,7 +69,7 @@ public class TraderStorageMenu extends EasyTabbedMenu<ITraderStorageMenu,TraderS
 	public MenuValidator getValidator() { return this.validator; }
 
 	public TraderStorageMenu(int windowID, Inventory inventory, long traderID, @Nonnull  MenuValidator validator) {
-		this(ModMenus.TRADER_STORAGE.get(), windowID, inventory, () -> TraderAPI.API.GetTrader(inventory.player.level().isClientSide, traderID), validator);
+		this(ModMenus.TRADER_STORAGE.get(), windowID, inventory, () -> TraderAPI.getApi().GetTrader(inventory.player.level().isClientSide, traderID), validator);
 	}
 	
 	protected TraderStorageMenu(MenuType<?> type, int windowID, Inventory inventory, Supplier<TraderData> traderSource, @Nonnull MenuValidator validator) {

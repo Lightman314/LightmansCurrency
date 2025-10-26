@@ -37,9 +37,7 @@ import java.util.Map;
 
 public class BankAPIImpl extends BankAPI {
 
-    public static final BankAPIImpl INSTANCE = new BankAPIImpl();
-
-    private BankAPIImpl() {
+    public BankAPIImpl() {
         NeoForge.EVENT_BUS.register(this);
         //Register built-in bank account sources
         this.RegisterBankAccountSource(PlayerBankAccountSource.INSTANCE);
@@ -108,7 +106,7 @@ public class BankAPIImpl extends BankAPI {
         if(requestedAmount.getCoreValue() < 0)
             requestedAmount = MoneyValue.empty();
 
-        IMoneyHandler handler = MoneyAPI.API.GetATMMoneyHandler(player,container);
+        IMoneyHandler handler = MoneyAPI.getApi().GetATMMoneyHandler(player,container);
         MoneyView availableFunds = handler.getStoredMoney();
         LightmansCurrency.LogDebug("Deposit Attempt:\n" +
                 "Deposit Amount: " + requestedAmount.getString() + "\n" +
@@ -145,7 +143,7 @@ public class BankAPIImpl extends BankAPI {
 
         MoneyValue withdrawnAmount = account.withdrawMoney(amount);
 
-        IMoneyHandler handler = MoneyAPI.API.GetATMMoneyHandler(player,container);
+        IMoneyHandler handler = MoneyAPI.getApi().GetATMMoneyHandler(player,container);
         if(!handler.insertMoney(withdrawnAmount,true).isEmpty())
         {
             //Abort the withdrawal if we can't give the withdrawn amount to the player.

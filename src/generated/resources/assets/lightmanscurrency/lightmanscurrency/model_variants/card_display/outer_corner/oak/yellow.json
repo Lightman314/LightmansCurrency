@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/outer_corner/oak/base",
+  "target": "lightmanscurrency:card_display_oak_yellow",
+  "textures": {
+    "wool": "minecraft:block/yellow_wool"
+  }
+}

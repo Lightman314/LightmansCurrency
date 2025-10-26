@@ -1,14 +1,17 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.WidgetStateSprite;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.NormalSprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextBoxWrapper;
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
@@ -37,7 +40,9 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 
 	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/ticket_machine.png");
 
-	public static final Sprite SPRITE_ARROW = Sprite.SimpleSprite(GUI_TEXTURE, 176, 0, 24, 16);
+	private static final NormalSprite SPRITE_ARROW_NORMAL = new NormalSprite(new SpriteSource(GUI_TEXTURE, 176, 0, 24, 16));
+    private static final NormalSprite SPRITE_ARROW_HOVERED = new NormalSprite(new SpriteSource(GUI_TEXTURE, 176, 16, 24, 16));
+    public static final FixedSizeSprite SPRITE_ARROW = WidgetStateSprite.lazyHoverable(SPRITE_ARROW_NORMAL,SPRITE_ARROW_HOVERED);
 
 	private static final ScreenArea SELECTION_AREA = ScreenArea.of(153, 7, 16, 16);
 
@@ -86,14 +91,14 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
         //Durability +/- buttons
         this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(159,46))
-                .sprite(IconAndButtonUtil.SPRITE_PLUS)
+                .sprite(SpriteUtil.BUTTON_SIGN_PLUS)
                 .pressAction(this::incrementDurability)
                 .addon(EasyAddonHelper.visibleCheck(this::durabilityInputVisible))
                 .addon(EasyAddonHelper.activeCheck(this::canAddDurability))
                 .build());
         this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(159,56))
-                .sprite(IconAndButtonUtil.SPRITE_MINUS)
+                .sprite(SpriteUtil.BUTTON_SIGN_MINUS)
                 .pressAction(this::decrementDurability)
                 .addon(EasyAddonHelper.visibleCheck(this::durabilityInputVisible))
                 .addon(EasyAddonHelper.activeCheck(this::canRemoveDurability))

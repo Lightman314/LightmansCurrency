@@ -21,7 +21,7 @@ public class GiveCommandMixin {
         if(!LCConfig.COMMON.interceptGiveCommand.get())
             return original.call(instance,stack);
         Player player = instance.player;
-        if(CoinAPI.API.IsAllowedInCoinContainer(stack,false))
+        if(CoinAPI.getApi().IsAllowedInCoinContainer(stack,false))
         {
             WalletHandler walletHandler = WalletHandler.get(player);
             if(walletHandler == null)

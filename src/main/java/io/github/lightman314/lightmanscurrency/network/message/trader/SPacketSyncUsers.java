@@ -36,7 +36,7 @@ public class SPacketSyncUsers extends ServerToClientPacket {
 		protected H() { super(TYPE, easyCodec(SPacketSyncUsers::encode,SPacketSyncUsers::decode)); }
 		@Override
 		protected void handle(@Nonnull SPacketSyncUsers message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			TraderData trader = TraderAPI.API.GetTrader(true, message.traderID);
+			TraderData trader = TraderAPI.getApi().GetTrader(true, message.traderID);
 			if(trader != null)
 				trader.updateUserCount(message.userCount);
 		}

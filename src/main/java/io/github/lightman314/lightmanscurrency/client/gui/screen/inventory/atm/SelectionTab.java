@@ -4,11 +4,12 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountSelectionWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -43,7 +44,7 @@ public class SelectionTab extends ATMTab {
 	
 	@Nonnull
 	@Override
-	public IconData getIcon() { return IconData.of(Items.PAPER); }
+	public IconData getIcon() { return ItemIcon.ofItem(Items.PAPER); }
 
 	@Override
 	public MutableComponent getTooltip() { return LCText.TOOLTIP_ATM_SELECTION.get(); }
@@ -69,7 +70,7 @@ public class SelectionTab extends ATMTab {
 		this.buttonToggleAdminMode = this.addChild(IconButton.builder()
 				.position(screenArea.pos.offset(screenArea.width,0))
 				.pressAction(this::ToggleAdminMode)
-				.icon(IconData.of(Items.COMMAND_BLOCK))
+				.icon(ItemIcon.ofItem(Items.COMMAND_BLOCK))
 				.addon(EasyAddonHelper.visibleCheck(() -> LCAdminMode.isAdminPlayer(this.screen.getMenu().getPlayer())))
 				.build());
 		

@@ -77,7 +77,7 @@ public class CoinMagnetEnchantment {
 			//Deny if the item is reserved for a given player/entity
 			if(item.getTarget() != null && !item.getTarget().equals(potentialPickup.getUUID()))
 				return false;
-			return CoinAPI.API.IsAllowedInCoinContainer(item.getItem(), false);
+			return CoinAPI.getApi().IsAllowedInCoinContainer(item.getItem(), false);
 		}
 		return false;
 	}

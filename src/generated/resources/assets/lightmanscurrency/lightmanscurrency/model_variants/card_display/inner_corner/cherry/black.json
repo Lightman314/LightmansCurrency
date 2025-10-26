@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/inner_corner/cherry/base",
+  "target": "lightmanscurrency:card_display_cherry_black",
+  "textures": {
+    "wool": "minecraft:block/black_wool"
+  }
+}

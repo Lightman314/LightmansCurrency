@@ -75,7 +75,7 @@ public class EnchantedBookForCoinsTrade implements ItemListing {
                 LightmansCurrency.LogError("Enchantment of type '" + holder.getRegisteredName() + "' has a max enchantment level of " + enchantment.getMaxLevel() + ". Unable to properly randomize the enchantment level for a villager trade. Will default to a level 1 enchantment.");
             ItemStack itemstack = EnchantedBookItem.createForEnchantment(new EnchantmentInstance(holder, level));
 
-            ChainData chain = CoinAPI.API.ChainDataOfCoin(this.baseCoin);
+            ChainData chain = CoinAPI.getApi().ChainDataOfCoin(this.baseCoin);
             if(chain == null)
             {
                 LightmansCurrency.LogWarning("Book for coin trade failed as '" + new ItemStack(this.baseCoin).getHoverName().getString() + "' is not a registered coin!");

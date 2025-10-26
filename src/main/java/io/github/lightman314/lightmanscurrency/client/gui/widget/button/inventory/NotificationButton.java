@@ -3,17 +3,21 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.invento
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.WidgetStateSprite;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.data.types.NotificationDataCache;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.CPacketOpenNotifications;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class NotificationButton extends InventoryButton {
-
-
 
 	private static NotificationButton lastButton = null;
 	
@@ -21,8 +25,8 @@ public class NotificationButton extends InventoryButton {
 	
 	public static final ScreenPosition OFFSET = ScreenPosition.of(10,0);
 
-	public static final Sprite SPRITE_NORMAL = Sprite.SimpleSprite(NotificationScreen.GUI_TEXTURE, 200, 0, SIZE, SIZE);
-	public static final Sprite SPRITE_UNSEEN = Sprite.SimpleSprite(NotificationScreen.GUI_TEXTURE, 200 + SIZE, 0, SIZE, SIZE);
+    public static final FixedSizeSprite SPRITE_NORMAL = WidgetStateSprite.lazyHoverable(VersionUtil.lcResource("common/widgets/button_notifications"),9,9);
+    public static final FixedSizeSprite SPRITE_UNSEEN = WidgetStateSprite.lazyHoverable(VersionUtil.lcResource("common/widgets/button_notifications_unseen"),9,9);
 
 	public NotificationButton(AbstractContainerScreen<?> inventoryScreen) {
 		super(inventoryScreen, CPacketOpenNotifications::sendToServer, NotificationButton::getSprite);
@@ -32,7 +36,7 @@ public class NotificationButton extends InventoryButton {
 	@Override
 	protected ScreenPosition getPositionOffset(boolean isCreativeScreen) { return isCreativeScreen ? LCConfig.CLIENT.notificationAndTeamButtonCreativePosition.get().offset(OFFSET) : LCConfig.CLIENT.notificationAndTeamButtonPosition.get().offset(OFFSET); }
 
-	private static Sprite getSprite() { return NotificationDataCache.TYPE.get(true).getNotifications(Minecraft.getInstance().player).unseenNotification() ? SPRITE_UNSEEN : SPRITE_NORMAL; }
+	private static FixedSizeSprite getSprite() { return NotificationDataCache.TYPE.get(true).getNotifications(Minecraft.getInstance().player).unseenNotification() ? SPRITE_UNSEEN : SPRITE_NORMAL; }
 	
 	public static void tryRenderTooltip(EasyGuiGraphics gui) {
 		if(lastButton != null && lastButton.isMouseOver(gui.mousePos))

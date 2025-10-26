@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.item.ticket;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
@@ -10,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInt
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget.IItemEditListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
@@ -23,15 +23,15 @@ import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationReci
 import io.github.lightman314.lightmanscurrency.common.crafting.durability.DurabilityData;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.item.ticket.ItemTradeTicketEditTab;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ticket.TicketItemTrade;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -41,11 +41,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Objects;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ItemTradeTicketEditClientTab extends TraderStorageClientTab<ItemTradeTicketEditTab> implements TradeInteractionHandler, IItemEditListener, IMouseListener {
 
     private static final int X_OFFSET = 13;
@@ -55,7 +57,6 @@ public class ItemTradeTicketEditClientTab extends TraderStorageClientTab<ItemTra
 
     public ItemTradeTicketEditClientTab(Object screen, ItemTradeTicketEditTab commonTab) { super(screen, commonTab); }
 
-    @Nonnull
     @Override
     public IconData getIcon() { return IconData.Null(); }
 
@@ -127,14 +128,14 @@ public class ItemTradeTicketEditClientTab extends TraderStorageClientTab<ItemTra
         //Durability +/- buttons
         this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(screenArea.width - 24,98))
-                .sprite(IconAndButtonUtil.SPRITE_PLUS)
+                .sprite(SpriteUtil.BUTTON_SIGN_PLUS)
                 .pressAction(this::incrementDurability)
                 .addon(EasyAddonHelper.visibleCheck(this::durabilityInputVisible))
                 .addon(EasyAddonHelper.activeCheck(this::canAddDurability))
                 .build());
         this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(screenArea.width - 24,108))
-                .sprite(IconAndButtonUtil.SPRITE_MINUS)
+                .sprite(SpriteUtil.BUTTON_SIGN_MINUS)
                 .pressAction(this::decrementDurability)
                 .addon(EasyAddonHelper.visibleCheck(this::durabilityInputVisible))
                 .addon(EasyAddonHelper.activeCheck(this::canRemoveDurability))
@@ -154,7 +155,7 @@ public class ItemTradeTicketEditClientTab extends TraderStorageClientTab<ItemTra
         this.buttonToggleNBTEnforcement = this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(113,4))
                 .pressAction(this::ToggleNBTEnforcement)
-                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::getEnforceNBTState))
+                .sprite(SpriteUtil.createCheckbox(this::getEnforceNBTState))
                 .build());
 
         this.addChild(ScrollListener.builder()
@@ -175,7 +176,7 @@ public class ItemTradeTicketEditClientTab extends TraderStorageClientTab<ItemTra
     public void closeAction() { this.selection = -1; }
 
     @Override
-    public void renderBG(@Nonnull EasyGuiGraphics gui) {
+    public void renderBG(EasyGuiGraphics gui) {
 
         TicketItemTrade trade = this.getTrade();
         if(trade == null)
@@ -186,7 +187,7 @@ public class ItemTradeTicketEditClientTab extends TraderStorageClientTab<ItemTra
         //Render a down arrow over the selected position
         gui.resetColor();
 
-        gui.blit(TraderScreen.GUI_TEXTURE, this.getArrowPosition(), 10, TraderScreen.WIDTH + 8, 18, 8, 6);
+        SpriteUtil.SMALL_ARROW_DOWN.render(gui,this.getArrowPosition(),10);
 
         if(this.customNameInput.visible)
             gui.drawString(LCText.GUI_NAME.get(), 13, 42, 0x404040);
@@ -227,7 +228,7 @@ public class ItemTradeTicketEditClientTab extends TraderStorageClientTab<ItemTra
     }
 
     @Override
-    public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
+    public void renderAfterWidgets(EasyGuiGraphics gui) {
         TicketItemTrade trade = this.getTrade();
         if(trade == null)
             return;
@@ -318,13 +319,13 @@ public class ItemTradeTicketEditClientTab extends TraderStorageClientTab<ItemTra
     }
 
     @Override
-    public void OpenMessage(@Nonnull LazyPacketData message) {
+    public void OpenMessage(LazyPacketData message) {
         if(message.contains("StartingSlot"))
             this.selection = message.getInt("StartingSlot");
     }
 
     @Override
-    public void HandleTradeInputInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data, int index) {
+    public void HandleTradeInputInteraction(TraderData trader, TradeData trade, TradeInteractionData data, int index) {
         if(trade instanceof ItemTradeData t)
         {
             ItemStack heldItem = this.menu.getHeldItem();
@@ -349,7 +350,7 @@ public class ItemTradeTicketEditClientTab extends TraderStorageClientTab<ItemTra
     }
 
     @Override
-    public void HandleTradeOutputInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data,int index) {
+    public void HandleTradeOutputInteraction(TraderData trader, TradeData trade, TradeInteractionData data,int index) {
         if(trade instanceof ItemTradeData t)
         {
             ItemStack heldItem = this.menu.getHeldItem();
@@ -380,7 +381,7 @@ public class ItemTradeTicketEditClientTab extends TraderStorageClientTab<ItemTra
     }
 
     @Override
-    public void HandleOtherTradeInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data) { }
+    public void HandleOtherTradeInteraction(TraderData trader, TradeData trade, TradeInteractionData data) { }
 
     @Override
     public boolean onMouseClicked(double mouseX, double mouseY, int button) {

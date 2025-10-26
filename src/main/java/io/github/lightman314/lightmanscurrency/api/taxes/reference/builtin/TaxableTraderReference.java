@@ -20,7 +20,7 @@ public class TaxableTraderReference extends TaxableReference {
 
     @Nullable
     @Override
-    public ITaxable getTaxable(boolean isClient) { return TraderAPI.API.GetTrader(isClient, this.traderID); }
+    public ITaxable getTaxable(boolean isClient) { return TraderAPI.getApi().GetTrader(isClient, this.traderID); }
 
     @Override
     protected void saveAdditional(@Nonnull CompoundTag tag) { tag.putLong("TraderID", this.traderID); }

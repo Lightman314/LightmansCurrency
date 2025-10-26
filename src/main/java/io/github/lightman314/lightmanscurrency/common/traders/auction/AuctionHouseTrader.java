@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.traders.auction;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import com.google.gson.JsonObject;
@@ -9,16 +10,18 @@ import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconIcon;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.FakeOwner;
+import io.github.lightman314.lightmanscurrency.api.settings.SettingsNode;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.core.ModStats;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionCreateTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionStorageTab;
@@ -35,7 +38,6 @@ import io.github.lightman314.lightmanscurrency.api.events.AuctionHouseEvent.Auct
 import io.github.lightman314.lightmanscurrency.api.events.AuctionHouseEvent.AuctionEvent.CreateAuctionEvent;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.network.message.auction.SPacketStartBid;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
@@ -61,7 +63,7 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
 	public static final TraderType<AuctionHouseTrader> TYPE = new TraderType<>(VersionUtil.lcResource( "auction_house"),AuctionHouseTrader::new);
 	
-	public static final IconData ICON = IconData.of(IconUtil.ICON_TEXTURE, 96, 16);
+	public static final IconData ICON = IconIcon.ofIcon(VersionUtil.lcResource("auction_house"));
 	
 	private final List<AuctionTradeData> trades = new ArrayList<>();
 	
@@ -79,6 +81,9 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 		super(TYPE);
 		this.getOwner().SetOwner(FakeOwner.of(LCText.GUI_TRADER_AUCTION_HOUSE_OWNER.get()));
 	}
+
+    @Override
+    protected void registerNodes(Consumer<SettingsNode> builder) { }
 
     @Override
 	public MutableComponent getName() { return LCText.GUI_TRADER_AUCTION_HOUSE.get(); }
@@ -263,14 +268,14 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 				MoneyValue price = LCConfig.SERVER.auctionHouseSubmitPrice.get();
 				if(!price.isEmpty())
 				{
-					IMoneyHandler handler = MoneyAPI.API.GetPlayersMoneyHandler(player);
+					IMoneyHandler handler = MoneyAPI.getApi().GetPlayersMoneyHandler(player);
 					if(handler.extractMoney(price,true).isEmpty())
 					{
 						handler.extractMoney(price,false);
 						//Store the submission fee into the server tax
 						if(LCConfig.SERVER.auctionHouseStoreFeeInServerTax.get())
 						{
-							ITaxCollector serverTax = TaxAPI.API.GetServerTaxCollector(this);
+							ITaxCollector serverTax = TaxAPI.getApi().GetServerTaxCollector(this);
 							serverTax.PayTaxesDirectly(this,price);
 						}
 					}

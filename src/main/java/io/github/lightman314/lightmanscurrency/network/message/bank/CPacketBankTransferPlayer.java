@@ -44,7 +44,7 @@ public class CPacketBankTransferPlayer extends ClientToServerPacket {
 			if(player.containerMenu instanceof IBankAccountAdvancedMenu menu)
 			{
 				BankReference destination = PlayerBankReference.of(PlayerReference.of(false, message.playerName));
-				MutableComponent response = BankAPI.API.BankTransfer(menu, message.amount, destination.get());
+				MutableComponent response = BankAPI.getApi().BankTransfer(menu, message.amount, destination.get());
 				if(response != null)
 					context.reply(new SPacketBankTransferResponse(response));
 			}

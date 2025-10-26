@@ -7,35 +7,37 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.IEasyTabbe
 import io.github.lightman314.lightmanscurrency.common.menus.LazyMessageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class EasyTabbedMenu<M extends IEasyTabbedMenu<T>,T extends EasyMenuTab<M,T>> extends LazyMessageMenu implements IEasyTabbedMenu<T> {
 
     private boolean tabsLocked = false;
     private int currentTabIndex = -1;
     private int currentAddIndex = 0;
-    @Nonnull
+    @Override
     public final T currentTab() { return this.menuTabs.get(this.currentTabIndex); }
     private Map<Integer,T> menuTabs = null;
-    @Nonnull
     public final Map<Integer,T> getAllTabs() { return this.menuTabs == null ? ImmutableMap.of() : ImmutableMap.copyOf(this.menuTabs); }
 
     private IEasyTabbedMenuScreen<M,T,?> screen = null;
-    public void setScreen(@Nonnull IEasyTabbedMenuScreen<M,T,?> screen) { this.screen = screen; }
+    public void setScreen(IEasyTabbedMenuScreen<M,T,?> screen) { this.screen = screen; }
     private Consumer<LazyPacketData> messageListener = null;
 
-    public EasyTabbedMenu(@Nonnull MenuType<?> type, int id, @Nonnull Inventory inventory, @Nonnull MenuValidator validator) { super(type, id, inventory, validator); }
-    public EasyTabbedMenu(@Nonnull MenuType<?> type, int id, @Nonnull Inventory inventory) { super(type, id, inventory); }
+    public EasyTabbedMenu(MenuType<?> type, int id, Inventory inventory, MenuValidator validator) { super(type, id, inventory, validator); }
+    public EasyTabbedMenu(MenuType<?> type, int id, Inventory inventory) { super(type, id, inventory); }
 
-    public final void setMessageListener(@Nonnull Consumer<LazyPacketData> listener) { this.messageListener = listener; }
+    public final void setMessageListener(Consumer<LazyPacketData> listener) { this.messageListener = listener; }
 
     /**
      * To be called during init to trigger the initialization of the tabs<br>
@@ -65,7 +67,7 @@ public abstract class EasyTabbedMenu<M extends IEasyTabbedMenu<T>,T extends Easy
     /**
      * Simpler version of {@link #setTab(int, EasyMenuTab)} but for when the key is considered irrelevant and can be generated automatically
      */
-    public final void addTab(@Nonnull T tab)
+    public final void addTab(T tab)
     {
         if(this.tabsLocked || this.menuTabs == null)
             this.setTab(this.currentAddIndex,tab);
@@ -76,7 +78,7 @@ public abstract class EasyTabbedMenu<M extends IEasyTabbedMenu<T>,T extends Easy
     /**
      * Called by subclass during {@link #registerTabs()} to register the relevant tabs
      */
-    public final void setTab(int key, @Nonnull T tab)
+    public final void setTab(int key, T tab)
     {
         if(this.tabsLocked)
         {
@@ -152,7 +154,7 @@ public abstract class EasyTabbedMenu<M extends IEasyTabbedMenu<T>,T extends Easy
     protected void onTabChanged(T newTab) { }
 
     @Override
-    public final void HandleMessage(@Nonnull LazyPacketData message) {
+    public final void HandleMessage(LazyPacketData message) {
         if(message.contains("ChangeTab"))
         {
             LightmansCurrency.LogDebug("Handling Change Tab message on the " + DebugUtil.getSideText(this) + "\n" + message);
@@ -165,10 +167,10 @@ public abstract class EasyTabbedMenu<M extends IEasyTabbedMenu<T>,T extends Easy
             this.messageListener.accept(message);
     }
 
-    protected void HandleMessages(@Nonnull LazyPacketData message) {}
+    protected void HandleMessages(LazyPacketData message) {}
 
     @Override
-    public void removed(@Nonnull Player player) {
+    public void removed(Player player) {
         super.removed(player);
         for(T tab : this.menuTabs.values())
             tab.onMenuClose();

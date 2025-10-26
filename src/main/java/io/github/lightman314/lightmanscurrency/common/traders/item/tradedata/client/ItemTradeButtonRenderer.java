@@ -3,6 +3,10 @@ package io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.cl
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.filter.FilterAPI;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.GhostSlot;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
@@ -11,29 +15,37 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.di
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.BasicTradeEditTab;
+import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.item.ItemTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.api.filter.IItemTradeFilter;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 @OnlyIn(Dist.CLIENT)
 public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
 
@@ -99,7 +111,12 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
         {
             List<ItemStack> displayItems;
             if(this.trade.isSale() || this.trade.isBarter())
+            {
                 displayItems = filter.getDisplayableItems(internalItem,trader.getStorage());
+                //Display all possible items if trader is creative but no display items could be found in storage
+                if(displayItems.isEmpty() && context.getTrader().isCreative())
+                    displayItems = filter.getDisplayableItems(internalItem,null);
+            }
             else
                 displayItems = filter.getDisplayableItems(internalItem,null);
             ItemStack displayItem = ListUtil.randomItemFromList(displayItems,internalItem);
@@ -177,6 +194,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
         IItemTradeFilter filter = FilterAPI.tryGetFilter(internalItem);
         if(filter != null && filter.getFilter(internalItem) != null && context.getTrader() instanceof ItemTraderData trader)
         {
+            Level level = Minecraft.getInstance().level;
             List<ItemStack> displayItems = filter.getDisplayableItems(internalItem,null);
             ItemStack displayItem = ListUtil.randomItemFromList(displayItems,internalItem);
             List<Component> tooltip = new ArrayList<>();
@@ -203,13 +221,13 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
         return enforceNBT ? null : NBT_BACKGROUND;
     }
 
-    private void addItemEditInfo(@Nonnull List<Component> tooltips, TradeContext context)
+    private void addItemEditInfo(List<Component> tooltips, TradeContext context)
     {
         if(context.isStorageMode && this.hasPermission(context,Permissions.EDIT_TRADES))
             tooltips.addFirst(LCText.TOOLTIP_TRADE_ITEM_EDIT_SHIFT.getWithStyle(ChatFormatting.YELLOW));
     }
 
-    private void addNBTWarning(@Nonnull List<Component> tooltips, boolean purchase, boolean enforceNBT)
+    private void addNBTWarning(List<Component> tooltips, boolean purchase, boolean enforceNBT)
     {
         if(!enforceNBT) //Put NBT warning at the top of the tooltip. Should only be called after swapping out any custom names, etc.
             tooltips.addFirst((purchase ? LCText.TOOLTIP_TRADE_ITEM_NBT_WARNING_PURCHASE.get() : LCText.TOOLTIP_TRADE_ITEM_NBT_WARNING_SALE.get()).withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD));
@@ -250,6 +268,76 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
                 alerts.add(AlertData.warn(LCText.TOOLTIP_CANNOT_AFFORD));
 
         }
+    }
+
+    @Nullable
+    @Override
+    public List<GhostSlot<?>> collectGhostSlots(TradeContext context, @Nullable ITraderStorageMenu menu, ScreenPosition buttonPos) {
+        if(menu != null && this.isValidTab(menu.currentTab()))
+        {
+            List<GhostSlot<?>> slots = new ArrayList<>();
+            int tradeIndex = context.getTrader().indexOfTrade(this.trade);
+            //Trade is not for this trader
+            if(tradeIndex < 0)
+                return null;
+            if(this.trade.isSale() || this.trade.isBarter())
+            {
+                //Add ghost slots for sale items
+                slots.add(GhostSlot.simpleItem(buttonPos.offset(59,1),ConsumerForTab(menu.currentTab(),tradeIndex,0)));
+                slots.add(GhostSlot.simpleItem(buttonPos.offset(76,1),ConsumerForTab(menu.currentTab(),tradeIndex,1)));
+            }
+            if(this.trade.isPurchase() || this.trade.isBarter())
+            {
+                int slotOffset = this.trade.isPurchase() ? 0 : 2;
+                slots.add(GhostSlot.simpleItem(buttonPos.offset(1,1),ConsumerForTab(menu.currentTab(),tradeIndex,slotOffset)));
+                slots.add(GhostSlot.simpleItem(buttonPos.offset(18,1),ConsumerForTab(menu.currentTab(),tradeIndex,slotOffset + 1)));
+            }
+            return slots;
+        }
+        return null;
+    }
+
+    private boolean isValidTab(TraderStorageTab tab)
+    {
+         return tab instanceof BasicTradeEditTab || tab instanceof ItemTradeEditTab;
+    }
+
+    private Consumer<ItemStack> ConsumerForTab(TraderStorageTab tab,int tradeIndex,int slot)
+    {
+        if(tab instanceof BasicTradeEditTab basicTab)
+            return item -> sendUpdateMessage(basicTab,tradeIndex,slot,item);
+        else if(tab instanceof ItemTradeEditTab editTab)
+        {
+            return item -> {
+                ItemStack original = this.trade.getActualItem(slot).copy();
+                if(InventoryUtil.ItemMatches(item,original))
+                {
+                    if(original.getCount() < original.getMaxStackSize())
+                        original.grow(1);
+                    item = original;
+                }
+                editTab.setSelectedItem(slot,item);
+            };
+        }
+
+        return null;
+    }
+
+    private void sendUpdateMessage(BasicTradeEditTab tab,int tradeIndex,int slot,ItemStack stack)
+    {
+        TradeInteractionData interaction = TradeInteractionData.DUMMY;
+        //Send right-click if the items are the same
+        if(InventoryUtil.ItemMatches(this.trade.getActualItem(slot),stack))
+            interaction = TradeInteractionData.DUMMY_RIGHT;
+        final int s;
+        if(this.trade.isPurchase())
+            s = slot + 2;
+        else
+            s = slot;
+        if(s >= 2)
+            tab.SendInputInteractionMessage(tradeIndex,s - 2,interaction,stack);
+        else
+            tab.SendOutputInteractionMessage(tradeIndex,s,interaction,stack);
     }
 
 }

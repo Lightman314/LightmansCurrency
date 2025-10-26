@@ -89,7 +89,7 @@ public class TraderInterfaceTargets {
     public TraderData getTrader()
     {
         if(!this.traders.isEmpty())
-            return TraderAPI.API.GetTrader(this.parent.isClient(),this.traders.getFirst());
+            return TraderAPI.getApi().GetTrader(this.parent.isClient(),this.traders.getFirst());
         return null;
     }
 
@@ -101,7 +101,7 @@ public class TraderInterfaceTargets {
             List<TraderData> list = new ArrayList<>();
             for(long traderID : this.traders)
             {
-                TraderData trader = TraderAPI.API.GetTrader(this.parent.isClient(),traderID);
+                TraderData trader = TraderAPI.getApi().GetTrader(this.parent.isClient(),traderID);
                 if(trader != null)
                     list.add(trader);
             }
@@ -149,7 +149,7 @@ public class TraderInterfaceTargets {
         //Remove invalid traders first so that if too many are selected a valid one will always be the default remainder
         for(int i = 0; i < this.traders.size(); ++i)
         {
-            TraderData trader = TraderAPI.API.GetTrader(this.parent.isClient(),this.traders.get(i));
+            TraderData trader = TraderAPI.getApi().GetTrader(this.parent.isClient(),this.traders.get(i));
             if(trader == null || !allowedTraders.test(trader))
                 this.traders.remove(i--);
         }

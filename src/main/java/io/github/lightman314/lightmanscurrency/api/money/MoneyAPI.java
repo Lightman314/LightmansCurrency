@@ -27,7 +27,15 @@ import java.util.function.Consumer;
 public abstract class MoneyAPI {
 
     public static final String MODID = "lightmanscurrency";
-    public static final MoneyAPI API = MoneyAPIImpl.INSTANCE;
+    private static MoneyAPI instance;
+    public static MoneyAPI getApi()
+    {
+        if(instance == null)
+            instance = new MoneyAPIImpl();
+        return instance;
+    }
+
+    protected MoneyAPI() { if(instance != null)  throw new IllegalCallerException("Cannot create a new MoneyAPI instance as one is already present!"); }
 
     /**
      * Returns a list of all registered currency types

@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -9,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMSc
 import io.github.lightman314.lightmanscurrency.client.gui.widget.bank.BankInteractionWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.bank.IBankInteractionHandler;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
@@ -26,7 +27,7 @@ public class InteractionTab extends ATMTab implements IBankInteractionHandler {
 	
 	@Nonnull
 	@Override
-	public IconData getIcon() { return IconData.of(ModBlocks.COINPILE_GOLD); }
+	public IconData getIcon() { return ItemIcon.ofItem(ModBlocks.COINPILE_GOLD); }
 
 	@Override
 	public MutableComponent getTooltip() { return LCText.TOOLTIP_ATM_INTERACT.get(); }

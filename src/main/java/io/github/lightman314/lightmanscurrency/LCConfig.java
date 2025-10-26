@@ -186,7 +186,7 @@ public final class LCConfig {
 
             builder.comment("Notification Settings").push("notification");
 
-            builder.comment("Whether notifications should be posted in your chat when you receive them.")
+            builder.comment("Whether notifications should be posted in your in-game chat when you receive them.")
                     .add("notificationsInChat", this.pushNotificationsToChat);
 
             builder.pop();
@@ -505,10 +505,10 @@ public final class LCConfig {
             builder.comment("Whether the wandering trader will have additional trades that allow you to buy misc items with money.")
                     .add("addCustomWanderingTrades", this.addCustomWanderingTrades);
 
-            builder.comment("Whether the banker villager profession will have any registered trades. The banker sells Lightman's Currency items for coins.")
+            builder.comment("Whether the banker villager profession will have any registered trades.","The banker sells Lightman's Currency items for coins.")
                     .add("addBanker", this.addBankerVillager);
 
-            builder.comment("Whether the cashier villager profession will have any registered trades.. The cashier sells an amalgamation of vanilla traders products for coins.")
+            builder.comment("Whether the cashier villager profession will have any registered trades.","The cashier sells an amalgamation of vanilla traders products for coins.")
                     .add("addCashier", this.addCashierVillager);
 
             builder.comment("Villager Trade Modification","Note: Changes made only apply to newly generated trades. Villagers with trades already defined will not be changed.").push("modification");
@@ -655,7 +655,7 @@ public final class LCConfig {
             builder.push("compat");
 
             builder.comment("Whether the Impactor compat will be initialized.",
-                            "Requires a full server reboot for changes to be applied!")
+                            "Requires a full reboot for changes to be applied!")
                     .add("impactorModule",this.compatImpactor);
 
 
@@ -672,6 +672,9 @@ public final class LCConfig {
         private Server() {
             super("lightmanscurrency-server", VersionUtil.lcResource("server"));
         }
+        //Delay of 200 so that it gets reloaded **after** coins are reloaded
+        @Override
+        public int getDelayPriority() { return ConfigReloadable.PRIORITY_AFTER_MONEY_CONFIGS; }
 
         //Notification Limit
         public final IntOption notificationLimit = IntOption.create(500, 0);
@@ -685,9 +688,9 @@ public final class LCConfig {
         public final FloatOption coinMintSoundVolume = FloatOption.create(0.5f, 0f, 1f);
 
         //Wallet Settings
-        public final IntOption walletExchangeLevel = IntOption.create(1, 0, WalletItem.CONFIG_LIMIT);
-        public final IntOption walletPickupLevel = IntOption.create(2, 0, WalletItem.CONFIG_LIMIT);
-        public final IntOption walletBankLevel = IntOption.create(5, 0, WalletItem.CONFIG_LIMIT);
+        public final ItemListOption walletCanExchange = ItemListOption.create(() -> Lists.newArrayList(ModItems.WALLET_IRON.get(),ModItems.WALLET_GOLD.get(),ModItems.WALLET_EMERALD.get(),ModItems.WALLET_DIAMOND.get(),ModItems.WALLET_NETHERITE.get(),ModItems.WALLET_NETHER_STAR.get(),ModItems.WALLET_ENDER_DRAGON.get()),i -> i instanceof WalletItem);
+        public final ItemListOption walletCanPickup = ItemListOption.create(() -> Lists.newArrayList(ModItems.WALLET_GOLD.get(),ModItems.WALLET_EMERALD.get(),ModItems.WALLET_DIAMOND.get(),ModItems.WALLET_NETHERITE.get(),ModItems.WALLET_NETHER_STAR.get(),ModItems.WALLET_ENDER_DRAGON.get()),i -> i instanceof WalletItem);
+        public final ItemListOption walletCanBank = ItemListOption.create(() -> Lists.newArrayList(ModItems.WALLET_NETHERITE.get(),ModItems.WALLET_NETHER_STAR.get(),ModItems.WALLET_ENDER_DRAGON.get()),i -> i instanceof WalletItem);
         public final BooleanOption walletCapacityUpgradeable = BooleanOption.createTrue();
         public final BooleanOption walletDropsManualSpawn = BooleanOption.createFalse();
 
@@ -745,7 +748,7 @@ public final class LCConfig {
         public final BooleanOption bankAccountForceInterest = BooleanOption.createTrue();
         public final BooleanOption bankAccountInterestNotification = BooleanOption.createTrue();
         public final IntOption bankAccountInterestTime = IntOption.create(1728000, 1200, 630720000);
-        public final MoneyValueListOption bankAccountInterestLimits = MoneyValueListOption.createNonEmpty(ArrayList::new);
+        public final MoneyValueListOption bankAccountInterestLimits = MoneyValueListOption.create(ArrayList::new);
         public final StringListOption bankAccountInterestBlacklist = StringListOption.create(ArrayList::new);
 
         //Terminal Options
@@ -824,19 +827,14 @@ public final class LCConfig {
 
             builder.comment("Wallet Settings").push("wallet");
 
-            final String walletLevelDescription = "0-Copper Wallet; 1-Iron Wallet; 2-Gold Wallet; 3-Emerald Wallet; 4-Diamond Wallet; 5-Netherite Wallet; 6-Nether Star Wallet; 7-No Wallet";
+            builder.comment("A list of wallets that are capable of exchanging coins.")
+                    .add("exchangeAbility", this.walletCanExchange);
 
-            builder.comment("The lowest level wallet capable of exchanging coins.",
-                            walletLevelDescription)
-                    .add("exchangeLevel", this.walletExchangeLevel);
+            builder.comment("A list of wallets that are capable of automatically collecting coins while equipped.")
+                    .add("pickupAbility", this.walletCanPickup);
 
-            builder.comment("The lowest level wallet capable of automatically collecting coins while equipped.",
-                            walletLevelDescription)
-                    .add("pickupLevel", this.walletPickupLevel);
-
-            builder.comment("The lowest level wallet capable of allowing transfers to/from your bank account.",
-                            walletLevelDescription)
-                    .add("bankLevel", this.walletBankLevel);
+            builder.comment("A list of wallets that are capable of allowing transfers to/from your bank account.")
+                    .add("bankAbility", this.walletCanBank);
 
             builder.comment("Whether wallets can have additional slots added by using an upgrade item on them from their inventory",
                             "By default diamonds are the only valid upgrade item, but this can be changed by a datapack")
@@ -980,7 +978,7 @@ public final class LCConfig {
 
             builder.comment("Whether the auction fees collected should be stored in the server-wide tax collector as taxes",
                             "Includes both the submission fee and the fee taken from the final bid",
-                            "Useful for those who wish to keep trade of auction fees collected, and/or don't want money to destroyed in this process")
+                            "Useful for those who wish to keep track of auction fees collected, and/or don't want money to destroyed in this process")
                     .add("storeFeeInServerTax",this.auctionHouseStoreFeeInServerTax);
 
             builder.comment("The maximum number of pending auctions each player is allowed to have",
@@ -992,7 +990,7 @@ public final class LCConfig {
             builder.comment("Bank Account Settings").push("bank_accounts");
 
             builder.comment("The interest rate that bank accounts will earn just by existing.",
-                            "Setting to 0 will disable interesting and all interest-related ticks from happening.",
+                            "Setting to 0 will disable interest and all interest-related ticks from happening.",
                             "Note: Rate of 1.0 will result in doubling the accounts money each interest tick.",
                             "Rate of 0.01 is equal to a 1% interest rate.")
                     .add("interest", this.bankAccountInterestRate);
@@ -1052,7 +1050,7 @@ public final class LCConfig {
             builder.comment("The permission level required to place the command trader block")
                     .add("placementPermissionLevel",this.commandTraderPlacementPermission);
 
-            builder.comment("The maximum permission level that can set and used by a command trader")
+            builder.comment("The maximum permission level that can be set and used by a command trader")
                     .add("maxPermissionLevel", this.commandTraderMaxPermissionLevel);
 
             builder.pop();
@@ -1074,7 +1072,7 @@ public final class LCConfig {
 
             builder.comment("The maximum tax rate (in %) a Tax Collector is allowed to enforce.",
                             "Note: The sum of multiple tax collectors rates can still exceed this number.",
-                            "If a machine reaches a total tax rate of 100% it will forcible prevent all monetary interactions until this is resolved.")
+                            "If a machine reaches a total tax rate of 100% it will forcibly prevent all monetary interactions until this is resolved.")
                     .add("maxTaxRate", this.taxCollectorMaxRate);
 
             builder.comment("The maximum radius of a Tax Collectors area in meters.")

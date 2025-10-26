@@ -1,10 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.categories;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategoryType;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -22,7 +23,7 @@ public class EventCategory extends NotificationCategory {
 	
 	@Nonnull
 	@Override
-	public IconData getIcon() { return IconData.of(ModBlocks.COINPILE_CHOCOLATE_GOLD); }
+	public IconData getIcon() { return ItemIcon.ofItem(ModBlocks.COINPILE_CHOCOLATE_GOLD); }
 	@Nonnull
 	@Override
 	public MutableComponent getName() { return LCText.NOTIFICATION_SOURCE_EVENT.get(); }

@@ -19,6 +19,7 @@ public class LCTags {
         public static final TagKey<Block> SAFE_INTERACTABLE = tag("safe_interactable");
         public static final TagKey<Block> OWNER_PROTECTED = tag("owner_protected");
 
+        public static final TagKey<Block> TERMINAL = tag("terminal");
         public static final TagKey<Block> AUCTION_STAND = tag("auction_stand");
         public static final TagKey<Block> CARD_DISPLAY = tag("card_display");
         public static final TagKey<Block> SHELF = tag("shelf");
@@ -37,9 +38,6 @@ public class LCTags {
         public static final TagKey<Item> COIN_MINTING_MATERIAL = tag("coin_minting_material");
         //Wallet Tag for Wallet Advancement
         public static final TagKey<Item> WALLET = tag("wallet");
-        public static final TagKey<Item> WALLET_PICKUP = tag("wallet/pickup");
-        public static final TagKey<Item> WALLET_EXCHANGE = tag("wallet/exchange");
-        public static final TagKey<Item> WALLET_BANK = tag("wallet/bank");
         public static final TagKey<Item> WALLET_UPGRADE_MATERIAL = tag("wallet_upgrade_material");
 
         //Trader Tags for Advancements

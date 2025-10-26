@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.network.message.config;
 
-import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
+import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.FriendlyByteBuf;
@@ -48,7 +48,7 @@ public class SPacketSyncConfig extends ServerToClientPacket {
         protected H() { super(TYPE, easyCodec(SPacketSyncConfig::encode,SPacketSyncConfig::decode)); }
         @Override
         protected void handle(@Nonnull SPacketSyncConfig message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-            SyncedConfigFile.handleSyncData(message.configID, message.data);
+            ConfigFile.handleSyncData(message.configID, message.data);
         }
     }
 

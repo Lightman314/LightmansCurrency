@@ -11,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
-import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.HolderLookup;
@@ -35,7 +34,7 @@ public class MoneyValueArgument implements ArgumentType<MoneyValue> {
     public static MoneyValueArgument safeArgument(RegisterCommandsEvent event) { return argument(event.getBuildContext()); }
 
     public static MoneyValue getMoneyValue(CommandContext<CommandSourceStack> commandContext, String name) throws CommandSyntaxException {
-        return commandContext.getArgument(name, CoinValue.class);
+        return commandContext.getArgument(name, MoneyValue.class);
     }
 
     @Override
@@ -50,7 +49,7 @@ public class MoneyValueArgument implements ArgumentType<MoneyValue> {
             String[] split = arg.split(";",2);
             String prefix = split[0];
             String trail = split.length > 1 ? split[1] : "";
-            for(CurrencyType type : MoneyAPI.API.AllCurrencyTypes())
+            for(CurrencyType type : MoneyAPI.getApi().AllCurrencyTypes())
             {
                 MoneyValueParser parser = type.getValueParser();
                 if(parser != null && parser.prefix.equals(prefix))
@@ -60,7 +59,7 @@ public class MoneyValueArgument implements ArgumentType<MoneyValue> {
         }
         else
         {
-            for(CurrencyType type : MoneyAPI.API.AllCurrencyTypes())
+            for(CurrencyType type : MoneyAPI.getApi().AllCurrencyTypes())
             {
                 MoneyValueParser parser = type.getValueParser();
                 if(parser != null && parser.prefix.startsWith(builder.getRemainingLowerCase()))
@@ -72,7 +71,7 @@ public class MoneyValueArgument implements ArgumentType<MoneyValue> {
 
     public Collection<String> getExamples() {
         List<String> examples = new ArrayList<>();
-        for(CurrencyType type : MoneyAPI.API.AllCurrencyTypes())
+        for(CurrencyType type : MoneyAPI.getApi().AllCurrencyTypes())
         {
             MoneyValueParser parser = type.getValueParser();
             if(parser != null)

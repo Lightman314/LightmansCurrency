@@ -71,7 +71,7 @@ public class TraderMenu extends LazyMessageMenu implements IValidatedMenu, ITrad
 	public MenuValidator getValidator() { return this.validator; }
 
 	public TraderMenu(int windowID, Inventory inventory, long traderID, MenuValidator validator) {
-		this(ModMenus.TRADER.get(), windowID, inventory, () -> TraderAPI.API.GetTrader(IClientTracker.entityWrapper(inventory.player), traderID), validator);
+		this(ModMenus.TRADER.get(), windowID, inventory, () -> TraderAPI.getApi().GetTrader(IClientTracker.entityWrapper(inventory.player), traderID), validator);
 	}
 	
 	protected TraderMenu(MenuType<?> type, int windowID, Inventory inventory, Supplier<ITraderSource> traderSource, MenuValidator validator) {

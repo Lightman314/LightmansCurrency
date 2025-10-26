@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.settings.SettingsNode;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
@@ -23,7 +24,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.TraderItemHandler;
 import io.github.lightman314.lightmanscurrency.common.traders.item.settings.ItemTradeSettings;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.TradeOfferUpgrade;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.AddRemoveTradeNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.ItemTradeNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.OutOfStockNotification;
@@ -43,7 +44,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.item.I
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
@@ -263,7 +264,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 	}
 	
 	@Override
-	public IconData inputSettingsTabIcon() { return IconData.of(Items.HOPPER); }
+	public IconData inputSettingsTabIcon() { return ItemIcon.ofItem(Items.HOPPER); }
 
 	@Override
 	public MutableComponent inputSettingsTabTooltip() { return LCText.TOOLTIP_TRADER_SETTINGS_INPUT_ITEM.get(); }
@@ -519,7 +520,6 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		//Process a sale
 		if(trade.isSale())
 		{
-
 			if(trade.outOfStock(context) && !this.isCreative())
 			{
 				//LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
@@ -531,7 +531,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			//Abort if not enough items in inventory
 			if(soldItems == null)
 			{
-				//LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");
+                LightmansCurrency.LogWarning("Trade failed to collect items being sold from storage, in spite of the trade claiming to have items in stock!");
 				return TradeResult.FAIL_OUT_OF_STOCK;
 			}
 

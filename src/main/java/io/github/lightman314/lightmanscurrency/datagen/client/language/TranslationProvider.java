@@ -2,6 +2,8 @@ package io.github.lightman314.lightmanscurrency.datagen.client.language;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
+import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
 import io.github.lightman314.lightmanscurrency.api.stats.StatType;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
@@ -113,6 +115,37 @@ public abstract class TranslationProvider extends LanguageProvider {
         String prefix = "guide." + guide.getNamespace() + "." + guide.getPath() + ".";
         this.add(prefix + "name",name);
         this.add(prefix + "landing_text",landingText);
+    }
+
+    protected final void translateConfigName(ConfigFile file,String name) {
+        file.confirmSetup();
+        this.add(ConfigFile.translationForFile(file.getFileID()),name);
+    }
+
+    protected final void translateConfigSection(ConfigFile file, String section, String name, String... comments)
+    {
+        file.confirmSetup();
+        this.add(ConfigFile.translationForSection(file.getFileID(),section),name);
+        this.translateConfigComment(file,section,comments);
+    }
+
+    protected final void translateConfigOption(ConfigOption<?> option, String optionName, String... comments)
+    {
+        ConfigFile file = option.getFile();
+        if(file == null)
+        {
+            LightmansCurrency.LogError("Cannot translate config option as its config file has not been initialized!");
+            return;
+        }
+        String optionKey = option.getFullName();
+        this.add(ConfigFile.translationForOption(option.getFile().getFileID(),option.getFullName()),optionName);
+        this.translateConfigComment(file,optionKey,comments);
+    }
+
+    protected final void translateConfigComment(ConfigFile file, String section, String... translation)
+    {
+        file.confirmSetup();
+        this.translate(new MultiLineTextEntry(ConfigFile.translationForComment(file.getFileID(),section)),translation);
     }
 
 }

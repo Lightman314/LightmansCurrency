@@ -117,7 +117,7 @@ public class LCClaiming {
                     hitLimit = true;
                     break;
                 }
-                IMoneyHandler handler = MoneyAPI.API.GetPlayersMoneyHandler(player);
+                IMoneyHandler handler = MoneyAPI.getApi().GetPlayersMoneyHandler(player);
                 if(!handler.extractMoney(price,true).isEmpty())
                     break;
                 handler.extractMoney(price,false);
@@ -173,7 +173,7 @@ public class LCClaiming {
                     hitLimit = true;
                     break;
                 }
-                IMoneyHandler handler = MoneyAPI.API.GetPlayersMoneyHandler(player);
+                IMoneyHandler handler = MoneyAPI.getApi().GetPlayersMoneyHandler(player);
                 if(!handler.extractMoney(price,true).isEmpty())
                     break;
                 handler.extractMoney(price,false);

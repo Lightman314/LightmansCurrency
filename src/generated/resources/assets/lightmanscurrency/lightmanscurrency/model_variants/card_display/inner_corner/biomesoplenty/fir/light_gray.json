@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/inner_corner/biomesoplenty/fir/base",
+  "target": "lightmanscurrency:card_display_biomesoplenty_fir_light_gray",
+  "textures": {
+    "wool": "minecraft:block/light_gray_wool"
+  }
+}

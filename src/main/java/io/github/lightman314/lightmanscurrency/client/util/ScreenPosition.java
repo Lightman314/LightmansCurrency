@@ -8,6 +8,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.annotation.concurrent.Immutable;
+import java.util.Objects;
 import java.util.Optional;
 
 @MethodsReturnNonnullByDefault
@@ -36,8 +37,7 @@ public final class ScreenPosition {
 
     public ScreenArea asArea(int width, int height) { return ScreenArea.of(this, width, height); }
 
-    @Override
-    public String toString() { return this.x + "," + this.y; }
+
 
     public static ScreenPosition of(int x, int y) { return new ScreenPosition(x,y); }
     public static ScreenPosition of(double x, double y) { return of((int)x,(int)y); }
@@ -45,5 +45,16 @@ public final class ScreenPosition {
     public static ScreenPosition of(IEasyScreen screen, int x, int y) { return screen.getCorner().offset(x,y); }
     public static Optional<ScreenPosition> ofOptional(int x, int y) { return Optional.of(of(x, y)); }
     public static ScreenPosition getScreenCorner(AbstractContainerScreen<?> screen) { return of(screen.getGuiLeft(), screen.getGuiTop()); }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof ScreenPosition pos)
+            return pos.x == this.x && pos.y == this.y;
+        return false;
+    }
+    @Override
+    public int hashCode() { return Objects.hash(this.x,this.y); }
+    @Override
+    public String toString() { return this.x + "," + this.y; }
 
 }

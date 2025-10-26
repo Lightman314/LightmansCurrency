@@ -11,7 +11,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -45,17 +44,17 @@ public abstract class Notification implements ISidedObject {
 
 	public abstract NotificationCategory getCategory();
 
-	public abstract List<MutableComponent> getMessageLines();
-	public List<MutableComponent> getGeneralMessage() { return this.getModifiedMessage(line -> LCText.NOTIFICATION_FORMAT_GENERAL.get(this.getCategory().getName(),line)); }
-	public List<MutableComponent> getChatMessage() {
+	public abstract List<Component> getMessageLines();
+	public List<Component> getGeneralMessage() { return this.getModifiedMessage(line -> LCText.NOTIFICATION_FORMAT_GENERAL.get(this.getCategory().getName(),line)); }
+	public List<Component> getChatMessage() {
 		return this.getModifiedMessage(line -> LCText.NOTIFICATION_FORMAT_CHAT.get(
 				LCText.NOTIFICATION_FORMAT_CHAT_TITLE.get(this.getCategory().getName()).withStyle(ChatFormatting.GOLD),
 				line
 		));
 	}
 
-	protected final List<MutableComponent> getModifiedMessage(UnaryOperator<MutableComponent> edit) {
-		List<MutableComponent> message = new ArrayList<>(this.getMessageLines());
+	protected final List<Component> getModifiedMessage(UnaryOperator<Component> edit) {
+		List<Component> message = new ArrayList<>(this.getMessageLines());
 		if(message.isEmpty())
 			return message;
 		message.set(0,edit.apply(message.getFirst()));

@@ -40,7 +40,7 @@ public class CoinAttributeType implements ItemAttributeType {
 
     @Override
     public List<ItemAttribute> getAllAttributes(ItemStack stack, Level level) {
-        ChainData chain = CoinAPI.API.ChainDataOfCoin(stack);
+        ChainData chain = CoinAPI.getApi().ChainDataOfCoin(stack);
         if(chain != null)
             return List.of(IS_COIN_ATTRIBUTE,new NormalCoinAttribute(chain.chain));
         else if(stack.getItem() == ModItems.COIN_ANCIENT.get())
@@ -100,7 +100,7 @@ public class CoinAttributeType implements ItemAttributeType {
 
         @Override
         public boolean appliesTo(ItemStack stack, Level world) {
-            ChainData data = CoinAPI.API.ChainDataOfCoin(stack);
+            ChainData data = CoinAPI.getApi().ChainDataOfCoin(stack);
             if(data == null)
                 return false;
             if(this.isNullType())
@@ -115,7 +115,7 @@ public class CoinAttributeType implements ItemAttributeType {
 
         private Component getChainName()
         {
-            ChainData data = CoinAPI.API.ChainData(this.chain);
+            ChainData data = CoinAPI.getApi().ChainData(this.chain);
             return data == null ? EasyText.literal(this.chain) : data.getDisplayName();
         }
         @Override

@@ -33,7 +33,7 @@ public class CPacketOpenStorage extends ClientToServerPacket {
 			MenuValidator validator = SimpleValidator.NULL;
 			if(player.containerMenu instanceof IValidatedMenu tm)
 				validator = tm.getValidator();
-			TraderData trader = TraderAPI.API.GetTrader(false, message.traderID);
+			TraderData trader = TraderAPI.getApi().GetTrader(false, message.traderID);
 			if(trader != null)
 				trader.openStorageMenu(player, validator);
 		}

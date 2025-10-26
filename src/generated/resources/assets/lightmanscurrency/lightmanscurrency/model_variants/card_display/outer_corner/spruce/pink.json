@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/outer_corner/spruce/base",
+  "target": "lightmanscurrency:card_display_spruce_pink",
+  "textures": {
+    "wool": "minecraft:block/pink_wool"
+  }
+}

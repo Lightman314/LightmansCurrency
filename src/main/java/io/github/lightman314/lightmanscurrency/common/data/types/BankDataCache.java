@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.data.types;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomData;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomDataType;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
@@ -28,7 +29,7 @@ import java.util.*;
 @FieldsAreNonnullByDefault
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-public class BankDataCache extends CustomData {
+public class BankDataCache extends CustomData implements IServerTicker {
 
     public static final CustomDataType<BankDataCache> TYPE = new CustomDataType<>("lightmanscurrency_bank_data",BankDataCache::new);
 
@@ -259,6 +260,12 @@ public class BankDataCache extends CustomData {
     {
         this.interestTick = 0;
         this.setChanged();
+    }
+
+    @Override
+    public void serverTick() {
+        for(BankDataEntry entry : new ArrayList<>(this.playerBankData.values()))
+            entry.account.tick();
     }
 
     private static class BankDataEntry

@@ -6,30 +6,31 @@ import io.github.lightman314.lightmanscurrency.api.money.types.IPlayerMoneyHandl
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolder;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class PlayerMoneyHolder extends MoneyHolder {
 
     private final List<IPlayerMoneyHandler> handlers;
 
-    public PlayerMoneyHolder(@Nonnull List<IPlayerMoneyHandler> handlers) {
+    public PlayerMoneyHolder(List<IPlayerMoneyHandler> handlers) {
         this.handlers = ImmutableList.copyOf(handlers);
     }
 
-    @Nonnull
-    public PlayerMoneyHolder updatePlayer(@Nonnull Player player) {
+    public PlayerMoneyHolder updatePlayer(Player player) {
         for(IPlayerMoneyHandler handler : this.handlers)
             handler.updatePlayer(player);
         return this;
     }
 
-    @Nonnull
     @Override
-    public MoneyValue insertMoney(@Nonnull MoneyValue insertAmount, boolean simulation) {
+    public MoneyValue insertMoney(MoneyValue insertAmount, boolean simulation) {
         for(IPlayerMoneyHandler handler : this.handlers)
         {
             if(handler.isMoneyTypeValid(insertAmount))
@@ -42,9 +43,9 @@ public class PlayerMoneyHolder extends MoneyHolder {
         return insertAmount;
     }
 
-    @Nonnull
+    
     @Override
-    public MoneyValue extractMoney(@Nonnull MoneyValue extractAmount, boolean simulation) {
+    public MoneyValue extractMoney(MoneyValue extractAmount, boolean simulation) {
         for(IPlayerMoneyHandler handler : this.handlers)
         {
             extractAmount = handler.extractMoney(extractAmount, simulation);
@@ -55,10 +56,10 @@ public class PlayerMoneyHolder extends MoneyHolder {
     }
 
     @Override
-    public boolean isMoneyTypeValid(@Nonnull MoneyValue value) { return this.handlers.stream().anyMatch(h -> h.isMoneyTypeValid(value)); }
+    public boolean isMoneyTypeValid(MoneyValue value) { return this.handlers.stream().anyMatch(h -> h.isMoneyTypeValid(value)); }
 
     @Override
-    protected void collectStoredMoney(@Nonnull MoneyView.Builder builder) {
+    protected void collectStoredMoney(MoneyView.Builder builder) {
         for(IPlayerMoneyHandler handler : this.handlers)
             builder.merge(handler.getStoredMoney());
     }

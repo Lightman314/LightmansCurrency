@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.containers.CoinContainer;
+import io.github.lightman314.lightmanscurrency.common.menus.containers.UpgradeContainer;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestUpgrade;
@@ -27,7 +28,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -77,9 +77,9 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
 
     private CoinContainer storage;
     public final CoinContainer getStorage() { return this.storage; }
-    private SimpleContainer upgrades;
+    private final UpgradeContainer upgrades;
     @Nonnull
-    public final SimpleContainer getUpgrades() { return this.upgrades; }
+    public final UpgradeContainer getUpgrades() { return this.upgrades; }
 
     private List<CoinChestUpgradeData> unfilteredUpgradeDataCache = new ArrayList<>();
     private List<CoinChestUpgradeData> upgradeDataCache = new ArrayList<>();
@@ -140,7 +140,7 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
         super(ModBlockEntities.COIN_CHEST.get(), pos, state);
         this.storage = new CoinContainer(STORAGE_SIZE);
         this.storage.addListener(i -> this.markStorageDirty());
-        this.upgrades = new SimpleContainer(UPGRADE_SIZE);
+        this.upgrades = new UpgradeContainer(UPGRADE_SIZE,this);
         this.upgrades.addListener(i -> this.markUpgradesDirty());
     }
 
@@ -156,8 +156,7 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
         }
         if(compound.contains("Upgrades"))
         {
-            this.upgrades = InventoryUtil.loadAllItems("Upgrades", compound, UPGRADE_SIZE,lookup);
-            this.upgrades.addListener(i -> this.markUpgradesDirty());
+            this.upgrades.load("Upgrades", compound, lookup);
             this.refreshUpgradeCache();
         }
     }
@@ -193,7 +192,7 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
     }
 
     protected CompoundTag saveUpgrades(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
-        InventoryUtil.saveAllItems("Upgrades", compound, this.upgrades,lookup);
+        this.upgrades.save("Upgrades",compound,lookup);
         return compound;
     }
 
@@ -314,7 +313,7 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
         private final CoinChestBlockEntity blockEntity;
         public ItemHandler(CoinChestBlockEntity blockEntity) { super(blockEntity.storage); this.blockEntity = blockEntity; }
         @Override
-        public boolean isItemValid(int slot, @Nonnull ItemStack stack) { return CoinAPI.API.IsCoin(stack, false); }
+        public boolean isItemValid(int slot, @Nonnull ItemStack stack) { return CoinAPI.getApi().IsCoin(stack, false); }
         @Nonnull
         @Override
         public Container getInv() { return this.blockEntity.storage; }

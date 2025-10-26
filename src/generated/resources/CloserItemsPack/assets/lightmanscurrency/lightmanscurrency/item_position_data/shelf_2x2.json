@@ -30,7 +30,9 @@
     }
   ],
   "ExtraCount": 1,
-  "RotationType": "FACING",
+  "RotationType": {
+    "type": "lightmanscurrency:facing"
+  },
   "Scale": 0.34375,
   "offsetX": 1.0E-4,
   "offsetY": 1.0E-4,

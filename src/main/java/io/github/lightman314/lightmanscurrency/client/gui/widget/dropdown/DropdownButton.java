@@ -1,6 +1,9 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown;
 
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FlexibleWidthSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.HorizontalSliceSprite;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ILateRender;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -8,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IToolt
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -25,6 +29,9 @@ public class DropdownButton extends EasyWidget implements ILateRender, IMouseLis
 	private final Component optionText;
 	private final Runnable onPress;
 
+    public static final FlexibleWidthSprite ENTRY_SPRITE = new HorizontalSliceSprite(SpriteSource.createTop(VersionUtil.lcResource("common/widgets/dropdown_entry"),128,12),12);
+    public static final FlexibleWidthSprite ENTRY_HIGHLIGHTED_SPRITE = new HorizontalSliceSprite(SpriteSource.createBottom(VersionUtil.lcResource("common/widgets/dropdown_entry"),128,12),12);
+
 	private DropdownButton(Builder builder)
 	{
 		super(builder);
@@ -39,12 +46,13 @@ public class DropdownButton extends EasyWidget implements ILateRender, IMouseLis
 			gui.pushOffset(this);
 			gui.pushPose().TranslateToForeground();
 			//Draw the background
-			int offset = (this.isHovered ? this.height : 0) + (DropdownWidget.HEIGHT * 2);
 			if(!this.active)
 				gui.setColor(0.5f,0.5f,0.5f);
 			else
 				gui.resetColor();
-			gui.blitHorizSplit(DropdownWidget.GUI_TEXTURE, 0,0,this.width,this.height,0,offset,256,12);
+
+            FlexibleWidthSprite sprite = this.isHoveredOrFocused() ? ENTRY_HIGHLIGHTED_SPRITE : ENTRY_SPRITE;
+            sprite.render(gui,0,0,this.width);
 			//Draw the option text
 			gui.drawString(TextRenderUtil.fitString(this.optionText, this.width - 4), 2, 2, 0x404040);
 

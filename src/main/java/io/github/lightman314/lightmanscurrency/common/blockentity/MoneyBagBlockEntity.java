@@ -115,7 +115,7 @@ public class MoneyBagBlockEntity extends EasyBlockEntity implements IServerTicke
         this.checkLootTable();
         if(this.getTotalContentCount() >= MAX_ITEM_COUNT)
             return false;
-        if(CoinAPI.API.IsAllowedInCoinContainer(item,false))
+        if(CoinAPI.getApi().IsAllowedInCoinContainer(item,false))
         {
             for(ItemStack i : this.contents)
             {

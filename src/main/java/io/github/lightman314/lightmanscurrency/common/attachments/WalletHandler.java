@@ -195,8 +195,8 @@ public class WalletHandler extends MoneyHandler implements INBTSerializable<Comp
         ItemStack w = this.getWallet();
         if(WalletItem.getAutoExchange(w))
         {
-            CoinAPI.API.CoinExchangeAllUp(contents);
-            CoinAPI.API.SortCoinsByValue(contents);
+            CoinAPI.getApi().CoinExchangeAllUp(contents);
+            CoinAPI.getApi().SortCoinsByValue(contents);
         }
         wrapper.setContents(contents, this.entity);
     }

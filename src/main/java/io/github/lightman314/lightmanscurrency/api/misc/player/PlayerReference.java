@@ -247,6 +247,12 @@ public class PlayerReference {
 		return null;
 	}
 
+    public static PlayerReference dummy(String dummyName) {
+        PlayerReference pr = new PlayerReference(new UUID(0,0),dummyName);
+        pr.forceName = true;
+        return pr;
+    }
+
 	public static boolean isInList(List<PlayerReference> list, Entity entry) { if(entry != null) return isInList(list, entry.getUUID()); return false; }
 	
 	public static boolean isInList(List<PlayerReference> list, PlayerReference entry) { if(entry != null) return isInList(list, entry.id); return false; }
@@ -260,6 +266,16 @@ public class PlayerReference {
 		}
 		return false;
 	}
+
+    public static boolean addToList(List<PlayerReference> list, PlayerReference entry)
+    {
+        if(!isInList(list,entry))
+        {
+            list.add(entry);
+            return true;
+        }
+        return false;
+    }
 	
 	public static boolean removeFromList(List<PlayerReference> list, PlayerReference entry) { if(entry != null) return removeFromList(list, entry.id); return false; }
 	

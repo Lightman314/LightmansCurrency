@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/inner_corner/biomesoplenty/willow/base",
+  "target": "lightmanscurrency:card_display_biomesoplenty_willow_yellow",
+  "textures": {
+    "wool": "minecraft:block/yellow_wool"
+  }
+}

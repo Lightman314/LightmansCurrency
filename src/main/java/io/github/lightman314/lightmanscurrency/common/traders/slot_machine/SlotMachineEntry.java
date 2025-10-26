@@ -1,9 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.traders.slot_machine;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.value.IItemBasedValue;
@@ -11,34 +15,95 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public final class SlotMachineEntry {
 
     public static final int ITEM_LIMIT = 4;
 
+    public static final DecimalFormat ODDS_FORMATTER;
+
+    static {
+        ODDS_FORMATTER = new DecimalFormat();
+        ODDS_FORMATTER.setMaximumFractionDigits(2);
+        ODDS_FORMATTER.setMinimumFractionDigits(2);
+    }
+
+    public static IconData DEFAULT_ICON = IconUtil.ICON_X;
+    public static NonNullList<IconData> createDefaultIcons() { return NonNullList.withSize(ITEM_LIMIT,DEFAULT_ICON); }
+
+    //Items
     public final List<ItemStack> items;
     public void TryAddItem(ItemStack item) { if(this.items.size() >= ITEM_LIMIT || item.isEmpty()) return; this.items.add(item); }
-    private int weight;
-    public int getWeight() { return this.weight; }
-    public void setWeight(int newWeight) { this.weight = Math.max(1, newWeight); }
 
-    private SlotMachineEntry(List<ItemStack> items, int weight) { this.items = InventoryUtil.copyList(items); this.setWeight(weight); }
+    //Odds
+    private double odds = 0.01d;
+    public double getOdds() { return this.odds; }
+    public String getOddsString() { return ODDS_FORMATTER.format(this.odds); }
+    public void setOdds(double newOdds) { this.odds = MathUtil.clamp(newOdds,0.01d,99.9d); }
 
-    public boolean isValid() { return !this.items.isEmpty() && this.weight > 0; }
+    //Custom Icons
+    private boolean useCustomIcons = false;
+    public boolean hasCustomIcons() { return this.useCustomIcons; }
+    public void setHasCustomIcons(boolean newState) { this.useCustomIcons = newState; }
+
+    private final NonNullList<IconData> customIcons = createDefaultIcons();
+    public List<IconData> getCustomIcons() { return ImmutableList.copyOf(this.customIcons); }
+    public void setCustomIcon(int index,@Nullable IconData icon) {
+        if(index < 0 || index >= ITEM_LIMIT)
+            return;
+        this.customIcons.set(index, Objects.requireNonNullElse(icon,DEFAULT_ICON));
+    }
+
+    public List<IconData> getIconsToDisplay() {
+        if(this.useCustomIcons)
+            return ImmutableList.copyOf(this.customIcons);
+        else
+        {
+            List<ItemStack> items = splitDisplayItems(this.getDisplayItems());
+            List<IconData> result = new ArrayList<>();
+            for(int i = 0; i < ITEM_LIMIT; ++i)
+            {
+                if(i < items.size())
+                    result.add(ItemIcon.ofItem(items.get(i).copyWithCount(1)));
+                else
+                    result.add(IconUtil.ICON_X);
+            }
+            return ImmutableList.copyOf(result);
+        }
+    }
+
+    private SlotMachineEntry(List<ItemStack> items, double odds, boolean useCustomIcons, List<IconData> icons) {
+        this.items = InventoryUtil.copyList(items);
+        this.setOdds(odds);
+        this.useCustomIcons = useCustomIcons;
+        for(int i = 0; i < this.customIcons.size() && i < icons.size(); ++i)
+            this.customIcons.set(i,icons.get(i));
+    }
+
+    public boolean isValid() { return !this.items.isEmpty() && this.odds > 0d && this.odds < 100d; }
 
     public boolean isMoney() {
         if(this.items.isEmpty())
@@ -46,11 +111,11 @@ public final class SlotMachineEntry {
         ChainData chain = null;
         for(ItemStack item : this.items)
         {
-            if(CoinAPI.API.IsCoin(item, false))
+            if(CoinAPI.getApi().IsCoin(item, false))
             {
                 if(chain == null)
-                    chain = CoinAPI.API.ChainDataOfCoin(item);
-                else if(chain != CoinAPI.API.ChainDataOfCoin(item)) //Reject if coins are from different chains
+                    chain = CoinAPI.getApi().ChainDataOfCoin(item);
+                else if(chain != CoinAPI.getApi().ChainDataOfCoin(item)) //Reject if coins are from different chains
                     return false;
             }
             else
@@ -65,11 +130,11 @@ public final class SlotMachineEntry {
         long value = 0;
         for(ItemStack item : this.items)
         {
-            if(CoinAPI.API.IsCoin(item, false))
+            if(CoinAPI.getApi().IsCoin(item, false))
             {
                 if(chain == null)
-                    chain = CoinAPI.API.ChainDataOfCoin(item);
-                else if(chain != CoinAPI.API.ChainDataOfCoin(item)) //Reject if coins are from different chains
+                    chain = CoinAPI.getApi().ChainDataOfCoin(item);
+                else if(chain != CoinAPI.getApi().ChainDataOfCoin(item)) //Reject if coins are from different chains
                     return MoneyValue.empty();
                 value += chain.getCoreValue(item) * item.getCount();
             }
@@ -100,9 +165,8 @@ public final class SlotMachineEntry {
         }
         return InventoryUtil.copyList(this.items);
     }
-
-    @Nonnull
-    public static List<ItemStack> splitDisplayItems(@Nonnull List<ItemStack> displayItems)
+    
+    public static List<ItemStack> splitDisplayItems(List<ItemStack> displayItems)
     {
         if(displayItems.size() >= ITEM_LIMIT)
             return displayItems;
@@ -118,8 +182,7 @@ public final class SlotMachineEntry {
             if(s.getCount() > 1)
             {
                 int splitCount = s.getCount() / 2;
-                ItemStack split = s.split(splitCount);
-                result.add(split);
+                result.add(s.split(splitCount));
             }
         }
         return result;
@@ -210,32 +273,41 @@ public final class SlotMachineEntry {
         return this.items.stream().anyMatch(i -> InventoryUtil.ItemMatches(i, item));
     }
 
-    public CompoundTag save(@Nonnull HolderLookup.Provider lookup)
+    public CompoundTag save(HolderLookup.Provider lookup)
     {
         CompoundTag compound = new CompoundTag();
         ListTag itemList = new ListTag();
         for(ItemStack item : this.items)
             itemList.add(InventoryUtil.saveItemNoLimits(item,lookup));
         compound.put("Items",itemList);
-        compound.putInt("Weight", this.weight);
+        compound.putDouble("Odds",this.odds);
+
+        compound.putBoolean("CustomIcons",this.useCustomIcons);
+        compound.put("Icons",TagUtil.writeIconList(this.customIcons,lookup));
         return compound;
     }
-
-    @Nonnull
-    public JsonObject toJson(@Nonnull HolderLookup.Provider lookup)
+    
+    public JsonObject toJson(HolderLookup.Provider lookup)
     {
         JsonObject json = new JsonObject();
         JsonArray itemList = new JsonArray();
         for(ItemStack item : this.items)
             itemList.add(FileUtil.convertItemStack(item,lookup));
         json.add("Items", itemList);
-        json.addProperty("Weight", this.weight);
+        json.addProperty("Odds",this.odds);
+        if(this.useCustomIcons)
+        {
+            JsonArray iconList = new JsonArray();
+            for(IconData icon : this.customIcons)
+                iconList.add(icon.write(lookup));
+            json.add("Icons",iconList);
+        }
         return json;
     }
 
-    public static SlotMachineEntry create() { return new SlotMachineEntry(new ArrayList<>(), 1); }
+    public static SlotMachineEntry create() { return new SlotMachineEntry(new ArrayList<>(), 1,false,new ArrayList<>()); }
 
-    public static SlotMachineEntry load(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
+    public static SlotMachineEntry load(CompoundTag compound, HolderLookup.Provider lookup)
     {
         List<ItemStack> items = new ArrayList<>();
         if(compound.contains("Items"))
@@ -248,14 +320,22 @@ public final class SlotMachineEntry {
                     items.add(stack);
             }
         }
-        if(compound.contains("Weight"))
-            return new SlotMachineEntry(items, compound.getInt("Weight"));
-        else
-            return new SlotMachineEntry(items, 1);
+        double odds = 0.01d;
+        if(compound.contains("Odds"))
+            odds = compound.getDouble("Odds");
+        boolean useCustom = compound.getBoolean("CustomIcons");
+        List<IconData> icons = new ArrayList<>();
+        if(compound.contains("Icons"))
+        {
+            NonNullList<IconData> temp  = NonNullList.withSize(SlotMachineEntry.ITEM_LIMIT,DEFAULT_ICON);
+            TagUtil.readIconList(temp,compound.getList("Icons",Tag.TAG_COMPOUND),lookup,DEFAULT_ICON);
+            icons = temp;
+        }
+        return new SlotMachineEntry(items,odds,useCustom,icons);
     }
 
-    @Nonnull
-    public static SlotMachineEntry parse(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException
+    
+    public static SlotMachineEntry parse(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException
     {
         List<ItemStack> items = new ArrayList<>();
         JsonArray itemList = GsonHelper.getAsJsonArray(json, "Items");
@@ -271,6 +351,16 @@ public final class SlotMachineEntry {
         if(items.isEmpty())
             throw new JsonSyntaxException("Slot Machine Entry has no valid items!");
         int weight = GsonHelper.getAsInt(json, "Weight", 1);
-        return new SlotMachineEntry(items, weight);
+        List<IconData> icons = new ArrayList<>();
+        if(json.has("Icons"))
+        {
+            JsonArray iconList = GsonHelper.getAsJsonArray(json,"Icons");
+            NonNullList<IconData> temp = NonNullList.withSize(ITEM_LIMIT,IconUtil.ICON_X);
+            for(int i = 0; i < iconList.size() && i < temp.size(); ++i)
+                temp.set(i,IconData.parse(GsonHelper.convertToJsonObject(iconList.get(i),"Icons[" + i + "]"),lookup));
+            icons = temp;
+        }
+        return new SlotMachineEntry(items,weight,!icons.isEmpty(),icons);
     }
+
 }

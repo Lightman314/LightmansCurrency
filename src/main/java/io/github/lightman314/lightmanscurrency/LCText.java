@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesColl
 import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesPaidNotification;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
+import io.github.lightman314.lightmanscurrency.api.traders.attachments.builtin.ExternalAuthorizationAttachment;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.types.*;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
@@ -444,31 +445,10 @@ public class LCText {
     public static final TextEntry BUTTON_TEAM_MEMBER_DEMOTE = TextEntry.button(MODID,"team.member.demote");
     public static final TextEntry TOOLTIP_TEAM_BANK = TextEntry.tooltip(MODID,"team.bank");
     public static final TextEntry BUTTON_TEAM_BANK_CREATE = TextEntry.button(MODID,"team.bank.create");
-    public static final TextEntry BUTTON_TEAM_BANK_LIMIT = TextEntry.button(MODID,"team.bank.limit");
-    public static final TextEntry TOOLTIP_TEAM_SALARY_INFO = TextEntry.tooltip(MODID,"team.salary_info");
-    public static final TextEntry GUI_TEAM_SALARY_INFO_DISABLED = TextEntry.gui(MODID,"team.salary_info.disabled");
-    public static final TextEntry GUI_TEAM_SALARY_INFO_DELAY = TextEntry.gui(MODID,"team.salary_info.delay");
-    public static final TextEntry GUI_TEAM_SALARY_INFO_NEXT_TRIGGER = TextEntry.gui(MODID,"team.salary_info.next_trigger");
-    public static final TextEntry GUI_TEAM_SALARY_INFO_SALARY_MEMBERS = TextEntry.gui(MODID,"team.salary_info.salary.member");
-    public static final TextEntry GUI_TEAM_SALARY_INFO_SALARY_ADMINS = TextEntry.gui(MODID,"team.salary_info.salary.admins");
-    public static final TextEntry GUI_TEAM_SALARY_INFO_REQUIRED_FUNDS = TextEntry.gui(MODID,"team.salary_info.required_funds");
-    public static final TextEntry GUI_TEAM_SALARY_INFO_CURRENT_REQUIRED_FUNDS = TextEntry.gui(MODID,"team.salary_info.required_funds.current");
-    public static final TextEntry GUI_TEAM_SALARY_INFO_INSUFFICIENT_FUNDS = TextEntry.gui(MODID,"team.salary_info.insufficient_funds");
-    public static final TextEntry GUI_TEAM_SALARY_INFO_POSSIBLE_INSUFFICIENT_FUNDS = TextEntry.gui(MODID,"team.salary_info.insufficient_funds.possible");
-    public static final TextEntry GUI_TEAM_SALARY_INFO_LAST_ATTEMPT_FAILED = TextEntry.gui(MODID,"team.salary_info.last_attempt_failed");
-    public static final TextEntry TOOLTIP_TEAM_SALARY_SETTINGS = TextEntry.tooltip(MODID,"team.salary_settings");
-    public static final TextEntry BUTTON_TEAM_SALARY_SETTINGS_ENABLE = TextEntry.button(MODID,"team.salary_settings.enable");
-    public static final TextEntry BUTTON_TEAM_SALARY_SETTINGS_DISABLE = TextEntry.button(MODID,"team.salary_settings.disable");
-    public static final TextEntry GUI_TEAM_SALARY_SETTINGS_NOTIFICATION = TextEntry.gui(MODID,"team.salary_settings.notification");
-    public static final TextEntry GUI_TEAM_SALARY_SETTINGS_DELAY = TextEntry.gui(MODID,"team.salary_settings.delay");
-    public static final TextEntry GUI_TEAM_SALARY_SETTINGS_REQUIRE_LOGIN = TextEntry.gui(MODID,"team.salary_settings.require_login");
-    public static final TextEntry BUTTON_TEAM_SALARY_SETTINGS_TRIGGER_SALARY = TextEntry.button(MODID,"team.salary_settings.trigger_salary");
-    public static final TextEntry TOOLTIP_TEAM_SALARY_PAYMENTS = TextEntry.tooltip(MODID,"team.salary_payments");
-    public static final TextEntry TOOLTIP_TEAM_SALARY_PAYMENTS_CREATIVE_ENABLE = TextEntry.tooltip(MODID,"team.salary_payments.creative.enable");
-    public static final TextEntry TOOLTIP_TEAM_SALARY_PAYMENTS_CREATIVE_DISABLE = TextEntry.tooltip(MODID,"team.salary_payments.creative.diusable");
-    public static final TextEntry GUI_TEAM_SALARY_PAYMENTS_MEMBER_SALARY = TextEntry.gui(MODID,"team.salary_payments.salary.member");
-    public static final TextEntry GUI_TEAM_SALARY_PAYMENTS_ADMIN_SALARY_SEPERATION = TextEntry.gui(MODID,"team.salary_payments.admin_salary_seperation");
-    public static final TextEntry GUI_TEAM_SALARY_PAYMENTS_ADMIN_SALARY = TextEntry.gui(MODID,"team.salary_payments.salary.admin");
+    public static final TextEntry GUI_TEAM_BANK_ACCESS = TextEntry.gui(MODID,"team.bank.access");
+    public static final TextEntry GUI_TEAM_BANK_SALARY_EDIT = TextEntry.gui(MODID,"team.bank.salary_edit");
+    public static final TextEntry GUI_TEAM_SALARY_TARGET_MEMBERS = TextEntry.gui(MODID,"team.salary_target.members");
+    public static final TextEntry GUI_TEAM_SALARY_TARGET_ADMINS = TextEntry.gui(MODID,"team.salary_target.admins");
     public static final TextEntry TOOLTIP_TEAM_STATS = TextEntry.tooltip(MODID,"team.stats");
     public static final TextEntry TOOLTIP_TEAM_NAME = TextEntry.tooltip(MODID,"team.name");
     public static final TextEntry BUTTON_TEAM_RENAME = TextEntry.button(MODID,"team.rename");
@@ -494,6 +474,41 @@ public class LCText {
     public static final TextEntry TOOLTIP_ATM_TRANSFER_MODE_PLAYER = TextEntry.tooltip(MODID,"atm.transfer.mode.player");
     public static final TextEntry TOOLTIP_ATM_TRANSFER_MODE_LIST = TextEntry.tooltip(MODID,"atm.transfer.mode.list");
     public static final TextEntry TOOLTIP_ATM_TRANSFER_TRIGGER = TextEntry.tooltip(MODID,"bank.transfer.list");
+
+    //ATM Salary Section
+    public static final TextEntry TOOLTIP_BANK_SALARY = TextEntry.tooltip(MODID,"bank.salary");
+    public static final TextEntry GUI_BANK_SALARY_NAME = TextEntry.gui(MODID,"bank.salary.name");
+    //Salary List Tab
+    public static final TextEntry TOOLTIP_BANK_SALARY_LIST = TextEntry.tooltip(MODID,"bank.salary.salary_list");
+    public static final TextEntry BUTTON_BANK_SALARY_LIST_VIEW = TextEntry.tooltip(MODID,"bank.salary.salary_list.view");
+    public static final TextEntry BUTTON_BANK_SALARY_LIST_EDIT = TextEntry.tooltip(MODID,"bank.salary.salary_list.edit");
+    public static final TextEntry BUTTON_BANK_SALARY_LIST_CREATE = TextEntry.tooltip(MODID,"bank.salary.salary_list.create");
+    //Salary Info Tab
+    public static final TextEntry TOOLTIP_BANK_SALARY_INFO = TextEntry.tooltip(MODID,"bank.salary.salary_info");
+    public static final TextEntry GUI_BANK_SALARY_INFO_DISABLED = TextEntry.gui(MODID,"bank.salary.salary_info.disabled");
+    public static final TextEntry GUI_BANK_SALARY_INFO_DELAY = TextEntry.gui(MODID,"bank.salary.salary_info.delay");
+    public static final TextEntry GUI_BANK_SALARY_INFO_NEXT_TRIGGER = TextEntry.gui(MODID,"bank.salary.salary_info.next_trigger");
+    public static final TextEntry GUI_BANK_SALARY_INFO_SALARY = TextEntry.gui(MODID,"bank.salary.salary_info.salary");
+    public static final TextEntry GUI_BANK_SALARY_INFO_REQUIRED_FUNDS = TextEntry.gui(MODID,"bank.salary.salary_info.required_funds");
+    public static final TextEntry GUI_BANK_SALARY_INFO_CURRENT_REQUIRED_FUNDS = TextEntry.gui(MODID,"bank.salary.salary_info.required_funds.current");
+    public static final TextEntry GUI_BANK_SALARY_INFO_INSUFFICIENT_FUNDS = TextEntry.gui(MODID,"bank.salary.salary_info.insufficient_funds");
+    public static final TextEntry GUI_BANK_SALARY_INFO_POSSIBLE_INSUFFICIENT_FUNDS = TextEntry.gui(MODID,"bank.salary.salary_info.insufficient_funds.possible");
+    public static final TextEntry GUI_BANK_SALARY_INFO_LAST_ATTEMPT_FAILED = TextEntry.gui(MODID,"bank.salary.salary_info.last_attempt_failed");
+    public static final TextEntry TOOLTIP_BANK_SALARY_SETTINGS = TextEntry.tooltip(MODID,"bank.salary.salary_settings");
+    public static final TextEntry BUTTON_BANK_SALARY_SETTINGS_ENABLE = TextEntry.button(MODID,"bank.salary.salary_settings.enable");
+    public static final TextEntry BUTTON_BANK_SALARY_SETTINGS_DISABLE = TextEntry.button(MODID,"bank.salary.salary_settings.disable");
+    public static final TextEntry GUI_BANK_SALARY_SETTINGS_NOTIFICATION = TextEntry.gui(MODID,"bank.salary.salary_settings.notification");
+    public static final TextEntry GUI_BANK_SALARY_SETTINGS_DELAY = TextEntry.gui(MODID,"bank.salary.salary_settings.delay");
+    public static final TextEntry GUI_BANK_SALARY_SETTINGS_REQUIRE_LOGIN = TextEntry.gui(MODID,"bank.salary.salary_settings.require_login");
+    public static final TextEntry BUTTON_BANK_SALARY_SETTINGS_TRIGGER_SALARY = TextEntry.button(MODID,"bank.salary.salary_settings.trigger_salary");
+    public static final TextEntry TOOLTIP_BANK_SALARY_PAYMENTS = TextEntry.tooltip(MODID,"bank.salary.salary_payments");
+    public static final TextEntry TOOLTIP_BANK_SALARY_PAYMENTS_CREATIVE_ENABLE = TextEntry.tooltip(MODID,"bank.salary.salary_payments.creative.enable");
+    public static final TextEntry TOOLTIP_BANK_SALARY_PAYMENTS_CREATIVE_DISABLE = TextEntry.tooltip(MODID,"bank.salary.salary_payments.creative.diusable");
+    public static final TextEntry GUI_BANK_SALARY_PAYMENTS_MEMBER_SALARY = TextEntry.gui(MODID,"bank.salary.salary_payments.salary.member");
+    public static final TextEntry GUI_BANK_SALARY_PAYMENTS_ADMIN_SALARY_SEPERATION = TextEntry.gui(MODID,"bank.salary.salary_payments.admin_salary_seperation");
+    public static final TextEntry GUI_BANK_SALARY_PAYMENTS_ADMIN_SALARY = TextEntry.gui(MODID,"bank.salary.salary_payments.salary.admin");
+    public static final TextEntry TOOLTIP_BANK_SALARY_TARGETS = TextEntry.tooltip(MODID,"bank.salary.salary_targets");
+    public static final TextEntry GUI_BANK_SALARY_TARGETS_CUSTOM = TextEntry.gui(MODID,"bank.salary.salary_targets.custom");
 
     //Money Chest Menu
     public static final TextEntry BUTTON_EXCHANGE_UPGRADE_EXCHANGE_WHILE_OPEN_YES = TextEntry.button(MODID,"upgrade.coin_chest.exchange.while_open.y");
@@ -679,6 +694,9 @@ public class LCText {
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_CLIPBOARD = TextEntry.tooltip(MODID,"trader.settings_clipboard");
     public static final TextEntry BUTTON_TRADER_SETTINGS_COPY = TextEntry.tooltip(MODID,"trader.settings_clipboard.copy");
     public static final TextEntry BUTTON_TRADER_SETTINGS_PASTE = TextEntry.tooltip(MODID,"trader.settings_clipboard.paste");
+    public static final TextEntry TOOLTIP_TRADER_SETTINGS_EXTERNAL_AUTH = TextEntry.tooltip(MODID,"trader.settings.external_auth");
+    public static final TextEntry TOOLTIP_TRADER_SETTINGS_EXTERNAL_AUTH_SELECT = TextEntry.tooltip(MODID,"trader.settings.external_auth.select");
+    public static final TextEntryBundle<ExternalAuthorizationAttachment.AccessLevel> GUI_TRADER_SETTINGS_EXTERNAL_AUTH_ACCESS_LEVEL = TextEntryBundle.of(ExternalAuthorizationAttachment.AccessLevel.values(),"gui.lightmanscurrency.trader.settings.external_auth.access_level");
 
     //General Trade Tooltips
     public static final TextEntry TOOLTIP_TRADE_EDIT_PRICE = TextEntry.tooltip(MODID,"trade.edit_price");
@@ -748,9 +766,13 @@ public class LCText {
 
     //Slot Machine Specific
     public static final TextEntry TOOLTIP_TRADER_SLOT_MACHINE_EDIT_ENTRIES = TextEntry.tooltip(MODID,"trader.slot_machine.edit_entries");
-    public static final TextEntry GUI_TRADER_SLOT_MACHINE_WEIGHT_LABEL = TextEntry.gui(MODID,"trader.slot_machine.weight_label");
+    public static final TextEntry GUI_TRADER_SLOT_MACHINE_ODDS_INPUT_LABEL_PRE = TextEntry.gui(MODID,"trader.slot_machine.odds_lable.pre");
+    public static final TextEntry GUI_TRADER_SLOT_MACHINE_ODDS_INPUT_LABEL_SUF = TextEntry.gui(MODID,"trader.slot_machine.odds_lable.suf");
+    public static final TextEntry GUI_TRADER_SLOT_MACHINE_CUSTOM_ICON_LABEL = TextEntry.gui(MODID,"trader.slot_machine.custom_icons");
     public static final TextEntry GUI_TRADER_SLOT_MACHINE_ENTRY_LABEL = TextEntry.gui(MODID,"trader.slot_machine.entry_label");
     public static final TextEntry GUI_TRADER_SLOT_MACHINE_ODDS_LABEL = TextEntry.gui(MODID,"trader.slot_machine.odds_label");
+    public static final TextEntry GUI_TRADER_SLOT_MACHINE_FAIL_CHANCE = TextEntry.gui(MODID,"trader.slot_machine.fail_chance");
+    public static final TextEntry GUI_TRADER_SLOT_MACHINE_INVALID_ODDS = TextEntry.gui(MODID,"trader.slot_machine.invalid_odds");
     public static final TextEntry TOOLTIP_TRADER_SLOT_MACHINE_EDIT_PRICE = TextEntry.gui(MODID,"trader.slot_machine.edit_price");
 
     //Command Trader Specific
@@ -872,6 +894,7 @@ public class LCText {
     public static final DualTextEntry PERMISSION_INTERACTION_LINK = DualTextEntry.permission(Permissions.INTERACTION_LINK);
     public static final DualTextEntry PERMISSION_TRANSFER_OWNERSHIP = DualTextEntry.permission(Permissions.TRANSFER_OWNERSHIP);
     public static final DualTextEntry PERMISSION_EDIT_INPUTS = DualTextEntry.permission(Permissions.InputTrader.EXTERNAL_INPUTS);
+    public static final DualTextEntry PERMISSION_EXTERNAL_AUTHORIZATION = DualTextEntry.permission(ExternalAuthorizationAttachment.EDIT_AUTHORIZATION_PERMISSION);
 
     //Inventory Buttons
     public static final TextEntry TOOLTIP_NOTIFICATION_BUTTON = TextEntry.tooltip(MODID,"button.notification");
@@ -1033,6 +1056,7 @@ public class LCText {
     public static final TextEntry NOTIFICATION_TRADE_PAYGATE_PASS = TextEntry.notification(PaygateNotification.TYPE,"pass");
     public static final TextEntry NOTIFICATION_TRADE_PAYGATE_MONEY = TextEntry.notification(PaygateNotification.TYPE,"money");
     public static final TextEntry NOTIFICATION_TRADE_SLOT_MACHINE = TextEntry.notification(SlotMachineTradeNotification.TYPE);
+    public static final TextEntry NOTIFICATION_TRADE_SLOT_MACHINE_FAIL = TextEntry.notification(SlotMachineTradeNotification.TYPE,"fail");
     public static final TextEntry NOTIFICATION_TRADE_COMMAND = TextEntry.notification(CommandTradeNotification.TYPE);
     public static final TextEntry NOTIFICATION_TRADE_GACHA = TextEntry.notification(GachaTradeNotification.TYPE);
     //Item Notification Parts
@@ -1047,6 +1071,9 @@ public class LCText {
 
     public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN = TextEntry.blockVariant("armor_display.skin");
     public static final List<TextEntry> BLOCK_VARIANT_ARMOR_SKINS = TextEntry.blockVariantList("armor_display.skin",5);
+    public static final TextEntry BLOCK_VARIANT_INNER_CORNER = TextEntry.blockVariant("inner_corner");
+    public static final TextEntry BLOCK_VARIANT_OUTER_CORNER = TextEntry.blockVariant("outer_corner");
+
 
     public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_HEROBRINE = TextEntry.blockVariant("armor_display.skin.herobrine");
 
@@ -1072,6 +1099,10 @@ public class LCText {
     public static final TextEntry DATA_ENTRY_TRADER_TAXES_RATE = TextEntry.dataName(MODID,"trader.taxes.rate");
     public static final TextEntry DATA_ENTRY_TRADER_TAXES_IGNORE_ALL = TextEntry.dataName(MODID,"trader.taxes.ignore_all");
     public static final TextEntry DATA_ENTRY_TRADER_TAXES_IGNORED_COUNT = TextEntry.dataName(MODID,"trader.taxes.ignored_count");
+    public static final TextEntry DATA_ENTRY_TRADER_NOTIFICATIONS_ENABLED = TextEntry.dataName(MODID,"trader.notifications_enabled");
+    public static final TextEntry DATA_ENTRY_TRADER_NOTIFICATIONS_TO_CHAT = TextEntry.dataName(MODID,"trader.notifications_to_chat");
+    public static final TextEntry DATA_ENTRY_TRADER_TEAM_NOTIFICATION_LEVEL = TextEntry.dataName(MODID,"trader.team_notification_level");
+    public static final TextEntry DATA_ENTRY_TRADER_ALWAYS_SHOW_SEARCH_BOX = TextEntry.dataName(MODID,"trader.always_show_search_box");
     public static final TextEntry DATA_ENTRY_INPUT_OUTPUT_SIDES = TextEntry.dataName(MODID,"input_output_sides");
     public static final TextEntry DATA_ENTRY_INPUT_OUTPUT_SIDES_COUNT = TextEntry.dataName(MODID,"input_output_sides.count");
     public static final TextEntry DATA_ENTRY_PAYGATE_CONFLICT_HANDLING = TextEntry.dataName(MODID,"trader.paygate.conflict_handling");
@@ -1097,6 +1128,7 @@ public class LCText {
     public static final TextEntry DATA_CATEGORY_TRADER_TAXES = TextEntry.dataCategory(MODID,"trader.taxes");
     public static final TextEntry DATA_CATEGORY_TRADER_TRADES = TextEntry.dataCategory(MODID,"trader.trades");
     public static final TextEntry DATA_CATEGORY_OWNERSHIP = TextEntry.dataCategory(MODID,"ownership");
+    public static final TextEntry DATA_CATEGORY_MISC = TextEntry.dataCategory(MODID,"misc");
     public static final TextEntry DATA_CATEGORY_INPUT_SETTINGS = TextEntry.dataCategory(MODID,"input_settings");
     public static final TextEntry DATA_CATEGORY_MISC_SETTINGS = TextEntry.dataCategory(MODID,"misc_settings");
 
@@ -1147,6 +1179,7 @@ public class LCText {
     public static final TextEntry COMMAND_BANK_VIEW_DOESNT_EXIST = TextEntry.command(MODID,"lcbank.view.doesnt_exist");
 
     public static final TextEntry COMMAND_CONFIG_RELOAD = TextEntry.command(MODID,"lcconfig.reload");
+    public static final TextEntry COMMAND_CONFIG_RELOAD_FILE = TextEntry.command(MODID,"lcconfig.reload.file");
     public static final TextEntry COMMAND_CONFIG_EDIT_SUCCESS = TextEntry.command(MODID,"lcconfig.edit.success");
     public static final TextEntry COMMAND_CONFIG_EDIT_FAIL_PARSE = TextEntry.command(MODID,"lcconfig.edit.fail.parse");
     public static final TextEntry COMMAND_CONFIG_EDIT_LIST_REMOVE_SUCCESS = TextEntry.command(MODID,"lcconfig.edit.list.remove.success");
@@ -1277,6 +1310,33 @@ public class LCText {
     public static final DualTextEntry RESOURCE_PACK_CLOSER_ITEMS = DualTextEntry.resourcePack(MODID,"closer_items");
     public static final DualTextEntry RESOURCE_PACK_LEGACY_COINS = DualTextEntry.resourcePack(MODID,"legacy_coins");
     public static final DualTextEntry RESOURCE_PACK_FANCY_ICONS = DualTextEntry.resourcePack(MODID,"fancy_icons");
+
+    //Config Text
+    public static final TextEntry CONFIG_TITLE_FILES = TextEntry.tooltip(MODID,"config.title.files");
+    public static final TextEntry CONFIG_TITLE_SEPERATOR = TextEntry.tooltip(MODID,"config.title.seperator");
+    public static final TextEntry CONFIG_LABEL_FILE = TextEntry.tooltip(MODID,"config.label.file");
+    public static final TextEntry CONFIG_OPTION_COUNT = TextEntry.tooltip(MODID,"config.option_count");
+    public static final TextEntry CONFIG_OPTION_DEFAULT = TextEntry.tooltip(MODID,"config.option.default");
+    public static final TextEntry CONFIG_OPTION_RANGE = TextEntry.tooltip(MODID,"config.option.range");
+    public static final TextEntry CONFIG_OPTION_OPTIONS = TextEntry.tooltip(MODID,"config.option.options");
+    public static final TextEntry CONFIG_OPTION_LIST_COUNT = TextEntry.tooltip(MODID,"config.option.list_count");
+    public static final TextEntry CONFIG_OPTION_LIST_ENTRY = TextEntry.gui(MODID,"config.option.list_entry");
+    public static final TextEntry CONFIG_OPTION_LIST_ADD = TextEntry.button(MODID,"config.option.list_add");
+    public static final TextEntry CONFIG_OPTION_LIST_REMOVE = TextEntry.tooltip(MODID,"config.option.list_remove");
+    public static final TextEntry CONFIG_OPTION_EDIT = TextEntry.button(MODID,"config.option.edit");
+    public static final TextEntry CONFIG_OPTION_EDIT_TOOLTIP = TextEntry.tooltip(MODID,"config.option.edit");
+    public static final TextEntry CONFIG_OPTION_NOT_SUPPORTED = TextEntry.button(MODID,"config.option.not_supported");
+    public static final TextEntry CONFIG_UNDO = TextEntry.button(MODID,"config.undo");
+    public static final TextEntry CONFIG_UNDO_ALL = TextEntry.button(MODID,"config.undo_all");
+    public static final TextEntry CONFIG_RESET_DEFAULT = TextEntry.button(MODID,"config.reset_to_default");
+    public static final TextEntry CONFIG_BACK = TextEntry.button(MODID,"config.back");
+
+    public static final TextEntry CONFIG_TRADE_MOD_COST = TextEntry.gui(MODID,"config.trade_mod.cost");
+    public static final TextEntry CONFIG_TRADE_MOD_COST_REGIONAL = TextEntry.gui(MODID,"config.trade_mod.cost.regional");
+    public static final TextEntry CONFIG_TRADE_MOD_RESULT = TextEntry.gui(MODID,"config.trade_mod.result");
+    public static final TextEntry CONFIG_TRADE_MOD_RESULT_REGIONAL = TextEntry.gui(MODID,"config.trade_mod.result.regional");
+    public static final TextEntry CONFIG_TRADE_MOD_REGION_ID = TextEntry.gui(MODID,"config.trade_mod.region_id");
+    public static final TextEntry CONFIG_TRADE_MOD_PROFESSION = TextEntry.gui(MODID,"config.trade_mod.profession");
 
     ///OTHER MODS
 

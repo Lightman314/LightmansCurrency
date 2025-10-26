@@ -97,13 +97,13 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 		if(tag.contains("Chain", Tag.TAG_STRING))
 		{
 			boolean dataLoaded = true;
-			if(CoinAPI.API.NoDataAvailable())
+			if(CoinAPI.getApi().NoDataAvailable())
 			{
 				LightmansCurrency.LogWarning("Coin Value loaded before receiving the Chain Data packet. Will assume all value pairs are valid and don't need rounding!");
 				dataLoaded = false;
 			}
 			String chain = tag.getString("Chain");
-			ChainData chainData = CoinAPI.API.ChainData(chain);
+			ChainData chainData = CoinAPI.getApi().ChainData(chain);
 			if(chainData == null && dataLoaded) //Load value as backup state, so that if the config gets reloaded properly and this chain gets re-added
 				return new CoinValue(chain, tag);
 			if(tag.contains("Value", Tag.TAG_LIST))
@@ -143,7 +143,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 				Item coin = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(entry.getString("Coin")));
 				int amount = entry.getInt("Amount");
 				if(chainData == null)
-					chainData = CoinAPI.API.ChainDataOfCoin(coin);
+					chainData = CoinAPI.getApi().ChainDataOfCoin(coin);
 				if(chainData != null && chainData.containsEntry(coin))
 					pairList.add(new CoinValuePair(coin, amount));
 			}
@@ -175,7 +175,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 				Item coin = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(thisCompound.getString("id")));
 				int amount = thisCompound.getInt("amount");
 				if(chainData == null)
-					chainData = CoinAPI.API.ChainDataOfCoin(coin);
+					chainData = CoinAPI.getApi().ChainDataOfCoin(coin);
 				if(chainData != null && chainData.containsEntry(coin))
 					pairList.add(new CoinValuePair(coin,amount));
 			}
@@ -187,7 +187,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 		return MoneyValue.empty();
 	}
 
-	public static MoneyValue fromNumber(@Nonnull String chain, long valueNumber) { return fromNumber(CoinAPI.API.ChainData(chain), valueNumber); }
+	public static MoneyValue fromNumber(@Nonnull String chain, long valueNumber) { return fromNumber(CoinAPI.getApi().ChainData(chain), valueNumber); }
 	public static MoneyValue fromNumber(ChainData chainData, long valueNumber)
 	{
 		//LightmansCurrency.LogDebug("Generating Coin Value from '" + chain + "' with a value of " + valueNumber);
@@ -241,7 +241,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 	@Nonnull
 	public static MoneyValue fromItemOrValue(Item coin, int itemCount, long value)
 	{
-		ChainData chainData = CoinAPI.API.ChainDataOfCoin(coin);
+		ChainData chainData = CoinAPI.getApi().ChainDataOfCoin(coin);
 		if(chainData != null)
 			return new CoinValue(chainData.chain, Lists.newArrayList(new CoinValuePair(coin, itemCount)));
 		return fromNumber("main", value);
@@ -323,7 +323,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 	//Rounding and Sorting functions. Now static and only used on a coin values init stage as they are now immutable.
 	private static List<CoinValuePair> roundValue(@Nonnull String chain, @Nonnull List<CoinValuePair> list)
 	{
-		ChainData chainData = CoinAPI.API.ChainData(chain);
+		ChainData chainData = CoinAPI.getApi().ChainData(chain);
 		if(chainData == null)
 			return list;
 		while(needsRounding(chainData, list))
@@ -436,7 +436,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 	@Override
 	public MutableComponent getText(@Nonnull MutableComponent emptyText)
 	{
-		ChainData chainData = CoinAPI.API.ChainData(this.chain);
+		ChainData chainData = CoinAPI.getApi().ChainData(this.chain);
 		if(chainData == null)
 			return EasyText.literal("ERROR");
 		else
@@ -445,7 +445,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 
 	@Override
 	public long getCoreValue() {
-		ChainData chainData = CoinAPI.API.ChainData(this.chain);
+		ChainData chainData = CoinAPI.getApi().ChainData(this.chain);
 		if(chainData == null)
 			return 0;
 		long value = 0;
@@ -467,7 +467,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 
 	public static MoneyValue loadCoinValue(@Nonnull JsonObject json) throws JsonSyntaxException, ResourceLocationException {
 		String chain = GsonHelper.getAsString(json, "Chain");
-		ChainData data = CoinAPI.API.ChainData(chain);
+		ChainData data = CoinAPI.getApi().ChainData(chain);
 		if(data == null)
 			throw new JsonSyntaxException("No " + chain + " chain has been registered!");
 		List<CoinValuePair> valuePairs = new ArrayList<>();
@@ -498,7 +498,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 			else if(primitive.isString())
 			{
 				double displayValue = Double.parseDouble(primitive.getAsString());
-				ChainData mainChain = CoinAPI.API.ChainData(CoinAPI.MAIN_CHAIN);
+				ChainData mainChain = CoinAPI.getApi().ChainData(CoinAPI.MAIN_CHAIN);
 				if(mainChain != null)
 					return mainChain.getDisplayData().parseDisplayInput(displayValue);
 			}
@@ -515,7 +515,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 					//Parse coin
 					Item coin = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(GsonHelper.getAsString(coinData, "Coin")));
 					if(chainData == null)
-						chainData = CoinAPI.API.ChainDataOfCoin(coin);
+						chainData = CoinAPI.getApi().ChainDataOfCoin(coin);
 					//Parse count
 					int quantity = GsonHelper.getAsInt(coinData, "Count", 1);
 					if(quantity <= 0)
@@ -558,7 +558,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 						//Parse coin
 						Item coin = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(GsonHelper.getAsString(coinData, "Coin")));
 						if(chainData == null)
-							chainData = CoinAPI.API.ChainDataOfCoin(coin);
+							chainData = CoinAPI.getApi().ChainDataOfCoin(coin);
 						//Parse count
 						int quantity = GsonHelper.getAsInt(coinData, "Count", 1);
 						if(quantity <= 0)

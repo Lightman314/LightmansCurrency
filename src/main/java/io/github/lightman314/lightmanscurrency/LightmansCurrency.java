@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency;
 
+import io.github.lightman314.lightmanscurrency.api.config.ConfigAPI;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
+import io.github.lightman314.lightmanscurrency.api.config.ConfigReloadable;
 import io.github.lightman314.lightmanscurrency.api.misc.BlockProtectionHelper;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
@@ -24,13 +26,15 @@ import io.github.lightman314.lightmanscurrency.api.stats.types.*;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.types.*;
+import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientCoinSorter;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientMoneyType;
+import io.github.lightman314.lightmanscurrency.common.seasonal_events.SeasonalEventManager;
 import io.github.lightman314.lightmanscurrency.common.traders.commands.CommandTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ticket.TicketItemTrade;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.common.blocks.CoinBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidatorType;
@@ -58,6 +62,8 @@ import io.github.lightman314.lightmanscurrency.proxy.*;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.VillagerTradeManager;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -91,22 +97,22 @@ import io.github.lightman314.lightmanscurrency.common.loot.LootManager;
 import io.github.lightman314.lightmanscurrency.network.message.time.SPacketSyncTime;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Objects;
 import java.util.function.Consumer;
 
 @Mod("lightmanscurrency")
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class LightmansCurrency {
 	
 	public static final String MODID = "lightmanscurrency";
 
 	private static CommonProxy PROXY;
-	@Nonnull
 	public static CommonProxy getProxy() { return Objects.requireNonNull(PROXY,"Attempted to get the proxy before the mod was initialized!"); }
 
     private static final Logger LOGGER = LogManager.getLogger();
-    
-	public LightmansCurrency(@Nonnull ModContainer modContainer, @Nonnull IEventBus eventBus, @Nonnull Dist side) {
+	public LightmansCurrency(ModContainer modContainer, IEventBus eventBus, Dist side) {
 
 		//Init the proxy
 		PROXY = side.isClient() ? new ClientProxy() : new CommonProxy();
@@ -156,114 +162,114 @@ public class LightmansCurrency {
 		//IntegrationUtil.SafeRunIfLoaded("cadmus",LCCadmusIntegration::setup,null);
 
 		//Setup Money System
-		CoinAPI.API.Setup();
+		CoinAPI.getApi().Setup();
 		//Register built-in Currency Types
-		MoneyAPI.API.RegisterCurrencyType(CoinCurrencyType.INSTANCE);
-		MoneyAPI.API.RegisterCurrencyType(NullCurrencyType.INSTANCE);
+		MoneyAPI.getApi().RegisterCurrencyType(CoinCurrencyType.INSTANCE);
+		MoneyAPI.getApi().RegisterCurrencyType(NullCurrencyType.INSTANCE);
 		//Ancient Money
-		MoneyAPI.API.RegisterCurrencyType(AncientMoneyType.INSTANCE);
-		CoinAPI.API.RegisterCustomSorter(AncientCoinSorter.INSTANCE);
+		MoneyAPI.getApi().RegisterCurrencyType(AncientMoneyType.INSTANCE);
+		CoinAPI.getApi().RegisterCustomSorter(AncientCoinSorter.INSTANCE);
 
 		//Ownership API data
-		OwnershipAPI.API.registerOwnerType(Owner.NULL_TYPE);
-		OwnershipAPI.API.registerOwnerType(FakeOwner.TYPE);
-		OwnershipAPI.API.registerOwnerType(PlayerOwner.TYPE);
-		OwnershipAPI.API.registerOwnerType(TeamOwner.TYPE);
+		OwnershipAPI.getApi().registerOwnerType(Owner.NULL_TYPE);
+		OwnershipAPI.getApi().registerOwnerType(FakeOwner.TYPE);
+		OwnershipAPI.getApi().registerOwnerType(PlayerOwner.TYPE);
+		OwnershipAPI.getApi().registerOwnerType(TeamOwner.TYPE);
 
-		OwnershipAPI.API.registerPotentialOwnerProvider(PlayerOwnerProvider.INSTANCE);
-		OwnershipAPI.API.registerPotentialOwnerProvider(TeamOwnerProvider.INSTANCE);
+		OwnershipAPI.getApi().registerPotentialOwnerProvider(PlayerOwnerProvider.INSTANCE);
+		OwnershipAPI.getApi().registerPotentialOwnerProvider(TeamOwnerProvider.INSTANCE);
 
 		//Initialize the TraderData deserializers
-		TraderAPI.API.RegisterTrader(ItemTraderData.TYPE);
-		TraderAPI.API.RegisterTrader(ItemTraderDataArmor.TYPE);
-		TraderAPI.API.RegisterTrader(ItemTraderDataTicket.TYPE);
-		TraderAPI.API.RegisterTrader(ItemTraderDataBook.TYPE);
-		TraderAPI.API.RegisterTrader(SlotMachineTraderData.TYPE);
-		TraderAPI.API.RegisterTrader(PaygateTraderData.TYPE);
-		TraderAPI.API.RegisterTrader(AuctionHouseTrader.TYPE);
-		TraderAPI.API.RegisterTrader(CommandTrader.TYPE);
-		TraderAPI.API.RegisterTrader(GachaTrader.TYPE);
+		TraderAPI.getApi().RegisterTrader(ItemTraderData.TYPE);
+		TraderAPI.getApi().RegisterTrader(ItemTraderDataArmor.TYPE);
+		TraderAPI.getApi().RegisterTrader(ItemTraderDataTicket.TYPE);
+		TraderAPI.getApi().RegisterTrader(ItemTraderDataBook.TYPE);
+		TraderAPI.getApi().RegisterTrader(SlotMachineTraderData.TYPE);
+		TraderAPI.getApi().RegisterTrader(PaygateTraderData.TYPE);
+		TraderAPI.getApi().RegisterTrader(AuctionHouseTrader.TYPE);
+		TraderAPI.getApi().RegisterTrader(CommandTrader.TYPE);
+		TraderAPI.getApi().RegisterTrader(GachaTrader.TYPE);
 
 		//Register the custom game rules
 		ModGameRules.registerRules();
 
 		//Initialize the Trade Rule deserializers
-		TraderAPI.API.RegisterTradeRule(PlayerListing.TYPE);
-		TraderAPI.API.RegisterTradeRule(PlayerTradeLimit.TYPE);
-		TraderAPI.API.RegisterTradeRule(PlayerDiscounts.TYPE);
-		TraderAPI.API.RegisterTradeRule(TimedSale.TYPE);
-		TraderAPI.API.RegisterTradeRule(TradeLimit.TYPE);
-		TraderAPI.API.RegisterTradeRule(FreeSample.TYPE);
-		TraderAPI.API.RegisterTradeRule(PriceFluctuation.TYPE);
-		TraderAPI.API.RegisterTradeRule(DemandPricing.TYPE);
-		TraderAPI.API.RegisterTradeRule(DailyTrades.TYPE);
-		TraderAPI.API.RegisterTradeRule(DiscountCodes.TYPE);
+		TraderAPI.getApi().RegisterTradeRule(PlayerListing.TYPE);
+		TraderAPI.getApi().RegisterTradeRule(PlayerTradeLimit.TYPE);
+		TraderAPI.getApi().RegisterTradeRule(PlayerDiscounts.TYPE);
+		TraderAPI.getApi().RegisterTradeRule(TimedSale.TYPE);
+		TraderAPI.getApi().RegisterTradeRule(TradeLimit.TYPE);
+		TraderAPI.getApi().RegisterTradeRule(FreeSample.TYPE);
+		TraderAPI.getApi().RegisterTradeRule(PriceFluctuation.TYPE);
+		TraderAPI.getApi().RegisterTradeRule(DemandPricing.TYPE);
+		TraderAPI.getApi().RegisterTradeRule(DailyTrades.TYPE);
+		TraderAPI.getApi().RegisterTradeRule(DiscountCodes.TYPE);
 
 		TradeRule.addLoadListener(PlayerListing.LISTENER);
 		TradeRule.addIgnoreMissing("lightmanscurrency:whitelist");
 		TradeRule.addIgnoreMissing("lightmanscurrency:blacklist");
 
 		//Initialize the Notification deserializers
-		NotificationAPI.API.RegisterNotification(ItemTradeNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(PaygateNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(SlotMachineTradeNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(OutOfStockNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(LowBalanceNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(AuctionHouseSellerNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(AuctionHouseBuyerNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(AuctionHouseSellerNobidNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(AuctionHouseBidNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(AuctionHouseCancelNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(TextNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(AddRemoveAllyNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(AddRemoveTradeNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(ChangeAllyPermissionNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(ChangeCreativeNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(ChangeNameNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(ChangeOwnerNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(ChangeSettingNotification.SIMPLE_TYPE);
-		NotificationAPI.API.RegisterNotification(ChangeSettingNotification.ADVANCED_TYPE);
-		NotificationAPI.API.RegisterNotification(ChangeSettingNotification.DUMB_TYPE);
-		NotificationAPI.API.RegisterNotification(DepositWithdrawNotification.PLAYER_TYPE);
-		NotificationAPI.API.RegisterNotification(DepositWithdrawNotification.CUSTOM_TYPE);
-		NotificationAPI.API.RegisterNotification(DepositWithdrawNotification.SERVER_TYPE);
-		NotificationAPI.API.RegisterNotification(BankTransferNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(BankInterestNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(TaxesCollectedNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(TaxesPaidNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(OwnableBlockEjectedNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(CommandTradeNotification.TYPE);
-		NotificationAPI.API.RegisterNotification(GachaTradeNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(ItemTradeNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(PaygateNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(SlotMachineTradeNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(OutOfStockNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(LowBalanceNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(AuctionHouseSellerNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(AuctionHouseBuyerNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(AuctionHouseSellerNobidNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(AuctionHouseBidNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(AuctionHouseCancelNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(TextNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(AddRemoveAllyNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(AddRemoveTradeNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(ChangeAllyPermissionNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(ChangeCreativeNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(ChangeNameNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(ChangeOwnerNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(ChangeSettingNotification.SIMPLE_TYPE);
+		NotificationAPI.getApi().RegisterNotification(ChangeSettingNotification.ADVANCED_TYPE);
+		NotificationAPI.getApi().RegisterNotification(ChangeSettingNotification.DUMB_TYPE);
+		NotificationAPI.getApi().RegisterNotification(DepositWithdrawNotification.PLAYER_TYPE);
+		NotificationAPI.getApi().RegisterNotification(DepositWithdrawNotification.CUSTOM_TYPE);
+		NotificationAPI.getApi().RegisterNotification(DepositWithdrawNotification.SERVER_TYPE);
+		NotificationAPI.getApi().RegisterNotification(BankTransferNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(BankInterestNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(TaxesCollectedNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(TaxesPaidNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(OwnableBlockEjectedNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(CommandTradeNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(GachaTradeNotification.TYPE);
 
 		//Initialize the Notification Category deserializers
-		NotificationAPI.API.RegisterCategory(NotificationCategory.GENERAL_TYPE);
-		NotificationAPI.API.RegisterCategory(NullCategory.TYPE);
-		NotificationAPI.API.RegisterCategory(EventCategory.TYPE);
-		NotificationAPI.API.RegisterCategory(TraderCategory.TYPE);
-		NotificationAPI.API.RegisterCategory(BankCategory.TYPE);
-		NotificationAPI.API.RegisterCategory(AuctionHouseCategory.TYPE);
-		NotificationAPI.API.RegisterCategory(TaxEntryCategory.TYPE);
+		NotificationAPI.getApi().RegisterCategory(NotificationCategory.GENERAL_TYPE);
+		NotificationAPI.getApi().RegisterCategory(NullCategory.TYPE);
+		NotificationAPI.getApi().RegisterCategory(EventCategory.TYPE);
+		NotificationAPI.getApi().RegisterCategory(TraderCategory.TYPE);
+		NotificationAPI.getApi().RegisterCategory(BankCategory.TYPE);
+		NotificationAPI.getApi().RegisterCategory(AuctionHouseCategory.TYPE);
+		NotificationAPI.getApi().RegisterCategory(TaxEntryCategory.TYPE);
 
 		//Register Trader Search Filters
-		TraderAPI.API.RegisterTraderSearchFilter(new BasicSearchFilter());
-		TraderAPI.API.RegisterSearchFilter(new ItemTraderSearchFilter());
-		TraderAPI.API.RegisterSearchFilter(new SlotMachineSearchFilter());
-		TraderAPI.API.RegisterSearchFilter(new AuctionSearchFilter());
-		TraderAPI.API.RegisterSearchFilter(new DescriptionSearchFilter());
+		TraderAPI.getApi().RegisterTraderSearchFilter(new BasicSearchFilter());
+		TraderAPI.getApi().RegisterSearchFilter(new ItemTraderSearchFilter());
+		TraderAPI.getApi().RegisterSearchFilter(new SlotMachineSearchFilter());
+		TraderAPI.getApi().RegisterSearchFilter(new AuctionSearchFilter());
+		TraderAPI.getApi().RegisterSearchFilter(new DescriptionSearchFilter());
 
         //Register Terminal Sort Types
-        TraderAPI.API.RegisterSortType(SortByName.INSTANCE);
-        TraderAPI.API.RegisterSortType(SortByID.INSTANCE);
-        TraderAPI.API.RegisterSortType(SortByOffers.INSTANCE);
-        TraderAPI.API.RegisterSortType(SortByPopularity.INSTANCE);
-        TraderAPI.API.RegisterSortType(SortByRecent.INSTANCE);
+        TraderAPI.getApi().RegisterSortType(SortByName.INSTANCE);
+        TraderAPI.getApi().RegisterSortType(SortByID.INSTANCE);
+        TraderAPI.getApi().RegisterSortType(SortByOffers.INSTANCE);
+        TraderAPI.getApi().RegisterSortType(SortByPopularity.INSTANCE);
+        TraderAPI.getApi().RegisterSortType(SortByRecent.INSTANCE);
 
 		//Register Tax Reference Types (in case I add more taxable blocks in the future)
-		TaxAPI.API.RegisterReferenceType(TaxableTraderReference.TYPE);
+		TaxAPI.getApi().RegisterReferenceType(TaxableTraderReference.TYPE);
 
 		//Register Bank Account Reference Types
-		BankAPI.API.RegisterReferenceType(PlayerBankReference.TYPE);
-		BankAPI.API.RegisterReferenceType(TeamBankReference.TYPE);
+		BankAPI.getApi().RegisterReferenceType(PlayerBankReference.TYPE);
+		BankAPI.getApi().RegisterReferenceType(TeamBankReference.TYPE);
 
 		//Register Menu Validator Types
 		MenuValidatorType.register(SimpleValidator.TYPE);
@@ -298,7 +304,15 @@ public class LightmansCurrency {
 		//Register Custom Item Trades
 		ItemTradeData.registerCustomItemTrade(TicketItemTrade.TYPE,TicketItemTrade::new);
 
-		//Setup Mod Compats
+        //Setup Config API Hooks
+        //Delay of 100 so that it loads after common/client configs
+        ConfigAPI.getApi().registerCustomReloadable(ConfigReloadable.simpleReloader(VersionUtil.lcResource("master_coin_list"),ConfigReloadable.PRIORITY_AFTER_MONEY_CONFIGS, stack -> CoinAPI.getApi().ReloadCoinDataFromFile()));
+        //Delay of 1000 so that it loads after server/money configs
+        ConfigAPI.getApi().registerCustomReloadable(ConfigReloadable.simpleReloader(VersionUtil.lcResource("persistent_traders"),ConfigReloadable.PRIORITY_AFTER_ALL,stack -> TraderDataCache.TYPE.get(false).reloadPersistentTraders()));
+        //Seasonal events don't care about money or other such nonsense, so default priority is fine :)
+        ConfigAPI.getApi().registerCustomReloadable(ConfigReloadable.simpleReloader(VersionUtil.lcResource("seasonal_events"),stack -> SeasonalEventManager.reload()));
+
+        //Setup Mod Compats
 		IntegrationUtil.SafeRunIfLoaded("ftbteams", LCFTBTeams::setup,"Error setting up FTB Teams compat!");
 
 	}
@@ -395,14 +409,11 @@ public class LightmansCurrency {
 	private static class SyncCoinDataTask implements ICustomConfigurationTask {
 
 		private SyncCoinDataTask() { }
-
 		@Override
-		@Nonnull
 		public Type type() { return SPacketSyncCoinData.CONFIG_TYPE; }
-
 		@Override
-		public void run(@Nonnull Consumer<CustomPacketPayload> sender) {
-			sender.accept(CoinAPI.API.getSyncPacket().configTask());
+		public void run(Consumer<CustomPacketPayload> sender) {
+			sender.accept(CoinAPI.getApi().getSyncPacket().configTask());
 		}
 
 	}

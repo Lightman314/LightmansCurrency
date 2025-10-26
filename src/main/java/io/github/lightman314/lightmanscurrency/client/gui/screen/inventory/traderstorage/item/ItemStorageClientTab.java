@@ -2,34 +2,36 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.item.ItemStorageTab;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab> implements IScrollable, IMouseListener {
 
 	private static final int X_OFFSET = 13;
@@ -46,7 +48,6 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 
 	int columns = COLUMNS_NORMAL;
 
-	@Nonnull
 	@Override
 	public IconData getIcon() { return IconUtil.ICON_STORAGE; }
 
@@ -75,20 +76,20 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 		this.addChild(PlainButton.builder()
 				.position(screenArea.pos.offset(22, Y_OFFSET + 18 * ROWS + 4))
 				.pressAction(() -> this.commonTab.quickTransfer(0))
-				.sprite(IconAndButtonUtil.SPRITE_QUICK_INSERT)
+				.sprite(SpriteUtil.BUTTON_QUICK_INSERT)
 				.addon(EasyAddonHelper.visibleCheck(this::quickButtonsVisible))
 				.build());
 		this.addChild(PlainButton.builder()
 				.position(screenArea.pos.offset(34, Y_OFFSET + 18 * ROWS + 4))
 				.pressAction(() -> this.commonTab.quickTransfer(1))
-				.sprite(IconAndButtonUtil.SPRITE_QUICK_EXTRACT)
+				.sprite(SpriteUtil.BUTTON_QUICK_EXTRACT)
 				.addon(EasyAddonHelper.visibleCheck(this::quickButtonsVisible))
 				.build());
 		
 	}
 
 	@Override
-	public void renderBG(@Nonnull EasyGuiGraphics gui) {
+	public void renderBG(EasyGuiGraphics gui) {
 
 		gui.drawString(LCText.TOOLTIP_TRADER_STORAGE.get(), 8, 6, 0x404040);
 		
@@ -109,7 +110,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 					int xPos = X_OFFSET + x * 18;
 					//Render the slot background
 					gui.resetColor();
-					gui.blit(TraderScreen.GUI_TEXTURE, xPos, yPos, TraderScreen.WIDTH, 0, 18, 18);
+                    SpriteUtil.EMPTY_SLOT_NORMAL.render(gui,xPos,yPos);
 					//Render the slots item
 					if(index < storage.getSlotCount())
 						gui.renderItem(storage.getContents().get(index), xPos + 1, yPos + 1, this.getCountText(storage.getContents().get(index)));
@@ -122,7 +123,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 			//Render the slot bg for the upgrade slots
 			gui.resetColor();
 			for(Slot slot : this.commonTab.getSlots())
-				gui.blit(TraderScreen.GUI_TEXTURE, slot.x - 1, slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
+                gui.renderSlot(this.screen,slot);
 		}
 		
 	}
@@ -142,7 +143,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 	}
 
 	@Override
-	public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
+	public void renderAfterWidgets(EasyGuiGraphics gui) {
 		
 		if(this.menu.getTrader() instanceof ItemTraderData && this.screen.getMenu().getHeldItem().isEmpty())
 		{
@@ -228,7 +229,7 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
 
 	@Nullable
 	@Override
-	public Pair<ItemStack, ScreenArea> getHoveredItem(@Nonnull ScreenPosition mousePos) {
+	public Pair<ItemStack, ScreenArea> getHoveredItem(ScreenPosition mousePos) {
 		if(this.menu.getTrader() instanceof ItemTraderData trader) {
 			int foundColumn = -1;
 			int foundRow = -1;

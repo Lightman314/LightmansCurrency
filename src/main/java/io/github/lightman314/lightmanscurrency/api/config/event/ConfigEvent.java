@@ -38,4 +38,21 @@ public abstract class ConfigEvent extends Event {
         }
     }
 
+    public static abstract class ConfigReceivedSyncDataEvent extends ConfigEvent
+    {
+        public ConfigReceivedSyncDataEvent(ConfigFile file) { super(file); }
+
+        public static class Pre extends ConfigReceivedSyncDataEvent
+        {
+            public Pre(ConfigFile file) { super(file); }
+        }
+
+        public static class Post extends ConfigReceivedSyncDataEvent
+        {
+            public Post(ConfigFile file) { super(file); }
+        }
+
+    }
+
+
 }

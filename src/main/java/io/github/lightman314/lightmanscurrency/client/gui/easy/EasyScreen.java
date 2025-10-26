@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
@@ -22,10 +23,12 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class EasyScreen extends Screen implements IEasyScreen {
 
     private final List<IPreRender> preRenders = new ArrayList<>();
@@ -35,11 +38,11 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
     private final List<IScrollListener> scrollListeners = new ArrayList<>();
     private final List<IMouseListener> mouseListeners = new ArrayList<>();
     private final List<IKeyboardListener> keyboardListeners = new ArrayList<>();
+    private final List<IGhostSlotProvider> ghostSlotProviders = new ArrayList<>();
+    private final List<IRemovalListener> removalListeners = new ArrayList<>();
 
-    @Nonnull
     @Override
     public final Font getFont() { return this.font; }
-    @Nonnull
     @Override
     public final Player getPlayer() { return this.minecraft.player; }
 
@@ -48,19 +51,19 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
     protected EasyScreen() { this(EasyText.empty()); }
     protected EasyScreen(Component title) { super(title); }
 
-    @Nonnull
+    
     @Override
     public RegistryAccess registryAccess() { return this.getPlayer().registryAccess(); }
 
     @Override
     public boolean isPauseScreen() { return false; }
 
-    @Nonnull
+    
     @Override
     public final ScreenArea getArea() { return this.screenArea; }
     public final int getGuiLeft() { return this.screenArea.x; }
     public final  int getGuiTop() { return this.screenArea.y; }
-    @Nonnull
+    
     public final  ScreenPosition getCorner() { return this.screenArea.pos; }
     public final  int getXSize() { return this.screenArea.width; }
     public final  int getYSize() { return this.screenArea.height; }
@@ -76,17 +79,24 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
         this.scrollListeners.clear();
         this.mouseListeners.clear();
         this.keyboardListeners.clear();
+        this.ghostSlotProviders.clear();
+        for(IRemovalListener l : this.removalListeners)
+            l.onRemovedFromScreen();
+        this.removalListeners.clear();
+        this.preInit();
         super.init();
         this.recalculateCorner();
         this.initialize(this.screenArea);
     }
+
+    protected void preInit() {}
 
     protected void recalculateCorner() { this.screenArea = this.screenArea.atPosition(ScreenPosition.of((this.width - this.screenArea.width) / 2,(this.height - this.screenArea.height) / 2)); }
 
     protected abstract void initialize(ScreenArea screenArea);
 
     @Override
-    public final void renderBackground(@Nonnull GuiGraphics mcgui, int mouseX, int mouseY, float partialTicks) {
+    public final void renderBackground(GuiGraphics mcgui, int mouseX, int mouseY, float partialTicks) {
         if(LCConfig.CLIENT.debugScreens.get())
             mcgui.fill(0,0,this.width,this.height,0xFFFEFEFE);
         else
@@ -94,7 +104,7 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
     }
 
     @Override
-    public final void render(@Nonnull GuiGraphics mcgui, int mouseX, int mouseY, float partialTicks) {
+    public final void render(GuiGraphics mcgui, int mouseX, int mouseY, float partialTicks) {
         this.renderTick();
         EasyGuiGraphics gui = EasyGuiGraphics.create(mcgui, this.font, mouseX, mouseY, partialTicks).pushOffset(this.getCorner());
         //Trigger Pre-Render ticks
@@ -126,11 +136,11 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
 
     protected void renderTick() {}
 
-    protected abstract void renderBG(@Nonnull EasyGuiGraphics gui);
+    protected abstract void renderBG(EasyGuiGraphics gui);
 
-    protected void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {}
+    protected void renderAfterWidgets(EasyGuiGraphics gui) {}
 
-    protected void renderAfterTooltips(@Nonnull EasyGuiGraphics gui) {}
+    protected void renderAfterTooltips(EasyGuiGraphics gui) {}
 
     @Override
     public final <T> T addChild(T child) {
@@ -163,6 +173,10 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
             w.addAddons(this::addChild);
         if(child instanceof IKeyboardListener l)
             this.keyboardListeners.add(l);
+        if(child instanceof IGhostSlotProvider p)
+            this.ghostSlotProviders.add(p);
+        if(child instanceof IRemovalListener l)
+            this.removalListeners.add(l);
         if(child instanceof EasyWidgetWithChildren w && !w.addChildrenBeforeThis())
             w.addChildren();
         if(child instanceof IWidgetWrapper w)
@@ -192,6 +206,13 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
             this.lateRenders.remove(r);
         if(child instanceof IKeyboardListener l)
             this.keyboardListeners.remove(l);
+        if(child instanceof IGhostSlotProvider p)
+            this.ghostSlotProviders.remove(p);
+        if(child instanceof IRemovalListener l)
+        {
+            l.onRemovedFromScreen();
+            this.removalListeners.remove(l);
+        }
         if(child instanceof EasyWidgetWithChildren w)
             w.removeChildren();
         if(child instanceof IWidgetWrapper w)
@@ -208,24 +229,24 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
 
     protected void screenTick() {}
 
-    @Nonnull
+    
     @Override
     @Deprecated
-    protected final <T extends GuiEventListener & NarratableEntry> T addWidget(@Nonnull T widget) { return this.addChild(widget); }
+    protected final <T extends GuiEventListener & NarratableEntry> T addWidget(T widget) { return this.addChild(widget); }
 
-    @Nonnull
+    
     @Override
     @Deprecated
-    protected final <T extends GuiEventListener & Renderable & NarratableEntry> T addRenderableWidget(@Nonnull T widget) { return this.addChild(widget); }
+    protected final <T extends GuiEventListener & Renderable & NarratableEntry> T addRenderableWidget(T widget) { return this.addChild(widget); }
 
-    @Nonnull
+    
     @Override
     @Deprecated
-    protected final <T extends Renderable> T addRenderableOnly(@Nonnull T widget) { return this.addChild(widget); }
+    protected final <T extends Renderable> T addRenderableOnly(T widget) { return this.addChild(widget); }
 
     @Override
     @Deprecated
-    protected final void removeWidget(@Nonnull GuiEventListener widget) { this.removeChild(widget); }
+    protected final void removeWidget(GuiEventListener widget) { this.removeChild(widget); }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double deltaX, double deltaY) {
@@ -276,6 +297,18 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public List<GhostSlot<?>> getGhostSlots() {
+        List<GhostSlot<?>> list = new ArrayList<>();
+        for(IGhostSlotProvider provider : new ArrayList<>(this.ghostSlotProviders))
+        {
+            List<GhostSlot<?>> entries = provider.getGhostSlots();
+            if(entries != null)
+                list.addAll(entries);
+        }
+        return list;
     }
 
 }

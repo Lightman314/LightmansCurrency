@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.EasyClientTabbedMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.*;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.salary.SalaryTab;
 import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
@@ -23,12 +24,11 @@ public class ATMScreen extends EasyClientTabbedMenuScreen<ATMMenu,ATMScreen,ATMT
 
 	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/atm.png");
 	
-	public static final ResourceLocation BUTTON_TEXTURE = VersionUtil.lcResource("textures/gui/container/atm_buttons.png");
-	
 	public ATMScreen(ATMMenu container, Inventory inventory, Component title) {
 		super(container, inventory, title);
 		this.resize(176, 243);
 		this.initializeTabs();
+        this.menu.addMessageListener(message -> this.currentTab().HandleMessage(message));
 	}
 
 	@Nonnull
@@ -46,6 +46,7 @@ public class ATMScreen extends EasyClientTabbedMenuScreen<ATMMenu,ATMScreen,ATMT
 		this.addTab(new NotificationTab(this));
 		this.addTab(new LogTab(this));
 		this.addTab(new TransferTab(this));
+        this.addTab(new SalaryTab(this));
 	}
 
 	@Override
@@ -56,7 +57,9 @@ public class ATMScreen extends EasyClientTabbedMenuScreen<ATMMenu,ATMScreen,ATMT
 		for(CoinSlot slot : this.menu.getCoinSlots())
 			gui.renderSlot(this,slot);
 
-		gui.drawString(this.playerInventoryTitle, 8, this.getYSize() - 94, 0x404040);
+        //Render Inventory Label
+        if(this.currentTab().renderInventoryLabel())
+		    gui.drawString(this.playerInventoryTitle, 8, this.getYSize() - 94, 0x404040);
 
 	}
 

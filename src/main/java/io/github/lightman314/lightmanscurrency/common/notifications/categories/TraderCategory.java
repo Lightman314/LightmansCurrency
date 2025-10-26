@@ -1,21 +1,24 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.categories;
 
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategoryType;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class TraderCategory extends NotificationCategory {
 
 	public static final NotificationCategoryType<TraderCategory> TYPE = new NotificationCategoryType<>(VersionUtil.lcResource("trader"),TraderCategory::new);
@@ -23,14 +26,18 @@ public class TraderCategory extends NotificationCategory {
 	private final Item trader;
 	private final long traderID;
 	private final MutableComponent traderName;
-	
-	public TraderCategory(ItemLike trader, MutableComponent traderName, long traderID) {
+    private final IconData traderIcon;
+
+    @Deprecated(since = "2.2.6.5")
+	public TraderCategory(ItemLike trader, MutableComponent traderName, long traderID) { this(trader,traderName,traderID,IconData.Null()); }
+	public TraderCategory(ItemLike trader, MutableComponent traderName, long traderID, IconData icon) {
 		this.trader = trader.asItem();
 		this.traderName = traderName;
 		this.traderID = traderID;
+        this.traderIcon = icon == null ? IconData.Null() : icon;
 	}
 	
-	public TraderCategory(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	public TraderCategory(CompoundTag compound, HolderLookup.Provider lookup) {
 		
 		if(compound.contains("Icon"))
 			this.trader = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(compound.getString("Icon")));
@@ -46,18 +53,22 @@ public class TraderCategory extends NotificationCategory {
 			this.traderID = compound.getLong("TraderID");
 		else
 			this.traderID = -1;
+
+        if(compound.contains("CustomIcon"))
+            this.traderIcon = IconData.load(compound.getCompound("CustomIcon"),lookup);
+        else
+            this.traderIcon = IconData.Null();
 		
 	}
 
-	@Nonnull
 	@Override
-	public IconData getIcon() { return IconData.of(this.trader); }
-	
-	@Nonnull
+	public IconData getIcon() {
+        if(!this.traderIcon.isNull())
+            return this.traderIcon;
+        return ItemIcon.ofItem(this.trader);
+    }
 	@Override
 	public MutableComponent getName() { return this.traderName; }
-
-	@Nonnull
     @Override
 	public NotificationCategoryType<TraderCategory> getType() { return TYPE; }
 	
@@ -71,6 +82,8 @@ public class TraderCategory extends NotificationCategory {
 				if(this.traderID == otherTrader.traderID)
 					return true;
 			}
+            else //Invalid trader id, so it's always an invalid match
+                return false;
 			//Confirm the trader name matches.
 			if(!this.traderName.getString().contentEquals(otherTrader.traderName.getString()) || !this.trader.equals(otherTrader.trader))
 				return false;
@@ -79,10 +92,12 @@ public class TraderCategory extends NotificationCategory {
 		return false;
 	}
 	
-	public void saveAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	public void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
 		compound.putString("Icon", BuiltInRegistries.ITEM.getKey(this.trader).toString());
 		compound.putString("TraderName", Component.Serializer.toJson(this.traderName,lookup));
 		compound.putLong("TraderID", this.traderID);
+        if(!this.traderIcon.isNull())
+            compound.put("CustomIcon",this.traderIcon.save(lookup));
 	}
 	
 	

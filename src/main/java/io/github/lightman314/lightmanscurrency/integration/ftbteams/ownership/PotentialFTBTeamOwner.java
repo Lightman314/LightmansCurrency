@@ -3,10 +3,11 @@ package io.github.lightman314.lightmanscurrency.integration.ftbteams.ownership;
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import dev.ftb.mods.ftbteams.api.Team;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.PotentialOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.builtin.PotentialTeamOwner;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
@@ -39,7 +40,7 @@ public class PotentialFTBTeamOwner extends PotentialOwner {
         Team team = this.getTeam();
         if(team != null)
             count = team.getMembers().size();
-        return IconData.of(IconUtil.ITEM_ALEX_HEAD,String.valueOf(count));
+        return ItemIcon.ofItem(IconUtil.ITEM_ALEX_HEAD,String.valueOf(count));
     }
 
     @Override

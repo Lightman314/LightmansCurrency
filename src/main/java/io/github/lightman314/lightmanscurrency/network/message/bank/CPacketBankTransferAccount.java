@@ -41,7 +41,7 @@ public class CPacketBankTransferAccount extends ClientToServerPacket {
 		protected void handle(@Nonnull CPacketBankTransferAccount message, @Nonnull IPayloadContext context, @Nonnull Player player) {
 			if(player.containerMenu instanceof IBankAccountAdvancedMenu menu)
 			{
-				MutableComponent response = BankAPI.API.BankTransfer(menu, message.amount, message.target.get());
+				MutableComponent response = BankAPI.getApi().BankTransfer(menu, message.amount, message.target.get());
 				if(response != null)
 					context.reply(new SPacketBankTransferResponse(response));
 			}

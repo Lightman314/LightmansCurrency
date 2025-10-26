@@ -19,7 +19,7 @@ import io.github.lightman314.lightmanscurrency.client.util.text_inputs.IntParser
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.DiscountCodes;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;

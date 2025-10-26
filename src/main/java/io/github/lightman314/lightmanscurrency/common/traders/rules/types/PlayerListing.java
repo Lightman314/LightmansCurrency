@@ -17,8 +17,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.common.traders.rules.IRuleLoadListener;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import it.unimi.dsi.fastutil.Pair;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -43,6 +43,8 @@ public class PlayerListing extends TradeRule implements ICopySupportingRule {
     public static final TradeRuleType<PlayerListing> TYPE = new TradeRuleType<>(VersionUtil.lcResource("player_list"),PlayerListing::new);
 
     public static final IRuleLoadListener LISTENER = new DataListener();
+
+
 
     boolean whitelistMode = true;
     public boolean isWhitelistMode() { return this.whitelistMode; }

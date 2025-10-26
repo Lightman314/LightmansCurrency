@@ -1,6 +1,9 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FlexibleSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -16,14 +19,15 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 @OnlyIn(Dist.CLIENT)
 public class NetworkTraderButton extends EasyButton implements ITooltipWidget {
-	
-	public static final ResourceLocation BUTTON_TEXTURES = VersionUtil.lcResource("textures/gui/universaltraderbuttons.png");
-	
+
 	public static final int WIDTH = 146;
 	public static final int HEIGHT = 30;
 	
@@ -32,7 +36,14 @@ public class NetworkTraderButton extends EasyButton implements ITooltipWidget {
 	
 	public boolean selected = false;
 
-	private NetworkTraderButton(@Nonnull Builder builder) { super(builder); }
+    private final FixedSizeSprite normalSprite;
+    private final FixedSizeSprite selectedSprite;
+
+	private NetworkTraderButton(Builder builder) {
+        super(builder);
+        this.normalSprite = SpriteUtil.createButtonBrown(this.width,this.height);
+        this.selectedSprite = SpriteUtil.createButtonGreen(this.width,this.height);
+    }
 
 	/**
 	 * Updates the trader data for this buttons trade.
@@ -47,7 +58,7 @@ public class NetworkTraderButton extends EasyButton implements ITooltipWidget {
 	}
 
 	@Override
-	public void renderWidget(@Nonnull EasyGuiGraphics gui)
+	public void renderWidget(EasyGuiGraphics gui)
 	{
 		//Render nothing if there is no data
 		if(this.data == null)
@@ -57,14 +68,10 @@ public class NetworkTraderButton extends EasyButton implements ITooltipWidget {
 			gui.resetColor();
 		else
 			gui.setColor(0.5f,0.5f,0.5f);
-		
-		int offset = 0;
-		if(this.isHovered)
-			offset = HEIGHT;
-		if(this.selected)
-			offset += HEIGHT * 2;
+
+        FixedSizeSprite sprite = this.selected ? this.selectedSprite : this.normalSprite;
 		//Draw Button BG
-		gui.blit(BUTTON_TEXTURES, 0,0, 0, offset, WIDTH, HEIGHT);
+        sprite.render(gui,0,0,this);
 		
 		//Draw the icon
 		this.data.getDisplayIcon().render(gui, 4, 7);
@@ -86,10 +93,8 @@ public class NetworkTraderButton extends EasyButton implements ITooltipWidget {
 		return trader.getTerminalInfo(Minecraft.getInstance().player);
 	}
 
-	@Nonnull
 	public static Builder builder() { return new Builder(); }
 
-	@MethodsReturnNonnullByDefault
 	@FieldsAreNonnullByDefault
 	public static class Builder extends EasyButtonBuilder<Builder>
 	{

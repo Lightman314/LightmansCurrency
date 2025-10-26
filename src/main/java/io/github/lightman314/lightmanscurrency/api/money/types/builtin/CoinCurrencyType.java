@@ -51,7 +51,7 @@ public class CoinCurrencyType extends CurrencyType {
             {
                 //Coin value's will be included for stored money
                 if(chain == null)
-                    chain = CoinAPI.API.ChainData(cv.getChain());
+                    chain = CoinAPI.getApi().ChainData(cv.getChain());
                 if(chain != null && chain.chain.equals(cv.getChain()))
                     totalValue += cv.getCoreValue();
             }
@@ -83,7 +83,7 @@ public class CoinCurrencyType extends CurrencyType {
     @OnlyIn(Dist.CLIENT)
     public List<Object> getInputHandlers(@Nullable Player player) {
         List<Object> results = new ArrayList<>();
-        for(ChainData chain : CoinAPI.API.AllChainData())
+        for(ChainData chain : CoinAPI.getApi().AllChainData())
         {
             //Only add input handler if the chain is visible to the player
             if(player == null || chain.isVisibleTo(player))
@@ -97,7 +97,7 @@ public class CoinCurrencyType extends CurrencyType {
     }
 
     @Override
-    public boolean allowItemInMoneySlot(Player player, ItemStack item) { return CoinAPI.API.IsCoin(item,true); }
+    public boolean allowItemInMoneySlot(Player player, ItemStack item) { return CoinAPI.getApi().IsCoin(item,true); }
 
     @Override
     public void addMoneySlotBackground(Consumer<Pair<ResourceLocation, ResourceLocation>> consumer, Consumer<ResourceLocation> lazyConsumer) { lazyConsumer.accept(CoinSlot.EMPTY_COIN_SLOT); }

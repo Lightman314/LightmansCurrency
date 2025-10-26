@@ -1,22 +1,25 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Supplier;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class InventoryButton extends PlainButton {
 
     protected final boolean isCreativeScreen;
     protected final AbstractContainerScreen<?> inventoryScreen;
     private ScreenPosition getScreenCorner() { return ScreenPosition.getScreenCorner(this.inventoryScreen); }
 
-    protected InventoryButton(@Nonnull AbstractContainerScreen<?> inventoryScreen, @Nonnull Runnable pressable, @Nonnull Sprite sprite) { this(inventoryScreen, pressable, () -> sprite); }
-    protected InventoryButton(@Nonnull AbstractContainerScreen<?> inventoryScreen, @Nonnull Runnable pressable, @Nonnull Supplier<Sprite> sprite) {
+    protected InventoryButton(AbstractContainerScreen<?> inventoryScreen, Runnable pressable, FixedSizeSprite sprite) { this(inventoryScreen, pressable, () -> sprite); }
+    protected InventoryButton(AbstractContainerScreen<?> inventoryScreen, Runnable pressable, Supplier<FixedSizeSprite> sprite) {
         super(PlainButton.builder().pressAction(pressable).sprite(sprite));
         this.inventoryScreen = inventoryScreen;
         this.isCreativeScreen = this.inventoryScreen instanceof CreativeModeInventoryScreen;

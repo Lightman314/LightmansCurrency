@@ -3,10 +3,10 @@ package io.github.lightman314.lightmanscurrency.common.villager_merchant.listing
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCConfig;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.configured.ConfiguredTradeModOption;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -19,28 +19,33 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.level.ItemLike;
-import net.neoforged.neoforge.common.Tags;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ConfiguredTradeMod extends VillagerTradeMod {
 
     private final Pair<Item,Item> defaultReplacements;
     private final Map<String,Pair<Item,Item>> regionalReplacements;
 
-    public ConfiguredTradeMod(@Nonnull Pair<Item,Item> defaultReplacements, @Nonnull Map<String,Pair<Item,Item>> regionalReplacements)
+    public Pair<Item,Item> getDefaultReplacements() { return this.defaultReplacements; }
+    public Map<String,Pair<Item,Item>> getRegionalReplacements() { return this.regionalReplacements; }
+
+    public boolean isEmpty() { return this.defaultReplacements.getFirst() == null && this.defaultReplacements.getSecond() == null && this.regionalReplacements.isEmpty(); }
+
+    public ConfiguredTradeMod(Pair<Item,Item> defaultReplacements, Map<String,Pair<Item,Item>> regionalReplacements)
     {
         this.defaultReplacements = defaultReplacements;
         this.regionalReplacements = ImmutableMap.copyOf(regionalReplacements);
     }
 
-    @Nonnull
-    public static ConfiguredTradeMod tryParse(@Nonnull String entries, boolean forceDefaults) throws ConfigParsingException
+    public static ConfiguredTradeMod tryParse(String entries, boolean forceDefaults) throws ConfigParsingException
     {
         Pair<Item,Item> defaultReplacements = Pair.of(null,null);
         Map<String,Pair<Item,Item>> regionalReplacements = new HashMap<>();
@@ -59,14 +64,14 @@ public class ConfiguredTradeMod extends VillagerTradeMod {
                 if (subSplits.length > 4)
                     throw new ConfigParsingException("Entry contains too many ';' splits!");
                 region = subSplits[1];
-                LightmansCurrency.LogDebug("Parsing items for '" + region + "' region:");
+                //LightmansCurrency.LogDebug("Parsing items for '" + region + "' region:");
                 if (subSplits.length > 3) {
                     costReplacement = tryParseItem(subSplits[2]);
                     resultReplacement = tryParseItem(subSplits[3]);
                 } else
                     costReplacement = resultReplacement = tryParseItem(subSplits[2]);
             } else {
-                LightmansCurrency.LogDebug("Parsing default items:");
+                //LightmansCurrency.LogDebug("Parsing default items:");
                 costReplacement = tryParseItem(subSplits[0]);
                 if (subSplits.length > 1)
                     resultReplacement = tryParseItem(subSplits[1]);
@@ -93,18 +98,18 @@ public class ConfiguredTradeMod extends VillagerTradeMod {
     }
 
     @Nullable
-    private static Item tryParseItem(@Nonnull String item) throws ConfigParsingException
+    private static Item tryParseItem(String item) throws ConfigParsingException
     {
-        LightmansCurrency.LogDebug("Attempting to parse '" + item + "' as an item!");
+        //LightmansCurrency.LogDebug("Attempting to parse '" + item + "' as an item!");
         if(item.isBlank() || item.equals("minecraft:air"))
             return null;
         try { return BuiltInRegistries.ITEM.get(VersionUtil.parseResource(item));
         } catch (ResourceLocationException e) { throw new ConfigParsingException(item + " is not a valid ResourceLocation!",e); }
     }
 
-    private static boolean shouldWrite(@Nonnull Pair<Item,Item> pair) { return pair.getFirst() != null || pair.getSecond() != null; }
+    private static boolean shouldWrite(Pair<Item,Item> pair) { return pair.getFirst() != null || pair.getSecond() != null; }
 
-    public final void write(@Nonnull StringBuilder builder)
+    public final void write(StringBuilder builder)
     {
         AtomicBoolean addDash = new AtomicBoolean(false);
         if(shouldWrite(this.defaultReplacements))
@@ -128,7 +133,7 @@ public class ConfiguredTradeMod extends VillagerTradeMod {
         });
     }
 
-    private static void writePair(@Nonnull Pair<Item,Item> pair, @Nonnull StringBuilder builder)
+    private static void writePair(Pair<Item,Item> pair, StringBuilder builder)
     {
         if(pair.getFirst() != null && pair.getFirst() == pair.getSecond())
             builder.append(getID(pair.getFirst()));
@@ -136,7 +141,7 @@ public class ConfiguredTradeMod extends VillagerTradeMod {
             builder.append(getID(pair.getFirst())).append(";").append(getID(pair.getSecond()));
     }
 
-    @Nonnull
+    
     private static String getID(@Nullable Item item) {
         if(item == null)
             return "";
@@ -159,7 +164,7 @@ public class ConfiguredTradeMod extends VillagerTradeMod {
         return null;
     }
 
-    private Pair<Item,Item> getPair(@Nonnull Entity villager)
+    private Pair<Item,Item> getPair(Entity villager)
     {
         String type = this.getType(villager);
         if(type == null)
@@ -169,7 +174,7 @@ public class ConfiguredTradeMod extends VillagerTradeMod {
     }
 
     @Nullable
-    private Item getCost(@Nonnull Entity villager)
+    private Item getCost(Entity villager)
     {
         Pair<Item,Item> pair = this.getPair(villager);
         Item first = pair.getFirst();
@@ -178,8 +183,8 @@ public class ConfiguredTradeMod extends VillagerTradeMod {
         return first;
     }
 
-    @Nonnull
-    private Item getResult(@Nonnull Entity villager)
+    
+    private Item getResult(Entity villager)
     {
         Pair<Item,Item> pair = this.getPair(villager);
         Item second = pair.getSecond();
@@ -189,24 +194,23 @@ public class ConfiguredTradeMod extends VillagerTradeMod {
     }
 
 
-    @Nonnull
+    
     @Override
-    public ItemCost modifyCost(@Nullable Entity villager, @Nonnull ItemCost cost) {
-        if(cost.item().is(Tags.Items.GEMS_EMERALD))
+    public ItemCost modifyCost(@Nullable Entity villager, ItemCost cost) {
+        if(cost.item().value() == Items.EMERALD)
             return this.copyWithNewItem(cost, this.getCost(villager));
         return cost;
     }
 
-    @Nonnull
     @Override
-    public ItemStack modifyResult(@Nullable Entity villager, @Nonnull ItemStack result) {
+    public ItemStack modifyResult(@Nullable Entity villager, ItemStack result) {
         if(result.getItem() == Items.EMERALD)
             return this.copyWithNewItem(result, this.getResult(villager));
         return result;
     }
 
     public static ModBuilder builder() { return new ModBuilder(null); }
-    public static ModBuilder builder(@Nonnull VillagerTradeMods.Builder parent) { return new ModBuilder(parent); }
+    public static ModBuilder builder(VillagerTradeMods.Builder parent) { return new ModBuilder(parent); }
 
     public static final class ModBuilder
     {
@@ -220,62 +224,62 @@ public class ConfiguredTradeMod extends VillagerTradeMod {
         @Nullable
         public VillagerTradeMods.Builder back() { return this.parent; }
 
-        @Nonnull
-        private Pair<Supplier<? extends ItemLike>,Supplier<? extends ItemLike>> replaceCost(@Nonnull Pair<Supplier<? extends ItemLike>,Supplier<? extends ItemLike>> pair, Supplier<? extends ItemLike> newCost) { return Pair.of(newCost,pair.getSecond()); }
-        private Pair<Supplier<? extends ItemLike>,Supplier<? extends ItemLike>> replaceResult(@Nonnull Pair<Supplier<? extends ItemLike>,Supplier<? extends ItemLike>> pair, Supplier<? extends ItemLike> newResult) { return Pair.of(pair.getFirst(),newResult); }
+        
+        private Pair<Supplier<? extends ItemLike>,Supplier<? extends ItemLike>> replaceCost(Pair<Supplier<? extends ItemLike>,Supplier<? extends ItemLike>> pair, Supplier<? extends ItemLike> newCost) { return Pair.of(newCost,pair.getSecond()); }
+        private Pair<Supplier<? extends ItemLike>,Supplier<? extends ItemLike>> replaceResult(Pair<Supplier<? extends ItemLike>,Supplier<? extends ItemLike>> pair, Supplier<? extends ItemLike> newResult) { return Pair.of(pair.getFirst(),newResult); }
 
-        @Nonnull
-        public ModBuilder defaultCost(@Nonnull Supplier<? extends ItemLike> costReplacement) { this.defaultReplacement = this.replaceCost(this.defaultReplacement,costReplacement); return this; }
-        @Nonnull
-        public ModBuilder defaultResult(@Nonnull Supplier<? extends ItemLike> resultReplacement) { this.defaultReplacement = this.replaceResult(this.defaultReplacement,resultReplacement); return this; }
-        @Nonnull
-        public ModBuilder defaults(@Nonnull Supplier<? extends ItemLike> replacement) { this.defaultReplacement = Pair.of(replacement,replacement); return this; }
+        
+        public ModBuilder defaultCost(Supplier<? extends ItemLike> costReplacement) { this.defaultReplacement = this.replaceCost(this.defaultReplacement,costReplacement); return this; }
+        
+        public ModBuilder defaultResult(Supplier<? extends ItemLike> resultReplacement) { this.defaultReplacement = this.replaceResult(this.defaultReplacement,resultReplacement); return this; }
+        
+        public ModBuilder defaults(Supplier<? extends ItemLike> replacement) { this.defaultReplacement = Pair.of(replacement,replacement); return this; }
 
-        @Nonnull
-        public ModBuilder costForRegion(@Nonnull VillagerType type, @Nonnull Supplier<? extends ItemLike> costReplacement) { return this.costForRegion(BuiltInRegistries.VILLAGER_TYPE.getKey(type),costReplacement); }
-        public ModBuilder costForRegion(@Nonnull ResourceLocation type, @Nonnull Supplier<? extends ItemLike> costReplacement) { return this.costForRegion(type.toString(),costReplacement); }
-        @Nonnull
-        public ModBuilder costForRegion(@Nonnull String type, @Nonnull Supplier<? extends ItemLike> costReplacement) {
+        
+        public ModBuilder costForRegion(VillagerType type, Supplier<? extends ItemLike> costReplacement) { return this.costForRegion(BuiltInRegistries.VILLAGER_TYPE.getKey(type),costReplacement); }
+        public ModBuilder costForRegion(ResourceLocation type, Supplier<? extends ItemLike> costReplacement) { return this.costForRegion(type.toString(),costReplacement); }
+        
+        public ModBuilder costForRegion(String type, Supplier<? extends ItemLike> costReplacement) {
             Pair<Supplier<? extends ItemLike>,Supplier<? extends ItemLike>> pair = this.regionalReplacements.getOrDefault(type,Pair.of(null,null));
             this.regionalReplacements.put(type,this.replaceCost(pair,costReplacement));
             return this;
         }
-        @Nonnull
-        public ModBuilder resultForRegion(@Nonnull VillagerType type, @Nonnull Supplier<? extends ItemLike> resultReplacement) { return this.resultForRegion(BuiltInRegistries.VILLAGER_TYPE.getKey(type),resultReplacement); }
-        @Nonnull
-        public ModBuilder resultForRegion(@Nonnull ResourceLocation type, @Nonnull Supplier<? extends ItemLike> resultReplacement) { return this.resultForRegion(type.toString(),resultReplacement); }
-        @Nonnull
-        public ModBuilder resultForRegion(@Nonnull String type, @Nonnull Supplier<? extends ItemLike> resultReplacement) {
+        
+        public ModBuilder resultForRegion(VillagerType type, Supplier<? extends ItemLike> resultReplacement) { return this.resultForRegion(BuiltInRegistries.VILLAGER_TYPE.getKey(type),resultReplacement); }
+        
+        public ModBuilder resultForRegion(ResourceLocation type, Supplier<? extends ItemLike> resultReplacement) { return this.resultForRegion(type.toString(),resultReplacement); }
+        
+        public ModBuilder resultForRegion(String type, Supplier<? extends ItemLike> resultReplacement) {
             Pair<Supplier<? extends ItemLike>,Supplier<? extends ItemLike>> pair = this.regionalReplacements.getOrDefault(type,Pair.of(null,null));
             this.regionalReplacements.put(type,this.replaceResult(pair,resultReplacement));
             return this;
         }
 
-        @Nonnull
-        public ModBuilder bothForRegion(@Nonnull VillagerType type, @Nonnull Supplier<? extends ItemLike> replacement) { return this.bothForRegion(BuiltInRegistries.VILLAGER_TYPE.getKey(type),replacement); }
-        @Nonnull
-        public ModBuilder bothForRegion(@Nonnull ResourceLocation type, @Nonnull Supplier<? extends ItemLike> replacement) { return this.bothForRegion(type.toString(),replacement); }
-        @Nonnull
-        public ModBuilder bothForRegion(@Nonnull String type, @Nonnull Supplier<? extends ItemLike> replacement) {
+        
+        public ModBuilder bothForRegion(VillagerType type, Supplier<? extends ItemLike> replacement) { return this.bothForRegion(BuiltInRegistries.VILLAGER_TYPE.getKey(type),replacement); }
+        
+        public ModBuilder bothForRegion(ResourceLocation type, Supplier<? extends ItemLike> replacement) { return this.bothForRegion(type.toString(),replacement); }
+        
+        public ModBuilder bothForRegion(String type, Supplier<? extends ItemLike> replacement) {
             this.regionalReplacements.put(type,Pair.of(replacement,replacement));
             return this;
         }
 
-        @Nonnull
-        public ConfiguredTradeMod build() {
+        
+        public ConfiguredTradeMod build(boolean forceDefaults) {
             Map<String,Pair<Item,Item>> temp = new HashMap<>();
             this.regionalReplacements.forEach((key,pair) ->
                 temp.put(key,buildPair(pair))
             );
-            return new ConfiguredTradeMod(buildPair(this.defaultReplacement), temp); }
+            return new ConfiguredTradeMod(buildPair(this.defaultReplacement),temp); }
 
-        @Nonnull
-        public ConfiguredTradeModOption buildOption() { return ConfiguredTradeModOption.create(this::build); }
+        
+        public ConfiguredTradeModOption buildOption() { return ConfiguredTradeModOption.create(() -> this.build(true)); }
 
     }
 
-    @Nonnull
-    public static Pair<Item,Item> buildPair(@Nonnull Pair<Supplier<? extends ItemLike>,Supplier<? extends ItemLike>> pair) { return Pair.of(safeGet(pair.getFirst()), safeGet(pair.getSecond())); }
+    
+    public static Pair<Item,Item> buildPair(Pair<Supplier<? extends ItemLike>,Supplier<? extends ItemLike>> pair) { return Pair.of(safeGet(pair.getFirst()), safeGet(pair.getSecond())); }
 
     @Nullable
     private static Item safeGet(@Nullable Supplier<? extends ItemLike> supplier)

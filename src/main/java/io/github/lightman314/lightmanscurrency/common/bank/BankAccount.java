@@ -1,15 +1,16 @@
 package io.github.lightman314.lightmanscurrency.common.bank;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
+import io.github.lightman314.lightmanscurrency.api.money.bank.salary.CustomTarget;
+import io.github.lightman314.lightmanscurrency.api.money.bank.salary.SalaryData;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
@@ -17,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolde
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
+import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.BankInterestNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.BankTransferNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.DepositWithdrawNotification;
@@ -55,7 +57,20 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	
 	public MoneyStorage getMoneyStorage() { return this.coinStorage; }
 
-	int cardValidation = 0;
+    public List<SalaryData> salaryData = new ArrayList<>();
+    @Override
+    public List<SalaryData> getSalaries() { return ImmutableList.copyOf(this.salaryData); }
+    @Nullable
+    public SalaryData createNewSalary() {
+        if(this.salaryData.size() >= SALARY_LIMIT)
+            return null;
+        SalaryData newSalary = new SalaryData(this,this.salaryData::indexOf);
+        this.salaryData.add(newSalary);
+        this.markDirty();
+        return newSalary;
+    }
+
+    int cardValidation = 0;
 	public int getCardValidation() { return this.cardValidation; }
 	public boolean isCardValid(int validationLevel) { return validationLevel >= this.cardValidation; }
 	public void resetCards() { this.cardValidation++; this.markDirty(); }
@@ -97,7 +112,7 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	}
 	
 	public static Consumer<Supplier<Notification>> generateNotificationAcceptor(UUID playerID) {
-		return (notification) -> NotificationAPI.API.PushPlayerNotification(playerID, notification.get());
+		return (notification) -> NotificationAPI.getApi().PushPlayerNotification(playerID, notification.get());
 	}
 	
 	private final NotificationData logger = new NotificationData();
@@ -110,10 +125,10 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	public void updateOwnersName(String ownerName) { this.ownerName = ownerName; }
 	@Override
 	public MutableComponent getName() { return LCText.GUI_BANK_ACCOUNT_NAME.get(this.ownerName); }
+    public Component getOwnerName() { return EasyText.literal(this.ownerName); }
 
 	@Override
 	public void depositMoney(MoneyValue depositAmount) { this.coinStorage.addValue(depositAmount); }
-
 	
 	@Override
 	public MoneyValue withdrawMoney(MoneyValue withdrawAmount) {
@@ -148,8 +163,6 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 		this.pushLocalNotification(new BankTransferNotification(PlayerReference.of(player), amount, this.getName(), otherAccount, wasReceived));
 	}
 	
-
-	
 	public BankAccount() { this(null); }
 	public BankAccount(Runnable markDirty) { this.markDirty = markDirty; }
 	
@@ -177,8 +190,19 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 		}
 		if(compound.contains("CardValidation"))
 			this.cardValidation = compound.getInt("CardValidation");
+        if(compound.contains("Salaries"))
+        {
+            ListTag list = compound.getList("Salaries",Tag.TAG_COMPOUND);
+            for(int i = 0; i < list.size(); ++i)
+            {
+                SalaryData newSalary = new SalaryData(this,this.salaryData::indexOf);
+                newSalary.load(list.getCompound(i));
+                this.salaryData.add(newSalary);
+            }
+        }
 	}
-	
+
+    @Override
 	public void markDirty()
 	{
 		if(this.markDirty != null)
@@ -194,6 +218,10 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 		this.notificationLevels.forEach((key,level) -> notificationLevelList.add(level.save()));
 		compound.put("NotificationLevels", notificationLevelList);
 		compound.putInt("CardValidation", this.cardValidation);
+        ListTag salaries = new ListTag();
+        for(SalaryData salary : this.salaryData)
+            salaries.add(salary.save());
+        compound.put("Salaries",salaries);
 		return compound;
 	}
 
@@ -235,7 +263,20 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 		}
 	}
 
-	private static boolean isBlacklisted(List<String> blacklist, MoneyValue value)
+    @Override
+    public void tick() {
+        for(SalaryData salary : new ArrayList<>(this.salaryData))
+            salary.tick();
+    }
+
+    @Override
+    public Map<String, CustomTarget> extraSalaryTargets() { return Map.of(); }
+
+    @Nullable
+    @Override
+    public StatTracker getStatTracker() { return null; }
+
+    private static boolean isBlacklisted(List<String> blacklist, MoneyValue value)
 	{
 		String id = value.getUniqueName();
 		return blacklist.stream().anyMatch(entry -> {

@@ -24,13 +24,11 @@ import java.util.function.Consumer;
 @ParametersAreNonnullByDefault
 public final class MoneyAPIImpl extends MoneyAPI {
 
-    public static final MoneyAPI INSTANCE = new MoneyAPIImpl();
-
     private final Map<ResourceLocation, CurrencyType> registeredCurrencyTypes = new HashMap<>();
     private final Map<UUID,PlayerMoneyHolder> clientPlayerCache = new HashMap<>();
     private final Map<UUID,PlayerMoneyHolder> serverPlayerCache = new HashMap<>();
 
-    private MoneyAPIImpl() {}
+    public MoneyAPIImpl() {}
 
     @Override
     public List<CurrencyType> AllCurrencyTypes() { return ImmutableList.copyOf(this.registeredCurrencyTypes.values()); }

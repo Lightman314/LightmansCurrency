@@ -4,25 +4,38 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
+import net.minecraft.MethodsReturnNonnullByDefault;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class ListOption<T> extends ListLikeOption<List<T>> {
 
-    protected ListOption(@Nonnull Supplier<List<T>> defaultValue) { super(defaultValue); }
+    protected ListOption(Supplier<List<T>> defaultValue) { super(defaultValue); }
 
     public static <T> ConfigParser<List<T>> makeParser(ConfigParser<T> partialParser) { return new ListParser<>(partialParser); }
 
-    @Nonnull
     @Override
     protected ConfigParser<List<T>> getParser() { return makeParser(this.getPartialParser()); }
 
-    protected abstract ConfigParser<T> getPartialParser();
+    @Override
+    public boolean allowedValue(List<T> newValue) {
+        for(T val : newValue)
+        {
+            if(!this.allowedListValue(val))
+                return false;
+        }
+        return true;
+    }
 
-    @Nonnull
+    public boolean allowedListValue(T newValue) { return true; }
+
+    protected abstract ConfigParser<T> getPartialParser();
+    
     public final Pair<Boolean,ConfigParsingException> editList(String value, int index, boolean isEdit) {
         if(index < 0 && isEdit)
         {
@@ -67,10 +80,10 @@ public abstract class ListOption<T> extends ListLikeOption<List<T>> {
     private static class ListParser<T> implements ConfigParser<List<T>>
     {
         private final ConfigParser<T> parser;
-        private ListParser(@Nonnull ConfigParser<T> parser) { this.parser = parser; }
-        @Nonnull
+        private ListParser(ConfigParser<T> parser) { this.parser = parser; }
+        
         @Override
-        public List<T> tryParse(@Nonnull String cleanLine) throws ConfigParsingException {
+        public List<T> tryParse(String cleanLine) throws ConfigParsingException {
             if(cleanLine.isEmpty())
                 throw new ConfigParsingException("Empty input received!");
             char c1 = cleanLine.charAt(0);
@@ -128,9 +141,9 @@ public abstract class ListOption<T> extends ListLikeOption<List<T>> {
             return results;
         }
 
-        @Nonnull
+        
         @Override
-        public String write(@Nonnull List<T> value) {
+        public String write(List<T> value) {
             StringBuilder builder = new StringBuilder("[");
             boolean comma = false;
             for(T v : value)

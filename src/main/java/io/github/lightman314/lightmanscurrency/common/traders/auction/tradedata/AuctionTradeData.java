@@ -231,7 +231,7 @@ public class AuctionTradeData extends TradeData {
 		
 		//Send notification to the previous bidder letting them know they've been out-bid.
 		if(oldBidder != null)
-			NotificationAPI.API.PushPlayerNotification(oldBidder.id, new AuctionHouseBidNotification(this));
+			NotificationAPI.getApi().PushPlayerNotification(oldBidder.id, new AuctionHouseBidNotification(this));
 
 		long currentTime = TimeUtil.getCurrentTime();
 		if(this.overtimeAllowed && this.getRemainingTime(currentTime) < OVERTIME_DURATION)
@@ -285,16 +285,16 @@ public class AuctionTradeData extends TradeData {
 			MoneyValue fee = event.getFeePayment();
 			if(!fee.isEmpty() && LCConfig.SERVER.auctionHouseStoreFeeInServerTax.get())
 			{
-				ITaxCollector serverTax = TaxAPI.API.GetServerTaxCollector(trader);
+				ITaxCollector serverTax = TaxAPI.getApi().GetServerTaxCollector(trader);
 				serverTax.PayTaxesDirectly(trader,fee);
 			}
 			
 			//Post notification to the auction winner
-			NotificationAPI.API.PushPlayerNotification(this.lastBidPlayer.id, new AuctionHouseBuyerNotification(this));
+			NotificationAPI.getApi().PushPlayerNotification(this.lastBidPlayer.id, new AuctionHouseBuyerNotification(this));
 
 			//Post notification to the auction owner
 			if(this.tradeOwner != null)
-				NotificationAPI.API.PushPlayerNotification(this.tradeOwner.id, new AuctionHouseSellerNotification(this,event.getPaymentAmount(),event.getFeePayment()));
+				NotificationAPI.getApi().PushPlayerNotification(this.tradeOwner.id, new AuctionHouseSellerNotification(this,event.getPaymentAmount(),event.getFeePayment()));
 
             //Award victory stat
             trader.AwardAuctionWinStat(this.lastBidPlayer);
@@ -310,7 +310,7 @@ public class AuctionTradeData extends TradeData {
 				for (ItemStack item : items) sellerStorage.giveItem(item);
 				
 				//Post notification to the auction owner
-				NotificationAPI.API.PushPlayerNotification(this.tradeOwner.id, new AuctionHouseSellerNobidNotification(this));
+				NotificationAPI.getApi().PushPlayerNotification(this.tradeOwner.id, new AuctionHouseSellerNobidNotification(this));
 			}
 		}
 	}
@@ -328,7 +328,7 @@ public class AuctionTradeData extends TradeData {
 			buyerStorage.giveMoney(this.lastBidAmount);
 			
 			//Send cancel notification
-			NotificationAPI.API.PushPlayerNotification(this.lastBidPlayer.id, new AuctionHouseCancelNotification(this));
+			NotificationAPI.getApi().PushPlayerNotification(this.lastBidPlayer.id, new AuctionHouseCancelNotification(this));
 			
 		}
 		//Return the items being sold to their owner

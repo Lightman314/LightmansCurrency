@@ -20,7 +20,15 @@ import java.util.List;
 
 public abstract class BankAPI {
 
-    public static final BankAPI API = BankAPIImpl.INSTANCE;
+    private static BankAPI instance = null;
+    public static BankAPI getApi()
+    {
+        if(instance == null)
+            instance = new BankAPIImpl();
+        return instance;
+    }
+
+    protected BankAPI() { if(instance != null)  throw new IllegalCallerException("Cannot create a new BankAPI instance as one is already present!"); }
 
     /**
      * Method used to register a {@link BankReferenceType}.<br>

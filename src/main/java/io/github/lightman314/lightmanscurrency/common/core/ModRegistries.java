@@ -37,6 +37,7 @@ import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.neoforge.registries.holdersets.HolderSetType;
 
 public class ModRegistries {
 
@@ -117,6 +118,11 @@ public class ModRegistries {
         CUSTOM_STAT.register(bus);
         ModStats.init();
 
+        //Holder Sets
+        HOLDER_SET.register(bus);
+        ModHolderSets.init();
+
+
 		//LC Custom Registries
 		EJECTION_DATA.register(bus);
 		ModEjectionDataTypes.init();
@@ -164,6 +170,9 @@ public class ModRegistries {
 	public static final DeferredRegister<CriterionTrigger<?>> CRITERION_TRIGGERS = DeferredRegister.create(BuiltInRegistries.TRIGGER_TYPES,LightmansCurrency.MODID);
 
     public static final DeferredRegister<ResourceLocation> CUSTOM_STAT = DeferredRegister.create(BuiltInRegistries.CUSTOM_STAT,LightmansCurrency.MODID);
+
+    //Forge
+    public static final DeferredRegister<HolderSetType> HOLDER_SET = DeferredRegister.create(NeoForgeRegistries.HOLDER_SET_TYPES,LightmansCurrency.MODID);
 
 	//Custom Registries
 	public static final DeferredRegister<EjectionDataType> EJECTION_DATA = DeferredRegister.create(LCRegistries.EJECTION_DATA_KEY,LightmansCurrency.MODID);

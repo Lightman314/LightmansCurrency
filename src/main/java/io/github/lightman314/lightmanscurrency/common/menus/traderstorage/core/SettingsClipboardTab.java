@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SettingsCopySlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -24,20 +25,22 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Function;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SettingsClipboardTab extends TraderStorageTab {
 
-    public SettingsClipboardTab(@Nonnull ITraderStorageMenu menu) { super(menu); }
+    public SettingsClipboardTab(ITraderStorageMenu menu) { super(menu); }
 
     private final Container container = new SimpleContainer(1);
     private SettingsCopySlot slot;
     public EasySlot getSlot() { return this.slot; }
 
-    @Nonnull
     @Override
     @OnlyIn(Dist.CLIENT)
-    public Object createClientTab(@Nonnull Object screen) { return new SettingsClipboardClientTab(screen,this); }
+    public Object createClientTab(Object screen) { return new SettingsClipboardClientTab(screen,this); }
 
     @Override
     public boolean canOpen(Player player) { return true; }

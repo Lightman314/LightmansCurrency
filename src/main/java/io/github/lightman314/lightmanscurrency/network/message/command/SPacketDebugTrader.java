@@ -28,7 +28,7 @@ public class SPacketDebugTrader extends ServerToClientPacket {
 		protected H() { super(TYPE, easyCodec(SPacketDebugTrader::encode,SPacketDebugTrader::decode)); }
 		@Override
 		protected void handle(@Nonnull SPacketDebugTrader message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			TraderData trader = TraderAPI.API.GetTrader(true, message.traderID);
+			TraderData trader = TraderAPI.getApi().GetTrader(true, message.traderID);
 			if(trader == null)
 				LightmansCurrency.LogInfo("Client is missing trader with id " + message.traderID + "!");
 			else

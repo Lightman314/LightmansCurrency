@@ -1,6 +1,7 @@
 {
   "values": [
     "#lightmanscurrency:owner_protected",
+    "#lightmanscurrency:terminal",
     "lightmanscurrency:atm",
     "lightmanscurrency:cash_register",
     "lightmanscurrency:auction_stand_oak",

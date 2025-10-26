@@ -2,22 +2,32 @@ package io.github.lightman314.lightmanscurrency.api.misc.player;
 
 import java.util.function.Consumer;
 
+import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.FakeOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.TeamOwner;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public final class OwnerData implements IClientTracker{
+
+    public static final Codec<OwnerData> CODEC = CompoundTag.CODEC.xmap(
+            tag -> parseUnsided(tag,LookupHelper.getRegistryAccess())
+            ,(data) -> data.save(LookupHelper.getRegistryAccess())
+    );
 
 	private Owner backupOwner = Owner.getNull(this);
 	private Owner currentOwner = Owner.getNull(this);
@@ -25,20 +35,27 @@ public final class OwnerData implements IClientTracker{
 	@Override
 	public boolean isClient() { return this.parent.isClient(); }
 
-	private final IClientTracker parent;
+	private IClientTracker parent;
 	private final Consumer<OwnerData> onChanged;
-	
-	public OwnerData(@Nonnull IClientTracker parent) { this(parent,o -> {}); }
-	public OwnerData(@Nonnull IClientTracker parent, @Nonnull Runnable onChanged) { this(parent,o -> onChanged.run()); }
-	public OwnerData(@Nonnull IClientTracker parent, @Nonnull Consumer<OwnerData> onChanged) { this.parent = parent; this.onChanged = onChanged; }
 
-	@Nonnull
+    public OwnerData withParent(IClientTracker parent) { this.parent = parent; return this; }
+
+    public static OwnerData parseUnsided(CompoundTag tag, HolderLookup.Provider lookup)
+    {
+        OwnerData data = new OwnerData();
+        data.load(tag,lookup);
+        return data;
+    }
+
+    public OwnerData() { this(IClientTracker.forClient(),() -> {});}
+	public OwnerData(IClientTracker parent) { this(parent,o -> {}); }
+	public OwnerData(IClientTracker parent, Runnable onChanged) { this(parent,o -> onChanged.run()); }
+	public OwnerData(IClientTracker parent, Consumer<OwnerData> onChanged) { this.parent = parent; this.onChanged = onChanged; }
+
 	public Owner getValidOwner() { return this.currentOwner.stillValid() ? this.currentOwner : this.backupOwner; }
-
 	public boolean hasOwner() { return this.currentOwner.stillValid() || this.backupOwner.stillValid(); }
-
-	@Nonnull
-	public CompoundTag save(@Nonnull HolderLookup.Provider lookup)
+	
+	public CompoundTag save(HolderLookup.Provider lookup)
 	{
 		CompoundTag compound = new CompoundTag();
 		compound.put("BackupOwner", this.backupOwner.save(lookup));
@@ -46,7 +63,7 @@ public final class OwnerData implements IClientTracker{
 		return compound;
 	}
 	
-	public void load(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
+	public void load(CompoundTag compound, HolderLookup.Provider lookup)
 	{
 		if(compound.contains("BackupOwner") && compound.contains("Owner"))
 		{
@@ -81,28 +98,28 @@ public final class OwnerData implements IClientTracker{
 		this.currentOwner.setParent(this);
 	}
 
-	public void copyFrom(@Nonnull OwnerData owner) {
+	public void copyFrom(OwnerData owner) {
 		this.backupOwner = owner.backupOwner.copy();
 		this.backupOwner.setParent(this);
 		this.currentOwner = owner.currentOwner.copy();
 		this.currentOwner.setParent(this);
 	}
 
-	@Nonnull
+	
 	public PlayerReference getPlayerForContext() { return this.getValidOwner().asPlayerReference(); }
 	
-	public boolean isAdmin(@Nonnull Player player) { return LCAdminMode.isAdminPlayer(player) || this.isAdmin(PlayerReference.of(player)); }
+	public boolean isAdmin(Player player) { return LCAdminMode.isAdminPlayer(player) || this.isAdmin(PlayerReference.of(player)); }
 	
-	public boolean isAdmin(@Nonnull PlayerReference player) { return this.getValidOwner().isAdmin(player); }
+	public boolean isAdmin(PlayerReference player) { return this.getValidOwner().isAdmin(player); }
 	
-	public boolean isMember(@Nonnull Player player) { return LCAdminMode.isAdminPlayer(player) || this.isMember(PlayerReference.of(player));}
+	public boolean isMember(Player player) { return LCAdminMode.isAdminPlayer(player) || this.isMember(PlayerReference.of(player));}
 	
-	public boolean isMember(@Nonnull PlayerReference player) { return this.getValidOwner().isMember(player); }
+	public boolean isMember(PlayerReference player) { return this.getValidOwner().isMember(player); }
 
-	@Nonnull
+	
 	public MutableComponent getName() { return this.getValidOwner().getName(); }
 
-	public void SetOwner(@Nonnull Owner newOwner)
+	public void SetOwner(Owner newOwner)
 	{
 		this.currentOwner = newOwner.copy();
 		this.currentOwner.setParent(this);
@@ -115,5 +132,14 @@ public final class OwnerData implements IClientTracker{
 	}
 
 	public void setChanged() { this.onChanged.accept(this); }
-	
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof OwnerData owner)
+            return owner.currentOwner.matches(this.currentOwner) && owner.backupOwner.matches(this.backupOwner);
+        return false;
+    }
+    @Override
+    public int hashCode() { return this.save(LookupHelper.getRegistryAccess()).hashCode(); }
+
 }

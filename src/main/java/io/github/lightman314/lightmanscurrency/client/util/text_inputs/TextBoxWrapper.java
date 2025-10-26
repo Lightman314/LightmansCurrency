@@ -27,6 +27,7 @@ public class TextBoxWrapper<T> extends EasyWidget implements IWidgetWrapper {
     @Override
     public EditBox getWrappedWidget() { return this.editBox; }
 
+    public void setStringValue(String value) { this.editBox.setValue(value); }
     public void setValue(T value) { this.editBox.setValue(this.writer.apply(value)); }
 
     public static <T> Builder<T> builder(EditBox box,Function<String,T> reader,Function<T,String> writer) { return new Builder<>(box,reader,writer); }
@@ -41,6 +42,7 @@ public class TextBoxWrapper<T> extends EasyWidget implements IWidgetWrapper {
     protected void renderTick() {
         this.editBox.visible = this.isVisible();
         this.editBox.active = this.active;
+        this.editBox.setPosition(this.getX(),this.getY());
     }
 
     public T getValue() { return this.reader.apply(this.editBox.getValue()); }

@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.*;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
@@ -40,6 +41,8 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollable, ITooltipSource, IEasyTickable {
 
 	@Deprecated
@@ -102,7 +105,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 	public int getMinAvailableWidth() { return this.scrollBarOffset.x < 0 ? this.width + this.scrollBarOffset.x : this.width; }
 	public int getAvailableWidth() { return this.scrollBar.visible() ? (this.scrollBarOffset.x < 0 ? this.width + this.scrollBarOffset.x : this.width) : this.width; }
 
-	private TradeButtonArea(@Nonnull Builder builder)
+	private TradeButtonArea(Builder builder)
 	{
 		super(builder);
 		//Trades & Traders
@@ -152,7 +155,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 	}
 
 	@Override
-	public void addChildren(@Nonnull ScreenArea area) {
+	public void addChildren(ScreenArea area) {
 		this.addChild(ScrollListener.builder()
 				.area(area)
 				.listener(this)
@@ -228,15 +231,15 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 		return result;
 	}
 
-	@Nonnull
+	
 	private String searchText() { return this.lastSearch; }
 
-	private boolean tradeMatchesSearch(@Nonnull ITraderSource source, @Nonnull TradeData trade, boolean search)
+	private boolean tradeMatchesSearch(ITraderSource source, TradeData trade, boolean search)
 	{
 		if(!search || !this.allowSearching)
 			return true;
 		if(this.isSearchBoxRelevant() && !this.searchText().isBlank())
-			return TraderAPI.API.FilterTrade(trade,this.searchText().toLowerCase(),source.registryAccess());
+			return TraderAPI.getApi().FilterTrade(trade,this.searchText().toLowerCase(),source.registryAccess());
 		return true;
 	}
 	
@@ -261,7 +264,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 	}
 	
 	@Override
-	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
+	public void renderWidget(EasyGuiGraphics gui) {
 		if(!this.hasValidTrade())
 		{
 			TextRenderUtil.drawCenteredText(gui, LCText.GUI_TRADER_NO_TRADES.get(), this.width / 2, (this.height / 2) - (gui.font.lineHeight / 2), 0x404040);
@@ -294,7 +297,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 			if(this.isSearchBoxRelevant())
 			{
 				//Render Search Box Background
-				gui.blit(ItemEditWidget.GUI_TEXTURE, this.searchBoxArea, 18, 0);
+                SpriteUtil.SEARCH_FIELD.render(gui,this.searchBoxArea.pos,this.searchBoxArea.width);
 			}
 			gui.popOffset();
 		}
@@ -495,10 +498,8 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 	@Override
 	public int getMaxScroll() { return IScrollable.calculateMaxScroll(this.fittableLines(), this.getTradesInRows(true).size()); }
 
-	@Nonnull
 	public static Builder builder() { return new Builder(); }
 
-	@MethodsReturnNonnullByDefault
 	@FieldsAreNonnullByDefault
 	public static class Builder extends EasySizableBuilder<Builder>
 	{

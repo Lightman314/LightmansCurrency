@@ -29,7 +29,7 @@ public class SPacketLazyMenu extends ServerToClientPacket {
         @Override
         protected void handle(@Nonnull SPacketLazyMenu message, @Nonnull IPayloadContext context, @Nonnull Player player) {
             if(player.containerMenu instanceof LazyMessageMenu menu && menu.containerId == menu.containerId)
-                menu.HandleMessage(message.data);
+                menu.handleMessage(message.data);
         }
     }
 

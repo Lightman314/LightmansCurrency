@@ -109,7 +109,7 @@ public final class WalletDataWrapper extends MoneyViewer {
     @Override
     protected void collectStoredMoney(@Nonnull MoneyView.Builder builder) {
         this.contentCache = this.getContents();
-        IMoneyHandler handler = MoneyAPI.API.GetContainersMoneyHandler(this.contentCache,s -> {}, IClientTracker.forClient());
+        IMoneyHandler handler = MoneyAPI.getApi().GetContainersMoneyHandler(this.contentCache,s -> {}, IClientTracker.forClient());
         builder.merge(handler.getStoredMoney());
     }
 

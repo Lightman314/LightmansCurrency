@@ -21,7 +21,7 @@ public class ItemHandlerHelperMixin {
             original.call(player,item);
             return;
         }
-        if(CoinAPI.API.IsAllowedInCoinContainer(item,false))
+        if(CoinAPI.getApi().IsAllowedInCoinContainer(item,false))
         {
             WalletHandler walletHandler = WalletHandler.get(player);
             if(walletHandler == null)

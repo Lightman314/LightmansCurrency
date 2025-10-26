@@ -36,7 +36,7 @@ public class TraderMoneyStorageTab extends TraderStorageTab {
     private final Container coinSlotContainer = new SimpleContainer(5);
     private final List<MoneySlot> coinSlots = new ArrayList<>();
     public List<MoneySlot> getCoinSlots() { return new ArrayList<>(this.coinSlots); }
-    public IMoneyHandler getCoinSlotHandler() { return MoneyAPI.API.GetContainersMoneyHandler(this.coinSlotContainer,this.menu.getPlayer()); }
+    public IMoneyHandler getCoinSlotHandler() { return MoneyAPI.getApi().GetContainersMoneyHandler(this.coinSlotContainer,this.menu.getPlayer()); }
 
     @Override
     @OnlyIn(Dist.CLIENT)
@@ -110,7 +110,7 @@ public class TraderMoneyStorageTab extends TraderStorageTab {
             if(!amountLeft.isEmpty())
             {
                 //Take from player directly
-                IMoneyHandler playerHandler = MoneyAPI.API.GetPlayersMoneyHandler(this.menu.getPlayer());
+                IMoneyHandler playerHandler = MoneyAPI.getApi().GetPlayersMoneyHandler(this.menu.getPlayer());
                 MoneyValue remainder = playerHandler.extractMoney(amountLeft,false);
                 MoneyValue insertAmount = amountLeft.subtractValue(remainder);
                 trader.addStoredMoney(insertAmount,false);
@@ -124,7 +124,7 @@ public class TraderMoneyStorageTab extends TraderStorageTab {
         TraderData trader = this.menu.getTrader();
         if(trader != null && this.canCollectMoney())
         {
-            IMoneyHandler playerHandler = MoneyAPI.API.GetPlayersMoneyHandler(this.menu.getPlayer());
+            IMoneyHandler playerHandler = MoneyAPI.getApi().GetPlayersMoneyHandler(this.menu.getPlayer());
             MoneyStorage moneyStorage = trader.getInternalStoredMoney();
             if(amount.isEmpty())
             {

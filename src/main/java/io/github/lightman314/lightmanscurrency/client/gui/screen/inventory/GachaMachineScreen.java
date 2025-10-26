@@ -4,26 +4,31 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.WidgetStateSprite;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.NormalSprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.client.util.ButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.menus.gacha_machine.GachaMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenStorage;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
@@ -33,10 +38,12 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
 
     public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/gacha_machine.png");
@@ -59,7 +66,7 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
     public static final ScreenPosition KNOB_POSITION = ScreenPosition.of(81,73);
     public static final int KNOB_SIZE = 14;
 
-    public static final Sprite SPRITE_INTERACT = Sprite.SimpleSprite(GUI_TEXTURE, WIDTH + 2 * KNOB_SIZE, 0, 18, 18);
+    public static final FixedSizeSprite SPRITE_INTERACT = WidgetStateSprite.lazyHoverable(new NormalSprite(new SpriteSource(GUI_TEXTURE, WIDTH + 2 * KNOB_SIZE, 0, 18, 18)),new NormalSprite(new SpriteSource(GUI_TEXTURE, WIDTH + 2 * KNOB_SIZE, 18, 18, 18)));
 
     private int animationTick = 0;
     private int restTick = 0;
@@ -99,7 +106,7 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
                 .addon(EasyAddonHelper.visibleCheck(() -> this.menu.getTrader() != null && this.menu.getTrader().hasPermission(this.menu.player, Permissions.OPEN_STORAGE)))
                 .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_OPEN_STORAGE))
                 .build());
-        this.buttonCollectCoins = this.addChild(IconAndButtonUtil.finishCollectCoinButton(IconButton.builder().pressAction(this::CollectCoins), this.menu.player, this.menu::getTrader));
+        this.buttonCollectCoins = this.addChild(ButtonUtil.finishCollectCoinButton(IconButton.builder().pressAction(this::CollectCoins), this.menu.player, this.menu::getTrader));
         this.buttonOpenTerminal = this.addChild(IconButton.builder()
                 .pressAction(this::OpenTerminal)
                 .icon(IconUtil.ICON_BACK)
@@ -122,21 +129,21 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
         this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(29,105))
                 .pressAction(this::increaseTradeMult)
-                .sprite(IconAndButtonUtil.SPRITE_PLUS)
+                .sprite(SpriteUtil.BUTTON_SIGN_PLUS)
                 .addon(EasyAddonHelper.activeCheck(this::canIncreaseTradeMult))
                 .build());
 
         this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(29,115))
                 .pressAction(this::decreaseTradeMult)
-                .sprite(IconAndButtonUtil.SPRITE_MINUS)
+                .sprite(SpriteUtil.BUTTON_SIGN_MINUS)
                 .addon(EasyAddonHelper.activeCheck(this::canDecreaseTradeMult))
                 .build());
 
     }
 
     @Override
-    protected void renderBG(@Nonnull EasyGuiGraphics gui) {
+    protected void renderBG(EasyGuiGraphics gui) {
 
         gui.resetColor();
 
@@ -147,7 +154,7 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
         gui.blit(TraderScreen.GUI_TEXTURE, INFO_WIDGET_POSITION, 244, 0, 10, 10);
 
         //Gacha info widget
-        gui.blit(GUI_TEXTURE,GACHA_INFO_AREA.pos,WIDTH + 2 * KNOB_SIZE,36,11,11);
+        SpriteUtil.GENERIC_INFO.render(gui,GACHA_INFO_AREA.pos);
 
         //Labels
         gui.drawString(this.playerInventoryTitle, 8, this.getYSize() - 94, 0x404040);
@@ -215,7 +222,7 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
     }
 
     @Override
-    protected void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
+    protected void renderAfterWidgets(EasyGuiGraphics gui) {
         if(INFO_WIDGET_POSITION.offset(this).isMouseInArea(gui.mousePos, 10, 10))
             gui.renderComponentTooltip(this.menu.getContext().getAvailableFundsDescription());
         if(GACHA_INFO_AREA.offsetPosition(this.getCorner()).isMouseInArea(gui.mousePos))

@@ -24,7 +24,7 @@ public class NotificationMenu extends LazyMessageMenu {
     public void HandleMessage(@Nonnull LazyPacketData message) {
         if(message.contains("MarkAsRead"))
         {
-            NotificationCategory category = NotificationAPI.API.LoadCategory(message.getNBT("MarkAsRead"),message.lookup);
+            NotificationCategory category = NotificationAPI.getApi().LoadCategory(message.getNBT("MarkAsRead"),message.lookup);
             if(category == null)
                 return;
             NotificationDataCache d = NotificationDataCache.TYPE.get(false);
@@ -43,7 +43,7 @@ public class NotificationMenu extends LazyMessageMenu {
         }
         if(message.contains("DeleteNotification"))
         {
-            NotificationCategory category = NotificationAPI.API.LoadCategory(message.getNBT("Category"),message.lookup);
+            NotificationCategory category = NotificationAPI.getApi().LoadCategory(message.getNBT("Category"),message.lookup);
             if(category == null)
                 return;
             NotificationDataCache d = NotificationDataCache.TYPE.get(false);

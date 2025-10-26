@@ -1,15 +1,19 @@
 package io.github.lightman314.lightmanscurrency.api.money.bank;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.money.bank.salary.CustomTarget;
+import io.github.lightman314.lightmanscurrency.api.money.bank.salary.SalaryData;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +23,7 @@ import java.util.function.Supplier;
 @ParametersAreNonnullByDefault
 public interface IBankAccount extends IMoneyHolder, IClientTracker {
 
+    int SALARY_LIMIT = 100;
 
     /**
      * Direct access to the bank accounts money storage.<br>
@@ -46,6 +51,12 @@ public interface IBankAccount extends IMoneyHolder, IClientTracker {
      * Typically, returns text along the lines of <code><b>USER's Bank Account</b></code>
      */
     MutableComponent getName();
+
+    /**
+     * The name of the bank accounts owner.<br>
+     * Should not be used for display purposes, but more as a way to format sub-sections of the bank account in a less wordy manner (such as <code><b>USER's Salary #1</b></code>
+     */
+    Component getOwnerName();
 
 
     //Low Balance Notification
@@ -112,5 +123,21 @@ public interface IBankAccount extends IMoneyHolder, IClientTracker {
      * @param limits A list of upper limits of money that can be earned from interest.
      */
     void applyInterest(double interestRate, List<MoneyValue> limits, List<String> blacklist, boolean forceInterst, boolean notifyPlayers);
+
+    List<SalaryData> getSalaries();
+
+    default void checkForOnlinePlayers() {
+        for(SalaryData s : this.getSalaries())
+            s.checkForOnlinePlayers();
+    }
+
+    Map<String, CustomTarget> extraSalaryTargets();
+
+    @Nullable
+    StatTracker getStatTracker();
+
+    void markDirty();
+
+    void tick();
 
 }

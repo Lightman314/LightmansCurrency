@@ -6,22 +6,23 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.ITab;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.Font;
 import net.minecraft.core.RegistryAccess;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class EasyTab implements ITab, IEasyTickable, LazyPacketData.IBuilderProvider {
 
     private final IEasyScreen screen;
     public final Font getFont() { return this.screen.getFont(); }
     private final List<Object> children = new ArrayList<>();
 
-    @Nonnull
     protected final RegistryAccess registryAccess() { return this.screen.registryAccess(); }
-    @Nonnull
     public final LazyPacketData.Builder builder() { return this.screen.builder(); }
 
     protected EasyTab(IEasyScreen screen) { this.screen = screen; }
@@ -54,8 +55,8 @@ public abstract class EasyTab implements ITab, IEasyTickable, LazyPacketData.IBu
 
     protected abstract void initialize(ScreenArea screenArea, boolean firstOpen);
 
-    public abstract void renderBG(@Nonnull EasyGuiGraphics gui);
-    public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {}
+    public abstract void renderBG(EasyGuiGraphics gui);
+    public void renderAfterWidgets(EasyGuiGraphics gui) {}
 
     public final void onClose()
     {

@@ -83,7 +83,7 @@ public class CoinValueParser extends MoneyValueParser {
         try {
             ResourceLocation coinID = VersionUtil.parseResource(coinIDString);
             Item coin = BuiltInRegistries.ITEM.get(coinID);
-            ChainData chainData = CoinAPI.API.ChainDataOfCoin(coin);
+            ChainData chainData = CoinAPI.getApi().ChainDataOfCoin(coin);
             if(chainData == null)
                 throw NOT_A_COIN_EXCEPTION.createWithContext(reader,coinID.toString());
             CoinEntry entry = chainData.findEntry(coin);
@@ -148,12 +148,12 @@ public class CoinValueParser extends MoneyValueParser {
 
     private static boolean isCoin(ResourceLocation itemID)
     {
-        return CoinAPI.API.IsCoin(BuiltInRegistries.ITEM.get(itemID), false);
+        return CoinAPI.getApi().IsCoin(BuiltInRegistries.ITEM.get(itemID), false);
     }
 
     @Override
     public void addExamples(@Nonnull List<String> examples) {
-        for(ChainData chain : CoinAPI.API.AllChainData())
+        for(ChainData chain : CoinAPI.getApi().AllChainData())
         {
             int suggestedCount = 1;
             StringBuilder result = new StringBuilder(this.prefix).append(";");

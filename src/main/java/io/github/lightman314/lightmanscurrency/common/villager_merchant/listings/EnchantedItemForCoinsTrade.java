@@ -60,7 +60,7 @@ public class EnchantedItemForCoinsTrade implements ItemListing
         int i = 5 + rand.nextInt(15);
         ItemStack itemstack = EnchantmentHelper.enchantItem(rand, new ItemStack(sellItem), i, trader.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(EnchantmentTags.ON_TRADED_EQUIPMENT).stream());
 
-        ChainData chain = CoinAPI.API.ChainDataOfCoin(this.baseCoin);
+        ChainData chain = CoinAPI.getApi().ChainDataOfCoin(this.baseCoin);
         if(chain == null)
         {
             LightmansCurrency.LogWarning("Item for coin trade failed as '" + new ItemStack(this.baseCoin).getHoverName().getString() + "' is not a registered coin!");

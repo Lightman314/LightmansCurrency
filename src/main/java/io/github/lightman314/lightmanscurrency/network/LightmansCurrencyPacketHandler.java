@@ -128,6 +128,8 @@ public class LightmansCurrencyPacketHandler {
 		registerS2C(SPacketSyncEventUnlocks.HANDLER);
 
 		//Config System
+        registerC2S(CPacketEditConfig.HANDLER);
+        registerC2S(CPacketTrackServerFile.HANDLER);
 		registerS2C(SPacketSyncConfig.HANDLER);
 		registerS2C(SPacketReloadConfig.HANDLER);
 		registerS2C(SPacketEditConfig.HANDLER);

@@ -24,7 +24,7 @@ public class WalletBankMenu extends WalletMenuBase implements IBankAccountMenu {
 		this.addValidator(this::hasBankAccess);
 		this.addValidator(() -> !QuarantineAPI.IsDimensionQuarantined(this.player));
 
-		this.coinInputHandler = MoneyAPI.API.GetContainersMoneyHandler(this.coinInput, this.getPlayer());
+		this.coinInputHandler = MoneyAPI.getApi().GetContainersMoneyHandler(this.coinInput, this.getPlayer());
 		
 		this.addCoinSlots(BANK_WIDGET_SPACING + 1);
 		

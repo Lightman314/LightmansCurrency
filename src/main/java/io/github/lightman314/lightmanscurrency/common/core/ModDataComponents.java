@@ -57,7 +57,6 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<FilterData>> FILTER_DATA;
 
     //Item Attributes
-    public static final Supplier<DataComponentType<Integer>> WALLET_LEVEL;
     public static final Supplier<DataComponentType<Integer>> WALLET_CAPACITY;
     public static final Supplier<DataComponentType<Boolean>> WALLET_INVULNERABLE;
     public static final Supplier<DataComponentType<Integer>> WALLET_BONUS_MAGNET;
@@ -97,7 +96,6 @@ public class ModDataComponents {
         FILTER_DATA = register("filter_data",builder -> builder.persistent(FilterData.CODEC).networkSynchronized(FilterData.STREAM_CODEC));
 
         //Custom Item Attributes
-        WALLET_LEVEL = registerInt("wallet_level");
         WALLET_CAPACITY = registerInt("wallet_capacity");
         WALLET_INVULNERABLE = registerBool("wallet_invulnerable");
         WALLET_BONUS_MAGNET = registerInt("wallet_bonus_magnet");

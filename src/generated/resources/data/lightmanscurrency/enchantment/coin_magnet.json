@@ -18,6 +18,10 @@
   "slots": [
     "any"
   ],
-  "supported_items": "#lightmanscurrency:wallet/pickup",
+  "supported_items": {
+    "type": "lightmanscurrency:item_list_config",
+    "fileID": "lightmanscurrency:server",
+    "option": "wallet.pickupAbility"
+  },
   "weight": 2
 }

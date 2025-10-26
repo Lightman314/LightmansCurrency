@@ -82,12 +82,12 @@ public class CoinChestSecurityUpgrade extends CoinChestUpgrade {
     @Nonnull
     public OwnerData parseOwnerData(CoinChestBlockEntity be, CoinChestUpgradeData data)
     {
-        return data.getData(ModDataComponents.SECURITY_UPGRADE_DATA,SecurityUpgradeData.DEFAULT).parseData(be);
+        return data.getData(ModDataComponents.SECURITY_UPGRADE_DATA,SecurityUpgradeData.DEFAULT).owner.withParent(be);
     }
 
     public void saveOwnerData(@Nonnull CoinChestBlockEntity be, CoinChestUpgradeData data, OwnerData newOwner)
     {
-        data.editData(ModDataComponents.SECURITY_UPGRADE_DATA,SecurityUpgradeData.DEFAULT,d -> d.withOwner(newOwner,be.registryAccess()));
+        data.editData(ModDataComponents.SECURITY_UPGRADE_DATA,SecurityUpgradeData.DEFAULT,d -> d.withOwner(newOwner));
     }
 
     @Override

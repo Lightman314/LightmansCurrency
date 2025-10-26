@@ -11,8 +11,8 @@ public class LCFTBTeams {
 
     public static void setup()
     {
-        OwnershipAPI.API.registerOwnerType(FTBTeamOwner.TYPE);
-        OwnershipAPI.API.registerPotentialOwnerProvider(new FTBTeamOwnerProvider());
+        OwnershipAPI.getApi().registerOwnerType(FTBTeamOwner.TYPE);
+        OwnershipAPI.getApi().registerPotentialOwnerProvider(new FTBTeamOwnerProvider());
     }
 
 }

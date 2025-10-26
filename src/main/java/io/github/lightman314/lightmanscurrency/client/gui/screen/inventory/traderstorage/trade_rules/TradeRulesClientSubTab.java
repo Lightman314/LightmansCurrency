@@ -6,12 +6,15 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.TradeRulesTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
+import net.minecraft.MethodsReturnNonnullByDefault;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class TradeRulesClientSubTab extends EasyTab {
 
     public final TradeRulesClientTab<?> parent;
@@ -21,7 +24,6 @@ public abstract class TradeRulesClientSubTab extends EasyTab {
 
     private final List<Object> children = new ArrayList<>();
 
-    @Nonnull
     public List<TradeRule> getTradeRules()
     {
         ITradeRuleHost host = this.commonTab.getHost();
@@ -30,15 +32,14 @@ public abstract class TradeRulesClientSubTab extends EasyTab {
         return new ArrayList<>();
     }
 
-    @Nonnull
     public List<TradeRule> getFilteredRules() { return this.filterRules(this.getTradeRules()); }
 
     /**
      * Hides trade rules that cannot be activated in the trader/trades current state.
      */
-    protected final  List<TradeRule> filterRules(@Nonnull List<TradeRule> rules) { return rules.stream().filter(r -> r.canPlayerActivate(this.menu.getPlayer())).collect(Collectors.toList()); }
+    protected final  List<TradeRule> filterRules(List<TradeRule> rules) { return rules.stream().filter(r -> r.canPlayerActivate(this.menu.getPlayer())).collect(Collectors.toList()); }
 
-    protected TradeRulesClientSubTab(@Nonnull TradeRulesClientTab<?> parent)
+    protected TradeRulesClientSubTab(TradeRulesClientTab<?> parent)
     {
         super(parent.screen);
         this.parent = parent;

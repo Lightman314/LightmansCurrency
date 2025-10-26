@@ -31,7 +31,7 @@ public record TraderItemData(long traderID) implements TooltipProvider {
         Level level = context.level();
         if(level != null)
         {
-            TraderData trader = TraderAPI.API.GetTrader(level.isClientSide, this.traderID);
+            TraderData trader = TraderAPI.getApi().GetTrader(level.isClientSide, this.traderID);
             if(trader != null)
                 consumer.accept(trader.getName().withStyle(ChatFormatting.GRAY));
         }

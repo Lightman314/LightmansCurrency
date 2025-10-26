@@ -81,7 +81,7 @@ public class EventHandler {
 		ItemEntity ie = event.getItemEntity();
 		ItemStack pickupItem = ie.getItem();
 		Player player = event.getPlayer();
-		if(ie.hasPickUpDelay() || !CoinAPI.API.IsAllowedInCoinContainer(pickupItem, false) || (ie.getTarget() != null && !ie.getTarget().equals(player.getUUID())))
+		if(ie.hasPickUpDelay() || !CoinAPI.getApi().IsAllowedInCoinContainer(pickupItem, false) || (ie.getTarget() != null && !ie.getTarget().equals(player.getUUID())))
 			return;
 
 		WalletMenuBase activeContainer = null;
@@ -182,7 +182,6 @@ public class EventHandler {
 			Player player = event.getEntity();
 			sendWalletUpdatePacket(target, player);
 		}
-
 	}
 
 	@SubscribeEvent
@@ -305,7 +304,7 @@ public class EventHandler {
 		List<ItemStack> drops = new ArrayList<>();
 
 		Container walletInventory = event.getWalletInventory();
-		IMoneyHandler walletHandler = MoneyAPI.API.GetContainersMoneyHandler(walletInventory,drops::add, IClientTracker.entityWrapper(event.getEntity()));
+		IMoneyHandler walletHandler = MoneyAPI.getApi().GetContainersMoneyHandler(walletInventory,drops::add, IClientTracker.entityWrapper(event.getEntity()));
 		MoneyView walletFunds = walletHandler.getStoredMoney();
 
 

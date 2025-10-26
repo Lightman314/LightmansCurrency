@@ -14,11 +14,11 @@ import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
 import io.github.lightman314.lightmanscurrency.common.crafting.RecipeValidator;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
+import io.github.lightman314.lightmanscurrency.common.items.CoinJarItem;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.menus.MintMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
-import io.github.lightman314.lightmanscurrency.integration.jeiplugin.misc.ItemFilterGhostIngredientHandler;
-import io.github.lightman314.lightmanscurrency.integration.jeiplugin.util.JEIScreenArea;
+import io.github.lightman314.lightmanscurrency.integration.jeiplugin.util.*;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -83,8 +83,8 @@ public class LCJeiPlugin implements IModPlugin{
 		{
 			if(item instanceof BlockItem bi && bi.getBlock() instanceof IVariantBlock)
 				registration.registerSubtypeInterpreter(item,variantSubtype);
-
 		}
+        registration.registerSubtypeInterpreter(ModBlocks.SUS_JAR.get().asItem(),new SusJarSubtype());
 	}
 
 	@Override
@@ -105,7 +105,8 @@ public class LCJeiPlugin implements IModPlugin{
 		this.registerExclusionZones(registration,TeamManagerScreen.class);
 		this.registerExclusionZones(registration,NotificationScreen.class);
 
-        registration.addGhostIngredientHandler(ItemFilterScreen.class,new ItemFilterGhostIngredientHandler());
+        this.registerGhostSlots(registration,ItemFilterScreen.class);
+        this.registerGhostSlots(registration,TraderStorageScreen.class);
 
 	}
 	
@@ -128,6 +129,11 @@ public class LCJeiPlugin implements IModPlugin{
 		registration.addGuiContainerHandler(clazz,JEIScreenArea.create(clazz,registration.getJeiHelpers().getIngredientManager()));
 	}
 
+    private <T extends EasyMenuScreen<?>> void registerGhostSlots(IGuiHandlerRegistration registration,Class<T> clazz)
+    {
+        registration.addGhostIngredientHandler(clazz,new EasyGhostIngredientHandler<>(clazz));
+    }
+
 	private static class AncientCoinSubtype implements ISubtypeInterpreter<ItemStack>
 	{
 		@Override
@@ -145,5 +151,14 @@ public class LCJeiPlugin implements IModPlugin{
 		@Override
 		public String getLegacyStringSubtypeInfo(ItemStack ingredient, UidContext context) { return Objects.toString(this.getSubtypeData(ingredient,context)); }
 	}
+
+    private static class SusJarSubtype implements ISubtypeInterpreter<ItemStack>
+    {
+        @Override
+        @Nullable
+        public Object getSubtypeData(ItemStack ingredient, UidContext context) { return CoinJarItem.getJarColor(ingredient); }
+        @Override
+        public String getLegacyStringSubtypeInfo(ItemStack ingredient, UidContext context) { return Integer.toHexString(CoinJarItem.getJarColor(ingredient)); }
+    }
 	
 }

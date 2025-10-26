@@ -11,7 +11,6 @@ import javax.annotation.Nullable;
 
 public abstract class VillagerTradeMod {
 
-
     @Nonnull
     public abstract ItemCost modifyCost(@Nullable Entity villager, @Nonnull ItemCost cost);
 

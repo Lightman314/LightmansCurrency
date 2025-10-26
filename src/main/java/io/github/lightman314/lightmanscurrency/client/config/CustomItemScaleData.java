@@ -14,6 +14,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,8 +42,20 @@ public class CustomItemScaleData {
         return 1f;
     }
 
+    public static ItemTest create(ItemLike item) { return new MatchTest(item.asItem()); }
     public static ItemTest create(Supplier<? extends ItemLike> item) { return new MatchTest(item.get().asItem()); }
     public static ItemTest create(TagKey<Item> itemTag) { return new TagTest(itemTag); }
+
+    @Nullable
+    public static ItemTest tryParseTest(String string)
+    {
+        try {
+            if(string.startsWith("#"))
+                return new TagTest(TagKey.create(Registries.ITEM,VersionUtil.parseResource(string.substring(1))));
+            else
+                return new MatchTest(BuiltInRegistries.ITEM.get(VersionUtil.parseResource(string)));
+        } catch (ResourceLocationException ignored) { return null; }
+    }
 
     public static Pair<ItemTest,Float> parse(String string) throws ConfigParsingException {
         String[] split = string.split(";");

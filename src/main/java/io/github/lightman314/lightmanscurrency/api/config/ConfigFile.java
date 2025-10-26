@@ -2,14 +2,27 @@ package io.github.lightman314.lightmanscurrency.api.config;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.event.ConfigEvent;
 import io.github.lightman314.lightmanscurrency.api.config.event.ConfigReloadAllEvent;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.text.MultiLineTextEntry;
+import io.github.lightman314.lightmanscurrency.network.message.config.SPacketReloadConfig;
+import io.github.lightman314.lightmanscurrency.network.message.config.SPacketSyncConfig;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -21,13 +34,18 @@ import java.util.function.Supplier;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public abstract class ConfigFile {
+public abstract class ConfigFile implements ConfigReloadable {
 
     private static final Map<ResourceLocation,ConfigFile> loadableFiles = new HashMap<>();
-    public static Iterable<ConfigFile> getAvailableFiles() { return ImmutableList.copyOf(loadableFiles.values()); }
+    public static List<ConfigFile> getAvailableFiles() { return ImmutableList.copyOf(loadableFiles.values()); }
     @Nullable
     public static ConfigFile lookupFile(ResourceLocation file) { return loadableFiles.get(file); }
     private static void registerConfig(ConfigFile file) { loadableFiles.put(file.fileID,file); }
+
+    public static String translationForFile(ResourceLocation fileID) { return "config." + fileID.getNamespace() + "." + fileID.getPath() + ".file"; }
+    public static String translationForSection(ResourceLocation fileID, String section) { return "config." + fileID.getNamespace() + "." + fileID.getPath() + ".section." + section; }
+    public static String translationForOption(ResourceLocation fileID, String optionKey) { return "config." + fileID.getNamespace() + "." + fileID.getPath() + ".option." + optionKey; }
+    public static String translationForComment(ResourceLocation fileID, String sectionOrOptionKey) { return "config." + fileID.getNamespace() + "." + fileID.getPath() + ".comment." + sectionOrOptionKey; }
 
     /**
      * Load flag to ensure the configs are loaded at the correct times.
@@ -80,14 +98,21 @@ public abstract class ConfigFile {
         VersionUtil.postEvent(new ConfigReloadAllEvent.Post(logicalClient));
     }
 
+    public static void handleSyncData(ResourceLocation configID, Map<String,String> data)
+    {
+        if(loadableFiles.containsKey(configID))
+            loadableFiles.get(configID).loadSyncData(data);
+        else
+            LightmansCurrency.LogError("Received config data for '" + configID + "' from the server, however this config is not present on the client!");
+    }
     
     protected String getConfigFolder() { return "config"; }
 
     private final ResourceLocation fileID;
     public ResourceLocation getFileID() { return this.fileID; }
     private final String fileName;
-    @Deprecated(since = "2.2.5.1c")
     public String getFileName() { return this.fileName; }
+    public Component getDisplayName() { return EasyText.translatable(translationForFile(this.fileID)); }
 
     private final List<Runnable> reloadListeners = new ArrayList<>();
     public final void addListener(Runnable listener) {
@@ -95,8 +120,34 @@ public abstract class ConfigFile {
             this.reloadListeners.add(listener);
     }
 
-    
-    protected String getFilePath() { return this.getConfigFolder() + "/" + this.fileName + ".txt"; }
+    private final List<UUID> trackingPlayers = new ArrayList<>();
+    public final void addTrackingPlayer(Player player)
+    {
+        if(this.trackingPlayers.contains(player.getUUID()))
+            return;
+        this.trackingPlayers.add(player.getUUID());
+    }
+    public final void removeTrackingPlayer(Player player)
+    {
+        this.trackingPlayers.remove(player.getUUID());
+    }
+
+    @Override
+    public ResourceLocation getID() { return this.fileID; }
+    @Override
+    public boolean canReload(CommandSourceStack stack) { return this.isClientOnly() ? stack.isPlayer() : stack.hasPermission(2); }
+    @Override
+    public void onCommandReload(CommandSourceStack stack) throws CommandSyntaxException {
+        //Reload Pack
+        if(!this.isClientOnly())
+            this.reload();
+        else
+            new SPacketReloadConfig(this.fileID).sendTo(stack.getPlayerOrException());
+    }
+    @Override
+    public boolean alertAdmins() { return !this.isClientOnly(); }
+
+    public String getFilePath() { return this.getConfigFolder() + "/" + this.fileName + ".txt"; }
     
     private String getOldFilePath() { return this.getFilePath().replace(".txt",".lcconfig"); }
     
@@ -116,7 +167,12 @@ public abstract class ConfigFile {
     }
 
     protected final void forEach(Consumer<ConfigOption<?>> action) { this.confirmSetup(); this.root.forEach(action); }
-    
+
+    public ConfigSection getRoot() {
+        this.confirmSetup();
+        return this.root;
+    }
+
     public final Map<String,ConfigOption<?>> getAllOptions()
     {
         this.confirmSetup();
@@ -430,7 +486,52 @@ public abstract class ConfigFile {
 
     protected void afterReload() {}
 
-    protected void afterOptionChanged(ConfigOption<?> option) {}
+    protected void afterOptionChanged(ConfigOption<?> option) {
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if(server == null)
+            return;
+        PlayerList list = server.getPlayerList();
+        //Iterate through a copy of the list so that we can safely remove invalid tracking data
+        for(UUID playerID : new ArrayList<>(this.trackingPlayers))
+        {
+            ServerPlayer player = list.getPlayer(playerID);
+            if(player == null)
+                this.trackingPlayers.remove(playerID);
+            else
+                this.sendSyncPacket(player);
+        }
+    }
+
+    public void sendSyncPacket(@Nullable Player target) {
+        if(target != null)
+            new SPacketSyncConfig(this.getFileID(),this.getSyncData()).sendTo(target);
+        else
+            new SPacketSyncConfig(this.getFileID(),this.getSyncData()).sendToAll();
+    }
+
+    private Map<String,String> getSyncData()
+    {
+        Map<String,String> map = new HashMap<>();
+        this.getAllOptions().forEach((id, option) -> map.put(id, option.write()));
+        return ImmutableMap.copyOf(map);
+    }
+
+    public void loadSyncData(Map<String,String> syncData)
+    {
+        //Pre sync event
+        NeoForge.EVENT_BUS.post(new ConfigEvent.ConfigReceivedSyncDataEvent.Pre(this));
+        LightmansCurrency.LogInfo("Received config data for '" + this.getFileID() + "' from the server!");
+        this.getAllOptions().forEach((id, option) -> {
+            if(syncData.containsKey(id))
+                option.load(syncData.get(id), ConfigOption.LoadSource.SYNC);
+            else
+                LightmansCurrency.LogWarning("Received data for config option '" + id + "' but it is not present on the client!");
+        });
+        //Post sync event
+        NeoForge.EVENT_BUS.post(new ConfigEvent.ConfigReceivedSyncDataEvent.Post(this));
+    }
+
+    public void clearSyncedData() { this.forEach(ConfigOption::clearSyncedData); }
 
     @ParametersAreNonnullByDefault
     @MethodsReturnNonnullByDefault
@@ -510,11 +611,14 @@ public abstract class ConfigFile {
 
     }
 
-    protected static final class ConfigSection
+    public static final class ConfigSection
     {
         private final ConfigSection parent;
         private final int depth;
         private final String name;
+        public Component getDisplayName(ResourceLocation fileID) { return EasyText.translatable(translationForSection(fileID,this.fullName())); }
+        public List<Component> getTooltips(ResourceLocation fileID) { return new MultiLineTextEntry(translationForComment(fileID,this.fullName())).get(); }
+
         private String fullName()
         {
             if(this.parent != null)
@@ -529,8 +633,10 @@ public abstract class ConfigFile {
         }
         private final ConfigComments comments;
         private final List<ConfigSection> sectionsInOrder;
+        public List<ConfigSection> getSectionsInOrder() { return this.sectionsInOrder; }
         private final Map<String,ConfigSection> sections;
         private final List<Pair<String,ConfigOption<?>>> optionsInOrder;
+        public List<Pair<String,ConfigOption<?>>> getOptionsInOrder() { return this.optionsInOrder; }
         private final Map<String,ConfigOption<?>> options;
 
         void forEach(Consumer<ConfigOption<?>> action) {

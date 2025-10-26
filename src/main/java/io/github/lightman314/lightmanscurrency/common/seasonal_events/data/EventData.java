@@ -136,7 +136,7 @@ public class EventData extends SimpleLootModifier {
         if(this.startingRewardMessage != null)
         {
             player.sendSystemMessage(this.startingRewardMessage);
-            NotificationAPI.API.PushPlayerNotification(player.getUUID(),new TextNotification(EasyText.makeMutable(this.startingRewardMessage), EventCategory.INSTANCE),false);
+            NotificationAPI.getApi().PushPlayerNotification(player.getUUID(),new TextNotification(EasyText.makeMutable(this.startingRewardMessage), EventCategory.INSTANCE),false);
         }
     }
 

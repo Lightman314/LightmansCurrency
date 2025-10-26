@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/outer_corner/acacia/base",
+  "target": "lightmanscurrency:card_display_acacia_brown",
+  "textures": {
+    "wool": "minecraft:block/brown_wool"
+  }
+}

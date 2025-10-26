@@ -38,7 +38,7 @@ public class CPacketOpenTrades extends ClientToServerPacket {
 				player.openMenu(TraderData.getTraderMenuForAllNetworkTraders(validator), EasyMenu.encoder(validator));
 			else
 			{
-				TraderData data = TraderAPI.API.GetTrader(false, message.traderID);
+				TraderData data = TraderAPI.getApi().GetTrader(false, message.traderID);
 				if(data != null)
 					data.openTraderMenu(player, validator);
 			}

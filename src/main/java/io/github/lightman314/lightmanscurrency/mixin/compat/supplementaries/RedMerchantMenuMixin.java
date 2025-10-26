@@ -66,14 +66,14 @@ public abstract class RedMerchantMenuMixin {
                 if(tradeContainer.getItem(0).isEmpty() || tradeContainer.getItem(1).isEmpty())
                 {
                     MerchantOffer offer = self.getOffers().get(trade);
-                    if(CoinAPI.API.IsCoin(offer.getCostA(), false) || CoinAPI.API.IsCoin(offer.getCostB(), false))
+                    if(CoinAPI.getApi().IsCoin(offer.getCostA(), false) || CoinAPI.getApi().IsCoin(offer.getCostB(), false))
                     {
 
                         ItemStack coinA = offer.getCostA().copy();
                         ItemStack coinB = offer.getCostB().copy();
 
-                        ChainData chainA = CoinAPI.API.ChainDataOfCoin(coinA);
-                        ChainData chainB = CoinAPI.API.ChainDataOfCoin(coinB);
+                        ChainData chainA = CoinAPI.getApi().ChainDataOfCoin(coinA);
+                        ChainData chainB = CoinAPI.getApi().ChainDataOfCoin(coinB);
 
                         //Don't calculate values of non-empty slots to avoid overriding an existing item.
                         long valueA;
@@ -134,7 +134,7 @@ public abstract class RedMerchantMenuMixin {
                                 fundsToExtractB = MoneyValue.empty();
                             }
 
-                            IMoneyHolder handler = MoneyAPI.API.GetPlayersMoneyHandler(player);
+                            IMoneyHolder handler = MoneyAPI.getApi().GetPlayersMoneyHandler(player);
                             if(handler.extractMoney(fundsToExtractA,true).isEmpty() && handler.extractMoney(fundsToExtractB,true).isEmpty())
                             {
                                 handler.extractMoney(fundsToExtractA,false);
@@ -188,7 +188,7 @@ public abstract class RedMerchantMenuMixin {
     {
         MerchantContainer tradeContainer = this.getTradeContainer();
         ItemStack item = tradeContainer.getItem(0);
-        if (!item.isEmpty() && CoinAPI.API.IsCoin(item, false)) {
+        if (!item.isEmpty() && CoinAPI.getApi().IsCoin(item, false)) {
             WalletHandler walletHandler = WalletHandler.get(player);
             if(walletHandler != null)
             {
@@ -208,7 +208,7 @@ public abstract class RedMerchantMenuMixin {
             }
         }
         item = tradeContainer.getItem(1);
-        if (!item.isEmpty() && CoinAPI.API.IsCoin(item, false)) {
+        if (!item.isEmpty() && CoinAPI.getApi().IsCoin(item, false)) {
             WalletHandler walletHandler = WalletHandler.get(player);
             if(walletHandler != null)
             {

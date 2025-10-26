@@ -1,11 +1,12 @@
 package io.github.lightman314.lightmanscurrency.api.ownership.listing.builtin;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.TeamOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.PotentialOwner;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.api.teams.TeamAPI;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
@@ -23,15 +24,15 @@ public class PotentialTeamOwner extends PotentialOwner {
     @Override
     public IconData getIcon() {
         int count = 0;
-        ITeam team = TeamAPI.API.GetTeam(this, this.teamID);
+        ITeam team = TeamAPI.getApi().GetTeam(this, this.teamID);
         if(team != null)
             count = team.getMemberCount();
-        return IconData.of(Items.PLAYER_HEAD, String.valueOf(count));
+        return ItemIcon.ofItem(Items.PLAYER_HEAD, String.valueOf(count));
     }
 
     @Override
     public void appendTooltip(@Nonnull List<Component> tooltip) {
-        ITeam team = TeamAPI.API.GetTeam(this, this.teamID);
+        ITeam team = TeamAPI.getApi().GetTeam(this, this.teamID);
         if(team != null)
             LCText.TOOLTIP_OWNER_TEAM.tooltip(tooltip,team.getName(),team.getMemberCount());
     }

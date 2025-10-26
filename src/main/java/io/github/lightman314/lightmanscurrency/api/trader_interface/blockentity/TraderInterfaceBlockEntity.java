@@ -28,6 +28,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.FullTradeResult;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.ejection.IDumpable;
+import io.github.lightman314.lightmanscurrency.common.menus.containers.UpgradeContainer;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
@@ -47,7 +48,6 @@ import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.SpeedUpgrade;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -58,7 +58,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -194,7 +193,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	
 	public final TraderInterfaceTargets targets = new TraderInterfaceTargets(this);
 	
-	private SimpleContainer upgradeSlots = new SimpleContainer(5);
+	private final UpgradeContainer upgradeSlots = new UpgradeContainer(5,this);
 	@Nonnull
 	@Override
 	public Container getUpgrades() { return this.upgradeSlots; }
@@ -333,7 +332,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	}
 	
 	protected final CompoundTag saveUpgradeSlots(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
-		InventoryUtil.saveAllItems("Upgrades", compound, this.upgradeSlots, lookup);
+        this.upgradeSlots.save("Upgrades",compound,lookup);
 		return compound;
 	}
 
@@ -368,7 +367,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		if(compound.contains("Targets",Tag.TAG_COMPOUND))
 			this.targets.load(compound.getCompound("Targets"),lookup);
 		if(compound.contains("Upgrades"))
-			this.upgradeSlots = InventoryUtil.loadAllItems("Upgrades", compound, 5, lookup);
+			this.upgradeSlots.load("Upgrades", compound, lookup);
 		if(compound.contains("Stats"))
 			this.statTracker.load(compound.getCompound("Stats"),lookup);
 		for(SidedHandler<?> handler : this.handlers) {

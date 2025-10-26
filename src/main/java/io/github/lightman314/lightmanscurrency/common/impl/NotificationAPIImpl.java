@@ -3,26 +3,27 @@ package io.github.lightman314.lightmanscurrency.common.impl;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.notifications.*;
 import io.github.lightman314.lightmanscurrency.common.data.types.NotificationDataCache;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class NotificationAPIImpl extends NotificationAPI {
 
-    public static NotificationAPI INSTANCE = new NotificationAPIImpl();
-
-    private NotificationAPIImpl() {}
+    public NotificationAPIImpl() {}
 
     private final Map<String, NotificationType<?>> notificationRegistry = new HashMap<>();
     private final Map<String, NotificationCategoryType<?>> categoryRegistry = new HashMap<>();
 
     @Override
-    public void RegisterNotification(@Nonnull NotificationType<?> type) {
+    public void RegisterNotification(NotificationType<?> type) {
         String t = type.type.toString();
         if(this.notificationRegistry.containsKey(t))
         {
@@ -34,7 +35,7 @@ public class NotificationAPIImpl extends NotificationAPI {
     }
 
     @Override
-    public void RegisterCategory(@Nonnull NotificationCategoryType<?> type) {
+    public void RegisterCategory(NotificationCategoryType<?> type) {
         String t = type.type.toString();
         if(categoryRegistry.containsKey(t))
         {
@@ -47,7 +48,7 @@ public class NotificationAPIImpl extends NotificationAPI {
 
     @Nullable
     @Override
-    public Notification LoadNotification(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
+    public Notification LoadNotification(CompoundTag tag, HolderLookup.Provider lookup) {
         if(tag.contains("Type") || tag.contains("type"))
         {
             String type = tag.contains("Type") ? tag.getString("Type") : tag.getString("type");
@@ -75,7 +76,7 @@ public class NotificationAPIImpl extends NotificationAPI {
 
     @Nullable
     @Override
-    public NotificationCategory LoadCategory(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
+    public NotificationCategory LoadCategory(CompoundTag tag, HolderLookup.Provider lookup) {
         if(tag.contains("Type") || tag.contains("type"))
         {
             String type = tag.contains("Type") ? tag.getString("Type") : tag.getString("type");
@@ -95,6 +96,6 @@ public class NotificationAPIImpl extends NotificationAPI {
     }
 
     @Override
-    public void PushPlayerNotification(@Nonnull UUID playerID, @Nonnull Notification notification, boolean pushToChat) { NotificationDataCache.TYPE.get(false).pushNotification(playerID,notification,pushToChat); }
+    public void PushPlayerNotification(UUID playerID, Notification notification, boolean pushToChat) { NotificationDataCache.TYPE.get(false).pushNotification(playerID,notification,pushToChat); }
 
 }

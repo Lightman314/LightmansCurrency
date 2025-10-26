@@ -18,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.BookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.EnchantedBookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.NormalBookRenderer;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.RotationHandler;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
 import io.github.lightman314.lightmanscurrency.common.attachments.EventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
@@ -32,8 +33,10 @@ import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
 import io.github.lightman314.lightmanscurrency.api.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
+import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.integration.curios.client.LCCuriosClient;
+import io.github.lightman314.lightmanscurrency.integration.patchouli.LCPatchouli;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
@@ -117,6 +120,12 @@ public class ClientProxy extends CommonProxy{
 		//Register Curios Render Layers
 		if(LCCurios.isLoaded())
 			LCCuriosClient.registerRenderLayers();
+
+        //Register Patchouli Functions
+        IntegrationUtil.SafeRunIfLoaded("patchouli", LCPatchouli::init, "Error setting up Patchouli Compat!");
+
+        //Register Item Position Rotation Handlers
+        RotationHandler.setup();
 
 	}
 
@@ -208,7 +217,15 @@ public class ClientProxy extends CommonProxy{
 		return null;
 	}
 
-	@Override
+    @Override
+    public boolean getHasPermissionsSetting() {
+        Player player = this.getLocalPlayer();
+        if(player == null)
+            return false;
+        return Minecraft.getInstance().options.operatorItemsTab().get() && player.canUseGameMasterBlocks();
+    }
+
+    @Override
 	public void loadPlayerTrade(ClientPlayerTrade trade) {
 		Minecraft mc = Minecraft.getInstance();
 		if(mc.player.containerMenu instanceof PlayerTradeMenu menu)

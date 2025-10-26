@@ -32,7 +32,7 @@ public class CoinManagementScreen extends EasyMenuScreen<CoinManagementMenu> {
     public CoinManagementScreen(CoinManagementMenu menu, Inventory inventory, Component ignored) {
         super(menu, inventory);
         //Collect editable money data from local chain data cache
-        for(ChainData data : CoinAPI.API.AllChainData())
+        for(ChainData data : CoinAPI.getApi().AllChainData())
             this.editableDataMap.put(data.chain, new EditableChainData(data));
     }
 

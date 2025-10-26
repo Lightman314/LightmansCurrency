@@ -55,7 +55,7 @@ public class StockTickerInteractionHandlerMixin {
         Map<Item,Integer> map = new HashMap<>();
         for(BigItemStack stack : paymentEntries.getStacks())
         {
-            if(CoinAPI.API.IsCoin(stack.stack,false))
+            if(CoinAPI.getApi().IsCoin(stack.stack,false))
                 map.put(stack.stack.getItem(),stack.count);
             else
                 return;
@@ -73,7 +73,7 @@ public class StockTickerInteractionHandlerMixin {
         MoneyStorage cost = new MoneyStorage(() -> {});
         for(Item coin : map.keySet())
         {
-            ChainData chain = CoinAPI.API.ChainDataOfCoin(coin);
+            ChainData chain = CoinAPI.getApi().ChainDataOfCoin(coin);
             int count = map.get(coin);
             if(count > 0)
                 cost.addValue(CoinValue.fromNumber(chain,count));
@@ -81,7 +81,7 @@ public class StockTickerInteractionHandlerMixin {
         if(!cost.isEmpty())
         {
             //Get money stored in the wallet
-            MoneyView available = MoneyAPI.API.GetContainersMoneyHandler(WalletItem.getDataWrapper(wallet).getContents(),s -> {}, IClientTracker.forServer()).getStoredMoney();
+            MoneyView available = MoneyAPI.getApi().GetContainersMoneyHandler(WalletItem.getDataWrapper(wallet).getContents(),s -> {}, IClientTracker.forServer()).getStoredMoney();
             for(MoneyValue c : cost.allValues())
             {
                 if(!available.containsValue(c))
@@ -107,7 +107,7 @@ public class StockTickerInteractionHandlerMixin {
         if(!WalletItem.isWallet(wallet))
             return next.call(player);
         for(BigItemStack stack : paymentEntries.getStacks()) {
-            if (CoinAPI.API.IsCoin(stack.stack, false))
+            if (CoinAPI.getApi().IsCoin(stack.stack, false))
             {
                 lightmanscurrency$wrapper = new WalletInventoryWrapper(next.call(player),walletHandler,paymentEntries.copy());
                 return lightmanscurrency$wrapper;

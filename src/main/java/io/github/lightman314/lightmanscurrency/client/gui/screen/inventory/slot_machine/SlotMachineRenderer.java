@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.slot
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.SlotMachineScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.common.menus.slot_machine.ResultHolder;
@@ -10,16 +11,19 @@ import io.github.lightman314.lightmanscurrency.common.menus.slot_machine.SlotMac
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.Font;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public final class SlotMachineRenderer implements IEasyTickable {
 
     public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/slot_machine_overlay.png");
@@ -66,10 +70,14 @@ public final class SlotMachineRenderer implements IEasyTickable {
         {
             for(SlotMachineEntry entry : trader.getValidEntries())
             {
-                for(ItemStack item : entry.items)
+                for(IconData icon : entry.getIconsToDisplay())
                 {
-                    this.possibleBlocks.add(SlotMachineRenderBlock.forItem(entry.getWeight(), item));
-                    this.totalWeight += entry.getWeight();
+                    if(!icon.equals(SlotMachineEntry.DEFAULT_ICON))
+                    {
+                        SlotMachineRenderBlock newBlock = SlotMachineRenderBlock.forIcon(entry.getOdds(),icon);
+                        this.possibleBlocks.add(newBlock);
+                        this.totalWeight += newBlock.weight;
+                    }
                 }
             }
         }
@@ -85,11 +93,11 @@ public final class SlotMachineRenderer implements IEasyTickable {
         SlotMachineTraderData trader = this.getTrader();
         if(trader != null)
         {
-            List<ItemStack> previousRewards = SlotMachineEntry.splitDisplayItems(trader.getLastRewards());
+            List<IconData> previousIcons = shuffleListOrder(trader.getLastIcons());
             for(int i = 0; i < SlotMachineEntry.ITEM_LIMIT; ++i)
             {
-                if(i < previousRewards.size())
-                    this.lines.get(i).initialize(SlotMachineRenderBlock.forItem(0, previousRewards.get(i)));
+                if(i < previousIcons.size())
+                    this.lines.get(i).initialize(SlotMachineRenderBlock.forIcon(0, previousIcons.get(i)));
                 else
                     this.lines.get(i).initialize();
             }
@@ -99,6 +107,16 @@ public final class SlotMachineRenderer implements IEasyTickable {
             for(SlotMachineLine line : this.lines)
                 line.initialize();
         }
+    }
+
+    public static <T> List<T> shuffleListOrder(List<T> list)
+    {
+        Random rand = new Random();
+        List<T> result = new ArrayList<>();
+        List<T> copy = new ArrayList<>(list);
+        while(!copy.isEmpty())
+            result.add(copy.remove(rand.nextInt(copy.size())));
+        return result;
     }
 
     @Override
@@ -152,29 +170,19 @@ public final class SlotMachineRenderer implements IEasyTickable {
     {
         ResultHolder pendingReward = this.menu.getNextReward();
         List<SlotMachineRenderBlock> resultBlocks = new ArrayList<>(SlotMachineEntry.ITEM_LIMIT);
-        List<ItemStack> displayItems = SlotMachineEntry.splitDisplayItems(pendingReward.getDisplayItems());
+        List<IconData> displayIcons = pendingReward.getIcons();
         for(int i = 0; i < SlotMachineEntry.ITEM_LIMIT; ++i)
         {
-            if(i < displayItems.size())
-            {
-                ItemStack item = displayItems.get(i);
-                if(item.isEmpty())
-                {
-                    resultBlocks.add(SlotMachineRenderBlock.empty());
-                    //LightmansCurrency.LogDebug("ResultBlock[" + i + "] set to empty as the display item was empty.");
-                }
-                else
-                {
-                    resultBlocks.add(SlotMachineRenderBlock.forItem(0, item));
-                    //LightmansCurrency.LogDebug("ResultBLock[" + i + "] set to " + item.getHoverName() + ".");
-                }
-            }
+            if(i < displayIcons.size())
+                resultBlocks.add(SlotMachineRenderBlock.forIcon(0,displayIcons.get(i)));
             else
             {
                 resultBlocks.add(SlotMachineRenderBlock.empty());
                 //LightmansCurrency.LogDebug("ResultBlock[" + i + "] set to empty as the display item list was too short.");
             }
         }
+        //Shuffle the result blocks order
+        resultBlocks = shuffleListOrder(resultBlocks);
         //Unlock the lines
         for(SlotMachineLine line : this.lines)
             line.unlock();
@@ -193,7 +201,7 @@ public final class SlotMachineRenderer implements IEasyTickable {
         }
     }
 
-    public void render(@Nonnull EasyGuiGraphics gui)
+    public void render(EasyGuiGraphics gui)
     {
 
         //Draw overlay

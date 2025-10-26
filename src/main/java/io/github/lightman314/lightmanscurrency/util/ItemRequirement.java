@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.util;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -9,15 +10,16 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.items.IItemHandler;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.function.Predicate;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class ItemRequirement implements Predicate<ItemStack> {
 
     private static ItemRequirement NULL = null;
-    @Nonnull
     public static ItemRequirement getNull() {
         if(NULL == null)
             NULL = new NullRequirement();
@@ -32,7 +34,7 @@ public abstract class ItemRequirement implements Predicate<ItemStack> {
     public final boolean isNull() { return this instanceof NullRequirement || this.count <= 0; }
     public final boolean isValid() { return !this.isNull(); }
 
-    public boolean tryMerge(@Nonnull ItemRequirement other)
+    public boolean tryMerge(ItemRequirement other)
     {
         if(this.matches(other))
         {
@@ -419,6 +421,7 @@ public abstract class ItemRequirement implements Predicate<ItemStack> {
      * Returns null if not enough items within the container matched the requirements.
      * Does not actually remove the items from the container, this is merely a query function.
      */
+    @Nullable
     public static List<ItemStack> getFirstItemsMatchingRequirements(Container container, ItemRequirement... requirements)
     {
         List<ItemStack> results = new ArrayList<>();
@@ -469,6 +472,7 @@ public abstract class ItemRequirement implements Predicate<ItemStack> {
      * Returns null if not enough items within the container matched the requirements.
      * Does not actually remove the items from the container, this is merely a query function.
      */
+    @Nullable
     public static List<ItemStack> getFirstItemsMatchingRequirements(IItemHandler container, ItemRequirement... requirements)
     {
         List<ItemStack> results = new ArrayList<>();
@@ -513,19 +517,19 @@ public abstract class ItemRequirement implements Predicate<ItemStack> {
         return results;
     }
 
-    public abstract boolean matches(@Nonnull ItemRequirement otherRequirement);
+    public abstract boolean matches(ItemRequirement otherRequirement);
 
     private static class StackMatch extends ItemRequirement
     {
         private final ItemStack stack;
-        private StackMatch(@Nonnull ItemStack stack) { this(stack, stack.getCount()); }
-        private StackMatch(@Nonnull ItemStack stack, int count) { super(count); this.stack = stack; }
+        private StackMatch(ItemStack stack) { this(stack, stack.getCount()); }
+        private StackMatch(ItemStack stack, int count) { super(count); this.stack = stack; }
 
         @Override
         public boolean test(ItemStack stack) { return InventoryUtil.ItemMatches(this.stack,stack); }
 
         @Override
-        public boolean matches(@Nonnull ItemRequirement otherRequirement) {
+        public boolean matches(ItemRequirement otherRequirement) {
             if(otherRequirement instanceof StackMatch pm)
                 return InventoryUtil.ItemMatches(this.stack,pm.stack);
             return false;
@@ -536,13 +540,13 @@ public abstract class ItemRequirement implements Predicate<ItemStack> {
     {
 
         private final Item item;
-        private ItemMatch(@Nonnull Item item, int count) { super(count); this.item = item; }
+        private ItemMatch(Item item, int count) { super(count); this.item = item; }
 
         @Override
         public boolean test(ItemStack stack) { return stack.getItem() == this.item; }
 
         @Override
-        public boolean matches(@Nonnull ItemRequirement otherRequirement) {
+        public boolean matches(ItemRequirement otherRequirement) {
             if(otherRequirement instanceof ItemMatch im)
                 return im.item == this.item;
             return false;
@@ -557,7 +561,7 @@ public abstract class ItemRequirement implements Predicate<ItemStack> {
         @Override
         public boolean test(ItemStack stack) { return this.ingredient.test(stack); }
         @Override
-        public boolean matches(@Nonnull ItemRequirement otherRequirement) {
+        public boolean matches(ItemRequirement otherRequirement) {
             return otherRequirement instanceof IngredientRequirement other && other.ingredient.equals(this.ingredient);
         }
     }
@@ -570,7 +574,7 @@ public abstract class ItemRequirement implements Predicate<ItemStack> {
         @Override
         public boolean test(ItemStack stack) { return this.filter.test(stack); }
         @Override
-        public boolean matches(@Nonnull ItemRequirement otherRequirement) {
+        public boolean matches(ItemRequirement otherRequirement) {
             if(otherRequirement instanceof FilterRequirement fr)
                 return InventoryUtil.ItemMatches(fr.filterItem,this.filterItem);
             return false;
@@ -583,7 +587,7 @@ public abstract class ItemRequirement implements Predicate<ItemStack> {
         @Override
         public boolean test(ItemStack stack) { return false; }
         @Override
-        public boolean matches(@Nonnull ItemRequirement otherRequirement) { return otherRequirement instanceof NullRequirement; }
+        public boolean matches(ItemRequirement otherRequirement) { return otherRequirement instanceof NullRequirement; }
     }
 
 }

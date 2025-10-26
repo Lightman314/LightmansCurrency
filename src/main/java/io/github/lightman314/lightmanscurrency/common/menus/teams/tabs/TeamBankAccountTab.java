@@ -36,12 +36,22 @@ public class TeamBankAccountTab extends TeamManagementTab.Management {
             team.changeBankLimit(this.menu.player,Owner.validateNotificationLevel(level));
     }
 
+    public void ChangeSalaryAccess(int level)
+    {
+        if(this.isClient())
+            this.menu.SendMessage(this.builder().setInt("ChangeSalaryAccess",level));
+        else if(this.menu.selectedTeam() instanceof Team team)
+            team.changeSalaryLimit(this.menu.player,Owner.validateNotificationLevel(level));
+    }
+
     @Override
     public void receiveMessage(LazyPacketData message) {
         if(message.contains("CreateBankAccount"))
             this.CreateBankAccount();
         if(message.contains("ChangeBankAccess"))
             this.ChangeBankAccess(message.getInt("ChangeBankAccess"));
+        if(message.contains("ChangeSalaryAccess"))
+            this.ChangeSalaryAccess(message.getInt("ChangeSalaryAccess"));
     }
 
 }

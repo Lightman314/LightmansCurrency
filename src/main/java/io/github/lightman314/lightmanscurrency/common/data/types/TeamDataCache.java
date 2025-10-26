@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.data.types;
 
-import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomData;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomDataType;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
@@ -27,7 +26,7 @@ import java.util.Map;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 @FieldsAreNonnullByDefault
-public class TeamDataCache extends CustomData implements IServerTicker {
+public class TeamDataCache extends CustomData {
 
     public static final CustomDataType<TeamDataCache> TYPE = new CustomDataType<>("lightmanscurrency_team_data",TeamDataCache::new);
 
@@ -122,21 +121,11 @@ public class TeamDataCache extends CustomData implements IServerTicker {
     }
 
     @Override
-    public void serverTick() {
-        for(Team team : this.teams.values())
-            team.tick();
-    }
-
-    @Override
     public void onPlayerJoin(ServerPlayer player) {
 
         HolderLookup.Provider lookup = LookupHelper.getRegistryAccess();
         for(Team team : this.teams.values())
-        {
             this.sendSyncPacket(this.builder().setCompound("UpdateTeam",team.save(lookup)),player);
-            //Flag the player as having joined *after* sending the initial packet so that any changes to the online list are sent afterwords
-            team.onPlayerJoin(player);
-        }
     }
 
 }

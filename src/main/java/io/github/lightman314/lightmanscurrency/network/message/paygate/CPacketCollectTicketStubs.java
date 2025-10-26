@@ -26,7 +26,7 @@ public class CPacketCollectTicketStubs extends ClientToServerPacket {
         protected H() { super(TYPE, easyCodec(CPacketCollectTicketStubs::encode,CPacketCollectTicketStubs::decode)); }
         @Override
         protected void handle(@Nonnull CPacketCollectTicketStubs message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-            if(TraderAPI.API.GetTrader(false, message.traderID) instanceof PaygateTraderData paygate)
+            if(TraderAPI.getApi().GetTrader(false, message.traderID) instanceof PaygateTraderData paygate)
                 paygate.collectTicketStubs(player);
         }
     }

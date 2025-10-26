@@ -1,21 +1,24 @@
 package io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin;
 
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReferenceType;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.api.teams.TeamAPI;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class TeamBankReference extends BankReference {
 
     public static final BankReferenceType TYPE = new Type();
@@ -24,7 +27,7 @@ public class TeamBankReference extends BankReference {
     protected TeamBankReference(long teamID) { super(TYPE); this.teamID = teamID; }
 
     public static BankReference of(long teamID) { return new TeamBankReference(teamID); }
-    public static BankReference of(@Nonnull ITeam team) {
+    public static BankReference of(ITeam team) {
         BankReference br = of(team.getID());
         br.flagAsClient(team.isClient());
         return br; }
@@ -36,33 +39,49 @@ public class TeamBankReference extends BankReference {
     @Nullable
     @Override
     public IBankAccount get() {
-        ITeam team = TeamAPI.API.GetTeam(this, this.teamID);
+        ITeam team = TeamAPI.getApi().GetTeam(this, this.teamID);
         if(team != null)
             return team.getBankAccount();
         return null;
     }
 
     @Override
-    public boolean allowedAccess(@Nonnull PlayerReference player) {
-        ITeam team = TeamAPI.API.GetTeam(this, this.teamID);
+    public boolean isSalaryTarget(PlayerReference player) {
+        ITeam team = TeamAPI.getApi().GetTeam(this,this.teamID);
+        if(team != null && team.hasBankAccount())
+            return team.isMember(player);
+        return false;
+    }
+
+    @Override
+    public boolean allowedAccess(PlayerReference player) {
+        ITeam team = TeamAPI.getApi().GetTeam(this, this.teamID);
         if(team != null && team.hasBankAccount())
             return team.canAccessBankAccount(player);
         return false;
     }
 
     @Override
-    public boolean allowedAccess(@Nonnull Player player) {
-        ITeam team = TeamAPI.API.GetTeam(this.isClient(), this.teamID);
+    public boolean allowedAccess(Player player) {
+        ITeam team = TeamAPI.getApi().GetTeam(this, this.teamID);
         if(team != null && team.hasBankAccount())
             return team.canAccessBankAccount(player);
         return false;
     }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag tag) { tag.putLong("TeamID", this.teamID); }
+    public int salaryPermission(PlayerReference player) {
+        ITeam team = TeamAPI.getApi().GetTeam(this, this.teamID);
+        if(team != null && team.hasBankAccount())
+            return team.getSalaryLevel(player);
+        return 0;
+    }
 
     @Override
-    protected void encodeAdditional(@Nonnull FriendlyByteBuf buffer) { buffer.writeLong(this.teamID); }
+    protected void saveAdditional(CompoundTag tag) { tag.putLong("TeamID", this.teamID); }
+
+    @Override
+    protected void encodeAdditional(FriendlyByteBuf buffer) { buffer.writeLong(this.teamID); }
 
     private static class Type extends BankReferenceType
     {

@@ -2,18 +2,21 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconIcon;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.MultiIcon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenu;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketOpenWalletBank;
@@ -21,17 +24,22 @@ import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketWal
 import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketWalletQuickCollect;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketWalletToggleAutoExchange;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class WalletScreen extends EasyMenuScreen<WalletMenu> {
-	
-	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/wallet.png");
+
+    private static final IconData EXCHANGE_ICON = IconIcon.ofIcon(VersionUtil.lcResource("wallet_exchange"));
+    private static final IconData AUTO_EXCHANGE_ICON_ON = IconIcon.ofIcon(VersionUtil.lcResource("wallet_auto_exchange"));
+    private static final IconData AUTO_EXCHANGE_ICON_OFF = MultiIcon.ofMultiple(AUTO_EXCHANGE_ICON_ON,ItemIcon.ofItem(Items.BARRIER));
 
 	IconButton buttonToggleAutoExchange;
 	EasyButton buttonExchange;
@@ -59,7 +67,7 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 		//Create the buttons
 		this.buttonExchange = this.addChild(IconButton.builder()
 				.pressAction(this::PressExchangeButton)
-				.icon(IconData.of(GUI_TEXTURE,176,0))
+				.icon(EXCHANGE_ICON)
 				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_WALLET_EXCHANGE))
 				.addon(EasyAddonHelper.visibleCheck(this.menu::canExchange))
 				.build());
@@ -73,7 +81,7 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 
 		this.buttonOpenBank = this.addChild(IconButton.builder()
 				.pressAction(this::PressOpenBankButton)
-				.icon(IconData.of(ModBlocks.ATM))
+				.icon(ItemIcon.ofItem(ModBlocks.ATM))
 				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_WALLET_OPEN_BANK))
 				.addon(EasyAddonHelper.visibleCheck(() -> this.menu.hasBankAccess() && !QuarantineAPI.IsDimensionQuarantined(this.menu.player)))
 				.build());
@@ -82,13 +90,13 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 		this.buttonQuickCollect = this.addChild(PlainButton.builder()
 				.position(screenArea.pos.offset(159 + this.menu.halfBonusWidth,screenArea.height - 95))
 				.pressAction(this::PressQuickCollectButton)
-				.sprite(IconAndButtonUtil.SPRITE_QUICK_INSERT)
+				.sprite(SpriteUtil.BUTTON_QUICK_INSERT)
 				.build());
 
 	}
 
 	@Override
-	protected void renderBG(@Nonnull EasyGuiGraphics gui)
+	protected void renderBG(EasyGuiGraphics gui)
 	{
 
 		gui.resetColor();
@@ -109,7 +117,7 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 	}
 
 	private IconData getAutoExchangeIcon() {
-		return IconData.of(GUI_TEXTURE,176,this.menu.getAutoExchange() ? 16 : 32);
+		return this.menu.getAutoExchange() ? AUTO_EXCHANGE_ICON_ON : AUTO_EXCHANGE_ICON_OFF;
 	}
 
 	private Component getAutoExchangeTooltip() { return this.menu.getAutoExchange() ? LCText.TOOLTIP_WALLET_AUTO_EXCHANGE_DISABLE.get() : LCText.TOOLTIP_WALLET_AUTO_EXCHANGE_ENABLE.get(); }

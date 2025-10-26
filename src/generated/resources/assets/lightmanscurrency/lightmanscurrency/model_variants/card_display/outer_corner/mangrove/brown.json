@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/outer_corner/mangrove/base",
+  "target": "lightmanscurrency:card_display_mangrove_brown",
+  "textures": {
+    "wool": "minecraft:block/brown_wool"
+  }
+}

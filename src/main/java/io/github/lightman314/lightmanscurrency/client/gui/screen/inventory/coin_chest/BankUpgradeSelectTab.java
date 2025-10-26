@@ -2,13 +2,14 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountSelectionWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestBankUpgrade;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestUpgradeData;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
@@ -59,7 +60,7 @@ public class BankUpgradeSelectTab extends CoinChestTab.Upgrade {
 
     @Nonnull
     @Override
-    public IconData getIcon() { return IconData.of(Items.PAPER); }
+    public IconData getIcon() { return ItemIcon.ofItem(Items.PAPER); }
 
     @Override
     public Component getTooltip() { return LCText.TOOLTIP_ATM_SELECTION.get(); }

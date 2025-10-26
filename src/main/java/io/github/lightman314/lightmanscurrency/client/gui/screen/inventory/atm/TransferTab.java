@@ -1,6 +1,9 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
@@ -11,23 +14,24 @@ import io.github.lightman314.lightmanscurrency.client.data.ClientPlayerNameCache
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountSelectionWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketBankTransferPlayer;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketBankTransferAccount;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.UUID;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class TransferTab extends ATMTab {
 
 	public TransferTab(ATMScreen screen) { super(screen); }
@@ -48,8 +52,7 @@ public class TransferTab extends ATMTab {
 	
 	boolean playerMode = false;
 	BankReference selectedAccount = null;
-	
-	@Nonnull
+
 	@Override
 	public IconData getIcon() { return IconUtil.ICON_STORE_COINS; }
 
@@ -63,7 +66,7 @@ public class TransferTab extends ATMTab {
 		
 		this.responseTimer = 0;
 		if(firstOpen)
-			this.screen.getMenu().clearMessage();
+			this.menu.clearMessage();
 		
 		this.amountWidget = this.addChild(MoneyValueWidget.builder()
 				.position(screenArea.pos)
@@ -87,7 +90,7 @@ public class TransferTab extends ATMTab {
 		this.buttonToggleMode = this.addChild(IconButton.builder()
 				.position(screenArea.pos.offset(screenArea.width, 84))
 				.pressAction(this::ToggleMode)
-				.icon(() -> this.playerMode ? IconData.of(Items.PLAYER_HEAD) : IconUtil.ICON_ALEX_HEAD)
+				.icon(() -> this.playerMode ? ItemIcon.ofItem(Items.PLAYER_HEAD) : IconUtil.ICON_ALEX_HEAD)
 				.addon(EasyAddonHelper.toggleTooltip(() -> this.playerMode, LCText.TOOLTIP_ATM_TRANSFER_MODE_LIST.get(), LCText.TOOLTIP_ATM_TRANSFER_MODE_PLAYER.get()))
 				.build());
 		this.buttonTransfer = this.addChild(IconButton.builder()
@@ -166,7 +169,7 @@ public class TransferTab extends ATMTab {
 	}
 	
 	@Override
-	public void renderBG(@Nonnull EasyGuiGraphics gui) {
+	public void renderBG(EasyGuiGraphics gui) {
 		
 		//this.screen.getFont().draw(pose, this.getTooltip(), this.screen.getGuiLeft() + 8f, this.screen.getGuiTop() + 6f, 0x404040);
 		Component balance = this.screen.getMenu().getBankAccount() == null ? LCText.GUI_BANK_NO_SELECTED_ACCOUNT.get() : this.screen.getMenu().getBankAccount().getBalanceText();
@@ -223,7 +226,10 @@ public class TransferTab extends ATMTab {
 		this.screen.getMenu().clearMessage();
 	}
 
-	@Override
+    @Override
+    public boolean renderInventoryLabel() { return false; }
+
+    @Override
 	public boolean blockInventoryClosing() { return true; }
 
 }

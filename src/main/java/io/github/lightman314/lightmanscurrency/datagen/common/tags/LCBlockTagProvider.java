@@ -71,9 +71,14 @@ public class LCBlockTagProvider extends BlockTagsProvider {
         //Interactable tag for blocks that can be interacted with safely by non-owners.
         this.cTag(LCTags.Blocks.SAFE_INTERACTABLE)
                 .addTag(LCTags.Blocks.OWNER_PROTECTED)
+                .addTag(LCTags.Blocks.TERMINAL)
                 .add(ModBlocks.ATM)
                 .add(ModBlocks.CASH_REGISTER)
                 .add(ModBlocks.AUCTION_STAND);
+
+        this.cTag(LCTags.Blocks.TERMINAL)
+                .add(ModBlocks.TERMINAL)
+                .add(ModBlocks.GEM_TERMINAL);
 
         //Misc wooden block tags for easier item position data handling
         this.cTag(LCTags.Blocks.AUCTION_STAND)

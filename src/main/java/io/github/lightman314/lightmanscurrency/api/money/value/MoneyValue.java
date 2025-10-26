@@ -65,7 +65,7 @@ public abstract class MoneyValue {
      * The corresponding {@link CurrencyType} that should be used to handle this MoneyValue
      * May return null if this currency type hasn't been properly registered
      */
-    public CurrencyType getCurrency() { return MoneyAPI.API.GetRegisteredCurrencyType(this.getType()); }
+    public CurrencyType getCurrency() { return MoneyAPI.getApi().GetRegisteredCurrencyType(this.getType()); }
 
     @Nonnull
     protected String generateUniqueName() { return this.getType().toString(); }
@@ -210,7 +210,7 @@ public abstract class MoneyValue {
      * Will round down by default.
      * @param percentage The percentage value between 0 and 1000 (limited to 1000% to avoid values exceeding number limitations)
      * @return {@link #free()} if percentage = 0, <code>this</code> if percentage = 100.
-     * Otherwise a value equal to <code>{@link #getCoreValue()} * percentage / 100 </code>
+     * Otherwise, a value equal to <code>{@link #getCoreValue()} * percentage / 100 </code>
      * @see #percentageOfValue(int, boolean)
      */
     @Nonnull
@@ -223,7 +223,7 @@ public abstract class MoneyValue {
      * @param percentage The percentage value between 0 and 1000 (limited to 1000% to avoid values exceeding number limitations)
      * @param roundUp Whether we should round a value up to nearest valid value if the exact percentage results in a partial value. If <code>false</code> round down.
      * @return {@link #FREE} if percentage = 0, <code>this</code> if percentage = 100.
-     * Otherwise a value equal to <code>{@link #getCoreValue()} * percentage / 100 </code>
+     * Otherwise, a value equal to <code>{@link #getCoreValue()} * percentage / 100 </code>
      */
     public abstract MoneyValue percentageOfValue(int percentage, boolean roundUp);
 
@@ -331,7 +331,7 @@ public abstract class MoneyValue {
                 //LightmansCurrency.LogError("Error loading CoinValue type " + tag.getString("type"));
                 return null;
             }
-            CurrencyType currencyType = MoneyAPI.API.GetRegisteredCurrencyType(valueType);
+            CurrencyType currencyType = MoneyAPI.getApi().GetRegisteredCurrencyType(valueType);
             if(currencyType != null)
             {
                 //LightmansCurrency.LogDebug("Loaded Money Value from tag. Result: " + result.getString("Empty") + "\nTag: " + tag.getAsString());
@@ -375,7 +375,7 @@ public abstract class MoneyValue {
         if(json.has("type"))
         {
             ResourceLocation valueType = VersionUtil.parseResource(GsonHelper.getAsString(json, "type"));
-            CurrencyType currencyType = MoneyAPI.API.GetRegisteredCurrencyType(valueType);
+            CurrencyType currencyType = MoneyAPI.getApi().GetRegisteredCurrencyType(valueType);
             if(currencyType != null)
                 return currencyType.loadMoneyValueJson(json);
             else

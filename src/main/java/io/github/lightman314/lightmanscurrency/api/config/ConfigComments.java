@@ -3,6 +3,8 @@ package io.github.lightman314.lightmanscurrency.api.config;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.text.MultiLineTextEntry;
+import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 
@@ -35,9 +37,6 @@ public class ConfigComments {
         switch (object) {
             case String string -> {
                 return ImmutableList.of(string);
-            }
-            case Component text -> {
-                return ImmutableList.of(text.getString());
             }
             case Supplier<?> supplier -> {
                 return castObject(supplier.get());

@@ -1,7 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.categories;
 
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategoryType;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
@@ -36,7 +37,7 @@ public class TaxEntryCategory extends NotificationCategory {
 
     @Nonnull
     @Override
-    public IconData getIcon() { return IconData.of(ModBlocks.TAX_COLLECTOR); }
+    public IconData getIcon() { return ItemIcon.ofItem(ModBlocks.TAX_COLLECTOR); }
 
     @Nonnull
     @Override

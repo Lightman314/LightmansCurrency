@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.common.notifications.types.aucti
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
@@ -19,9 +18,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
@@ -60,18 +57,18 @@ public class AuctionHouseSellerNotification extends Notification {
 	public NotificationCategory getCategory() { return AuctionHouseCategory.INSTANCE; }
 
 	@Override
-	public List<MutableComponent> getMessageLines() {
+	public List<Component> getMessageLines() {
 		Component itemText = ItemData.getItemNames(this.items);
 
 		Component cost = this.highestBid.getText("0");
 
 		//Create log from stored data
-		MutableComponent line1 = LCText.NOTIFICATION_AUCTION_SELLER.get(this.customer, itemText, cost);
+        Component line1 = LCText.NOTIFICATION_AUCTION_SELLER.get(this.customer, itemText, cost);
 
 		if(this.fee.isEmpty())
 			return List.of(line1);
 
-		MutableComponent line2 = LCText.NOTIFICATION_AUCTION_SELLER_FEE.get(this.payment.getText("0"),this.fee.getText("0"));
+        Component line2 = LCText.NOTIFICATION_AUCTION_SELLER_FEE.get(this.payment.getText("0"),this.fee.getText("0"));
 		return List.of(line1,line2);
 
 	}

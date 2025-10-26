@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/inner_corner/warped/base",
+  "target": "lightmanscurrency:card_display_warped_green",
+  "textures": {
+    "wool": "minecraft:block/green_wool"
+  }
+}
