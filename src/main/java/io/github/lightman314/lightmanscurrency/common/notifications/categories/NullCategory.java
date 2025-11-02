@@ -6,13 +6,16 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCat
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class NullCategory extends NotificationCategory {
 
 	public static final NotificationCategoryType<NullCategory> TYPE = new NotificationCategoryType<>(VersionUtil.lcResource("null"), NullCategory::getNull);
@@ -20,16 +23,13 @@ public class NullCategory extends NotificationCategory {
 	public static final NullCategory INSTANCE = new NullCategory();
 	
 	private NullCategory() {}
-	
-	@Nonnull
+
 	@Override
 	public IconData getIcon() { return ItemIcon.ofItem(Items.BARRIER); }
 
-	@Nonnull
 	@Override
-	public MutableComponent getName() { return LCText.NOTIFICATION_SOURCE_NULL.get(); }
+	public Component getName() { return LCText.NOTIFICATION_SOURCE_NULL.get(); }
 
-	@Nonnull
     @Override
 	protected NotificationCategoryType<NullCategory> getType() { return TYPE; }
 
@@ -37,8 +37,8 @@ public class NullCategory extends NotificationCategory {
 	public boolean matches(NotificationCategory other) { return other instanceof NullCategory; }
 
 	@Override
-	protected void saveAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { }
+	protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) { }
 
-	private static NullCategory getNull(CompoundTag ignored, @Nonnull HolderLookup.Provider lookup) { return INSTANCE; }
+	private static NullCategory getNull(CompoundTag ignored, HolderLookup.Provider lookup) { return INSTANCE; }
 	
 }

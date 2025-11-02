@@ -1775,7 +1775,6 @@
   "tooltip.lightmanscurrency.slot_machine.to_info": "Click to view possible results",
   "tooltip.lightmanscurrency.slot_machine.to_interact": "Click to return to slots",
   "tooltip.lightmanscurrency.slot_machine.undefined": "Slot Machine is not yet set up!",
-  "tooltip.lightmanscurrency.slot_machine.weight": "Weight: %s",
   "tooltip.lightmanscurrency.smithing_template.additions_slot_description": "Add Material",
   "tooltip.lightmanscurrency.smithing_template.applies_to": "Miscellaneous Items & Upgrades",
   "tooltip.lightmanscurrency.smithing_template.base_slot_description": "Add Item or Upgrade",

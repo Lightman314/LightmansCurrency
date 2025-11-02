@@ -13,8 +13,6 @@ import java.util.Map;
 @ParametersAreNonnullByDefault
 public abstract class SyncedConfigFile extends ConfigFile {
 
-    private static final Map<ResourceLocation,SyncedConfigFile> fileMap = new HashMap<>();
-
     @Override
     public boolean isServerOnly() { return true; }
 
@@ -24,17 +22,18 @@ public abstract class SyncedConfigFile extends ConfigFile {
             if(file instanceof SyncedConfigFile f)
                 f.sendSyncPacket(player);
         }
-        fileMap.values().forEach(c -> c.sendSyncPacket(player));
     }
 
-
-    public static void onClientLeavesServer() { fileMap.values().forEach(ConfigFile::clearSyncedData); }
+    public static void onClientLeavesServer() {
+        for(ConfigFile file : getAvailableFiles())
+        {
+            if(file instanceof SyncedConfigFile)
+                file.clearSyncedData();
+        }
+    }
 
     protected SyncedConfigFile(String fileName, ResourceLocation id) {
         super(id, fileName, LoadPhase.GAME_START); //Lock load phase as game start to ensure the packet can be sent correctly.
-        if(fileMap.containsKey(this.getFileID()))
-            throw new IllegalArgumentException("Synced Config " + this.getFileID() + " already exists!");
-        fileMap.put(this.getFileID(), this);
     }
 
 

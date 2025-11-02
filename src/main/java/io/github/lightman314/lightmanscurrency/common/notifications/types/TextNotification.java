@@ -4,15 +4,18 @@ import io.github.lightman314.lightmanscurrency.api.notifications.*;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Supplier;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class TextNotification extends SingleLineNotification {
 
 	public static final NotificationType<TextNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("text"),TextNotification::new);
@@ -28,26 +31,23 @@ public class TextNotification extends SingleLineNotification {
 	public static Supplier<Notification> create(MutableComponent text) { return () -> new TextNotification(text); }
 	public static Supplier<Notification> create(MutableComponent text, NotificationCategory category) { return () -> new TextNotification(text, category); }
 
-	@Nonnull
     @Override
 	protected NotificationType<TextNotification> getType() { return TYPE; }
 
-	@Nonnull
 	@Override
 	public NotificationCategory getCategory() { return this.category; }
 
-	@Nonnull
 	@Override
-	public MutableComponent getMessage() { return EasyText.makeMutable(text); }
+	public Component getMessage() { return this.text; }
 
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
 		compound.putString("Text", Component.Serializer.toJson(this.text,lookup));
 		compound.put("Category", this.category.save(lookup));
 	}
 
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
+	protected void loadAdditional(CompoundTag compound,HolderLookup.Provider lookup) {
 		if(compound.contains("Text", Tag.TAG_STRING))
 			this.text = Component.Serializer.fromJson(compound.getString("Text"),lookup);
 		if(compound.contains("Category", Tag.TAG_COMPOUND))
@@ -55,7 +55,7 @@ public class TextNotification extends SingleLineNotification {
 	}
 
 	@Override
-	protected boolean canMerge(@Nonnull Notification other) {
+	protected boolean canMerge(Notification other) {
 		if(other instanceof TextNotification otherText)
 			return otherText.text.equals(this.text) && otherText.category.matches(this.category);
 		return false;

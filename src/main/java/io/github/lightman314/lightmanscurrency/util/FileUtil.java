@@ -8,7 +8,6 @@ import java.nio.charset.StandardCharsets;
 import com.google.gson.*;
 
 import com.mojang.serialization.JsonOps;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.util.GsonHelper;

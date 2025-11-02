@@ -1,12 +1,12 @@
 package io.github.lightman314.lightmanscurrency.api.misc.icons;
 
 import com.google.gson.JsonObject;
-import io.github.lightman314.lightmanscurrency.api.misc.ReadWriteContext;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
@@ -23,7 +23,7 @@ import java.util.function.Supplier;
 public class ItemIcon extends IconData
 {
 
-    public static final Type TYPE = new Type(VersionUtil.lcResource("item"),ItemIcon::load,ItemIcon::parse);
+    public static final Type TYPE = new Type(VersionUtil.lcResource("item"),ItemIcon::loadItem,ItemIcon::parseItem);
 
     private final ItemStack iconStack;
     private final String countTextOverride;
@@ -41,33 +41,32 @@ public class ItemIcon extends IconData
     public void render(EasyGuiGraphics gui, int x, int y) { gui.renderItem(this.iconStack, x, y, this.countTextOverride); }
 
     @Override
-    protected void saveAdditional(ReadWriteContext<CompoundTag> context) {
-        context.data.put("Item", InventoryUtil.saveItemNoLimits(this.iconStack,context));
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider lookup) {
+        tag.put("Item", InventoryUtil.saveItemNoLimits(this.iconStack,lookup));
         if(this.countTextOverride != null)
-            context.data.putString("Text", this.countTextOverride);
+            tag.putString("Text", this.countTextOverride);
     }
 
     @Override
-    protected void writeAdditional(ReadWriteContext<JsonObject> context) {
-        context.data.add("Item", FileUtil.convertItemStack(this.iconStack,context.lookup));
+    protected void writeAdditional(JsonObject json, HolderLookup.Provider lookup) {
+        json.add("Item", FileUtil.convertItemStack(this.iconStack,lookup));
         if(this.countTextOverride != null)
-            context.data.addProperty("Text",this.countTextOverride);
+            json.addProperty("Text",this.countTextOverride);
     }
 
-    private static IconData load(ReadWriteContext<CompoundTag> context)
+    private static IconData loadItem(CompoundTag tag, HolderLookup.Provider lookup)
     {
-        ItemStack stack = InventoryUtil.loadItemNoLimits(context.getEntry("Item"));
+        ItemStack stack = InventoryUtil.loadItemNoLimits(tag.getCompound("Item"),lookup);
         String countText = null;
-        CompoundTag tag = context.data;
         if(tag.contains("Text"))
             countText = tag.getString("Text");
         return new ItemIcon(stack,countText);
     }
 
-    private static IconData parse(ReadWriteContext<JsonObject> context)
+    private static IconData parseItem(JsonObject json, HolderLookup.Provider lookup)
     {
-        ItemStack stack = FileUtil.parseItemStack(GsonHelper.getAsJsonObject(context.data,"Item"),context.lookup);
-        String countText = GsonHelper.getAsString(context.data,"Text",null);
+        ItemStack stack = FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json,"Item"),lookup);
+        String countText = GsonHelper.getAsString(json,"Text",null);
         return new ItemIcon(stack,countText);
     }
 

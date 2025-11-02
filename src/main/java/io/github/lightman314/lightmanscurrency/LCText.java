@@ -414,7 +414,6 @@ public class LCText {
     public static final TextEntry TOOLTIP_SLOT_MACHINE_COST_FREE = TextEntry.tooltip(MODID,"slot_machine.roll.free");
     public static final TextEntry TOOLTIP_SLOT_MACHINE_UNDEFINED = TextEntry.tooltip(MODID,"slot_machine.undefined");
     public static final TextEntry TOOLTIP_SLOT_MACHINE_MONEY = TextEntry.tooltip(MODID,"slot_machine.money");
-    public static final TextEntry TOOLTIP_SLOT_MACHINE_WEIGHT = TextEntry.tooltip(MODID,"slot_machine.weight");
     public static final TextEntry TOOLTIP_SLOT_MACHINE_ODDS = TextEntry.tooltip(MODID,"slot_machine.odds");
 
     //Network Terminal Menu

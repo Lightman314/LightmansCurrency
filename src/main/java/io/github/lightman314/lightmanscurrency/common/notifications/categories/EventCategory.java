@@ -7,12 +7,15 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCat
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class EventCategory extends NotificationCategory {
 
 	public static final NotificationCategoryType<EventCategory> TYPE = new NotificationCategoryType<>(VersionUtil.lcResource("seasonal_event"), EventCategory::getEvent);
@@ -20,21 +23,18 @@ public class EventCategory extends NotificationCategory {
 	public static final EventCategory INSTANCE = new EventCategory();
 
 	private EventCategory() {}
-	
-	@Nonnull
+
 	@Override
 	public IconData getIcon() { return ItemIcon.ofItem(ModBlocks.COINPILE_CHOCOLATE_GOLD); }
-	@Nonnull
 	@Override
-	public MutableComponent getName() { return LCText.NOTIFICATION_SOURCE_EVENT.get(); }
-	@Nonnull
+	public Component getName() { return LCText.NOTIFICATION_SOURCE_EVENT.get(); }
     @Override
 	protected NotificationCategoryType<EventCategory> getType() { return TYPE; }
 	@Override
 	public boolean matches(NotificationCategory other) { return other instanceof EventCategory; }
 	@Override
-	protected void saveAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { }
+	protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) { }
 
-	private static EventCategory getEvent(CompoundTag ignored, @Nonnull HolderLookup.Provider lookup) { return INSTANCE; }
+	private static EventCategory getEvent(CompoundTag ignored, HolderLookup.Provider lookup) { return INSTANCE; }
 
 }

@@ -82,7 +82,8 @@ public class TicketItemTradeWrapper extends ItemTradeWrapper<TicketItemTrade> {
         int slot = args.getInt(0);
         ArgumentHelpers.assertBetween(slot,1,2,"Slot not in range (%s)");
         String newCode = args.getString(1);
-        if(this.getTrade() instanceof TicketItemTrade trade && this.hasPermission(computer))
+        TicketItemTrade trade = this.getTrade();
+        if(this.hasPermission(computer))
         {
             boolean success = trade.getTicketData(slot - 1).setCode(newCode);
             if(success)
@@ -96,9 +97,8 @@ public class TicketItemTradeWrapper extends ItemTradeWrapper<TicketItemTrade> {
     {
         int slot = args.getInt(0);
         ArgumentHelpers.assertBetween(slot,1,2,"Slot not in range (%s)");
-        if(this.getTrade() instanceof TicketItemTrade trade)
-            return trade.getTicketData(slot - 1).getDurability();
-        return -1;
+        TicketItemTrade trade = this.getTrade();
+        return trade.getTicketData(slot - 1).getDurability();
     }
 
     public boolean setTicketDurability(IComputerAccess computer, IArguments args) throws LuaException
@@ -106,7 +106,8 @@ public class TicketItemTradeWrapper extends ItemTradeWrapper<TicketItemTrade> {
         int slot = args.getInt(0);
         ArgumentHelpers.assertBetween(slot,1,2,"Slot not in range (%s)");
         int newDurability = args.getInt(1);
-        if(this.getTrade() instanceof TicketItemTrade trade && this.hasPermission(computer))
+        TicketItemTrade trade = this.getTrade();
+        if(this.hasPermission(computer))
         {
             trade.getTicketData(slot - 1).setDurability(newDurability);
             this.markTradeDirty();

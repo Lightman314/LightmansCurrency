@@ -43,7 +43,7 @@ public class WidgetStateSprite implements FixedSizeSprite, IWidgetContextSprite 
     {
         FixedSizeSprite n = normal.ofSize(width,height);
         FixedSizeSprite h = hovered.ofSize(width,height);
-        return lazyActive(n,h);
+        return lazyHoverable(n,h);
     }
 
     public static WidgetStateSprite lazyActive(FixedSizeSprite active, FixedSizeSprite inactive) { return builder(active).withInactive(inactive).build(); }

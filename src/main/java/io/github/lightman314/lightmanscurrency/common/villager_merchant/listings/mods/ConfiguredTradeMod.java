@@ -265,14 +265,28 @@ public class ConfiguredTradeMod extends VillagerTradeMod {
             return this;
         }
 
-        
+
         public ConfiguredTradeMod build(boolean forceDefaults) {
             Map<String,Pair<Item,Item>> temp = new HashMap<>();
             this.regionalReplacements.forEach((key,pair) ->
-                temp.put(key,buildPair(pair))
+                    temp.put(key,buildPair(pair))
             );
-            return new ConfiguredTradeMod(buildPair(this.defaultReplacement),temp); }
-
+            Pair<Item,Item> defaultReplacements = buildPair(this.defaultReplacement);
+            if(forceDefaults && (defaultReplacements.getFirst() == null || defaultReplacements.getSecond() == null))
+            {
+                //Attempt to autofill the missing default
+                if(defaultReplacements.getFirst() == null)
+                {
+                    if(defaultReplacements.getSecond() == null) //Both are missing, illegal state located
+                        throw new IllegalStateException("Cannot built a ConfiguredTradeMod with no default replacements!");
+                    else
+                        defaultReplacements = Pair.of(defaultReplacements.getSecond(),defaultReplacements.getSecond());
+                }
+                else
+                    defaultReplacements = Pair.of(defaultReplacements.getFirst(),defaultReplacements.getFirst());
+            }
+            return new ConfiguredTradeMod(defaultReplacements,temp);
+        }
         
         public ConfiguredTradeModOption buildOption() { return ConfiguredTradeModOption.create(() -> this.build(true)); }
 

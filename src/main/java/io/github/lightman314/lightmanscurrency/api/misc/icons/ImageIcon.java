@@ -1,12 +1,12 @@
 package io.github.lightman314.lightmanscurrency.api.misc.icons;
 
 import com.google.gson.JsonObject;
-import io.github.lightman314.lightmanscurrency.api.misc.ReadWriteContext;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
 import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.NormalSprite;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -19,7 +19,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class ImageIcon extends IconData
 {
-    public static final Type TYPE = new Type(VersionUtil.lcResource("texture"),ImageIcon::load,ImageIcon::parse);
+    public static final Type TYPE = new Type(VersionUtil.lcResource("texture"),ImageIcon::loadImage,ImageIcon::parseImage);
 
     private final NormalSprite sprite;
     private ImageIcon(NormalSprite sprite) { super(TYPE); this.sprite = sprite; }
@@ -32,8 +32,7 @@ public class ImageIcon extends IconData
     public void render(EasyGuiGraphics gui, int x, int y) { this.sprite.render(gui,x,y); }
 
     @Override
-    protected void saveAdditional(ReadWriteContext<CompoundTag> context) {
-        CompoundTag tag = context.data;
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider lookup) {
         tag.putString("Image",this.sprite.image.texture().toString());
         tag.putInt("u",this.sprite.image.u());
         tag.putInt("v",this.sprite.image.v());
@@ -44,8 +43,7 @@ public class ImageIcon extends IconData
     }
 
     @Override
-    protected void writeAdditional(ReadWriteContext<JsonObject> context) {
-        JsonObject json = context.data;
+    protected void writeAdditional(JsonObject json, HolderLookup.Provider lookup) {
         json.addProperty("Image",this.sprite.image.texture().toString());
         json.addProperty("u",this.sprite.image.u());
         json.addProperty("v",this.sprite.image.v());
@@ -55,8 +53,7 @@ public class ImageIcon extends IconData
         json.addProperty("th",this.sprite.image.textureHeight());
     }
 
-    private static IconData load(ReadWriteContext<CompoundTag> context) {
-        CompoundTag tag = context.data;
+    private static IconData loadImage(CompoundTag tag) {
         ResourceLocation image = VersionUtil.parseResource(tag.getString("Image"));
         int u = tag.getInt("u");
         int v = tag.getInt("v");
@@ -67,9 +64,8 @@ public class ImageIcon extends IconData
         return ofImage(new SpriteSource(image,u,v,w,h,tw,th));
     }
 
-    private static IconData parse(ReadWriteContext<JsonObject> context)
+    private static IconData parseImage(JsonObject json)
     {
-        JsonObject json = context.data;
         ResourceLocation image = VersionUtil.parseResource(GsonHelper.getAsString(json,"Image"));
         int u = GsonHelper.getAsInt(json,"u");
         int v = GsonHelper.getAsInt(json,"v");

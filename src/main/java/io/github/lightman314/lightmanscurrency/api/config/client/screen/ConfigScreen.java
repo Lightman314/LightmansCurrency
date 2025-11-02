@@ -95,4 +95,7 @@ public abstract class ConfigScreen extends EasyScreen {
 
     protected void renderAdditionalBG(EasyGuiGraphics gui) {}
 
+    @Override
+    public boolean isPauseScreen() { return true; }
+
 }

@@ -17,24 +17,24 @@ import java.util.List;
 public class ItemData
 {
     private final ItemStack stack;
-    private final MutableComponent deprecatedName;
+    private final Component deprecatedName;
     private final String customName;
     public ItemData(@Nonnull ItemStack stack) { this(stack, null, ""); }
     public ItemData(@Nonnull ItemStack stack, @Nonnull String customName) { this(stack, null, customName); }
-    public ItemData(@Nonnull ItemStack stack, @Nullable MutableComponent deprecatedName, @Nonnull String customName)
+    public ItemData(@Nonnull ItemStack stack, @Nullable Component deprecatedName, @Nonnull String customName)
     {
         this.stack = stack;
         this.deprecatedName = deprecatedName;
         this.customName = customName;
     }
-    private ItemData(@Nonnull MutableComponent deprecatedName, int count)
+    private ItemData(@Nonnull Component deprecatedName, int count)
     {
         this.stack = new ItemStack(Items.BARRIER,count);
         this.deprecatedName = deprecatedName;
         this.customName = "";
     }
 
-    public MutableComponent getName()
+    public Component getName()
     {
         if(this.deprecatedName != null)
             return this.deprecatedName;

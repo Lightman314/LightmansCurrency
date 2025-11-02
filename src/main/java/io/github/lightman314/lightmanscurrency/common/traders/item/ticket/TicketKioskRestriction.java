@@ -140,11 +140,22 @@ public class TicketKioskRestriction extends ItemTradeRestriction {
         if(trade != this.trade)
             return null;
         List<ItemStack> results = new ArrayList<>();
-        List<ItemRequirement> normalSellItems;
+        List<RequirementWithContext> normalSellItems = new ArrayList<>();
         for(int i = 0; i < 2; ++i)
         {
             TicketSaleData data = this.trade.getTicketData(i);
-            results.add(data.getCraftingResult(true));
+            if(data.isRecipeMode())
+                results.add(data.getCraftingResult(true));
+            else if(!this.trade.getActualItem(i).isEmpty())
+                normalSellItems.add(new RequirementWithContext(trade,i));
+        }
+        if(!normalSellItems.isEmpty())
+        {
+            //Get normal results if a non-ticket trade is also present
+            List<ItemStack> normal = this.getRandomSellItems(trader,normalSellItems);
+            if(normal == null)
+                return null; //Failed to collect the "normal" items from storage
+            results.addAll(normal);
         }
         return results;
     }

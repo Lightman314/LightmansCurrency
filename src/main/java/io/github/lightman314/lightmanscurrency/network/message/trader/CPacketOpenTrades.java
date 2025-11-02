@@ -31,17 +31,18 @@ public class CPacketOpenTrades extends ClientToServerPacket {
 		protected H() { super(TYPE, easyCodec(CPacketOpenTrades::encode,CPacketOpenTrades::decode)); }
 		@Override
 		protected void handle(@Nonnull CPacketOpenTrades message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-			MenuValidator validator = SimpleValidator.NULL;
 			if(player.containerMenu instanceof IValidatedMenu tm)
-				validator = tm.getValidator();
-			if(message.traderID < 0) //If trader ID is -1, open all network traders
-				player.openMenu(TraderData.getTraderMenuForAllNetworkTraders(validator), EasyMenu.encoder(validator));
-			else
-			{
-				TraderData data = TraderAPI.getApi().GetTrader(false, message.traderID);
-				if(data != null)
-					data.openTraderMenu(player, validator);
-			}
+            {
+                MenuValidator validator = tm.getValidator();
+                if(message.traderID < 0) //If trader ID is -1, open all network traders
+                    player.openMenu(TraderData.getTraderMenuForAllNetworkTraders(validator), EasyMenu.encoder(validator));
+                else
+                {
+                    TraderData data = TraderAPI.getApi().GetTrader(false, message.traderID);
+                    if(data != null)
+                        data.openTraderMenu(player, validator);
+                }
+            }
 		}
 	}
 

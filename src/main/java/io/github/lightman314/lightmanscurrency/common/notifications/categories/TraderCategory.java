@@ -11,7 +11,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 
@@ -25,12 +24,12 @@ public class TraderCategory extends NotificationCategory {
 	
 	private final Item trader;
 	private final long traderID;
-	private final MutableComponent traderName;
+	private final Component traderName;
     private final IconData traderIcon;
 
-    @Deprecated(since = "2.2.6.5")
-	public TraderCategory(ItemLike trader, MutableComponent traderName, long traderID) { this(trader,traderName,traderID,IconData.Null()); }
-	public TraderCategory(ItemLike trader, MutableComponent traderName, long traderID, IconData icon) {
+    @Deprecated(since = "2.3.0.0")
+	public TraderCategory(ItemLike trader, Component traderName, long traderID) { this(trader,traderName,traderID,IconData.Null()); }
+	public TraderCategory(ItemLike trader, Component traderName, long traderID, IconData icon) {
 		this.trader = trader.asItem();
 		this.traderName = traderName;
 		this.traderID = traderID;
@@ -68,7 +67,7 @@ public class TraderCategory extends NotificationCategory {
         return ItemIcon.ofItem(this.trader);
     }
 	@Override
-	public MutableComponent getName() { return this.traderName; }
+	public Component getName() { return this.traderName; }
     @Override
 	public NotificationCategoryType<TraderCategory> getType() { return TYPE; }
 	

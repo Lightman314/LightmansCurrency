@@ -35,7 +35,7 @@ public class TeamBankAccount extends BankAccount {
 
     private ImmutableMap<String,CustomTarget> buildOptions(ITeam team)
     {
-        ImmutableMap.Builder<String, CustomTarget> builder = ImmutableMap.builderWithExpectedSize(3);
+        ImmutableMap.Builder<String, CustomTarget> builder = ImmutableMap.builderWithExpectedSize(2);
         builder.put(TARGET_MEMBERS,new MembersOnlyTarget(team));
         builder.put(TARGET_ADMINS,new AdminsTarget(team));
         return builder.buildKeepingLast();

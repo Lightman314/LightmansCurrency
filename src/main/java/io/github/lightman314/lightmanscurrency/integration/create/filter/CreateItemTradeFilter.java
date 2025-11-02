@@ -36,30 +36,13 @@ public class CreateItemTradeFilter implements IItemTradeFilter {
             if(level == null) //Create filters use the level apparently, so we can't provide a filter without a level
                 return null;
             //Confirm that the item has a valid filter defined
-            if(stack.getItem() == AllItems.FILTER.get())
+            if(stack.getItem() == AllItems.FILTER.get() || stack.getItem() == AllItems.ATTRIBUTE_FILTER.get())
             {
-                //Check if contents are empty
-                ItemStackHandler contents = FilterItem.getFilterItems(stack);
-                boolean empty = true;
-                for(int i = 0; i < contents.getSlots() && empty; ++i)
-                {
-                    if(!contents.getStackInSlot(i).isEmpty())
-                        empty = false;
-                }
-                if(empty)
+                FilterItemStack filter = FilterItemStack.of(stack);
+                if(filter.getClass() != FilterItemStack.class)
                     return null;
+                return s -> filter.test(level,s);
             }
-            else if(stack.getItem() == AllItems.ATTRIBUTE_FILTER.get())
-            {
-                //Check if no attributes are present
-                List<ItemAttribute.ItemAttributeEntry> entries = stack.getOrDefault(AllDataComponents.ATTRIBUTE_FILTER_MATCHED_ATTRIBUTES,new ArrayList<>());
-                if(entries.isEmpty())
-                    return null;
-            }
-            else //Unsupported third filter type (package filter or they added a new one)
-                return null;
-            FilterItemStack filter = FilterItemStack.of(stack);
-            return s -> filter.test(level,s);
         }
         return null;
     }

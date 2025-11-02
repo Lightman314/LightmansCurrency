@@ -119,7 +119,7 @@ public abstract class ListOption<T> extends ListLikeOption<List<T>> {
                     inQuotes = !inQuotes;
                     continue;
                 }
-                if(c == ',')
+                if(c == ',' && !inQuotes)
                 {
                     sections.add(temp.toString());
                     temp = new StringBuilder();

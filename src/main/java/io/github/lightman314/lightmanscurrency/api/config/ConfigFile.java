@@ -123,14 +123,11 @@ public abstract class ConfigFile implements ConfigReloadable {
     private final List<UUID> trackingPlayers = new ArrayList<>();
     public final void addTrackingPlayer(Player player)
     {
-        if(this.trackingPlayers.contains(player.getUUID()))
+        if(this.isClientOnly() || this.trackingPlayers.contains(player.getUUID()))
             return;
         this.trackingPlayers.add(player.getUUID());
     }
-    public final void removeTrackingPlayer(Player player)
-    {
-        this.trackingPlayers.remove(player.getUUID());
-    }
+    public final void removeTrackingPlayer(Player player) { this.trackingPlayers.remove(player.getUUID()); }
 
     @Override
     public ResourceLocation getID() { return this.fileID; }
@@ -484,9 +481,14 @@ public abstract class ConfigFile implements ConfigReloadable {
         }
     }
 
-    protected void afterReload() {}
+    protected void afterReload() { this.sendSyncPacketToTracking(); }
 
-    protected void afterOptionChanged(ConfigOption<?> option) {
+    protected void afterOptionChanged(ConfigOption<?> option) { this.sendSyncPacketToTracking(); }
+
+    protected final void sendSyncPacketToTracking() {
+        //Don't send sync packet if this is a client-only config
+        if(this.isClientOnly())
+            return;
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if(server == null)
             return;

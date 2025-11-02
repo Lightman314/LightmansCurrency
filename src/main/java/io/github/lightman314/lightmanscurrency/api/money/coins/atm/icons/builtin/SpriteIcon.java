@@ -51,7 +51,7 @@ public class SpriteIcon extends ATMIconData {
 	@Override
 	protected void saveAdditional(JsonObject data, HolderLookup.Provider lookup) {
 		
-		data.addProperty("texture", this.sprite.image.toString());
+		data.addProperty("texture", this.sprite.image.texture().toString());
 		data.addProperty("u", this.sprite.image.u());
 		data.addProperty("v", this.sprite.image.v());
 		data.addProperty("width", this.sprite.image.width());

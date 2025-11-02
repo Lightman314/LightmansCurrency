@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
+import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -114,15 +115,22 @@ public class ItemTradeRestriction {
 	}
 
     @Nullable
-	public List<ItemStack> getRandomSellItems(ItemTraderData trader, ItemTradeData trade)
-	{
-		List<ItemStack> randomItems = ItemRequirement.getRandomItemsMatchingRequirements(trader.getStorage(), trade.getItemRequirement(0), trade.getItemRequirement(1), trader.isCreative());
-		if(randomItems == null && trader.isCreative()) //If creative, return nbt enforced version if no random items are present in the inventory.
+	public List<ItemStack> getRandomSellItems(ItemTraderData trader, ItemTradeData trade) {
+        return this.getRandomSellItems(trader,new RequirementWithContext(trade,0),new RequirementWithContext(trade,1));
+	}
+
+    @Nullable
+    protected final List<ItemStack> getRandomSellItems(ItemTraderData trader, RequirementWithContext... requirements) { return getRandomSellItems(trader, Lists.newArrayList(requirements)); }
+    @Nullable
+    protected final List<ItemStack> getRandomSellItems(ItemTraderData trader, List<RequirementWithContext> requirements)
+    {
+        List<ItemStack> randomItems = ItemRequirement.getRandomItemsMatchingRequirements(trader.getStorage(), requirements.stream().map(RequirementWithContext::requirement).toList(), trader.isCreative());
+        if(randomItems == null && trader.isCreative()) //If creative, return nbt enforced version if no random items are present in the inventory.
         {
             randomItems = new ArrayList<>();
-            for(int i = 0; i < 2; ++i)
+            for(RequirementWithContext context : requirements)
             {
-                ItemStack internal = trade.getActualItem(i);
+                ItemStack internal = context.trade.getActualItem(context.slot);
                 IItemTradeFilter filter = FilterAPI.tryGetFilter(internal);
                 if(filter != null)
                 {
@@ -140,15 +148,15 @@ public class ItemTradeRestriction {
                 }
                 else
                 {
-                    ItemStack sellItem = trade.getSellItem(i);
+                    ItemStack sellItem = context.trade.getSellItem(context.slot);
                     if(!sellItem.isEmpty())
                         randomItems.add(sellItem);
                 }
             }
             randomItems = InventoryUtil.combineQueryItems(randomItems);
         }
-		return randomItems;
-	}
+        return randomItems;
+    }
 
 	protected final int getItemStock(ItemStack sellItem, TraderItemStorage traderStorage)
 	{
@@ -174,5 +182,9 @@ public class ItemTradeRestriction {
 
 	@OnlyIn(Dist.CLIENT)
 	public Pair<ResourceLocation,ResourceLocation> getEmptySlotBG() { return EasySlot.BACKGROUND; }
+
+    protected record RequirementWithContext(ItemRequirement requirement,ItemTradeData trade,int slot) {
+        public RequirementWithContext(ItemTradeData trade,int slot) { this(trade.getItemRequirement(slot),trade,slot); }
+    }
 
 }

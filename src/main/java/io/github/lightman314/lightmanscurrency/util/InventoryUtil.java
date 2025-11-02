@@ -7,7 +7,6 @@ import java.util.function.Predicate;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 
-import io.github.lightman314.lightmanscurrency.api.misc.ReadWriteContext;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -485,7 +484,6 @@ public class InventoryUtil {
     	return buildInventory(tempInventory);
     }
 
-	public static CompoundTag saveItemNoLimits(@Nonnull ItemStack stack, @Nonnull ReadWriteContext<CompoundTag> context) { return saveItemNoLimits(stack,context.lookup); }
 	public static CompoundTag saveItemNoLimits(@Nonnull ItemStack stack, @Nonnull HolderLookup.Provider lookup)
 	{
 		if(stack.isEmpty())
@@ -494,8 +492,6 @@ public class InventoryUtil {
 		tag.putInt("count", stack.getCount());
 		return tag;
 	}
-
-    public static ItemStack loadItemNoLimits(ReadWriteContext<CompoundTag> itemTag) { return loadItemNoLimits(itemTag.data,itemTag.lookup); }
 
 	public static ItemStack loadItemNoLimits(@Nonnull CompoundTag itemTag, @Nonnull HolderLookup.Provider lookup)
 	{

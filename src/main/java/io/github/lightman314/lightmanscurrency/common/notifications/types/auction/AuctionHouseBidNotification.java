@@ -9,15 +9,17 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationTyp
 import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class AuctionHouseBidNotification extends AuctionHouseNotification{
 
 	public static final NotificationType<AuctionHouseBidNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("auction_house_outbid"),AuctionHouseBidNotification::new);
@@ -39,14 +41,12 @@ public class AuctionHouseBidNotification extends AuctionHouseNotification{
 			this.items.add(new ItemData(trade.getAuctionItems().get(i)));
 		
 	}
-	
-	@Nonnull
+
     @Override
 	protected NotificationType<AuctionHouseBidNotification> getType() { return TYPE; }
 
-	@Nonnull
 	@Override
-	public MutableComponent getMessage() {
+	public Component getMessage() {
 
 		Component itemText = ItemData.getItemNames(this.items);
 		
@@ -58,7 +58,7 @@ public class AuctionHouseBidNotification extends AuctionHouseNotification{
 	}
 
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
 		
 		ListTag itemList = new ListTag();
 		for(ItemData item : this.items)
@@ -70,7 +70,7 @@ public class AuctionHouseBidNotification extends AuctionHouseNotification{
 	}
 
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
+	protected void loadAdditional(CompoundTag compound,HolderLookup.Provider lookup) {
 		
 		ListTag itemList = compound.getList("Items", Tag.TAG_COMPOUND);
 		this.items = new ArrayList<>();

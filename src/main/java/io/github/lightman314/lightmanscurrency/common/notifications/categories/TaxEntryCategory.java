@@ -6,24 +6,26 @@ import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class TaxEntryCategory extends NotificationCategory {
 
     public static final NotificationCategoryType<TaxEntryCategory> TYPE = new NotificationCategoryType<>(VersionUtil.lcResource("tax_entry"),TaxEntryCategory::new);
 
     private final long entryID;
-    private final MutableComponent entryName;
-    public MutableComponent getEntryName() { return this.entryName; }
+    private final Component entryName;
+    public Component getEntryName() { return this.entryName; }
 
-    public TaxEntryCategory(MutableComponent entryName, long entryID) { this.entryID = entryID; this.entryName = entryName; }
+    public TaxEntryCategory(Component entryName, long entryID) { this.entryID = entryID; this.entryName = entryName; }
 
-    public TaxEntryCategory(CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
+    public TaxEntryCategory(CompoundTag tag, HolderLookup.Provider lookup)
     {
         if(tag.contains("EntryName"))
             this.entryName = Component.Serializer.fromJson(tag.getString("EntryName"), lookup);
@@ -35,15 +37,12 @@ public class TaxEntryCategory extends NotificationCategory {
             this.entryID = -1;
     }
 
-    @Nonnull
     @Override
     public IconData getIcon() { return ItemIcon.ofItem(ModBlocks.TAX_COLLECTOR); }
 
-    @Nonnull
     @Override
-    public MutableComponent getName() { return this.getEntryName(); }
+    public Component getName() { return this.getEntryName(); }
 
-    @Nonnull
     @Override
     protected NotificationCategoryType<TaxEntryCategory> getType() { return TYPE; }
 
@@ -55,7 +54,7 @@ public class TaxEntryCategory extends NotificationCategory {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+    protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
         compound.putString("EntryName", Component.Serializer.toJson(this.entryName, lookup));
         compound.putLong("EntryID", this.entryID);
     }

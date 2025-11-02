@@ -1,12 +1,12 @@
 package io.github.lightman314.lightmanscurrency.api.misc.icons;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.misc.ReadWriteContext;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
@@ -67,7 +67,7 @@ public abstract class IconData {
 		{
 			ResourceLocation type = VersionUtil.parseResource(tag.getString("Type"));
 			if(ICON_TYPES.containsKey(type))
-				return ICON_TYPES.get(type).loader.apply(new ReadWriteContext<>(tag,lookup));
+				return ICON_TYPES.get(type).loader.apply(tag,lookup);
 		}
 		return null;
 	}
@@ -77,7 +77,7 @@ public abstract class IconData {
     {
         ResourceLocation type = VersionUtil.parseResource(GsonHelper.getAsString(json,"Type"));
         if(ICON_TYPES.containsKey(type))
-            return ICON_TYPES.get(type).parser.apply(new ReadWriteContext<>(json,lookup));
+            return ICON_TYPES.get(type).parser.apply(json,lookup);
         throw new JsonSyntaxException("Unknown icon type " + type);
     }
 
@@ -92,37 +92,38 @@ public abstract class IconData {
 
 	public final CompoundTag save(HolderLookup.Provider lookup)
 	{
-        ReadWriteContext<CompoundTag> context = ReadWriteContext.createTag(lookup);
-		this.saveAdditional(context);
-        context.data.putString("Type", this.type.toString());
-		return context.data;
+        CompoundTag tag = new CompoundTag();
+		this.saveAdditional(tag,lookup);
+        tag.putString("Type", this.type.toString());
+		return tag;
 	}
-	protected abstract void saveAdditional(ReadWriteContext<CompoundTag> context);
+	protected abstract void saveAdditional(CompoundTag context, HolderLookup.Provider lookup);
 
     public final JsonObject write(HolderLookup.Provider lookup)
     {
-        ReadWriteContext<JsonObject> context = ReadWriteContext.createJson(lookup);
-        this.writeAdditional(context);
-        context.data.addProperty("Type",this.type.toString());
-        return context.data;
+        JsonObject json = new JsonObject();
+        this.writeAdditional(json,lookup);
+        json.addProperty("Type",this.type.toString());
+        return json;
     }
 
-    protected abstract void writeAdditional(ReadWriteContext<JsonObject> context);
+    protected abstract void writeAdditional(JsonObject json, HolderLookup.Provider lookup);
 
 	private static class NullIcon extends IconData
 	{
-        private static final Type TYPE = new Type(VersionUtil.lcResource("null"),c -> IconData.Null(),c -> IconData.Null());
+        private static final Type TYPE = new Type(VersionUtil.lcResource("null"),c -> IconData.Null(),j -> IconData.Null());
 		private NullIcon() { super(TYPE); }
 		@Override
 		@OnlyIn(Dist.CLIENT)
 		public void render(EasyGuiGraphics gui, int x, int y) {}
 		@Override
-		protected void saveAdditional(ReadWriteContext<CompoundTag> context) { }
+		protected void saveAdditional(CompoundTag tag, HolderLookup.Provider lookup) { }
         @Override
-        protected void writeAdditional(ReadWriteContext<JsonObject> context) { }
+        protected void writeAdditional(JsonObject json, HolderLookup.Provider lookup) { }
 	}
 
-    public record Type(ResourceLocation id, Function<ReadWriteContext<CompoundTag>,IconData> loader, Function<ReadWriteContext<JsonObject>,IconData> parser) {
+    public record Type(ResourceLocation id, BiFunction<CompoundTag,HolderLookup.Provider,IconData> loader, BiFunction<JsonObject,HolderLookup.Provider,IconData> parser) {
+        public Type(ResourceLocation id, Function<CompoundTag,IconData> loader,Function<JsonObject,IconData> parser) { this(id,(c,l) -> loader.apply(c),(j,l) -> parser.apply(j)); }
         @Override
         public String toString() { return this.id.toString(); }
     }

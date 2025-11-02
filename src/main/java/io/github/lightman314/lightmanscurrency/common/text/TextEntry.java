@@ -2,8 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.text;
 
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
-import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
-import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.TextIcon;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKey;

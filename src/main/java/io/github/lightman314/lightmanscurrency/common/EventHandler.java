@@ -8,6 +8,8 @@ import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
 import io.github.lightman314.lightmanscurrency.api.misc.BlockProtectionHelper;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
+import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -357,6 +359,11 @@ public class EventHandler {
 				DateTrigger.INSTANCE.trigger(player);
 			filler.pop();
 		}
+        ProfilerFiller filler = event.getServer().getProfiler();
+        filler.push("Bank Account Salary Tick");
+        for(IBankAccount account : BankAPI.getApi().GetAllBankAccounts(false))
+            account.tick();
+        filler.pop();
 	}
 
 	@SubscribeEvent

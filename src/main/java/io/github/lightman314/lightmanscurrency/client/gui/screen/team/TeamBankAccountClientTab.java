@@ -47,7 +47,7 @@ public class TeamBankAccountClientTab extends TeamManagementClientTab<TeamBankAc
                 .width(160)
                 .text(this::getBankLimitText)
                 .pressAction(this::toggleBankLimit)
-                .addon(EasyAddonHelper.activeCheck(this::hasBankAccount))
+                .addon(EasyAddonHelper.visibleCheck(this::hasBankAccount))
                 .build());
 
         this.addChild(EasyTextButton.builder()
@@ -55,7 +55,7 @@ public class TeamBankAccountClientTab extends TeamManagementClientTab<TeamBankAc
                 .width(160)
                 .text(this::getSalaryLimitText)
                 .pressAction(this::toggleSalaryLimit)
-                .addon(EasyAddonHelper.activeCheck(this::hasBankAccount))
+                .addon(EasyAddonHelper.visibleCheck(this::hasBankAccount))
                 .build());
 
     }

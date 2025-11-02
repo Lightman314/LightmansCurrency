@@ -56,8 +56,6 @@ import java.util.function.BiPredicate;
 @ParametersAreNonnullByDefault
 public final class CoinAPIImpl extends CoinAPI {
 
-    public static Comparator<ItemStack> getSorter() { return new CoinSorter(); }
-
     private static CoinAPIImpl instance;
 
     public CoinAPIImpl() { instance = this; }

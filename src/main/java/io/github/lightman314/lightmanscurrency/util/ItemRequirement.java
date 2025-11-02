@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.util;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.Container;
@@ -72,7 +73,8 @@ public abstract class ItemRequirement implements Predicate<ItemStack> {
         return new FilterRequirement(filterItem,filter);
     }
 
-    public static List<ItemRequirement> combineRequirements(ItemRequirement... requirements)
+    public static List<ItemRequirement> combineRequirements(ItemRequirement... requirements) { return combineRequirements(Lists.newArrayList(requirements)); }
+    public static List<ItemRequirement> combineRequirements(List<ItemRequirement> requirements)
     {
         List<ItemRequirement> list = new ArrayList<>();
         for(ItemRequirement requirement : requirements)
@@ -104,9 +106,9 @@ public abstract class ItemRequirement implements Predicate<ItemStack> {
      * Does not actually remove the items from the container, this is merely a query function.
      */
     @Nullable
-    public static List<ItemStack> getRandomItemsMatchingRequirements(IItemHandler container, ItemRequirement requirement1, ItemRequirement requirement2, boolean creative)
+    public static List<ItemStack> getRandomItemsMatchingRequirements(IItemHandler container, List<ItemRequirement> requirements, boolean creative)
     {
-        List<ItemRequirement> requirements = ItemRequirement.combineRequirements(requirement1,requirement2);
+        requirements = combineRequirements(requirements);
         if(requirements.isEmpty())
             return null;
         MatchingItemsList matchingItems = getMatchingItems(container,requirements);

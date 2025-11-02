@@ -11,7 +11,6 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -33,7 +32,7 @@ public class BankCategory extends NotificationCategory {
 	public IconData getIcon() { return ItemIcon.ofItem(ModBlocks.ATM); }
 
 	@Override
-	public MutableComponent getName() { return EasyText.makeMutable(this.name); }
+	public Component getName() { return EasyText.makeMutable(this.name); }
 
     @Override
 	protected NotificationCategoryType<BankCategory> getType() { return TYPE; }

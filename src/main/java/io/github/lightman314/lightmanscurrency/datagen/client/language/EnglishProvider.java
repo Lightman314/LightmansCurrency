@@ -16,17 +16,25 @@ import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.Ancien
 import io.github.lightman314.lightmanscurrency.common.text.MultiLineTextEntry;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.OutputConflictHandling;
+import io.github.lightman314.lightmanscurrency.datagen.client.language.version_specific.VersionEnglishProvider;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
+
+import java.util.function.Consumer;
 
 public class EnglishProvider extends TranslationProvider {
 
     public EnglishProvider(PackOutput output) { super(output, LightmansCurrency.MODID, "en_us"); }
 
     @Override
-    protected void addTranslations() {
+    protected void callAttachments(PackOutput output, Consumer<TranslationAttachment> handler) {
+        handler.accept(new VersionEnglishProvider(output,this));
+    }
+
+    @Override
+    protected void createTranslations() {
 
         //Creative Groups
         this.translate(LCText.CREATIVE_GROUP_COINS,"Coins & Items");
@@ -428,7 +436,6 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_SLOT_MACHINE_COST_FREE, "nothing");
         this.translate(LCText.TOOLTIP_SLOT_MACHINE_UNDEFINED,"Slot Machine is not yet set up!");
         this.translate(LCText.TOOLTIP_SLOT_MACHINE_MONEY,"Pays %s");
-        this.translate(LCText.TOOLTIP_SLOT_MACHINE_WEIGHT,"Weight: %s");
         this.translate(LCText.TOOLTIP_SLOT_MACHINE_ODDS,"%s%% chance of receiving");
 
         //Network Terminal Menu
@@ -1707,7 +1714,6 @@ public class EnglishProvider extends TranslationProvider {
                 "Increase if my enchantments are causing extreme lag.",
                 "Note: 20 ticks = 1s");
         this.translateConfigOption(LCConfig.SERVER.moneyMendingRepairCost,"MM Repair Cost","The cost required to repair a single item durability point with the Money Mending enchantment.");
-        this.translateConfigOption(LCConfig.SERVER.moneyMendingInfinityCost,"MM Extra Infinity Cost","The additional cost to repair an item with Infinity applied to it.");
         this.translateConfigOption(LCConfig.SERVER.coinMagnetBaseRange,"CM Base Range","The coin collection radius of the Coin Magnet I enchantment.");
         this.translateConfigOption(LCConfig.SERVER.coinMagnetLeveledRange,"CM Leveled Range","The increase in the coin collection radius added by each additional level of the Coin Magnet enchantment.");
         this.translateConfigOption(LCConfig.SERVER.coinMagnetCalculationCap,"CM Calculation Cap",

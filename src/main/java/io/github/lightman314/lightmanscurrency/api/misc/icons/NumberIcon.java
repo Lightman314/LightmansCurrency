@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.api.misc.icons;
 
 import com.google.gson.JsonObject;
-import io.github.lightman314.lightmanscurrency.api.misc.ReadWriteContext;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.GsonHelper;
 import net.neoforged.api.distmarker.Dist;
@@ -16,7 +16,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class NumberIcon extends IconData
 {
-    public static final Type TYPE = new Type(VersionUtil.lcResource("number_icon"),NumberIcon::load,NumberIcon::parse);
+    public static final Type TYPE = new Type(VersionUtil.lcResource("number_icon"),NumberIcon::loadNumber,NumberIcon::parseNumber);
     private final int number;
     private NumberIcon(int number) { super(TYPE); this.number = number; }
 
@@ -31,13 +31,13 @@ public class NumberIcon extends IconData
     }
 
     @Override
-    protected void saveAdditional(ReadWriteContext<CompoundTag> context) { context.data.putInt("Number",this.number); }
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider lookup) { tag.putInt("Number",this.number); }
 
     @Override
-    protected void writeAdditional(ReadWriteContext<JsonObject> context) { context.data.addProperty("Number",this.number); }
+    protected void writeAdditional(JsonObject json, HolderLookup.Provider lookup) { json.addProperty("Number",this.number); }
 
-    private static IconData load(ReadWriteContext<CompoundTag> context) { return new NumberIcon(context.data.getInt("Number")); }
+    private static IconData loadNumber(CompoundTag tag) { return new NumberIcon(tag.getInt("Number")); }
 
-    private static IconData parse(ReadWriteContext<JsonObject> context) { return new NumberIcon(GsonHelper.getAsInt(context.data,"Number")); }
+    private static IconData parseNumber(JsonObject json) { return new NumberIcon(GsonHelper.getAsInt(json,"Number")); }
 
 }

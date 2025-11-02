@@ -307,7 +307,7 @@ public class LightmansCurrency {
 
         //Setup Config API Hooks
         //Delay of 100 so that it loads after common/client configs
-        ConfigAPI.getApi().registerCustomReloadable(ConfigReloadable.simpleReloader(VersionUtil.lcResource("master_coin_list"),ConfigReloadable.PRIORITY_AFTER_MONEY_CONFIGS, stack -> CoinAPI.getApi().ReloadCoinDataFromFile()));
+        ConfigAPI.getApi().registerCustomReloadable(ConfigReloadable.simpleReloader(VersionUtil.lcResource("master_coin_list"),ConfigReloadable.PRIORITY_MONEY_PHASE, stack -> CoinAPI.getApi().ReloadCoinDataFromFile()));
         //Delay of 1000 so that it loads after server/money configs
         ConfigAPI.getApi().registerCustomReloadable(ConfigReloadable.simpleReloader(VersionUtil.lcResource("persistent_traders"),ConfigReloadable.PRIORITY_AFTER_ALL,stack -> TraderDataCache.TYPE.get(false).reloadPersistentTraders()));
         //Seasonal events don't care about money or other such nonsense, so default priority is fine :)

@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.menus.slot_machine;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -43,7 +42,7 @@ public class ResultHolder {
         this.items = new SimpleContainer(SlotMachineEntry.ITEM_LIMIT);
         this.itemHandler = new InvWrapper(this.items);
         this.money = new MoneyStorage(() -> {},Integer.MIN_VALUE);
-        this.icons = NonNullList.withSize(SlotMachineEntry.ITEM_LIMIT, IconUtil.ICON_X);
+        this.icons = NonNullList.withSize(SlotMachineEntry.ITEM_LIMIT, SlotMachineEntry.DEFAULT_ICON);
     }
     private ResultHolder(Container items, MoneyStorage money, NonNullList<IconData> icons)
     {

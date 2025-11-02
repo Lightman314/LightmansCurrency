@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.api.misc.icons;
 
 import com.google.gson.JsonObject;
-import io.github.lightman314.lightmanscurrency.api.misc.ReadWriteContext;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -15,7 +15,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class IconIcon extends IconData {
 
-    public static final Type TYPE = new Type(VersionUtil.lcResource("icon"),IconIcon::load,IconIcon::parse);
+    public static final Type TYPE = new Type(VersionUtil.lcResource("icon"),IconIcon::loadIcon,IconIcon::parseIcon);
 
     private final ResourceLocation location;
     public IconIcon(ResourceLocation location) {
@@ -31,16 +31,16 @@ public class IconIcon extends IconData {
     }
 
     @Override
-    protected void saveAdditional(ReadWriteContext<CompoundTag> context) { context.data.putString("location",this.location.toString()); }
+    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider lookup) { tag.putString("location",this.location.toString()); }
 
     @Override
-    protected void writeAdditional(ReadWriteContext<JsonObject> context) { context.data.addProperty("location",this.location.toString()); }
+    protected void writeAdditional(JsonObject json, HolderLookup.Provider lookup) { json.addProperty("location",this.location.toString()); }
 
-    private static IconData load(ReadWriteContext<CompoundTag> context)
+    private static IconData loadIcon(CompoundTag tag)
     {
-        return new IconIcon(VersionUtil.parseResource(context.data.getString("location")));
+        return new IconIcon(VersionUtil.parseResource(tag.getString("location")));
     }
 
-    private static IconData parse(ReadWriteContext<JsonObject> context) { return new IconIcon(VersionUtil.parseResource(GsonHelper.getAsString(context.data,"location"))); }
+    private static IconData parseIcon(JsonObject json) { return new IconIcon(VersionUtil.parseResource(GsonHelper.getAsString(json,"location"))); }
 
 }
