@@ -16,8 +16,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.DailyTradesTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;

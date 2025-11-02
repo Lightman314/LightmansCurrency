@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/inner_corner/biomeswevegone/skyris/base",
+  "target": "lightmanscurrency:card_display_biomeswevegone_skyris_light_gray",
+  "textures": {
+    "wool": "minecraft:block/light_gray_wool"
+  }
+}

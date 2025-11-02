@@ -48,6 +48,21 @@ public class LCLuaTable implements LuaTable<Object, Object> {
         return table;
     }
 
+    public static CompoundTag toTag(Map<?,?> table)
+    {
+        CompoundTag tag = new CompoundTag();
+        for(Object key : table.keySet())
+        {
+            if(key instanceof String k)
+            {
+                Tag t = parseObject(table.get(k));
+                if(t != null)
+                    tag.put(k,t);
+            }
+        }
+        return tag;
+    }
+
     public static Object parseTag(Tag tag)
     {
         if(tag instanceof ByteArrayTag t)
@@ -79,6 +94,49 @@ public class LCLuaTable implements LuaTable<Object, Object> {
             return t.getAsShort();
         if(tag instanceof StringTag t)
             return t.getAsString();
+        return null;
+    }
+
+    @Nullable
+    public static Tag parseObject(Object object)
+    {
+        if(object instanceof byte[] ba)
+            return new ByteArrayTag(ba);
+        if(object instanceof Byte b)
+            return ByteTag.valueOf(b);
+        if(object instanceof Map<?,?> map)
+            return toTag(map);
+        if(object instanceof Double d)
+            return DoubleTag.valueOf(d);
+        if(object instanceof Float f)
+            return FloatTag.valueOf(f);
+        if(object instanceof int[] ia)
+            return new IntArrayTag(ia);
+        if(object instanceof Integer i)
+            return IntTag.valueOf(i);
+        if(object instanceof List<?> list)
+        {
+            ListTag result = new ListTag();
+            for(Object value : list)
+                result.add(parseObject(value));
+            return result;
+        }
+        if(object instanceof long[] la)
+            return new LongArrayTag(la);
+        if(object instanceof Long l)
+            return LongTag.valueOf(l);
+        if(object instanceof Short s)
+            return ShortTag.valueOf(s);
+        if(object instanceof String s)
+            return StringTag.valueOf(s);
+        //Just in case tables always parse as arrays
+        if(object instanceof Object[] oa)
+        {
+            ListTag result = new ListTag();
+            for(Object value : oa)
+                result.add(parseObject(value));
+            return result;
+        }
         return null;
     }
 

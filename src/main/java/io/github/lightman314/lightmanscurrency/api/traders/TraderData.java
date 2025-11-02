@@ -9,13 +9,17 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.api.ejection.IDumpable;
+import io.github.lightman314.lightmanscurrency.api.events.TraderEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.IPermissions;
 import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -35,6 +39,7 @@ import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
+import io.github.lightman314.lightmanscurrency.api.traders.attachments.TraderAttachment;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderScreen;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageScreen;
@@ -56,6 +61,7 @@ import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.TraderEjectionData;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.containers.UpgradeContainer;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
@@ -82,7 +88,6 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.ITraderBlock;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
@@ -117,7 +122,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -169,6 +173,29 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	public long getID() { return this.id; }
 	public void setID(long id) { this.id = id; }
 
+    private final Map<TraderAttachment.TraderAttachmentType<?>,TraderAttachment> attachments;
+    public <T extends TraderAttachment> boolean hasAttachment(TraderAttachment.TraderAttachmentType<T> type)
+    {
+        if(this.attachments.containsKey(type))
+        {
+            try {
+                T ignored = (T)this.attachments.get(type);
+                return true;
+            } catch (ClassCastException e) { return false; }
+        }
+        return false;
+    }
+    @Nullable
+    public <T extends TraderAttachment> T getAttachment(TraderAttachment.TraderAttachmentType<T> type)
+    {
+        if(this.attachments.containsKey(type))
+        {
+            try { return (T)this.attachments.get(type);
+            } catch (ClassCastException e) { LightmansCurrency.LogError("Error casting attachment",e); }
+        }
+        return null;
+    }
+
 	@Nullable
 	private PostTradeEvent latestTrade = null;
 
@@ -198,7 +225,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 			return this.hasNetworkUpgrade();
 	}
 
-	protected final boolean hasNetworkUpgrade() { return UpgradeType.hasUpgrade(Upgrades.NETWORK, this.upgrades); }
+	protected final boolean hasNetworkUpgrade() { return UpgradeType.hasUpgrade(Upgrades.NETWORK,this.upgrades); }
 	protected boolean allowVoidUpgrade() { return false; }
 	protected final boolean shouldStoreGoods() { return !this.creative && !UpgradeType.hasUpgrade(Upgrades.VOID,this.upgrades); }
 
@@ -306,7 +333,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		this.markDirty(this::saveAllySettings);
 	}
 
-	private final Map<String,Integer> allyPermissions = this.getDefaultAllyPermissions();
+	private final Map<String,Integer> allyPermissions;
 	public final Set<String> getAllyPermissionKeys() { return this.allyPermissions.keySet(); }
 	public final Map<String,Integer> getAllyPermissionMap() { return new HashMap<>(this.allyPermissions); }
 	public void overwriteAllyPermissions(Map<String,Integer> allyPermissions) {
@@ -332,6 +359,8 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		defaultValues.put(Permissions.INTERACTION_LINK, 0);
 		defaultValues.put(Permissions.TRANSFER_OWNERSHIP, 0);
 		this.modifyDefaultAllyPermissions(defaultValues);
+        for(TraderAttachment attachment : this.attachments.values())
+            attachment.modifyDefaultPermissions(defaultValues);
 		return defaultValues;
 	}
 
@@ -426,7 +455,6 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	public abstract IconData getIcon();
 
 	@Override
-
 	public MutableComponent getName() {
 		if(this.hasCustomName())
 			return EasyText.literal(this.customName);
@@ -461,14 +489,14 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	 * (i.e. an icon that renders lava if the item stack is a lava bucket, etc.)<br><br>
 	 * By default, returns a simple item icon for the given item
 	 */
-	protected IconData getIconForItem(ItemStack stack, IconData original) { return IconData.of(stack.copyWithCount(1)); }
+	protected IconData getIconForItem(ItemStack stack, IconData original) { return ItemIcon.ofItem(stack.copyWithCount(1)); }
 
 	private Item traderBlock;
 	@Nullable
 	public Item getTraderBlock() { return this.traderBlock; }
 	protected MutableComponent getDefaultName() {
 		if(this.traderBlock != null)
-			return EasyText.literal(new ItemStack(this.traderBlock).getHoverName().getString());
+			return EasyText.makeMutable(new ItemStack(this.traderBlock).getHoverName());
 		return LCText.GUI_TRADER_DEFAULT_NAME.get();
 	}
 
@@ -633,7 +661,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		return null;
 	}
 
-	private SimpleContainer upgrades;
+	private final UpgradeContainer upgrades;
 	@Override
 	public Container getUpgrades() { return this.upgrades; }
 	@Override
@@ -658,15 +686,47 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	public final boolean alwaysShowSearchBox() { return this.alwaysShowSearchBox; }
 	@Override
 	public boolean showSearchBox() { return this.alwaysShowSearchBox; }
+    public final void setAlwaysShowSearchBox(boolean newVal)
+    {
+        if(this.alwaysShowSearchBox != newVal)
+        {
+            this.alwaysShowSearchBox = newVal;
+            this.markDirty(this::saveMiscSettings);
+        }
+    }
 
 	private boolean notificationsEnabled = false;
 	public boolean notificationsEnabled() { return this.notificationsEnabled; }
+    public void setNotificationsEnabled(boolean newValue)
+    {
+        if(this.notificationsEnabled != newValue)
+        {
+            this.notificationsEnabled = newValue;
+            this.markDirty(this::saveMiscSettings);
+        }
+    }
 
 	private boolean notificationsToChat = true;
 	public boolean notificationsToChat() { return this.notificationsToChat; }
+    public void setNotificationsToChat(boolean newValue)
+    {
+        if(this.notificationsToChat != newValue)
+        {
+            this.notificationsToChat = newValue;
+            this.markDirty(this::saveMiscSettings);
+        }
+    }
 
 	private int teamNotificationLevel = 0;
 	public int teamNotificationLevel() { return this.teamNotificationLevel; }
+    public void setTeamNotificationLevel(int newLevel)
+    {
+        if(this.teamNotificationLevel != newLevel)
+        {
+            this.teamNotificationLevel = newLevel;
+            this.markDirty(this::saveMiscSettings);
+        }
+    }
 
 	public abstract int getTradeCount();
 	public boolean canEditTradeCount() { return false; }
@@ -688,7 +748,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 
 	private int acceptableTaxRate = 99;
 	public final int getAcceptableTaxRate() { return this.acceptableTaxRate; }
-	public void setAcceptableTaxRate(int acceptableTaxRate) { this.acceptableTaxRate = MathUtil.clamp(acceptableTaxRate,0,99); }
+	public void setAcceptableTaxRate(int acceptableTaxRate) { this.acceptableTaxRate = MathUtil.clamp(acceptableTaxRate,0,99); this.markDirty(this::saveTaxSettings); }
 	private final List<Long> ignoredTaxCollectors = new ArrayList<>();
 	public List<Long> getIgnoredTaxCollectors() { return new ArrayList<>(this.ignoredTaxCollectors); }
 	public void setIgnoredTaxCollectors(List<Long> ignoredTaxCollectors) {
@@ -724,8 +784,8 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	@Override
 	public WorldPosition getWorldPosition() { return this.worldPosition; }
 
-	public final List<ITaxCollector> getApplicableTaxes() { return TaxAPI.API.GetTaxCollectorsFor(this).stream().filter(this::AllowTaxEntry).toList(); }
-	public final List<ITaxCollector> getPossibleTaxes() { return TaxAPI.API.GetPotentialTaxCollectorsFor(this); }
+	public final List<ITaxCollector> getApplicableTaxes() { return TaxAPI.getApi().GetTaxCollectorsFor(this).stream().filter(this::AllowTaxEntry).toList(); }
+	public final List<ITaxCollector> getPossibleTaxes() { return TaxAPI.getApi().GetPotentialTaxCollectorsFor(this); }
 	public final int getTotalTaxPercentage()
 	{
 		List<? extends ITaxCollector> entries = this.getApplicableTaxes();
@@ -746,8 +806,12 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 
 	protected TraderData(TraderType<?> type) {
 		this.type = type;
-		this.upgrades = new SimpleContainer(5);
+		this.upgrades = new UpgradeContainer(5,this);
 		this.upgrades.addListener(this::upgradesChanged);
+        //Register Attachments First
+        this.attachments = this.registerAttachments();
+        //Then register everything else that could be modified by said attachments
+        this.allyPermissions = this.getDefaultAllyPermissions();
 		this.registerNodes(n -> this.settingsNodes.put(n.key,n));
 	}
 
@@ -766,11 +830,23 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		//Misc Settings
 		builder.accept(new CreativeSettings(this));
 		builder.accept(new DisplaySettings(this));
+        builder.accept(new MiscSettings(this));
 		builder.accept(new BankSettings(this));
 		builder.accept(new TaxSettings(this));
 		//Trader Trade Rule Settings
 		builder.accept(new TraderRuleSettings(this));
 	}
+
+    protected ImmutableMap<TraderAttachment.TraderAttachmentType<?>,TraderAttachment> registerAttachments()
+    {
+        //Post attachment event
+        TraderEvent.RegisterAttachmentEvent event = VersionUtil.postEvent(new TraderEvent.RegisterAttachmentEvent(this));
+        //Assemble attachments
+        ImmutableMap.Builder<TraderAttachment.TraderAttachmentType<?>,TraderAttachment> builder = ImmutableMap.builder();
+        for(TraderAttachment.TraderAttachmentType<?> type : event.getAttachments())
+            builder.put(type,type.build(this));
+        return builder.buildKeepingLast();
+    }
 
 	@Override
 	public void loadSettings(Player player, SavedSettingData data, NodeSelections selections) {
@@ -849,6 +925,10 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		this.saveMiscSettings(compound);
 		this.saveTaxSettings(compound);
 
+        //Attachments
+        for(TraderAttachment attachment : this.attachments.values())
+            this.saveAttachment(compound,attachment);
+
 		//Save persistent trader id
 		if(!this.persistentID.isEmpty())
 			compound.putString("PersistentTraderID", this.persistentID);
@@ -883,7 +963,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 
 	protected final void saveRules(CompoundTag compound) { TradeRule.saveRules(compound, this.rules, "RuleData"); }
 
-	protected final void saveUpgrades(CompoundTag compound) { InventoryUtil.saveAllItems("Upgrades", compound, this.upgrades); }
+	protected final void saveUpgrades(CompoundTag compound) { this.upgrades.save("Upgrades",compound); }
 
 	protected final void saveStoredMoney(CompoundTag compound) { compound.put("StoredMoney", this.storedMoney.save()); }
 
@@ -941,6 +1021,12 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
         tag.putLong("LastInteraction",this.lastInteraction);
 	}
 
+    protected final void saveAttachment(CompoundTag tag, TraderAttachment attachment)
+    {
+        CompoundTag entry = attachment.save();
+        tag.put(attachment.getType().toString(),entry);
+    }
+
 	protected abstract void saveTrades(CompoundTag compound);
 
 	protected abstract void saveAdditional(CompoundTag compound);
@@ -950,6 +1036,13 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	public void markTradeRulesDirty() { this.markDirty(this::saveRules); }
 
 	public void markStatsDirty() { this.markDirty(this::saveStatistics); }
+
+    public void markAttachmentDirty(TraderAttachment.TraderAttachmentType<?> type)
+    {
+        TraderAttachment attachment = this.getAttachment(type);
+        if(attachment != null)
+            this.markDirty(c -> this.saveAttachment(c,attachment));
+    }
 
 	public final JsonObject saveToJson(String id, String ownerName) throws Exception
 	{
@@ -1043,10 +1136,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 			this.rules = TradeRule.loadRules(compound, "RuleData", this);
 
 		if(compound.contains("Upgrades"))
-		{
-			this.upgrades = InventoryUtil.loadAllItems("Upgrades", compound, 5);
-			this.upgrades.addListener(this::upgradesChanged);
-		}
+            this.upgrades.load("Upgrades",compound);
 
 		if(compound.contains("StoredMoney"))
 			this.storedMoney.safeLoad(compound, "StoredMoney");
@@ -1099,6 +1189,16 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 			this.teamNotificationLevel = compound.getInt("TeamNotifications");
 		if(compound.contains("AlwaysShowSearchBox"))
 			this.alwaysShowSearchBox = compound.getBoolean("AlwaysShowSearchBox");
+
+        //Load Attachments
+        for(TraderAttachment attachment : this.attachments.values())
+        {
+            if(compound.contains(attachment.getType().toString(),Tag.TAG_COMPOUND))
+            {
+                CompoundTag entry = compound.getCompound(attachment.getType().toString());
+                attachment.load(entry);
+            }
+        }
 
 		//Load trader-specific data
 		this.loadAdditional(compound);
@@ -1342,7 +1442,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		if(compound.contains("Type"))
 		{
 			String type = compound.getString("Type");
-			TraderType<?> traderType = TraderAPI.API.GetTraderType(VersionUtil.parseResource(type));
+			TraderType<?> traderType = TraderAPI.getApi().GetTraderType(VersionUtil.parseResource(type));
 			if(traderType != null)
 				return traderType.load(isClient, compound);
 			else
@@ -1361,7 +1461,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	public static TraderData Deserialize(JsonObject json) throws JsonSyntaxException, ResourceLocationException
 	{
 		String thisType = GsonHelper.getAsString(json, "Type");
-		TraderType<?> traderType = TraderAPI.API.GetTraderType(VersionUtil.parseResource(thisType));
+		TraderType<?> traderType = TraderAPI.getApi().GetTraderType(VersionUtil.parseResource(thisType));
 		if(traderType != null)
 			return traderType.loadFromJson(json);
 		throw new JsonSyntaxException("Trader type '" + thisType + "' is undefined.");
@@ -1468,7 +1568,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 
 	public abstract boolean canMakePersistent();
 
-	public Predicate<TradeData> getStorageDisplayFilter(ITraderStorageMenu menu) { return t -> true; }
+	public Predicate<TradeData> getStorageTradeFilter(ITraderStorageMenu menu) { return t -> true; }
 
 	public abstract void initStorageTabs(ITraderStorageMenu menu);
 
@@ -1627,7 +1727,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 					this.notificationsEnabled = enable;
 					this.markDirty(this::saveMiscSettings);
 
-					this.pushLocalNotification(ChangeSettingNotification.simple(PlayerReference.of(player), EasyText.literal("Notifications"), this.notificationsEnabled));
+					this.pushLocalNotification(ChangeSettingNotification.simple(PlayerReference.of(player), LCText.DATA_ENTRY_TRADER_NOTIFICATIONS_ENABLED.get(), this.notificationsEnabled));
 				}
 			}
 		}
@@ -1641,7 +1741,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 					this.notificationsToChat = enable;
 					this.markDirty(this::saveMiscSettings);
 
-					this.pushLocalNotification(ChangeSettingNotification.simple(PlayerReference.of(player), EasyText.literal("NotificationsToChat"), this.notificationsToChat));
+					this.pushLocalNotification(ChangeSettingNotification.simple(PlayerReference.of(player), LCText.DATA_ENTRY_TRADER_NOTIFICATIONS_TO_CHAT.get(), this.notificationsToChat));
 				}
 			}
 		}
@@ -1655,7 +1755,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 					this.teamNotificationLevel = level;
 					this.markDirty(this::saveMiscSettings);
 
-					this.pushLocalNotification(ChangeSettingNotification.simple(PlayerReference.of(player), EasyText.literal("TeamNotificationLevel"), this.teamNotificationLevel));
+					this.pushLocalNotification(ChangeSettingNotification.simple(PlayerReference.of(player), LCText.DATA_ENTRY_TRADER_TEAM_NOTIFICATION_LEVEL.get(), this.teamNotificationLevel));
 				}
 			}
 		}
@@ -1669,7 +1769,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 					this.alwaysShowSearchBox = newVal;
 					this.markDirty(this::saveMiscSettings);
 
-					this.pushLocalNotification(ChangeSettingNotification.simple(PlayerReference.of(player), EasyText.literal("AlwaysShowSearchBox"), this.alwaysShowSearchBox));
+					this.pushLocalNotification(ChangeSettingNotification.simple(PlayerReference.of(player), LCText.DATA_ENTRY_TRADER_ALWAYS_SHOW_SEARCH_BOX.get(), this.alwaysShowSearchBox));
 				}
 			}
 		}
@@ -1681,7 +1781,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 				if(newRate == this.acceptableTaxRate)
 					return;
 
-				this.pushLocalNotification(ChangeSettingNotification.advanced(PlayerReference.of(player), EasyText.literal("AcceptableTaxRate"), newRate, this.acceptableTaxRate));
+				this.pushLocalNotification(ChangeSettingNotification.advanced(PlayerReference.of(player), LCText.DATA_ENTRY_TRADER_TAXES_RATE.get(), newRate, this.acceptableTaxRate));
 				this.acceptableTaxRate = newRate;
 
 				this.markDirty(this::saveTaxSettings);
@@ -1693,7 +1793,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 			if((!newState || LCAdminMode.isAdminPlayer(player)) && newState != this.ignoreAllTaxes)
 			{
 				this.ignoreAllTaxes = newState;
-				this.pushLocalNotification(ChangeSettingNotification.simple(PlayerReference.of(player), EasyText.literal("IgnoreAllTaxes"), this.ignoreAllTaxes));
+				this.pushLocalNotification(ChangeSettingNotification.simple(PlayerReference.of(player), LCText.DATA_ENTRY_TRADER_TAXES_IGNORE_ALL.get(), this.ignoreAllTaxes));
 				this.markDirty(this::saveTaxSettings);
 			}
 		}
@@ -1718,7 +1818,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		{
 			if(this.hasPermission(player,Permissions.EDIT_SETTINGS))
 			{
-				ITaxCollector entry = TaxAPI.API.GetTaxCollector(this,message.getLong("AcceptTaxCollector"));
+				ITaxCollector entry = TaxAPI.getApi().GetTaxCollector(this,message.getLong("AcceptTaxCollector"));
 				if(entry != null && entry.IsInArea(this))
 					entry.AcceptTaxable(this);
 			}
@@ -1727,7 +1827,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		{
 			if(LCAdminMode.isAdminPlayer(player))
 			{
-				ITaxCollector entry = TaxAPI.API.GetTaxCollector(this,message.getLong("ForceIgnoreTaxCollector"));
+				ITaxCollector entry = TaxAPI.getApi().GetTaxCollector(this,message.getLong("ForceIgnoreTaxCollector"));
 				if(entry != null && entry.IsInArea(this))
 				{
 					if(this.ignoredTaxCollectors.contains(entry.getID()))
@@ -1743,7 +1843,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		{
 			if(this.hasPermission(player,Permissions.EDIT_SETTINGS))
 			{
-				ITaxCollector entry = TaxAPI.API.GetTaxCollector(this,message.getLong("PardonTaxCollector"));
+				ITaxCollector entry = TaxAPI.getApi().GetTaxCollector(this,message.getLong("PardonTaxCollector"));
 				if(entry != null && this.ignoredTaxCollectors.contains(entry.getID()))
 				{
 					this.ignoredTaxCollectors.remove(entry.getID());
@@ -1759,6 +1859,8 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 				this.statTracker.clear(fullClear);
 			}
 		}
+        for(TraderAttachment attachment : this.attachments.values())
+            attachment.handleSettingsChange(player,message);
 	}
 
 	@OnlyIn(Dist.CLIENT)
@@ -1767,6 +1869,9 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		List<SettingsSubTab> tabs = Lists.newArrayList(new NameTab(tab), new CreativeSettingsTab(tab),new PersistentTab(tab), new AllyTab(tab), new PermissionsTab(tab), new MiscTab(tab), new TaxSettingsTab(tab));
 		//Add Trader-Defined tabs
 		this.addSettingsTabs(tab, tabs);
+        //Add attachment defined tabs
+        for(TraderAttachment attachment : this.attachments.values())
+            attachment.addSettingsTabs(tab,tabs::add);
 		//Add Ownership Tab last
 		tabs.add(new OwnershipTab(tab));
 		return tabs;
@@ -1796,6 +1901,9 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 			options.add(BooleanPermission.of(Permissions.INTERACTION_LINK));
 
 		this.addPermissionOptions(options);
+
+        for(TraderAttachment attachment : this.attachments.values())
+            attachment.addPermissionOptions(options::add);
 
 		this.handleBlockedPermissions(options);
 
@@ -1872,7 +1980,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	}
 
 	public final TraderCategory getNotificationCategory() {
-		return new TraderCategory(this.traderBlock != null ? this.traderBlock : ModItems.TRADING_CORE.get(), this.getName(), this.id);
+		return new TraderCategory(this.traderBlock != null ? this.traderBlock : ModItems.TRADING_CORE.get(), this.getName(), this.id, this.getCustomIcon());
 	}
 
 

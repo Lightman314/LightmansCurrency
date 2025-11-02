@@ -9,8 +9,12 @@ import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_v
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.ShowInCreative;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.TooltipInfo;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
+import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.datagen.client.generators.ModelVariantProvider;
 import io.github.lightman314.lightmanscurrency.datagen.util.ColorHelper;
+import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
+import io.github.lightman314.lightmanscurrency.datagen.util.WoodDataHelper;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.data.PackOutput;
 import net.minecraft.network.chat.Component;
@@ -166,8 +170,8 @@ public class LCModelVariantProvider extends ModelVariantProvider {
         //Inverted Freezer Door variants
         this.add(FREEZER_INVERTED,ModelVariant.builder()
                 .withName(LCText.BLOCK_VARIANT_DEFAULT.get())
-                .withModel(VersionUtil.lcResource("block/freezer/base_bottom"),
-                        VersionUtil.lcResource("block/freezer/base_top"),
+                .withModel(VersionUtil.lcResource("block/freezer/base_bottom")
+                        ,VersionUtil.lcResource("block/freezer/base_top"),
                         VersionUtil.lcResource("block/freezer/inverted/door"))
                 .withItem(VersionUtil.lcResource("block/freezer/inverted/item"))
                 .withProperty(VariantProperties.FREEZER_DOOR_DATA,new FreezerDoorData(-90f,0.5f/16f,3.5f/16f))
@@ -176,13 +180,23 @@ public class LCModelVariantProvider extends ModelVariantProvider {
                 .build());
 
         ModBlocks.FREEZER.forEach((color,block) ->
-            this.add("freezer/inverted/" + color.getResourceSafeName(),
-                    ModelVariant.builder()
-                            .withParent(FREEZER_INVERTED)
-                            .withTarget(block)
-                            .withTexture("concrete",ColorHelper.GetConcreteTextureOfColor(color))
-                            .build())
+                this.add("freezer/inverted/" + color.getResourceSafeName(),
+                        ModelVariant.builder()
+                                .withParent(FREEZER_INVERTED)
+                                .withTarget(block)
+                                .withTexture("concrete",ColorHelper.GetConcreteTextureOfColor(color))
+                                .build())
         );
+
+        //Card Display Variants
+        ModBlocks.CARD_DISPLAY.forEachKey1((wood) -> {
+            WoodData data = WoodDataHelper.get(wood);
+            if(data != null)
+            {
+                createForCardDisplay(VersionUtil.lcResource("block/card_display/base_inner_corner"),LCText.BLOCK_VARIANT_INNER_CORNER.get(),VersionUtil.lcResource("variants/card_display/inner_corner"),"inner_corner");
+                createForCardDisplay(VersionUtil.lcResource("block/card_display/base_outer_corner"),LCText.BLOCK_VARIANT_OUTER_CORNER.get(),VersionUtil.lcResource("variants/card_display/outer_corner"),"outer_corner");
+            }
+        });
 
         //Debug Examples
         /*
@@ -199,6 +213,45 @@ public class LCModelVariantProvider extends ModelVariantProvider {
                         .build());
         //*/
 
+    }
+
+    private void createForCardDisplay(ResourceLocation model,Component name,ResourceLocation itemPosition, String id)
+    {
+        ResourceLocation base = VersionUtil.lcResource("card_display/" + id + "/base");
+        this.add(base,ModelVariant.builder()
+                .withModel(model)
+                .withItem(model)
+                .withName(name)
+                .withProperty(VariantProperties.ITEM_POSITION_DATA,ItemPositionDataEntry.create(itemPosition))
+                .asDummy()
+                .build());
+        ModBlocks.CARD_DISPLAY.forEachKey1(wood -> {
+            WoodData data = WoodDataHelper.get(wood);
+            if(data != null)
+                createCardDisplayChild(base,wood,data,id);
+        });
+    }
+
+    private void createCardDisplayChild(ResourceLocation parent,WoodType woodType,WoodData data,String id)
+    {
+        ResourceLocation base = VersionUtil.lcResource(woodType.generateResourceLocation("card_display/" + id + "/","/base"));
+        //Generate base variants
+        this.add(base,ModelVariant.builder()
+                .withParent(parent)
+                .withTexture("log", data.logSideTexture)
+                .withTexture("logtop", data.logTopTexture)
+                .withTexture("plank", data.plankTexture)
+                .asDummy()
+                .build());
+        for(Color color : Color.values())
+        {
+            this.add(woodType.generateResourceLocation("card_display/" + id + "/","/" + color.getResourceSafeName()),
+                    ModelVariant.builder()
+                            .withTarget(ModBlocks.CARD_DISPLAY.get(woodType,color))
+                            .withParent(base)
+                            .withTexture("wool",ColorHelper.GetWoolTextureOfColor(color))
+                            .build());
+        }
     }
 
 }

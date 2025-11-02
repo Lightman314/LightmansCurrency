@@ -2,11 +2,13 @@ package io.github.lightman314.lightmanscurrency.network.message.wallet;
 
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenu;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class CPacketWalletQuickCollect extends ClientToServerPacket.Simple {
 
 	private static final CPacketWalletQuickCollect INSTANCE = new CPacketWalletQuickCollect();
@@ -20,12 +22,9 @@ public class CPacketWalletQuickCollect extends ClientToServerPacket.Simple {
 	{
 		protected H() { super(INSTANCE); }
 		@Override
-		protected void handle(@Nonnull CPacketWalletQuickCollect message, @Nullable ServerPlayer sender) {
-			if(sender != null)
-			{
-				if(sender.containerMenu instanceof WalletMenu menu)
-					menu.QuickCollectCoins();
-			}
+		protected void handle(CPacketWalletQuickCollect message, Player player) {
+            if(player.containerMenu instanceof WalletMenu menu)
+                menu.QuickCollectCoins();
 		}
 	}
 

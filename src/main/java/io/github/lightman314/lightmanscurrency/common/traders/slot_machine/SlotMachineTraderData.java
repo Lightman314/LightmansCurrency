@@ -7,13 +7,15 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.TraderItemHandler;
+import io.github.lightman314.lightmanscurrency.common.menus.slot_machine.ResultHolder;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slot_machine.SlotMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
@@ -30,11 +32,11 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade_data.SlotMachineTrade;
-import io.github.lightman314.lightmanscurrency.api.traders.permissions.PermissionOption;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
+import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
@@ -42,6 +44,7 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -55,16 +58,10 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -84,8 +81,8 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     public void setPrice(MoneyValue newValue) { this.price = newValue; this.markPriceDirty(); }
     public final boolean isPriceValid() { return this.price.isFree() || !this.price.isEmpty(); }
 
-    private List<ItemStack> lastReward = new ArrayList<>();
-    public List<ItemStack> getLastRewards() { return ImmutableList.copyOf(this.lastReward); }
+    private final NonNullList<IconData> lastIcons = SlotMachineEntry.createDefaultIcons();
+    public List<IconData> getLastIcons() { return ImmutableList.copyOf(this.lastIcons); }
 
     private final List<SlotMachineEntry> entries = Lists.newArrayList(SlotMachineEntry.create());
     public final List<SlotMachineEntry> getAllEntries() { return new ArrayList<>(this.entries); }
@@ -100,11 +97,17 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
         this.entries.remove(entryIndex);
         this.markEntriesDirty();
     }
-    public final int getTotalWeight() {
-        int weight = 0;
+    public final double getTotalOdds() {
+        double odds = 0;
         for(SlotMachineEntry entry : this.getValidEntries())
-            weight += entry.getWeight();
-        return weight;
+            odds += entry.getOdds();
+        return odds;
+    }
+    public final double getFailOdds() { return Math.max(0d,100d - this.getTotalOdds()); }
+    public final String getFailOddsText() { return SlotMachineEntry.ODDS_FORMATTER.format(this.getFailOdds()); }
+    public final boolean hasValidOdds() {
+        double totalOdds = this.getTotalOdds();
+        return totalOdds > 0d && totalOdds <= 100d;
     }
 
     @Nullable
@@ -118,23 +121,26 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
             try{ level = LightmansCurrency.getProxy().safeGetDummyLevel();
             } catch(Throwable t) {
                 LightmansCurrency.LogError("Could not get a valid level from the trade's context or the proxy. Will have to use Java randomizer");
-                return this.getRandomizedEntry(new Random().nextInt(this.getTotalWeight()));
+                return this.getRandomizedEntry(new Random().nextDouble());
             }
         }
-        return this.getRandomizedEntry(level.random.nextInt(this.getTotalWeight()));
+        return this.getRandomizedEntry(level.random.nextDouble());
     }
 
-    private SlotMachineEntry getRandomizedEntry(int rand)
+    @Nullable
+    private SlotMachineEntry getRandomizedEntry(double rand)
     {
+        //Multiply by 100 to make it a percentage to match the entries "odds" value
+        rand = rand * 100d;
         for(SlotMachineEntry entry : this.getValidEntries())
         {
-            rand -= entry.getWeight();
+            rand -= entry.getOdds();
             if(rand < 0)
                 return entry;
         }
         return null;
     }
-    
+
     public final List<Component> getSlotMachineInfo()
     {
         List<Component> tooltips = new ArrayList<>();
@@ -151,14 +157,6 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
         return tooltips;
     }
 
-    public String getOdds(int weight)
-    {
-        DecimalFormat df = new DecimalFormat();
-        double odds = ((double)weight/(double)this.getTotalWeight()) * 100d;
-        df.setMaximumFractionDigits(odds < 1d ? 2 : 0);
-        return df.format(odds);
-    }
-
     private final TraderItemStorage storage = new TraderItemStorage(this);
 
     public final TraderItemStorage getStorage() { return this.storage; }
@@ -169,7 +167,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     private final ImmutableList<SlotMachineTrade> trade = ImmutableList.of(new SlotMachineTrade(this));
 
     @Override
-    public IconData inputSettingsTabIcon() { return IconData.of(Items.HOPPER); }
+    public IconData inputSettingsTabIcon() { return ItemIcon.ofItem(Items.HOPPER); }
 
     @Override
     public MutableComponent inputSettingsTabTooltip() { return LCText.TOOLTIP_TRADER_SETTINGS_INPUT_ITEM.get(); }
@@ -202,7 +200,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     public boolean hasStock() { return this.getTradeStock(0) > 0; }
 
     @Override
-    public boolean hasValidTrade() { return this.entries.stream().anyMatch(SlotMachineEntry::isValid) && this.isPriceValid(); }
+    public boolean hasValidTrade() { return this.entries.stream().anyMatch(SlotMachineEntry::isValid) && this.isPriceValid() && this.hasValidOdds(); }
 
     @Override
     protected void saveTrades(CompoundTag compound) { }
@@ -218,7 +216,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     }
 
     public final void markStorageDirty() { this.markDirty(this::saveStorage); }
-    public final void markLastRewardDirty() { this.markDirty(this::saveLastRewards); }
+    public final void markLastIconsDirty() { this.markDirty(this::saveLastIcons); }
     public final void markEntriesDirty() { this.markDirty(this::saveEntries); }
     public final void markPriceDirty() { this.markDirty(this::savePrice); }
 
@@ -226,22 +224,15 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     protected void saveAdditional(CompoundTag compound) {
         super.saveAdditional(compound);
         this.saveStorage(compound);
-        this.saveLastRewards(compound);
+        this.saveLastIcons(compound);
         this.saveEntries(compound);
         this.savePrice(compound);
     }
 
     protected final void saveStorage(CompoundTag compound) { this.storage.save(compound,"Storage"); }
 
-    protected final void saveLastRewards(CompoundTag compound) {
-        ListTag itemList = new ListTag();
-        for(ItemStack reward : this.lastReward)
-        {
-            if(reward.isEmpty())
-                continue;
-            itemList.add(reward.save(new CompoundTag()));
-        }
-        compound.put("LastReward", itemList);
+    protected final void saveLastIcons(CompoundTag compound) {
+        compound.put("LastIcons", TagUtil.writeIconList(this.lastIcons));
     }
 
     protected final void saveEntries(CompoundTag compound) {
@@ -258,27 +249,54 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
         super.loadAdditional(compound);
         if(compound.contains("Storage"))
             this.storage.load(compound, "Storage");
-        if(compound.contains("LastReward"))
-        {
-            this.lastReward.clear();
-            ListTag itemList = compound.getList("LastReward", Tag.TAG_COMPOUND);
-            for(int i = 0; i < itemList.size(); ++i)
-            {
-                ItemStack stack = ItemStack.of(itemList.getCompound(i));
-                if(!stack.isEmpty())
-                    this.lastReward.add(stack);
-            }
-        }
+        this.loadLastIcons(compound);
         if(compound.contains("Entries"))
         {
             this.entries.clear();
+            List<Integer> deprecatedWeights = new ArrayList<>();
             ListTag list = compound.getList("Entries", Tag.TAG_COMPOUND);
             for(int i = 0; i < list.size(); ++i)
-                this.entries.add(SlotMachineEntry.load(list.getCompound(i)));
+            {
+                CompoundTag e = list.getCompound(i);
+                this.entries.add(SlotMachineEntry.load(e));
+                if(e.contains("Weight"))
+                    deprecatedWeights.add(e.getInt("Weight"));
+            }
+            if(!deprecatedWeights.isEmpty() && deprecatedWeights.size() == this.entries.size())
+            {
+                int totalWeight = 0;
+                for(Integer w : deprecatedWeights)
+                    totalWeight += w;
+                if(totalWeight > 0)
+                {
+                    for(int i = 0; i < deprecatedWeights.size(); ++i)
+                        this.entries.get(i).setOdds(((double)deprecatedWeights.get(i)/(double)totalWeight) * 100d);
+                }
+            }
             this.entriesChanged = true;
         }
         if(compound.contains("Price"))
             this.price = MoneyValue.safeLoad(compound, "Price");
+    }
+
+    private void loadLastIcons(CompoundTag compound)
+    {
+        if(compound.contains("LastReward"))
+        {
+            List<ItemStack> lastReward = new ArrayList<>();
+            ListTag itemList = compound.getList("LastReward", Tag.TAG_COMPOUND);
+            for(int i = 0; i < itemList.size(); ++i)
+            {
+                ItemStack stack = InventoryUtil.loadItemNoLimits(itemList.getCompound(i));
+                if(!stack.isEmpty())
+                    lastReward.add(stack);
+            }
+            lastReward = SlotMachineEntry.splitDisplayItems(lastReward);
+            for(int i = 0; i < lastReward.size() && i < this.lastIcons.size(); ++i)
+                this.lastIcons.set(i,ItemIcon.ofItem(lastReward.get(i)));
+        }
+        if(compound.contains("LastIcons"))
+            TagUtil.readIconList(this.lastIcons,compound.getList("LastIcons",Tag.TAG_COMPOUND),SlotMachineEntry.DEFAULT_ICON);
     }
 
     @Override
@@ -319,28 +337,18 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     //No need for persistent data
     @Override
     protected void saveAdditionalPersistentData(CompoundTag compound) {
-        this.saveLastRewards(compound);
+        this.saveLastIcons(compound);
     }
 
     @Override
     protected void loadAdditionalPersistentData(CompoundTag compound) {
-        if(compound.contains("LastReward"))
-        {
-            this.lastReward = new ArrayList<>();
-            ListTag itemList = compound.getList("LastReward", Tag.TAG_COMPOUND);
-            for(int i = 0; i < itemList.size(); ++i)
-            {
-                ItemStack stack = ItemStack.of(itemList.getCompound(i));
-                if(!stack.isEmpty())
-                    this.lastReward.add(stack);
-            }
-        }
+        this.loadLastIcons(compound);
     }
 
     @Override
     protected void getAdditionalContents(List<ItemStack> results) { results.addAll(this.storage.getSplitContents()); }
 
-    
+
     @Override
     public List<SlotMachineTrade> getTradeData() { return this.trade; }
 
@@ -381,29 +389,36 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
         MoneyValue price = this.runTradeCostEvent(trade, context).getCostResult();
 
         //Get the Result Items
+        @Nullable
         SlotMachineEntry loot = this.getRandomizedEntry(context);
-        if(loot == null)
-        {
-            LightmansCurrency.LogError("Slot Machine encountered an error randomizing the loot.");
-            return TradeResult.FAIL_NULL;
-        }
 
         //Confirm that the customer can hold the rewards
-        if(!loot.CanGiveToCustomer(context))
+        if(loot != null && !loot.CanGiveToCustomer(context))
             return TradeResult.FAIL_NO_OUTPUT_SPACE;
 
         //Accept the payment
         if(context.getPayment(price))
         {
-            if(!loot.GiveToCustomer(this, context))
+            if(loot != null && !loot.GiveToCustomer(this, context))
             {
                 //Refund the money taken
                 context.givePayment(price);
                 return TradeResult.FAIL_NO_OUTPUT_SPACE;
             }
 
-            this.lastReward = loot.getDisplayItems();
-            this.markLastRewardDirty();
+            List<IconData> newIcons = loot == null ? SlotMachineEntry.createDefaultIcons() : loot.getIconsToDisplay();
+            this.lastIcons.clear();
+            for(int i = 0; i < newIcons.size() && i < this.lastIcons.size(); ++i)
+                this.lastIcons.set(i,newIcons.get(i));
+
+            if(context.hasCustomData(ResultHolder.CONTEXT_KEY))
+            {
+                //Give the result holder the updated icons
+                if(context.getCustomData(ResultHolder.CONTEXT_KEY) instanceof ResultHolder holder)
+                    holder.setIcons(ImmutableList.copyOf(this.lastIcons));
+            }
+
+            this.markLastIconsDirty();
 
             MoneyValue taxesPaid = MoneyValue.empty();
 
@@ -422,19 +437,23 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
             this.incrementStat(StatKeys.Traders.MONEY_EARNED,price);
             if(!taxesPaid.isEmpty())
                 this.incrementStat(StatKeys.Taxables.TAXES_PAID,taxesPaid);
-            if(loot.isMoney())
+            if(loot != null && loot.isMoney())
                 this.incrementStat(StatKeys.Traders.MONEY_PAID, loot.getMoneyValue());
 
             //Push Notification
             this.pushNotification(SlotMachineTradeNotification.create(loot, price, context.getPlayerReference(), this.getNotificationCategory(), taxesPaid));
 
             List<Object> product = new ArrayList<>();
-            if(loot.isMoney())
-                product.add(loot.getMoneyValue());
-            else
-                product.addAll(InventoryUtil.copyList(loot.items));
+            if(loot != null)
+            {
+                if(loot.isMoney())
+                    product.add(loot.getMoneyValue());
+                else
+                    product.addAll(InventoryUtil.copyList(loot.items));
+            }
+
             //Push the post-trade event
-            this.runPostTradeEvent(trade, context, price, taxesPaid, product);
+            this.runPostTradeEvent(trade,context,price,taxesPaid,product);
 
             return TradeResult.SUCCESS;
 
@@ -456,10 +475,6 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
         //Storage Tab
         menu.setTab(2, new SlotMachineStorageTab(menu));
     }
-
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public void addPermissionOptions(List<PermissionOption> options) { }
 
     @Override
     public boolean isItemRelevant(ItemStack item) {
@@ -489,10 +504,6 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
         return limit;
     }
 
-    @Override
-    
-    public <T> LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction relativeSide){
-        return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, LazyOptional.of(() -> this.getItemHandler(relativeSide)));
-    }
+
 
 }

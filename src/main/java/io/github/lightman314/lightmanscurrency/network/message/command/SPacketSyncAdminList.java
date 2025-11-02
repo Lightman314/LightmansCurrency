@@ -6,12 +6,14 @@ import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SPacketSyncAdminList extends ServerToClientPacket {
 
 	public static final Handler<SPacketSyncAdminList> HANDLER = new H();
@@ -20,7 +22,7 @@ public class SPacketSyncAdminList extends ServerToClientPacket {
 	
 	public SPacketSyncAdminList(List<UUID> adminList) { this.adminList = adminList; }
 	
-	public void encode(@Nonnull FriendlyByteBuf buffer) {
+	public void encode(FriendlyByteBuf buffer) {
 		buffer.writeInt(this.adminList.size());
 		for(UUID entry : this.adminList)
 			buffer.writeUUID(entry);
@@ -28,9 +30,8 @@ public class SPacketSyncAdminList extends ServerToClientPacket {
 
 	private static class H extends Handler<SPacketSyncAdminList>
 	{
-		@Nonnull
 		@Override
-		public SPacketSyncAdminList decode(@Nonnull FriendlyByteBuf buffer) {
+		public SPacketSyncAdminList decode(FriendlyByteBuf buffer) {
 			int entryCount = buffer.readInt();
 			List<UUID> entries = new ArrayList<>();
 			for(int i = 0; i < entryCount; ++i)
@@ -38,7 +39,7 @@ public class SPacketSyncAdminList extends ServerToClientPacket {
 			return new SPacketSyncAdminList(entries);
 		}
 		@Override
-		protected void handle(@Nonnull SPacketSyncAdminList message, @Nullable ServerPlayer sender) {
+		protected void handle(SPacketSyncAdminList message, Player player) {
 			LightmansCurrency.getProxy().loadAdminPlayers(message.adminList);
 		}
 	}

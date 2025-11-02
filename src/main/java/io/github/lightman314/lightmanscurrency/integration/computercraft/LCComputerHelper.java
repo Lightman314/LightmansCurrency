@@ -4,7 +4,9 @@ import dan200.computercraft.api.ForgeComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.api.events.TraderEvent;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.attachments.builtin.ExternalAuthorizationAttachment;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.AuctionStandBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CapabilityInterfaceBlockEntity;
@@ -12,11 +14,13 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.CashRegisterBl
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.GachaMachineBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blockentity.trader.SlotMachineTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.TerminalBlock;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.CashRegisterPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.TerminalPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.InputTraderPeripheral;
@@ -25,16 +29,17 @@ import io.github.lightman314.lightmanscurrency.integration.computercraft.periphe
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.item.ItemTraderPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.TraderPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.paygate.PaygatePeripheral;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.slot_machine.SlotMachinePeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.pocket_upgrades.LCPocketUpgrades;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +53,7 @@ public class LCComputerHelper {
         LCPocketUpgrades.init(modBus);
         //Register Event Listener
         modBus.addListener(LCComputerHelper::registerPeripheralProviders);
+        MinecraftForge.EVENT_BUS.addListener(LCComputerHelper::addTraderAttachments);
         //Create Trader Peripheral Sources
         //Auction House
         registerTraderPeripheralSource(TraderPeripheralSource.dataOnly((trader) -> {
@@ -79,6 +85,16 @@ public class LCComputerHelper {
         },(trader) -> {
             if(trader instanceof GachaTrader gacha)
                 return new GachaMachinePeripheral(gacha);
+            return null;
+        }));
+        //Slot Machine
+        registerTraderPeripheralSource(TraderPeripheralSource.simple(be -> {
+            if(be instanceof SlotMachineTraderBlockEntity slotMachine)
+                return new SlotMachinePeripheral(slotMachine);
+            return null;
+        },trader -> {
+            if(trader instanceof SlotMachineTraderData slotMachine)
+                return new SlotMachinePeripheral(slotMachine);
             return null;
         }));
     }
@@ -117,6 +133,13 @@ public class LCComputerHelper {
     {
         //Create peripheral capability for all multi-blocks
         ForgeComputerCraftAPI.registerPeripheralProvider(new PeripheralProvider());
+    }
+
+    private static void addTraderAttachments(TraderEvent.RegisterAttachmentEvent event)
+    {
+        if(event.getTrader() instanceof AuctionHouseTrader)
+            return;
+        event.addAttachment(ExternalAuthorizationAttachment.TYPE);
     }
 
     private static class PeripheralProvider implements IPeripheralProvider

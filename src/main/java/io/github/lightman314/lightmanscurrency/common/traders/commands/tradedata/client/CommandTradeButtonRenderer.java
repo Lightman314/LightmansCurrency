@@ -16,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import net.minecraftforge.common.util.LazyOptional;
 
 import java.util.List;
+import java.util.Optional;
 
 public class CommandTradeButtonRenderer extends TradeRenderManager<CommandTrade> {
 
@@ -25,7 +26,7 @@ public class CommandTradeButtonRenderer extends TradeRenderManager<CommandTrade>
     public int tradeButtonWidth(TradeContext context) { return 189; }
 
     @Override
-    public LazyOptional<ScreenPosition> arrowPosition(TradeContext context) { return ScreenPosition.ofOptional(36, 1); }
+    public Optional<ScreenPosition> arrowPosition(TradeContext context) { return ScreenPosition.ofOptional(36, 1); }
 
     @Override
     public DisplayData inputDisplayArea(TradeContext context) { return new DisplayData(1,1,34,16); }

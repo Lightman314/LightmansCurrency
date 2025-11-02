@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/outer_corner/crimson/base",
+  "target": "lightmanscurrency:card_display_crimson",
+  "textures": {
+    "wool": "minecraft:block/red_wool"
+  }
+}

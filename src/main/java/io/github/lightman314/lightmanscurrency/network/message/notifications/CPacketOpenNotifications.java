@@ -3,10 +3,8 @@ package io.github.lightman314.lightmanscurrency.network.message.notifications;
 import io.github.lightman314.lightmanscurrency.common.menus.NotificationMenu;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.NetworkHooks;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class CPacketOpenNotifications extends ClientToServerPacket.Simple {
 
@@ -21,8 +19,9 @@ public class CPacketOpenNotifications extends ClientToServerPacket.Simple {
     {
         private H() { super(INSTANCE); }
         @Override
-        protected void handle(@Nonnull CPacketOpenNotifications message, @Nullable ServerPlayer sender) {
-            NetworkHooks.openScreen(sender, NotificationMenu.PROVIDER);
+        protected void handle(CPacketOpenNotifications message, Player player) {
+            if(player instanceof ServerPlayer sp)
+                NetworkHooks.openScreen(sp, NotificationMenu.PROVIDER);
         }
     }
 

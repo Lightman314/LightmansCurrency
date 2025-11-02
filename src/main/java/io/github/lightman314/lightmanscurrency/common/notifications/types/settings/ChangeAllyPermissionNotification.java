@@ -8,11 +8,14 @@ import io.github.lightman314.lightmanscurrency.api.notifications.SingleLineNotif
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ChangeAllyPermissionNotification extends SingleLineNotification {
 
 	public static final NotificationType<ChangeAllyPermissionNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("change_ally_permissions"),ChangeAllyPermissionNotification::new);
@@ -31,17 +34,14 @@ public class ChangeAllyPermissionNotification extends SingleLineNotification {
 		this.oldValue = oldValue;
 	}
 
-	@Nonnull
     @Override
 	protected NotificationType<ChangeAllyPermissionNotification> getType() { return TYPE; }
 
-	@Nonnull
 	@Override
 	public NotificationCategory getCategory() { return NullCategory.INSTANCE; }
 
-	@Nonnull
 	@Override
-	public MutableComponent getMessage() {
+	public Component getMessage() {
 		if(this.oldValue == 0)
 			return LCText.NOTIFICATION_SETTINGS_CHANGE_ALLY_PERMISSIONS_SIMPLE.get(this.player.getName(true), this.permission, this.newValue);
 		else
@@ -49,7 +49,7 @@ public class ChangeAllyPermissionNotification extends SingleLineNotification {
 	}
 
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound) {
+	protected void saveAdditional(CompoundTag compound) {
 		compound.put("Player", this.player.save());
 		compound.putString("Permission", this.permission);
 		compound.putInt("NewValue", this.newValue);
@@ -57,7 +57,7 @@ public class ChangeAllyPermissionNotification extends SingleLineNotification {
 	}
 
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound) {
+	protected void loadAdditional(CompoundTag compound) {
 		this.player = PlayerReference.load(compound.getCompound("Player"));
 		this.permission = compound.getString("Permission");
 		this.newValue = compound.getInt("NewValue");
@@ -65,7 +65,7 @@ public class ChangeAllyPermissionNotification extends SingleLineNotification {
 	}
 
 	@Override
-	protected boolean canMerge(@Nonnull Notification other) {
+	protected boolean canMerge(Notification other) {
 		if(other instanceof ChangeAllyPermissionNotification n)
 		{
 			return n.player.is(this.player) && n.permission.equals(this.permission) && n.newValue == this.newValue && n.oldValue == this.oldValue;

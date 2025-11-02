@@ -2,32 +2,35 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.addons.MiscTabAddon;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class MiscTab extends SettingsSubTab {
 
-    public MiscTab(@Nonnull TraderSettingsClientTab parent) { super(parent); }
+    public MiscTab(TraderSettingsClientTab parent) { super(parent); }
 
     PlainButton buttonAlwaysShowSearchBox;
 
@@ -48,7 +51,6 @@ public class MiscTab extends SettingsSubTab {
         return new ArrayList<>();
     }
 
-    @Nonnull
     @Override
     public IconData getIcon() { return IconUtil.ICON_SETTINGS; }
 
@@ -76,13 +78,13 @@ public class MiscTab extends SettingsSubTab {
         this.buttonAlwaysShowSearchBox = this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(35,nextYLevel.getAndAdd(20)))
                 .pressAction(this::ToggleShowSearchBox)
-                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::alwaysShowSearchBox))
+                .sprite(SpriteUtil.createCheckbox(this::alwaysShowSearchBox))
                 .build());
 
         this.buttonToggleBankLink = this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(35,nextYLevel.getAndAdd(20)))
                 .pressAction(this::ToggleBankLink)
-                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::linkedToBank))
+                .sprite(SpriteUtil.createCheckbox(this::linkedToBank))
                 .addon(EasyAddonHelper.visibleCheck(this::showBankLink))
                 .addon(EasyAddonHelper.activeCheck(this::bankLinkPossible))
                 .build());
@@ -90,13 +92,13 @@ public class MiscTab extends SettingsSubTab {
         this.buttonToggleNotifications = this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(35,nextYLevel.getAndAdd(20)))
                 .pressAction(this::ToggleNotifications)
-                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::notificationsEnabled))
+                .sprite(SpriteUtil.createCheckbox(this::notificationsEnabled))
                 .build());
 
         this.buttonToggleChatNotifications = this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(35,nextYLevel.getAndAdd(25)))
                 .pressAction(this::ToggleChatNotifications)
-                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::notificationsToChat))
+                .sprite(SpriteUtil.createCheckbox(this::notificationsToChat))
                 .build());
 
         this.buttonToggleTeamLevel = this.addChild(EasyTextButton.builder()
@@ -152,7 +154,7 @@ public class MiscTab extends SettingsSubTab {
     }
 
     @Override
-    public void renderBG(@Nonnull EasyGuiGraphics gui) {
+    public void renderBG(EasyGuiGraphics gui) {
 
         TraderData trader = this.menu.getTrader();
         if(trader == null)
@@ -177,7 +179,7 @@ public class MiscTab extends SettingsSubTab {
     }
 
     @Override
-    public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
+    public void renderAfterWidgets(EasyGuiGraphics gui) {
         this.addons.forEach(a -> a.renderAfterWidgets(this, gui));
     }
 

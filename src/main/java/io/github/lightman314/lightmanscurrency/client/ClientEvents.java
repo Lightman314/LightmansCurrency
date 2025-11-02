@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
@@ -18,16 +19,17 @@ import io.github.lightman314.lightmanscurrency.common.enchantments.MoneyMendingE
 import io.github.lightman314.lightmanscurrency.common.items.PortableATMItem;
 import io.github.lightman314.lightmanscurrency.common.items.PortableTerminalItem;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.types.ItemValidator;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketOpenATM;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
@@ -55,7 +57,6 @@ import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -71,8 +72,6 @@ import javax.annotation.Nonnull;
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, value = Dist.CLIENT)
 public class ClientEvents {
 
-	public static final ResourceLocation WALLET_SLOT_TEXTURE = VersionUtil.lcResource("textures/gui/container/wallet_slot.png");
-	
 	public static final KeyMapping KEY_WALLET = new KeyMapping(LCText.KEY_WALLET.getKey(), GLFW.GLFW_KEY_V, KeyMapping.CATEGORY_INVENTORY);
 	public static final KeyMapping KEY_PORTABLE_TERMINAL = new KeyMapping(LCText.KEY_PORTABLE_TERMINAL.getKey(), GLFW.GLFW_KEY_BACKSLASH, KeyMapping.CATEGORY_INVENTORY);
 	public static final KeyMapping KEY_PORTABLE_ATM = new KeyMapping(LCText.KEY_PORTABLE_ATM.getKey(), GLFW.GLFW_KEY_EQUAL, KeyMapping.CATEGORY_INVENTORY);
@@ -96,7 +95,7 @@ public class ClientEvents {
 				
 				new CPacketOpenWallet(-1).send();
 
-				ItemStack wallet = CoinAPI.API.getEquippedWallet(player);
+				ItemStack wallet = CoinAPI.getApi().getEquippedWallet(player);
 				if(!wallet.isEmpty())
 				{
 					minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.ARMOR_EQUIP_LEATHER, 1.25f + player.level().random.nextFloat() * 0.5f, 0.75f));
@@ -108,10 +107,18 @@ public class ClientEvents {
 			//Open portable terminal/atm from curios slot
 			if(LCCurios.isLoaded() && event.getAction() == GLFW.GLFW_PRESS)
 			{
-				if(event.getKey() == KEY_PORTABLE_TERMINAL.getKey().getValue() && LCCurios.hasPortableTerminal(minecraft.player))
-					new CPacketOpenNetworkTerminal(true).send();
-				else if(event.getKey() == KEY_PORTABLE_ATM.getKey().getValue() && LCCurios.hasPortableATM(minecraft.player))
-					CPacketOpenATM.sendToServer();
+                if(event.getKey() == KEY_PORTABLE_TERMINAL.getKey().getValue())
+                {
+                    Item terminal = LCCurios.lookupPortableTerminal(minecraft.player);
+                    if(terminal != null)
+                        new CPacketOpenNetworkTerminal(new ItemValidator(terminal)).send();
+                }
+                if(event.getKey() == KEY_PORTABLE_ATM.getKey().getValue())
+                {
+                    Item atm = LCCurios.lookupPortableATM(minecraft.player);
+                    if(atm != null)
+                        new CPacketOpenATM(atm).send();
+                }
 			}
 		}
 		
@@ -160,7 +167,7 @@ public class ClientEvents {
 		{
 			boolean nowVisible = !handler.visible();
 			handler.setVisible(nowVisible);
-			new CPacketSetVisible(player.getId(), nowVisible).send();
+			new CPacketSetVisible(nowVisible).send();
 		}
 	}
 	
@@ -184,7 +191,7 @@ public class ClientEvents {
 			ScreenPosition slotPosition = getWalletSlotPosition(screen instanceof CreativeModeInventoryScreen).offsetScreen(screen);
 			gui.resetColor();
 			//Render slot background
-			gui.blit(WALLET_SLOT_TEXTURE, slotPosition.x, slotPosition.y, 0, 0, 18, 18);
+            SpriteUtil.EMPTY_SLOT_NORMAL.render(gui,slotPosition.x,slotPosition.y);
 		}
 	}
 	
@@ -231,10 +238,10 @@ public class ClientEvents {
 	@SubscribeEvent(priority = EventPriority.HIGH)
 	//Add coin value tooltips to non CoinItem coins.
 	public static void onItemTooltip(ItemTooltipEvent event) {
-		if(event.getEntity() == null || CoinAPI.API.NoDataAvailable())
+		if(event.getEntity() == null || CoinAPI.getApi().NoDataAvailable())
 			return;
 		ItemStack stack = event.getItemStack();
-		if(CoinAPI.API.IsCoin(stack, true))
+		if(CoinAPI.getApi().IsCoin(stack, true))
 			ChainData.addCoinTooltips(event.getItemStack(), event.getToolTip(), event.getFlags(), event.getEntity());
 		//If item has money mending, display money mending tooltip
 		MoneyMendingEnchantment.addEnchantmentTooltip(stack,event.getToolTip());
@@ -255,7 +262,7 @@ public class ClientEvents {
 			event.getToolTip().add(LCText.TOOLTIP_TRADER_ITEM_WITH_DATA.getWithStyle(ChatFormatting.GRAY));
 			long traderID = tag.getLong("StoredTrader");
 			//Trader Name
-			TraderData trader = TraderAPI.API.GetTrader(true, traderID);
+			TraderData trader = TraderAPI.getApi().GetTrader(true, traderID);
 			if(trader != null)
 				TooltipItem.insertTooltip(event.getToolTip(),trader.getName().withStyle(ChatFormatting.GRAY));
 			if(event.getFlags().isAdvanced())

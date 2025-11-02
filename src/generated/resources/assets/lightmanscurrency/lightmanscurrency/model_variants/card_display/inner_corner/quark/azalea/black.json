@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/inner_corner/quark/azalea/base",
+  "target": "lightmanscurrency:card_display_quark_azalea_black",
+  "textures": {
+    "wool": "minecraft:block/black_wool"
+  }
+}

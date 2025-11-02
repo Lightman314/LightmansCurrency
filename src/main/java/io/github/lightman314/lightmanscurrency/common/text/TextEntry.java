@@ -2,11 +2,12 @@ package io.github.lightman314.lightmanscurrency.common.text;
 
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.TextIcon;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
 import io.github.lightman314.lightmanscurrency.api.stats.StatType;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -38,7 +39,7 @@ public final class TextEntry {
     public List<Component> getAsList(Object... objects) { return Lists.newArrayList(this.get(objects)); }
     public List<Component> getAsListWithStyle(ChatFormatting... format) { return Lists.newArrayList(this.getWithStyle(format)); }
     public void tooltip(List<Component> tooltip, Object... objects) { tooltip.add(this.get(objects)); }
-    public IconData icon(Object... objects) { return IconData.of(this.get(objects)); }
+    public IconData icon(Object... objects) { return TextIcon.ofText(this.get(objects)); }
 
     //Vanilla Objects
     public static TextEntry item(Supplier<? extends ItemLike> item) { return new TextEntry(() -> item.get().asItem().getDescriptionId()); }

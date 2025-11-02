@@ -34,6 +34,8 @@ public final class NodeSelections {
             return;
         if(selected)
             this.data.put(node,new HashSet<>());
+        else
+            this.data.remove(node);
     }
 
     public void addSubNode(String node, String subNode)

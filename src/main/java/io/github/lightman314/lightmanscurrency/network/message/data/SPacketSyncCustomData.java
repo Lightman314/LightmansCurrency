@@ -8,28 +8,30 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.data.ClientCustomDataCache;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Objects;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SPacketSyncCustomData extends ServerToClientPacket {
 
     public static final Handler<SPacketSyncCustomData> HANDLER = new H();
 
     private final ResourceLocation dataType;
     private final LazyPacketData data;
-    public SPacketSyncCustomData(@Nonnull CustomDataType<?> type, @Nonnull LazyPacketData data) { this(LCRegistries.CUSTOM_DATA.getKey(type),data); }
-    protected SPacketSyncCustomData(@Nonnull ResourceLocation dataType, @Nonnull LazyPacketData data) {
+    public SPacketSyncCustomData(CustomDataType<?> type, LazyPacketData data) { this(LCRegistries.CUSTOM_DATA.getKey(type),data); }
+    protected SPacketSyncCustomData(ResourceLocation dataType, LazyPacketData data) {
         this.dataType = Objects.requireNonNull(dataType,"CustomDataType");
         this.data = data;
     }
 
     @Override
-    public void encode(@Nonnull FriendlyByteBuf buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         buffer.writeUtf(this.dataType.toString());
         this.data.encode(buffer);
     }
@@ -37,12 +39,12 @@ public class SPacketSyncCustomData extends ServerToClientPacket {
     private static class H extends Handler<SPacketSyncCustomData>
     {
         private H() {}
-        @Nonnull
+        
         @Override
-        public SPacketSyncCustomData decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketSyncCustomData(VersionUtil.parseResource(buffer.readUtf()),LazyPacketData.decode(buffer)); }
+        public SPacketSyncCustomData decode(FriendlyByteBuf buffer) { return new SPacketSyncCustomData(VersionUtil.parseResource(buffer.readUtf()),LazyPacketData.decode(buffer)); }
 
         @Override
-        protected void handle(@Nonnull SPacketSyncCustomData message, @Nullable ServerPlayer sender) {
+        protected void handle(SPacketSyncCustomData message, Player player) {
 
             CustomDataType<?> type = LCRegistries.CUSTOM_DATA.getValue(message.dataType);
             if(type == null)

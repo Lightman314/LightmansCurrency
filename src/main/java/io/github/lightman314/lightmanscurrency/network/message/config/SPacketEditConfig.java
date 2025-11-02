@@ -8,14 +8,16 @@ import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Map;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SPacketEditConfig extends ServerToClientPacket {
 
     public static final Handler<SPacketEditConfig> HANDLER = new H();
@@ -24,7 +26,7 @@ public class SPacketEditConfig extends ServerToClientPacket {
     private final String option;
     private final String input;
 
-    public SPacketEditConfig(@Nonnull ResourceLocation fileID, @Nonnull String option, @Nonnull String input)
+    public SPacketEditConfig(ResourceLocation fileID, String option, String input)
     {
         this.fileID = fileID;
         this.option = option;
@@ -32,7 +34,7 @@ public class SPacketEditConfig extends ServerToClientPacket {
     }
 
     @Override
-    public void encode(@Nonnull FriendlyByteBuf buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         buffer.writeResourceLocation(this.fileID);
         buffer.writeUtf(this.option);
         buffer.writeInt(this.input.length());
@@ -42,9 +44,8 @@ public class SPacketEditConfig extends ServerToClientPacket {
     private static class H extends Handler<SPacketEditConfig>
     {
 
-        @Nonnull
         @Override
-        public SPacketEditConfig decode(@Nonnull FriendlyByteBuf buffer) {
+        public SPacketEditConfig decode(FriendlyByteBuf buffer) {
             ResourceLocation fileID = buffer.readResourceLocation();
             String option = buffer.readUtf();
             int inputLength = buffer.readInt();
@@ -52,7 +53,7 @@ public class SPacketEditConfig extends ServerToClientPacket {
         }
 
         @Override
-        protected void handle(@Nonnull SPacketEditConfig message, @Nullable ServerPlayer sender) {
+        protected void handle(SPacketEditConfig message, Player player) {
             ConfigFile file = ConfigFile.lookupFile(message.fileID);
             if(file != null && file.isClientOnly())
             {

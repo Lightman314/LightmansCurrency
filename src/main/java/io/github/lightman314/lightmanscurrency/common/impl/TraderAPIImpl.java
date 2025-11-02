@@ -13,16 +13,17 @@ import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.Sort
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.TerminalSortType;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class TraderAPIImpl extends TraderAPI {
-
-    public static final TraderAPIImpl INSTANCE = new TraderAPIImpl();
 
     private final Map<String, TraderType<?>> traderRegistry = new HashMap<>();
     private final Map<String, TradeRuleType<?>> tradeRuleRegistry = new HashMap<>();
@@ -31,10 +32,10 @@ public class TraderAPIImpl extends TraderAPI {
     private final List<ITraderSearchFilter> traderSearchFilters = new ArrayList<>();
     private final List<ITradeSearchFilter> tradeSearchFilters = new ArrayList<>();
 
-    private TraderAPIImpl() {}
+    public TraderAPIImpl() {}
 
     @Override
-    public void RegisterTrader(@Nonnull TraderType<?> type) {
+    public void RegisterTrader(TraderType<?> type) {
         String t = type.type.toString();
         if(this.traderRegistry.containsKey(t))
         {
@@ -47,10 +48,10 @@ public class TraderAPIImpl extends TraderAPI {
 
     @Nullable
     @Override
-    public TraderType<?> GetTraderType(@Nonnull ResourceLocation type) { return this.traderRegistry.get(type.toString()); }
+    public TraderType<?> GetTraderType(ResourceLocation type) { return this.traderRegistry.get(type.toString()); }
 
     @Override
-    public void RegisterTradeRule(@Nonnull TradeRuleType<?> type) {
+    public void RegisterTradeRule(TradeRuleType<?> type) {
         String t = type.type.toString();
         if(this.tradeRuleRegistry.containsKey(t))
         {
@@ -63,21 +64,20 @@ public class TraderAPIImpl extends TraderAPI {
 
     @Nullable
     @Override
-    public TradeRuleType<?> GetTradeRuleType(@Nonnull ResourceLocation type) { return this.tradeRuleRegistry.get(type.toString()); }
+    public TradeRuleType<?> GetTradeRuleType(ResourceLocation type) { return this.tradeRuleRegistry.get(type.toString()); }
 
-    @Nonnull
     @Override
     public List<TradeRuleType<?>> GetAllTradeRuleTypes() { return ImmutableList.copyOf(this.tradeRuleRegistry.values()); }
 
     @Override
-    public void RegisterTraderSearchFilter(@Nonnull ITraderSearchFilter filter) {
+    public void RegisterTraderSearchFilter(ITraderSearchFilter filter) {
         if(this.traderSearchFilters.contains(filter))
             return;
         this.traderSearchFilters.add(filter);
     }
 
     @Override
-    public boolean FilterTrader(@Nonnull TraderData data, @Nonnull String search) {
+    public boolean FilterTrader(TraderData data, String search) {
         if(search.isBlank())
             return true;
         PendingSearch results = PendingSearch.of(search);
@@ -85,7 +85,7 @@ public class TraderAPIImpl extends TraderAPI {
     }
 
     //Local private copy so that we don't have to re-process the string during the for loop of FilterTraders
-    private boolean FilterTrader(@Nonnull TraderData data, @Nonnull PendingSearch search)
+    private boolean FilterTrader(TraderData data, PendingSearch search)
     {
         PendingSearch results = search.copy();
         //Check for failed filters
@@ -94,9 +94,9 @@ public class TraderAPIImpl extends TraderAPI {
         return results.hasPassed();
     }
 
-    @Nonnull
+    
     @Override
-    public List<TraderData> FilterTraders(@Nonnull List<TraderData> data, @Nonnull String search) {
+    public List<TraderData> FilterTraders(List<TraderData> data, String search) {
 
         if(search.isBlank())
             return data;
@@ -113,14 +113,14 @@ public class TraderAPIImpl extends TraderAPI {
     }
 
     @Override
-    public void RegisterTradeSearchFilter(@Nonnull ITradeSearchFilter filter) {
+    public void RegisterTradeSearchFilter(ITradeSearchFilter filter) {
         if(this.tradeSearchFilters.contains(filter))
             return;
         this.tradeSearchFilters.add(filter);
     }
 
     @Override
-    public boolean FilterTrade(@Nonnull TradeData trade, @Nonnull String search) {
+    public boolean FilterTrade(TradeData trade, String search) {
         if(search.isBlank())
             return true;
         return this.FilterTrade(trade,PendingSearch.of(search));
@@ -135,9 +135,9 @@ public class TraderAPIImpl extends TraderAPI {
         return results.hasPassed();
     }
 
-    @Nonnull
+    
     @Override
-    public List<TradeData> FilterTrades(@Nonnull List<TradeData> trades, @Nonnull String search) {
+    public List<TradeData> FilterTrades(List<TradeData> trades, String search) {
         if(search.isBlank())
             return trades;
         PendingSearch temp = PendingSearch.of(search);
@@ -151,7 +151,7 @@ public class TraderAPIImpl extends TraderAPI {
     }
 
     @Override
-    public <T extends ITraderSearchFilter & ITradeSearchFilter> void RegisterSearchFilter(@Nonnull T filter) {
+    public <T extends ITraderSearchFilter & ITradeSearchFilter> void RegisterSearchFilter(T filter) {
         this.RegisterTraderSearchFilter(filter);
         this.RegisterTradeSearchFilter(filter);
     }
@@ -213,7 +213,7 @@ public class TraderAPIImpl extends TraderAPI {
         return data.getTrader(traderID);
     }
 
-    @Nonnull
+    
     @Override
     public List<TraderData> GetAllTraders(boolean isClient) {
         TraderDataCache data = TraderDataCache.TYPE.get(isClient);
@@ -231,7 +231,7 @@ public class TraderAPIImpl extends TraderAPI {
     }
 
     @Override
-    public long CreateTrader(@Nonnull TraderData newTrader, @Nullable Player player) {
+    public long CreateTrader(TraderData newTrader, @Nullable Player player) {
         TraderDataCache data = TraderDataCache.TYPE.get(false);
         if(data == null)
             return -1;

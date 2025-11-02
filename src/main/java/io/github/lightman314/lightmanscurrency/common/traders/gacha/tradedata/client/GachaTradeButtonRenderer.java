@@ -13,10 +13,10 @@ import io.github.lightman314.lightmanscurrency.common.traders.gacha.tradedata.Ga
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.LazyOptional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class GachaTradeButtonRenderer extends TradeRenderManager<GachaTradeData> {
 
@@ -26,7 +26,7 @@ public class GachaTradeButtonRenderer extends TradeRenderManager<GachaTradeData>
     public int tradeButtonWidth(TradeContext context) { return 94; }
 
     @Override
-    public LazyOptional<ScreenPosition> arrowPosition(TradeContext context) { return ScreenPosition.ofOptional(36, 1); }
+    public Optional<ScreenPosition> arrowPosition(TradeContext context) { return ScreenPosition.ofOptional(36, 1); }
 
     @Override
     public DisplayData inputDisplayArea(TradeContext context) { return new DisplayData(1, 1, 34, 16); }

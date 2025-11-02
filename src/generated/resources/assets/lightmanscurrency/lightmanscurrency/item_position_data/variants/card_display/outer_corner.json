@@ -1,0 +1,52 @@
+{
+  "Entries": [
+    {
+      "Position": {
+        "x": 0.25,
+        "y": 0.5625,
+        "z": 0.28125
+      }
+    },
+    {
+      "Position": {
+        "x": 0.6875,
+        "y": 0.5625,
+        "z": 0.28125
+      },
+      "RotationType": {
+        "type": "lightmanscurrency:facing_up",
+        "offset": 45.0
+      }
+    },
+    {
+      "Position": {
+        "x": 0.25,
+        "y": 0.75,
+        "z": 0.75
+      },
+      "RotationType": {
+        "type": "lightmanscurrency:facing_up",
+        "offset": 45.0
+      }
+    },
+    {
+      "Position": {
+        "x": 0.6875,
+        "y": 0.5625,
+        "z": 0.6875
+      },
+      "RotationType": {
+        "type": "lightmanscurrency:facing_up",
+        "offset": 90.0
+      }
+    }
+  ],
+  "ExtraCount": 1,
+  "RotationType": {
+    "type": "lightmanscurrency:facing_up"
+  },
+  "Scale": 0.4,
+  "offsetX": 1.0E-4,
+  "offsetY": 0.2,
+  "offsetZ": 1.0E-4
+}

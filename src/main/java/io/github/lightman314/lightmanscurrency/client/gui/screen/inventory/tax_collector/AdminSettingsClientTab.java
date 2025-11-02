@@ -2,26 +2,29 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.tax_
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.tabs.AdminTab;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class AdminSettingsClientTab extends TaxCollectorClientTab<AdminTab> {
 
     public AdminSettingsClientTab(Object screen, AdminTab commonTab) { super(screen, commonTab); }
 
-    @Nonnull
     @Override
-    public IconData getIcon() { return IconData.of(Items.COMMAND_BLOCK); }
+    public IconData getIcon() { return ItemIcon.ofItem(Items.COMMAND_BLOCK); }
 
     @Nullable
     @Override
@@ -33,17 +36,17 @@ public class AdminSettingsClientTab extends TaxCollectorClientTab<AdminTab> {
         this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(8,32))
                 .pressAction(() -> this.commonTab.SetForceAcceptance(!this.getCurrentForceAcceptance()))
-                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::getCurrentForceAcceptance))
+                .sprite(SpriteUtil.createCheckbox(this::getCurrentForceAcceptance))
                 .build());
         this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(8,42))
                 .pressAction(() -> this.commonTab.SetInfiniteRange(!this.getCurrentInfiniteRange()))
-                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::getCurrentInfiniteRange))
+                .sprite(SpriteUtil.createCheckbox(this::getCurrentInfiniteRange))
                 .build());
     }
 
     @Override
-    public void renderBG(@Nonnull EasyGuiGraphics gui) {
+    public void renderBG(EasyGuiGraphics gui) {
 
         //Title
         gui.drawString(this.getTooltip(), 8, 6, 0x404040);

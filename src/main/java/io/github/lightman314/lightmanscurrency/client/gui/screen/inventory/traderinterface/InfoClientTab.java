@@ -2,9 +2,12 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.data.TradeReference;
@@ -19,9 +22,9 @@ import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown.DropdownWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
@@ -29,16 +32,19 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.Trad
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.InfoTab;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.Items;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class InfoClientTab extends TraderInterfaceClientTab<InfoTab> implements IScrollable {
 
 	public InfoClientTab(Object screen, InfoTab tab) { super(screen, tab); }
@@ -54,9 +60,8 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab> implements 
 
 	private int scroll = 0;
 
-	@Nonnull
 	@Override
-	public IconData getIcon() { return IconData.of(Items.PAPER); }
+	public IconData getIcon() { return ItemIcon.ofItem(Items.PAPER); }
 
 	@Override
 	public MutableComponent getTooltip() { return LCText.TOOLTIP_INTERFACE_INFO.get(); }
@@ -80,7 +85,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab> implements 
 				.build());
 		this.newTradeDisplay.visible = false;
 
-		this.interactionDropdown = this.addChild(IconAndButtonUtil.interactionTypeDropdown(screenArea.pos.offset(104, 25), 97, this.screen.getMenu().getBE().getInteractionType(), this::onInteractionSelect, this.menu.getBE().getBlacklistedInteractions()));
+		this.interactionDropdown = this.addChild(interactionTypeDropdown(screenArea.pos.offset(104, 25), 97, this.screen.getMenu().getBE().getInteractionType(), this::onInteractionSelect, this.menu.getBE().getBlacklistedInteractions()));
 
 		this.acceptChangesButton = this.addChild(IconButton.builder()
 				.position(screenArea.pos.offset(181,90))
@@ -108,6 +113,19 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab> implements 
 				.build());
 
 	}
+
+    private static DropdownWidget interactionTypeDropdown(ScreenPosition position, int width, InteractionType currentlySelected, Consumer<Integer> onSelect, List<InteractionType> blacklist)
+    {
+        DropdownWidget.Builder builder = DropdownWidget.builder()
+                .position(position)
+                .width(width)
+                .selected(currentlySelected.index)
+                .selectAction(onSelect)
+                .activeCheck(i -> !blacklist.contains(InteractionType.fromIndex(i)));
+        for(int i = 0; i < InteractionType.size(); ++i)
+            builder.option(InteractionType.fromIndex(i).getDisplayText());
+        return builder.build();
+    }
 
 	private List<Component> getWarningMessages() {
 		if(this.menu.getBE() == null)
@@ -187,7 +205,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab> implements 
 	public boolean isScrollRelevant() { return this.menu.getBE().getInteractionType().trades() && this.menu.getBE().getSelectableCount() > 1; }
 
 	@Override
-	public void renderBG(@Nonnull EasyGuiGraphics gui) {
+	public void renderBG(EasyGuiGraphics gui) {
 
 		if(this.menu.getBE() == null)
 			return;
@@ -247,7 +265,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab> implements 
 			{
 				//Render the down arrow
 				gui.resetColor();
-				gui.blit(TraderInterfaceScreen.GUI_TEXTURE, (this.tradeDisplay.getWidth() / 2) - 2, 67, TraderInterfaceScreen.WIDTH, 18, 16, 22);
+				gui.blit(TraderInterfaceScreen.GUI_TEXTURE, (this.tradeDisplay.getWidth() / 2) - 2, 67, TraderInterfaceScreen.WIDTH, 0, 16, 22);
 
 				//If no found trade, give "Trade No Longer Exists" message.
 				if(this.getTrueTrade() == null)
@@ -259,7 +277,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab> implements 
 			{
 				//Render warning widget
 				gui.resetColor();
-				gui.blit(TraderInterfaceScreen.GUI_TEXTURE, WARNING_AREA.x, WARNING_AREA.y, TraderInterfaceScreen.WIDTH, 40, 16, 16);
+                SpriteUtil.GENERIC_ALERT.render(gui,WARNING_AREA.x,WARNING_AREA.y);
 			}
 
 		}
@@ -280,7 +298,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab> implements 
 	}
 
 	@Override
-	public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
+	public void renderAfterWidgets(EasyGuiGraphics gui) {
 
 		if(this.menu.getBE() == null)
 			return;

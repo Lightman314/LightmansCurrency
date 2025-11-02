@@ -3,10 +3,13 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.WidgetStateSprite;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.NormalSprite;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.slot_machine.SlotMachineRenderer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
@@ -18,27 +21,31 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrolla
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.slot_machine.SlotMachineEntryDisplayWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.client.util.ButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.menus.slot_machine.SlotMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketCollectCoins;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenStorage;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implements IScrollable {
 
     public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/slot_machine.png");
@@ -47,13 +54,11 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
     public static final int HEIGHT = 222;
 
     public static final int ENTRY_ROWS = 2;
-    public static final int ENTRY_COLUMNS = 2;
-    public static final int ENTRIES_PER_PAGE = ENTRY_ROWS * ENTRY_COLUMNS;
 
-    public static final Sprite SPRITE_INFO = Sprite.SimpleSprite(GUI_TEXTURE, WIDTH, 36, 10, 11);
-    public static final Sprite SPRITE_INTERACT_1 = Sprite.SimpleSprite(GUI_TEXTURE, WIDTH, 0, 18, 18);
-    public static final Sprite SPRITE_INTERACT_5 = Sprite.SimpleSprite(GUI_TEXTURE, WIDTH + 18, 0, 18, 18);
-    public static final Sprite SPRITE_INTERACT_10 = Sprite.SimpleSprite(GUI_TEXTURE, WIDTH + 36, 0, 18, 18);
+    public static final FixedSizeSprite SPRITE_INFO = WidgetStateSprite.lazyHoverable(new NormalSprite(new SpriteSource(GUI_TEXTURE,WIDTH,36,10,11)),new NormalSprite(new SpriteSource(GUI_TEXTURE,WIDTH,47,10,11)));
+    public static final FixedSizeSprite SPRITE_INTERACT_1 = WidgetStateSprite.lazyHoverable(new NormalSprite(new SpriteSource(GUI_TEXTURE,WIDTH,0,18,18)),new NormalSprite(new SpriteSource(GUI_TEXTURE,WIDTH,18,18,18)));
+    public static final FixedSizeSprite SPRITE_INTERACT_5 = WidgetStateSprite.lazyHoverable(new NormalSprite(new SpriteSource(GUI_TEXTURE,WIDTH + 18,0,18,18)),new NormalSprite(new SpriteSource(GUI_TEXTURE,WIDTH + 18,18,18,18)));
+    public static final FixedSizeSprite SPRITE_INTERACT_10 = WidgetStateSprite.lazyHoverable(new NormalSprite(new SpriteSource(GUI_TEXTURE,WIDTH + 36,0,18,18)),new NormalSprite(new SpriteSource(GUI_TEXTURE,WIDTH + 36,18,18,18)));
 
     private boolean interactMode = true;
     private int scroll = 0;
@@ -73,7 +78,7 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
 
     private final ScreenPosition INFO_WIDGET_POSITION = ScreenPosition.of(160, HEIGHT - 96);
 
-    public final LazyWidgetPositioner rightEdgePositioner = LazyWidgetPositioner.create(this, LazyWidgetPositioner.createTopdown(), WIDTH,0, 20);
+    public final LazyWidgetPositioner rightEdgePositioner = LazyWidgetPositioner.create(this, LazyWidgetPositioner.createTopdown(), WIDTH, 0, 20);
 
     public SlotMachineScreen(SlotMachineMenu menu, Inventory inventory, Component title)
     {
@@ -94,14 +99,13 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
                 .addon(EasyAddonHelper.visibleCheck(() -> this.menu.getTrader() != null && this.menu.getTrader().hasPermission(this.menu.player, Permissions.OPEN_STORAGE)))
                 .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_OPEN_STORAGE))
                 .build());
-        this.buttonCollectCoins = this.addChild(IconAndButtonUtil.finishCollectCoinButton(IconButton.builder().pressAction(this::CollectCoins), this.menu.player, this.menu::getTrader));
+        this.buttonCollectCoins = this.addChild(ButtonUtil.finishCollectCoinButton(IconButton.builder().pressAction(this::CollectCoins), this.menu.player, this.menu::getTrader));
         this.buttonOpenTerminal = this.addChild(IconButton.builder()
                 .pressAction(this::OpenTerminal)
                 .icon(IconUtil.ICON_BACK)
                 .addon(EasyAddonHelper.visibleCheck(this::showTerminalButton))
                 .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_NETWORK_BACK))
                 .build());
-        this.buttonOpenTerminal.visible = this.showTerminalButton();
 
         this.rightEdgePositioner.clear();
         this.rightEdgePositioner.addWidgets(this.buttonOpenTerminal, this.buttonOpenStorage, this.buttonCollectCoins);
@@ -146,23 +150,20 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
                 .addon(EasyAddonHelper.activeCheck(this::isInfoMode))
                 .build());
 
-        for(int y = 0; y < ENTRY_ROWS; ++y)
+        for(int i = 0; i < ENTRY_ROWS; ++i)
         {
-            for(int x = 0; x < ENTRY_COLUMNS; x++)
-            {
-                int displayIndex = (y * ENTRY_COLUMNS) + x;
-                this.addChild(SlotMachineEntryDisplayWidget.builder()
-                        .position(screenArea.pos.offset(19 + (x * SlotMachineEntryDisplayWidget.WIDTH),10 + (y * SlotMachineEntryDisplayWidget.HEIGHT)))
-                        .trader(this.menu::getTrader)
-                        .index(() -> this.getTrueIndex(displayIndex))
-                        .addon(EasyAddonHelper.visibleCheck(this::isInfoMode))
-                        .build());
-            }
+            int displayIndex = i;
+            this.addChild(SlotMachineEntryDisplayWidget.builder()
+                    .position(screenArea.pos.offset(19,20 + (i * SlotMachineEntryDisplayWidget.HEIGHT)))
+                    .trader(this.menu::getTrader)
+                    .index(() -> this.getTrueIndex(displayIndex))
+                    .addon(EasyAddonHelper.visibleCheck(this::isInfoMode))
+                    .build());
         }
 
         this.addChild(ScrollBarWidget.builder()
-                .position(screenArea.pos.offset(8,10))
-                .height(2 * SlotMachineEntryDisplayWidget.HEIGHT)
+                .position(screenArea.pos.offset(8,20))
+                .height(ENTRY_ROWS * SlotMachineEntryDisplayWidget.HEIGHT)
                 .scrollable(this)
                 .addon(EasyAddonHelper.visibleCheck(this::isInfoMode))
                 .build());
@@ -195,7 +196,7 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
     }
 
     @Override
-    protected void renderBG(@Nonnull EasyGuiGraphics gui) {
+    protected void renderBG(EasyGuiGraphics gui) {
 
         gui.resetColor();
 
@@ -208,18 +209,24 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
         //Slot Machine
         if(this.isInteractMode())
             this.slotRenderer.render(gui);
+        else
+        {
+            SlotMachineTraderData trader = this.menu.getTrader();
+            if(trader != null)
+                TextRenderUtil.drawCenteredText(gui,LCText.GUI_TRADER_SLOT_MACHINE_FAIL_CHANCE.get(trader.getFailOddsText()),this.getXSize() / 2, 6,0x404040);
+        }
 
         //Labels
         gui.drawString(this.playerInventoryTitle, 8, this.getYSize() - 94, 0x404040);
 
         //Coin Value Text
         Component valueText = this.menu.getContext(null).getAvailableFunds().getRandomValueLine();
-        gui.drawString(valueText, 160 - gui.font.width(valueText), this.getYSize() - 94, 0x404040);
+        gui.drawString(valueText, 170 - gui.font.width(valueText) - 10, this.getYSize() - 94, 0x404040);
 
     }
 
     @Override
-    protected void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
+    protected void renderAfterWidgets(EasyGuiGraphics gui) {
         if(INFO_WIDGET_POSITION.offset(this).isMouseInArea(gui.mousePos, 10, 10))
             gui.renderComponentTooltip(this.menu.getContext().getAvailableFundsDescription());
     }
@@ -287,7 +294,6 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
             this.validateScroll();
     }
 
-    @Nonnull
     private List<SlotMachineEntry> getEntries()
     {
         SlotMachineTraderData trader = this.menu.getTrader();
@@ -296,7 +302,7 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
         return new ArrayList<>();
     }
 
-    private int getTrueIndex(int displayIndex) { return displayIndex + (this.scroll * ENTRY_COLUMNS); }
+    private int getTrueIndex(int displayIndex) { return displayIndex + this.scroll; }
 
     @Override
     public int currentScroll() { return this.scroll; }
@@ -305,6 +311,6 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
     public void setScroll(int newScroll) { this.scroll = newScroll; }
 
     @Override
-    public int getMaxScroll() { return IScrollable.calculateMaxScroll(ENTRIES_PER_PAGE, ENTRY_COLUMNS, this.getEntries().size()); }
+    public int getMaxScroll() { return IScrollable.calculateMaxScroll(ENTRY_ROWS, this.getEntries().size()); }
 
 }

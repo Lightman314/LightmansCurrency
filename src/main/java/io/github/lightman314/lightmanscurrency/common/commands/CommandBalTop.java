@@ -48,7 +48,7 @@ public class CommandBalTop {
 		
 		//Get and sort all the bank accounts
 		//Get bank accounts
-		List<IBankAccount> allAccounts = BankAPI.API.GetAllBankAccounts(false);
+		List<IBankAccount> allAccounts = BankAPI.getApi().GetAllBankAccounts(false);
 		//Remove any accidental null entries from the list
 		allAccounts.removeIf(ba -> {
 			if(ba == null)

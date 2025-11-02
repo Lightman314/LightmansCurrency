@@ -10,8 +10,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.player.PlayerLi
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.menus.teams.TeamManagementClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.teams.tabs.TeamMemberEditTab;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;

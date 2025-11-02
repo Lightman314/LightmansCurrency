@@ -5,7 +5,6 @@ import dev.architectury.fluid.FluidStack;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -116,7 +115,7 @@ public record FilterData(List<ResourceLocation> entries, List<ResourceLocation> 
     public Predicate<ItemStack> asItemPredicate()
     {
         return s -> {
-            ResourceLocation itemKey = BuiltInRegistries.ITEM.getKey(s.getItem());
+            ResourceLocation itemKey = ForgeRegistries.ITEMS.getKey(s.getItem());
             if(this.entries.contains(itemKey))
                 return true;
             return s.getTags().anyMatch(tagKey -> this.tags.contains(tagKey.location()));

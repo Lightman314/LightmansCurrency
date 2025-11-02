@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/outer_corner/biomesoplenty/redwood/base",
+  "target": "lightmanscurrency:card_display_biomesoplenty_redwood_black",
+  "textures": {
+    "wool": "minecraft:block/black_wool"
+  }
+}

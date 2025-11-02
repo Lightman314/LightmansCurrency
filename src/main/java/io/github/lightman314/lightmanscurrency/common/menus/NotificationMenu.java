@@ -21,10 +21,10 @@ public class NotificationMenu extends LazyMessageMenu {
     public NotificationMenu(int id, Inventory inventory) { super(ModMenus.NOTIFICATIONS.get(), id, inventory); }
 
     @Override
-    public void HandleMessage(@Nonnull LazyPacketData message) {
+    protected void HandleMessage(@Nonnull LazyPacketData message) {
         if(message.contains("MarkAsRead"))
         {
-            NotificationCategory category = NotificationAPI.API.LoadCategory(message.getNBT("MarkAsRead"));
+            NotificationCategory category = NotificationAPI.getApi().LoadCategory(message.getNBT("MarkAsRead"));
             if(category == null)
                 return;
             NotificationDataCache d = NotificationDataCache.TYPE.get(false);
@@ -43,7 +43,7 @@ public class NotificationMenu extends LazyMessageMenu {
         }
         if(message.contains("DeleteNotification"))
         {
-            NotificationCategory category = NotificationAPI.API.LoadCategory(message.getNBT("Category"));
+            NotificationCategory category = NotificationAPI.getApi().LoadCategory(message.getNBT("Category"));
             if(category == null)
                 return;
             NotificationDataCache d = NotificationDataCache.TYPE.get(false);

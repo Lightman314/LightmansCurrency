@@ -4,6 +4,10 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FlexibleSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.NineSliceSprite;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.client.data.ClientPlayerNameCache;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
@@ -14,17 +18,15 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrolla
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -40,9 +42,9 @@ import java.util.function.Supplier;
 @ParametersAreNonnullByDefault
 public class PlayerListWidget extends EasyWidgetWithChildren implements IScrollable, IEasyTickable {
 
-    public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/player_list.png");
-
     private static final int UPPER_SIZE = 40;
+
+    public static final FlexibleSizeSprite PLAYER_DISPLAY = new NineSliceSprite(SpriteSource.create(VersionUtil.lcResource("common/widgets/player_display"),128,20),3);
 
     private final boolean addPlayerFields;
     private final int rows;
@@ -61,7 +63,7 @@ public class PlayerListWidget extends EasyWidgetWithChildren implements IScrolla
     private int scroll = 0;
     private int requestDataTick = 10;
 
-    private PlayerListWidget(@Nonnull Builder builder) {
+    private PlayerListWidget(Builder builder) {
         super(builder);
         this.addPlayerFields = builder.addPlayerFields;
         this.rows = builder.rows;
@@ -76,7 +78,7 @@ public class PlayerListWidget extends EasyWidgetWithChildren implements IScrolla
     }
 
     @Override
-    public void addChildren(@Nonnull ScreenArea area) {
+    public void addChildren(ScreenArea area) {
         int startY = 0;
         if(this.addPlayerFields)
         {
@@ -157,7 +159,7 @@ public class PlayerListWidget extends EasyWidgetWithChildren implements IScrolla
     }
 
     @Override
-    protected void renderWidget(@Nonnull EasyGuiGraphics gui) {
+    protected void renderWidget(EasyGuiGraphics gui) {
         this.validateScroll();
 
         int startY = 0;
@@ -168,7 +170,7 @@ public class PlayerListWidget extends EasyWidgetWithChildren implements IScrolla
             PlayerReference pendingPlayer = this.playerInTextBox();
             if(pendingPlayer != null)
             {
-                gui.blitHorizSplit(GUI_TEXTURE,0,20,this.width - 20,20,0,20,180,5);
+                PLAYER_DISPLAY.render(gui,0,20,this.width - 20,20);
                 gui.renderItem(pendingPlayer.getSkull(true),2,22);
                 gui.drawShadowed(pendingPlayer.getName(true),24,26,0xFFFFFF);
             }
@@ -182,7 +184,7 @@ public class PlayerListWidget extends EasyWidgetWithChildren implements IScrolla
             boolean missingEntry = index < 0 || index >= entries.size();
             int drawWidth = missingEntry ? this.width : this.width - this.actions.size() * 20;
             //Fit background width to not overlap with the action buttons
-            gui.blitHorizSplit(GUI_TEXTURE,0,startY + (20 * r),drawWidth,20,0,0,180,5);
+            SpriteUtil.BUTTON_BROWN.render(gui,0,startY + (20 * r),drawWidth,20);
             if(missingEntry)
                 continue;
             PlayerEntry entry = entries.get(index);
@@ -232,7 +234,6 @@ public class PlayerListWidget extends EasyWidgetWithChildren implements IScrolla
         }
     }
 
-    @Nonnull
     private List<PlayerEntry> getEntries() { return this.playerList.get(); }
 
     @Nullable
@@ -258,7 +259,7 @@ public class PlayerListWidget extends EasyWidgetWithChildren implements IScrolla
         return player + this.scroll < entries.size();
     }
 
-    @Nonnull
+
     public static Builder builder() { return new Builder(); }
 
     @MethodsReturnNonnullByDefault

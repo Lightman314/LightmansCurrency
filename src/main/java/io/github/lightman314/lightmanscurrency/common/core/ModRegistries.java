@@ -32,6 +32,7 @@ import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.holdersets.HolderSetType;
 
 public class ModRegistries {
 
@@ -94,6 +95,10 @@ public class ModRegistries {
         CUSTOM_STAT.register(bus);
         ModStats.init();
 
+        //Holder Sets
+        HOLDER_SET.register(bus);
+        ModHolderSets.init();
+
 		//LC Custom Registries
 		EJECTION_DATA.register(bus);
 		ModEjectionDataTypes.init();
@@ -131,6 +136,9 @@ public class ModRegistries {
 	public static final DeferredRegister<LootItemFunctionType> LOOT_ITEM_FUNCTION_TYPES = DeferredRegister.create(Registries.LOOT_FUNCTION_TYPE,LightmansCurrency.MODID);
 
     public static final DeferredRegister<ResourceLocation> CUSTOM_STAT = DeferredRegister.create(Registries.CUSTOM_STAT,LightmansCurrency.MODID);
+
+    //Forge
+    public static final DeferredRegister<HolderSetType> HOLDER_SET = DeferredRegister.create(ForgeRegistries.Keys.HOLDER_SET_TYPES,LightmansCurrency.MODID);
 
 	//Custom Registries
 	public static final DeferredRegister<EjectionDataType> EJECTION_DATA = DeferredRegister.create(LCRegistries.EJECTION_DATA_KEY,LightmansCurrency.MODID);

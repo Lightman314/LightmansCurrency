@@ -34,7 +34,7 @@ public class TeamSelectionTab extends TeamManagementTab {
             this.menu.SendMessage(this.builder().setString("CreateTeam",teamName));
         else
         {
-            ITeam team = TeamAPI.API.CreateTeam(this.menu.player, teamName);
+            ITeam team = TeamAPI.getApi().CreateTeam(this.menu.player, teamName);
             if(team != null)
                 this.SelectTeam(team.getID());
         }

@@ -1,19 +1,24 @@
 package io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral;
 
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.AccessTrackingPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCComputerHelper;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.PeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.TraderPeripheral;
+import net.minecraft.MethodsReturnNonnullByDefault;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class MultiTraderPeripheral extends AccessTrackingPeripheral {
 
     public static final String BASE_TYPE = "lc_multi_trader";
@@ -23,7 +28,6 @@ public abstract class MultiTraderPeripheral extends AccessTrackingPeripheral {
     @Override
     public Set<String> getAdditionalTypes() { return Set.of(BASE_TYPE); }
 
-    @Nonnull
     protected abstract List<TraderData> getAccessibleTraders();
 
     protected abstract boolean stillAccessible(TraderData trader);
@@ -40,7 +44,14 @@ public abstract class MultiTraderPeripheral extends AccessTrackingPeripheral {
         return true;
     }
 
-    @LuaFunction(mainThread = true)
+    @Override
+    protected void registerMethods(PeripheralMethod.Registration registration) {
+        registration.register(PeripheralMethod.builder("getTraderIDs").simpleArray(this::getTraderIDs));
+        registration.register(PeripheralMethod.builder("getBasicTraderInfo").simple(this::getBasicTraderInfo));
+        registration.register(PeripheralMethod.builder("searchTraders").withArgs(this::searchTraders));
+        registration.register(PeripheralMethod.builder("getTrader").withArgsArray(this::getTrader));
+    }
+
     public Long[] getTraderIDs() {
         List<Long> list = new ArrayList<>();
         for(TraderData trader : this.getAccessibleTraders())
@@ -48,11 +59,9 @@ public abstract class MultiTraderPeripheral extends AccessTrackingPeripheral {
         return list.toArray(Long[]::new);
     }
 
-    @LuaFunction(mainThread = true)
     public LCLuaTable getBasicTraderInfo() { return collectTraderInfo(this.getAccessibleTraders()); }
 
-    @LuaFunction(mainThread = true)
-    public LCLuaTable searchTraders(String searchText) { return collectTraderInfo(TraderAPI.API.FilterTraders(this.getAccessibleTraders(),searchText)); }
+    public LCLuaTable searchTraders(IArguments args) throws LuaException { return collectTraderInfo(TraderAPI.getApi().FilterTraders(this.getAccessibleTraders(),args.getString(0))); }
 
     private static LCLuaTable collectTraderInfo(List<TraderData> traders)
     {
@@ -72,10 +81,9 @@ public abstract class MultiTraderPeripheral extends AccessTrackingPeripheral {
         return table;
     }
 
-    @LuaFunction(mainThread = true)
-    public Object[] getTrader(long traderID) throws LuaException
+    public Object[] getTrader(IArguments args) throws LuaException
     {
-        TraderData trader = TraderAPI.API.GetTrader(false,traderID);
+        TraderData trader = TraderAPI.getApi().GetTrader(false,args.getInt(0));
         if(trader == null || !this.stillAccessible(trader))
             return new Object[] { null, new LuaException("Trader could not be located") };
         IPeripheral result = LCComputerHelper.getPeripheral(trader);

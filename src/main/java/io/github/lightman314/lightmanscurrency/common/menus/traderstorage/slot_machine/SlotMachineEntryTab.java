@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.slot_machine;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.slot_machine.SlotMachineEntryClientTab;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
@@ -87,7 +88,7 @@ public class SlotMachineEntryTab extends TraderStorageTab {
             entry.TryAddItem(item);
             entry.validateItems();
             this.markEntriesDirty();
-            if(this.menu.isClient())
+            if(this.isClient())
             {
                 this.menu.SendMessage(this.builder()
                         .setInt("EditEntry", entryIndex)
@@ -116,7 +117,7 @@ public class SlotMachineEntryTab extends TraderStorageTab {
             entry.items.set(itemIndex, item);
             entry.validateItems();
             this.markEntriesDirty();
-            if(this.menu.isClient())
+            if(this.isClient())
             {
                 this.menu.SendMessage(this.builder()
                         .setInt("EditEntry", entryIndex)
@@ -141,7 +142,7 @@ public class SlotMachineEntryTab extends TraderStorageTab {
             entry.items.remove(itemIndex);
             entry.validateItems();
             this.markEntriesDirty();
-            if(this.menu.isClient())
+            if(this.isClient())
             {
                 this.menu.SendMessage(this.builder()
                         .setInt("EditEntry", entryIndex)
@@ -150,7 +151,7 @@ public class SlotMachineEntryTab extends TraderStorageTab {
         }
     }
 
-    public void ChangeEntryWeight(int entryIndex, int newWeight)
+    public void ChangeEntryOdds(int entryIndex, double newOdds)
     {
         if(!this.menu.hasPermission(Permissions.EDIT_TRADES))
         {
@@ -160,14 +161,58 @@ public class SlotMachineEntryTab extends TraderStorageTab {
         SlotMachineEntry entry = this.getEntry(entryIndex);
         if(entry != null)
         {
-            entry.setWeight(newWeight);
+            entry.setOdds(newOdds);
             this.markEntriesDirty();
-            LightmansCurrency.LogDebug("Changed entry[" + entryIndex + "]'s weight on the " + DebugUtil.getSideText(this.menu) + "!");
-            if(this.menu.isClient())
+            LightmansCurrency.LogDebug("Changed entry[" + entryIndex + "]'s odds on the " + DebugUtil.getSideText(this.menu) + "!");
+            if(this.isClient())
             {
                 this.menu.SendMessage(this.builder()
                         .setInt("EditEntry", entryIndex)
-                        .setInt("SetWeight", newWeight));
+                        .setDouble("SetOdds", newOdds));
+            }
+        }
+    }
+
+    public void ChangeEntryHasCustomIcons(int entryIndex, boolean hasCustomIcons)
+    {
+        if(!this.menu.hasPermission(Permissions.EDIT_TRADES))
+        {
+            Permissions.PermissionWarning(this.menu.getPlayer(),"edit slot machine trade", Permissions.EDIT_TRADES);
+            return;
+        }
+        SlotMachineEntry entry = this.getEntry(entryIndex);
+        if(entry != null)
+        {
+            entry.setHasCustomIcons(hasCustomIcons);
+            this.markEntriesDirty();
+            if(this.isClient())
+            {
+                this.menu.SendMessage(this.builder()
+                        .setInt("EditEntry",entryIndex)
+                        .setBoolean("SetHasCustomIcon",hasCustomIcons));
+            }
+        }
+    }
+
+    public void ChangeEntryCustomIcon(int entryIndex, int iconIndex, IconData icon)
+    {
+        if(!this.menu.hasPermission(Permissions.EDIT_TRADES))
+        {
+            Permissions.PermissionWarning(this.menu.getPlayer(),"edit slot machine trade", Permissions.EDIT_TRADES);
+            return;
+        }
+        SlotMachineEntry entry = this.getEntry(entryIndex);
+        if(entry != null)
+        {
+            entry.setCustomIcon(iconIndex,icon);
+            //LightmansCurrency.LogDebug("Set custom icon on the " + DebugUtil.getSideText(this) + "\nData: " + icon.save(this.registryAccess()).getAsString());
+            this.markEntriesDirty();
+            if(this.isClient())
+            {
+                this.menu.SendMessage(this.builder()
+                        .setInt("EditEntry",entryIndex)
+                        .setInt("IconIndex",iconIndex)
+                        .setCompound("ChangeIcon",icon.save()));
             }
         }
     }
@@ -182,22 +227,19 @@ public class SlotMachineEntryTab extends TraderStorageTab {
         {
             int entryIndex = message.getInt("EditEntry");
             if(message.contains("AddItem"))
-            {
                 this.AddEntryItem(entryIndex, message.getItem("AddItem"));
-            }
             else if(message.contains("EditItem") && message.contains("ItemIndex"))
-            {
                 this.EditEntryItem(entryIndex, message.getInt("ItemIndex"), message.getItem("EditItem"));
-            }
             else if(message.contains("RemoveItem"))
-            {
                 this.RemoveEntryItem(entryIndex, message.getInt("RemoveItem"));
-            }
-            else if(message.contains("SetWeight"))
-            {
-                this.ChangeEntryWeight(entryIndex, message.getInt("SetWeight"));
-            }
+            else if(message.contains("SetOdds"))
+                this.ChangeEntryOdds(entryIndex, message.getDouble("SetOdds"));
+            else if(message.contains("SetHasCustomIcon"))
+                this.ChangeEntryHasCustomIcons(entryIndex,message.getBoolean("SetHasCustomIcon"));
+            else if(message.contains("IconIndex") && message.contains("ChangeIcon"))
+                this.ChangeEntryCustomIcon(entryIndex,message.getInt("IconIndex"),IconData.load(message.getNBT("ChangeIcon")));
         }
     }
+
 
 }

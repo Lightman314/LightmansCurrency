@@ -80,7 +80,7 @@ public final class MoneyView {
     public List<Component> getAllText(ChatFormatting... style)
     {
         List<Component> text = new ArrayList<>();
-        for(CurrencyType type : MoneyAPI.API.AllCurrencyTypes())
+        for(CurrencyType type : MoneyAPI.getApi().AllCurrencyTypes())
             type.getGroupTooltip(this, line -> text.add(line.withStyle(style)));
         return text;
     }

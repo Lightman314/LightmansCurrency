@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
-import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -83,17 +82,20 @@ public interface ITeam extends IClientTracker {
     boolean canAccessBankAccount(Player player);
 
     /**
+     * Whether the given player is allowed to view the teams salaries
+     * Should also check {@link #hasBankAccount()} to confirm that one exists first.
+     */
+    int getSalaryLevel(PlayerReference player);
+
+    /**
      * An integer value indicating which players have access to the teams bank account<br>
      * Follows the same rules as the Owner's Notification Levels
      */
     @Range(from = 0, to = 2)
     int getBankLimit();
 
-    /**
-     * A {@link BankReference} that can be used to access this teams bank account.
-     */
-    @Nullable
-    BankReference getBankReference();
+    @Range(from = 0, to = 2)
+    int getBankSalaryEdit();
 
     /**
      * The bank account stored in this teams data.<br>
@@ -102,19 +104,11 @@ public interface ITeam extends IClientTracker {
     @Nullable
     IBankAccount getBankAccount();
 
-    default boolean isAutoSalaryEnabled() { return this.getLastSalaryTime() > 0; }
-    boolean getLoginRequiredForSalary();
-    long getLastSalaryTime();
-    boolean getSalaryNotification();
-    long getSalaryDelay();
-    boolean isSalaryCreative();
-    boolean isAdminSalarySeperate();
-    MoneyValue getMemberSalary();
-    MoneyValue getAdminSalary();
-    boolean failedLastSalaryAttempt();
-    List<MoneyValue> getTotalSalaryCost(boolean validateOnlinePlayers);
-    boolean canAffordNextSalary(boolean validateOnlinePlayers);
-    void forcePaySalaries(boolean validateOnlinePlayers);
+    /**
+     * A {@link BankReference} that can be used to access this teams bank account.
+     */
+    @Nullable
+    BankReference getBankReference();
 
     /**
      * Determines if the given player is the owner of this team.<br>

@@ -10,6 +10,7 @@ import com.mojang.authlib.GameProfile;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
+import io.github.lightman314.lightmanscurrency.api.config.client.screen.builtin.ConfigSelectionScreen;
 import io.github.lightman314.lightmanscurrency.api.events.client.RegisterVariantPropertiesEvent;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
@@ -20,6 +21,7 @@ import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.BookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.EnchantedBookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.NormalBookRenderer;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.RotationHandler;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.CapabilityEventUnlocks;
@@ -53,8 +55,10 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.javafmlmod.FMLModContainer;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -72,7 +76,8 @@ public class ClientProxy extends CommonProxy{
 
 	public void init() {
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerVariantProperties);
-		//MinecraftForge.EVENT_BUS.register(this);
+        FMLModContainer container = FMLJavaModLoadingContext.get().getContainer();
+        container.registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class,Suppliers.memoize(() -> ConfigSelectionScreen.createFactory(container,LCConfig.CLIENT,LCConfig.COMMON,LCConfig.SERVER)));
 	}
 
 	@Override
@@ -154,6 +159,9 @@ public class ClientProxy extends CommonProxy{
 		//Register Curios Render Layers
 		if(LCCurios.isLoaded())
 			LCCuriosClient.registerRenderLayers();
+
+        //Register Item Position Rotation Handlers
+        RotationHandler.setup();
 
 	}
 
@@ -242,6 +250,14 @@ public class ClientProxy extends CommonProxy{
 		LightmansCurrency.LogWarning("Could not get dummy level from client, as there is no active level!");
 		return null;
 	}
+
+    @Override
+    public boolean getHasPermissionsSetting() {
+        Player player = this.getLocalPlayer();
+        if(player == null)
+            return false;
+        return Minecraft.getInstance().options.operatorItemsTab().get() && player.canUseGameMasterBlocks();
+    }
 
 	@Override
 	public void loadPlayerTrade(ClientPlayerTrade trade) {

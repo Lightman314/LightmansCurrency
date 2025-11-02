@@ -20,7 +20,7 @@ public class TerminalPeripheral extends MultiTraderPeripheral {
 
     @Nonnull
     @Override
-    protected List<TraderData> getAccessibleTraders() { return TraderAPI.API.GetAllNetworkTraders(false); }
+    protected List<TraderData> getAccessibleTraders() { return TraderAPI.getApi().GetAllNetworkTraders(false); }
 
     @Override
     protected boolean stillAccessible(TraderData trader) { return trader.showOnTerminal(); }

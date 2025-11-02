@@ -1,25 +1,27 @@
 package io.github.lightman314.lightmanscurrency.api.notifications;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.ITab;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class NotificationCategory implements ITab
 {
 	
 	public static final NotificationCategoryType<?> GENERAL_TYPE = new NotificationCategoryType<>(VersionUtil.lcResource("general"), NotificationCategory::getGeneral);
 
-	@Nonnull
-	public final MutableComponent getTooltip() { return this.getName(); }
-	@Nonnull
-	public abstract MutableComponent getName();
-	@Nonnull
+	public final Component getTooltip() { return this.getName(); }
+	public abstract Component getName();
+	
 	protected abstract NotificationCategoryType<?> getType();
 	
 	public abstract boolean matches(NotificationCategory other);
@@ -27,19 +29,19 @@ public abstract class NotificationCategory implements ITab
 	private static NotificationCategory getGeneral(CompoundTag ignored) { return GENERAL; }
 
 	public static final NotificationCategory GENERAL = new NotificationCategory() {
-		@Nonnull
+		
 		@Override
-		public IconData getIcon() { return IconData.of(Items.CHEST); }
-		@Nonnull
+		public IconData getIcon() { return ItemIcon.ofItem(Items.CHEST); }
+		
 		@Override
-		public MutableComponent getName() { return LCText.NOTIFICATION_SOURCE_GENERAL.get(); }
+		public Component getName() { return LCText.NOTIFICATION_SOURCE_GENERAL.get(); }
 		@Override
 		public boolean matches(NotificationCategory other) { return other == GENERAL; }
-		@Nonnull
+		
 		@Override
 		protected NotificationCategoryType<?> getType() { return GENERAL_TYPE; }
 		@Override
-		protected void saveAdditional(@Nonnull CompoundTag compound) {}
+		protected void saveAdditional(CompoundTag compound) {}
 	};
 	
 	public final CompoundTag save() {

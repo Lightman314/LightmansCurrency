@@ -14,11 +14,11 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRen
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -30,7 +30,7 @@ public class SlotMachineTradeButtonRenderer extends TradeRenderManager<SlotMachi
     public int tradeButtonWidth(TradeContext context) { return 128; }
 
     @Override
-    public LazyOptional<ScreenPosition> arrowPosition(TradeContext context) { return ScreenPosition.ofOptional(36, 1); }
+    public Optional<ScreenPosition> arrowPosition(TradeContext context) { return ScreenPosition.ofOptional(36, 1); }
 
     @Override
     public DisplayData inputDisplayArea(TradeContext context) { return new DisplayData(1, 1, 34, 16); }
@@ -53,18 +53,15 @@ public class SlotMachineTradeButtonRenderer extends TradeRenderManager<SlotMachi
         if(entry == null)
             return new ArrayList<>();
         List<DisplayEntry> entries = new ArrayList<>();
-        String odds = this.trade.trader.getOdds(entry.getWeight());
+        String odds = entry.getOddsString();
         for(ItemStack item : entry.items)
-            entries.add(ItemEntry.of(item, this.tweakTooltip(entry.getWeight(), odds)));
+            entries.add(ItemEntry.of(item, this.tweakTooltip(odds)));
         return entries;
     }
 
-    private Consumer<List<Component>> tweakTooltip(int weight, String odds)
+    private Consumer<List<Component>> tweakTooltip(String odds)
     {
-        return tooltips -> {
-            tooltips.add(0, LCText.TOOLTIP_SLOT_MACHINE_WEIGHT.get(weight));
-            tooltips.add(0, LCText.TOOLTIP_SLOT_MACHINE_ODDS.get(odds));
-        };
+        return tooltips -> tooltips.add(0, LCText.TOOLTIP_SLOT_MACHINE_ODDS.get(odds));
     }
 
     @Override

@@ -21,10 +21,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.LazyOptional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @OnlyIn(Dist.CLIENT)
 public class AuctionTradeButtonRenderer extends TradeRenderManager<AuctionTradeData> {
@@ -35,7 +35,7 @@ public class AuctionTradeButtonRenderer extends TradeRenderManager<AuctionTradeD
     public int tradeButtonWidth(TradeContext context) { return 94; }
 
     @Override
-    public LazyOptional<ScreenPosition> arrowPosition(TradeContext context) { return ScreenPosition.ofOptional(36, 1); }
+    public Optional<ScreenPosition> arrowPosition(TradeContext context) { return ScreenPosition.ofOptional(36, 1); }
 
     @Override
     public DisplayData inputDisplayArea(TradeContext context) { return new DisplayData(1, 1, 34, 16); }

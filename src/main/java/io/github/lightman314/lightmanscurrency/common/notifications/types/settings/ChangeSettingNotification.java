@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -79,9 +78,8 @@ public abstract class ChangeSettingNotification extends SingleLineNotification {
         @Override
 		protected NotificationType<Advanced> getType() { return ADVANCED_TYPE; }
 
-		
 		@Override
-		public MutableComponent getMessage() { return LCText.NOTIFICATION_SETTINGS_CHANGE_ADVANCED.get(this.player.getName(this.isClient()), this.setting, this.oldValue, this.newValue); }
+		public Component getMessage() { return LCText.NOTIFICATION_SETTINGS_CHANGE_ADVANCED.get(this.player.getName(this.isClient()), this.setting, this.oldValue, this.newValue); }
 
 		@Override
 		protected void saveAdditional(CompoundTag compound) {
@@ -121,7 +119,7 @@ public abstract class ChangeSettingNotification extends SingleLineNotification {
 
 		
 		@Override
-		public MutableComponent getMessage() {
+		public Component getMessage() {
 			return LCText.NOTIFICATION_SETTINGS_CHANGE_SIMPLE.get(this.player.getName(this.isClient()), this.setting, this.newValue);
 		}
 		
@@ -154,7 +152,7 @@ public abstract class ChangeSettingNotification extends SingleLineNotification {
 		private Dumb(PlayerReference player, Component setting) { super(player,setting); }
 
 		@Override
-		protected MutableComponent getMessage() { return LCText.NOTIFICATION_SETTINGS_CHANGE_DUMB.get(this.player.getName(this.isClient()),this.setting); }
+		protected Component getMessage() { return LCText.NOTIFICATION_SETTINGS_CHANGE_DUMB.get(this.player.getName(this.isClient()),this.setting); }
 
 		@Override
 		protected NotificationType<?> getType() { return DUMB_TYPE; }

@@ -71,6 +71,8 @@ public class CommonProxy {
 		return null;
 	}
 
+    public boolean getHasPermissionsSetting() { return false; }
+
 	public void loadPlayerTrade(ClientPlayerTrade trade) { }
 
 	public void syncEventUnlocks(List<String> unlocks) {}

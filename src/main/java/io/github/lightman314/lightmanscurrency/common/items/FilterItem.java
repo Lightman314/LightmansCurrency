@@ -11,7 +11,6 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Inventory;
@@ -27,9 +26,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 
 @MethodsReturnNonnullByDefault
@@ -72,28 +69,6 @@ public class FilterItem extends Item implements IItemTradeFilter {
         if(filter.isEmpty())
             return null;
         return filter.asItemPredicate();
-    }
-
-    @Override
-    public List<ItemStack> getDisplayableItems(ItemStack stack,@Nullable IItemHandler availableItems) {
-        FilterData filter = FilterData.parse(stack);
-        Set<Item> items = new HashSet<>();
-        for(ResourceLocation entry : filter.entries())
-        {
-            Item i = ForgeRegistries.ITEMS.getValue(entry);
-            if(i != Items.AIR && shouldDisplayItem(i,availableItems))
-                items.add(i);
-        }
-        for(ResourceLocation tag : filter.tags())
-        {
-            TagKey<Item> tagKey = TagKey.create(ForgeRegistries.ITEMS.getRegistryKey(),tag);
-            for(Item i : ForgeRegistries.ITEMS.tags().getTag(tagKey))
-            {
-                if(i != Items.AIR && shouldDisplayItem(i,availableItems))
-                    items.add(i);
-            }
-        }
-        return items.stream().map(i -> new ItemStack(i,stack.getCount())).toList();
     }
 
     @Nullable

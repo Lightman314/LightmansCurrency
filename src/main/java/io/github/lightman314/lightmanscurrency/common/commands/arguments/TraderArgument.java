@@ -79,7 +79,7 @@ public class TraderArgument implements ArgumentType<TraderData>{
 	}
 	
 	public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> commandContext, SuggestionsBuilder suggestionsBuilder) {
-		List<TraderData> allTraders = TraderAPI.API.GetAllTraders(false);
+		List<TraderData> allTraders = TraderAPI.getApi().GetAllTraders(false);
 		for(TraderData t : allTraders)
 		{
 			if(!this.onlyRecoverableTraders || t.isRecoverable())

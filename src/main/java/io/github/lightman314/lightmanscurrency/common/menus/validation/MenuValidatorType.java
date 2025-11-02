@@ -1,14 +1,18 @@
 package io.github.lightman314.lightmanscurrency.common.menus.validation;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
 import java.util.Map;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class MenuValidatorType {
 
     private static final Map<ResourceLocation,MenuValidatorType> TYPES = new HashMap<>();
@@ -28,11 +32,9 @@ public abstract class MenuValidatorType {
     public final ResourceLocation type;
     protected MenuValidatorType(ResourceLocation type) { this.type = type; }
 
-    @Nonnull
-    public abstract MenuValidator decode(@Nonnull FriendlyByteBuf buffer);
+    public abstract MenuValidator decode(FriendlyByteBuf buffer);
 
-    @Nonnull
-    public abstract MenuValidator load(@Nonnull CompoundTag tag);
+    public abstract MenuValidator load(CompoundTag tag);
 
 
 }

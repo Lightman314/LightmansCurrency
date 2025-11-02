@@ -2,10 +2,12 @@ package io.github.lightman314.lightmanscurrency.datagen.client.generators;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.RotationHandler;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.datagen.client.builders.ItemPositionBuilder;
 import io.github.lightman314.lightmanscurrency.datagen.util.CustomPathProvider;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -15,13 +17,15 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class ItemPositionProvider implements DataProvider {
 
     public static final float MO = 0.0001f;
@@ -31,13 +35,14 @@ public abstract class ItemPositionProvider implements DataProvider {
     final CustomPathProvider blockPathProvider;
     final CustomPathProvider positionPathProvider;
 
-    protected ItemPositionProvider(@Nonnull PackOutput output, @Nonnull String modid) { this(output, modid, null); }
-    protected ItemPositionProvider(@Nonnull PackOutput output, @Nonnull String modid, @Nullable String subPack)
+    protected ItemPositionProvider(PackOutput output, String modid) { this(output, modid, null); }
+    protected ItemPositionProvider(PackOutput output, String modid, @Nullable String subPack)
     {
         this.blockPathProvider = new CustomPathProvider(output, PackOutput.Target.RESOURCE_PACK, "lightmanscurrency/item_position_blocks", subPack);
         this.positionPathProvider = new CustomPathProvider(output, PackOutput.Target.RESOURCE_PACK, "lightmanscurrency/item_position_data", subPack);
         this.output = output;
         this.name = subPack != null ? modid + " (" + subPack + ")" : modid;
+        RotationHandler.setup();
     }
 
     Map<ResourceLocation, BlockData> blockValues = new HashMap<>();
@@ -45,14 +50,14 @@ public abstract class ItemPositionProvider implements DataProvider {
 
     protected abstract void addEntries();
 
-    protected final void addDataWithBlocks(@Nonnull ResourceLocation id, @Nonnull ItemPositionBuilder data, @Nonnull Object... blocks) { this.addDataWithBlocks(id, id, data, blocks); }
-    protected final void addDataWithBlocks(@Nonnull ResourceLocation id, @Nonnull ResourceLocation target, @Nonnull ItemPositionBuilder data, @Nonnull Object... blocks)
+    protected final void addDataWithBlocks(ResourceLocation id, ItemPositionBuilder data, Object... blocks) { this.addDataWithBlocks(id, id, data, blocks); }
+    protected final void addDataWithBlocks(ResourceLocation id, ResourceLocation target, ItemPositionBuilder data, Object... blocks)
     {
         this.addData(id, data);
         this.addBlocks(id, target, blocks);
     }
 
-    protected final void addData(@Nonnull ResourceLocation id, @Nonnull ItemPositionBuilder data)
+    protected final void addData(ResourceLocation id, ItemPositionBuilder data)
     {
         if(!this.positionValues.containsKey(id))
             this.positionValues.put(id, data);
@@ -60,8 +65,8 @@ public abstract class ItemPositionProvider implements DataProvider {
             throw new IllegalArgumentException("Data for '" + id + "' is already defined!");
     }
 
-    protected final void addBlocks(@Nonnull ResourceLocation id, @Nonnull Object... blocks) { this.addBlocks(id, id, blocks); }
-    protected final void addBlocks(@Nonnull ResourceLocation id, @Nonnull ResourceLocation target, @Nonnull Object... blocks)
+    protected final void addBlocks(ResourceLocation id, Object... blocks) { this.addBlocks(id, id, blocks); }
+    protected final void addBlocks(ResourceLocation id, ResourceLocation target, Object... blocks)
     {
         for(Object obj : blocks)
         {
@@ -102,11 +107,11 @@ public abstract class ItemPositionProvider implements DataProvider {
                 this.addBlocks(id, target, blockID);
         }
     }
-    protected final void addBlock(@Nonnull ResourceLocation id, @Nonnull Block block) { this.addBlock(id, id, block); }
-    protected final void addBlock(@Nonnull ResourceLocation id, @Nonnull ResourceLocation target, @Nonnull Block block) { this.addBlock(id, id, ForgeRegistries.BLOCKS.getKey(block)); }
+    protected final void addBlock(ResourceLocation id, Block block) { this.addBlock(id, id, block); }
+    protected final void addBlock(ResourceLocation id, ResourceLocation target, Block block) { this.addBlock(id, id, ForgeRegistries.BLOCKS.getKey(block)); }
 
-    protected final void addBlock(@Nonnull ResourceLocation id, @Nonnull ResourceLocation blockID) { this.addBlock(id, id, blockID); }
-    protected final void addBlock(@Nonnull ResourceLocation id, @Nonnull ResourceLocation target, @Nonnull ResourceLocation blockID)
+    protected final void addBlock(ResourceLocation id, ResourceLocation blockID) { this.addBlock(id, id, blockID); }
+    protected final void addBlock(ResourceLocation id, ResourceLocation target, ResourceLocation blockID)
     {
         BlockData data = this.blockValues.getOrDefault(id,new BlockData(target));
         if(blockID != null && !data.blocks.contains(blockID.toString()))
@@ -114,10 +119,10 @@ public abstract class ItemPositionProvider implements DataProvider {
         this.blockValues.put(id, data);
     }
 
-    protected final void addBlockTag(@Nonnull ResourceLocation id, @Nullable TagKey<Block> blockTag) { this.addBlockTag(id, id, blockTag); }
-    protected final void addBlockTag(@Nonnull ResourceLocation id, @Nonnull ResourceLocation target, @Nullable TagKey<Block> blockTag) { this.addBlockTag(id, target, blockTag != null ? blockTag.location() : null); }
-    protected final void addBlockTag(@Nonnull ResourceLocation id, @Nullable ResourceLocation blockTag) { this.addBlockTag(id,id,blockTag); }
-    protected final void addBlockTag(@Nonnull ResourceLocation id, @Nonnull ResourceLocation target, @Nullable ResourceLocation blockTag)
+    protected final void addBlockTag(ResourceLocation id, @Nullable TagKey<Block> blockTag) { this.addBlockTag(id, id, blockTag); }
+    protected final void addBlockTag(ResourceLocation id, ResourceLocation target, @Nullable TagKey<Block> blockTag) { this.addBlockTag(id, target, blockTag != null ? blockTag.location() : null); }
+    protected final void addBlockTag(ResourceLocation id, @Nullable ResourceLocation blockTag) { this.addBlockTag(id,id,blockTag); }
+    protected final void addBlockTag(ResourceLocation id, ResourceLocation target, @Nullable ResourceLocation blockTag)
     {
         BlockData data = this.blockValues.getOrDefault(id,new BlockData(target));
         if(blockTag != null && !data.blocks.contains("#" + blockTag))
@@ -125,9 +130,9 @@ public abstract class ItemPositionProvider implements DataProvider {
         this.blockValues.put(id,data);
     }
 
-    @Nonnull
+    
     @Override
-    public CompletableFuture<Void> run(@Nonnull CachedOutput cache) {
+    public CompletableFuture<Void> run(CachedOutput cache) {
         this.blockValues.clear();
         this.positionValues.clear();
         this.addEntries();
@@ -161,10 +166,9 @@ public abstract class ItemPositionProvider implements DataProvider {
     private static class BlockData {
         public final ResourceLocation target;
         public final List<String> blocks = new ArrayList<>();
-        public BlockData(@Nonnull ResourceLocation target) { this.target = target; }
+        public BlockData(ResourceLocation target) { this.target = target; }
     }
 
-    @Nonnull
     @Override
     public String getName() { return "LightmansCurrency Item Positions: " + this.name; }
 

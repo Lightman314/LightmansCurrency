@@ -6,7 +6,6 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.ItemPositionData;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.ItemPositionManager;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.RotationHandler;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperty;
 import io.github.lightman314.lightmanscurrency.datagen.client.builders.ItemPositionBuilder;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
@@ -86,7 +85,7 @@ public abstract class ItemPositionDataEntry {
                         .withExtraOffset(entry.extraOffset())
                         .withScale(entry.scale())
                         .withMinLight(entry.minLight())
-                        .withRotationType(RotationHandler.getRotationType(entry.rotationHandler()));
+                        .withRotationType(entry.rotationHandler());
             }
             return builder.write();
         }

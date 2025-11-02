@@ -64,7 +64,7 @@ public abstract class MoneyValue {
      * The corresponding {@link CurrencyType} that should be used to handle this MoneyValue
      * May return null if this currency type hasn't been properly registered
      */
-    public CurrencyType getCurrency() { return MoneyAPI.API.GetRegisteredCurrencyType(this.getType()); }
+    public CurrencyType getCurrency() { return MoneyAPI.getApi().GetRegisteredCurrencyType(this.getType()); }
 
     @Nonnull
     protected String generateUniqueName() { return this.getType().toString(); }
@@ -329,7 +329,7 @@ public abstract class MoneyValue {
                 //LightmansCurrency.LogError("Error loading CoinValue type " + tag.getString("type"));
                 return null;
             }
-            CurrencyType currencyType = MoneyAPI.API.GetRegisteredCurrencyType(valueType);
+            CurrencyType currencyType = MoneyAPI.getApi().GetRegisteredCurrencyType(valueType);
             if(currencyType != null)
             {
                 //LightmansCurrency.LogDebug("Loaded Money Value from tag. Result: " + result.getString("Empty") + "\nTag: " + tag.getAsString());
@@ -374,7 +374,7 @@ public abstract class MoneyValue {
         if(json.has("type"))
         {
             ResourceLocation valueType = VersionUtil.parseResource(GsonHelper.getAsString(json, "type"));
-            CurrencyType currencyType = MoneyAPI.API.GetRegisteredCurrencyType(valueType);
+            CurrencyType currencyType = MoneyAPI.getApi().GetRegisteredCurrencyType(valueType);
             if(currencyType != null)
                 return currencyType.loadMoneyValueJson(json);
             else

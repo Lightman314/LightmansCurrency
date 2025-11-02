@@ -182,7 +182,7 @@ public class VariantSelectMenu extends LazyMessageMenu {
     }
 
     @Override
-    public void HandleMessage(LazyPacketData message) {
+    protected void HandleMessage(LazyPacketData message) {
         if(message.contains("SetVariant"))
             this.SetVariant(message.getResourceLocation("SetVariant"));
         if(message.contains("ClearVariant"))

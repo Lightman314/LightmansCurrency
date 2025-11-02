@@ -30,7 +30,7 @@ public class CoinSlot extends EasySlot {
 	}
 	
 	@Override
-	public boolean mayPlace(@Nonnull ItemStack stack) { return super.mayPlace(stack) && CoinAPI.API.IsAllowedInCoinContainer(stack, this.acceptSideChains); }
+	public boolean mayPlace(@Nonnull ItemStack stack) { return super.mayPlace(stack) && CoinAPI.getApi().IsAllowedInCoinContainer(stack, this.acceptSideChains); }
 	
 	@Override
 	public Pair<ResourceLocation,ResourceLocation> getNoItemIcon() {

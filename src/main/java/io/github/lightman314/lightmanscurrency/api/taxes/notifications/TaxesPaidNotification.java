@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.*;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.common.util.NonNullSupplier;
 
 import javax.annotation.Nonnull;
@@ -32,7 +32,7 @@ public class TaxesPaidNotification extends SingleLineNotification {
 
     @Nonnull
     @Override
-    public MutableComponent getMessage() {
+    public Component getMessage() {
         if(this.amount.isEmpty())
             return LCText.NOTIFICATION_TAXES_PAID_NULL.get();
         else
@@ -50,7 +50,7 @@ public class TaxesPaidNotification extends SingleLineNotification {
     protected void loadAdditional(@Nonnull CompoundTag compound)
     {
         this.amount = MoneyValue.load(compound.getCompound("Amount"));
-        this.category = NotificationAPI.API.LoadCategory(compound.getCompound("Category"));
+        this.category = NotificationAPI.getApi().LoadCategory(compound.getCompound("Category"));
     }
 
     @Override

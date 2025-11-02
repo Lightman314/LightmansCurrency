@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.util;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
@@ -16,8 +17,10 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class OutlineUtil {
 
     private static final long SLIDE_SPEED = 3000L;
@@ -40,10 +43,10 @@ public class OutlineUtil {
     }
 
 
-    public static void renderBox(@Nonnull PoseStack pose, @Nonnull MultiBufferSource buffer, @Nonnull AABB area, int color) { renderBox(pose, buffer, area, decodeColor(color));}
-    public static void renderBox(@Nonnull PoseStack pose, @Nonnull MultiBufferSource buffer, @Nonnull AABB area, int color, float alpha) { renderBox(pose, buffer, area, decodeColor(color, alpha));}
+    public static void renderBox(PoseStack pose, MultiBufferSource buffer, AABB area, int color) { renderBox(pose, buffer, area, decodeColor(color));}
+    public static void renderBox(PoseStack pose, MultiBufferSource buffer, AABB area, int color, float alpha) { renderBox(pose, buffer, area, decodeColor(color, alpha));}
 
-    public static void renderBox(@Nonnull PoseStack pose, @Nonnull MultiBufferSource buffer, @Nonnull AABB area, Vector4f color)
+    public static void renderBox(PoseStack pose, MultiBufferSource buffer, AABB area, Vector4f color)
     {
         Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
 
@@ -58,7 +61,7 @@ public class OutlineUtil {
 
     }
 
-    private static void renderBoxFaces(@Nonnull PoseStack poseStack, @Nonnull MultiBufferSource buffer, Vector3f minPos, Vector3f maxPos, Vector4f color)
+    private static void renderBoxFaces(PoseStack poseStack, MultiBufferSource buffer, Vector3f minPos, Vector3f maxPos, Vector4f color)
     {
         PoseStack.Pose pose = poseStack.last();
         VertexConsumer consumer =  buffer.getBuffer(LCRenderTypes.getTaxArea());
@@ -94,7 +97,7 @@ public class OutlineUtil {
 
     }
 
-    private static void renderBoxFace(@Nonnull PoseStack.Pose pose, @Nonnull VertexConsumer consumer , Vector3f minPos, Vector3f maxPos, Direction face, Vector4f color)
+    private static void renderBoxFace(PoseStack.Pose pose, VertexConsumer consumer , Vector3f minPos, Vector3f maxPos, Direction face, Vector4f color)
     {
         Vector3f pos0 = new Vector3f();
         Vector3f pos1 = new Vector3f();

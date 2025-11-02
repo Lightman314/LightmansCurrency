@@ -12,18 +12,20 @@ import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SlotMachineTradeNotification extends SingleLineTaxableNotification {
 
     public static final NotificationType<SlotMachineTradeNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("slot_machine_trade"),SlotMachineTradeNotification::new);
@@ -44,12 +46,15 @@ public class SlotMachineTradeNotification extends SingleLineTaxableNotification 
         this.traderData = traderData;
         this.cost = cost;
         this.items = new ArrayList<>();
-        if(entry.isMoney())
-            this.money = entry.getMoneyValue();
-        else
+        if(entry != null)
         {
-            for(ItemStack item : InventoryUtil.combineQueryItems(entry.items))
-                this.items.add(new ItemData(item));
+            if(entry.isMoney())
+                this.money = entry.getMoneyValue();
+            else
+            {
+                for(ItemStack item : InventoryUtil.combineQueryItems(entry.items))
+                    this.items.add(new ItemData(item));
+            }
         }
 
         this.customer = customer.getName(false);
@@ -57,23 +62,21 @@ public class SlotMachineTradeNotification extends SingleLineTaxableNotification 
 
     public static Supplier<Notification> create(SlotMachineEntry entry, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) { return () -> new SlotMachineTradeNotification(entry, cost, customer, traderData, taxesPaid); }
 
-
-    @Nonnull
     @Override
     protected NotificationType<SlotMachineTradeNotification> getType() { return TYPE; }
-
-    @Nonnull
     @Override
     public NotificationCategory getCategory() { return this.traderData; }
 
-    @Nonnull
+    
     @Override
-    public MutableComponent getNormalMessage() {
+    public Component getNormalMessage() {
         Component rewardText;
         if(!this.money.isEmpty())
             rewardText = this.money.getText();
-        else
+        else if(!this.items.isEmpty())
             rewardText = ItemData.getItemNames(this.items);
+        else
+            rewardText = LCText.NOTIFICATION_TRADE_SLOT_MACHINE_FAIL.get();
 
         return LCText.NOTIFICATION_TRADE_SLOT_MACHINE.get(this.customer, this.cost.getText(), rewardText);
     }
@@ -107,7 +110,7 @@ public class SlotMachineTradeNotification extends SingleLineTaxableNotification 
     }
 
     @Override
-    protected boolean canMerge(@Nonnull Notification other) {
+    protected boolean canMerge(Notification other) {
         if(other instanceof SlotMachineTradeNotification smtn)
         {
             if(!smtn.traderData.matches(this.traderData))

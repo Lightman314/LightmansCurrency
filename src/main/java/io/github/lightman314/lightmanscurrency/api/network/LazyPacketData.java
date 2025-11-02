@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
 import io.github.lightman314.lightmanscurrency.util.TriConsumer;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -15,12 +16,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public final class LazyPacketData {
 
     //Normal Types
@@ -43,7 +46,7 @@ public final class LazyPacketData {
 
     private LazyPacketData(Map<String,Data> data) { this.dataMap = ImmutableMap.copyOf(data); }
 
-    @Nonnull
+    
     private Data getData(String key) { return this.dataMap.getOrDefault(key, Data.NULL); }
 
     public boolean contains(String key) { return this.dataMap.containsKey(key); }
@@ -196,10 +199,10 @@ public final class LazyPacketData {
     public void encode(FriendlyByteBuf buffer)
     {
         //Write the entry count
-        buffer.writeInt(this.dataMap.entrySet().size());
+        buffer.writeInt(this.dataMap.size());
         //Write each entry
         this.dataMap.forEach((key,data) -> {
-            buffer.writeUtf(key, 32);
+            buffer.writeUtf(key, 100);
             buffer.writeByte(data.type);
             data.encode(buffer);
         });
@@ -210,7 +213,7 @@ public final class LazyPacketData {
         HashMap<String,Data> dataMap = new HashMap<>();
         for(int i = 0; i < count; ++i)
         {
-            String key = buffer.readUtf(32);
+            String key = buffer.readUtf(100);
             Data data = Data.decode(buffer);
             dataMap.put(key, data);
         }
@@ -250,22 +253,22 @@ public final class LazyPacketData {
         private Builder() {}
         Map<String,Data> data = new HashMap<>();
 
-        private void addData(@Nonnull String key, @Nonnull Data data) { this.data.put(key, data); }
-        public Builder setFlag(@Nonnull String key) { return this.setBoolean(key,true); }
-        public Builder setBoolean(@Nonnull String key, boolean value) { this.data.put(key, Data.ofBoolean(value)); return this; }
-        public Builder setInt(@Nonnull String key, int value) { this.data.put(key, Data.ofInt(value)); return this; }
-        public Builder setLong(@Nonnull String key, long value) { this.data.put(key, Data.ofLong(value)); return this; }
-        public Builder setFloat(@Nonnull String key, float value) { this.data.put(key, Data.ofFloat(value)); return this; }
-        public Builder setDouble(@Nonnull String key, double value) { this.data.put(key, Data.ofDouble(value)); return this; }
-        public Builder setString(@Nonnull String key, String value) { this.data.put(key, Data.ofString(value)); return this; }
+        private void addData(String key, Data data) { this.data.put(key, data); }
+        public Builder setFlag(String key) { return this.setBoolean(key,true); }
+        public Builder setBoolean(String key, boolean value) { this.data.put(key, Data.ofBoolean(value)); return this; }
+        public Builder setInt(String key, int value) { this.data.put(key, Data.ofInt(value)); return this; }
+        public Builder setLong(String key, long value) { this.data.put(key, Data.ofLong(value)); return this; }
+        public Builder setFloat(String key, float value) { this.data.put(key, Data.ofFloat(value)); return this; }
+        public Builder setDouble(String key, double value) { this.data.put(key, Data.ofDouble(value)); return this; }
+        public Builder setString(String key, String value) { this.data.put(key, Data.ofString(value)); return this; }
 
-        public Builder setUUID(@Nonnull String key, UUID uuid) { this.data.put(key,Data.ofUUID(uuid)); return this; }
+        public Builder setUUID(String key, UUID uuid) { this.data.put(key,Data.ofUUID(uuid)); return this; }
 
         public Builder setResourceLocation(String key, ResourceLocation value) { this.data.put(key, Data.ofString(value.toString())); return this; }
         public Builder setText(String key, Component value) { this.data.put(key, Data.ofText(value)); return this; }
         public Builder setCompound(String key, CompoundTag value) { this.data.put(key, Data.ofNBT(value)); return this; }
         public Builder setBlockPos(String key, BlockPos value) { this.data.put(key, Data.ofBlockPos(value)); return this; }
-        public Builder setItem(@Nonnull String key, ItemStack value) { this.data.put(key, Data.ofItem(value)); return this; }
+        public Builder setItem(String key, ItemStack value) { this.data.put(key, Data.ofItem(value)); return this; }
         public Builder setMoneyValue(String key, MoneyValue value) { this.data.put(key, Data.ofMoneyValue(value)); return this; }
         public Builder setOwner(String key, Owner value) { this.data.put(key, Data.ofOwner(value)); return this; }
 
@@ -275,7 +278,7 @@ public final class LazyPacketData {
          * @param list The list to write to the data builder
          * @param writer The normal Builder#setDATA_TYPE method used to write the values to the builder, e.g. LazyPacketData.Builder::setInt for an integer list
          */
-        public <T> Builder setList(@Nonnull String key, @Nonnull List<T> list, @Nonnull TriConsumer<Builder,String,T> writer)
+        public <T> Builder setList(String key, List<T> list, TriConsumer<Builder,String,T> writer)
         {
             //Set flag at original key to make it known that the list was written even if it's empty
             this.setFlag(key);
@@ -304,7 +307,6 @@ public final class LazyPacketData {
 
     public interface IBuilderProvider
     {
-        @Nonnull
         Builder builder();
     }
 

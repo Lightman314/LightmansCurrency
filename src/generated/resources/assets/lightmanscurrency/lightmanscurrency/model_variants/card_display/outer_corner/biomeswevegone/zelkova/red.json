@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/outer_corner/biomeswevegone/zelkova/base",
+  "target": "lightmanscurrency:card_display_biomeswevegone_zelkova",
+  "textures": {
+    "wool": "minecraft:block/red_wool"
+  }
+}

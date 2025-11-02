@@ -16,20 +16,21 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class NotificationDisplayWidget extends EasyWidgetWithChildren implements IScrollable, ITooltipWidget {
 
 	public static final ResourceLocation GUI_TEXTURE =  VersionUtil.lcResource("textures/gui/notifications.png");
@@ -57,7 +58,7 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 			this.canDelete = canDelete;
 	}
 
-	private NotificationDisplayWidget(@Nonnull Builder builder)
+	private NotificationDisplayWidget(Builder builder)
 	{
 		super(builder);
 		this.notificationSource = builder.source;
@@ -67,7 +68,7 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 	}
 
 	@Override
-	public void addChildren(@Nonnull ScreenArea area) {
+	public void addChildren(ScreenArea area) {
 		for(int i = 0; i < this.rowCount; ++i)
 		{
 			final int row = i;
@@ -91,7 +92,7 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 	}
 
 	@Override
-	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
+	public void renderWidget(EasyGuiGraphics gui) {
 		this.validateScroll();
 
 		this.tooltip = null;
@@ -142,7 +143,7 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 				textWidth -= quantityWidth + 2;
 			}
 
-			List<MutableComponent> message = showGeneral ? n.getGeneralMessage() : n.getMessageLines();
+			List<Component> message = showGeneral ? n.getGeneralMessage() : n.getMessageLines();
 			//Draw the lines
 			List<FormattedCharSequence> lines = new ArrayList<>();
 			for(Component line : message)
@@ -205,10 +206,8 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 			this.deletionHandler.accept(notificationRow);
 	}
 
-	@Nonnull
 	public static Builder builder() { return new Builder(); }
 
-	@MethodsReturnNonnullByDefault
 	@FieldsAreNonnullByDefault
 	public static class Builder extends EasyBuilder<Builder>
 	{
@@ -224,9 +223,9 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 		public Builder width(int width) { this.changeWidth(width); return this; }
 		public Builder rowCount(int rowCount) { this.rowCount = rowCount; this.changeHeight(CalculateHeight(this.rowCount)); return this; }
 
-		public Builder notificationSource(@Nonnull Supplier<List<Notification>> source) { this.source = source; return this; }
+		public Builder notificationSource(Supplier<List<Notification>> source) { this.source = source; return this; }
 
-		public Builder showGeneral(@Nonnull Supplier<Boolean> showGeneral) { this.showGeneral = showGeneral; return this; }
+		public Builder showGeneral(Supplier<Boolean> showGeneral) { this.showGeneral = showGeneral; return this; }
 
 		public Builder colorIfUnseen() { this.colorIfUnseen = true; return this; }
 

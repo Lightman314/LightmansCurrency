@@ -5,13 +5,15 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public final class SPacketSyncCoinData extends ServerToClientPacket {
 
     public static final Handler<SPacketSyncCoinData> HANDLER = new H();
@@ -20,10 +22,10 @@ public final class SPacketSyncCoinData extends ServerToClientPacket {
 
     private final JsonObject json;
     public JsonObject getJson() { return this.json; }
-    public SPacketSyncCoinData(@Nonnull JsonObject json) { this.json = json; }
+    public SPacketSyncCoinData(JsonObject json) { this.json = json; }
 
     @Override
-    public void encode(@Nonnull FriendlyByteBuf buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         String jsonString = GSON.toJson(this.json);
         buffer.writeInt(jsonString.length());
         buffer.writeUtf(jsonString, jsonString.length());
@@ -31,15 +33,14 @@ public final class SPacketSyncCoinData extends ServerToClientPacket {
 
     private static class H extends Handler<SPacketSyncCoinData>
     {
-        @Nonnull
         @Override
-        public SPacketSyncCoinData decode(@Nonnull FriendlyByteBuf buffer) {
+        public SPacketSyncCoinData decode(FriendlyByteBuf buffer) {
             int size = buffer.readInt();
             String string = buffer.readUtf(size);
             return new SPacketSyncCoinData(GsonHelper.parse(string).getAsJsonObject());
         }
         @Override
-        protected void handle(@Nonnull SPacketSyncCoinData message, @Nullable ServerPlayer sender) { CoinAPI.API.HandleSyncPacket(message); }
+        protected void handle(SPacketSyncCoinData message, Player player) { CoinAPI.getApi().HandleSyncPacket(message); }
     }
 
 

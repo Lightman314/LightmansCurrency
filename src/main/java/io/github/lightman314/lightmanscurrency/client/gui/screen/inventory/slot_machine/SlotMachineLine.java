@@ -2,13 +2,16 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.slot
 
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.sounds.SoundEvents;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public final class SlotMachineLine {
 
     public static int BLOCK_SIZE = 18;
@@ -26,7 +29,7 @@ public final class SlotMachineLine {
     SlotMachineRenderBlock centerBlock = SlotMachineRenderBlock.empty();
     SlotMachineRenderBlock nextBlock = SlotMachineRenderBlock.empty();
 
-    public void render(@Nonnull EasyGuiGraphics gui, int x, int y)
+    public void render(EasyGuiGraphics gui, int x, int y)
     {
         //Limit partial tick to be <= 1 so that the items don't clip beyond the overlay
         float partialTick = MathUtil.clamp(gui.partialTicks, 0f, 1f);
@@ -48,7 +51,7 @@ public final class SlotMachineLine {
     }
 
     public void initialize() { this.initialize(SlotMachineRenderBlock.empty()); }
-    public void initialize(@Nonnull SlotMachineRenderBlock previousReward)
+    public void initialize(SlotMachineRenderBlock previousReward)
     {
         this.previousBlock2 = this.parent.getRandomBlock();
         this.previousBlock1 = this.parent.getRandomBlock();
@@ -83,7 +86,7 @@ public final class SlotMachineLine {
     }
 
     private void rotateBlocks() { this.rotateBlocks(this.parent.getRandomBlock()); }
-    private void rotateBlocks(@Nonnull SlotMachineRenderBlock newBlock)
+    private void rotateBlocks(SlotMachineRenderBlock newBlock)
     {
         this.nextBlock = this.centerBlock;
         this.centerBlock = this.previousBlock1;
@@ -92,7 +95,7 @@ public final class SlotMachineLine {
     }
 
     //Call 20 ticks before
-    public void lockAtResult(@Nonnull SlotMachineRenderBlock block, int lockDelay)
+    public void lockAtResult(SlotMachineRenderBlock block, int lockDelay)
     {
         this.lockDelay = lockDelay;
         this.resultBlock = block;

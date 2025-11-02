@@ -58,6 +58,17 @@ public abstract class SettingsNode implements IClientTracker {
 
     public List<SettingsSubNode<?>> getSubNodes() { return new ArrayList<>(); }
 
+    @Nullable
+    public SettingsSubNode<?> getSubNode(String subNodeKey)
+    {
+        for(SettingsSubNode<?> node : this.getSubNodes())
+        {
+            if(node.getSubKey().equals(subNodeKey))
+                return node;
+        }
+        return null;
+    }
+
     public abstract void saveSettings(SavedSettingData.MutableNodeAccess data);
 
     public abstract void loadSettings(SavedSettingData.NodeAccess data, LoadContext context);

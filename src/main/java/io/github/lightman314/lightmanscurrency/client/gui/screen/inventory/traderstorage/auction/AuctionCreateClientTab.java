@@ -3,22 +3,21 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
@@ -28,7 +27,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.auction.AuctionCreateTab;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import io.github.lightman314.lightmanscurrency.network.message.persistentdata.CPacketCreatePersistentAuction;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -36,21 +35,23 @@ import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeData;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil.TimeUnit;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreateTab> {
 
     public static final long CLOSE_DELAY = TimeUtil.DURATION_SECOND * 5;
 
     public AuctionCreateClientTab(Object screen, AuctionCreateTab commonTab) { super(screen, commonTab); }
 
-    @Nonnull
     @Override
     public IconData getIcon() { return IconUtil.ICON_PLUS; }
 
@@ -118,7 +119,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
         this.buttonToggleOvertime = this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(15,26))
                 .pressAction(this::ToggleOvertime)
-                .sprite(IconAndButtonUtil.SPRITE_CHECK(() -> this.pendingAuction.isOvertimeAllowed()))
+                .sprite(SpriteUtil.createCheckbox(() -> this.pendingAuction.isOvertimeAllowed()))
                 .addon(EasyAddonHelper.activeCheck(this::isUnlocked))
                 .build());
         this.overtimeTextArea = ScreenArea.of(26, 27, this.getFont().width(LCText.GUI_TRADER_AUCTION_OVERTIME.get()),10);
@@ -165,13 +166,13 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
     public void closeAction() { this.commonTab.getAuctionItems().removeListener(c -> this.UpdateAuctionItems()); }
 
     @Override
-    public void renderBG(@Nonnull EasyGuiGraphics gui) {
+    public void renderBG(EasyGuiGraphics gui) {
 
         gui.resetColor();
         for(EasySlot slot : this.commonTab.getSlots())
         {
             //Render Slot BG's
-            gui.blit(TraderScreen.GUI_TEXTURE, slot.x - 1, slot.y - 1, TraderScreen.WIDTH, 0, 18, 18);
+            gui.renderSlot(this.screen,slot);
         }
 
         //Item Slot label
@@ -189,7 +190,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
     }
 
     @Override
-    public void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
+    public void renderAfterWidgets(EasyGuiGraphics gui) {
         if(this.overtimeTextArea.offsetPosition(this.screen.getCorner()).isMouseInArea(gui.mousePos))
             gui.renderComponentTooltip(TooltipHelper.splitTooltips(LCText.TOOLTIP_TRADER_AUCTION_OVERTIME.get()));
     }
@@ -208,7 +209,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
                 MoneyValue price = LCConfig.SERVER.auctionHouseSubmitPrice.get();
                 if(!price.isEmpty())
                 {
-                    IMoneyHandler handler = MoneyAPI.API.GetPlayersMoneyHandler(this.menu.getPlayer());
+                    IMoneyHandler handler = MoneyAPI.getApi().GetPlayersMoneyHandler(this.menu.getPlayer());
                     if(!handler.extractMoney(price,true).isEmpty())
                         return false;
                 }

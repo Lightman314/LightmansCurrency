@@ -32,6 +32,7 @@ import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -43,8 +44,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ItemTradeData extends TradeData {
 
 	private static final Map<ResourceLocation, Function<Boolean,ItemTradeData>> typeRegistry;
@@ -65,8 +68,7 @@ public class ItemTradeData extends TradeData {
 		typeRegistry.put(typeID,builder);
 	}
 
-	@Nonnull
-	public static TradeDirection getNextInCycle(@Nonnull TradeDirection direction)
+	public static TradeDirection getNextInCycle(TradeDirection direction)
 	{
 		int index = direction.index + 1;
 		if(index > TradeDirection.BARTER.index)
@@ -239,7 +241,7 @@ public class ItemTradeData extends TradeData {
 
 	public void setTradeType(TradeDirection tradeDirection) { this.tradeType = tradeDirection; this.validateRuleStates(); }
 
-	@Nonnull
+	
 	public ItemTradeRestriction getRestriction() { return this.restriction; }
 
     public final boolean allowFilters() { return this.getRestriction().allowFilters(); }
@@ -297,7 +299,8 @@ public class ItemTradeData extends TradeData {
 			return 0;
 	}
 
-	public int getStock(@Nonnull TradeContext context)
+    @Override
+	public int getStock(TradeContext context)
 	{
 		if(!this.sellItemsDefined())
 			return 0;
@@ -493,7 +496,7 @@ public class ItemTradeData extends TradeData {
 		return result;
 	}
 
-	private boolean compareNBT(@Nonnull ItemTradeData otherItemTrade, int startingSlot)
+	private boolean compareNBT(ItemTradeData otherItemTrade, int startingSlot)
 	{
 		for(int i = startingSlot; i < startingSlot + 2; ++i)
 		{
@@ -619,13 +622,13 @@ public class ItemTradeData extends TradeData {
 		return list;
 	}
 
-	@Nonnull
+	
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public TradeRenderManager<?> getButtonRenderer() { return new ItemTradeButtonRenderer(this); }
 
 	@Override
-	public void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
+	public void OnInputDisplayInteraction(BasicTradeEditTab tab, int index, TradeInteractionData data, ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof ItemTraderData it)
 		{
 			int tradeIndex = it.indexOfTrade(this);
@@ -743,7 +746,7 @@ public class ItemTradeData extends TradeData {
 	}
 
 	@Override
-	public void OnOutputDisplayInteraction(@Nonnull BasicTradeEditTab tab, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
+	public void OnOutputDisplayInteraction(BasicTradeEditTab tab, int index, TradeInteractionData data, ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof ItemTraderData it)
 		{
 			int tradeIndex = it.indexOfTrade(this);
@@ -789,7 +792,7 @@ public class ItemTradeData extends TradeData {
 
 	@Override
 	//Open the trade edit tab if you click on a non-interaction slot.
-	public void OnInteraction(@Nonnull BasicTradeEditTab tab, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) {
+	public void OnInteraction(BasicTradeEditTab tab, TradeInteractionData data, ItemStack heldItem) {
 		if(tab.menu.getTrader() instanceof ItemTraderData it)
 		{
 			int tradeIndex = it.indexOfTrade(this);

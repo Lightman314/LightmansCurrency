@@ -1,0 +1,9 @@
+{
+  "parent": "lightmanscurrency:card_display/outer_corner/base",
+  "dummy": true,
+  "textures": {
+    "log": "biomesoplenty:block/mahogany_log",
+    "logtop": "biomesoplenty:block/mahogany_log_top",
+    "plank": "biomesoplenty:block/mahogany_planks"
+  }
+}

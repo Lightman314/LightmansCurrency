@@ -4,7 +4,8 @@ import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.SlotType;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -59,11 +60,11 @@ public class ModelVariantButton extends EasyButton implements ITooltipWidget {
         ResourceLocation selected = this.selectedVariant.get();
         ResourceLocation viewed = this.viewingVariant.get();
         //Render the Slot
-        SlotType type = EasyGuiGraphics.SLOT_NORMAL;
+        FixedSizeSprite type = SpriteUtil.EMPTY_SLOT_NORMAL;
         if(Objects.equals(selected,entry.getFirst()))
-            type = EasyGuiGraphics.SLOT_GREEN;
+            type = SpriteUtil.EMPTY_SLOT_GREEN;
         else if(Objects.equals(viewed,entry.getFirst()))
-            type = EasyGuiGraphics.SLOT_YELLOW;
+            type = SpriteUtil.EMPTY_SLOT_YELLOW;
 
         gui.renderSlot(this.screen,slotOffset,type);
         //Render the Icon

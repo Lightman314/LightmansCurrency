@@ -106,7 +106,7 @@ public abstract class Owner implements IClientTracker {
     public static Owner load(@Nonnull CompoundTag tag)
     {
         ResourceLocation id = VersionUtil.parseResource(tag.getString("Type"));
-        OwnerType type = OwnershipAPI.API.getOwnerType(id);
+        OwnerType type = OwnershipAPI.getApi().getOwnerType(id);
         if(type != null)
             return type.load(tag);
         LightmansCurrency.LogError("No owner type " + id + " is registered!\nCould not load the owner!");

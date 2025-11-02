@@ -2,12 +2,14 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.GhostSlot;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
@@ -18,27 +20,26 @@ import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class NameTab extends SettingsSubTab implements IMouseListener {
 
-
-    public NameTab(@Nonnull TraderSettingsClientTab parent) {
+    public NameTab(TraderSettingsClientTab parent) {
         super(parent);
-        ScreenArea screenArea = this.screen.getArea();
-        this.iconArea = ScreenArea.of((screenArea.width / 2) - 8, 96,16,16);
     }
 
-    private final ScreenArea iconArea;
+    private ScreenArea iconArea;
     private boolean iconEditable() {
         TraderData trader = this.menu.getTrader();
         if(trader != null)
@@ -52,9 +53,9 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
 
     EasyButton buttonPickupTrader;
 
-    @Nonnull
+
     @Override
-    public IconData getIcon() { return IconData.of(Items.WRITABLE_BOOK); }
+    public IconData getIcon() { return IconUtil.ICON_SHOW_LOGGER; }
 
     @Override
     public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADER_SETTINGS_NAME.get(); }
@@ -68,6 +69,8 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
         TraderData trader = this.menu.getTrader();
         if(trader == null)
             return;
+
+        this.iconArea = ScreenArea.of((screenArea.width / 2) - 8, 96,16,16);
 
         this.nameInput = this.addChild(new EditBox(this.getFont(), screenArea.x + 20, screenArea.y + 25, 160, 20, EasyText.empty()));
         this.nameInput.setMaxLength(32);
@@ -95,12 +98,15 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
                 .addon(EasyAddonHelper.tooltips(this::getPickupTooltip, TooltipHelper.DEFAULT_TOOLTIP_WIDTH))
                 .build());
 
+        //Add Ghost Slot for the trader icons
+        this.addChild(GhostSlot.simpleItem(screenArea.pos.offset(this.iconArea.pos),this::ChangeIcon).asProvider(this::iconEditable));
+
         this.tick();
 
     }
 
     @Override
-    public void renderBG(@Nonnull EasyGuiGraphics gui) {
+    public void renderBG(EasyGuiGraphics gui) {
 
         TraderData trader = this.menu.getTrader();
         if(trader == null)
@@ -113,7 +119,7 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
             //Render Label
             TextRenderUtil.drawCenteredText(gui, LCText.GUI_TRADER_SETTINGS_CUSTOM_ICON.get(), screen.getXSize() / 2, this.iconArea.y - 12, 0x404040);
             //Render slot background
-            gui.blit(TraderScreen.GUI_TEXTURE,this.iconArea.pos.offset(-1,-1),TraderScreen.WIDTH,0,18,18);
+            SpriteUtil.EMPTY_SLOT_NORMAL.render(gui,this.iconArea.pos.offset(-1,-1));
             //Render custom icon
             IconData icon = trader.getCustomIcon();
             if(icon != null)
@@ -164,16 +170,23 @@ public class NameTab extends SettingsSubTab implements IMouseListener {
     public boolean onMouseClicked(double mouseX, double mouseY, int button) {
         if(this.iconEditable() && this.iconArea.offsetPosition(this.screen.getCorner()).isMouseInArea(mouseX,mouseY))
         {
-            ItemStack heldItem = this.menu.getHeldItem();
-            TraderData trader = this.menu.getTrader();
-            if(trader != null)
-                this.sendMessage(this.builder().setCompound("ChangeIcon",trader.getIconForItem(heldItem).save()));
+            this.ChangeIcon(this.menu.getHeldItem());
             return true;
         }
         return false;
     }
 
-    @Nonnull
+    private void ChangeIcon(ItemStack iconItem)
+    {
+        TraderData trader = this.menu.getTrader();
+        if(trader != null)
+        {
+            IconData icon = trader.getIconForItem(iconItem);
+            if(icon != null)
+                this.sendMessage(this.builder().setCompound("ChangeIcon",icon.save()));
+        }
+    }
+
     private List<Component> getPickupTooltip()
     {
         List<Component> result = new ArrayList<>();

@@ -1,0 +1,9 @@
+{
+  "parent": "lightmanscurrency:card_display/outer_corner/base",
+  "dummy": true,
+  "textures": {
+    "log": "biomeswevegone:block/redwood/log",
+    "logtop": "biomeswevegone:block/redwood/log_top",
+    "plank": "biomeswevegone:block/redwood/planks"
+  }
+}

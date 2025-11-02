@@ -3,6 +3,8 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 import com.mojang.blaze3d.platform.InputConstants;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -11,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
@@ -259,10 +260,10 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> implement
         this.validateWidgetStates();
     }
 
-    private IconData getToggleIcon() { return this.chatWarning ? IconData.of(Items.WRITABLE_BOOK) : IconData.of(Items.BOOK); }
+    private IconData getToggleIcon() { return this.chatWarning ? ItemIcon.ofItem(Items.WRITABLE_BOOK) : ItemIcon.ofItem(Items.BOOK); }
     private Component getToggleTooltip() { return this.chatMode ? LCText.TOOLTIP_PLAYER_TRADING_CHAT_CLOSE.get() : LCText.TOOLTIP_PLAYER_TRADING_CHAT_OPEN.get(); }
 
-    private IconData getToggleMoneyIcon() { return this.moneyMode ? IconData.of(Items.CHEST) : IconData.of(ModBlocks.COINPILE_GOLD); }
+    private IconData getToggleMoneyIcon() { return this.moneyMode ? ItemIcon.ofItem(Items.CHEST) : ItemIcon.ofItem(ModBlocks.COINPILE_GOLD); }
     private Component getToggleMoneyTooltip() { return this.moneyMode ? LCText.TOOLTIP_PLAYER_TRADING_MONEY_CLOSE.get() : LCText.TOOLTIP_PLAYER_TRADING_MONEY_OPEN.get(); }
 
     private void validateWidgetStates()

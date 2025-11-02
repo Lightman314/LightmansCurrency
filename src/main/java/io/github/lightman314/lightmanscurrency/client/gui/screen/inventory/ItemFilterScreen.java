@@ -2,7 +2,10 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.GhostSlot;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
@@ -13,22 +16,23 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.items.data.FilterData;
 import io.github.lightman314.lightmanscurrency.common.menus.ItemFilterMenu;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.registries.ForgeRegistries;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ItemFilterScreen extends EasyMenuScreen<ItemFilterMenu> implements IScrollable {
 
     public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/item_filter.png");
@@ -65,7 +69,7 @@ public class ItemFilterScreen extends EasyMenuScreen<ItemFilterMenu> implements 
         }
         Item newItem = this.fakeSlotItem.getItem();
         //Use a clean item stack so that the filter description uses the actual name, and not an anvil-generated name (etc.)
-        this.filterOptions.add(new ItemFilterOption(BuiltInRegistries.ITEM.getKey(newItem),new ItemStack(newItem)));
+        this.filterOptions.add(new ItemFilterOption(ForgeRegistries.ITEMS.getKey(newItem),new ItemStack(newItem)));
         this.fakeSlotItem.getTags().forEach(key -> this.filterOptions.add(new TagFilterOption(key.location())));
         this.validateScroll();
     }
@@ -99,10 +103,13 @@ public class ItemFilterScreen extends EasyMenuScreen<ItemFilterMenu> implements 
                     .build());
         }
 
+        //Create a ghost slot provider
+        this.addChild(new GhostSlot<>(this.fakeSlotArea,this::setFakeSlotItem,ItemStack.class).asProvider());
+
     }
 
     @Override
-    protected void renderBG(@Nonnull EasyGuiGraphics gui) {
+    protected void renderBG(EasyGuiGraphics gui) {
 
         gui.renderNormalBackground(GUI_TEXTURE,this);
 
@@ -131,7 +138,9 @@ public class ItemFilterScreen extends EasyMenuScreen<ItemFilterMenu> implements 
     }
 
     @Override
-    protected void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
+    protected void renderAfterWidgets(EasyGuiGraphics gui) {
+        if(!this.menu.getCarried().isEmpty())
+            return;
         if(this.filterItemArea.isMouseInArea(gui.mousePos))
             gui.renderTooltip(this.menu.getTargetedStack());
         else if(this.fakeSlotArea.isMouseInArea(gui.mousePos) && !this.fakeSlotItem.isEmpty())

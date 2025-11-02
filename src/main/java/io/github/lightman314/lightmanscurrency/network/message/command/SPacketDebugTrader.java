@@ -4,12 +4,14 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SPacketDebugTrader extends ServerToClientPacket {
 
 	public static final Handler<SPacketDebugTrader> HANDLER = new H();
@@ -18,16 +20,15 @@ public class SPacketDebugTrader extends ServerToClientPacket {
 	
 	public SPacketDebugTrader(long traderID) { this.traderID = traderID; }
 	
-	public void encode(@Nonnull FriendlyByteBuf buffer) { buffer.writeLong(this.traderID); }
+	public void encode(FriendlyByteBuf buffer) { buffer.writeLong(this.traderID); }
 
 	private static class H extends Handler<SPacketDebugTrader>
 	{
-		@Nonnull
 		@Override
-		public SPacketDebugTrader decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketDebugTrader(buffer.readLong());}
+		public SPacketDebugTrader decode(FriendlyByteBuf buffer) { return new SPacketDebugTrader(buffer.readLong());}
 		@Override
-		protected void handle(@Nonnull SPacketDebugTrader message, @Nullable ServerPlayer sender) {
-			TraderData trader = TraderAPI.API.GetTrader(true, message.traderID);
+		protected void handle(SPacketDebugTrader message, Player player) {
+			TraderData trader = TraderAPI.getApi().GetTrader(true, message.traderID);
 			if(trader == null)
 				LightmansCurrency.LogInfo("Client is missing trader with id " + message.traderID + "!");
 			else

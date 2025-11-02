@@ -120,7 +120,7 @@ public class FTBTeamOwner extends Owner {
             else if(notificationLevel < 2)
                 minRank = TeamRank.OFFICER;
             team.getPlayersByRank(minRank).forEach((player,rank) ->
-                NotificationAPI.API.PushPlayerNotification(player,notificationSource.get(),sendToChat)
+                NotificationAPI.getApi().PushPlayerNotification(player,notificationSource.get(),sendToChat)
             );
         }
     }

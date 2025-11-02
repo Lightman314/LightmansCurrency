@@ -10,13 +10,15 @@ import io.github.lightman314.lightmanscurrency.api.notifications.SingleLineNotif
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Supplier;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class OwnableBlockEjectedNotification extends SingleLineNotification {
 
     public static final NotificationType<OwnableBlockEjectedNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("block_ejected"),OwnableBlockEjectedNotification::new);
@@ -26,25 +28,22 @@ public class OwnableBlockEjectedNotification extends SingleLineNotification {
     private boolean anarchy = false;
 
     private OwnableBlockEjectedNotification() {}
-    public OwnableBlockEjectedNotification(@Nonnull Component name) {
+    public OwnableBlockEjectedNotification(Component name) {
         this.name = name.copy();
         this.ejected = LCConfig.SERVER.safelyEjectMachineContents.get();
         this.anarchy = LCConfig.SERVER.anarchyMode.get();
     }
 
-    @Nonnull
-    public static Supplier<Notification> create(@Nonnull Component name) { return () -> new OwnableBlockEjectedNotification(name); }
+    public static Supplier<Notification> create(Component name) { return () -> new OwnableBlockEjectedNotification(name); }
 
-    @Nonnull
     @Override
     protected NotificationType<?> getType() { return TYPE; }
 
-    @Nonnull
     @Override
     public NotificationCategory getCategory() { return NullCategory.INSTANCE; }
-    @Nonnull
+    
     @Override
-    public MutableComponent getMessage() { return this.getText().get(this.name); }
+    public Component getMessage() { return this.getText().get(this.name); }
 
     private TextEntry getText() {
         if(this.anarchy)
@@ -55,7 +54,7 @@ public class OwnableBlockEjectedNotification extends SingleLineNotification {
     }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag compound) {
+    protected void saveAdditional(CompoundTag compound) {
         compound.putString("Name", Component.Serializer.toJson(this.name));
         if(this.ejected)
             compound.putBoolean("Ejected", this.ejected);
@@ -64,7 +63,7 @@ public class OwnableBlockEjectedNotification extends SingleLineNotification {
     }
 
     @Override
-    protected void loadAdditional(@Nonnull CompoundTag compound) {
+    protected void loadAdditional(CompoundTag compound) {
         this.name = Component.Serializer.fromJson(compound.getString("Name"));
         if(compound.contains("Ejected"))
             this.ejected = compound.getBoolean("Ejected");
@@ -73,6 +72,6 @@ public class OwnableBlockEjectedNotification extends SingleLineNotification {
     }
 
     @Override
-    protected boolean canMerge(@Nonnull Notification other) { return false; }
+    protected boolean canMerge(Notification other) { return false; }
 
 }

@@ -28,7 +28,7 @@ public class ItemPositionData {
     @Nonnull
     public static ItemPositionData parse(@Nonnull JsonObject json) throws JsonSyntaxException, IllegalArgumentException
     {
-        String globalRotation = null;
+        RotationHandler globalRotation = null;
         float globalScale = GsonHelper.getAsFloat(json, "Scale", Float.NEGATIVE_INFINITY);
         int globalExtraCount = GsonHelper.getAsInt(json, "ExtraCount", 0);
         if(globalExtraCount < 0)
@@ -38,12 +38,7 @@ public class ItemPositionData {
                 GsonHelper.getAsFloat(json, "offsetY", 0f),
                 GsonHelper.getAsFloat(json, "offsetZ", 0f));
         if(json.has("RotationType"))
-        {
-            globalRotation = GsonHelper.getAsString(json, "RotationType");
-            if(RotationHandler.getRotationHandler(globalRotation) == null)
-                throw new IllegalArgumentException("'" + globalRotation + "' is not a valid RotationType!");
-        }
-
+            globalRotation = RotationHandler.parseRotationHandler(json.get("RotationType"),"RotationType");
         int globalMinLight = GsonHelper.getAsInt(json,"MinLight",0);
 
         JsonArray entryList = GsonHelper.getAsJsonArray(json, "Entries");
@@ -57,7 +52,7 @@ public class ItemPositionData {
                     GsonHelper.getAsFloat(positionData, "x"),
                     GsonHelper.getAsFloat(positionData, "y"),
                     GsonHelper.getAsFloat(positionData, "z")
-                    );
+            );
             int extraCount = GsonHelper.getAsInt(positionData, "ExtraCount", globalExtraCount);
             Vector3f extraOffset = new Vector3f();
             if(extraCount != 0)
@@ -68,7 +63,7 @@ public class ItemPositionData {
                         GsonHelper.getAsFloat(positionData, "offsetX", globalExtraOffset.x),
                         GsonHelper.getAsFloat(positionData, "offsetY", globalExtraOffset.y),
                         GsonHelper.getAsFloat(positionData, "offsetZ", globalExtraOffset.z)
-                    );
+                );
                 if(extraOffset.x == 0f && extraOffset.y == 0f && extraOffset.z == 0f)
                     throw new IllegalArgumentException("offsetX/Y/Z is not defined or has all values equal zero!");
             }
@@ -77,16 +72,16 @@ public class ItemPositionData {
                 scale = GsonHelper.getAsFloat(entryData,"Scale", globalScale);
             else
                 scale = GsonHelper.getAsFloat(entryData, "Scale", 1f);
-            String rotationType;
-            if(globalRotation != null)
-                rotationType = GsonHelper.getAsString(entryData, "RotationType", globalRotation);
+            RotationHandler rotationType;
+            if(entryData.has("RotationType"))
+                rotationType = RotationHandler.parseRotationHandler(entryData.get("RotationType"),"RotationType");
+            else if(globalRotation == null)
+                throw new JsonSyntaxException("Missing RotationType, expected to find a JsonObject");
             else
-                rotationType = GsonHelper.getAsString(entryData, "RotationType");
-            RotationHandler rotationHandler = RotationHandler.getRotationHandler(rotationType);
-            if(rotationHandler == null)
-                throw new IllegalArgumentException("'" + rotationType + "' is not a valid RotationType!");
+                rotationType = globalRotation;
             int minLight = GsonHelper.getAsInt(json,"MinLight",globalMinLight);
-            entries.add(new PositionEntry(startPosition, extraCount, extraOffset, scale, rotationHandler,minLight));
+
+            entries.add(new PositionEntry(startPosition, extraCount, extraOffset, scale,rotationType,minLight));
         }
         return new ItemPositionData(entries);
     }

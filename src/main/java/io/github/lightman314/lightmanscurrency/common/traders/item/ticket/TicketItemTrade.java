@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
 import io.github.lightman314.lightmanscurrency.api.ticket.TicketData;
+import io.github.lightman314.lightmanscurrency.common.crafting.TicketRecipe;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
@@ -156,10 +157,15 @@ public class TicketItemTrade extends ItemTradeData {
         public TicketStationRecipe.ExtraData getData() { return new TicketStationRecipe.ExtraData(this.code,this.durability); }
         String code = "";
         public String getCode() { return this.code; }
-        public void setCode(String couponCode) {
+        public boolean setCode(String couponCode) {
             if(couponCode.length() > 16)
                 couponCode = couponCode.substring(0,16);
-            this.code = couponCode;
+            if(TicketRecipe.CODE_INPUT_PREDICATE.test(couponCode))
+            {
+                this.code = couponCode;
+                return true;
+            }
+            return false;
         }
         private int durability = 0;
         public int getDurability() { return this.durability; }

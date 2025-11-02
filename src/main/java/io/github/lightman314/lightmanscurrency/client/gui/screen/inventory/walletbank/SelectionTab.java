@@ -2,10 +2,11 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.wall
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletBankScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountSelectionWidget;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
@@ -24,7 +25,7 @@ public class SelectionTab extends WalletBankTab {
 
 	@Nonnull
 	@Override
-	public IconData getIcon() { return IconData.of(Items.PAPER); }
+	public IconData getIcon() { return ItemIcon.ofItem(Items.PAPER); }
 
 	@Override
 	public MutableComponent getTooltip() { return LCText.TOOLTIP_ATM_SELECTION.get(); }

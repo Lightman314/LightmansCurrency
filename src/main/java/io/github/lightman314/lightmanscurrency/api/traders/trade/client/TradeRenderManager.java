@@ -5,6 +5,8 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.GhostSlot;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
@@ -15,17 +17,22 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.LazyOptional;
 
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 @OnlyIn(Dist.CLIENT)
 public abstract class TradeRenderManager<T extends TradeData> {
 
@@ -41,9 +48,9 @@ public abstract class TradeRenderManager<T extends TradeData> {
      * Where on the button the arrow should be drawn.
      * Return an empty optional if the arrow should not be drawn.
      */
-    public abstract LazyOptional<ScreenPosition> arrowPosition(TradeContext context);
+    public abstract Optional<ScreenPosition> arrowPosition(TradeContext context);
 
-    public ScreenPosition alertPosition(TradeContext context) { return this.arrowPosition(context).orElseGet(() -> ScreenPosition.ZERO); }
+    public ScreenPosition alertPosition(TradeContext context) { return this.arrowPosition(context).orElse(ScreenPosition.ZERO); }
 
     /**
      * The position and size of the input displays
@@ -152,5 +159,11 @@ public abstract class TradeRenderManager<T extends TradeData> {
     {
         return LCText.TOOLTIP_TRADE_INFO_STOCK.get(isCreative ? LCText.TOOLTIP_TRADE_INFO_STOCK_INFINITE.getWithStyle(ChatFormatting.GOLD) : EasyText.literal(String.valueOf(stockCount)).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GOLD);
     }
+
+    @Nullable
+    public final List<GhostSlot<?>> getGhostSlots(TradeContext context, @Nullable ITraderStorageMenu menu, ScreenPosition buttonPos) { if(context.isStorageMode) return this.collectGhostSlots(context,menu,buttonPos); return null; }
+
+    @Nullable
+    protected List<GhostSlot<?>> collectGhostSlots(TradeContext context, @Nullable ITraderStorageMenu menu, ScreenPosition buttonPos) { return null; }
 
 }

@@ -1,25 +1,27 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.categories;
 
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategoryType;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class TaxEntryCategory extends NotificationCategory {
 
     public static final NotificationCategoryType<TaxEntryCategory> TYPE = new NotificationCategoryType<>(VersionUtil.lcResource("tax_entry"),TaxEntryCategory::new);
 
     private final long entryID;
-    private final MutableComponent entryName;
-    public MutableComponent getEntryName() { return this.entryName; }
+    private final Component entryName;
 
-    public TaxEntryCategory(MutableComponent entryName, long entryID) { this.entryID = entryID; this.entryName = entryName; }
+    public TaxEntryCategory(Component entryName, long entryID) { this.entryID = entryID; this.entryName = entryName; }
 
     public TaxEntryCategory(CompoundTag tag)
     {
@@ -33,15 +35,12 @@ public class TaxEntryCategory extends NotificationCategory {
             this.entryID = -1;
     }
 
-    @Nonnull
     @Override
-    public IconData getIcon() { return IconData.of(ModBlocks.TAX_COLLECTOR); }
+    public IconData getIcon() { return ItemIcon.ofItem(ModBlocks.TAX_COLLECTOR); }
 
-    @Nonnull
     @Override
-    public MutableComponent getName() { return this.getEntryName(); }
+    public Component getName() { return this.entryName; }
 
-    @Nonnull
     @Override
     protected NotificationCategoryType<TaxEntryCategory> getType() { return TYPE; }
 

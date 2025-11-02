@@ -1,37 +1,40 @@
 package io.github.lightman314.lightmanscurrency.network.packet;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.NetworkEvent;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Supplier;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class CustomPacket {
 
-    public abstract void encode(@Nonnull FriendlyByteBuf buffer);
+    public abstract void encode(FriendlyByteBuf buffer);
 
     public static abstract class Handler<T extends CustomPacket>
     {
-        @Nonnull
-        public abstract T decode(@Nonnull FriendlyByteBuf buffer);
-        public final void handlePacket(@Nonnull T message, @Nonnull Supplier<NetworkEvent.Context> supplier)
+        public abstract T decode(FriendlyByteBuf buffer);
+        public final void handlePacket(T message, Supplier<NetworkEvent.Context> supplier)
         {
             NetworkEvent.Context context = supplier.get();
-            context.enqueueWork(() -> this.handle(message, context.getSender()));
+            boolean useClientPlayer = context.getDirection().getReceptionSide().isClient();
+            context.enqueueWork(() -> this.handle(message, useClientPlayer ? LightmansCurrency.getProxy().getLocalPlayer() : context.getSender()));
             context.setPacketHandled(true);
         }
-        protected abstract void handle(@Nonnull T message, @Nullable ServerPlayer sender);
+        protected abstract void handle(T message, Player player);
     }
 
     public static abstract class SimpleHandler<T extends CustomPacket> extends Handler<T>
     {
         protected final T instance;
-        protected SimpleHandler(@Nonnull T instance) { this.instance = instance; }
-        @Nonnull
+        protected SimpleHandler(T instance) { this.instance = instance; }
+        
         @Override
-        public final  T decode(@Nonnull FriendlyByteBuf buffer) { return this.instance; }
+        public final  T decode(FriendlyByteBuf buffer) { return this.instance; }
     }
 
 }

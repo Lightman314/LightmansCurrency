@@ -1,102 +1,101 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 @OnlyIn(Dist.CLIENT)
 public class NetworkTraderButton extends EasyButton implements ITooltipWidget {
 
-	public static final ResourceLocation BUTTON_TEXTURES = VersionUtil.lcResource("textures/gui/universaltraderbuttons.png");
+    public static final int WIDTH = 146;
+    public static final int HEIGHT = 30;
 
-	public static final int WIDTH = 146;
-	public static final int HEIGHT = 30;
+    TraderData data;
+    public TraderData getData() { return this.data; }
 
-	TraderData data;
-	public TraderData getData() { return this.data; }
+    public boolean selected = false;
 
-	public boolean selected = false;
+    private final FixedSizeSprite normalSprite;
+    private final FixedSizeSprite selectedSprite;
 
-	private NetworkTraderButton(@Nonnull Builder builder) { super(builder); }
+    private NetworkTraderButton(Builder builder) {
+        super(builder);
+        this.normalSprite = SpriteUtil.createButtonBrown(this.width,this.height);
+        this.selectedSprite = SpriteUtil.createButtonGreen(this.width,this.height);
+    }
 
-	/**
-	 * Updates the trader data for this buttons trade.
-	 */
-	public void SetData(TraderData data) { this.data = data; }
+    /**
+     * Updates the trader data for this buttons trade.
+     */
+    public void SetData(TraderData data) { this.data = data; }
 
-	@Override
-	protected void renderTick() {
-		//Set as not visible if no data is present
-		if((this.data == null) == this.visible)
-			this.setVisible(this.data != null);
-	}
+    @Override
+    protected void renderTick() {
+        //Set as not visible if no data is present
+        if((this.data == null) == this.visible)
+            this.setVisible(this.data != null);
+    }
 
-	@Override
-	public void renderWidget(@Nonnull EasyGuiGraphics gui)
-	{
-		//Set active status
-		this.active = this.data != null && !this.selected;
-		//Render nothing if there is no data
-		if(this.data == null)
-			return;
+    @Override
+    public void renderWidget(EasyGuiGraphics gui)
+    {
+        //Render nothing if there is no data
+        if(this.data == null)
+            return;
 
-		if(this.active)
-			gui.resetColor();
-		else
-			gui.setColor(0.5f,0.5f,0.5f);
+        if(this.active)
+            gui.resetColor();
+        else
+            gui.setColor(0.5f,0.5f,0.5f);
 
-		int offset = 0;
-		if(this.isHovered)
-			offset = HEIGHT;
-		if(this.selected)
-			offset += HEIGHT * 2;
-		//Draw Button BG
-		gui.blit(BUTTON_TEXTURES, 0,0, 0, offset, WIDTH, HEIGHT);
+        FixedSizeSprite sprite = this.selected ? this.selectedSprite : this.normalSprite;
+        //Draw Button BG
+        sprite.render(gui,0,0,this);
 
-		//Draw the icon
-		this.data.getDisplayIcon().render(gui, 4, 7);
+        //Draw the icon
+        this.data.getDisplayIcon().render(gui, 4, 7);
 
-		//Draw the name & owner of the trader
-		int color = this.data.getTerminalTextColor();
-		gui.drawString(TextRenderUtil.fitString(this.data.getName(), this.width - 26), 24, 6, color);
-		gui.drawString(TextRenderUtil.fitString(this.data.getOwner().getName(), this.width - 26), 24, 16, 0x404040);
+        //Draw the name & owner of the trader
+        int color = this.data.getTerminalTextColor();
+        gui.drawString(TextRenderUtil.fitString(this.data.getName(), this.width - 26), 24, 6, color);
+        gui.drawString(TextRenderUtil.fitString(this.data.getOwner().getName(), this.width - 26), 24, 16, 0x404040);
 
-		gui.resetColor();
+        gui.resetColor();
 
-	}
+    }
 
-	@Override
-	public List<Component> getTooltipText() {
-		TraderData trader = this.getData();
-		if(trader == null)
-			return new ArrayList<>();
-		return trader.getTerminalInfo(Minecraft.getInstance().player);
-	}
+    @Override
+    public List<Component> getTooltipText() {
+        TraderData trader = this.getData();
+        if(trader == null)
+            return new ArrayList<>();
+        return trader.getTerminalInfo(Minecraft.getInstance().player);
+    }
 
-	@Nonnull
-	public static Builder builder() { return new Builder(); }
+    public static Builder builder() { return new Builder(); }
 
-	@MethodsReturnNonnullByDefault
-	@FieldsAreNonnullByDefault
-	public static class Builder extends EasyButtonBuilder<Builder>
-	{
-		private Builder() { super(WIDTH,HEIGHT); }
-		@Override
-		protected Builder getSelf() { return this; }
-		public NetworkTraderButton build() { return new NetworkTraderButton(this); }
-	}
+    @FieldsAreNonnullByDefault
+    public static class Builder extends EasyButtonBuilder<Builder>
+    {
+        private Builder() { super(WIDTH,HEIGHT); }
+        @Override
+        protected Builder getSelf() { return this; }
+        public NetworkTraderButton build() { return new NetworkTraderButton(this); }
+    }
 }

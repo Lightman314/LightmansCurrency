@@ -10,13 +10,13 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTra
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -44,7 +44,7 @@ public class CustomModelDataManager extends SimpleJsonResourceReloadListener {
     @Nullable
     public static ModelResourceLocation getCustomModel(ItemTraderBlockEntity blockEntity, ItemStack item)
     {
-        ResourceLocation itemID = BuiltInRegistries.ITEM.getKey(item.getItem());
+        ResourceLocation itemID = ForgeRegistries.ITEMS.getKey(item.getItem());
         if(INSTANCE.data.containsKey(itemID))
             return INSTANCE.data.get(itemID).getCustomModel(blockEntity,item);
         return null;

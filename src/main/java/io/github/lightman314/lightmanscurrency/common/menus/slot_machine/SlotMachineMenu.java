@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -22,17 +23,19 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, IMoneyCollectionMenu {
 
     private final long traderID;
 
     @Nullable
-    public final SlotMachineTraderData getTrader() { if(TraderAPI.API.GetTrader(this.isClient(), this.traderID) instanceof SlotMachineTraderData trader) return trader; return null; }
+    public final SlotMachineTraderData getTrader() { if(TraderAPI.getApi().GetTrader(this.isClient(), this.traderID) instanceof SlotMachineTraderData trader) return trader; return null; }
 
     private final Container coins;
 
@@ -51,11 +54,10 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
 
     private final MenuValidator validator;
 
-    @Nonnull
     @Override
     public MenuValidator getValidator() { return this.validator; }
 
-    public SlotMachineMenu(int windowID, Inventory inventory, long traderID, @Nonnull MenuValidator validator) {
+    public SlotMachineMenu(int windowID, Inventory inventory, long traderID, MenuValidator validator) {
         super(ModMenus.SLOT_MACHINE.get(), windowID, inventory);
         this.validator = validator;
         this.traderID = traderID;
@@ -91,8 +93,8 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
     }
 
     @Override
-    @Nonnull
-    public ItemStack quickMoveStack(@Nonnull Player playerEntity, int index)
+    
+    public ItemStack quickMoveStack(Player playerEntity, int index)
     {
 
         ItemStack clickedStack = ItemStack.EMPTY;
@@ -135,7 +137,7 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
     }
 
     @Override
-    public void removed(@Nonnull Player player) {
+    public void removed(Player player) {
         super.removed(player);
         //Force-give rewards if closed before reward is handled
         for(ResultHolder reward : this.rewards)
@@ -157,7 +159,7 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
     {
         TradeContext.Builder builder = TradeContext.create(this.getTrader(), this.player).withCoinSlots(this.coins);
         if(rewardHolder != null)
-            builder.withItemHandler(rewardHolder.itemHandler()).withMoneyHolder(rewardHolder.moneyHolder());
+            builder.withItemHandler(rewardHolder.itemHandler()).withMoneyHolder(rewardHolder.moneyHolder()).withCustomData(ResultHolder.CONTEXT_KEY,rewardHolder);
         return builder.build();
     }
 
@@ -182,12 +184,7 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
             {
                 ResultHolder result = new ResultHolder();
                 if(trader.TryExecuteTrade(this.getContext(result), 0).isSuccess())
-                {
-                    if(result.isEmpty())
-                        LightmansCurrency.LogError("Successful Slot Machine Trade executed, but no items or money were received!");
-                    else
-                        this.rewards.add(result);
-                }
+                    this.rewards.add(result); //Always add the reward now, as "failing" is now a valid result
                 else
                     flag = false;
             }
@@ -216,7 +213,7 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
     }
 
     @Override
-    public void HandleMessage(@Nonnull LazyPacketData message) {
+    protected void HandleMessage(LazyPacketData message) {
         if(message.contains("ExecuteTrade"))
         {
             if(!this.rewards.isEmpty())

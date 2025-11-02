@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/outer_corner/biomeswevegone/florus/base",
+  "target": "lightmanscurrency:card_display_biomeswevegone_florus_light_gray",
+  "textures": {
+    "wool": "minecraft:block/light_gray_wool"
+  }
+}

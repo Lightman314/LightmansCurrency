@@ -1,10 +1,15 @@
 package io.github.lightman314.lightmanscurrency.util;
 
 import com.google.gson.JsonSyntaxException;
+import net.minecraft.MethodsReturnNonnullByDefault;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public record WildcardTargetSelector(String testString, TestType test)
 {
-    enum TestType { START(true,false), CONTAINS(true,true), END(false,true), EQUALS(false,false);
+    public enum TestType { START(true,false), CONTAINS(true,true), END(false,true), EQUALS(false,false);
         final boolean start;
         final boolean end;
         TestType(boolean start,boolean end) { this.start = start; this.end = end; }

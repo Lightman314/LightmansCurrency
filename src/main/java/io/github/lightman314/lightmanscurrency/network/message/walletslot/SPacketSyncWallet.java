@@ -3,16 +3,17 @@ package io.github.lightman314.lightmanscurrency.network.message.walletslot;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
-import net.minecraft.client.Minecraft;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SPacketSyncWallet extends ServerToClientPacket {
 
 	public static final Handler<SPacketSyncWallet> HANDLER = new H();
@@ -28,7 +29,7 @@ public class SPacketSyncWallet extends ServerToClientPacket {
 		this.visible = visible;
 	}
 	
-	public void encode(@Nonnull FriendlyByteBuf buffer) {
+	public void encode(FriendlyByteBuf buffer) {
 		buffer.writeInt(this.entityID);
 		buffer.writeItemStack(this.walletItem, false);
 		buffer.writeBoolean(this.visible);
@@ -36,26 +37,21 @@ public class SPacketSyncWallet extends ServerToClientPacket {
 
 	private static class H extends Handler<SPacketSyncWallet>
 	{
-		@Nonnull
 		@Override
-		public SPacketSyncWallet decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketSyncWallet(buffer.readInt(), buffer.readItem(), buffer.readBoolean()); }
+		public SPacketSyncWallet decode(FriendlyByteBuf buffer) { return new SPacketSyncWallet(buffer.readInt(), buffer.readItem(), buffer.readBoolean()); }
 		@Override
-		protected void handle(@Nonnull SPacketSyncWallet message, @Nullable ServerPlayer sender) {
-			Minecraft minecraft = Minecraft.getInstance();
-			if(minecraft != null)
-			{
-				Entity entity = minecraft.level.getEntity(message.entityID);
-				if(entity instanceof LivingEntity livingEntity)
-				{
-					IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(livingEntity);
-					if(walletHandler != null)
-					{
-						walletHandler.syncWallet(message.walletItem);
-						walletHandler.setVisible(message.visible);
-						walletHandler.clean();
-					}
-				}
-			}
+		protected void handle(SPacketSyncWallet message, Player player) {
+            Entity entity = player.level().getEntity(message.entityID);
+            if(entity instanceof LivingEntity livingEntity)
+            {
+                IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(livingEntity);
+                if(walletHandler != null)
+                {
+                    walletHandler.syncWallet(message.walletItem);
+                    walletHandler.setVisible(message.visible);
+                    walletHandler.clean();
+                }
+            }
 		}
 	}
 

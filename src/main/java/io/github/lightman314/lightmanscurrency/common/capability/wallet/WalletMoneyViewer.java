@@ -20,7 +20,7 @@ public class WalletMoneyViewer extends MoneyViewer {
 
     @Override
     protected void collectStoredMoney(@Nonnull MoneyView.Builder builder) {
-        IMoneyHandler containerHandler = MoneyAPI.API.GetContainersMoneyHandler(WalletItem.getWalletInventory(this.walletStack),s -> {}, IClientTracker.forClient());
+        IMoneyHandler containerHandler = MoneyAPI.getApi().GetContainersMoneyHandler(WalletItem.getWalletInventory(this.walletStack),s -> {}, IClientTracker.forClient());
         builder.merge(containerHandler.getStoredMoney());
     }
 

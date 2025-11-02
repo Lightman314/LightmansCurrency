@@ -19,17 +19,20 @@ public class RuleSubNode extends SettingsSubNode<SettingsNode> {
     private final ITradeRuleHost host;
     private final Predicate<LoadContext> loadable;
     private final MutableComponent name;
+    private final int index;
 
-    public RuleSubNode(SettingsNode parent, ITradeRuleHost host, Predicate<LoadContext> loadable, MutableComponent name)
+    public RuleSubNode(SettingsNode parent, ITradeRuleHost host, Predicate<LoadContext> loadable, MutableComponent name) { this(parent,host,loadable,name,-1); }
+    public RuleSubNode(SettingsNode parent, ITradeRuleHost host, Predicate<LoadContext> loadable, MutableComponent name, int index)
     {
         super(parent);
         this.host = host;
         this.loadable = loadable;
         this.name = name;
+        this.index = index;
     }
 
     @Override
-    public String getSubKey() { return "trade_rules"; }
+    public String getSubKey() { return "trade_rules" + (this.index >= 0 ? "_" + this.index : ""); }
 
     @Override
     public MutableComponent getName() { return this.name.copy(); }

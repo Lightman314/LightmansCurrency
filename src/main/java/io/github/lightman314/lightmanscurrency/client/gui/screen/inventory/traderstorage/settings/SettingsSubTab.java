@@ -5,11 +5,14 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderS
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.TraderSettingsTab;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import net.minecraft.MethodsReturnNonnullByDefault;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class SettingsSubTab extends EasyTab {
 
     public final TraderSettingsClientTab parent;
@@ -19,7 +22,7 @@ public abstract class SettingsSubTab extends EasyTab {
 
     private final List<Object> children = new ArrayList<>();
 
-    protected SettingsSubTab(@Nonnull TraderSettingsClientTab parent)
+    protected SettingsSubTab(TraderSettingsClientTab parent)
     {
         super(parent.screen);
         this.parent = parent;
@@ -30,7 +33,7 @@ public abstract class SettingsSubTab extends EasyTab {
 
     public abstract boolean canOpen();
 
-    public final void sendMessage(@Nonnull LazyPacketData.Builder message) { this.menu.SendMessage(message); }
+    public final void sendMessage(LazyPacketData.Builder message) { this.menu.SendMessage(message); }
 
     public boolean shouldRenderInventoryText() { return true; }
 

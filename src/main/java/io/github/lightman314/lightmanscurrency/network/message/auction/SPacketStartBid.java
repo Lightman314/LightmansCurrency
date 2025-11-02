@@ -3,13 +3,15 @@ package io.github.lightman314.lightmanscurrency.network.message.auction;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.auction.AuctionBidTab;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SPacketStartBid extends ServerToClientPacket {
 
 	public static final Handler<SPacketStartBid> HANDLER = new H();
@@ -22,18 +24,17 @@ public class SPacketStartBid extends ServerToClientPacket {
 		this.tradeIndex = tradeIndex;
 	}
 	
-	public void encode(@Nonnull FriendlyByteBuf buffer) {
+	public void encode(FriendlyByteBuf buffer) {
 		buffer.writeLong(this.auctionHouseID);
 		buffer.writeInt(this.tradeIndex);
 	}
 
 	private static class H extends Handler<SPacketStartBid>
 	{
-		@Nonnull
 		@Override
-		public SPacketStartBid decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketStartBid(buffer.readLong(), buffer.readInt()); }
+		public SPacketStartBid decode(FriendlyByteBuf buffer) { return new SPacketStartBid(buffer.readLong(), buffer.readInt()); }
 		@Override
-		protected void handle(@Nonnull SPacketStartBid message, @Nullable ServerPlayer sender) {
+		protected void handle(SPacketStartBid message, Player player) {
 			Minecraft mc = Minecraft.getInstance();
 			if(mc.screen instanceof TraderScreen screen)
 				screen.setTab(new AuctionBidTab(screen, message.auctionHouseID, message.tradeIndex));

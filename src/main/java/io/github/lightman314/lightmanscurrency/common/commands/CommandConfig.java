@@ -9,20 +9,19 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.config.ConfigAPI;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
+import io.github.lightman314.lightmanscurrency.api.config.ConfigReloadable;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.ListLikeOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.MapLikeOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 
-import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
-import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
-import io.github.lightman314.lightmanscurrency.common.seasonal_events.SeasonalEventManager;
 import io.github.lightman314.lightmanscurrency.network.message.config.*;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Map;
 
@@ -32,8 +31,7 @@ public class CommandConfig {
     {
         LiteralArgumentBuilder<CommandSourceStack> configReloadCommand
                 = Commands.literal("lcconfig")
-                .then(Commands.literal("reload")
-                        .executes(CommandConfig::reload))
+                .then(configReloadCommands())
                 .then(configEditCommands())
                 .then(configResetCommands())
                 .then(configViewCommands());
@@ -41,31 +39,51 @@ public class CommandConfig {
         dispatcher.register(configReloadCommand);
     }
 
-    static int reload(CommandContext<CommandSourceStack> commandContext) {
-        int result = 0;
-        boolean involveAdmins = false;
-        if(commandContext.getSource().hasPermission(2))
+    private static ArgumentBuilder<CommandSourceStack,?> configReloadCommands()
+    {
+        LiteralArgumentBuilder<CommandSourceStack> reload = Commands.literal("reload")
+                .executes(CommandConfig::reloadAll);
+        for(ConfigReloadable reloadable : ConfigAPI.getApi().getReloadablesInOrder())
         {
-            involveAdmins = true;
-            //Reload coin data before reloading config options
-            CoinAPI.API.ReloadCoinDataFromFile();
-            //Reload config files
-            ConfigFile.reloadServerFiles();
-            //Reload Persistent Traders
-            TraderDataCache.TYPE.get(false).reloadPersistentTraders();
-            //Reload Events
-            SeasonalEventManager.reload();
-            result++;
+            reload.then(Commands.literal(reloadable.getID().toString())
+                    .requires(reloadable::canReload)
+                    .executes(context -> reloadFile(context,reloadable)));
         }
-        ServerPlayer player = commandContext.getSource().getPlayer();
-        if(player != null)
+        return reload;
+    }
+
+    static int reloadAll(CommandContext<CommandSourceStack> commandContext) {
+        int result = 0;
+        boolean alertAdmins = false;
+        CommandSourceStack stack = commandContext.getSource();
+        for(ConfigReloadable reloadable : ConfigAPI.getApi().getReloadablesInOrder())
         {
-            SPacketReloadConfig.INSTANCE.sendTo(player);
-            result++;
+            try {
+                if(reloadable.canReload(stack))
+                {
+                    reloadable.onCommandReload(stack);
+                    alertAdmins = alertAdmins || reloadable.alertAdmins();
+                    result++;
+                }
+            } catch (CommandSyntaxException e) {
+                LightmansCurrency.LogWarning("Error reloading " + reloadable.getID() + " config file from command!",e);
+            }
         }
         if(result > 0)
-            EasyText.sendCommandSucess(commandContext.getSource(), LCText.COMMAND_CONFIG_RELOAD.get(), involveAdmins);
+            EasyText.sendCommandSucess(stack,LCText.COMMAND_CONFIG_RELOAD.get(),alertAdmins);
         return result;
+    }
+
+    static int reloadFile(CommandContext<CommandSourceStack> context, ConfigReloadable reloadable) throws CommandSyntaxException
+    {
+        CommandSourceStack stack = context.getSource();
+        if(reloadable.canReload(stack))
+        {
+            reloadable.onCommandReload(stack);
+            EasyText.sendCommandSucess(stack,LCText.COMMAND_CONFIG_RELOAD_FILE.get(reloadable.getID()),reloadable.alertAdmins());
+            return 1;
+        }
+        return 0;
     }
 
     private static ArgumentBuilder<CommandSourceStack,?> configEditCommands()
@@ -74,7 +92,7 @@ public class CommandConfig {
         for(ConfigFile file : ConfigFile.getAvailableFiles())
         {
             LiteralArgumentBuilder<CommandSourceStack> fileSection = Commands.literal(file.getFileID().toString())
-                    .requires((stack) -> file.isClientOnly() ? stack.isPlayer() : stack.hasPermission(2));
+                    .requires(file::canReload);
             file.getAllOptions().forEach((key,option) -> {
                 if (option instanceof ListLikeOption<?>)
                 {

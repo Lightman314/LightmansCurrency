@@ -29,7 +29,7 @@ public class TeamOwner extends Owner {
 
     public final long teamID;
     @Nullable
-    public final ITeam getTeam() { return TeamAPI.API.GetTeam(this, this.teamID); }
+    public final ITeam getTeam() { return TeamAPI.getApi().GetTeam(this, this.teamID); }
     private TeamOwner(long teamID) { this.teamID = teamID; }
     @Nonnull
     public static TeamOwner of(@Nonnull ITeam team) { return of(team.getID()); }
@@ -50,7 +50,7 @@ public class TeamOwner extends Owner {
     public MutableComponent getCommandLabel() { return LCText.COMMAND_LCADMIN_DATA_OWNER_TEAM.get(this.getName(), this.teamID); }
 
     @Override
-    public boolean stillValid() { return TeamAPI.API.GetTeam(this, this.teamID) != null; }
+    public boolean stillValid() { return TeamAPI.getApi().GetTeam(this, this.teamID) != null; }
 
     @Override
     public boolean isOnline() {
@@ -119,7 +119,7 @@ public class TeamOwner extends Owner {
         for(PlayerReference player: sendTo)
         {
             if(player != null && player.id != null)
-                NotificationAPI.API.PushPlayerNotification(player.id, notificationSource.get(), sendToChat);
+                NotificationAPI.getApi().PushPlayerNotification(player.id, notificationSource.get(), sendToChat);
         }
     }
 

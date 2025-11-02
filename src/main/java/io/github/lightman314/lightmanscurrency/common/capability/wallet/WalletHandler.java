@@ -209,8 +209,8 @@ public class WalletHandler extends MoneyHandler implements IWalletHandler
         ItemStack w = this.getWallet();
         if(WalletItem.getAutoExchange(w))
         {
-            CoinAPI.API.CoinExchangeAllUp(updatedContainer);
-            CoinAPI.API.SortCoinsByValue(updatedContainer);
+            CoinAPI.getApi().CoinExchangeAllUp(updatedContainer);
+            CoinAPI.getApi().SortCoinsByValue(updatedContainer);
         }
         WalletItem.putWalletInventory(w, updatedContainer);
         WalletMenu.OnWalletUpdated(this.entity);

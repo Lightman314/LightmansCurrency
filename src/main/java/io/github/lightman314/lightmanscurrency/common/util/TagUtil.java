@@ -1,8 +1,10 @@
 package io.github.lightman314.lightmanscurrency.common.util;
 
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.*;
 import org.lwjgl.system.NonnullDefault;
 
@@ -55,6 +57,21 @@ public class TagUtil {
         for(Tag tag : list)
             result.add(NbtUtils.loadUUID(tag));
         return result;
+    }
+
+    public static ListTag writeIconList(NonNullList<IconData> list)
+    {
+        ListTag iconList = new ListTag();
+        for(IconData icon : list)
+            iconList.add(icon.save());
+        return iconList;
+    }
+
+    public static void readIconList(NonNullList<IconData> list, ListTag listTag, IconData defaultIcon)
+    {
+        list.clear();
+        for(int i = 0; i < list.size() && i < listTag.size(); ++i)
+            list.set(i,IconData.safeLoad(listTag.getCompound(i),defaultIcon));
     }
 
     public static String writeModelResource(ModelResourceLocation modelID)

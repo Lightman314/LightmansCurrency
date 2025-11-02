@@ -12,11 +12,15 @@ import com.google.gson.*;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.util.GsonHelper;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ATMData {
 
 	public final ChainData chain;
@@ -24,7 +28,7 @@ public class ATMData {
 	private final List<ATMExchangeButtonData> exchangeButtons;
 	public final List<ATMExchangeButtonData> getExchangeButtons() { return this.exchangeButtons; }
 	
-	private ATMData(@Nonnull JsonObject jsonData, ChainData chain) throws JsonSyntaxException, ResourceLocationException {
+	private ATMData(JsonObject jsonData, ChainData chain) throws JsonSyntaxException, ResourceLocationException {
 		
 		//LightmansCurrency.LogInfo("Loading ATM Data from json:\n" + FileUtil.GSON.toJson(jsonData));
 
@@ -40,12 +44,11 @@ public class ATMData {
 		this.exchangeButtons = ImmutableList.copyOf(temp);
 	}
 	
-	private ATMData(@Nonnull List<ATMExchangeButtonData> exchangeButtons, @Nonnull ChainData chain) {
+	private ATMData(List<ATMExchangeButtonData> exchangeButtons, ChainData chain) {
 		this.exchangeButtons = ImmutableList.copyOf(exchangeButtons);
 		this.chain = chain;
 	}
 
-	@Nonnull
 	public JsonObject save() {
 		JsonObject data = new JsonObject();
 		
@@ -57,12 +60,12 @@ public class ATMData {
 		return data;
 	}
 
-	public static ATMData parse(@Nonnull JsonObject json, @Nonnull ChainData chain) throws JsonSyntaxException, ResourceLocationException { return new ATMData(json, chain); }
+	public static ATMData parse(JsonObject json, ChainData chain) throws JsonSyntaxException, ResourceLocationException { return new ATMData(json, chain); }
 
 	public static Builder builder(ChainData.Builder parent) { return new Builder(parent); }
 
 	@Deprecated(since = "2.2.0.0")
-	public static void parseDeprecated(@Nonnull ChainData.Builder builder)
+	public static void parseDeprecated(ChainData.Builder builder)
 	{
 		File file = new File("config/lightmanscurrency/ATMData.json");
 		if(file.exists())
@@ -84,21 +87,21 @@ public class ATMData {
 
 		private final List<ATMExchangeButtonData> exchangeButtons = new ArrayList<>();
 
-		private Builder(@Nonnull ChainData.Builder parent) { this.parent = parent; }
+		private Builder(ChainData.Builder parent) { this.parent = parent; }
 
 		public ChainData.Builder back() { return this.parent; }
 
 		public List<ATMExchangeButtonData> viewExchangeButtons() { return ImmutableList.copyOf(this.exchangeButtons); }
 
-		public Builder addButton(@Nonnull ATMExchangeButtonData button) { this.exchangeButtons.add(button); return this; }
-		public Builder addButtons(@Nonnull List<ATMExchangeButtonData> list) { this.exchangeButtons.addAll(list); return this; }
+		public Builder addButton(ATMExchangeButtonData button) { this.exchangeButtons.add(button); return this; }
+		public Builder addButtons(List<ATMExchangeButtonData> list) { this.exchangeButtons.addAll(list); return this; }
 
 
 		public Builder removeButton(int index) { this.exchangeButtons.remove(index); return this; }
 
-		public Builder accept(@Nonnull Consumer<Builder> consumer) { consumer.accept(this); return this; }
+		public Builder accept(Consumer<Builder> consumer) { consumer.accept(this); return this; }
 
-		public ATMData build(@Nonnull ChainData chain) { return new ATMData(this.exchangeButtons, chain); }
+		public ATMData build(ChainData chain) { return new ATMData(this.exchangeButtons, chain); }
 
 	}
 	

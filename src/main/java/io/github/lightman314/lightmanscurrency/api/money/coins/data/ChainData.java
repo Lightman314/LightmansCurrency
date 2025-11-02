@@ -558,7 +558,7 @@ public class ChainData {
 
     public static void addCoinTooltips(@Nonnull ItemStack stack, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag, @Nullable Player player)
     {
-        ChainData chain = CoinAPI.API.ChainDataOfCoin(stack);
+        ChainData chain = CoinAPI.getApi().ChainDataOfCoin(stack);
         if(chain != null)
         {
             List<Component> lines = new ArrayList<>();

@@ -8,18 +8,19 @@ import io.github.lightman314.lightmanscurrency.api.config.options.basic.BooleanO
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SPacketTaxInfo extends ServerToClientPacket {
 
     public static final Handler<SPacketTaxInfo> HANDLER = new H();
@@ -54,12 +55,11 @@ public class SPacketTaxInfo extends ServerToClientPacket {
 
         private H() { }
 
-        @Nonnull
         @Override
-        public SPacketTaxInfo decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketTaxInfo(buffer.readBoolean(),buffer.readBoolean()); }
+        public SPacketTaxInfo decode(FriendlyByteBuf buffer) { return new SPacketTaxInfo(buffer.readBoolean(),buffer.readBoolean()); }
 
         @Override
-        protected void handle(@Nonnull SPacketTaxInfo message, @Nullable ServerPlayer sender) {
+        protected void handle(SPacketTaxInfo message, Player player) {
             TextEntry firstMessage;
             BooleanOption config;
             if(message.serverTax && (!message.playerTax || !LCConfig.CLIENT.playerTaxWarning.get()))

@@ -1,13 +1,20 @@
 package io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader;
 
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeSettingNotification;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
-import io.github.lightman314.lightmanscurrency.util.EnumUtil;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.PeripheralMethod;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCArgumentHelper;
 import net.minecraft.core.Direction;
 
 import javax.annotation.Nullable;
@@ -30,20 +37,30 @@ public abstract class InputTraderPeripheral<BE extends TraderBlockEntity<T>,T ex
         set.add("lc_trader_input");
         return set;
     }
-
-    @LuaFunction(mainThread = true)
     public boolean allowsInputs() throws LuaException { return this.getTrader().allowInputs(); }
-
-    @LuaFunction(mainThread = true)
-    public boolean allowInputSide(String sideName) throws LuaException
+    public boolean allowInputSide(IArguments args) throws LuaException { return this.getTrader().allowInputSide(LCArgumentHelper.parseEnum(args,0,Direction.class)); }
+    public boolean setInputSide(IComputerAccess computer, IArguments args) throws LuaException
     {
-        Direction side = EnumUtil.enumFromString(sideName,Direction.values(),null);
-        if(side == null)
-            return false;
-        return this.getTrader().allowInputSide(side);
+        Direction side = LCArgumentHelper.parseEnum(args,0,Direction.class);
+        boolean newInputState = args.getBoolean(1);
+        if(this.hasPermissions(computer, Permissions.InputTrader.EXTERNAL_INPUTS))
+        {
+            InputTraderData trader = this.getTrader();
+            if(trader.allowInputSide(side) != newInputState && trader.allowInputs() && !trader.ignoreSides.contains(side))
+            {
+                DirectionalSettingsState oldState = trader.getSidedState(side);
+                DirectionalSettingsState newState;
+                if(oldState.allowsOutputs())
+                    newState =newInputState ? DirectionalSettingsState.INPUT_AND_OUTPUT : DirectionalSettingsState.OUTPUT;
+                else
+                    newState = newInputState ? DirectionalSettingsState.INPUT : DirectionalSettingsState.NONE;
+                trader.setDirectionalState(null,side,newState);
+                trader.pushLocalNotification(ChangeSettingNotification.simple(this.getFakePlayer(computer), EasyText.empty().append(LCText.DATA_ENTRY_INPUT_OUTPUT_SIDES.get()).append(InputTraderData.getFacingName(side)), newState.getText()));
+                return true;
+            }
+        }
+        return false;
     }
-
-    @LuaFunction(mainThread = true)
     public String[] getInputSides() throws LuaException
     {
         InputTraderData trader = this.getTrader();
@@ -56,19 +73,30 @@ public abstract class InputTraderPeripheral<BE extends TraderBlockEntity<T>,T ex
         return sides.toArray(String[]::new);
     }
 
-    @LuaFunction
     public boolean allowsOutputs() throws LuaException { return this.getTrader().allowOutputs(); }
-
-    @LuaFunction(mainThread = true)
-    public boolean allowOutputSide(String sideName) throws LuaException
+    public boolean allowOutputSide(IArguments args) throws LuaException { return this.getTrader().allowOutputSide(LCArgumentHelper.parseEnum(args,0,Direction.class)); }
+    public boolean setOutputSide(IComputerAccess computer, IArguments args) throws LuaException
     {
-        Direction side = EnumUtil.enumFromString(sideName,Direction.values(),null);
-        if(side == null)
-            return false;
-        return this.getTrader().allowOutputSide(side);
+        Direction side = LCArgumentHelper.parseEnum(args,0,Direction.class);
+        boolean newOutputState = args.getBoolean(1);
+        if(this.hasPermissions(computer, Permissions.InputTrader.EXTERNAL_INPUTS))
+        {
+            InputTraderData trader = this.getTrader();
+            if(trader.allowOutputSide(side) != newOutputState && trader.allowOutputs() && !trader.ignoreSides.contains(side))
+            {
+                DirectionalSettingsState oldState = trader.getSidedState(side);
+                DirectionalSettingsState newState;
+                if(oldState.allowsInputs())
+                    newState = newOutputState ? DirectionalSettingsState.INPUT_AND_OUTPUT : DirectionalSettingsState.INPUT;
+                else
+                    newState = newOutputState ? DirectionalSettingsState.OUTPUT : DirectionalSettingsState.NONE;
+                trader.setDirectionalState(null,side,newState);
+                trader.pushLocalNotification(ChangeSettingNotification.simple(this.getFakePlayer(computer), EasyText.empty().append(LCText.DATA_ENTRY_INPUT_OUTPUT_SIDES.get()).append(InputTraderData.getFacingName(side)), newState.getText()));
+                return true;
+            }
+        }
+        return false;
     }
-
-    @LuaFunction(mainThread = true)
     public String[] getOutputSides() throws LuaException
     {
         InputTraderData trader = this.getTrader();
@@ -79,6 +107,19 @@ public abstract class InputTraderPeripheral<BE extends TraderBlockEntity<T>,T ex
                 sides.add(side.toString());
         }
         return sides.toArray(String[]::new);
+    }
+
+    @Override
+    protected void registerMethods(PeripheralMethod.Registration registration) {
+        super.registerMethods(registration);
+        registration.register(PeripheralMethod.builder("allowsInputs").simple(this::allowsInputs));
+        registration.register(PeripheralMethod.builder("allowsInputSide").withArgs(this::allowInputSide));
+        registration.register(PeripheralMethod.builder("setInputSide").withContext(this::setInputSide));
+        registration.register(PeripheralMethod.builder("getInputSides").simpleArray(this::getInputSides));
+        registration.register(PeripheralMethod.builder("allowsOutputs").simple(this::allowsOutputs));
+        registration.register(PeripheralMethod.builder("allowsOutputSide").withArgs(this::allowOutputSide));
+        registration.register(PeripheralMethod.builder("setOutputSide").withContext(this::setOutputSide));
+        registration.register(PeripheralMethod.builder("getOutputSides").simpleArray(this::getOutputSides));
     }
 
     private static final class Simple extends InputTraderPeripheral<TraderBlockEntity<InputTraderData>,InputTraderData>
@@ -104,9 +145,14 @@ public abstract class InputTraderPeripheral<BE extends TraderBlockEntity<T>,T ex
         }
 
         @Override
-        public String getType() {
-            return "";
+        public String getType() { return "lc_trader_input"; }
+        @Override
+        public Set<String> getAdditionalTypes() {
+            Set<String> set = new HashSet<>(super.getAdditionalTypes());
+            set.remove("lc_trader_input");
+            return set;
         }
+
     }
 
 }

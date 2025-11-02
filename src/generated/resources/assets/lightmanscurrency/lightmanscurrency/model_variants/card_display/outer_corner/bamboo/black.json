@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/outer_corner/bamboo/base",
+  "target": "lightmanscurrency:card_display_bamboo_black",
+  "textures": {
+    "wool": "minecraft:block/black_wool"
+  }
+}

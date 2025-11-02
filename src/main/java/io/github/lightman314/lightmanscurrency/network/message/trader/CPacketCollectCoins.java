@@ -2,10 +2,7 @@ package io.github.lightman314.lightmanscurrency.network.message.trader;
 
 import io.github.lightman314.lightmanscurrency.api.traders.menu.IMoneyCollectionMenu;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
-
-import javax.annotation.Nonnull;
+import net.minecraft.world.entity.player.Player;
 
 public class CPacketCollectCoins extends ClientToServerPacket.Simple {
 
@@ -21,12 +18,9 @@ public class CPacketCollectCoins extends ClientToServerPacket.Simple {
 		protected H() { super(INSTANCE); }
 
 		@Override
-		protected void handle(@Nonnull CPacketCollectCoins message, @Nullable ServerPlayer sender) {
-			if(sender != null)
-			{
-				if(sender.containerMenu instanceof IMoneyCollectionMenu menu)
-					menu.CollectStoredMoney();
-			}
+		protected void handle(CPacketCollectCoins message, Player player) {
+            if(player.containerMenu instanceof IMoneyCollectionMenu menu)
+                menu.CollectStoredMoney();
 		}
 	}
 

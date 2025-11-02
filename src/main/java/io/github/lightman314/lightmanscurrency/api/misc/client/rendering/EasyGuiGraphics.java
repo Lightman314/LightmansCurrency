@@ -5,17 +5,17 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.OutlineUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -51,12 +51,6 @@ import java.util.List;
 public final class EasyGuiGraphics {
 
     private static final List<ResourceLocation> debuggedModels = new ArrayList<>();
-
-    public static final SlotType SLOT_NORMAL = new SlotType(IconAndButtonUtil.WIDGET_TEXTURE,0,128);
-    public static final SlotType SLOT_YELLOW = new SlotType(IconAndButtonUtil.WIDGET_TEXTURE,0,146);
-    public static final SlotType SLOT_GREEN = new SlotType(IconAndButtonUtil.WIDGET_TEXTURE,0,164);
-
-    public static final ResourceLocation GENERIC_BACKGROUND = VersionUtil.lcResource("textures/gui/generic_background.png");
 
     private final GuiGraphics gui;
     public GuiGraphics getGui() { return this.gui; }
@@ -110,110 +104,33 @@ public final class EasyGuiGraphics {
     {
         this.resetColor();
         this.pushOffset(screen.getCorner());
-        this.blitNineSplit(GENERIC_BACKGROUND,0,0,screen.getXSize(),screen.getYSize(),0,0,256,256,16);
+        SpriteUtil.GENERIC_BACKGROUND.render(this,0,0,screen.getXSize(),screen.getYSize());
         this.popOffset();
     }
     public void renderSlot(IEasyScreen screen, Slot slot) { if(slot.isActive()) this.renderSlot(screen,ScreenPosition.of(slot.x,slot.y)); }
     public void renderSlot(IEasyScreen screen, int posX, int posY) { this.renderSlot(screen,ScreenPosition.of(posX,posY)); }
-    public void renderSlot(IEasyScreen screen, int posX, int posY, SlotType type) { this.renderSlot(screen,ScreenPosition.of(posX,posY),type); }
-    public void renderSlot(IEasyScreen screen, ScreenPosition position) { this.renderSlot(screen,position,SLOT_NORMAL); }
-    public void renderSlot(IEasyScreen screen, ScreenPosition position, SlotType type)
+    public void renderSlot(IEasyScreen screen, int posX, int posY, FixedSizeSprite type) { this.renderSlot(screen,ScreenPosition.of(posX,posY),type); }
+    public void renderSlot(IEasyScreen screen, ScreenPosition position) { this.renderSlot(screen,position,SpriteUtil.EMPTY_SLOT_NORMAL); }
+    public void renderSlot(IEasyScreen screen, ScreenPosition position, FixedSizeSprite type)
     {
         this.resetColor();
         this.pushOffset(screen.getCorner());
-        this.blit(type.texture(),position.offset(-1,-1),type.u(), type.v(),18,18);
+        type.render(this,position.offset(-1,-1));
         this.popOffset();
     }
     public void blit(ResourceLocation image, int x, int y, int u, int v, int width, int height) { this.gui.blit(image, this.offset.x + x, this.offset.y + y, u, v, width, height); }
     public void blit(ResourceLocation image, ScreenPosition pos, int u, int v, int width, int height) { this.blit(image, pos.x, pos.y, u, v, width, height); }
     public void blit(ResourceLocation image, ScreenArea area, int u, int v) { this.blit(image, area.pos.x, area.pos.y, u, v, area.width, area.height); }
-    public void blitSprite(Sprite sprite, int x, int y) { this.blitSprite(sprite, x, y, false); }
-    public void blitSprite(Sprite sprite, ScreenPosition pos) { this.blitSprite(sprite, pos.x, pos.y); }
-    public void blitSprite(Sprite sprite, int x, int y, boolean hovered) { this.blit(sprite.image, x, y, sprite.getU(hovered), sprite.getV(hovered), sprite.width, sprite.height); }
-    public void blitSprite(Sprite sprite, ScreenPosition pos, boolean hovered) { this.blitSprite(sprite, pos.x, pos.y, hovered); }
 
-    public void blitSpriteFadeHoriz(Sprite sprite, int x, int y, float percent) { this.blitSpriteFadeHoriz(sprite, x, y, percent, false); }
-    public void blitSpriteFadeHoriz(Sprite sprite, ScreenPosition pos, float percent) { this.blitSpriteFadeHoriz(sprite, pos.x, pos.y, percent); }
-    public void blitSpriteFadeHoriz(Sprite sprite, int x, int y, float percent, boolean hovered) {
-        int blitWidth = MathUtil.clamp((int)((sprite.width + 1) * percent), 0, sprite.width);
-        this.blit(sprite.image, x, y, sprite.getU(hovered), sprite.getV(hovered), blitWidth, sprite.height);
+    public void blit(ResourceLocation image, int x, int y, int u, int v, int width, int height, int imageWidth, int imageHeight) { this.gui.blit(image,this.offset.x + x, this.offset.y + y, u, v, width, height, imageWidth, imageHeight); }
+    public void blit(ResourceLocation image, ScreenPosition pos, int u, int v, int width, int height, int imageWidth, int imageHeight) { this.blit(image,pos.x,pos.y,u,v,width,height,imageWidth,imageHeight); }
+    public void blit(ResourceLocation image, ScreenArea area, int u, int v, int imageWidth, int imageHeight) { this.blit(image,area.pos.x,area.pos.y,u,v,area.width,area.height,imageWidth,imageHeight); }
+
+    public void blitSpriteFadeHoriz(SpriteSource sprite, int x, int y, float percent) {
+        int blitWidth = MathUtil.clamp((int)((sprite.width() + 1) * percent),0,sprite.width());
+        this.blit(sprite.texture(),x,y,sprite.u(),sprite.v(),blitWidth,sprite.height(),sprite.textureWidth(),sprite.textureHeight());
     }
-    public void blitSpriteFadeHoriz(Sprite sprite, ScreenPosition pos, float percent, boolean hovered) { this.blitSpriteFadeHoriz(sprite, pos.x, pos.y, percent, hovered); }
-
-    public void blitHorizSplit(ResourceLocation image, int x, int y, int width, int height, int u, int v, int uWidth, int edge)
-    {
-        int uCenter = uWidth - edge - edge;
-        if(uCenter < 0)
-            throw new IllegalArgumentException("Invalid inputs resulted in uCenter of " + uCenter);
-
-        //Left edge
-        this.blit(image,x,y,u,v,edge,height);
-        //Center
-        int tempX = edge;
-        while(tempX < width - edge)
-        {
-            int widthToDraw = Math.min(uCenter,width - edge - tempX);
-            this.blit(image,x + tempX,y,u + edge,v,widthToDraw,height);
-            tempX += widthToDraw;
-        }
-        //Right edge
-        this.blit(image,x + width - edge,y,u + uWidth - edge,v,edge,height);
-    }
-    public void blitNineSplit(ResourceLocation image, int x, int y, int width, int height, int u, int v, int uWidth, int vHeight, int edge)
-    {
-        int uCenter = uWidth - edge - edge;
-        if(uCenter < 1)
-            throw new IllegalArgumentException("Invalid inputs resulted in uCenter of " + uCenter);
-        int vCenter = vHeight - edge - edge;
-        if(vCenter < 1)
-            throw new IllegalArgumentException("Invalid inputs resulted in vCenter of " + vCenter);
-
-        //Top-left corner
-        this.blit(image, x, y, u, v, edge, edge);
-        //Top edge
-        int tempX = edge;
-        while(tempX < width - edge)
-        {
-            int widthToDraw = Math.min(uCenter, width - edge - tempX);
-            this.blit(image, x + tempX, y, u + edge, v, widthToDraw, edge);
-            tempX += widthToDraw;
-        }
-        //Top-right corner
-        this.blit(image, x + width - edge, y, u + uWidth - edge, v, edge, edge);
-
-        //Draw center
-        int tempY = edge;
-        while(tempY < height - edge)
-        {
-            int heightToDraw = Math.min(vCenter, height - edge - tempY);
-            //Left center
-            this.blit(image, x, y + tempY, u, v + edge, edge, heightToDraw);
-            tempX = edge;
-            //Center
-            while(tempX < width - edge)
-            {
-                int widthToDraw = Math.min(uCenter, width - edge - tempX);
-                this.blit(image, x + tempX, y + tempY, u + edge, v + edge, widthToDraw, heightToDraw);
-                tempX += widthToDraw;
-            }
-            //Right center
-            this.blit(image, x + width - edge, y + tempY, u + uWidth - edge, v + edge, edge, heightToDraw);
-            tempY += heightToDraw;
-        }
-
-        //Bottom-left corner
-        this.blit(image, x, y + height - edge, u, v + vHeight - edge, edge, edge);
-        //Bottom edge
-        tempX = edge;
-        while(tempX < width - edge)
-        {
-            int widthToDraw = Math.min(uCenter, width - edge - tempX);
-            this.blit(image, x + tempX, y + height - edge, u + edge, v + vHeight - edge, widthToDraw, edge);
-            tempX += widthToDraw;
-        }
-        //Bottom-right corner
-        this.blit(image, x + width - edge, y + height - edge, u + uWidth - edge, v + vHeight - edge, edge, edge);
-    }
+    public void blitSpriteFadeHoriz(SpriteSource sprite,ScreenPosition pos, float percent) { this.blitSpriteFadeHoriz(sprite,pos.x,pos.y,percent); }
 
     public void renderButtonBG(int x, int y, int width, int height, float alpha, int textureY) { this.renderButtonBG(x,y,width,height,alpha,textureY,0xFFFFFF); }
     public void renderButtonBG(int x, int y, int width, int height, float alpha, int textureY, int color)

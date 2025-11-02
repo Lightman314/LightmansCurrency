@@ -153,7 +153,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		if(tag != null && tag.contains("StoredTrader",Tag.TAG_LONG))
 		{
 			long traderID = tag.getLong("StoredTrader");
-			TraderData trader = TraderAPI.API.GetTrader(this, traderID);
+			TraderData trader = TraderAPI.getApi().GetTrader(this, traderID);
 			if(trader != null && this.castOrNullify(trader) != null && trader.isRecoverable())
 			{
 				//Flag this block as that trader
@@ -173,19 +173,19 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		if(this.getCurrentVariant() != null)
 			newTrader.setTraderBlockVariant(this.getCurrentVariant(),this.isVariantLocked());
 		//Register to the trading office
-		this.traderID = TraderAPI.API.CreateTrader(newTrader, owner);
+		this.traderID = TraderAPI.getApi().CreateTrader(newTrader, owner);
 		this.checkTaxes(owner,newTrader);
 		//Send update packet to connected clients, so that they'll have the new trader id.
 		this.markDirty();
 	}
 
 	private void checkTaxes(@Nonnull Player player, @Nonnull TraderData trader) {
-		List<ITaxCollector> taxes = TaxAPI.API.AcknowledgeTaxCollectors(trader);
+		List<ITaxCollector> taxes = TaxAPI.getApi().AcknowledgeTaxCollectors(trader);
 		if(!taxes.isEmpty())
 			SPacketTaxInfo.sendPacket(taxes,player);
 	}
 
-	public TraderData getRawTraderData() { return TraderAPI.API.GetTrader(this, this.traderID); }
+	public TraderData getRawTraderData() { return TraderAPI.getApi().GetTrader(this, this.traderID); }
 
 	@Nullable
 	public D getTraderData()
@@ -239,7 +239,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 			{
 				//If the dimension and position don't match exactly, assume it's been moved and load the custom trader
 				this.moveCustomTrader(customTrader);
-				this.traderID = TraderAPI.API.CreateTrader(customTrader, null);
+				this.traderID = TraderAPI.getApi().CreateTrader(customTrader, null);
 				this.customTrader = null;
 				this.ignoreCustomTrader = true;
 				this.markDirty();
@@ -291,7 +291,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		return true;
 	}
 
-	public void onBreak() { TraderAPI.API.DeleteTrader(this.traderID); }
+	public void onBreak() { TraderAPI.getApi().DeleteTrader(this.traderID); }
 
 	@Override
 	public AABB getRenderBoundingBox()

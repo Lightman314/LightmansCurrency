@@ -2,11 +2,13 @@ package io.github.lightman314.lightmanscurrency.network.message.wallet;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SPacketPlayCoinSound extends ServerToClientPacket.Simple {
 
 	public static final SPacketPlayCoinSound INSTANCE = new SPacketPlayCoinSound();
@@ -18,7 +20,7 @@ public class SPacketPlayCoinSound extends ServerToClientPacket.Simple {
 	{
 		protected H() { super(INSTANCE); }
 		@Override
-		protected void handle(@Nonnull SPacketPlayCoinSound message, @Nullable ServerPlayer sender) {
+		protected void handle(SPacketPlayCoinSound message, Player player) {
 			LightmansCurrency.getProxy().playCoinSound();
 		}
 	}

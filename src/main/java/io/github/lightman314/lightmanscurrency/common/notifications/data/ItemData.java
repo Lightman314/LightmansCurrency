@@ -3,30 +3,33 @@ package io.github.lightman314.lightmanscurrency.common.notifications.data;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ItemData
 {
     private final ItemStack stack;
     private final MutableComponent deprecatedName;
     private final String customName;
-    public ItemData(@Nonnull ItemStack stack) { this(stack, null, ""); }
-    public ItemData(@Nonnull ItemStack stack, @Nonnull String customName) { this(stack, null, customName); }
-    public ItemData(@Nonnull ItemStack stack, @Nullable MutableComponent deprecatedName, @Nonnull String customName)
+    public ItemData(ItemStack stack) { this(stack, null, ""); }
+    public ItemData(ItemStack stack, String customName) { this(stack, null, customName); }
+    public ItemData(ItemStack stack, @Nullable MutableComponent deprecatedName, String customName)
     {
         this.stack = stack;
         this.deprecatedName = deprecatedName;
         this.customName = customName;
     }
-    private ItemData(@Nonnull MutableComponent deprecatedName, int count)
+    private ItemData(MutableComponent deprecatedName, int count)
     {
         this.stack = new ItemStack(Items.BARRIER,count);
         this.deprecatedName = deprecatedName;
@@ -41,10 +44,10 @@ public class ItemData
     }
 
     public MutableComponent format() { return LCText.NOTIFICATION_ITEM_FORMAT.get(this.stack.getCount(), this.getName()); }
-    public MutableComponent formatWith(@Nonnull ItemData other) { return LCText.GUI_AND.get(this.format(), other.format()); }
-    public MutableComponent formatWith(@Nonnull MutableComponent other) { return LCText.GUI_AND.get(this.format(), other); }
+    public MutableComponent formatWith(ItemData other) { return LCText.GUI_AND.get(this.format(), other.format()); }
+    public MutableComponent formatWith(MutableComponent other) { return LCText.GUI_AND.get(this.format(), other); }
 
-    public static MutableComponent format(@Nonnull ItemData d1, @Nonnull ItemData d2)
+    public static MutableComponent format(ItemData d1, ItemData d2)
     {
         if(d1.stack.isEmpty() && d2.stack.isEmpty())
             return EasyText.literal("ERROR");
@@ -55,7 +58,6 @@ public class ItemData
         return d1.formatWith(d2);
     }
 
-    @Nonnull
     public CompoundTag save()
     {
         CompoundTag tag = new CompoundTag();
@@ -66,7 +68,7 @@ public class ItemData
         return tag;
     }
 
-    public static ItemData load(@Nonnull CompoundTag tag)
+    public static ItemData load(CompoundTag tag)
     {
         if(tag.contains("Empty"))
             return new ItemData(ItemStack.EMPTY,"");
@@ -84,7 +86,7 @@ public class ItemData
         return new ItemData(stack,deprecatedName,customName);
     }
 
-    public boolean matches(@Nonnull ItemData other)
+    public boolean matches(ItemData other)
     {
         //Cannot compare text components server-side apparently...
         if(this.deprecatedName != null || other.deprecatedName != null)

@@ -36,7 +36,6 @@ public class ExchangeUpgradeTab extends CoinChestTab.Upgrade
 
     @Override
     public boolean coinSlotsVisible() { return false; }
-
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
 

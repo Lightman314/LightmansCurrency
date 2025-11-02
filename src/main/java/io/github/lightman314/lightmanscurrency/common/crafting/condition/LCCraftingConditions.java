@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.config.conditions.ConfigCraftingCondition;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.conditions.ICondition;
@@ -22,8 +21,6 @@ public class LCCraftingConditions {
 	{
 		try{
 			//Register Crafting Conditions
-			CraftingHelper.register(new UpdateSerializer(VersionUtil.lcResource( "network_trader_craftable"),ConfigCraftingCondition.of(LCConfig.COMMON.canCraftNetworkTraders)));
-			CraftingHelper.register(new UpdateSerializer(VersionUtil.lcResource( "trader_interface_craftable"),ConfigCraftingCondition.of(LCConfig.COMMON.canCraftTraderInterfaces)));
 			CraftingHelper.register(ConfigCraftingCondition.SERIALIZER);
 		} catch(IllegalStateException ignored) { }
 	}

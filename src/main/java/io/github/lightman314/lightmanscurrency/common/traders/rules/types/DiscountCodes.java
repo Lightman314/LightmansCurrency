@@ -7,6 +7,7 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
@@ -18,7 +19,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.DiscountCodesTab;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.PriceTweakingTradeRule;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
@@ -49,7 +50,7 @@ public class DiscountCodes extends PriceTweakingTradeRule implements ICopySuppor
     public Map<String,DiscountRules> getRules() { return this.rules; }
 
     @Override
-    public IconData getIcon() { return IconData.of(ModItems.COUPON); }
+    public IconData getIcon() { return ItemIcon.ofItem(ModItems.COUPON); }
 
     @Override
     public void beforeTrade(TradeEvent.PreTradeEvent event) {

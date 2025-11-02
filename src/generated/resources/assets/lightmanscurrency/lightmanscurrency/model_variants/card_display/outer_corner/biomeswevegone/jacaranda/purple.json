@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/outer_corner/biomeswevegone/jacaranda/base",
+  "target": "lightmanscurrency:card_display_biomeswevegone_jacaranda_purple",
+  "textures": {
+    "wool": "minecraft:block/purple_wool"
+  }
+}

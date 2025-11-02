@@ -2,12 +2,13 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.player.PlayerAction;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.player.PlayerListWidget;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -24,7 +25,7 @@ public class AllyTab extends SettingsSubTab {
 
     @Override
     @Nonnull
-    public IconData getIcon() { return IconData.of(Items.PLAYER_HEAD); }
+    public IconData getIcon() { return ItemIcon.ofItem(Items.PLAYER_HEAD); }
 
     @Override
     public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADER_SETTINGS_ALLY.get(); }

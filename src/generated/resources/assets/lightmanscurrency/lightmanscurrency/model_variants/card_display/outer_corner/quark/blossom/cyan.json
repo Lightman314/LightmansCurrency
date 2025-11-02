@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/outer_corner/quark/blossom/base",
+  "target": "lightmanscurrency:card_display_quark_blossom_cyan",
+  "textures": {
+    "wool": "minecraft:block/cyan_wool"
+  }
+}

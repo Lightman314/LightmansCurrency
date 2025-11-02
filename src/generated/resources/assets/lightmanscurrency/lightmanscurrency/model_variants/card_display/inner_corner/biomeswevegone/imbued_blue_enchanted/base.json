@@ -1,0 +1,9 @@
+{
+  "parent": "lightmanscurrency:card_display/inner_corner/base",
+  "dummy": true,
+  "textures": {
+    "log": "biomeswevegone:block/blue_enchanted/imbued_wood",
+    "logtop": "biomeswevegone:block/blue_enchanted/log_top",
+    "plank": "biomeswevegone:block/blue_enchanted/planks"
+  }
+}

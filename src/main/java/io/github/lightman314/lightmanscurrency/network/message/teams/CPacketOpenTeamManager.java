@@ -2,11 +2,13 @@ package io.github.lightman314.lightmanscurrency.network.message.teams;
 
 import io.github.lightman314.lightmanscurrency.common.menus.TeamManagementMenu;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class CPacketOpenTeamManager extends ClientToServerPacket.Simple {
 
     private static final CPacketOpenTeamManager INSTANCE = new CPacketOpenTeamManager();
@@ -22,8 +24,8 @@ public class CPacketOpenTeamManager extends ClientToServerPacket.Simple {
         protected H() { super(INSTANCE); }
 
         @Override
-        protected void handle(@Nonnull CPacketOpenTeamManager message, @Nullable ServerPlayer sender) {
-            sender.openMenu(TeamManagementMenu.PROVIDER);
+        protected void handle(CPacketOpenTeamManager message, Player player) {
+            player.openMenu(TeamManagementMenu.PROVIDER);
         }
     }
 

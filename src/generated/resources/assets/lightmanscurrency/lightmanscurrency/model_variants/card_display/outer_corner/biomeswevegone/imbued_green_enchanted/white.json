@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/outer_corner/biomeswevegone/imbued_green_enchanted/base",
+  "target": "lightmanscurrency:card_display_biomeswevegone_imbued_green_enchanted_white",
+  "textures": {
+    "wool": "minecraft:block/white_wool"
+  }
+}

@@ -6,18 +6,21 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class MoneyHolder extends MoneyHandler implements IMoneyHolder {
 
     public static final IMoneyHolder EMPTY = new Empty();
 
-    @Nonnull
-    public static IMoneyHolder createFromHandler(@Nonnull IMoneyHandler handler, @Nonnull Component tooltipTitle, int priority) { return new HandlerSlave(handler, tooltipTitle, priority); }
+    public static IMoneyHolder createFromHandler(IMoneyHandler handler, Component tooltipTitle, int priority) { return new HandlerSlave(handler, tooltipTitle, priority); }
 
     /**
      * Easy implementation of {@link IMoneyHolder} that simply points to another parent money holder.
@@ -30,7 +33,7 @@ public abstract class MoneyHolder extends MoneyHandler implements IMoneyHolder {
         protected abstract IMoneyHolder getParent();
 
         @Override
-        public void formatTooltip(@Nonnull List<Component> tooltip) {
+        public void formatTooltip(List<Component> tooltip) {
             IMoneyHolder holder = this.getParent();
             if(holder != null)
                 holder.formatTooltip(tooltip);
@@ -39,18 +42,18 @@ public abstract class MoneyHolder extends MoneyHandler implements IMoneyHolder {
         @Override
         public Component getTooltipTitle() { return EasyText.empty(); }
 
-        @Nonnull
+        
         @Override
-        public MoneyValue insertMoney(@Nonnull MoneyValue insertAmount, boolean simulation) {
+        public MoneyValue insertMoney(MoneyValue insertAmount, boolean simulation) {
             IMoneyHolder holder = this.getParent();
             if(holder != null)
                 return holder.insertMoney(insertAmount, simulation);
             return insertAmount;
         }
 
-        @Nonnull
+        
         @Override
-        public MoneyValue extractMoney(@Nonnull MoneyValue extractAmount, boolean simulation) {
+        public MoneyValue extractMoney(MoneyValue extractAmount, boolean simulation) {
             IMoneyHolder holder = this.getParent();
             if(holder != null)
                 return holder.extractMoney(extractAmount, simulation);
@@ -58,7 +61,7 @@ public abstract class MoneyHolder extends MoneyHandler implements IMoneyHolder {
         }
 
         @Override
-        public boolean isMoneyTypeValid(@Nonnull MoneyValue value) {
+        public boolean isMoneyTypeValid(MoneyValue value) {
             IMoneyHolder holder = this.getParent();
             if(holder != null)
                 return holder.isMoneyTypeValid(value);
@@ -72,7 +75,7 @@ public abstract class MoneyHolder extends MoneyHandler implements IMoneyHolder {
         private final IMoneyHandler handler;
         private final Component title;
         private final int priority;
-        private HandlerSlave(@Nonnull IMoneyHandler handler, @Nonnull Component title, int priority) {
+        private HandlerSlave(IMoneyHandler handler, Component title, int priority) {
             this.handler = handler;
             this.title = title;
             this.priority = priority;
@@ -82,15 +85,15 @@ public abstract class MoneyHolder extends MoneyHandler implements IMoneyHolder {
         public int priority() { return this.priority; }
         @Override
         public Component getTooltipTitle() { return this.title; }
-        @Nonnull
+        
         @Override
-        public MoneyValue insertMoney(@Nonnull MoneyValue insertAmount, boolean simulation) { return this.handler.insertMoney(insertAmount,simulation); }
-        @Nonnull
+        public MoneyValue insertMoney(MoneyValue insertAmount, boolean simulation) { return this.handler.insertMoney(insertAmount,simulation); }
+        
         @Override
-        public MoneyValue extractMoney(@Nonnull MoneyValue extractAmount, boolean simulation) { return this.handler.extractMoney(extractAmount,simulation); }
+        public MoneyValue extractMoney(MoneyValue extractAmount, boolean simulation) { return this.handler.extractMoney(extractAmount,simulation); }
         @Override
-        public boolean isMoneyTypeValid(@Nonnull MoneyValue value) { return this.handler.isMoneyTypeValid(value); }
-        @Nonnull
+        public boolean isMoneyTypeValid(MoneyValue value) { return this.handler.isMoneyTypeValid(value); }
+        
         @Override
         public MoneyView getStoredMoney() { return this.handler.getStoredMoney(); }
     }
@@ -98,20 +101,20 @@ public abstract class MoneyHolder extends MoneyHandler implements IMoneyHolder {
     private static class Empty implements IMoneyHolder
     {
         @Override
-        public void formatTooltip(@Nonnull List<Component> tooltip) { }
+        public void formatTooltip(List<Component> tooltip) { }
         @Override
         public Component getTooltipTitle() { return EasyText.empty(); }
-        @Nonnull
+        
         @Override
         public MoneyView getStoredMoney() { return MoneyView.empty(); }
-        @Nonnull
+        
         @Override
-        public MoneyValue insertMoney(@Nonnull MoneyValue insertAmount, boolean simulation) { return insertAmount; }
-        @Nonnull
+        public MoneyValue insertMoney(MoneyValue insertAmount, boolean simulation) { return insertAmount; }
+        
         @Override
-        public MoneyValue extractMoney(@Nonnull MoneyValue extractAmount, boolean simulation) { return extractAmount; }
+        public MoneyValue extractMoney(MoneyValue extractAmount, boolean simulation) { return extractAmount; }
         @Override
-        public boolean isMoneyTypeValid(@Nonnull MoneyValue value) { return false; }
+        public boolean isMoneyTypeValid(MoneyValue value) { return false; }
     }
 
 

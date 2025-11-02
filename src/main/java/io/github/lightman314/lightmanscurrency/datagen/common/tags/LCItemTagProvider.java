@@ -83,28 +83,6 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.WALLET_NETHERITE)
                 .add(ModItems.WALLET_NETHER_STAR)
                 .add(ModItems.WALLET_ENDER_DRAGON);
-        //Wallets with Exchange Ability
-        this.cTag(LCTags.Items.WALLET_EXCHANGE)
-                .add(ModItems.WALLET_IRON)
-                .add(ModItems.WALLET_GOLD)
-                .add(ModItems.WALLET_EMERALD)
-                .add(ModItems.WALLET_DIAMOND)
-                .add(ModItems.WALLET_NETHERITE)
-                .add(ModItems.WALLET_NETHER_STAR)
-                .add(ModItems.WALLET_ENDER_DRAGON);
-        //Wallets with Pickup Ability
-        this.cTag(LCTags.Items.WALLET_PICKUP)
-                .add(ModItems.WALLET_GOLD)
-                .add(ModItems.WALLET_EMERALD)
-                .add(ModItems.WALLET_DIAMOND)
-                .add(ModItems.WALLET_NETHERITE)
-                .add(ModItems.WALLET_NETHER_STAR)
-                .add(ModItems.WALLET_ENDER_DRAGON);
-        //Wallets with Bank Ability
-        this.cTag(LCTags.Items.WALLET_BANK)
-                .add(ModItems.WALLET_NETHERITE)
-                .add(ModItems.WALLET_ENDER_DRAGON)
-                .add(ModItems.WALLET_NETHER_STAR);
 
         //Wallet Upgrade Materials
         this.cTag(LCTags.Items.WALLET_UPGRADE_MATERIAL)

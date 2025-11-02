@@ -16,14 +16,16 @@ import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemDat
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ItemTradeNotification extends SingleLineTaxableNotification {
 
 	public static final NotificationType<ItemTradeNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("item_trade"),ItemTradeNotification::new);
@@ -62,18 +64,15 @@ public class ItemTradeNotification extends SingleLineTaxableNotification {
 	}
 
 	public static Supplier<Notification> create(ItemTradeData trade, MoneyValue cost, PlayerReference customer, TraderCategory trader, MoneyValue taxesPaid) { return () -> new ItemTradeNotification(trade, cost, customer, trader, taxesPaid); }
-	
-	@Nonnull
+
 	@Override
 	protected NotificationType<ItemTradeNotification> getType() { return TYPE; }
 
-	@Nonnull
 	@Override
 	public NotificationCategory getCategory() { return this.traderData; }
 
-	@Nonnull
 	@Override
-	public MutableComponent getNormalMessage() {
+	public Component getNormalMessage() {
 		
 		Component action = this.tradeType.getActionPhrase();
 
@@ -125,7 +124,7 @@ public class ItemTradeNotification extends SingleLineTaxableNotification {
 	}
 
 	@Override
-	protected boolean canMerge(@Nonnull Notification other) {
+	protected boolean canMerge(Notification other) {
 		if(other instanceof ItemTradeNotification itn)
 		{
 			if(!itn.traderData.matches(this.traderData))

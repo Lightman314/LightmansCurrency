@@ -2,27 +2,31 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Items;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class RuleToggleTab extends TradeRulesClientSubTab implements IScrollable {
 
-    public RuleToggleTab(@Nonnull TradeRulesClientTab<?> parent) { super(parent); }
+    public RuleToggleTab(TradeRulesClientTab<?> parent) { super(parent); }
 
     @Override
     public boolean isVisible() { return true; }
@@ -42,7 +46,7 @@ public class RuleToggleTab extends TradeRulesClientSubTab implements IScrollable
             this.addChild(PlainButton.builder()
                     .position(screenArea.pos.offset(20,25 + (18 * i)))
                     .pressAction(() -> this.PressManagerActiveButton(index))
-                    .sprite(IconAndButtonUtil.SPRITE_TOGGLE(() -> this.isRuleActive(index)))
+                    .sprite(SpriteUtil.createColoredToggle(() -> this.isRuleActive(index)))
                     .addon(EasyAddonHelper.visibleCheck(() -> this.isValidRuleIndex(index)))
                     .build());
         }
@@ -69,7 +73,7 @@ public class RuleToggleTab extends TradeRulesClientSubTab implements IScrollable
     }
 
     @Override
-    public void renderBG(@Nonnull EasyGuiGraphics gui) {
+    public void renderBG(EasyGuiGraphics gui) {
 
         gui.drawString(LCText.GUI_TRADE_RULES_LIST.get(), 20, 10, 0x404040);
 
@@ -87,9 +91,8 @@ public class RuleToggleTab extends TradeRulesClientSubTab implements IScrollable
 
     }
 
-    @Nonnull
     @Override
-    public IconData getIcon() { return IconData.of(Items.PAPER); }
+    public IconData getIcon() { return ItemIcon.ofItem(Items.PAPER); }
 
     @Override
     public MutableComponent getTooltip() { return LCText.TOOLTIP_TRADE_RULES_MANAGER.get(); }
@@ -119,7 +122,7 @@ public class RuleToggleTab extends TradeRulesClientSubTab implements IScrollable
         }
     }
 
-    private void ClickBackButton(@Nonnull EasyButton button) { this.commonTab.goBack(); }
+    private void ClickBackButton(EasyButton button) { this.commonTab.goBack(); }
 
     @Override
     public int currentScroll() { return this.scroll; }

@@ -278,8 +278,8 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
             return;
 
         //Confirm that payment can be taken successfully
-        IMoneyHandler hostHandler = MoneyAPI.API.GetPlayersMoneyHandler(host);
-        IMoneyHandler guestHandler = MoneyAPI.API.GetPlayersMoneyHandler(guest);
+        IMoneyHandler hostHandler = MoneyAPI.getApi().GetPlayersMoneyHandler(host);
+        IMoneyHandler guestHandler = MoneyAPI.getApi().GetPlayersMoneyHandler(guest);
         //Run money simulations before executing
         if(hostHandler.extractMoney(this.hostMoney, true).isEmpty()
             && hostHandler.insertMoney(this.guestMoney, true).isEmpty()

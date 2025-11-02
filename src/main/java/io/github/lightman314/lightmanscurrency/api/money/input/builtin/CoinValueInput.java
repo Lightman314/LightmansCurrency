@@ -112,7 +112,7 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
 
         int buttonCount = Math.min(this.coinData.size(), MAX_BUTTON_COUNT);
 
-        //Draw the coins initial & sprite
+        //Draw the coins initial & texture
         int startX = this.getStartX(widgetArea);
         for(int x = 0; x < buttonCount; ++x)
         {

@@ -221,7 +221,7 @@ public final class MoneyStorage extends MoneyHolder {
 
     public void GiveToPlayer(@Nonnull Player player)
     {
-        IMoneyHolder handler = MoneyAPI.API.GetPlayersMoneyHandler(player);
+        IMoneyHolder handler = MoneyAPI.getApi().GetPlayersMoneyHandler(player);
         List<MoneyValue> extra = new ArrayList<>();
         for(MoneyValue value : this.allValues())
         {

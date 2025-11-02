@@ -3,40 +3,43 @@ package io.github.lightman314.lightmanscurrency.network.message.trader;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.TerminalMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
-import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
-
-import javax.annotation.Nonnull;
 
 public class CPacketOpenNetworkTerminal extends ClientToServerPacket {
 
 	public static final Handler<CPacketOpenNetworkTerminal> HANDLER = new H();
 
-	private final boolean ignoreExistingValidation;
+	private final MenuValidator validator;
 
-	public CPacketOpenNetworkTerminal() { this(false); }
-	public CPacketOpenNetworkTerminal(boolean ignoreExistingValidation) { this.ignoreExistingValidation = ignoreExistingValidation; }
+	public CPacketOpenNetworkTerminal() { this(null); }
+	public CPacketOpenNetworkTerminal(@Nullable MenuValidator validator) { this.validator = validator; }
 
-	public void encode(@Nonnull FriendlyByteBuf buffer) { buffer.writeBoolean(this.ignoreExistingValidation); }
+	public void encode(FriendlyByteBuf buffer) {
+        buffer.writeBoolean(this.validator != null);
+        if(this.validator != null)
+            this.validator.encode(buffer);
+    }
 
 	private static class H extends Handler<CPacketOpenNetworkTerminal>
 	{
-		@Nonnull
 		@Override
-		public CPacketOpenNetworkTerminal decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketOpenNetworkTerminal(buffer.readBoolean()); }
+		public CPacketOpenNetworkTerminal decode(FriendlyByteBuf buffer) {
+            MenuValidator validator = null;
+            if(buffer.readBoolean())
+                validator = MenuValidator.decode(buffer);
+            return new CPacketOpenNetworkTerminal(validator);
+        }
 
 		@Override
-		protected void handle(@Nonnull CPacketOpenNetworkTerminal message, @Nullable ServerPlayer sender) {
-			if(sender != null)
-			{
-				MenuValidator validator = SimpleValidator.NULL;
-				if(sender.containerMenu instanceof IValidatedMenu menu && !message.ignoreExistingValidation)
-					validator = menu.getValidator();
-				TerminalMenuProvider.OpenMenu(sender, validator);
-			}
+		protected void handle(CPacketOpenNetworkTerminal message, Player player) {
+            MenuValidator validator = message.validator;
+            if(validator == null && player.containerMenu instanceof IValidatedMenu menu)
+                validator = menu.getValidator();
+            if(validator != null && !validator.isNull())
+                TerminalMenuProvider.OpenMenu(player, validator);
 		}
 	}
 

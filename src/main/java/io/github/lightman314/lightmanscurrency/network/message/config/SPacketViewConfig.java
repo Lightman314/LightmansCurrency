@@ -7,14 +7,16 @@ import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Map;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SPacketViewConfig extends ServerToClientPacket {
 
     public static final Handler<SPacketViewConfig> HANDLER = new H();
@@ -22,14 +24,14 @@ public class SPacketViewConfig extends ServerToClientPacket {
     private final ResourceLocation fileID;
     private final String option;
 
-    public SPacketViewConfig(@Nonnull ResourceLocation fileID, @Nonnull String option)
+    public SPacketViewConfig(ResourceLocation fileID, String option)
     {
         this.fileID = fileID;
         this.option = option;
     }
 
     @Override
-    public void encode(@Nonnull FriendlyByteBuf buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         buffer.writeResourceLocation(this.fileID);
         buffer.writeUtf(this.option);
     }
@@ -37,14 +39,13 @@ public class SPacketViewConfig extends ServerToClientPacket {
     private static class H extends Handler<SPacketViewConfig>
     {
 
-        @Nonnull
         @Override
-        public SPacketViewConfig decode(@Nonnull FriendlyByteBuf buffer) {
+        public SPacketViewConfig decode(FriendlyByteBuf buffer) {
             return new SPacketViewConfig(buffer.readResourceLocation(), buffer.readUtf());
         }
 
         @Override
-        protected void handle(@Nonnull SPacketViewConfig message, @Nullable ServerPlayer sender) {
+        protected void handle(SPacketViewConfig message, Player player) {
             ConfigFile file = ConfigFile.lookupFile(message.fileID);
             if(file != null && file.isClientOnly())
             {

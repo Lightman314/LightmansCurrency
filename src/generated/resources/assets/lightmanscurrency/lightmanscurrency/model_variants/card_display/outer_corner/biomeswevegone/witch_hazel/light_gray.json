@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/outer_corner/biomeswevegone/witch_hazel/base",
+  "target": "lightmanscurrency:card_display_biomeswevegone_witch_hazel_light_gray",
+  "textures": {
+    "wool": "minecraft:block/light_gray_wool"
+  }
+}

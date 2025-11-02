@@ -19,11 +19,18 @@ public class GachaItemHandler {
     public GachaItemHandler(GachaTrader trader) { this.trader = trader; }
 
     private final Map<Direction, IItemHandler> handlers = new HashMap<>();
+    private IItemHandler fullHandler = null;
     public IItemHandler getHandler(Direction side)
     {
         if(!this.handlers.containsKey(side))
             this.handlers.put(side,new GachaHandler(this.trader,side));
         return this.handlers.get(side);
+    }
+    public IItemHandler getFullyAuthorizedHandler()
+    {
+        if(this.fullHandler != null)
+            this.fullHandler = new AuthorizedGachaHandler(this.trader);
+        return this.fullHandler;
     }
 
     private static class GachaHandler implements IItemHandler
@@ -32,8 +39,8 @@ public class GachaItemHandler {
         private final Direction side;
         private GachaHandler(GachaTrader trader, Direction side) { this.trader = trader; this.side = side; }
 
-        protected final boolean allowsInputs() { return this.trader.allowInputSide(this.side); }
-        protected final boolean allowOutputs() { return this.trader.allowOutputSide(this.side); }
+        protected boolean allowsInputs() { return this.trader.allowInputSide(this.side); }
+        protected boolean allowOutputs() { return this.trader.allowOutputSide(this.side); }
 
         @Override
         public int getSlots() { return this.trader.getStorage().getContents().size() + 1; }
@@ -87,6 +94,16 @@ public class GachaItemHandler {
             return ItemStack.EMPTY;
         }
 
+    }
+
+    private static class AuthorizedGachaHandler extends GachaHandler
+    {
+        private AuthorizedGachaHandler(GachaTrader trader) { super(trader,null); }
+
+        @Override
+        protected boolean allowsInputs() { return true; }
+        @Override
+        protected boolean allowOutputs() { return true; }
     }
 
 }

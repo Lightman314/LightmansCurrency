@@ -6,16 +6,21 @@ import java.util.Objects;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FlexibleSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.NineSliceSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.WidgetStateSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.SortTypeKey;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.TerminalSortType;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown.DropdownWidget;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
@@ -28,19 +33,27 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.TerminalSorter;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenTrades;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implements IScrollable {
 
     private static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/network_terminal.png");
+
+    public static final FlexibleSizeSprite BACKGROUND_SPRITE = new NineSliceSprite(new SpriteSource(GUI_TEXTURE,0,0,100,100),25);
+    public static final FlexibleSizeSprite BUTTON_BACKGROUND_SPRITE = new NineSliceSprite(new SpriteSource(GUI_TEXTURE,0,100,100,100),25);
+
+    public static final FixedSizeSprite BUTTON_SAVE = WidgetStateSprite.lazyHoverable(VersionUtil.lcResource("common/widgets/button_save"),12,12);
 
     private EditBox searchField;
     private int searchWidth = 118;
@@ -57,7 +70,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
     List<NetworkTraderButton> traderButtons;
 
     private List<TraderData> traderList(){
-        List<TraderData> traderList = TraderAPI.API.GetAllNetworkTraders(true);
+        List<TraderData> traderList = TraderAPI.getApi().GetAllNetworkTraders(true);
         //No longer need to remove the auction house, as the 'showInTerminal' function now confirms the auction houses enabled/visible status.
         traderList.sort(TerminalSorter.getDefaultSorter(getLatestSorter()));
         return traderList;
@@ -72,7 +85,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
             latestSorter = getConfiguredSortType();
             //If the default option doesn't exist, use the highest priority option instead
             if(latestSorter == null)
-                latestSorter = TraderAPI.API.GetAllSortTypes().get(0);
+                latestSorter = TraderAPI.getApi().GetAllSortTypes().get(0);
         }
         return latestSorter;
     }
@@ -80,7 +93,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
     private static TerminalSortType getConfiguredSortType()
     {
         SortTypeKey key = SortTypeKey.parse(LCConfig.CLIENT.terminalDefaultSorting.get());
-        return TraderAPI.API.GetSortType(key);
+        return TraderAPI.getApi().GetSortType(key);
     }
 
     public NetworkTerminalScreen(TerminalMenu menu, Inventory inventory, Component ignored)
@@ -122,13 +135,13 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 
         this.searchField = this.addChild(new EditBox(this.font, screenArea.x + 28, screenArea.y + 10, this.searchWidth - 17, 9, this.searchField, LCText.GUI_NETWORK_TERMINAL_SEARCH.get()));
         this.searchField.setBordered(false);
-        this.searchField.setMaxLength(32);
+        this.searchField.setMaxLength(256);
         this.searchField.setTextColor(0xFFFFFF);
         this.searchField.setValue(lastSearch);
         this.searchField.setResponder(this::onSearchChanged);
 
         //Sort Type Selection
-        this.sortTypeCache = TraderAPI.API.GetAllSortTypes();
+        this.sortTypeCache = TraderAPI.getApi().GetAllSortTypes();
         this.addChild(DropdownWidget.builder()
                 .position(screenArea.pos.offset(screenArea.width - NetworkTraderButton.WIDTH + 18,8))
                 .width(NetworkTraderButton.WIDTH - 44)
@@ -139,7 +152,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 
         this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(screenArea.width - NetworkTraderButton.WIDTH,8))
-                .sprite(Sprite.SimpleSprite(GUI_TEXTURE,100,14,12,12))
+                .sprite(BUTTON_SAVE)
                 .addon(EasyAddonHelper.visibleCheck(this::canSaveSortType))
                 .pressAction(this::saveSortType)
                 .build());
@@ -147,7 +160,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
         this.addChild(IconButton.builder()
                 .position(screenArea.pos.offset(screenArea.width - 24,4))
                 .pressAction(this::OpenAllTraders)
-                .icon(IconData.of(ModBlocks.ITEM_NETWORK_TRADER_4))
+                .icon(ItemIcon.ofItem(ModBlocks.ITEM_NETWORK_TRADER_4))
                 .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_NETWORK_TERMINAL_OPEN_ALL))
                 .build());
 
@@ -182,17 +195,17 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
     }
 
     @Override
-    public void renderBG(@Nonnull EasyGuiGraphics gui)
+    public void renderBG(EasyGuiGraphics gui)
     {
 
         //Render the background
-        gui.blitNineSplit(GUI_TEXTURE, 0, 0, this.imageWidth, this.imageHeight, 0, 0, 100, 100, 25);
+        BACKGROUND_SPRITE.render(gui,0,0,this.imageWidth,this.imageHeight);
         //Render the search icon
-        gui.blit(GUI_TEXTURE, 14, 7, 100, 0,11, 14);
+        SpriteUtil.SEARCH_ICON.render(gui,14,7);
         //Render search input background
-        gui.blitHorizSplit(GUI_TEXTURE,25,7,this.searchWidth,14,111,0,107,4);
+        SpriteUtil.SEARCH_FIELD.render(gui,25,8,this.searchWidth);
         //Render the button background
-        gui.blitNineSplit(GUI_TEXTURE, 14, 25, this.imageWidth - 28, this.imageHeight - 43, 0, 100, 100, 100, 25);
+        BUTTON_BACKGROUND_SPRITE.render(gui,14,25,this.imageWidth - 28, this.imageHeight - 43);
 
     }
 
@@ -255,7 +268,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
                 fullSearch.append(" ");
             fullSearch.append(this.searchField.getValue());
         }
-        this.filteredTraderList = TraderAPI.API.FilterTraders(this.traderList(), fullSearch.toString());
+        this.filteredTraderList = TraderAPI.getApi().FilterTraders(this.traderList(), fullSearch.toString());
         //Validate the scroll
         this.validateScroll();
         //Update the trader buttons

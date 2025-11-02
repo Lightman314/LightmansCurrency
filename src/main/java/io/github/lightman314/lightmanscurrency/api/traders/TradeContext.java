@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
@@ -27,6 +28,7 @@ import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -117,6 +119,8 @@ public class TradeContext {
     private final IEnergyStorage energyTank;
     private boolean hasEnergyTank() { return this.energyTank != null; }
 
+    private final Map<ResourceLocation,Object> customData;
+
     private TradeContext(Builder builder) {
         this.id = nextID++;
         this.isStorageMode = builder.storageMode;
@@ -130,6 +134,7 @@ public class TradeContext {
         this.itemHandler = builder.itemHandler;
         this.fluidTank = builder.fluidHandler;
         this.energyTank = builder.energyHandler;
+        this.customData = ImmutableMap.copyOf(builder.customData);
     }
 
 
@@ -744,6 +749,10 @@ public class TradeContext {
         return false;
     }
 
+    public boolean hasCustomData(ResourceLocation key) { return this.customData.containsKey(key); }
+    @Nullable
+    public Object getCustomData(ResourceLocation key) { return this.customData.get(key); }
+
     public static TradeContext createStorageMode(TraderData trader) { return new Builder(trader).build(); }
     public static Builder create(TraderData trader, Player player) { return new Builder(trader, player,true); }
     public static Builder create(TraderData trader, PlayerReference player) { return new Builder(trader, player); }
@@ -778,6 +787,8 @@ public class TradeContext {
         @Nullable
         private IEnergyStorage energyHandler;
 
+        private final Map<ResourceLocation,Object> customData = new HashMap<>();
+
         private Builder(TraderData trader) { this.storageMode = true; this.trader = trader; this.player = null; this.playerReference = null; }
         private Builder(TraderData trader, @Nullable Player player, boolean playerInteractable) {
             this.trader = trader;
@@ -787,7 +798,7 @@ public class TradeContext {
             this.playerReference = PlayerReference.of(player);
             this.storageMode = false;
             if(playerInteractable)
-                this.withMoneyHolder(MoneyAPI.API.GetPlayersMoneyHandler(player));
+                this.withMoneyHolder(MoneyAPI.getApi().GetPlayersMoneyHandler(player));
         }
         private Builder(TraderData trader, @Nullable PlayerReference player) { this.trader = trader; this.playerReference = player; this.player = null; this.storageMode = false; }
 
@@ -807,7 +818,7 @@ public class TradeContext {
         public Builder withCoinSlots(Container coinSlots) {
             if(this.player == null)
                 return this;
-            return this.withMoneyHandler(MoneyAPI.API.GetContainersMoneyHandler(coinSlots, this.player), LCText.TOOLTIP_MONEY_SOURCE_SLOTS.get(), 100);
+            return this.withMoneyHandler(MoneyAPI.getApi().GetContainersMoneyHandler(coinSlots, this.player), LCText.TOOLTIP_MONEY_SOURCE_SLOTS.get(), 100);
         }
 
         public Builder withMoneyHandler(IMoneyHandler moneyHandler, Component title, int priority) { return this.withMoneyHolder(MoneyHolder.createFromHandler(moneyHandler, title, priority)); }
@@ -822,6 +833,8 @@ public class TradeContext {
         public Builder withItemHandler(IItemHandler itemHandler) { this.itemHandler = itemHandler; return this; }
         public Builder withFluidHandler(IFluidHandler fluidHandler) { this.fluidHandler = fluidHandler; return this; }
         public Builder withEnergyHandler(IEnergyStorage energyHandler) { this.energyHandler = energyHandler; return this; }
+
+        public Builder withCustomData(ResourceLocation key, Object customData) { this.customData.put(key,customData); return this; }
 
         public TradeContext build() { return new TradeContext(this); }
 

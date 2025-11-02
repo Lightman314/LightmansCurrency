@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.FilterUtils;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.PendingSearch;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Predicate;
@@ -29,7 +30,10 @@ public class BasicSearchFilter implements ITraderSearchFilter {
 		FilterUtils.longRange(search,ID,data.getID());
 		FilterUtils.intRange(search,TRADE_COUNT,data.validTradeCount());
 		FilterUtils.boolCheck(search,CUSTOMER_READY,data.readyForCustomers());
-		FilterUtils.checkStockCount(search,data);
+        //Don't check stock count if it's the auction house as stock is irrelevant for it
+        //If players want to hide the auction house they can use trades>0 filter
+        if(!(data instanceof AuctionHouseTrader))
+		    FilterUtils.checkStockCount(search,data);
 	}
 
 	private Predicate<String> checkType(TraderData trader)

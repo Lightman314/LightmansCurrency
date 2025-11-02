@@ -11,11 +11,14 @@ import io.github.lightman314.lightmanscurrency.api.ownership.builtin.TeamOwner;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ChangeOwnerNotification extends SingleLineNotification {
 
 	public static final NotificationType<ChangeOwnerNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("change_ownership"),ChangeOwnerNotification::new);
@@ -26,25 +29,22 @@ public class ChangeOwnerNotification extends SingleLineNotification {
 	
 	private ChangeOwnerNotification() { }
 
-	public ChangeOwnerNotification(@Nonnull PlayerReference player, @Nonnull Owner newOwner, @Nonnull Owner oldOwner) {
+	public ChangeOwnerNotification(PlayerReference player, Owner newOwner, Owner oldOwner) {
 		this.player = player;
 		this.newOwner = newOwner.copy();
 		this.newOwner.setParent(this);
 		this.oldOwner = oldOwner.copy();
 		this.oldOwner.setParent(this);
 	}
-	
-	@Nonnull
+
     @Override
 	protected NotificationType<ChangeOwnerNotification> getType() { return TYPE; }
 
-	@Nonnull
 	@Override
 	public NotificationCategory getCategory() { return NullCategory.INSTANCE; }
 
-	@Nonnull
 	@Override
-	public MutableComponent getMessage() {
+	public Component getMessage() {
 		if(this.newOwner.asPlayerReference().isExact(this.player))
 			return LCText.NOTIFICATION_SETTINGS_CHANGE_OWNER_TAKEN.get(this.newOwner.getName(), this.oldOwner.getName());
 		if(this.oldOwner.asPlayerReference().isExact(this.player))
@@ -54,14 +54,14 @@ public class ChangeOwnerNotification extends SingleLineNotification {
 	}
 
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound) {
+	protected void saveAdditional(CompoundTag compound) {
 		compound.put("Player", this.player.save());
 		compound.put("NewOwner", this.newOwner.save());
 		compound.put("OldOwner", this.oldOwner.save());
 	}
 
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound) {
+	protected void loadAdditional(CompoundTag compound) {
 		this.player = PlayerReference.load(compound.getCompound("Player"));
 		this.newOwner = safeLoad(compound.getCompound("NewOwner"));
 		this.newOwner.setParent(this);
@@ -69,8 +69,8 @@ public class ChangeOwnerNotification extends SingleLineNotification {
 		this.oldOwner.setParent(this);
 	}
 
-	@Nonnull
-	private static Owner safeLoad(@Nonnull CompoundTag tag)
+	
+	private static Owner safeLoad(CompoundTag tag)
 	{
 		if(tag.contains("Type"))
 		{
@@ -92,7 +92,7 @@ public class ChangeOwnerNotification extends SingleLineNotification {
 	}
 
 	@Override
-	protected boolean canMerge(@Nonnull Notification other) {
+	protected boolean canMerge(Notification other) {
 		if(other instanceof ChangeOwnerNotification n)
 		{
 			return n.player.is(this.player) && n.newOwner.matches(this.newOwner) && n.oldOwner.matches(this.oldOwner);

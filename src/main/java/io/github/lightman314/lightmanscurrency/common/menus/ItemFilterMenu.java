@@ -57,7 +57,7 @@ public class ItemFilterMenu extends LazyMessageMenu {
     public void setQuickMoveConsumer(Consumer<ItemStack> consumer) { this.quickMoveConsumer = consumer; }
 
     @Override
-    public void HandleMessage(LazyPacketData message) {
+    protected void HandleMessage(LazyPacketData message) {
         if(message.contains("MoveToSlot"))
             this.quickMoveConsumer.accept(message.getItem("MoveToSlot"));
         if(message.contains("AddEntry"))

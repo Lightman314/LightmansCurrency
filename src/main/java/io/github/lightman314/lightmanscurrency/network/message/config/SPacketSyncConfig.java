@@ -1,16 +1,18 @@
 package io.github.lightman314.lightmanscurrency.network.message.config;
 
-import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
+import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
 import java.util.Map;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SPacketSyncConfig extends ServerToClientPacket {
 
     public static final Handler<SPacketSyncConfig> HANDLER = new H();
@@ -18,13 +20,13 @@ public class SPacketSyncConfig extends ServerToClientPacket {
     private final ResourceLocation configID;
     private final Map<String,String> data;
 
-    public SPacketSyncConfig(@Nonnull ResourceLocation configID, @Nonnull Map<String,String> data) {
+    public SPacketSyncConfig(ResourceLocation configID, Map<String,String> data) {
         this.configID = configID;
         this.data = data;
     }
 
     @Override
-    public void encode(@Nonnull FriendlyByteBuf buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         buffer.writeResourceLocation(this.configID);
         buffer.writeInt(this.data.size());
         this.data.forEach((id,dat) -> {
@@ -36,9 +38,8 @@ public class SPacketSyncConfig extends ServerToClientPacket {
     private static class H extends Handler<SPacketSyncConfig>
     {
 
-        @Nonnull
         @Override
-        public SPacketSyncConfig decode(@Nonnull FriendlyByteBuf buffer) {
+        public SPacketSyncConfig decode(FriendlyByteBuf buffer) {
             ResourceLocation configID = buffer.readResourceLocation();
             int count = buffer.readInt();
             Map<String,String> data = new HashMap<>();
@@ -52,8 +53,8 @@ public class SPacketSyncConfig extends ServerToClientPacket {
         }
 
         @Override
-        protected void handle(@Nonnull SPacketSyncConfig message, @Nullable ServerPlayer sender) {
-            SyncedConfigFile.handleSyncData(message.configID, message.data);
+        protected void handle(SPacketSyncConfig message, Player player) {
+            ConfigFile.handleSyncData(message.configID, message.data);
         }
     }
 

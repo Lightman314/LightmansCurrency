@@ -117,7 +117,7 @@ public class ATMCardMenu extends LazyMessageMenu {
     public ItemStack quickMoveStack(@Nonnull Player player, int slot) { return ItemStack.EMPTY; }
 
     @Override
-    public void HandleMessage(@Nonnull LazyPacketData message) {
+    protected void HandleMessage(@Nonnull LazyPacketData message) {
         if(message.contains("SelectEmptyAccount"))
             this.setSelectedAccount(null);
         if(message.contains("SelectAccount"))

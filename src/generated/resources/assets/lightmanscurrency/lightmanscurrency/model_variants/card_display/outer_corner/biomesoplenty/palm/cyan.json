@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/outer_corner/biomesoplenty/palm/base",
+  "target": "lightmanscurrency:card_display_biomesoplenty_palm_cyan",
+  "textures": {
+    "wool": "minecraft:block/cyan_wool"
+  }
+}

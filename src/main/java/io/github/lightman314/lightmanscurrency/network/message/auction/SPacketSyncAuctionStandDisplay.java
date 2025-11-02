@@ -3,15 +3,17 @@ package io.github.lightman314.lightmanscurrency.network.message.auction;
 import io.github.lightman314.lightmanscurrency.common.blockentity.AuctionStandBlockEntity;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SPacketSyncAuctionStandDisplay extends ServerToClientPacket {
 
     public static final Handler<SPacketSyncAuctionStandDisplay> HANDLER = new H();
@@ -20,7 +22,7 @@ public class SPacketSyncAuctionStandDisplay extends ServerToClientPacket {
 
     public SPacketSyncAuctionStandDisplay(List<ItemStack> items) { this.items = InventoryUtil.copyList(items); }
 
-    public void encode(@Nonnull FriendlyByteBuf buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         buffer.writeInt(this.items.size());
         for(ItemStack item : this.items)
             buffer.writeItem(item);
@@ -28,9 +30,8 @@ public class SPacketSyncAuctionStandDisplay extends ServerToClientPacket {
 
     private static class H extends Handler<SPacketSyncAuctionStandDisplay>
     {
-        @Nonnull
         @Override
-        public SPacketSyncAuctionStandDisplay decode(@Nonnull FriendlyByteBuf buffer) {
+        public SPacketSyncAuctionStandDisplay decode(FriendlyByteBuf buffer) {
             List<ItemStack> items = new ArrayList<>();
             int count = buffer.readInt();
             for(int i = 0; i < count; ++i)
@@ -38,7 +39,7 @@ public class SPacketSyncAuctionStandDisplay extends ServerToClientPacket {
             return new SPacketSyncAuctionStandDisplay(items);
         }
         @Override
-        protected void handle(@Nonnull SPacketSyncAuctionStandDisplay message, @Nullable ServerPlayer sender) {
+        protected void handle(SPacketSyncAuctionStandDisplay message, Player player) {
             AuctionStandBlockEntity.syncItemsFromServer(message.items);
         }
     }

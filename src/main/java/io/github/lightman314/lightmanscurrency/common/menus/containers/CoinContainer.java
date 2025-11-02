@@ -1,12 +1,15 @@
 package io.github.lightman314.lightmanscurrency.common.menus.containers;
 
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class CoinContainer extends SimpleContainer
 {
     private final boolean allowSideChain;
@@ -19,6 +22,6 @@ public class CoinContainer extends SimpleContainer
             this.setItem(i, other.getItem(i));
     }
     @Override
-    public boolean canPlaceItem(int slot, @Nonnull ItemStack stack) { return CoinAPI.API.IsAllowedInCoinContainer(stack,this.allowSideChain); }
+    public boolean canPlaceItem(int slot, ItemStack stack) { return CoinAPI.getApi().IsAllowedInCoinContainer(stack,this.allowSideChain); }
 
 }

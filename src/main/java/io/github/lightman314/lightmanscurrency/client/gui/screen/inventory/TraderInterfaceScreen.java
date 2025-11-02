@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.EasyTabbedMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
@@ -16,14 +17,16 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.Ico
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class TraderInterfaceScreen extends EasyTabbedMenuScreen<TraderInterfaceMenu,TraderInterfaceTab,TraderInterfaceScreen> {
 
 	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/trader_interface.png");
@@ -40,7 +43,6 @@ public class TraderInterfaceScreen extends EasyTabbedMenuScreen<TraderInterfaceM
 		this.resize(WIDTH, HEIGHT);
 	}
 
-	@Nonnull
 	@Override
 	protected IWidgetPositioner getTabButtonPositioner() {
 		return LazyWidgetPositioner.create(this,LazyWidgetPositioner.createLeftRight(WidgetRotation.TOP),ScreenPosition.of(0,TabButton.NEGATIVE_SIZE), TabButton.SIZE);
@@ -71,7 +73,7 @@ public class TraderInterfaceScreen extends EasyTabbedMenuScreen<TraderInterfaceM
 	}
 
 	@Override
-	protected void renderBackground(@Nonnull EasyGuiGraphics gui) {
+	protected void renderBackground(EasyGuiGraphics gui) {
 
 		//Main BG
 		gui.renderNormalBackground(GUI_TEXTURE, this);

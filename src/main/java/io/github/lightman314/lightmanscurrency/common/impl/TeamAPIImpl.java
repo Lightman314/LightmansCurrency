@@ -4,19 +4,20 @@ import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.api.teams.TeamAPI;
 import io.github.lightman314.lightmanscurrency.common.data.types.TeamDataCache;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public final class TeamAPIImpl extends TeamAPI {
 
-    public static final TeamAPI INSTANCE = new TeamAPIImpl();
-
-    private TeamAPIImpl() {}
+    public TeamAPIImpl() {}
 
     @Nullable
     @Override
@@ -27,7 +28,7 @@ public final class TeamAPIImpl extends TeamAPI {
         return data.getTeam(teamID);
     }
 
-    @Nonnull
+    
     @Override
     public List<ITeam> GetAllTeams(boolean isClient) {
         TeamDataCache data = TeamDataCache.TYPE.get(isClient);
@@ -36,9 +37,9 @@ public final class TeamAPIImpl extends TeamAPI {
         return data.getAllTeams();
     }
 
-    @Nonnull
+    
     @Override
-    public List<ITeam> GetAllTeamsForPlayer(@Nonnull Player player) {
+    public List<ITeam> GetAllTeamsForPlayer(Player player) {
         List<ITeam> result = new ArrayList<>();
         for(ITeam team : this.GetAllTeams(player.level().isClientSide))
         {
@@ -51,7 +52,7 @@ public final class TeamAPIImpl extends TeamAPI {
 
     @Nullable
     @Override
-    public ITeam CreateTeam(@Nonnull Player owner, @Nonnull String name) {
+    public ITeam CreateTeam(Player owner, String name) {
         if(owner.level().isClientSide)
             return null;
         TeamDataCache data = TeamDataCache.TYPE.get(false);
@@ -60,8 +61,8 @@ public final class TeamAPIImpl extends TeamAPI {
         return data.registerTeam(owner,name);
     }
 
-    @Nonnull
+    
     @Override
-    public Comparator<ITeam> SorterForPlayer(@Nonnull Player player) { return Team.sorterFor(player); }
+    public Comparator<ITeam> SorterForPlayer(Player player) { return Team.sorterFor(player); }
 
 }

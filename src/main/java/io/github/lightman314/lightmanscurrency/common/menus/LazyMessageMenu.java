@@ -8,11 +8,15 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
 
 import javax.annotation.Nonnull;
+import java.util.function.Consumer;
 
 public abstract class LazyMessageMenu extends EasyMenu {
 
     protected LazyMessageMenu(MenuType<?> type, int id, Inventory inventory) { super(type, id, inventory); }
     protected LazyMessageMenu(MenuType<?> type, int id, Inventory inventory, MenuValidator validator) { super(type, id, inventory, validator); }
+
+    private Consumer<LazyPacketData> clientHandler = m -> {};
+    public void addMessageListener(Consumer<LazyPacketData> consumer) { this.clientHandler = consumer; }
 
     @Nonnull
     public final LazyPacketData.Builder builder() { return LazyPacketData.builder(); }
@@ -39,6 +43,12 @@ public abstract class LazyMessageMenu extends EasyMenu {
         new SPacketLazyMenu(this.containerId,message).sendTo(this.player);
     }
 
-    public abstract void HandleMessage(@Nonnull LazyPacketData message);
+    public final void handleMessage(LazyPacketData message)
+    {
+        this.HandleMessage(message);
+        this.clientHandler.accept(message);
+    }
+
+    protected abstract void HandleMessage(@Nonnull LazyPacketData message);
 
 }

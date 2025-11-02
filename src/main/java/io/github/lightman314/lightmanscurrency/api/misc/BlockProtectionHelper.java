@@ -1,12 +1,11 @@
 package io.github.lightman314.lightmanscurrency.api.misc;
 
-import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,9 +26,9 @@ public class BlockProtectionHelper {
     }
 
     public static void ProtectBlockTag(@Nonnull TagKey<Block> tag) { ProtectBlock(b -> {
-        for(Holder<Block> holder : BuiltInRegistries.BLOCK.getTagOrEmpty(tag))
+        for(Block block : ForgeRegistries.BLOCKS.tags().getTag(tag))
         {
-            if(holder.value() == b)
+            if(block == b)
                 return true;
         }
         return false;

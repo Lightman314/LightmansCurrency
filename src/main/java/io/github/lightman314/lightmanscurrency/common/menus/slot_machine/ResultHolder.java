@@ -1,15 +1,20 @@
 package io.github.lightman314.lightmanscurrency.common.menus.slot_machine;
 
+import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
-import io.github.lightman314.lightmanscurrency.api.money.value.IItemBasedValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
+import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
+import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -19,27 +24,31 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
 import java.util.List;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public class ResultHolder {
 
+    public static final ResourceLocation CONTEXT_KEY = VersionUtil.lcResource("slot_machine_result_holder");
+
     private final Container items;
     private final IItemHandler itemHandler;
     private final MoneyStorage money;
+    private final NonNullList<IconData> icons;
 
     public ResultHolder() {
-        this.items = new SimpleContainer(4);
+        this.items = new SimpleContainer(SlotMachineEntry.ITEM_LIMIT);
         this.itemHandler = new InvWrapper(this.items);
         this.money = new MoneyStorage(() -> {},Integer.MIN_VALUE);
+        this.icons = NonNullList.withSize(SlotMachineEntry.ITEM_LIMIT,SlotMachineEntry.DEFAULT_ICON);
     }
-    private ResultHolder(Container items, MoneyStorage money)
+    private ResultHolder(Container items, MoneyStorage money, NonNullList<IconData> icons)
     {
         this.items = items;
         this.itemHandler = new InvWrapper(this.items);
         this.money = money;
+        this.icons = icons;
     }
 
     public IItemHandler itemHandler() { return this.itemHandler; }
@@ -55,34 +64,17 @@ public class ResultHolder {
             if(!item.isEmpty())
                 ItemHandlerHelper.giveItemToPlayer(player,item);
         }
-        IMoneyHolder handler = MoneyAPI.API.GetPlayersMoneyHandler(player);
+        IMoneyHolder handler = MoneyAPI.getApi().GetPlayersMoneyHandler(player);
         for(MoneyValue val : money.allValues())
             handler.insertMoney(val,false);
     }
 
-    public List<ItemStack> getDisplayItems()
+    public List<IconData> getIcons() { return ImmutableList.copyOf(this.icons); }
+    public void setIcons(List<IconData> icons)
     {
-        if(!this.money.isEmpty())
-        {
-            List<ItemStack> items = new ArrayList<>();
-            for(MoneyValue value : this.money.allValues())
-            {
-                if(value instanceof IItemBasedValue itemValue)
-                    items.addAll(itemValue.getAsSeperatedItemList());
-            }
-            return items;
-        }
-        else
-        {
-            List<ItemStack> items = new ArrayList<>();
-            for(int i = 0; i < this.items.getContainerSize(); ++i)
-            {
-                ItemStack item = this.items.getItem(i);
-                if(!item.isEmpty())
-                    items.add(item);
-            }
-            return items;
-        }
+        this.icons.clear();
+        for(int i = 0; i < this.icons.size() && i < icons.size(); ++i)
+            this.icons.set(i,icons.get(i));
     }
 
     public CompoundTag save()
@@ -90,15 +82,18 @@ public class ResultHolder {
         CompoundTag tag = new CompoundTag();
         InventoryUtil.saveAllItems("items",tag,this.items);
         tag.put("money",this.money.save());
+        tag.put("icons", TagUtil.writeIconList(this.icons));
         return tag;
     }
 
     public static ResultHolder load(CompoundTag tag)
     {
-        Container items = InventoryUtil.loadAllItems("items",tag,4);
+        Container items = InventoryUtil.loadAllItems("items",tag,SlotMachineEntry.ITEM_LIMIT);
         MoneyStorage money = new MoneyStorage(() -> {},Integer.MIN_VALUE);
         money.load(tag.getList("money", Tag.TAG_COMPOUND));
-        return new ResultHolder(items,money);
+        NonNullList<IconData> icons = NonNullList.withSize(SlotMachineEntry.ITEM_LIMIT,SlotMachineEntry.DEFAULT_ICON);
+        TagUtil.readIconList(icons,tag.getList("icons",Tag.TAG_COMPOUND),SlotMachineEntry.DEFAULT_ICON);
+        return new ResultHolder(items,money,icons);
     }
 
 

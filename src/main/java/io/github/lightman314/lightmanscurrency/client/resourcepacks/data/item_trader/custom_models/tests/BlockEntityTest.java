@@ -7,10 +7,10 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTra
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -25,7 +25,7 @@ public class BlockEntityTest extends CustomModelTest {
 
     @Override
     public boolean test(ItemTraderBlockEntity blockEntity, ItemStack item) {
-        return this.type.equals(BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntity.getType()));
+        return this.type.equals(ForgeRegistries.BLOCK_ENTITY_TYPES.getKey(blockEntity.getType()));
     }
 
     @Override

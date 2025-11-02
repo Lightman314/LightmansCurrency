@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettings;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -24,7 +25,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.PaygateNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
@@ -101,6 +102,8 @@ public class PaygateTraderData extends TraderData {
 	}
 	public void collectTicketStubs(Player player)
 	{
+        if(!this.hasPermission(player,Permissions.OPEN_STORAGE))
+            return;
 		for(ItemStack stub : this.storedTicketStubs)
 			ItemHandlerHelper.giveItemToPlayer(player, stub);
 		this.storedTicketStubs.clear();
@@ -128,7 +131,7 @@ public class PaygateTraderData extends TraderData {
 	public int getTradeCount() { return this.trades.size(); }
 	
 	@Override
-	public IconData getIcon() { return IconData.of(Items.REDSTONE_BLOCK); }
+	public IconData getIcon() { return ItemIcon.ofItem(Items.REDSTONE_BLOCK); }
 
 	@Override
 	protected boolean allowAdditionalUpgradeType(UpgradeType type) { return false; }
@@ -485,7 +488,7 @@ public class PaygateTraderData extends TraderData {
 	{
 		return IconButton.builder()
 				.pressAction(() -> new CPacketCollectTicketStubs(this.getID()).send())
-				.icon(IconData.of(ModItems.TICKET_STUB))
+				.icon(ItemIcon.ofItem(ModItems.TICKET_STUB))
 				.addon(EasyAddonHelper.toggleTooltip(() -> this.getStoredTicketStubs() > 0, () -> LCText.TOOLTIP_TRADER_PAYGATE_COLLECT_TICKET_STUBS.get(this.getStoredTicketStubs()),EasyText::empty))
 				.addon(EasyAddonHelper.visibleCheck(() -> this.areTicketStubsRelevant() && this.hasPermission(playerSource.get(),Permissions.OPEN_STORAGE) && visible.get()))
 				.addon(EasyAddonHelper.activeCheck(() -> this.getStoredTicketStubs() > 0))

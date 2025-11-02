@@ -1,0 +1,9 @@
+{
+  "parent": "lightmanscurrency:card_display/outer_corner/base",
+  "dummy": true,
+  "textures": {
+    "log": "quark:block/azalea_log",
+    "logtop": "quark:block/azalea_log_top",
+    "plank": "quark:block/azalea_planks"
+  }
+}

@@ -12,7 +12,7 @@ import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemDat
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -54,7 +54,7 @@ public class GachaTradeNotification extends SingleLineTaxableNotification {
 
 
     @Override
-    protected MutableComponent getNormalMessage() { return LCText.NOTIFICATION_TRADE_GACHA.get(this.customer,this.cost.getText("NULL"),this.item.format()); }
+    protected Component getNormalMessage() { return LCText.NOTIFICATION_TRADE_GACHA.get(this.customer,this.cost.getText("NULL"),this.item.format()); }
 
     @Override
     protected void saveNormal(CompoundTag compound) {

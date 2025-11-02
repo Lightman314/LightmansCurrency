@@ -1,18 +1,21 @@
 package io.github.lightman314.lightmanscurrency.api.upgrades;
 
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public interface IUpgradeable
 {
-    default boolean allowUpgrade(@Nonnull UpgradeItem item) { return this.allowUpgrade(item.getUpgradeType()); }
-    boolean allowUpgrade(@Nonnull UpgradeType type);
-    @Nonnull
+    default boolean allowUpgrade(UpgradeItem item) { return this.allowUpgrade(item.getUpgradeType()); }
+    boolean allowUpgrade(UpgradeType type);
+    
     Container getUpgrades();
-    default boolean quickInsertUpgrade(@Nonnull ItemStack stack)
+    default boolean quickInsertUpgrade(ItemStack stack)
     {
         if(stack.getItem() instanceof UpgradeItem upgrade)
         {

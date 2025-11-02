@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.network.chat.Component;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -34,8 +33,6 @@ public class ConfigComments {
     {
         if(object instanceof String string)
             return ImmutableList.of(string);
-        if(object instanceof Component text)
-            return ImmutableList.of(text.getString());
         if(object instanceof Supplier<?> supplier)
             return castObject(supplier.get());
         if(object instanceof Collection<?> collection)

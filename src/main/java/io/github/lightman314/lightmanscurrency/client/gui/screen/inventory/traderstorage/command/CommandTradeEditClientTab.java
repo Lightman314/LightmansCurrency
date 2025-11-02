@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -16,22 +17,23 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainBut
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.command.CommandEditField;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.command.CommandTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.traders.commands.tradedata.CommandTrade;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class CommandTradeEditClientTab extends TraderStorageClientTab<CommandTradeEditTab> implements IMouseListener, TradeInteractionHandler {
 
     public CommandTradeEditClientTab(Object screen, CommandTradeEditTab commonTab) { super(screen, commonTab); }
 
-    @Nonnull
     @Override
     public IconData getIcon() { return IconData.Null(); }
 
@@ -82,7 +84,7 @@ public class CommandTradeEditClientTab extends TraderStorageClientTab<CommandTra
 
         this.buttonToggleDetails = this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(109,45))
-                .sprite(IconAndButtonUtil.SPRITE_CHECK(() -> displayDetails))
+                .sprite(SpriteUtil.createCheckbox(() -> displayDetails))
                 .pressAction(this::toggleDetailMode)
                 .addon(EasyAddonHelper.visibleCheck(() -> this.commandEdit))
                 .build());
@@ -125,7 +127,7 @@ public class CommandTradeEditClientTab extends TraderStorageClientTab<CommandTra
     }
 
     @Override
-    public void renderBG(@Nonnull EasyGuiGraphics gui) {
+    public void renderBG(EasyGuiGraphics gui) {
         if(this.commandEdit)
         {
             gui.drawString(LCText.GUI_TRADER_COMMAND_LABEL.get(),15,46,0x404040);
@@ -139,7 +141,7 @@ public class CommandTradeEditClientTab extends TraderStorageClientTab<CommandTra
     }
 
     @Override
-    protected void OpenMessage(@Nonnull LazyPacketData clientData) {
+    protected void OpenMessage(LazyPacketData clientData) {
         if(clientData.contains("CommandEdit"))
             this.commandEdit = clientData.getBoolean("CommandEdit");
     }
@@ -147,7 +149,7 @@ public class CommandTradeEditClientTab extends TraderStorageClientTab<CommandTra
     private void toggleDetailMode() { displayDetails = !displayDetails; }
 
     @Override
-    public void HandleTradeInputInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data, int inputIndex) {
+    public void HandleTradeInputInteraction(TraderData trader, TradeData trade, TradeInteractionData data, int inputIndex) {
         if(this.commandEdit)
         {
             this.commandEdit = false;
@@ -156,7 +158,7 @@ public class CommandTradeEditClientTab extends TraderStorageClientTab<CommandTra
     }
 
     @Override
-    public void HandleTradeOutputInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data, int outputIndex) {
+    public void HandleTradeOutputInteraction(TraderData trader, TradeData trade, TradeInteractionData data, int outputIndex) {
         if(!this.commandEdit)
         {
             this.commandEdit = true;
@@ -165,7 +167,7 @@ public class CommandTradeEditClientTab extends TraderStorageClientTab<CommandTra
     }
 
     @Override
-    public void HandleOtherTradeInteraction(@Nonnull TraderData trader, @Nonnull TradeData trade, @Nonnull TradeInteractionData data) { }
+    public void HandleOtherTradeInteraction(TraderData trader, TradeData trade, TradeInteractionData data) { }
 
     @Override
     public boolean onMouseClicked(double mouseX, double mouseY, int button) {

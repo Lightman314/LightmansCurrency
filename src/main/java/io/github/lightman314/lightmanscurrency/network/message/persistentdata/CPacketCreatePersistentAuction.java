@@ -12,13 +12,15 @@ import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 
 	public static final Handler<CPacketCreatePersistentAuction> HANDLER = new H();
@@ -41,19 +43,18 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 		return json;
 	}
 	
-	public void encode(@Nonnull FriendlyByteBuf buffer) {
+	public void encode(FriendlyByteBuf buffer) {
 		buffer.writeNbt(this.auctionData);
 		buffer.writeUtf(this.id);
 	}
 
 	private static class H extends Handler<CPacketCreatePersistentAuction>
 	{
-		@Nonnull
 		@Override
-		public CPacketCreatePersistentAuction decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketCreatePersistentAuction(buffer.readAnySizeNbt(), buffer.readUtf()); }
+		public CPacketCreatePersistentAuction decode(FriendlyByteBuf buffer) { return new CPacketCreatePersistentAuction(buffer.readAnySizeNbt(), buffer.readUtf()); }
 		@Override
-		protected void handle(@Nonnull CPacketCreatePersistentAuction message, @Nullable ServerPlayer sender) {
-			if(LCAdminMode.isAdminPlayer(sender))
+		protected void handle(CPacketCreatePersistentAuction message, Player player) {
+			if(LCAdminMode.isAdminPlayer(player))
 			{
 				TraderDataCache data = TraderDataCache.TYPE.get(false);
 				if(data == null)
@@ -75,7 +76,7 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 							//Overwrite the existing entry with the same id.
 							persistentAuctions.set(i, auctionJson);
 							data.setPersistentTraderSection(TraderDataCache.PERSISTENT_AUCTION_SECTION, persistentAuctions);
-							sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_AUCTION_OVERWRITE.get(message.id));
+							player.sendSystemMessage(LCText.MESSAGE_PERSISTENT_AUCTION_OVERWRITE.get(message.id));
 							return;
 						}
 					}
@@ -83,7 +84,7 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 					//If no trader found with the id, add to list
 					persistentAuctions.add(auctionJson);
 					data.setPersistentTraderSection(TraderDataCache.PERSISTENT_AUCTION_SECTION, persistentAuctions);
-					sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_AUCTION_ADD.get(message.id));
+                    player.sendSystemMessage(LCText.MESSAGE_PERSISTENT_AUCTION_ADD.get(message.id));
 				}
 				else
 				{
@@ -105,7 +106,7 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 						{
 							persistentAuctions.add(message.getAuctionJson(genID));
 							data.setPersistentTraderSection(TraderDataCache.PERSISTENT_AUCTION_SECTION, persistentAuctions);
-							sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_AUCTION_ADD.get(genID));
+                            player.sendSystemMessage(LCText.MESSAGE_PERSISTENT_AUCTION_ADD.get(genID));
 							return;
 						}
 					}
@@ -113,8 +114,8 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 
 				}
 			}
-			else if(sender != null)
-				sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_AUCTION_FAIL.get());
+			else if(player != null)
+                player.sendSystemMessage(LCText.MESSAGE_PERSISTENT_AUCTION_FAIL.get());
 		}
 	}
 	

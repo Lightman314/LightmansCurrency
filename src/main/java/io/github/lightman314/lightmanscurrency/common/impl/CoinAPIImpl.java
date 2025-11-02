@@ -28,6 +28,7 @@ import io.github.lightman314.lightmanscurrency.network.LightmansCurrencyPacketHa
 import io.github.lightman314.lightmanscurrency.network.message.data.SPacketSyncCoinData;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -44,20 +45,21 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.function.BiPredicate;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public final class CoinAPIImpl extends CoinAPI {
 
-    public static final CoinAPIImpl INSTANCE = new CoinAPIImpl();
-    public static final Comparator<ItemStack> SORTER = new CoinSorter();
+    private static CoinAPIImpl instance;
 
-    private CoinAPIImpl() {}
+    public CoinAPIImpl() { instance = this; }
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     Map<String, ChainData> loadedChains = null;
@@ -107,15 +109,15 @@ public final class CoinAPIImpl extends CoinAPI {
         this.SyncCoinDataWith(PacketDistributor.ALL.noArg());
     }
 
-    public static void LoadEditedData(@Nonnull String customJson) {
+    public static void LoadEditedData(String customJson) {
         try {
             JsonObject json = GsonHelper.parse(customJson);
-            INSTANCE.loadMoneyDataFromJson(json);
-            INSTANCE.createMoneyDataFile(new File(MONEY_FILE_LOCATION),INSTANCE.loadedChains,false);
+            instance.loadMoneyDataFromJson(json);
+            instance.createMoneyDataFile(new File(MONEY_FILE_LOCATION),instance.loadedChains,false);
         } catch (JsonParseException | ResourceLocationException e) { LightmansCurrency.LogError("Error parsing custom json data!",e); }
     }
 
-    private void loadData(@Nonnull Map<String,ChainData> dataMap)
+    private void loadData(Map<String,ChainData> dataMap)
     {
         ChainDataReloadedEvent.Pre event = new ChainDataReloadedEvent.Pre(dataMap);
         MinecraftForge.EVENT_BUS.post(event);
@@ -135,7 +137,7 @@ public final class CoinAPIImpl extends CoinAPI {
     }
 
     @SuppressWarnings("deprecation")
-    private void loadDeprecatedData(@Nonnull JsonArray oldArray) throws JsonSyntaxException, ResourceLocationException
+    private void loadDeprecatedData(JsonArray oldArray) throws JsonSyntaxException, ResourceLocationException
     {
         Map<String, List<OldCoinData>> oldData = new HashMap<>();
         for(int i = 0; i < oldArray.size(); ++i)
@@ -226,7 +228,7 @@ public final class CoinAPIImpl extends CoinAPI {
     }
 
     @SuppressWarnings("deprecation")
-    private OldCoinData findNextInChain(@Nonnull List<OldCoinData> dataList, @Nonnull Item coin, boolean coreChainOnly)
+    private OldCoinData findNextInChain(List<OldCoinData> dataList, Item coin, boolean coreChainOnly)
     {
         for(OldCoinData data : dataList)
         {
@@ -240,7 +242,7 @@ public final class CoinAPIImpl extends CoinAPI {
         return null;
     }
 
-    private void loadMoneyDataFromJson(@Nonnull JsonObject root) throws JsonSyntaxException, ResourceLocationException
+    private void loadMoneyDataFromJson(JsonObject root) throws JsonSyntaxException, ResourceLocationException
     {
         List<CoinEntry> allEntries = new ArrayList<>();
         Map<String, ChainData> tempMap = new HashMap<>();
@@ -264,7 +266,7 @@ public final class CoinAPIImpl extends CoinAPI {
         loadData(tempMap);
     }
 
-    private void createMoneyDataFile(@Nonnull File mcl, @Nonnull Map<String,ChainData> data, boolean hideEventChains)
+    private void createMoneyDataFile(File mcl, Map<String,ChainData> data, boolean hideEventChains)
     {
         File dir = new File(mcl.getParent());
         if(!dir.exists())
@@ -275,7 +277,7 @@ public final class CoinAPIImpl extends CoinAPI {
 
                 mcl.createNewFile();
 
-                @Nonnull JsonObject json = this.getDataJson(data, hideEventChains);
+                JsonObject json = this.getDataJson(data, hideEventChains);
 
                 FileUtil.writeStringToFile(mcl, GSON.toJson(json));
 
@@ -283,7 +285,6 @@ public final class CoinAPIImpl extends CoinAPI {
         }
     }
 
-    @Nonnull
     private Map<String,ChainData> generateDefaultMoneyData()
     {
         BuildDefaultMoneyDataEvent event = new BuildDefaultMoneyDataEvent();
@@ -331,8 +332,8 @@ public final class CoinAPIImpl extends CoinAPI {
 
     }
 
-    @Nonnull
-    private JsonObject getDataJson(@Nonnull Map<String,ChainData> data, boolean hideEventChains)
+    
+    private JsonObject getDataJson(Map<String,ChainData> data, boolean hideEventChains)
     {
         JsonObject fileJson = new JsonObject();
         JsonArray chainArray = new JsonArray();
@@ -348,9 +349,9 @@ public final class CoinAPIImpl extends CoinAPI {
         return fileJson;
     }
 
-    @Nonnull
+    
     @Override
-    public ItemStack getEquippedWallet(@Nonnull Player player) {
+    public ItemStack getEquippedWallet(Player player) {
         ItemStack wallet = ItemStack.EMPTY;
         IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(player);
         if(walletHandler != null)
@@ -367,13 +368,13 @@ public final class CoinAPIImpl extends CoinAPI {
 
     @Override
     @Nullable
-    public ChainData ChainData(@Nonnull String chain) {
+    public ChainData ChainData(String chain) {
         if(this.NoDataAvailable())
             return null;
         return this.loadedChains.get(chain);
     }
 
-    @Nonnull
+    
     @Override
     public List<ChainData> AllChainData() {
         if(this.NoDataAvailable())
@@ -383,21 +384,21 @@ public final class CoinAPIImpl extends CoinAPI {
 
     @org.jetbrains.annotations.Nullable
     @Override
-    public ChainData ChainDataOfCoin(@Nonnull ItemStack coin) { return this.ChainDataOfCoin(coin.getItem()); }
+    public ChainData ChainDataOfCoin(ItemStack coin) { return this.ChainDataOfCoin(coin.getItem()); }
 
     @Nullable
     @Override
-    public ChainData ChainDataOfCoin(@Nonnull Item coin) {
+    public ChainData ChainDataOfCoin(Item coin) {
         if(this.NoDataAvailable())
             return null;
         return this.itemIdToChainMap.get(ForgeRegistries.ITEMS.getKey(coin));
     }
 
     @Override
-    public boolean IsCoin(@Nonnull ItemStack coin, boolean allowSideChains) { return !coin.isEmpty() && this.IsCoin(coin.getItem(), allowSideChains); }
+    public boolean IsCoin(ItemStack coin, boolean allowSideChains) { return !coin.isEmpty() && this.IsCoin(coin.getItem(), allowSideChains); }
 
     @Override
-    public boolean IsCoin(@Nonnull Item coin, boolean allowSideChains) {
+    public boolean IsCoin(Item coin, boolean allowSideChains) {
         if(coin == Items.AIR)
             return false;
         ChainData chainData = this.ChainDataOfCoin(coin);
@@ -414,13 +415,13 @@ public final class CoinAPIImpl extends CoinAPI {
     }
 
     @Override
-    public void RegisterCoinContainerFilter(@Nonnull BiPredicate<ItemStack, Boolean> filter) {
+    public void RegisterCoinContainerFilter(BiPredicate<ItemStack, Boolean> filter) {
         if(!this.customCoinContainerFilters.contains(filter))
             this.customCoinContainerFilters.add(filter);
     }
 
     @Override
-    public boolean IsAllowedInCoinContainer(@Nonnull ItemStack coin, boolean allowSideChains) {
+    public boolean IsAllowedInCoinContainer(ItemStack coin, boolean allowSideChains) {
         for(BiPredicate<ItemStack,Boolean> filter : this.customCoinContainerFilters)
         {
             if(filter.test(coin,allowSideChains))
@@ -430,10 +431,10 @@ public final class CoinAPIImpl extends CoinAPI {
     }
 
     @Override
-    public boolean IsAllowedInCoinContainer(@Nonnull Item coin, boolean allowSideChains) { return this.IsAllowedInCoinContainer(new ItemStack(coin),allowSideChains); }
+    public boolean IsAllowedInCoinContainer(Item coin, boolean allowSideChains) { return this.IsAllowedInCoinContainer(new ItemStack(coin),allowSideChains); }
 
     @Override
-    public void CoinExchangeAllUp(@Nonnull Container container) {
+    public void CoinExchangeAllUp(Container container) {
         if(this.NoDataAvailable())
             return;
         for(ChainData chain : this.AllChainData())
@@ -449,7 +450,7 @@ public final class CoinAPIImpl extends CoinAPI {
     }
 
     @Override
-    public void CoinExchangeUp(@Nonnull Container container, @Nonnull Item smallCoin) {
+    public void CoinExchangeUp(Container container, Item smallCoin) {
         if(this.NoDataAvailable())
             return;
         ChainData chain = this.ChainDataOfCoin(smallCoin);
@@ -477,7 +478,7 @@ public final class CoinAPIImpl extends CoinAPI {
     }
 
     @Override
-    public void CoinExchangeAllDown(@Nonnull Container container) {
+    public void CoinExchangeAllDown(Container container) {
         if(this.NoDataAvailable())
             return;
         for(ChainData chain : this.AllChainData())
@@ -491,7 +492,7 @@ public final class CoinAPIImpl extends CoinAPI {
     }
 
     @Override
-    public void CoinExchangeDown(@Nonnull Container container, @Nonnull Item largeCoin) {
+    public void CoinExchangeDown(Container container, Item largeCoin) {
         if(this.NoDataAvailable())
             return;
         ChainData chain = this.ChainDataOfCoin(largeCoin);
@@ -519,7 +520,7 @@ public final class CoinAPIImpl extends CoinAPI {
     }
 
     @Override
-    public void SortCoinsByValue(@Nonnull Container container) {
+    public void SortCoinsByValue(Container container) {
         //Merge like stacks
         InventoryUtil.MergeStacks(container);
 
@@ -545,15 +546,15 @@ public final class CoinAPIImpl extends CoinAPI {
     }
 
     @Override
-    public void RegisterCustomSorter(@Nonnull Comparator<ItemStack> sorter) {
+    public void RegisterCustomSorter(Comparator<ItemStack> sorter) {
         if(!this.customSorters.contains(sorter))
             this.customSorters.add(sorter);
     }
 
     //Reload
-    private void onServerStart(@Nonnull ServerAboutToStartEvent event) { this.ReloadCoinDataFromFile(); }
+    private void onServerStart(ServerAboutToStartEvent event) { this.ReloadCoinDataFromFile(); }
 
-    private void onJoinServer(@Nonnull PlayerEvent.PlayerLoggedInEvent event)
+    private void onJoinServer(PlayerEvent.PlayerLoggedInEvent event)
     {
         LightmansCurrency.LogDebug("PlayerLoggedInEvent was called!");
         if(this.NoDataAvailable())
@@ -562,12 +563,12 @@ public final class CoinAPIImpl extends CoinAPI {
     }
 
     @Override
-    public void SyncCoinDataWith(@Nonnull PacketDistributor.PacketTarget target) { new SPacketSyncCoinData(getDataJson(this.loadedChains, false)).sendToTarget(target); }
+    public void SyncCoinDataWith(PacketDistributor.PacketTarget target) { new SPacketSyncCoinData(getDataJson(this.loadedChains, false)).sendToTarget(target); }
 
     @Override
-    public void HandleSyncPacket(@Nonnull SPacketSyncCoinData packet) { this.loadMoneyDataFromJson(packet.getJson()); }
+    public void HandleSyncPacket(SPacketSyncCoinData packet) { this.loadMoneyDataFromJson(packet.getJson()); }
 
-    private static class CoinSorter implements Comparator<ItemStack>
+    public static class CoinSorter implements Comparator<ItemStack>
     {
         @Override
         public int compare(ItemStack stack1, ItemStack stack2) {
@@ -576,12 +577,12 @@ public final class CoinAPIImpl extends CoinAPI {
                 return Integer.compare(stack2.getCount(), stack1.getCount());
 
             //Start comparing chains
-            ChainData chain1 = API.ChainDataOfCoin(stack1);
-            ChainData chain2 = API.ChainDataOfCoin(stack2);
+            ChainData chain1 = getApi().ChainDataOfCoin(stack1);
+            ChainData chain2 = getApi().ChainDataOfCoin(stack2);
             if (chain1 == null && chain2 == null)
             {
                 //If neither item has a coin chain, use custom sorters
-                for(Comparator<ItemStack> custom : INSTANCE.customSorters)
+                for(Comparator<ItemStack> custom : instance.customSorters)
                 {
                     int result = custom.compare(stack1,stack2);
                     if(result != 0)

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.EasyClientTabbedMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
@@ -15,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.walletbank.*;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletBankMenu;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketOpenWallet;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
@@ -59,7 +59,7 @@ public class WalletBankScreen extends EasyClientTabbedMenuScreen<WalletBankMenu,
 		this.buttonOpenWallet = this.addChild(IconButton.builder()
 				.position(screenArea.pos.offset(screenArea.width,0))
 				.pressAction(this::PressOpenWalletButton)
-				.icon(IconData.of(this.menu.getWallet()))
+				.icon(ItemIcon.ofItem(this.menu.getWallet()))
 				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_WALLET_OPEN_WALLET))
 				.build());
 

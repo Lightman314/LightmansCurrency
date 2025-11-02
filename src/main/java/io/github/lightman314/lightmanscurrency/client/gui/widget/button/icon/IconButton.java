@@ -3,8 +3,8 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon;
 import javax.annotation.Nonnull;
 
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraftforge.api.distmarker.Dist;
@@ -18,7 +18,7 @@ public class IconButton extends EasyButton {
 
 	public static final int SIZE = 20;
 
-	private Function<IconButton, IconData> iconSource;
+	private Function<IconButton,IconData> iconSource;
 
 	private final Function<IconButton,Integer> color;
 

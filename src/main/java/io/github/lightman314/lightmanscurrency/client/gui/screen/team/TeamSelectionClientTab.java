@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.team;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.api.teams.TeamAPI;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TeamSelectWidget;
@@ -11,7 +12,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.menus.teams.TeamManagementClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.teams.tabs.TeamSelectionTab;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -33,7 +34,7 @@ public class TeamSelectionClientTab extends TeamManagementClientTab<TeamSelectio
 
     @Nonnull
     @Override
-    public IconData getIcon() { return IconData.of(Items.PAPER); }
+    public IconData getIcon() { return ItemIcon.ofItem(Items.PAPER); }
 
     @Override
     public MutableComponent getTooltip() { return LCText.TOOLTIP_TEAM_SELECT.get(); }
@@ -78,7 +79,7 @@ public class TeamSelectionClientTab extends TeamManagementClientTab<TeamSelectio
     private void refreshTeamList()
     {
         this.teamList = new ArrayList<>();
-        List<ITeam> allTeams = TeamAPI.API.GetAllTeams(true);
+        List<ITeam> allTeams = TeamAPI.getApi().GetAllTeams(true);
         allTeams.forEach(team ->{
             if(team.isMember(this.menu.player))
                 this.teamList.add(team);

@@ -1,13 +1,19 @@
 package io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader;
 
+import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.LuaFunction;
+import dan200.computercraft.api.peripheral.IComputerAccess;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.attachments.builtin.ExternalAuthorizationAttachment;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
+import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.PeripheralMethod;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCArgumentHelper;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.AccessTrackingPeripheral;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.AccessTrackingPeripheral;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -25,26 +31,62 @@ public abstract class TradeWrapper<T extends TradeData> extends AccessTrackingPe
     @Override
     public Set<String> getAdditionalTypes() { return Set.of(BASE_TYPE); }
 
-    protected final T getTrade() throws LuaException{
+    public final T getTrade() throws LuaException{
         T trade = this.source.get();
         if(trade == null)
             throw new LuaException("An unexpected error occurred trying to access the trade!");
         return trade;
     }
 
-    @LuaFunction(mainThread = true)
+    public int getPermissionLevel(IComputerAccess computer)
+    {
+        String id = this.getComputerID(computer);
+        if(id == null)
+            return 0;
+        TraderData trader = this.trader.get();
+        if(trader == null || !trader.hasAttachment(ExternalAuthorizationAttachment.TYPE))
+            return 0;
+        //Deny blocked permissions early
+        if(trader.getBlockedPermissions().contains(Permissions.EDIT_TRADES))
+            return 0;
+        ExternalAuthorizationAttachment.AccessLevel access = trader.getAttachment(ExternalAuthorizationAttachment.TYPE).getAccessLevel(id);
+        return switch (access) {
+            case NONE -> 0;
+            case ALLY -> trader.getAllyPermissionMap().getOrDefault(Permissions.EDIT_TRADES, 0);
+            case ADMIN -> Integer.MAX_VALUE;
+        };
+    }
+    public boolean hasPermission(IComputerAccess computer) { return this.getPermissionLevel(computer) > 0; }
+
+    public final void markTradeDirty()
+    {
+        TraderData trader = this.trader.get();
+        if(trader != null)
+            trader.markTradesDirty();
+    }
+
     public boolean isValid() {
         try { return this.getTrade().isValid();
         } catch (LuaException exception) { return false; }
     }
 
-    @LuaFunction(mainThread = true)
     public LCLuaTable getPrice() throws LuaException {
         LCLuaTable table = new LCLuaTable();
         return LCLuaTable.fromMoney(this.getTrade().getCost());
     }
+    public boolean setPrice(IComputerAccess computer, IArguments args) throws LuaException
+    {
+        MoneyValue newPrice = LCArgumentHelper.parseMoneyValue(args,0,true);
+        TradeData trade = this.getTrade();
+        if(this.hasPermission(computer))
+        {
+            trade.setCost(newPrice);
+            this.markTradeDirty();
+            return true;
+        }
+        return false;
+    }
 
-    @LuaFunction(mainThread = true)
     public int getStock() throws LuaException {
         TraderData trader = this.trader.get();
         if(trader == null)
@@ -53,17 +95,25 @@ public abstract class TradeWrapper<T extends TradeData> extends AccessTrackingPe
         return trade.getStock(TradeContext.createStorageMode(trader));
     }
 
-    @LuaFunction(mainThread = true)
     public String getDirection() throws LuaException { return this.getTrade().getTradeDirection().toString(); }
 
-    @LuaFunction(mainThread = true)
     public boolean isSale() throws LuaException { return this.getTrade().getTradeDirection() == TradeDirection.SALE; }
-    @LuaFunction(mainThread = true)
     public boolean isPurchase() throws LuaException { return this.getTrade().getTradeDirection() == TradeDirection.PURCHASE; }
-    @LuaFunction(mainThread = true)
     public boolean isBarter() throws LuaException { return this.getTrade().getTradeDirection() == TradeDirection.BARTER; }
-    @LuaFunction(mainThread = true)
     public boolean isOther() throws LuaException { return this.getTrade().getTradeDirection() == TradeDirection.OTHER; }
+
+    @Override
+    protected void registerMethods(PeripheralMethod.Registration registration) {
+        registration.register(PeripheralMethod.builder("isValid").simple(this::isValid));
+        registration.register(PeripheralMethod.builder("getPrice").simple(this::getPrice));
+        registration.register(PeripheralMethod.builder("setPrice").withContext(this::setPrice));
+        registration.register(PeripheralMethod.builder("getStock").simple(this::getStock));
+        registration.register(PeripheralMethod.builder("getDirection").simple(this::getDirection));
+        registration.register(PeripheralMethod.builder("isSale").simple(this::isSale));
+        registration.register(PeripheralMethod.builder("isPurchase").simple(this::isPurchase));
+        registration.register(PeripheralMethod.builder("isBarter").simple(this::isBarter));
+        registration.register(PeripheralMethod.builder("isOther").simple(this::isOther));
+    }
 
     private static final class Simple extends TradeWrapper<TradeData>
     {

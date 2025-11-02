@@ -1,0 +1,9 @@
+{
+  "parent": "lightmanscurrency:card_display/inner_corner/base",
+  "dummy": true,
+  "textures": {
+    "log": "quark:block/ancient_log",
+    "logtop": "quark:block/ancient_log_top",
+    "plank": "quark:block/ancient_planks"
+  }
+}

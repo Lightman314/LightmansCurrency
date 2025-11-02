@@ -6,12 +6,14 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class CPacketSubmitBid extends ClientToServerPacket {
 
 	public static final Handler<CPacketSubmitBid> HANDLER = new H();
@@ -26,7 +28,7 @@ public class CPacketSubmitBid extends ClientToServerPacket {
 		this.bidAmount = bidAmount;
 	}
 	
-	public void encode(@Nonnull FriendlyByteBuf buffer) {
+	public void encode(FriendlyByteBuf buffer) {
 		buffer.writeLong(this.auctionHouseID);
 		buffer.writeInt(this.tradeIndex);
 		this.bidAmount.encode(buffer);
@@ -34,17 +36,17 @@ public class CPacketSubmitBid extends ClientToServerPacket {
 
 	private static class H extends Handler<CPacketSubmitBid>
 	{
-		@Nonnull
+		
 		@Override
-		public CPacketSubmitBid decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketSubmitBid(buffer.readLong(), buffer.readInt(), MoneyValue.decode(buffer)); }
+		public CPacketSubmitBid decode(FriendlyByteBuf buffer) { return new CPacketSubmitBid(buffer.readLong(), buffer.readInt(), MoneyValue.decode(buffer)); }
 		@Override
-		protected void handle(@Nonnull CPacketSubmitBid message, @Nullable ServerPlayer sender) {
-			if(sender != null && sender.containerMenu instanceof TraderMenu menu)
+		protected void handle(CPacketSubmitBid message, Player player) {
+			if(player != null && player.containerMenu instanceof TraderMenu menu)
 			{
 				//Get the auction house
-				TraderData data = TraderAPI.API.GetTrader(false, message.auctionHouseID);
+				TraderData data = TraderAPI.getApi().GetTrader(false, message.auctionHouseID);
 				if(data instanceof AuctionHouseTrader ah)
-					ah.makeBid(sender, menu, message.tradeIndex, message.bidAmount);
+					ah.makeBid(player, menu, message.tradeIndex, message.bidAmount);
 			}
 		}
 	}

@@ -1,15 +1,16 @@
 package io.github.lightman314.lightmanscurrency.common.bank;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
+import io.github.lightman314.lightmanscurrency.api.money.bank.salary.CustomTarget;
+import io.github.lightman314.lightmanscurrency.api.money.bank.salary.SalaryData;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
@@ -17,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolde
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
+import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.BankInterestNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.BankTransferNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.DepositWithdrawNotification;
@@ -40,209 +42,247 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 
-	private boolean isClient = false;
-	@Override
-	public boolean isClient() { return this.isClient; }
+    private boolean isClient = false;
+    @Override
+    public boolean isClient() { return this.isClient; }
 
-	public BankAccount flagAsClient() { return this.flagAsClient(true); }
-	public BankAccount flagAsClient(boolean isClient) { this.isClient = isClient; if(this.isClient) this.logger.flagAsClient(); return this; }
-	public BankAccount flagAsClient(IClientTracker parent) { return this.flagAsClient(parent.isClient()); }
+    public BankAccount flagAsClient() { return this.flagAsClient(true); }
+    public BankAccount flagAsClient(boolean isClient) { this.isClient = isClient; if(this.isClient) this.logger.flagAsClient(); return this; }
+    public BankAccount flagAsClient(IClientTracker parent) { return this.flagAsClient(parent.isClient()); }
 
-	private final Runnable markDirty;
+    private final Runnable markDirty;
 
-	private final MoneyStorage coinStorage = new MoneyStorage(this::markDirty);
-	
-	public MoneyStorage getMoneyStorage() { return this.coinStorage; }
+    private final MoneyStorage coinStorage = new MoneyStorage(this::markDirty);
 
-	int cardValidation = 0;
-	public int getCardValidation() { return this.cardValidation; }
-	public boolean isCardValid(int validationLevel) { return validationLevel >= this.cardValidation; }
-	public void resetCards() { this.cardValidation++; this.markDirty(); }
+    public MoneyStorage getMoneyStorage() { return this.coinStorage; }
 
-	@Override
-	@Nullable
-	protected IMoneyHolder getParent() { return this.coinStorage; }
+    public List<SalaryData> salaryData = new ArrayList<>();
+    @Override
+    public List<SalaryData> getSalaries() { return ImmutableList.copyOf(this.salaryData); }
+    @Nullable
+    public SalaryData createNewSalary() {
+        if(this.salaryData.size() >= SALARY_LIMIT)
+            return null;
+        SalaryData newSalary = new SalaryData(this,this.salaryData::indexOf);
+        this.salaryData.add(newSalary);
+        this.markDirty();
+        return newSalary;
+    }
 
-	private final Map<String,MoneyValue> notificationLevels = new HashMap<>();
-	
-	@Override
-	public Map<String,MoneyValue> getNotificationLevels() { return ImmutableMap.copyOf(this.notificationLevels); }
-	
-	@Override
-	public MoneyValue getNotificationLevelFor(String type) { return this.notificationLevels.getOrDefault(type, MoneyValue.empty()); }
+    int cardValidation = 0;
+    public int getCardValidation() { return this.cardValidation; }
+    public boolean isCardValid(int validationLevel) { return validationLevel >= this.cardValidation; }
+    public void resetCards() { this.cardValidation++; this.markDirty(); }
 
-	@Override
-	public void setNotificationLevel(String type, MoneyValue value) {
-		if(value.isEmpty())
-			this.notificationLevels.remove(type);
-		else
-			this.notificationLevels.put(type, value);
-		this.markDirty();
-	}
+    @Override
+    @Nullable
+    protected IMoneyHolder getParent() { return this.coinStorage; }
 
-	private Consumer<Supplier<Notification>> notificationSender;
-	public void setNotificationConsumer(Consumer<Supplier<Notification>> notificationSender) { this.notificationSender = notificationSender; }
+    private final Map<String,MoneyValue> notificationLevels = new HashMap<>();
 
-	@Override
-	public void pushLocalNotification(Notification notification) {
-		this.logger.addNotification(notification);
-		this.markDirty();
-	}
-	@Override
-	public void pushNotification(Supplier<Notification> notification, boolean notifyPlayers) {
-		this.pushLocalNotification(notification.get());
-		if(notifyPlayers && this.notificationSender != null)
-			this.notificationSender.accept(notification);
-	}
+    @Override
+    public Map<String,MoneyValue> getNotificationLevels() { return ImmutableMap.copyOf(this.notificationLevels); }
 
-	public static Consumer<Supplier<Notification>> generateNotificationAcceptor(UUID playerID) {
-		return (notification) -> NotificationAPI.API.PushPlayerNotification(playerID, notification.get());
-	}
+    @Override
+    public MoneyValue getNotificationLevelFor(String type) { return this.notificationLevels.getOrDefault(type, MoneyValue.empty()); }
 
-	private final NotificationData logger = new NotificationData();
-	
-	@Override
-	public List<Notification> getNotifications() { return this.logger.getNotifications(); }
+    @Override
+    public void setNotificationLevel(String type, MoneyValue value) {
+        if(value.isEmpty())
+            this.notificationLevels.remove(type);
+        else
+            this.notificationLevels.put(type, value);
+        this.markDirty();
+    }
 
-	private String ownerName = "Unknown";
-	public String getOwnersName() { return this.ownerName; }
-	public void updateOwnersName(String ownerName) { this.ownerName = ownerName; }
-	@Override
-	
-	public MutableComponent getName() { return LCText.GUI_BANK_ACCOUNT_NAME.get(this.ownerName); }
+    private Consumer<Supplier<Notification>> notificationSender;
+    public void setNotificationConsumer(Consumer<Supplier<Notification>> notificationSender) { this.notificationSender = notificationSender; }
 
-	@Override
-	public void depositMoney(MoneyValue depositAmount) { this.coinStorage.addValue(depositAmount); }
+    @Override
+    public void pushLocalNotification(Notification notification) {
+        this.logger.addNotification(notification);
+        this.markDirty();
+    }
+    @Override
+    public void pushNotification(Supplier<Notification> notification, boolean notifyPlayers) {
+        this.pushLocalNotification(notification.get());
+        if(notifyPlayers && this.notificationSender != null)
+            this.notificationSender.accept(notification);
+    }
 
-	
-	@Override
-	public MoneyValue withdrawMoney(MoneyValue withdrawAmount) {
-		String type = withdrawAmount.getUniqueName();
-		withdrawAmount = this.coinStorage.capValue(withdrawAmount);
-		//Cannot withdraw if none is in storage
-		if(withdrawAmount.isEmpty())
-			return MoneyValue.empty();
-		long oldValue = this.coinStorage.valueOf(type).getCoreValue();
-		this.coinStorage.removeValue(withdrawAmount);
-		//Check if we should push the notification
-		MoneyValue notificationLevel = this.getNotificationLevelFor(withdrawAmount.getUniqueName());
-		long nl = notificationLevel.getCoreValue();
-		if(oldValue >= nl && this.coinStorage.valueOf(type).getCoreValue() < nl)
-			this.pushNotification(LowBalanceNotification.create(this.getName(), notificationLevel));
-		return withdrawAmount;
-	}
+    public static Consumer<Supplier<Notification>> generateNotificationAcceptor(UUID playerID) {
+        return (notification) -> NotificationAPI.getApi().PushPlayerNotification(playerID, notification.get());
+    }
 
-	public void LogInteraction(Player player, MoneyValue amount, boolean isDeposit) {
-		this.pushLocalNotification(new DepositWithdrawNotification.Player(PlayerReference.of(player), this.getName(), isDeposit, amount));
-	}
+    private final NotificationData logger = new NotificationData();
 
-	public void LogInteraction(TaxEntry tax, MoneyValue amount) {
-		this.pushLocalNotification(new DepositWithdrawNotification.Custom(tax.getName(), this.getName(), true, amount));
-	}
+    @Override
+    public List<Notification> getNotifications() { return this.logger.getNotifications(); }
 
-	public void LogInteraction(TraderData trader, MoneyValue amount, boolean isDeposit) {
-		this.pushLocalNotification(new DepositWithdrawNotification.Custom(trader.getName(), this.getName(), isDeposit, amount));
-	}
+    private String ownerName = "Unknown";
+    public String getOwnersName() { return this.ownerName; }
+    public void updateOwnersName(String ownerName) { this.ownerName = ownerName; }
+    @Override
+    public MutableComponent getName() { return LCText.GUI_BANK_ACCOUNT_NAME.get(this.ownerName); }
+    public Component getOwnerName() { return EasyText.literal(this.ownerName); }
 
-	public void LogTransfer(Player player, MoneyValue amount, MutableComponent otherAccount, boolean wasReceived) {
-		this.pushLocalNotification(new BankTransferNotification(PlayerReference.of(player), amount, this.getName(), otherAccount, wasReceived));
-	}
+    @Override
+    public void depositMoney(MoneyValue depositAmount) { this.coinStorage.addValue(depositAmount); }
 
+    @Override
+    public MoneyValue withdrawMoney(MoneyValue withdrawAmount) {
+        String type = withdrawAmount.getUniqueName();
+        withdrawAmount = this.coinStorage.capValue(withdrawAmount);
+        //Cannot withdraw if none is in storage
+        if(withdrawAmount.isEmpty())
+            return MoneyValue.empty();
+        long oldValue = this.coinStorage.valueOf(type).getCoreValue();
+        this.coinStorage.removeValue(withdrawAmount);
+        //Check if we should push the notification
+        MoneyValue notificationLevel = this.getNotificationLevelFor(withdrawAmount.getUniqueName());
+        long nl = notificationLevel.getCoreValue();
+        if(oldValue >= nl && this.coinStorage.valueOf(type).getCoreValue() < nl)
+            this.pushNotification(LowBalanceNotification.create(this.getName(), notificationLevel));
+        return withdrawAmount;
+    }
 
+    public void LogInteraction(Player player, MoneyValue amount, boolean isDeposit) {
+        this.pushLocalNotification(new DepositWithdrawNotification.Player(PlayerReference.of(player), this.getName(), isDeposit, amount));
+    }
 
-	public BankAccount() { this((Runnable)null); }
-	public BankAccount(Runnable markDirty) { this.markDirty = markDirty; }
+    public void LogInteraction(TaxEntry tax, MoneyValue amount) {
+        this.pushLocalNotification(new DepositWithdrawNotification.Custom(tax.getName(), this.getName(), true, amount));
+    }
 
-	public BankAccount(CompoundTag compound) { this(null, compound); }
-	public BankAccount(Runnable markDirty, CompoundTag compound) {
-		this.markDirty = markDirty;
-		this.coinStorage.safeLoad(compound, "CoinStorage");
-		this.logger.load(compound.getCompound("AccountLogs"));
-		this.ownerName = compound.getString("OwnerName");
-		if(compound.contains("NotificationLevel"))
-		{
-			MoneyValue level = MoneyValue.safeLoad(compound, "NotificationLevel");
-			if(!level.isEmpty() && !level.isFree())
-				this.notificationLevels.put(level.getUniqueName(), level);
-		}
-		else if(compound.contains("NotificationLevels"))
-		{
-			ListTag list = compound.getList("NotificationLevels", Tag.TAG_COMPOUND);
-			for(int i = 0; i < list.size(); ++i)
-			{
-				MoneyValue level = MoneyValue.load(list.getCompound(i));
-				if(level.isInvalid() || (!level.isFree() && !level.isEmpty()))
-					this.notificationLevels.put(level.getUniqueName(), level);
-			}
-		}
-		if(compound.contains("CardValidation"))
-			this.cardValidation = compound.getInt("CardValidation");
-	}
+    public void LogInteraction(TraderData trader, MoneyValue amount, boolean isDeposit) {
+        this.pushLocalNotification(new DepositWithdrawNotification.Custom(trader.getName(), this.getName(), isDeposit, amount));
+    }
 
-	public void markDirty()
-	{
-		if(this.markDirty != null)
-			this.markDirty.run();
-	}
+    public void LogTransfer(Player player, MoneyValue amount, MutableComponent otherAccount, boolean wasReceived) {
+        this.pushLocalNotification(new BankTransferNotification(PlayerReference.of(player), amount, this.getName(), otherAccount, wasReceived));
+    }
 
-	public final CompoundTag save() {
-		CompoundTag compound = new CompoundTag();
-		compound.put("CoinStorage", this.coinStorage.save());
-		compound.put("AccountLogs", this.logger.save());
-		compound.putString("OwnerName", this.ownerName);
-		ListTag notificationLevelList = new ListTag();
-		this.notificationLevels.forEach((key,level) -> notificationLevelList.add(level.save()));
-		compound.put("NotificationLevels", notificationLevelList);
-		compound.putInt("CardValidation", this.cardValidation);
-		return compound;
-	}
+    public BankAccount() { this((Runnable)null); }
+    public BankAccount(Runnable markDirty) { this.markDirty = markDirty; }
 
-	@Override
-	public void formatTooltip(List<Component> tooltip) {
-		IMoneyHolder.defaultTooltipFormat(tooltip, this.getTooltipTitle(), this.getStoredMoney());
-	}
+    public BankAccount(CompoundTag compound) { this(null, compound); }
+    public BankAccount(Runnable markDirty, CompoundTag compound) {
+        this.markDirty = markDirty;
+        this.coinStorage.safeLoad(compound, "CoinStorage");
+        this.logger.load(compound.getCompound("AccountLogs"));
+        this.ownerName = compound.getString("OwnerName");
+        if(compound.contains("NotificationLevel"))
+        {
+            MoneyValue level = MoneyValue.safeLoad(compound, "NotificationLevel");
+            if(!level.isEmpty() && !level.isFree())
+                this.notificationLevels.put(level.getUniqueName(), level);
+        }
+        else if(compound.contains("NotificationLevels"))
+        {
+            ListTag list = compound.getList("NotificationLevels", Tag.TAG_COMPOUND);
+            for(int i = 0; i < list.size(); ++i)
+            {
+                MoneyValue level = MoneyValue.load(list.getCompound(i));
+                if(level.isInvalid() || (!level.isFree() && !level.isEmpty()))
+                    this.notificationLevels.put(level.getUniqueName(), level);
+            }
+        }
+        if(compound.contains("CardValidation"))
+            this.cardValidation = compound.getInt("CardValidation");
+        if(compound.contains("Salaries"))
+        {
+            ListTag list = compound.getList("Salaries",Tag.TAG_COMPOUND);
+            for(int i = 0; i < list.size(); ++i)
+            {
+                SalaryData newSalary = new SalaryData(this,this.salaryData::indexOf);
+                newSalary.load(list.getCompound(i));
+                this.salaryData.add(newSalary);
+            }
+        }
+    }
 
-	@Override
-	public Component getTooltipTitle() { return LCText.TOOLTIP_MONEY_SOURCE_BANK.get(); }
+    @Override
+    public void markDirty()
+    {
+        if(this.markDirty != null)
+            this.markDirty.run();
+    }
 
-	@Override
-	public void applyInterest(double interestMultiplier, List<MoneyValue> limits, List<String> blacklist, boolean forceInterest, boolean notifyPlayers) {
-		for(MoneyValue value : this.coinStorage.allValues())
-		{
-			//Don't calculate interest if the value has decided to opt out
-			if(!value.allowInterest() || isBlacklisted(blacklist,value))
-				continue;
-			MoneyValue interest = value.multiplyValue(interestMultiplier);
-			if(interest.isEmpty() && forceInterest)
-				interest = value.getSmallestValue();
-			if(!interest.isEmpty())
-			{
-				//Check for limits
-				for(MoneyValue limit : limits)
-				{
-					if(!limit.isEmpty() && limit.sameType(interest))
-					{
-						if(interest.containsValue(limit))
-							interest = limit;
-					}
-				}
-				if(!interest.isEmpty())
-				{
-					this.depositMoney(interest);
-					this.pushNotification(BankInterestNotification.create(this.getName(), interest), notifyPlayers);
-				}
-			}
-		}
-	}
+    public final CompoundTag save() {
+        CompoundTag compound = new CompoundTag();
+        compound.put("CoinStorage", this.coinStorage.save());
+        compound.put("AccountLogs", this.logger.save());
+        compound.putString("OwnerName", this.ownerName);
+        ListTag notificationLevelList = new ListTag();
+        this.notificationLevels.forEach((key,level) -> notificationLevelList.add(level.save()));
+        compound.put("NotificationLevels", notificationLevelList);
+        compound.putInt("CardValidation", this.cardValidation);
+        ListTag salaries = new ListTag();
+        for(SalaryData salary : this.salaryData)
+            salaries.add(salary.save());
+        compound.put("Salaries",salaries);
+        return compound;
+    }
 
-	private static boolean isBlacklisted(List<String> blacklist, MoneyValue value)
-	{
-		String id = value.getUniqueName();
-		return blacklist.stream().anyMatch(entry -> {
-			if(entry.endsWith("*"))
-				return id.startsWith( entry.substring(0,entry.length() - 1));
-			return entry.equals(id);
-		});
-	}
+    @Override
+    public void formatTooltip(List<Component> tooltip) {
+        IMoneyHolder.defaultTooltipFormat(tooltip, this.getTooltipTitle(), this.getStoredMoney());
+    }
+
+    @Override
+    public Component getTooltipTitle() { return LCText.TOOLTIP_MONEY_SOURCE_BANK.get(); }
+
+    @Override
+    public void applyInterest(double interestMultiplier, List<MoneyValue> limits, List<String> blacklist, boolean forceInterest, boolean notifyPlayers) {
+        for(MoneyValue value : this.coinStorage.allValues())
+        {
+            //Don't calculate interest if the value has decided to opt out
+            if(!value.allowInterest() || isBlacklisted(blacklist,value))
+                continue;
+            MoneyValue interest = value.multiplyValue(interestMultiplier);
+            if(interest.isEmpty() && forceInterest)
+                interest = value.getSmallestValue();
+            if(!interest.isEmpty())
+            {
+                //Check for limits
+                for(MoneyValue limit : limits)
+                {
+                    if(!limit.isEmpty() && limit.sameType(interest))
+                    {
+                        if(interest.containsValue(limit))
+                            interest = limit;
+                    }
+                }
+                if(!interest.isEmpty())
+                {
+                    this.depositMoney(interest);
+                    this.pushNotification(BankInterestNotification.create(this.getName(), interest), notifyPlayers);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void tick() {
+        for(SalaryData salary : new ArrayList<>(this.salaryData))
+            salary.tick();
+    }
+
+    @Override
+    public Map<String, CustomTarget> extraSalaryTargets() { return Map.of(); }
+
+    @Nullable
+    @Override
+    public StatTracker getStatTracker() { return null; }
+
+    private static boolean isBlacklisted(List<String> blacklist, MoneyValue value)
+    {
+        String id = value.getUniqueName();
+        return blacklist.stream().anyMatch(entry -> {
+            if(entry.endsWith("*"))
+                return id.startsWith(entry.substring(0, entry.length() - 1));
+            return entry.equals(id);
+        });
+    }
 
 }

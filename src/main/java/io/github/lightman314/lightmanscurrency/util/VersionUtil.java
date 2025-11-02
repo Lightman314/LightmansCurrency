@@ -7,7 +7,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.Event;
 
-import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 /**
@@ -17,16 +16,12 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class VersionUtil {
 
-    @Nonnull
     public static ResourceLocation parseResource(String resourceString) { return new ResourceLocation(resourceString); }
-    @Nonnull
     public static ResourceLocation modResource(String namespace, String path) { return new ResourceLocation(namespace,path); }
-    @Nonnull
     public static ResourceLocation lcResource(String path) { return modResource(LightmansCurrency.MODID,path); }
-    @Nonnull
     public static ResourceLocation vanillaResource(String path) { return new ResourceLocation(path); }
 
-    public static Event postEvent(Event event) {
+    public static <T extends Event> T postEvent(T event) {
         MinecraftForge.EVENT_BUS.post(event);
         return event;
     }

@@ -36,7 +36,7 @@ public class ModelVariantLootFunction implements LootItemFunction {
     @Override
     public ItemStack apply(ItemStack stack, LootContext lootContext) {
         Level level = lootContext.getLevel();
-        if(lootContext.getParam(LootContextParams.BLOCK_ENTITY) instanceof IVariantSupportingBlockEntity be)
+        if(lootContext.hasParam(LootContextParams.BLOCK_ENTITY) && lootContext.getParam(LootContextParams.BLOCK_ENTITY) instanceof IVariantSupportingBlockEntity be)
             IVariantSupportingBlockEntity.copyDataToItem(be,stack);
         return stack;
     }

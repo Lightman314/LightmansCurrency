@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.config;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.options.ListOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.StringOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.builtin.MoneyValueOption;
@@ -12,20 +13,24 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
 import io.github.lightman314.lightmanscurrency.common.enchantments.data.BonusForEnchantment;
 import io.github.lightman314.lightmanscurrency.util.NumberUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class BonusForEnchantmentListOption extends ListOption<BonusForEnchantment> {
 
     public static final ConfigParser<BonusForEnchantment> PARSER = new Parser();
 
-    private BonusForEnchantmentListOption(@Nonnull Supplier<List<BonusForEnchantment>> defaultValue) { super(defaultValue); }
+    private BonusForEnchantmentListOption(Supplier<List<BonusForEnchantment>> defaultValue) { super(defaultValue); }
 
     public static BonusForEnchantmentListOption of() { return of(ArrayList::new); }
     public static BonusForEnchantmentListOption of(List<BonusForEnchantment> defaultValue) { return of(() -> defaultValue); }
@@ -40,9 +45,8 @@ public class BonusForEnchantmentListOption extends ListOption<BonusForEnchantmen
 
     private static class Parser implements ConfigParser<BonusForEnchantment>
     {
-        @Nonnull
         @Override
-        public BonusForEnchantment tryParse(@Nonnull String cleanLine) throws ConfigParsingException {
+        public BonusForEnchantment tryParse(String cleanLine) throws ConfigParsingException {
             String string = StringOption.PARSER.tryParse(cleanLine);
             String[] split = string.split("\\|");
             if(split.length <= 1)
@@ -50,7 +54,7 @@ public class BonusForEnchantmentListOption extends ListOption<BonusForEnchantmen
             if(split.length > 3)
                 throw new ConfigParsingException("More than 2 '|' splitters");
             try {
-                MoneyValue bonusCost = MoneyValueParser.parse(new StringReader(split[0]),false);
+                MoneyValue bonusCost = MoneyValueParser.parse(new StringReader(split[0]),true);
                 ResourceLocation enchantment = VersionUtil.parseResource(split[1]);
                 int level = 1;
                 if(split.length == 3)
@@ -63,13 +67,12 @@ public class BonusForEnchantmentListOption extends ListOption<BonusForEnchantmen
                 return new BonusForEnchantment(bonusCost,enchantment,level);
             } catch (CommandSyntaxException | ResourceLocationException e) { throw new ConfigParsingException(e.getMessage()); }
         }
-        @Nonnull
         @Override
-        public String write(@Nonnull BonusForEnchantment value) {
-            return StringOption.PARSER.write(
-                    MoneyValueParser.writeParsable(value.bonusCost) + '|' +
+        public String write(BonusForEnchantment value) {
+            String string = MoneyValueParser.writeParsable(value.bonusCost) + '|' +
                     value.enchantment + '|' +
-                    value.maxLevelCalculation);
+                    value.maxLevelCalculation;
+            return StringOption.PARSER.write(string);
         }
     }
 

@@ -40,7 +40,7 @@ public interface ITraderSource {
 		public boolean showSearchBox() { return true; }
 		@Nonnull
 		@Override
-		public List<TraderData> getTraders() { return TraderAPI.API.GetAllNetworkTraders(this.isClient); }
+		public List<TraderData> getTraders() { return TraderAPI.getApi().GetAllNetworkTraders(this.isClient); }
 		@Override
 		public boolean isSingleTrader() { return false; }
 

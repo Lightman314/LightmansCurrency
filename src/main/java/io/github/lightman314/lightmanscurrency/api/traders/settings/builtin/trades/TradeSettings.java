@@ -35,7 +35,7 @@ public abstract class TradeSettings<T extends TraderData> extends EasyTraderSett
             subNodes.add(this.createTradeNode(i));
             ITradeRuleHost host = this.getRuleHost(i);
             if(host != null)
-                subNodes.add(new RuleSubNode(this,host,c -> this.allowLoading(c) && c.hasPermission(Permissions.EDIT_TRADE_RULES), LCText.DATA_CATEGORY_RULES_TRADE.get(i + 1)));
+                subNodes.add(new RuleSubNode(this,host,c -> this.allowLoading(c) && c.hasPermission(Permissions.EDIT_TRADE_RULES), LCText.DATA_CATEGORY_RULES_TRADE.get(i + 1),i));
         }
         return subNodes;
     }

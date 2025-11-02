@@ -18,12 +18,16 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin.SimpleArrowIcon;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin.SimpleArrowIcon.ArrowType;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ATMExchangeButtonData {
 
 	public final ScreenPosition position;
@@ -33,9 +37,9 @@ public class ATMExchangeButtonData {
 	private final List<ATMIconData> icons;
 	public ImmutableList<ATMIconData> getIcons() { return ImmutableList.copyOf(this.icons); }
 	
-	public static ATMExchangeButtonData parse(@Nonnull JsonObject data) throws JsonSyntaxException, ResourceLocationException { return new ATMExchangeButtonData(data); }
+	public static ATMExchangeButtonData parse(JsonObject data) throws JsonSyntaxException, ResourceLocationException { return new ATMExchangeButtonData(data); }
 	
-	private ATMExchangeButtonData(@Nonnull JsonObject data) throws JsonSyntaxException, ResourceLocationException {
+	private ATMExchangeButtonData(JsonObject data) throws JsonSyntaxException, ResourceLocationException {
 		this.position = ScreenPosition.of(GsonHelper.getAsInt(data, "x"), GsonHelper.getAsInt(data,"y"));
 		this.width = GsonHelper.getAsInt(data,"width");
 		this.height = GsonHelper.getAsInt(data,"height",18);
@@ -61,8 +65,8 @@ public class ATMExchangeButtonData {
 		}
 	}
 	
-	public ATMExchangeButtonData(int xPos, int yPos, int width, @Nonnull String command, @Nonnull List<ATMIconData> icons) { this(xPos,yPos,width,18,command,icons); }
-	public ATMExchangeButtonData(int xPos, int yPos, int width, int height, @Nonnull String command, @Nonnull List<ATMIconData> icons) {
+	public ATMExchangeButtonData(int xPos, int yPos, int width, String command, List<ATMIconData> icons) { this(xPos,yPos,width,18,command,icons); }
+	public ATMExchangeButtonData(int xPos, int yPos, int width, int height, String command, List<ATMIconData> icons) {
 		this.position = ScreenPosition.of(xPos, yPos);
 		this.width = width;
 		this.height = height;
@@ -70,7 +74,6 @@ public class ATMExchangeButtonData {
 		this.icons = icons;
 	}
 
-	@Nonnull
 	public JsonObject save() {
 		JsonObject data = new JsonObject();
 		
@@ -88,7 +91,7 @@ public class ATMExchangeButtonData {
 		return data;
 	}
 	
-	public static void generateMain(@Nonnull ATMData.Builder builder) {
+	public static void generateMain(ATMData.Builder builder) {
 		//Exchange All
 		builder.addButton(exchangeAllUpDefault());
 		builder.addButton(exchangeAllDownDefault());
@@ -109,7 +112,7 @@ public class ATMExchangeButtonData {
 		builder.addButton(exchangeSingle(144, 88, ModItems.COIN_DIAMOND, ModItems.COIN_NETHERITE, "exchangeUp-lightmanscurrency:coin_diamond"));
 	}
 
-	public static void generateChocolate(@Nonnull ATMData.Builder builder) {
+	public static void generateChocolate(ATMData.Builder builder) {
 		//builder.addButton(exchangeAllUpChocolate());
 		//builder.addButton(exchangeAllDownChocolate());
 		//Copper <-> Iron

@@ -67,7 +67,11 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
             {
                 List<ItemStack> displayItems;
                 if(trade.isSale() || trade.isBarter())
+                {
                     displayItems = filter.getDisplayableItems(internalItem,trader.getStorage());
+                    if(displayItems.isEmpty() && trader.isCreative())
+                        displayItems = filter.getDisplayableItems(internalItem,null);
+                }
                 else
                     displayItems = filter.getDisplayableItems(internalItem,null);
                 result.add(ListUtil.randomItemFromList(displayItems,internalItem));
@@ -193,7 +197,8 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 
 	private static long rotationTime = 0;
 	public static long getRotationTime() { return rotationTime; }
-	public static Quaternionf getRotation(float partialTicks) { return new Quaternionf().fromAxisAngleDeg(new Vector3f(0f, 1f,0f), (ItemTraderBlockEntityRenderer.getRotationTime() + partialTicks) * 2.0F); }
+	public static Quaternionf getRotation(float partialTicks) { return getRotation(partialTicks,2f); }
+	public static Quaternionf getRotation(float partialTicks, float multiplier) { return new Quaternionf().fromAxisAngleDeg(new Vector3f(0f, 1f,0f), (ItemTraderBlockEntityRenderer.getRotationTime() + partialTicks) * multiplier); }
 
 	@SubscribeEvent
 	public static void onClientTick(TickEvent.ClientTickEvent event) {

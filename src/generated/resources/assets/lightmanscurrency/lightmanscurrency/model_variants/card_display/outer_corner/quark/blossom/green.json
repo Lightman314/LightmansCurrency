@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/outer_corner/quark/blossom/base",
+  "target": "lightmanscurrency:card_display_quark_blossom_green",
+  "textures": {
+    "wool": "minecraft:block/green_wool"
+  }
+}

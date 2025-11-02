@@ -12,12 +12,14 @@ import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 
 	public static final Handler<CPacketCreatePersistentTrader> HANDLER = new H();
@@ -34,7 +36,7 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 		this.owner = owner.isBlank() ? "Minecraft" : owner;
 	}
 	
-	public void encode(@Nonnull FriendlyByteBuf buffer) {
+	public void encode(FriendlyByteBuf buffer) {
 		buffer.writeLong(this.traderID);
 		buffer.writeUtf(this.id);
 		buffer.writeUtf(this.owner);
@@ -42,12 +44,11 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 
 	private static class H extends Handler<CPacketCreatePersistentTrader>
 	{
-		@Nonnull
 		@Override
-		public CPacketCreatePersistentTrader decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketCreatePersistentTrader(buffer.readLong(), buffer.readUtf(), buffer.readUtf()); }
+		public CPacketCreatePersistentTrader decode(FriendlyByteBuf buffer) { return new CPacketCreatePersistentTrader(buffer.readLong(), buffer.readUtf(), buffer.readUtf()); }
 		@Override
-		protected void handle(@Nonnull CPacketCreatePersistentTrader message, @Nullable ServerPlayer sender) {
-			if(LCAdminMode.isAdminPlayer(sender))
+		protected void handle(CPacketCreatePersistentTrader message, Player player) {
+			if(LCAdminMode.isAdminPlayer(player))
 			{
 				TraderDataCache data = TraderDataCache.TYPE.get(false);
 				if(data == null)
@@ -74,7 +75,7 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 									//Overwrite the existing entry with the same id.
 									persistentTraders.set(i, traderJson);
 									data.setPersistentTraderSection(TraderDataCache.PERSISTENT_TRADER_SECTION, persistentTraders);
-									sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_OVERWRITE.get(message.id));
+                                    player.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_OVERWRITE.get(message.id));
 									return;
 								}
 							}
@@ -82,7 +83,7 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 							//If no trader found with the id, add to list
 							persistentTraders.add(traderJson);
 							data.setPersistentTraderSection(TraderDataCache.PERSISTENT_TRADER_SECTION, persistentTraders);
-							sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_ADD.get(message.id));
+                            player.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_ADD.get(message.id));
 						} catch (Throwable t) { LightmansCurrency.LogError("Error occurred while creating a persistent trader!", t); }
 					}
 					else
@@ -108,7 +109,7 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 								{
 									persistentTraders.add(trader.saveToJson(genID, message.owner));
 									data.setPersistentTraderSection(TraderDataCache.PERSISTENT_TRADER_SECTION, persistentTraders);
-									sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_ADD.get(genID));
+                                    player.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_ADD.get(genID));
 									return;
 								}
 							}
@@ -117,8 +118,8 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 					}
 				}
 			}
-			else if(sender != null)
-				sender.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_FAIL.get());
+			else if(player != null)
+                player.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_FAIL.get());
 		}
 	}
 	

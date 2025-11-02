@@ -210,7 +210,7 @@ public class CurrencyListener extends SafeSingleChannelListener {
 				final String searchText = text;
 
 				List<String> output = new ArrayList<>();
-				List<TraderData> traderList = LCConfig.SERVER.ldiLimitSearchToNetworkTraders.get() ? TraderAPI.API.GetAllNetworkTraders(false) : TraderAPI.API.GetAllTraders(false);
+				List<TraderData> traderList = LCConfig.SERVER.ldiLimitSearchToNetworkTraders.get() ? TraderAPI.getApi().GetAllNetworkTraders(false) : TraderAPI.getApi().GetAllTraders(false);
 				traderList.forEach(trader -> {
 					try {
 						if(searchType.acceptTrader(trader, searchText))

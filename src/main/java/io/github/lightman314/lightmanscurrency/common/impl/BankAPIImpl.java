@@ -20,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.data.types.BankDataCache;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.DepositWithdrawNotification;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
@@ -28,18 +29,18 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class BankAPIImpl extends BankAPI {
 
-    public static final BankAPIImpl INSTANCE = new BankAPIImpl();
-
-    private BankAPIImpl() {
+    public BankAPIImpl() {
         MinecraftForge.EVENT_BUS.register(this);
         //Register built-in bank account sources
         this.RegisterBankAccountSource(PlayerBankAccountSource.INSTANCE);
@@ -50,7 +51,7 @@ public class BankAPIImpl extends BankAPI {
     private final List<BankAccountSource> accountSources = new ArrayList<>();
 
     @Override
-    public void RegisterReferenceType(@Nonnull BankReferenceType type) {
+    public void RegisterReferenceType(BankReferenceType type) {
         ResourceLocation id = type.id;
         if(this.referenceTypes.containsKey(id))
             LightmansCurrency.LogWarning("Attempted to register the AccountReferenceType '" + id + "' twice!");
@@ -63,10 +64,10 @@ public class BankAPIImpl extends BankAPI {
 
     @Nullable
     @Override
-    public BankReferenceType GetReferenceType(@Nonnull ResourceLocation type) { return this.referenceTypes.get(type); }
+    public BankReferenceType GetReferenceType(ResourceLocation type) { return this.referenceTypes.get(type); }
 
     @Override
-    public void RegisterBankAccountSource(@Nonnull BankAccountSource source) {
+    public void RegisterBankAccountSource(BankAccountSource source) {
         if(this.accountSources.contains(source))
         {
             LightmansCurrency.LogWarning("Bank Account Source of type " + source.getClass().getSimpleName() + " was already registered!");
@@ -76,7 +77,6 @@ public class BankAPIImpl extends BankAPI {
     }
 
     @Override
-    @Nonnull
     public List<BankReference> GetAllBankReferences(boolean isClient) {
         List<BankReference> references = new ArrayList<>();
         for(BankAccountSource source : this.accountSources)
@@ -84,7 +84,6 @@ public class BankAPIImpl extends BankAPI {
         return references;
     }
 
-    @Nonnull
     @Override
     public List<IBankAccount> GetAllBankAccounts(boolean isClient) {
         List<IBankAccount> accounts = new ArrayList<>();
@@ -94,10 +93,10 @@ public class BankAPIImpl extends BankAPI {
     }
 
     @Override
-    public void BankDeposit(@Nonnull IBankAccountMenu menu, @Nonnull MoneyValue requestedAmount) { this.BankDeposit(menu.getPlayer(),menu.getCoinInput(),menu.getBankAccountReference(),requestedAmount); }
+    public void BankDeposit(IBankAccountMenu menu, MoneyValue requestedAmount) { this.BankDeposit(menu.getPlayer(),menu.getCoinInput(),menu.getBankAccountReference(),requestedAmount); }
 
     @Override
-    public void BankDeposit(@Nonnull Player player, @Nonnull Container container, @Nonnull BankReference reference, @Nonnull MoneyValue requestedAmount) {
+    public void BankDeposit(Player player, Container container, BankReference reference, MoneyValue requestedAmount) {
         if(reference == null || !reference.allowedAccess(player))
             return;
         IBankAccount account = reference.get();
@@ -108,7 +107,7 @@ public class BankAPIImpl extends BankAPI {
         if(requestedAmount.getCoreValue() < 0)
             requestedAmount = MoneyValue.empty();
 
-        IMoneyHandler handler = MoneyAPI.API.GetATMMoneyHandler(player,container);
+        IMoneyHandler handler = MoneyAPI.getApi().GetATMMoneyHandler(player,container);
         MoneyView availableFunds = handler.getStoredMoney();
         LightmansCurrency.LogDebug("Deposit Attempt:\n" +
                 "Deposit Amount: " + requestedAmount.getString() + "\n" +
@@ -133,10 +132,10 @@ public class BankAPIImpl extends BankAPI {
     }
 
     @Override
-    public void BankWithdraw(@Nonnull IBankAccountMenu menu, @Nonnull MoneyValue amount) { this.BankWithdraw(menu.getPlayer(), menu.getCoinInput(), menu.getBankAccountReference(), amount); }
+    public void BankWithdraw(IBankAccountMenu menu, MoneyValue amount) { this.BankWithdraw(menu.getPlayer(), menu.getCoinInput(), menu.getBankAccountReference(), amount); }
 
     @Override
-    public void BankWithdraw(@Nonnull Player player, @Nonnull Container container, @Nonnull BankReference reference, @Nonnull MoneyValue amount) {
+    public void BankWithdraw(Player player, Container container, BankReference reference, MoneyValue amount) {
         if(reference == null || !reference.allowedAccess(player) || amount.isEmpty())
             return;
         IBankAccount account = reference.get();
@@ -145,7 +144,7 @@ public class BankAPIImpl extends BankAPI {
 
         MoneyValue withdrawnAmount = account.withdrawMoney(amount);
 
-        IMoneyHandler handler = MoneyAPI.API.GetATMMoneyHandler(player,container);
+        IMoneyHandler handler = MoneyAPI.getApi().GetATMMoneyHandler(player,container);
         if(!handler.insertMoney(withdrawnAmount,true).isEmpty())
         {
             //Abort the withdrawal if we can't give the withdrawn amount to the player.
@@ -158,13 +157,13 @@ public class BankAPIImpl extends BankAPI {
             ba.LogInteraction(player, withdrawnAmount, false);
     }
 
-    @Nonnull
+    
     @Override
-    public MutableComponent BankTransfer(@Nonnull IBankAccountAdvancedMenu menu, @Nonnull MoneyValue amount, @Nonnull IBankAccount destination) { return this.BankTransfer(menu.getPlayer(), menu.getBankAccountReference(), amount, destination); }
+    public MutableComponent BankTransfer(IBankAccountAdvancedMenu menu, MoneyValue amount, IBankAccount destination) { return this.BankTransfer(menu.getPlayer(), menu.getBankAccountReference(), amount, destination); }
 
-    @Nonnull
+    
     @Override
-    public MutableComponent BankTransfer(@Nonnull Player player, BankReference fromReference, @Nonnull MoneyValue amount, IBankAccount destination) {
+    public MutableComponent BankTransfer(Player player, BankReference fromReference, MoneyValue amount, IBankAccount destination) {
         if(fromReference == null)
             return LCText.GUI_BANK_TRANSFER_ERROR_NULL_FROM.get();
         if(!fromReference.allowedAccess(player))
@@ -195,7 +194,7 @@ public class BankAPIImpl extends BankAPI {
     }
 
     @Override
-    public boolean BankDepositFromServer(@Nonnull IBankAccount account, @Nonnull MoneyValue amount, boolean notifyPlayers) {
+    public boolean BankDepositFromServer(IBankAccount account, MoneyValue amount, boolean notifyPlayers) {
         if(account == null || amount.isEmpty())
             return false;
 
@@ -205,9 +204,9 @@ public class BankAPIImpl extends BankAPI {
         return true;
     }
 
-    @Nonnull
+    
     @Override
-    public Pair<Boolean, MoneyValue> BankWithdrawFromServer(@Nonnull IBankAccount account, @Nonnull MoneyValue amount, boolean notifyPlayers) {
+    public Pair<Boolean, MoneyValue> BankWithdrawFromServer(IBankAccount account, MoneyValue amount, boolean notifyPlayers) {
         if(account == null || amount.isEmpty())
             return Pair.of(false, MoneyValue.empty());
 
@@ -217,7 +216,7 @@ public class BankAPIImpl extends BankAPI {
     }
 
     @SubscribeEvent
-    public void ServerTick(@Nonnull TickEvent.ServerTickEvent event)
+    public void ServerTick(TickEvent.ServerTickEvent event)
     {
         if(event.phase != TickEvent.Phase.START)
             return;

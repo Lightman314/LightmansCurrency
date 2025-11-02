@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.walletbank;
 
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -8,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.Walle
 import io.github.lightman314.lightmanscurrency.client.gui.widget.bank.BankInteractionWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.bank.IBankInteractionHandler;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import net.minecraft.network.chat.Component;
@@ -24,7 +25,7 @@ public class InteractionTab extends WalletBankTab implements IBankInteractionHan
 
 	@Nonnull
 	@Override
-	public IconData getIcon() { return IconData.of(ModBlocks.COINPILE_GOLD); }
+	public IconData getIcon() { return ItemIcon.ofItem(ModBlocks.COINPILE_GOLD); }
 
 	@Override
 	public MutableComponent getTooltip() { return Component.translatable("tooltip.lightmanscurrency.atm.interact"); }

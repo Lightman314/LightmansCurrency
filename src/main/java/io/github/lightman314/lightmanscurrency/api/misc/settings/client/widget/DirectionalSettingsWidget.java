@@ -14,9 +14,11 @@ import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.ITallBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IWideBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.NormalSprite;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.IDirectionalSettingsObject;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
@@ -45,14 +47,15 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.ModelData;
 import org.joml.Quaternionf;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
 
-    private static final Map<Direction,Map<DirectionalSettingsState,Sprite>> SIDED_SPRITE_CACHE = new HashMap<>();
-    private static final Map<SideSize,Map<DirectionalSettingsState,Sprite>> SIZED_SPRITE_CACHE = new HashMap<>();
+    private static final Map<Direction,Map<DirectionalSettingsState,FixedSizeSprite>> SIDED_SPRITE_CACHE = new HashMap<>();
+    private static final Map<SideSize,Map<DirectionalSettingsState,FixedSizeSprite>> SIZED_SPRITE_CACHE = new HashMap<>();
 
     public static final ResourceLocation BLOCK_SIDE_TEXTURE = VersionUtil.lcResource("textures/gui/blocksides.png");
 
@@ -78,13 +81,13 @@ public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
         private final int uSize;
         private final int vSize;
         SideSize(int uPos,int uSize,int vSize) { this.uPos = uPos; this.uSize = uSize; this.vSize = vSize; }
-        private Sprite spriteForState(DirectionalSettingsState state) {
-            return Sprite.LockedSprite(BLOCK_SIDE_TEXTURE,this.uPos,this.vSize * state.ordinal(),this.uSize,this.vSize);
+        private FixedSizeSprite spriteForState(DirectionalSettingsState state) {
+            return new NormalSprite(new SpriteSource(BLOCK_SIDE_TEXTURE,this.uPos,this.vSize * state.ordinal(),this.uSize,this.vSize));
         }
         static SideSize of(boolean wide,boolean tall) { return wide ? (tall ? TWO_BY_TWO : TWO_BY_ONE) : (tall ? ONE_BY_TWO : ONE_BY_ONE); }
     }
 
-    private DirectionalSettingsWidget(@Nonnull Builder builder)
+    private DirectionalSettingsWidget(Builder builder)
     {
         super(builder);
         this.objectSource = builder.objectSource;
@@ -93,7 +96,7 @@ public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
     }
 
     @Override
-    public void addChildren(@Nonnull ScreenArea area) {
+    public void addChildren(ScreenArea area) {
         //Get the attributes
         DisplayBlockAttributes attributes = DisplayBlockAttributes.of(this.objectSource);
         //Recalculate the size
@@ -132,7 +135,7 @@ public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
         return this.getArea();
     }
 
-    private PlainButton buttonForSide(ScreenPosition position,Supplier<Sprite> sprite,Direction side) {
+    private PlainButton buttonForSide(ScreenPosition position,Supplier<FixedSizeSprite> sprite,Direction side) {
         return PlainButton.builder()
                 .position(position)
                 .pressAction(() -> this.onButtonPress(side))
@@ -167,7 +170,7 @@ public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
     }
 
     @Override
-    protected void renderWidget(@Nonnull EasyGuiGraphics gui) {
+    protected void renderWidget(EasyGuiGraphics gui) {
         gui.pushOffset(this);
         DisplayBlockAttributes attributes = DisplayBlockAttributes.of(this.objectSource);
         if(attributes.isNull())
@@ -420,24 +423,24 @@ public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
         gui.popOffset();
     }
 
-    @Nonnull
-    private static Supplier<Sprite> spriteForSide(@Nonnull Direction side, @Nonnull Supplier<DirectionalSettingsState> value) { return () -> getSprite(side,value.get()); }
+    
+    private static Supplier<FixedSizeSprite> spriteForSide(Direction side, Supplier<DirectionalSettingsState> value) { return () -> getSprite(side,value.get()); }
 
-    @Nonnull
-    private static Sprite getSprite(Direction side, DirectionalSettingsState state) {
+    
+    private static FixedSizeSprite getSprite(Direction side, DirectionalSettingsState state) {
         if(!SIDED_SPRITE_CACHE.containsKey(side))
             SIDED_SPRITE_CACHE.put(side,new HashMap<>());
-        Map<DirectionalSettingsState,Sprite> stateMap = SIDED_SPRITE_CACHE.get(side);
+        Map<DirectionalSettingsState,FixedSizeSprite> stateMap = SIDED_SPRITE_CACHE.get(side);
         if(!stateMap.containsKey(state))
-            stateMap.put(state, Sprite.LockedSprite(BLOCK_SIDE_TEXTURE, getSideU(side), state.ordinal() * 16, 16, 16));
+            stateMap.put(state, new NormalSprite(new SpriteSource(BLOCK_SIDE_TEXTURE, getSideU(side), state.ordinal() * 16, 16, 16)));
         return stateMap.get(state);
     }
 
-    private static Supplier<Sprite> spriteForSize(SideSize size, @Nonnull Supplier<DirectionalSettingsState> value) { return () -> getSprite(size,value.get()); }
-    private static Sprite getSprite(SideSize size,DirectionalSettingsState state) {
+    private static Supplier<FixedSizeSprite> spriteForSize(SideSize size, Supplier<DirectionalSettingsState> value) { return () -> getSprite(size,value.get()); }
+    private static FixedSizeSprite getSprite(SideSize size,DirectionalSettingsState state) {
         if(!SIZED_SPRITE_CACHE.containsKey(size))
             SIZED_SPRITE_CACHE.put(size,new HashMap<>());
-        Map<DirectionalSettingsState,Sprite> stateMap = SIZED_SPRITE_CACHE.get(size);
+        Map<DirectionalSettingsState,FixedSizeSprite> stateMap = SIZED_SPRITE_CACHE.get(size);
         if(!stateMap.containsKey(state))
             stateMap.put(state,size.spriteForState(state));
         return stateMap.get(state);
@@ -470,12 +473,9 @@ public class DirectionalSettingsWidget extends EasyWidgetWithChildren {
     @Override
     public boolean hideFromMouse() { return true; }
 
-    @Nonnull
     public static Builder builder() { return new Builder(); }
 
-    @MethodsReturnNonnullByDefault
     @FieldsAreNonnullByDefault
-    @ParametersAreNonnullByDefault
     public static class Builder extends EasyBuilder<Builder>
     {
         private Builder() { super(0,0); }

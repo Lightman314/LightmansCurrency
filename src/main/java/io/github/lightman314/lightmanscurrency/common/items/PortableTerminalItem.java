@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.items;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.TerminalMenuProvider;
-import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.types.ItemValidator;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -24,7 +24,7 @@ public class PortableTerminalItem extends TooltipItem {
 	public InteractionResultHolder<ItemStack> use(@Nonnull Level level, @Nonnull Player player, @Nonnull InteractionHand hand)
 	{
 		if(player instanceof ServerPlayer sp)
-			TerminalMenuProvider.OpenMenu(sp, SimpleValidator.NULL);
+			TerminalMenuProvider.OpenMenu(sp, new ItemValidator(this));
 		return InteractionResultHolder.success(player.getItemInHand(hand));
 	}
 	

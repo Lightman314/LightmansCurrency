@@ -8,11 +8,14 @@ import io.github.lightman314.lightmanscurrency.api.notifications.SingleLineNotif
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class ChangeNameNotification extends SingleLineNotification {
 
 	public static final NotificationType<ChangeNameNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("changed_name"),ChangeNameNotification::new);
@@ -23,18 +26,15 @@ public class ChangeNameNotification extends SingleLineNotification {
 
 	private ChangeNameNotification() {}
 	public ChangeNameNotification(PlayerReference player, String newName, String oldName) { this.player = player; this.newName = newName; this.oldName = oldName; }
-	
-	@Nonnull
+
     @Override
 	protected NotificationType<ChangeNameNotification> getType() { return TYPE; }
 
-	@Nonnull
 	@Override
 	public NotificationCategory getCategory() { return NullCategory.INSTANCE; }
 
-	@Nonnull
 	@Override
-	public MutableComponent getMessage() {
+	public Component getMessage() {
 		if(this.oldName.isBlank())
 			return LCText.NOTIFICATION_SETTINGS_CHANGE_NAME_SET.get(this.player.getName(true), this.newName);
 		else if(this.newName.isBlank())
@@ -44,21 +44,21 @@ public class ChangeNameNotification extends SingleLineNotification {
 	}
 
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound) {
+	protected void saveAdditional(CompoundTag compound) {
 		compound.put("Player", this.player.save());
 		compound.putString("OldName", this.oldName);
 		compound.putString("NewName", this.newName);
 	}
 
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound) {
+	protected void loadAdditional(CompoundTag compound) {
 		this.player = PlayerReference.load(compound.getCompound("Player"));
 		this.oldName = compound.getString("OldName");
 		this.newName = compound.getString("NewName");
 	}
 
 	@Override
-	protected boolean canMerge(@Nonnull Notification other) {
+	protected boolean canMerge(Notification other) {
 		if(other instanceof ChangeNameNotification n)
 		{
 			return n.player.is(this.player) && n.newName.equals(this.newName) && n.oldName.equals(this.oldName);

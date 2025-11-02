@@ -1,31 +1,32 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.taxes;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.rendering.Sprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class TaxInfoWidget extends EasyWidgetWithChildren {
 
-    public static final Sprite SPRITE_IGNORE_TC = Sprite.SimpleSprite(IconAndButtonUtil.WIDGET_TEXTURE, 10, 0, 10, 10);
-    public static final Sprite SPRITE_STOP_IGNORING_TC = Sprite.SimpleSprite(IconAndButtonUtil.WIDGET_TEXTURE, 0, 0, 10, 10);
+    public static final FixedSizeSprite SPRITE_IGNORE_TC = SpriteUtil.BUTTON_GREEN_X;
+    public static final FixedSizeSprite SPRITE_STOP_IGNORING_TC = SpriteUtil.BUTTON_RED_X;
 
     public static final int HEIGHT = 30;
     public static final int WIDTH = 176;
@@ -33,14 +34,14 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
     private final Supplier<ITaxCollector> entrySource;
     private final ITaxInfoInteractable parent;
 
-    private TaxInfoWidget(@Nonnull Builder builder) {
+    private TaxInfoWidget(Builder builder) {
         super(builder);
         this.entrySource = builder.entry;
         this.parent = Objects.requireNonNull(builder.parent);
     }
 
     @Override
-    protected void renderWidget(@Nonnull EasyGuiGraphics gui) {
+    protected void renderWidget(EasyGuiGraphics gui) {
 
         ITaxCollector entry = this.entrySource.get();
         TraderData trader = this.parent.getTrader();
@@ -61,7 +62,7 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
     }
 
     @Override
-    public void addChildren(@Nonnull ScreenArea area) {
+    public void addChildren(ScreenArea area) {
         this.addChild(EasyTextButton.builder()
                 .position(area.pos.offset(90,1))
                 .width(60)
@@ -95,7 +96,7 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
         return false;
     }
 
-    private Sprite getForceIgnoreSprite() { return this.isCurrentlyIgnored() ? SPRITE_STOP_IGNORING_TC : SPRITE_IGNORE_TC; }
+    private FixedSizeSprite getForceIgnoreSprite() { return this.isCurrentlyIgnored() ? SPRITE_STOP_IGNORING_TC : SPRITE_IGNORE_TC; }
 
     private Component getForceIgnoreTooltip() { return this.isCurrentlyIgnored() ? LCText.TOOLTIP_TAX_COLLECTOR_TAXABLE_PARDON_IGNORED.get() : LCText.TOOLTIP_TAX_COLLECTOR_TAXABLE_FORCE_IGNORE.get(); }
 
@@ -119,12 +120,9 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
         }
     }
 
-    @Nonnull
     public static Builder builder() { return new Builder(); }
 
-    @MethodsReturnNonnullByDefault
     @FieldsAreNonnullByDefault
-    @ParametersAreNonnullByDefault
     public static class Builder extends EasyBuilder<Builder>
     {
         private Builder() { super(WIDTH,HEIGHT); }

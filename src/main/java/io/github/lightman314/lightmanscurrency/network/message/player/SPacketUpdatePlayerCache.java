@@ -2,13 +2,15 @@ package io.github.lightman314.lightmanscurrency.network.message.player;
 
 import io.github.lightman314.lightmanscurrency.client.data.ClientPlayerNameCache;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.UUID;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SPacketUpdatePlayerCache extends ServerToClientPacket {
 
     public static final Handler<SPacketUpdatePlayerCache> HANDLER = new H();
@@ -16,28 +18,27 @@ public class SPacketUpdatePlayerCache extends ServerToClientPacket {
     private final UUID playerID;
     private final String playerName;
 
-    public SPacketUpdatePlayerCache(@Nonnull UUID playerID, @Nonnull String playerName)
+    public SPacketUpdatePlayerCache(UUID playerID, String playerName)
     {
         this.playerID = playerID;
         this.playerName = playerName;
     }
 
     @Override
-    public void encode(@Nonnull FriendlyByteBuf buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         buffer.writeUUID(this.playerID);
         buffer.writeUtf(this.playerName);
     }
 
     private static class H extends Handler<SPacketUpdatePlayerCache>
     {
-        @Nonnull
         @Override
-        public SPacketUpdatePlayerCache decode(@Nonnull FriendlyByteBuf buffer) {
+        public SPacketUpdatePlayerCache decode(FriendlyByteBuf buffer) {
             return new SPacketUpdatePlayerCache(buffer.readUUID(),buffer.readUtf());
         }
 
         @Override
-        protected void handle(@Nonnull SPacketUpdatePlayerCache message, @Nullable ServerPlayer sender) {
+        protected void handle(SPacketUpdatePlayerCache message, Player player) {
             ClientPlayerNameCache.addCacheEntry(message.playerID,message.playerName);
         }
     }

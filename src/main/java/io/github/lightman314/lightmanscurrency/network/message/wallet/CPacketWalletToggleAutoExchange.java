@@ -2,11 +2,13 @@ package io.github.lightman314.lightmanscurrency.network.message.wallet;
 
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class CPacketWalletToggleAutoExchange extends ClientToServerPacket.Simple {
 
 	private static final CPacketWalletToggleAutoExchange INSTANCE = new CPacketWalletToggleAutoExchange();
@@ -20,12 +22,9 @@ public class CPacketWalletToggleAutoExchange extends ClientToServerPacket.Simple
 	{
 		protected H() { super(INSTANCE); }
 		@Override
-		protected void handle(@Nonnull CPacketWalletToggleAutoExchange message, @Nullable ServerPlayer sender) {
-			if(sender != null)
-			{
-				if(sender.containerMenu instanceof WalletMenuBase menu)
-					menu.ToggleAutoExchange();
-			}
+		protected void handle(CPacketWalletToggleAutoExchange message, Player player) {
+            if(player.containerMenu instanceof WalletMenuBase menu)
+                menu.ToggleAutoExchange();
 		}
 	}
 

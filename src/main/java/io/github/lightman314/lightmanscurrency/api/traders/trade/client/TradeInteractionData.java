@@ -6,6 +6,9 @@ import javax.annotation.Nonnull;
 
 public record TradeInteractionData(int localMouseX, int localMouseY, int mouseButton, boolean shiftHeld, boolean ctrlHeld, boolean altHeld) {
 
+    public static final TradeInteractionData DUMMY = new TradeInteractionData(0,0,0,false,false,false);
+    public static final TradeInteractionData DUMMY_RIGHT = new TradeInteractionData(0,0,1,false,false,false);
+
     @Nonnull
     public LazyPacketData.Builder encode(@Nonnull LazyPacketData.Builder builder)
     {

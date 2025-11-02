@@ -4,7 +4,7 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
@@ -24,7 +24,6 @@ public abstract class TradeRuleSubTab<T extends TradeRule> extends TradeRulesCli
     }
 
     @Nullable
-    @SuppressWarnings("unchecked")
     protected final T getRule()
     {
         ITradeRuleHost host = this.commonTab.getHost();

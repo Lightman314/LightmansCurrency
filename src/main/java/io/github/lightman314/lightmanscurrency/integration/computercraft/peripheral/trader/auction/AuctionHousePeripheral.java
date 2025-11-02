@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.auction;
 
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
@@ -9,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheral;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.PeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
@@ -40,13 +40,10 @@ public class AuctionHousePeripheral extends LCPeripheral {
         throw new LuaException("Auction House could not be located!");
     }
 
-    @LuaFunction(mainThread = true)
     public long getID() throws LuaException { return this.getTrader().getID(); }
 
-    @LuaFunction(mainThread = true)
     public int getAuctionCount() throws LuaException { return this.getTrader().validTradeCount(); }
 
-    @LuaFunction(mainThread = true)
     public LCLuaTable[] getAuctions() throws LuaException {
         AuctionHouseTrader trader = this.getTrader();
         List<LCLuaTable> list = new ArrayList<>();
@@ -73,6 +70,11 @@ public class AuctionHousePeripheral extends LCPeripheral {
         return list.toArray(LCLuaTable[]::new);
     }
 
-
+    @Override
+    protected void registerMethods(PeripheralMethod.Registration registration) {
+        registration.register(PeripheralMethod.builder("getID").simple(this::getID));
+        registration.register(PeripheralMethod.builder("getAuctionCount").simple(this::getAuctionCount));
+        registration.register(PeripheralMethod.builder("getAuctions").simple(this::getAuctions));
+    }
 
 }

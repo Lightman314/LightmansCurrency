@@ -1,26 +1,25 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.PotentialOwner;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipWidget;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class OwnerSelectButton extends EasyButton implements ITooltipWidget {
-
-    public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/buttons.png");
 
     private final Supplier<OwnerData> currentOwner;
     private final Supplier<PotentialOwner> ownerSupplier;
@@ -29,7 +28,7 @@ public class OwnerSelectButton extends EasyButton implements ITooltipWidget {
 
     public static final int HEIGHT = 20;
 
-    private OwnerSelectButton(@Nonnull Builder builder)
+    private OwnerSelectButton(Builder builder)
     {
         super(builder);
         this.currentOwner = builder.selectedOwner;
@@ -50,7 +49,7 @@ public class OwnerSelectButton extends EasyButton implements ITooltipWidget {
     }
 
     @Override
-    protected void renderWidget(@Nonnull EasyGuiGraphics gui) {
+    protected void renderWidget(EasyGuiGraphics gui) {
         PotentialOwner owner = this.getOwner();
         if(owner == null)
         {
@@ -61,7 +60,7 @@ public class OwnerSelectButton extends EasyButton implements ITooltipWidget {
         float color = this.isActive() ? 1f : 0.5f;
         gui.setColor(color,color,color);
         //Render Background
-        gui.blitHorizSplit(GUI_TEXTURE,0,0, this.width, this.height,0,0,256,5);
+        SpriteUtil.createButtonBrown(this.width,this.height).render(gui,0,0,this);
 
         //Render owner
         IconData icon = owner.getIcon();
@@ -84,7 +83,6 @@ public class OwnerSelectButton extends EasyButton implements ITooltipWidget {
         return tooltip;
     }
 
-    @Nonnull
     public static Builder builder() { return new Builder(); }
 
     @MethodsReturnNonnullByDefault

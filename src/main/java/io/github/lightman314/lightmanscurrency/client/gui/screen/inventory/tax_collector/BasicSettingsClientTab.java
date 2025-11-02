@@ -3,32 +3,34 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.tax_
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown.DropdownWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.tabs.BasicSettingsTab;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
-import io.github.lightman314.lightmanscurrency.common.util.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class BasicSettingsClientTab extends TaxCollectorClientTab<BasicSettingsTab> {
 
     public BasicSettingsClientTab(Object screen, BasicSettingsTab commonTab) { super(screen, commonTab); }
 
-    @Nonnull
     @Override
     public IconData getIcon() { return IconUtil.ICON_TAXES; }
 
@@ -47,7 +49,7 @@ public class BasicSettingsClientTab extends TaxCollectorClientTab<BasicSettingsT
         this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(8, 16))
                 .pressAction(this::ToggleActiveState)
-                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::isEntryActive))
+                .sprite(SpriteUtil.createCheckbox(this::isEntryActive))
                 .addon(EasyAddonHelper.visibleCheck(this::canActiveToggle))
                 .build());
 
@@ -67,7 +69,7 @@ public class BasicSettingsClientTab extends TaxCollectorClientTab<BasicSettingsT
         this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(6,32))
                 .pressAction(() -> this.commonTab.SetRate(this.getCurrentRate() + (Screen.hasShiftDown() ? 10 : 1)))
-                .sprite(IconAndButtonUtil.SPRITE_PLUS)
+                .sprite(SpriteUtil.BUTTON_SIGN_PLUS)
                 .addon(EasyAddonHelper.activeCheck(() -> {
                     TaxEntry e = this.getEntry();
                     return e != null && e.getTaxRate() < TaxEntry.maxTaxRate();
@@ -76,7 +78,7 @@ public class BasicSettingsClientTab extends TaxCollectorClientTab<BasicSettingsT
         this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(6, 42))
                 .pressAction(() -> this.commonTab.SetRate(this.getCurrentRate() - (Screen.hasShiftDown() ? 10 : 1)))
-                .sprite(IconAndButtonUtil.SPRITE_MINUS)
+                .sprite(SpriteUtil.BUTTON_SIGN_MINUS)
                 .addon(EasyAddonHelper.activeCheck(() -> {
                     TaxEntry e = this.getEntry();
                     return e != null && e.getTaxRate() > 1;
@@ -87,7 +89,7 @@ public class BasicSettingsClientTab extends TaxCollectorClientTab<BasicSettingsT
         this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(22, screenArea.height - 16))
                 .pressAction(() -> this.commonTab.SetRadius(this.getCurrentRadius() + (Screen.hasShiftDown() ? 10 : 1)))
-                .sprite(IconAndButtonUtil.SPRITE_PLUS)
+                .sprite(SpriteUtil.BUTTON_SIGN_PLUS)
                 .addon(EasyAddonHelper.visibleCheck(this::showAreaButtons))
                 .addon(EasyAddonHelper.activeCheck(() -> {
                     TaxEntry e = this.getEntry();
@@ -97,7 +99,7 @@ public class BasicSettingsClientTab extends TaxCollectorClientTab<BasicSettingsT
         this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(32, screenArea.height - 16))
                 .pressAction(() -> this.commonTab.SetRadius(this.getCurrentRadius() - (Screen.hasShiftDown() ? 10 : 1)))
-                .sprite(IconAndButtonUtil.SPRITE_MINUS)
+                .sprite(SpriteUtil.BUTTON_SIGN_MINUS)
                 .addon(EasyAddonHelper.visibleCheck(this::showAreaButtons))
                 .addon(EasyAddonHelper.activeCheck(() -> {
                     TaxEntry e = this.getEntry();
@@ -109,7 +111,7 @@ public class BasicSettingsClientTab extends TaxCollectorClientTab<BasicSettingsT
         this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset((screenArea.width / 2) - 10, screenArea.height - 16))
                 .pressAction(() -> this.commonTab.SetHeight(this.getCurrentHeight() + (Screen.hasShiftDown() ? 10 : 1)))
-                .sprite(IconAndButtonUtil.SPRITE_PLUS)
+                .sprite(SpriteUtil.BUTTON_SIGN_PLUS)
                 .addon(EasyAddonHelper.visibleCheck(this::showAreaButtons))
                 .addon(EasyAddonHelper.activeCheck(() -> {
                     TaxEntry e = this.getEntry();
@@ -119,7 +121,7 @@ public class BasicSettingsClientTab extends TaxCollectorClientTab<BasicSettingsT
         this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(screenArea.width / 2, screenArea.height - 16))
                 .pressAction(() -> this.commonTab.SetHeight(this.getCurrentHeight() - (Screen.hasShiftDown() ? 10 : 1)))
-                .sprite(IconAndButtonUtil.SPRITE_MINUS)
+                .sprite(SpriteUtil.BUTTON_SIGN_MINUS)
                 .addon(EasyAddonHelper.visibleCheck(this::showAreaButtons))
                 .addon(EasyAddonHelper.activeCheck(() -> {
                     TaxEntry e = this.getEntry();
@@ -132,7 +134,7 @@ public class BasicSettingsClientTab extends TaxCollectorClientTab<BasicSettingsT
         this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(screenArea.width - 42, screenArea.height - 16))
                 .pressAction(() -> this.commonTab.SetVertOffset(this.getCurrentVertOffset() + (Screen.hasShiftDown() ? 10 : 1)))
-                .sprite(IconAndButtonUtil.SPRITE_PLUS)
+                .sprite(SpriteUtil.BUTTON_SIGN_PLUS)
                 .addon(EasyAddonHelper.visibleCheck(this::showAreaButtons))
                 .addon(EasyAddonHelper.activeCheck(() -> {
                     TaxEntry e = this.getEntry();
@@ -142,7 +144,7 @@ public class BasicSettingsClientTab extends TaxCollectorClientTab<BasicSettingsT
         this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(screenArea.width - 32, screenArea.height - 16))
                 .pressAction(() -> this.commonTab.SetVertOffset(this.getCurrentVertOffset() - (Screen.hasShiftDown() ? 10 : 1)))
-                .sprite(IconAndButtonUtil.SPRITE_MINUS)
+                .sprite(SpriteUtil.BUTTON_SIGN_MINUS)
                 .addon(EasyAddonHelper.visibleCheck(this::showAreaButtons))
                 .addon(EasyAddonHelper.activeCheck(() -> {
                     TaxEntry e = this.getEntry();
@@ -154,7 +156,7 @@ public class BasicSettingsClientTab extends TaxCollectorClientTab<BasicSettingsT
         this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(8, 58))
                 .pressAction(() -> this.commonTab.SetBankAccountLink(!this.getCurrentBankAccountLink()))
-                .sprite(IconAndButtonUtil.SPRITE_CHECK(this::getCurrentBankAccountLink))
+                .sprite(SpriteUtil.createCheckbox(this::getCurrentBankAccountLink))
                 .addon(EasyAddonHelper.visibleCheck(() -> !this.menu.isServerEntry()))
                 .build());
 
@@ -231,7 +233,7 @@ public class BasicSettingsClientTab extends TaxCollectorClientTab<BasicSettingsT
     }
 
     @Override
-    public void renderBG(@Nonnull EasyGuiGraphics gui) {
+    public void renderBG(EasyGuiGraphics gui) {
 
         TaxEntry entry = this.getEntry();
         if(entry == null)

@@ -43,7 +43,7 @@ public class PotentialOwnerList {
     public void updateCache(@Nonnull String searchFilter)
     {
         if(this.allOwners == null)
-            this.allOwners = ImmutableList.copyOf(OwnershipAPI.API.getPotentialOwners(this.player).stream().filter(this.filter).toList());
+            this.allOwners = ImmutableList.copyOf(OwnershipAPI.getApi().getPotentialOwners(this.player).stream().filter(this.filter).toList());
         this.lastSearch = searchFilter;
         //Re-do the sorting whenever the search is updated
         List<PotentialOwner> temp = new ArrayList<>(this.allOwners);

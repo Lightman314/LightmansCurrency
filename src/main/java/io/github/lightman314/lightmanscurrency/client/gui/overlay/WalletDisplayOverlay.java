@@ -63,7 +63,7 @@ public class WalletDisplayOverlay implements IGuiOverlay {
             }
 
             //Draw the stored money
-            IMoneyHolder money = MoneyAPI.API.GetPlayersMoneyHandler(Minecraft.getInstance().player);
+            IMoneyHolder money = MoneyAPI.getApi().GetPlayersMoneyHandler(Minecraft.getInstance().player);
             MoneyView contents = money.getStoredMoney();
             //Don't draw anything if no money is present
             if(contents.isEmpty())

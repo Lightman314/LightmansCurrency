@@ -16,11 +16,13 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class EasyWidget extends AbstractWidget {
 
     private ScreenArea area;
@@ -41,7 +43,7 @@ public abstract class EasyWidget extends AbstractWidget {
     public final ScreenPosition getPosition() { return this.area.pos; }
     @Override
     public final void setPosition(int x, int y) { this.area = this.area.atPosition(x, y); }
-    public final void setPosition(@Nonnull ScreenPosition pos) { this.area = this.area.atPosition(pos); }
+    public final void setPosition(ScreenPosition pos) { this.area = this.area.atPosition(pos); }
     @Override
     public final int getWidth() { return this.area.width; }
     @Override
@@ -73,13 +75,13 @@ public abstract class EasyWidget extends AbstractWidget {
 
     public final boolean isMouseOver(ScreenPosition mousePos) { return this.isMouseOver(mousePos.x, mousePos.y); }
 
-    protected EasyWidget(@Nonnull EasyBuilder<?> builder) {
+    protected EasyWidget(EasyBuilder<?> builder) {
         super(builder.area.x, builder.area.y, builder.area.width, builder.area.height, EasyText.empty());
         this.area = builder.area;
         this.withAddonsInternal(builder.addons);
     }
 
-    protected final void withAddonsInternal(@Nonnull List<WidgetAddon> addons)
+    protected final void withAddonsInternal(List<WidgetAddon> addons)
     {
         if(this.lockAddons)
             return;
@@ -122,13 +124,13 @@ public abstract class EasyWidget extends AbstractWidget {
     protected void renderTick() { }
 
     @Override
-    public final void render(@Nonnull GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
+    public final void render(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
         this.renderTickInternal();
         super.render(gui, mouseX, mouseY, partialTicks);
     }
 
     @Override
-    protected final void renderWidget(@Nonnull GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
+    protected final void renderWidget(GuiGraphics gui, int mouseX, int mouseY, float partialTicks) {
         try {
             this.renderWidget(EasyGuiGraphics.create(gui, mouseX, mouseY, partialTicks).pushOffset(this.getPosition()));
         } catch (Throwable t) {
@@ -136,16 +138,16 @@ public abstract class EasyWidget extends AbstractWidget {
         }
     }
 
-    protected abstract void renderWidget(@Nonnull EasyGuiGraphics gui);
+    protected abstract void renderWidget(EasyGuiGraphics gui);
 
     @Override
     protected boolean isValidClickButton(int button) { return false; }
 
     @Override
-    public void playDownSound(@Nonnull SoundManager manager) { }
+    public void playDownSound(SoundManager manager) { }
 
     @Override
-    protected void updateWidgetNarration(@Nonnull NarrationElementOutput narrator) { }
+    protected void updateWidgetNarration(NarrationElementOutput narrator) { }
 
     @FieldsAreNonnullByDefault
     @MethodsReturnNonnullByDefault

@@ -7,6 +7,8 @@ import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
 import io.github.lightman314.lightmanscurrency.api.misc.BlockProtectionHelper;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
+import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -91,7 +93,7 @@ public class EventHandler {
 		ItemStack pickupItem = ie.getItem();
 		Player player = event.getEntity();
 
-		if(ie.hasPickUpDelay() || !CoinAPI.API.IsAllowedInCoinContainer(pickupItem, false) || !matchesTarget(ie,player))
+		if(ie.hasPickUpDelay() || !CoinAPI.getApi().IsAllowedInCoinContainer(pickupItem, false) || !matchesTarget(ie,player))
 			return;
 
 		ItemStack coinStack = event.getItem().getItem();
@@ -104,7 +106,7 @@ public class EventHandler {
 		boolean cancelEvent = false;
 		
 		//Get the currently equipped wallet
-		ItemStack wallet = CoinAPI.API.getEquippedWallet(player);
+		ItemStack wallet = CoinAPI.getApi().getEquippedWallet(player);
 		if(!wallet.isEmpty())
 		{
 			WalletItem walletItem = (WalletItem)wallet.getItem();
@@ -375,7 +377,7 @@ public class EventHandler {
 		List<ItemStack> drops = new ArrayList<>();
 
 		Container walletInventory = event.getWalletInventory();
-		IMoneyHandler walletHandler = MoneyAPI.API.GetContainersMoneyHandler(walletInventory,drops::add,IClientTracker.entityWrapper(event.getEntity()));
+		IMoneyHandler walletHandler = MoneyAPI.getApi().GetContainersMoneyHandler(walletInventory,drops::add,IClientTracker.entityWrapper(event.getEntity()));
 		MoneyView walletFunds = walletHandler.getStoredMoney();
 
 
@@ -445,6 +447,12 @@ public class EventHandler {
 				DateTrigger.INSTANCE.trigger(player);
 			filler.pop();
 		}
+        //Bank Account Ticks
+        ProfilerFiller filler = event.getServer().getProfiler();
+        filler.push("Bank Account Salary Tick");
+        for(IBankAccount account : BankAPI.getApi().GetAllBankAccounts(false))
+            account.tick();
+        filler.pop();
 	}
 
 	@SubscribeEvent

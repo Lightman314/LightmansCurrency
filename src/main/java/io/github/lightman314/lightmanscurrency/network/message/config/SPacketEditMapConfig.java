@@ -9,14 +9,16 @@ import io.github.lightman314.lightmanscurrency.api.config.options.MapLikeOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
 import net.minecraft.ChatFormatting;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Map;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SPacketEditMapConfig extends ServerToClientPacket {
 
     public static final Handler<SPacketEditMapConfig> HANDLER = new H();
@@ -27,7 +29,7 @@ public class SPacketEditMapConfig extends ServerToClientPacket {
     private final String key;
     private final boolean isSet;
 
-    public SPacketEditMapConfig(@Nonnull ResourceLocation fileID, @Nonnull String option, @Nonnull String input, String key, boolean isSet)
+    public SPacketEditMapConfig(ResourceLocation fileID, String option, String input, String key, boolean isSet)
     {
         this.fileID = fileID;
         this.option = option;
@@ -37,7 +39,7 @@ public class SPacketEditMapConfig extends ServerToClientPacket {
     }
 
     @Override
-    public void encode(@Nonnull FriendlyByteBuf buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         buffer.writeResourceLocation(this.fileID);
         buffer.writeUtf(this.option);
         buffer.writeUtf(this.input);
@@ -47,14 +49,13 @@ public class SPacketEditMapConfig extends ServerToClientPacket {
 
     private static class H extends Handler<SPacketEditMapConfig>
     {
-        @Nonnull
         @Override
-        public SPacketEditMapConfig decode(@Nonnull FriendlyByteBuf buffer) {
+        public SPacketEditMapConfig decode(FriendlyByteBuf buffer) {
             return new SPacketEditMapConfig(buffer.readResourceLocation(),buffer.readUtf(), buffer.readUtf(), buffer.readUtf(), buffer.readBoolean());
         }
 
         @Override
-        protected void handle(@Nonnull SPacketEditMapConfig message, @Nullable ServerPlayer sender) {
+        protected void handle(SPacketEditMapConfig message, Player sender) {
             ConfigFile file = ConfigFile.lookupFile(message.fileID);
             if(file != null && file.isClientOnly())
             {

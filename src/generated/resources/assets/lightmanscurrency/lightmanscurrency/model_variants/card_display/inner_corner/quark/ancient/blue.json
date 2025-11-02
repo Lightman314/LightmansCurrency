@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/inner_corner/quark/ancient/base",
+  "target": "lightmanscurrency:card_display_quark_ancient_blue",
+  "textures": {
+    "wool": "minecraft:block/blue_wool"
+  }
+}

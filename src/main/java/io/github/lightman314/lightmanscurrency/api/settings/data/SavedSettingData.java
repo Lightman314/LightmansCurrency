@@ -2,21 +2,24 @@ package io.github.lightman314.lightmanscurrency.api.settings.data;
 
 import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public final class SavedSettingData
 {
 
-    private static <T> void encodeMap(@Nonnull FriendlyByteBuf buffer, @Nonnull Map<String,T> map, @Nonnull BiConsumer<FriendlyByteBuf,T> encoder)
+    private static <T> void encodeMap(FriendlyByteBuf buffer, Map<String,T> map, BiConsumer<FriendlyByteBuf,T> encoder)
     {
         buffer.writeInt(map.size());
         map.forEach((key,val) -> {
@@ -25,7 +28,7 @@ public final class SavedSettingData
         });
     }
 
-    private static <T> Map<String,T> decodeMap(@Nonnull FriendlyByteBuf buffer, @Nonnull Function<FriendlyByteBuf,T> decoder)
+    private static <T> Map<String,T> decodeMap(FriendlyByteBuf buffer, Function<FriendlyByteBuf,T> decoder)
     {
         Map<String,T> map = new HashMap<>();
         int count = buffer.readInt();
@@ -53,7 +56,7 @@ public final class SavedSettingData
         this.stringData = ImmutableMap.of();
         this.tagData = ImmutableMap.of();
     }
-    private SavedSettingData(@Nonnull Map<String,Boolean> boolData, @Nonnull Map<String,Long> intData, @Nonnull Map<String,Double> floatData, @Nonnull Map<String,String> stringData, @Nonnull Map<String,CompoundTag> tagData)
+    private SavedSettingData(Map<String,Boolean> boolData, Map<String,Long> intData, Map<String,Double> floatData, Map<String,String> stringData, Map<String,CompoundTag> tagData)
     {
         this.boolData = ImmutableMap.copyOf(boolData);
         this.intData = ImmutableMap.copyOf(intData);
@@ -66,11 +69,9 @@ public final class SavedSettingData
 
     public NodeAccess getNode(String node) { return new NodeAccess(this,node); }
 
-    @Nonnull
     public Mutable makeMutable() { return new Mutable(this.boolData,this.intData,this.floatData,this.stringData,copyTags(this.tagData)); }
 
     //1.20.1
-    @Nonnull
     public CompoundTag save()
     {
         CompoundTag tag = new CompoundTag();
@@ -87,8 +88,8 @@ public final class SavedSettingData
         return tag;
     }
 
-    @Nonnull
-    public static SavedSettingData parse(@Nonnull CompoundTag tag)
+    
+    public static SavedSettingData parse(CompoundTag tag)
     {
         Map<String,Boolean> boolData = new HashMap<>();
         Map<String,Long> intData = new HashMap<>();
@@ -135,23 +136,23 @@ public final class SavedSettingData
             return !this.hasNodeEntry(this.data.boolData) && !this.hasNodeEntry(this.data.intData) && !this.hasNodeEntry(this.data.floatData) && !this.hasNodeEntry(this.data.stringData) && !this.hasNodeEntry(this.data.tagData);
         }
 
-        public boolean hasBoolValue(@Nonnull String tag) { return this.data.boolData.containsKey(this.node + tag); }
-        public boolean hasIntValue(@Nonnull String tag) { return this.data.intData.containsKey(this.node + tag); }
-        public boolean hasLongValue(@Nonnull String tag) { return this.data.intData.containsKey(this.node + tag); }
-        public boolean hasFloatValue(@Nonnull String tag) { return this.data.floatData.containsKey(this.node + tag); }
-        public boolean hasDoubleValue(@Nonnull String tag) { return this.data.floatData.containsKey(this.node + tag); }
-        public boolean hasStringValue(@Nonnull String tag) { return this.data.stringData.containsKey(this.node + tag); }
-        public boolean hasCompoundValue(@Nonnull String tag) { return this.data.tagData.containsKey(this.node + tag); }
+        public boolean hasBoolValue(String tag) { return this.data.boolData.containsKey(this.node + tag); }
+        public boolean hasIntValue(String tag) { return this.data.intData.containsKey(this.node + tag); }
+        public boolean hasLongValue(String tag) { return this.data.intData.containsKey(this.node + tag); }
+        public boolean hasFloatValue(String tag) { return this.data.floatData.containsKey(this.node + tag); }
+        public boolean hasDoubleValue(String tag) { return this.data.floatData.containsKey(this.node + tag); }
+        public boolean hasStringValue(String tag) { return this.data.stringData.containsKey(this.node + tag); }
+        public boolean hasCompoundValue(String tag) { return this.data.tagData.containsKey(this.node + tag); }
 
-        public boolean getBooleanValue(@Nonnull String tag) { return this.data.boolData.getOrDefault(this.node + tag,false); }
-        public int getIntValue(@Nonnull String tag) { return this.data.intData.getOrDefault(this.node + tag,0L).intValue(); }
-        public long getLongValue(@Nonnull String tag) { return this.data.intData.getOrDefault(this.node + tag,0L); }
-        public float getFloatValue(@Nonnull String tag) { return this.data.floatData.getOrDefault(this.node + tag,0d).floatValue(); }
-        public double getDoubleValue(@Nonnull String tag) { return this.data.floatData.getOrDefault(this.node + tag,0d); }
-        @Nonnull
-        public String getStringValue(@Nonnull String tag)  { return this.data.stringData.getOrDefault(this.node + tag,""); }
-        @Nonnull
-        public CompoundTag getCompoundValue(@Nonnull String tag) { return this.data.tagData.getOrDefault(this.node + tag,new CompoundTag()); }
+        public boolean getBooleanValue(String tag) { return this.data.boolData.getOrDefault(this.node + tag,false); }
+        public int getIntValue(String tag) { return this.data.intData.getOrDefault(this.node + tag,0L).intValue(); }
+        public long getLongValue(String tag) { return this.data.intData.getOrDefault(this.node + tag,0L); }
+        public float getFloatValue(String tag) { return this.data.floatData.getOrDefault(this.node + tag,0d).floatValue(); }
+        public double getDoubleValue(String tag) { return this.data.floatData.getOrDefault(this.node + tag,0d); }
+        
+        public String getStringValue(String tag)  { return this.data.stringData.getOrDefault(this.node + tag,""); }
+        
+        public CompoundTag getCompoundValue(String tag) { return this.data.tagData.getOrDefault(this.node + tag,new CompoundTag()); }
 
     }
 
@@ -166,7 +167,7 @@ public final class SavedSettingData
 
         public MutableNodeAccess getNode(String node) { return new MutableNodeAccess(this,node); }
 
-        private Mutable(@Nonnull Map<String,Boolean> boolData, @Nonnull Map<String,Long> intData,@Nonnull Map<String,Double> floatData, @Nonnull Map<String,String> stringData, @Nonnull Map<String,CompoundTag> tagData)
+        private Mutable(Map<String,Boolean> boolData, Map<String,Long> intData,Map<String,Double> floatData, Map<String,String> stringData, Map<String,CompoundTag> tagData)
         {
             this.boolData = new HashMap<>(boolData);
             this.intData = new HashMap<>(intData);
@@ -175,7 +176,7 @@ public final class SavedSettingData
             this.tagData = new HashMap<>(tagData);
         }
 
-        public void merge(@Nonnull SavedSettingData data)
+        public void merge(SavedSettingData data)
         {
             this.boolData.putAll(data.boolData);
             this.intData.putAll(data.intData);
@@ -184,7 +185,7 @@ public final class SavedSettingData
             this.tagData.putAll(copyTags(data.tagData));
         }
 
-        @Nonnull
+        
         public SavedSettingData makeImmutable() { return new SavedSettingData(this.boolData,this.intData,this.floatData,this.stringData,copyTags(this.tagData)); }
 
     }
@@ -197,31 +198,31 @@ public final class SavedSettingData
 
         public MutableNodeAccess forSubNode(String subNode) { return new MutableNodeAccess(this.data,this.node + "." + subNode); }
 
-        public boolean hasBoolValue(@Nonnull String tag) { return this.data.boolData.containsKey(this.node + tag); }
-        public boolean hasIntValue(@Nonnull String tag) { return this.data.intData.containsKey(this.node + tag); }
-        public boolean hasLongValue(@Nonnull String tag) { return this.data.intData.containsKey(this.node + tag); }
-        public boolean hasFloatValue(@Nonnull String tag) { return this.data.floatData.containsKey(this.node + tag); }
-        public boolean hasDoubleValue(@Nonnull String tag) { return this.data.floatData.containsKey(this.node + tag); }
-        public boolean hasStringValue(@Nonnull String tag) { return this.data.stringData.containsKey(this.node + tag); }
-        public boolean hasCompoundValue(@Nonnull String tag) { return this.data.tagData.containsKey(this.node + tag); }
+        public boolean hasBoolValue(String tag) { return this.data.boolData.containsKey(this.node + tag); }
+        public boolean hasIntValue(String tag) { return this.data.intData.containsKey(this.node + tag); }
+        public boolean hasLongValue(String tag) { return this.data.intData.containsKey(this.node + tag); }
+        public boolean hasFloatValue(String tag) { return this.data.floatData.containsKey(this.node + tag); }
+        public boolean hasDoubleValue(String tag) { return this.data.floatData.containsKey(this.node + tag); }
+        public boolean hasStringValue(String tag) { return this.data.stringData.containsKey(this.node + tag); }
+        public boolean hasCompoundValue(String tag) { return this.data.tagData.containsKey(this.node + tag); }
 
-        public boolean getBooleanValue(@Nonnull String tag) { return this.data.boolData.getOrDefault(this.node + tag,false); }
-        public int getIntValue(@Nonnull String tag) { return this.data.intData.getOrDefault(this.node + tag,0L).intValue(); }
-        public long getLongValue(@Nonnull String tag) { return this.data.intData.getOrDefault(this.node + tag,0L); }
-        public float getFloatValue(@Nonnull String tag) { return this.data.floatData.getOrDefault(this.node + tag,0d).floatValue(); }
-        public double getDoubleValue(@Nonnull String tag) { return this.data.floatData.getOrDefault(this.node + tag,0d); }
-        @Nonnull
-        public String getStringValue(@Nonnull String tag)  { return this.data.stringData.getOrDefault(this.node + tag,""); }
-        @Nonnull
-        public CompoundTag getCompoundValue(@Nonnull String tag) { return this.data.tagData.getOrDefault(this.node + tag,new CompoundTag()); }
+        public boolean getBooleanValue(String tag) { return this.data.boolData.getOrDefault(this.node + tag,false); }
+        public int getIntValue(String tag) { return this.data.intData.getOrDefault(this.node + tag,0L).intValue(); }
+        public long getLongValue(String tag) { return this.data.intData.getOrDefault(this.node + tag,0L); }
+        public float getFloatValue(String tag) { return this.data.floatData.getOrDefault(this.node + tag,0d).floatValue(); }
+        public double getDoubleValue(String tag) { return this.data.floatData.getOrDefault(this.node + tag,0d); }
+        
+        public String getStringValue(String tag)  { return this.data.stringData.getOrDefault(this.node + tag,""); }
+        
+        public CompoundTag getCompoundValue(String tag) { return this.data.tagData.getOrDefault(this.node + tag,new CompoundTag()); }
 
-        public void setBooleanValue(@Nonnull String tag, boolean value) { this.data.boolData.put(this.node + tag,value); }
-        public void setIntValue(@Nonnull String tag, int value) { this.data.intData.put(this.node + tag,(long)value); }
-        public void setLongValue(@Nonnull String tag, long value) { this.data.intData.put(this.node + tag,value); }
-        public void setFloatValue(@Nonnull String tag, float value) { this.data.floatData.put(this.node + tag,(double)value); }
-        public void setDoubleValue(@Nonnull String tag, double value) { this.data.floatData.put(this.node + tag,value); }
-        public void setStringValue(@Nonnull String tag, @Nonnull String value) { this.data.stringData.put(this.node + tag,value); }
-        public void setCompoundValue(@Nonnull String tag, @Nonnull CompoundTag value) { this.data.tagData.put(this.node + tag, value.copy()); }
+        public void setBooleanValue(String tag, boolean value) { this.data.boolData.put(this.node + tag,value); }
+        public void setIntValue(String tag, int value) { this.data.intData.put(this.node + tag,(long)value); }
+        public void setLongValue(String tag, long value) { this.data.intData.put(this.node + tag,value); }
+        public void setFloatValue(String tag, float value) { this.data.floatData.put(this.node + tag,(double)value); }
+        public void setDoubleValue(String tag, double value) { this.data.floatData.put(this.node + tag,value); }
+        public void setStringValue(String tag, String value) { this.data.stringData.put(this.node + tag,value); }
+        public void setCompoundValue(String tag, CompoundTag value) { this.data.tagData.put(this.node + tag, value.copy()); }
 
     }
 

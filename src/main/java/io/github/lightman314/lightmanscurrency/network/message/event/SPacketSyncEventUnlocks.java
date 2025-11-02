@@ -1,27 +1,26 @@
 package io.github.lightman314.lightmanscurrency.network.message.event;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.CapabilityEventUnlocks;
-import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.IEventUnlocks;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
-import net.minecraft.client.Minecraft;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class SPacketSyncEventUnlocks extends ServerToClientPacket {
 
     public static final Handler<SPacketSyncEventUnlocks> HANDLER = new H();
 
     final List<String> unlocks;
-    public SPacketSyncEventUnlocks(@Nonnull List<String> unlocks) { this.unlocks = unlocks; }
+    public SPacketSyncEventUnlocks(List<String> unlocks) { this.unlocks = unlocks; }
 
     @Override
-    public void encode(@Nonnull FriendlyByteBuf buffer) {
+    public void encode(FriendlyByteBuf buffer) {
         buffer.writeInt(this.unlocks.size());
         for(String v : this.unlocks)
             buffer.writeUtf(v);
@@ -30,9 +29,8 @@ public class SPacketSyncEventUnlocks extends ServerToClientPacket {
     private static class H extends Handler<SPacketSyncEventUnlocks>
     {
 
-        @Nonnull
         @Override
-        public SPacketSyncEventUnlocks decode(@Nonnull FriendlyByteBuf buffer) {
+        public SPacketSyncEventUnlocks decode(FriendlyByteBuf buffer) {
             List<String> list = new ArrayList<>();
             int count = buffer.readInt();
             for(int i = 0; i < count; ++i)
@@ -41,7 +39,7 @@ public class SPacketSyncEventUnlocks extends ServerToClientPacket {
         }
 
         @Override
-        protected void handle(@Nonnull SPacketSyncEventUnlocks message, @Nullable ServerPlayer sender) {
+        protected void handle(SPacketSyncEventUnlocks message, Player player) {
             LightmansCurrency.getProxy().syncEventUnlocks(message.unlocks);
         }
 

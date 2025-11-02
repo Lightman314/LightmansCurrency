@@ -1,0 +1,7 @@
+{
+  "parent": "lightmanscurrency:card_display/inner_corner/biomeswevegone/redwood/base",
+  "target": "lightmanscurrency:card_display_biomeswevegone_redwood_white",
+  "textures": {
+    "wool": "minecraft:block/white_wool"
+  }
+}

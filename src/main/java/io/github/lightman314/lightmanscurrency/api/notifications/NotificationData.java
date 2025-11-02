@@ -7,12 +7,15 @@ import java.util.function.Predicate;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class NotificationData implements ISidedObject {
 
 	private boolean isClient = false;
@@ -21,7 +24,7 @@ public class NotificationData implements ISidedObject {
 
 	List<Notification> notifications = new ArrayList<>();
 	public List<Notification> getNotifications() { return this.notifications; }
-	public List<Notification> getNotifications(@Nonnull NotificationCategory category) {
+	public List<Notification> getNotifications(NotificationCategory category) {
 		if(category == NotificationCategory.GENERAL)
 			return this.notifications;
 		return this.getNotifications(n -> n.getCategory().matches(category));
@@ -37,7 +40,7 @@ public class NotificationData implements ISidedObject {
 	}
 	
 	public boolean unseenNotification() { return this.unseenNotification(NotificationCategory.GENERAL); }
-	public boolean unseenNotification(@Nonnull NotificationCategory category) {
+	public boolean unseenNotification(NotificationCategory category) {
 		for(Notification n : this.getNotifications(category))
 		{
 			if(!n.wasSeen())
@@ -46,7 +49,7 @@ public class NotificationData implements ISidedObject {
 		return false;
 	}
 
-	@Nonnull
+	
 	public List<NotificationCategory> getCategories() {
 		List<NotificationCategory> result = new ArrayList<>();
 		for(Notification not : this.notifications)
@@ -58,7 +61,7 @@ public class NotificationData implements ISidedObject {
 		return result;
 	}
 	
-	public void addNotification(@Nonnull Notification newNotification) {
+	public void addNotification(Notification newNotification) {
 		boolean shouldAdd = true;
 		if(!this.notifications.isEmpty())
 		{
@@ -80,7 +83,7 @@ public class NotificationData implements ISidedObject {
 		this.notifications.remove(notificationIndex);
 	}
 
-	public void deleteNotification(@Nonnull NotificationCategory category, int notificationIndex)
+	public void deleteNotification(NotificationCategory category, int notificationIndex)
 	{
 		if(category == NotificationCategory.GENERAL)
 		{
@@ -112,7 +115,7 @@ public class NotificationData implements ISidedObject {
 			this.notifications.remove(this.notifications.size() - 1);
 	}
 
-	@Nonnull
+	
 	public CompoundTag save() {
 		CompoundTag compound = new CompoundTag();
 		ListTag notificationList = new ListTag();
@@ -122,8 +125,8 @@ public class NotificationData implements ISidedObject {
 		return compound;
 	}
 
-	@Nonnull
-	public static NotificationData loadFrom(@Nonnull CompoundTag compound) {
+	
+	public static NotificationData loadFrom(CompoundTag compound) {
 		NotificationData data = new NotificationData();
 		data.load(compound);
 		return data;
@@ -137,7 +140,7 @@ public class NotificationData implements ISidedObject {
 			for(int i = 0; i < notificationList.size(); ++i)
 			{
 				CompoundTag notTag = notificationList.getCompound(i);
-				Notification not = NotificationAPI.API.LoadNotification(notTag);
+				Notification not = NotificationAPI.getApi().LoadNotification(notTag);
 				if(not != null)
 					this.notifications.add(not);
 			}
@@ -148,10 +151,8 @@ public class NotificationData implements ISidedObject {
 	}
 
 	@Override
-	@Nonnull
 	public final NotificationData flagAsClient() { return this.flagAsClient(true); }
 	@Override
-	@Nonnull
 	public final NotificationData flagAsClient(boolean isClient) {
 		this.isClient = isClient;
 		for(Notification n : this.notifications)
@@ -159,7 +160,6 @@ public class NotificationData implements ISidedObject {
 		return this;
 	}
 	@Override
-	@Nonnull
 	public final NotificationData flagAsClient(IClientTracker context) { return this.flagAsClient(context.isClient()); }
 	
 }

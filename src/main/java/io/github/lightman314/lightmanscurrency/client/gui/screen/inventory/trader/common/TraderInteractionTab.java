@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.TraderClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
@@ -14,10 +15,13 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketExecuteTrade;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.inventory.Slot;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class TraderInteractionTab extends TraderClientTab {
 
 	public TraderInteractionTab(TraderScreen screen) { super(screen); }
@@ -42,7 +46,7 @@ public class TraderInteractionTab extends TraderClientTab {
 	}
 
 	@Override
-	public void renderBG(@Nonnull EasyGuiGraphics gui)
+	public void renderBG(EasyGuiGraphics gui)
 	{
 
 		TradeButton hoveredButton = this.tradeDisplay.getHoveredButton(gui.mousePos);
@@ -60,7 +64,7 @@ public class TraderInteractionTab extends TraderClientTab {
 				{
 					Slot slot = this.menu.getSlots().get(s);
 					//Replace slot bg with the hightlighted version.
-					gui.renderSlot(this.screen,slot.x,slot.y,EasyGuiGraphics.SLOT_YELLOW);
+					gui.renderSlot(this.screen,slot.x,slot.y,SpriteUtil.EMPTY_SLOT_YELLOW);
 				}
 			}
 		}

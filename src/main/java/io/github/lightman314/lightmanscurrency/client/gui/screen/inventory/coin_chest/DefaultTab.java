@@ -1,26 +1,30 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_chest;
 
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.CoinChestScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestUpgradeData;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class DefaultTab extends CoinChestTab {
 
     public DefaultTab(CoinChestScreen screen) { super(screen); }
 
-    @Nonnull
+    
     @Override
-    public IconData getIcon() { return IconData.of(ModBlocks.COIN_CHEST); }
+    public IconData getIcon() { return ItemIcon.ofItem(ModBlocks.COIN_CHEST); }
 
     @Override
     public Component getTooltip() { return this.menu.be.getDisplayName(); }
@@ -33,16 +37,15 @@ public class DefaultTab extends CoinChestTab {
             this.addChild(PlainButton.builder()
                     .position(screenArea.pos.offset(152 - 9, 20 + (i * 18)))
                     .pressAction(() -> this.toggleUpgradeActive(index))
-                    .sprite(IconAndButtonUtil.SPRITE_TOGGLE(() -> this.upgradeActive(index)))
+                    .sprite(SpriteUtil.createColoredToggle(() -> this.upgradeActive(index)))
                     .addon(EasyAddonHelper.visibleCheck(() -> this.showToggle(index)))
                     .build());
         }
     }
 
     @Override
-    public void renderBG(@Nonnull EasyGuiGraphics gui) { }
+    public void renderBG(EasyGuiGraphics gui) { }
 
-    @Nonnull
     private CoinChestUpgradeData dataForSlot(int slot)
     {
         return this.menu.be.getChestUpgradeForSlot(slot);

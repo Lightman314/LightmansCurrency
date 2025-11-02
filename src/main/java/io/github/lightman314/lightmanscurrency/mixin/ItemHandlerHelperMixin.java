@@ -23,7 +23,7 @@ public class ItemHandlerHelperMixin {
             original.call(player,item);
             return;
         }
-        if(CoinAPI.API.IsAllowedInCoinContainer(item,false))
+        if(CoinAPI.getApi().IsAllowedInCoinContainer(item,false))
         {
             IWalletHandler walletHandler = WalletCapability.lazyGetWalletHandler(player);
             if(walletHandler == null)

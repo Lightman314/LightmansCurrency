@@ -7,13 +7,15 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class CPacketBankTransferPlayer extends ClientToServerPacket {
 
 	public static final Handler<CPacketBankTransferPlayer> HANDLER = new H();
@@ -26,24 +28,24 @@ public class CPacketBankTransferPlayer extends ClientToServerPacket {
 		this.amount = amount;
 	}
 	
-	public void encode(@Nonnull FriendlyByteBuf buffer) {
+	public void encode(FriendlyByteBuf buffer) {
 		buffer.writeUtf(this.playerName);
 		this.amount.encode(buffer);
 	}
 
 	private static class H extends Handler<CPacketBankTransferPlayer>
 	{
-		@Nonnull
+		
 		@Override
-		public CPacketBankTransferPlayer decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketBankTransferPlayer(buffer.readUtf(), MoneyValue.decode(buffer)); }
+		public CPacketBankTransferPlayer decode(FriendlyByteBuf buffer) { return new CPacketBankTransferPlayer(buffer.readUtf(), MoneyValue.decode(buffer)); }
 		@Override
-		protected void handle(@Nonnull CPacketBankTransferPlayer message, @Nullable ServerPlayer sender) {
-			if(sender != null && sender.containerMenu instanceof IBankAccountAdvancedMenu menu)
+		protected void handle(CPacketBankTransferPlayer message, Player player) {
+			if(player.containerMenu instanceof IBankAccountAdvancedMenu menu)
 			{
 				BankReference destination = PlayerBankReference.of(PlayerReference.of(false, message.playerName));
-				MutableComponent response = BankAPI.API.BankTransfer(menu, message.amount, destination.get());
+				MutableComponent response = BankAPI.getApi().BankTransfer(menu, message.amount, destination.get());
 				if(response != null)
-					new SPacketBankTransferResponse(response).sendTo(sender);
+					new SPacketBankTransferResponse(response).sendTo(player);
 			}
 		}
 	}

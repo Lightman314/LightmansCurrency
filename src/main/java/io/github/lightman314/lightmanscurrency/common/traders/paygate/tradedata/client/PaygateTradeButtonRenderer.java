@@ -23,9 +23,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.util.LazyOptional;
 
 import java.util.List;
+import java.util.Optional;
 
 @OnlyIn(Dist.CLIENT)
 public class PaygateTradeButtonRenderer extends TradeRenderManager<PaygateTradeData> {
@@ -36,7 +36,7 @@ public class PaygateTradeButtonRenderer extends TradeRenderManager<PaygateTradeD
     public int tradeButtonWidth(TradeContext context) { return this.trade.getDescription().isBlank() ? 94 : 189; }
 
     @Override
-    public LazyOptional<ScreenPosition> arrowPosition(TradeContext context) { return ScreenPosition.ofOptional(36, 1); }
+    public Optional<ScreenPosition> arrowPosition(TradeContext context) { return ScreenPosition.ofOptional(36, 1); }
 
     @Override
     public DisplayData inputDisplayArea(TradeContext context) { return new DisplayData(1, 1, 34, 16); }

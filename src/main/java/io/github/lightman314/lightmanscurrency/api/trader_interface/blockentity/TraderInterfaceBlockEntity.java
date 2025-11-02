@@ -28,6 +28,7 @@ import io.github.lightman314.lightmanscurrency.api.trader_interface.data.TraderI
 import io.github.lightman314.lightmanscurrency.api.traders.FullTradeResult;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.menus.containers.UpgradeContainer;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
@@ -202,7 +203,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	
 	public final TraderInterfaceTargets targets = new TraderInterfaceTargets(this);
 	
-	private SimpleContainer upgradeSlots = new SimpleContainer(5);
+	private final UpgradeContainer upgradeSlots = new UpgradeContainer(5,this);
 	@Nonnull
 	@Override
 	public Container getUpgrades() { return this.upgradeSlots; }
@@ -347,7 +348,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	}
 	
 	protected final CompoundTag saveUpgradeSlots(CompoundTag compound) {
-		InventoryUtil.saveAllItems("Upgrades", compound, this.upgradeSlots);
+		this.upgradeSlots.save("Upgrades",compound);
 		return compound;
 	}
 
@@ -382,7 +383,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		if(compound.contains("Targets",Tag.TAG_COMPOUND))
 			this.targets.load(compound.getCompound("Targets"));
 		if(compound.contains("Upgrades"))
-			this.upgradeSlots = InventoryUtil.loadAllItems("Upgrades", compound, 5);
+			this.upgradeSlots.load("Upgrades",compound);
 		if(compound.contains("Stats"))
 			this.statTracker.load(compound.getCompound("Stats"));
 		for(SidedHandler<?> handler : this.handlers) {

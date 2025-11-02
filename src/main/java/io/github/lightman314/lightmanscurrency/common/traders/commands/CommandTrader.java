@@ -6,6 +6,7 @@ import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
@@ -26,7 +27,7 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.trader
 import io.github.lightman314.lightmanscurrency.common.traders.commands.tradedata.CommandTrade;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -75,7 +76,7 @@ public class CommandTrader extends TraderData {
     }
 
     @Override
-    public IconData getIcon() { return IconData.of(Items.COMMAND_BLOCK); }
+    public IconData getIcon() { return ItemIcon.ofItem(Items.COMMAND_BLOCK); }
 
     @Override
     protected boolean allowAdditionalUpgradeType(UpgradeType type) { return false; }

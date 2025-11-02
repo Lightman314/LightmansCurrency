@@ -9,7 +9,8 @@ import com.mojang.blaze3d.MethodsReturnNonnullByDefault;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FlexibleSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMExchangeButtonData;
@@ -19,62 +20,64 @@ import javax.annotation.Nonnull;
 
 public class ATMExchangeButton extends EasyButton {
 
-	public final ATMExchangeButtonData data;
+    public final ATMExchangeButtonData data;
 
-	private final Predicate<ATMExchangeButton> selected;
+    private final Predicate<ATMExchangeButton> selected;
 
-	private ATMExchangeButton(@Nonnull Builder builder)
-	{
-		super(builder);
-		this.data = builder.data;
-		this.selected = builder.selected;
-	}
+    private ATMExchangeButton(@Nonnull Builder builder)
+    {
+        super(builder);
+        this.data = builder.data;
+        this.selected = builder.selected;
+    }
 
-	@Override
-	public void renderWidget(@Nonnull EasyGuiGraphics gui) {
+    @Override
+    public void renderWidget(@Nonnull EasyGuiGraphics gui) {
 
-		//Render background to width
-		int yOffset = this.isHovered != this.selected.test(this) ? 18 : 0;
-		if(this.active)
-			gui.resetColor();
-		else
-			gui.setColor(0.5f,0.5f,0.5f);
-		//Draw background of size
-		gui.blitNineSplit(ATMScreen.BUTTON_TEXTURE,0,0,this.width,this.height,0,yOffset,256,18,2);
+        //Render background to width
+        if(this.active)
+            gui.resetColor();
+        else
+            gui.setColor(0.5f,0.5f,0.5f);
 
-		//Draw the icons
-		for(ATMIconData icon : this.data.getIcons())
-		{
-			try { icon.render(this, gui, this.isHovered);
-			} catch(Throwable t) { LightmansCurrency.LogError("Error rendering ATM Conversion Button icon.", t); }
-		}
+        //Draw background of size
+        boolean highlighted = this.isHoveredOrFocused() != this.selected.test(this);
+        FlexibleSizeSprite sprite = highlighted ? SpriteUtil.BUTTON_GRAY_HOVERED : SpriteUtil.BUTTON_GRAY;
+        sprite.render(gui,0,0,this.width,this.height);
 
-		gui.resetColor();
+        //Draw the icons
+        for(ATMIconData icon : this.data.getIcons())
+        {
+            try { icon.render(this, gui, highlighted);
+            } catch(Throwable t) { LightmansCurrency.LogError("Error rendering ATM Conversion Button icon.", t); }
+        }
 
-	}
+        gui.resetColor();
 
-	@Nonnull
-	public static Builder builder(@Nonnull ATMExchangeButtonData data) { return new Builder(data); }
+    }
 
-	@MethodsReturnNonnullByDefault
-	@FieldsAreNonnullByDefault
-	public static class Builder extends EasyButtonBuilder<Builder>
-	{
-		private final ATMExchangeButtonData data;
-		private Builder(ATMExchangeButtonData data) { super(data.width,data.height); this.data = data; }
+    @Nonnull
+    public static Builder builder(@Nonnull ATMExchangeButtonData data) { return new Builder(data); }
 
-		private Predicate<ATMExchangeButton> selected = Predicates.alwaysFalse();
+    @MethodsReturnNonnullByDefault
+    @FieldsAreNonnullByDefault
+    public static class Builder extends EasyButtonBuilder<Builder>
+    {
+        private final ATMExchangeButtonData data;
+        private Builder(ATMExchangeButtonData data) { super(data.width,data.height); this.data = data; }
 
-		@Override
-		protected Builder getSelf() { return this; }
+        private Predicate<ATMExchangeButton> selected = Predicates.alwaysFalse();
 
-		public Builder screenCorner(ScreenPosition corner) { return this.position(corner.offset(data.position)); }
-		public Builder commandHandler(Consumer<String> commandHandler) { return this.pressAction(() -> commandHandler.accept(this.data.command)); }
+        @Override
+        protected Builder getSelf() { return this; }
 
-		public Builder selected(Predicate<ATMExchangeButton> selected) { this.selected = selected; return this; }
+        public Builder screenCorner(ScreenPosition corner) { return this.position(corner.offset(data.position)); }
+        public Builder commandHandler(Consumer<String> commandHandler) { return this.pressAction(() -> commandHandler.accept(this.data.command)); }
 
-		public ATMExchangeButton build() { return new ATMExchangeButton(this); }
+        public Builder selected(Predicate<ATMExchangeButton> selected) { this.selected = selected; return this; }
 
-	}
+        public ATMExchangeButton build() { return new ATMExchangeButton(this); }
+
+    }
 
 }

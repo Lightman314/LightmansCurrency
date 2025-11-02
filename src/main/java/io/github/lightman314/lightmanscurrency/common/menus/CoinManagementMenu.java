@@ -8,15 +8,13 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
-
 public class CoinManagementMenu extends LazyMessageMenu {
 
 
-    public CoinManagementMenu(int id, @Nonnull Inventory inventory) { super(ModMenus.COIN_MANAGEMENT.get(), id, inventory); }
+    public CoinManagementMenu(int id, Inventory inventory) { super(ModMenus.COIN_MANAGEMENT.get(), id, inventory); }
 
     @Override
-    public void HandleMessage(@Nonnull LazyPacketData message) {
+    protected void HandleMessage(LazyPacketData message) {
         //Server should not be sending any messages to the client. Editing is 100% client-side.
         if(this.isClient())
             return;
@@ -32,12 +30,11 @@ public class CoinManagementMenu extends LazyMessageMenu {
         }
     }
 
-    @Nonnull
     @Override
-    public ItemStack quickMoveStack(@Nonnull Player player, int index) { return ItemStack.EMPTY; }
+    public ItemStack quickMoveStack(Player player, int index) { return ItemStack.EMPTY; }
 
     @Override
-    protected void onValidationTick(@Nonnull Player player) {
+    protected void onValidationTick(Player player) {
         //Close the menu if the player lost their admin priveledges.
         if(!player.hasPermissions(2))
             this.player.closeContainer();

@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabB
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
-import io.github.lightman314.lightmanscurrency.client.util.IconAndButtonUtil;
+import io.github.lightman314.lightmanscurrency.client.util.ButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.menus.TaxCollectorMenu;
@@ -41,7 +41,7 @@ public class TaxCollectorScreen extends EasyTabbedMenuScreen<TaxCollectorMenu,Ta
     @Override
     protected void init(ScreenArea screenArea) {
         //Money Collection Button
-        this.addChild(IconAndButtonUtil.finishCollectCoinButton(IconButton.builder()
+        this.addChild(ButtonUtil.finishCollectCoinButton(IconButton.builder()
                         .position(screenArea.pos.offset(screenArea.width, 0))
                         .pressAction(this.menu::CollectStoredMoney)
                         .addon(EasyAddonHelper.visibleCheck(this::storedMoneyVisible))

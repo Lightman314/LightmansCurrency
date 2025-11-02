@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -22,14 +22,14 @@ public abstract class TaxableNotification extends Notification {
     protected TaxableNotification() {}
 
     @Override
-    public final List<MutableComponent> getMessageLines() {
-        List<MutableComponent> lines = new ArrayList<>(this.getNormalMessageLines());
+    public final List<Component> getMessageLines() {
+        List<Component> lines = new ArrayList<>(this.getNormalMessageLines());
         if(!this.taxesPaid.isEmpty())
             lines.add(LCText.NOTIFICATION_TAXES_PAID.get(this.taxesPaid.getText("ERROR")));
         return lines;
     }
 
-    protected abstract List<MutableComponent> getNormalMessageLines();
+    protected abstract List<Component> getNormalMessageLines();
 
     @Override
     protected final void saveAdditional(CompoundTag compound) {

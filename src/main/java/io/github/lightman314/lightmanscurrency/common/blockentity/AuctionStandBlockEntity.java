@@ -36,7 +36,7 @@ public class AuctionStandBlockEntity extends EasyBlockEntity {
     @SubscribeEvent(priority = EventPriority.LOWEST) //Set to low priority so that it doesn't run before the coin list is loaded and makes the persistent traders fail to load properly.
     public static void serverStart(ServerStartedEvent event) {
         if(AuctionHouseTrader.isEnabled())
-            AuctionStandBlockEntity.RandomizeDisplayItems();
+            RandomizeDisplayItems();
     }
 
     @SubscribeEvent

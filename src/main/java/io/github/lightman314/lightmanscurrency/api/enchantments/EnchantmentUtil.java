@@ -29,7 +29,7 @@ public class EnchantmentUtil {
         if(entityMoney == null)
         {
             if(entity instanceof Player player)
-                entityMoney = MoneyAPI.API.GetPlayersMoneyHandler(player);
+                entityMoney = MoneyAPI.getApi().GetPlayersMoneyHandler(player);
             else
                 LightmansCurrency.LogDebug("Cannot run Money Mending tick without a money handler!");
         }

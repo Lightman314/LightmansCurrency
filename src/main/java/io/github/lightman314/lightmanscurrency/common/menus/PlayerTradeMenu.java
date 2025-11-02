@@ -127,7 +127,7 @@ public class PlayerTradeMenu extends LazyMessageMenu {
         this.clearContainer(player, this.trade.isHost(this.player) ? this.trade.getHostItems() : this.trade.getGuestItems());
     }
 
-    public MoneyView getAvailableFunds() { return MoneyAPI.API.GetPlayersMoneyHandler(this.player).getStoredMoney(); }
+    public MoneyView getAvailableFunds() { return MoneyAPI.getApi().GetPlayersMoneyHandler(this.player).getStoredMoney(); }
 
     public void onTradeChange() { }
 
@@ -143,7 +143,7 @@ public class PlayerTradeMenu extends LazyMessageMenu {
     public void SendChatToServer(@Nonnull String message) { this.SendMessageToServer(LazyPacketData.simpleString("AddChat", message)); }
 
     @Override
-    public void HandleMessage(@Nonnull LazyPacketData message) {
+    protected void HandleMessage(@Nonnull LazyPacketData message) {
         if(message.contains("AddChat") && this.isServer())
         {
             //Send chat message to both players

@@ -2,12 +2,15 @@ package io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Function;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public final class IconType {
     public final ResourceLocation type;
     private final Function<JsonObject,ATMIconData> deserializer;
@@ -16,7 +19,7 @@ public final class IconType {
 
     public ATMIconData parse(JsonObject data) throws JsonSyntaxException, ResourceLocationException { return this.deserializer.apply(data); }
 
-    private IconType(@Nonnull ResourceLocation type, @Nonnull Function<JsonObject,ATMIconData> deserializer) {
+    private IconType(ResourceLocation type, Function<JsonObject,ATMIconData> deserializer) {
         this.type = type;
         this.deserializer = deserializer;
     }

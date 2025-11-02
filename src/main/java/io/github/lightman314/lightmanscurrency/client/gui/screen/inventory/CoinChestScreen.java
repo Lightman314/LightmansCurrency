@@ -17,15 +17,18 @@ import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class CoinChestScreen extends EasyMenuScreen<CoinChestMenu> {
 
     public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/coin_chest.png");
@@ -130,16 +133,13 @@ public class CoinChestScreen extends EasyMenuScreen<CoinChestMenu> {
     }
 
     @Override
-    protected void renderBG(@Nonnull EasyGuiGraphics gui) {
+    protected void renderBG(EasyGuiGraphics gui) {
 
         gui.renderNormalBackground(GUI_TEXTURE, this);
 
         //Render slot backgrounds for all visible slots
         for(Slot s : this.menu.slots)
-        {
-            if(s.isActive())
-                gui.blit(GUI_TEXTURE, s.x - 1, s.y - 1, 176, 0, 18, 18);
-        }
+            gui.renderSlot(this,s);
 
         try { this.currentTab().renderBG(gui);
         } catch(Throwable t) { LightmansCurrency.LogError("Error rendering " + this.currentTab().getClass().getName() + " tab.", t); }
@@ -158,7 +158,7 @@ public class CoinChestScreen extends EasyMenuScreen<CoinChestMenu> {
     }
 
     @Override
-    protected void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
+    protected void renderAfterWidgets(EasyGuiGraphics gui) {
         try { this.currentTab().renderAfterWidgets(gui);
         } catch(Exception e) { LightmansCurrency.LogError("Error rendering " + this.currentTab().getClass().getName() + " tab.", e); }
     }

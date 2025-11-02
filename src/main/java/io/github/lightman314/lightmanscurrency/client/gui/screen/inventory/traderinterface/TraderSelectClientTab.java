@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -12,28 +14,29 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.InteractionType;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderInterfaceScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.NetworkTraderButton;
-import io.github.lightman314.lightmanscurrency.common.util.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.TraderSelectTab;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.TerminalSorter;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelectTab> implements IScrollable {
 
 	public TraderSelectClientTab(Object screen, TraderSelectTab tab) { super(screen,tab); }
 
-	@Nonnull
 	@Override
-	public IconData getIcon() { return IconData.of(ModBlocks.TERMINAL); }
+	public IconData getIcon() { return ItemIcon.ofItem(ModBlocks.TERMINAL); }
 
 	@Override
 	public MutableComponent getTooltip() { return LCText.TOOLTIP_INTERFACE_TRADER_SELECT.get(); }
@@ -52,7 +55,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	private List<TraderData> filteredTraderList = new ArrayList<>();
 
 	private List<TraderData> traderList() {
-		List<TraderData> traderList = this.filterTraders(TraderAPI.API.GetAllNetworkTraders(true));
+		List<TraderData> traderList = this.filterTraders(TraderAPI.getApi().GetAllNetworkTraders(true));
 		traderList.sort(TerminalSorter.getDefaultSorter());
 		return traderList;
 	}
@@ -119,10 +122,11 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	}
 
 	@Override
-	public void renderBG(@Nonnull EasyGuiGraphics gui) {
+	public void renderBG(EasyGuiGraphics gui) {
 
 		gui.resetColor();
-		gui.blit(TraderInterfaceScreen.GUI_TEXTURE,  28, 4, 0, TraderInterfaceScreen.HEIGHT, 117, 12);
+        SpriteUtil.SEARCH_ICON.render(gui,28,3);
+        SpriteUtil.SEARCH_FIELD.render(gui,40,4,105);
 
 	}
 
@@ -175,7 +179,7 @@ public class TraderSelectClientTab extends TraderInterfaceClientTab<TraderSelect
 	private void updateTraderList()
 	{
 		//Filtering of results moved to the TradingOffice.filterTraders
-		this.filteredTraderList = TraderAPI.API.FilterTraders(this.traderList(), this.searchField.getValue());
+		this.filteredTraderList = TraderAPI.getApi().FilterTraders(this.traderList(), this.searchField.getValue());
 		this.updateTraderButtons();
 		//Limit the page
 		if(this.scroll > this.getMaxScroll())

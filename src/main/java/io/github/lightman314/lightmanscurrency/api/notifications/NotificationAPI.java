@@ -1,39 +1,36 @@
 package io.github.lightman314.lightmanscurrency.api.notifications;
 
 import io.github.lightman314.lightmanscurrency.common.impl.NotificationAPIImpl;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.UUID;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class NotificationAPI {
 
-    public static NotificationAPI API = NotificationAPIImpl.INSTANCE;
+    private static NotificationAPI instance;
+    public static NotificationAPI getApi()
+    {
+        if(instance == null)
+            instance = new NotificationAPIImpl();
+        return instance;
+    }
+
+    protected NotificationAPI() { if(instance != null)  throw new IllegalCallerException("Cannot create a new NotificationAPI instance as one is already present!"); }
 
     /**
      * Registers the given {@link NotificationType} to the registry so that it can be loaded via {@link #LoadNotification(CompoundTag)}
      */
-    public abstract void RegisterNotification(@Nonnull NotificationType<?> type);
-
-    /**
-     * @deprecated Use {@link #RegisterNotification(NotificationType)} instead
-     * @see #API
-     */
-    @Deprecated(since = "2.2.3.2")
-    public static void registerNotification(@Nonnull NotificationType<?> type) { API.RegisterNotification(type); }
+    public abstract void RegisterNotification(NotificationType<?> type);
 
     /**
      * Registers the given {@link NotificationCategoryType} to the registry so that it can be loaded via {@link #LoadCategory(CompoundTag)}
      */
-    public abstract void RegisterCategory(@Nonnull NotificationCategoryType<?> type);
-
-    /**
-     * @deprecated Use {@link #RegisterCategory(NotificationCategoryType)} instead
-     * @see #API
-     */
-    @Deprecated(since = "2.2.3.2")
-    public static void registerCategory(@Nonnull NotificationCategoryType<?> type) { API.RegisterCategory(type); }
+    public abstract void RegisterCategory(NotificationCategoryType<?> type);
 
     /**
      * Attempts to load a notification from the given NBT tag<br>
@@ -41,15 +38,7 @@ public abstract class NotificationAPI {
      * Should only attempt to load tags saved by {@link Notification#save()}
      */
     @Nullable
-    public abstract Notification LoadNotification(@Nonnull CompoundTag tag);
-
-    /**
-     * @deprecated Use {@link #LoadNotification(CompoundTag)} instead
-     * @see #API
-     */
-    @Deprecated(since = "2.2.3.2")
-    @Nullable
-    public static Notification loadNotification(@Nonnull CompoundTag compound) { return API.LoadNotification(compound); }
+    public abstract Notification LoadNotification(CompoundTag tag);
 
     /**
      * Attempts to load the category from the given NBT tag<br>
@@ -57,17 +46,9 @@ public abstract class NotificationAPI {
      * Should only attempt to load tags saved by {@link NotificationCategory#save()}
      */
     @Nullable
-    public abstract NotificationCategory LoadCategory(@Nonnull CompoundTag tag);
+    public abstract NotificationCategory LoadCategory(CompoundTag tag);
 
-    /**
-     * @deprecated Use {@link #LoadCategory(CompoundTag)} instead
-     * @see #API
-     */
-    @Deprecated(since = "2.2.3.2")
-    @Nullable
-    public static NotificationCategory loadCategory(@Nonnull CompoundTag compound) { return API.LoadCategory(compound); }
-
-    public final void PushPlayerNotification(@Nonnull UUID playerID, @Nonnull Notification notification) { this.PushPlayerNotification(playerID,notification,true); }
-    public abstract void PushPlayerNotification(@Nonnull UUID playerID, @Nonnull Notification notification, boolean pushToChat);
+    public final void PushPlayerNotification(UUID playerID, Notification notification) { this.PushPlayerNotification(playerID,notification,true); }
+    public abstract void PushPlayerNotification(UUID playerID, Notification notification, boolean pushToChat);
 
 }
