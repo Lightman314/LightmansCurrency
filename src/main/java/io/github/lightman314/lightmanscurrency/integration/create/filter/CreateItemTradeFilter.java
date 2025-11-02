@@ -39,7 +39,7 @@ public class CreateItemTradeFilter implements IItemTradeFilter {
             if(stack.getItem() == AllItems.FILTER.get() || stack.getItem() == AllItems.ATTRIBUTE_FILTER.get())
             {
                 FilterItemStack filter = FilterItemStack.of(stack);
-                if(filter.getClass() != FilterItemStack.class)
+                if(filter.getClass() == FilterItemStack.class)
                     return null;
                 return s -> filter.test(level,s);
             }
