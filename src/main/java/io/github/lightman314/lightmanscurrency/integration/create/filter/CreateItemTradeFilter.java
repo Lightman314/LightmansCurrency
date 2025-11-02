@@ -33,21 +33,14 @@ public class CreateItemTradeFilter implements IItemTradeFilter {
             if(level == null) //Create filters use the level apparently, so we can't provide a filter without a level
                 return null;
             //Confirm that the item has a valid filter defined
-            if(stack.getItem() == AllItems.FILTER.get() || stack.getItem() == AllItems.ATTRIBUTE_FILTER.get())
-            {
-                if(!hasCustomFilterStack(stack))
+            if(stack.getItem() == AllItems.FILTER.get() || stack.getItem() == AllItems.ATTRIBUTE_FILTER.get()) {
+                FilterItemStack filter = FilterItemStack.of(stack);
+                if (filter.getClass() == FilterItemStack.class)
                     return null;
+                return s -> filter.test(level, s);
             }
-            FilterItemStack filter = FilterItemStack.of(stack);
-            return s -> filter.test(level,s);
         }
         return null;
-    }
-
-    private static boolean hasCustomFilterStack(ItemStack stack)
-    {
-        FilterItemStack filter = FilterItemStack.of(stack);
-        return filter.getClass() != FilterItemStack.class;
     }
 
     @Nullable
