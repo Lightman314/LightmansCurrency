@@ -18,8 +18,8 @@ public class VisibilityToggleButton extends InventoryButton {
 
     public static final int SIZE = 6;
 
-    public static final FixedSizeSprite SPRITE_VISIBLE = new NormalSprite(SpriteSource.createBottom(VersionUtil.lcResource("common/widgets/button_wallet_viisibility"),6,6));
-    public static final FixedSizeSprite SPRITE_INVISIBLE = new NormalSprite(SpriteSource.createTop(VersionUtil.lcResource("common/widgets/button_wallet_viisibility"),6,6));
+    public static final FixedSizeSprite SPRITE_VISIBLE = new NormalSprite(SpriteSource.createBottom(VersionUtil.lcResource("common/widgets/button_wallet_visibility"),6,6));
+    public static final FixedSizeSprite SPRITE_INVISIBLE = new NormalSprite(SpriteSource.createTop(VersionUtil.lcResource("common/widgets/button_wallet_visibility"),6,6));
 
     public VisibilityToggleButton(AbstractContainerScreen<?> inventoryScreen, Runnable pressable) { super(inventoryScreen, pressable, VisibilityToggleButton::getSprite); }
 
