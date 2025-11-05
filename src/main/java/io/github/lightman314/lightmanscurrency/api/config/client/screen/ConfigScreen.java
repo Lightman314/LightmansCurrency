@@ -42,7 +42,7 @@ public abstract class ConfigScreen extends EasyScreen {
     protected void afterClose() { }
 
     protected int headerSize() { return 33; }
-    protected int footerSize() { return 33;}
+    protected int footerSize() { return 33; }
 
     @Override
     protected final void renderBG(EasyGuiGraphics gui) {

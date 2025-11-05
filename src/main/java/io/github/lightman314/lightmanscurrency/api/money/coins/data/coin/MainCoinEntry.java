@@ -9,7 +9,6 @@ import javax.annotation.Nonnull;
 public class MainCoinEntry extends CoinEntry {
 
     private final int exchangeRate;
-
     @Override
     public final int getExchangeRate() { return this.exchangeRate; }
 

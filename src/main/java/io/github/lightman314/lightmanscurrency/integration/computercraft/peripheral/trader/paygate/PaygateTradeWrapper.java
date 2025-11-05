@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.Dir
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.PeripheralMethod;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCArgumentHelper;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.TradeWrapper;
@@ -198,22 +198,22 @@ public class PaygateTradeWrapper extends TradeWrapper<PaygateTradeData> {
     }
 
     @Override
-    protected void registerMethods(PeripheralMethod.Registration registration) {
+    protected void registerMethods(LCPeripheralMethod.Registration registration) {
         super.registerMethods(registration);
         //Override of getPrice method to allow for
         //registration.register(PeripheralMethod.builder("getPrice").simple(this::getPrice));
-        registration.register(PeripheralMethod.builder("setTicketPrice").withContext(this::setTicketPrice));
-        registration.register(PeripheralMethod.builder("storesTicketStubs").simple(this::storesTicketStubs));
-        registration.register(PeripheralMethod.builder("setStoresTicketStubs").withContext(this::setStoresTicketStubs));
-        registration.register(PeripheralMethod.builder("getDuration").simple(this::getDuration));
-        registration.register(PeripheralMethod.builder("setDuration").withContext(this::setDuration));
-        registration.register(PeripheralMethod.builder("getRedstoneLevel").simple(this::getRedstoneLevel));
-        registration.register(PeripheralMethod.builder("setRedstoneLevel").withContext(this::setRedstoneLevel));
-        registration.register(PeripheralMethod.builder("getDescription").simple(this::getDescription));
-        registration.register(PeripheralMethod.builder("setDuration").withContext(this::setDuration));
-        registration.register(PeripheralMethod.builder("getTooltip").simpleArray(this::getTooltip));
-        registration.register(PeripheralMethod.builder("setTooltip").withContext(this::setTooltip));
-        registration.register(PeripheralMethod.builder("getOutputSides").simple(this::getOutputSides));
-        registration.register(PeripheralMethod.builder("setOutputSides").withContext(this::setOutputSide));
+        registration.register(LCPeripheralMethod.builder("setTicketPrice").withContext(this::setTicketPrice));
+        registration.register(LCPeripheralMethod.builder("storesTicketStubs").simple(this::storesTicketStubs));
+        registration.register(LCPeripheralMethod.builder("setStoresTicketStubs").withContext(this::setStoresTicketStubs));
+        registration.register(LCPeripheralMethod.builder("getDuration").simple(this::getDuration));
+        registration.register(LCPeripheralMethod.builder("setDuration").withContext(this::setDuration));
+        registration.register(LCPeripheralMethod.builder("getRedstoneLevel").simple(this::getRedstoneLevel));
+        registration.register(LCPeripheralMethod.builder("setRedstoneLevel").withContext(this::setRedstoneLevel));
+        registration.register(LCPeripheralMethod.builder("getDescription").simple(this::getDescription));
+        registration.register(LCPeripheralMethod.builder("setDuration").withContext(this::setDuration));
+        registration.register(LCPeripheralMethod.builder("getTooltip").simpleArray(this::getTooltip));
+        registration.register(LCPeripheralMethod.builder("setTooltip").withContext(this::setTooltip));
+        registration.register(LCPeripheralMethod.builder("getOutputSides").simple(this::getOutputSides));
+        registration.register(LCPeripheralMethod.builder("setOutputSides").withContext(this::setOutputSide));
     }
 }

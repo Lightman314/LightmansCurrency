@@ -345,13 +345,13 @@ public class ChainData {
     }
 
     /**
-     * Used by {@link io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_management.EditableChainData EditableChainData} to copy the core chains data into an editable format.<br>
+     * Used by {@link io.github.lightman314.lightmanscurrency.client.gui.screen.config.master_coin_list.data.MutableChainData MutableChainData} to copy the core chains data into an editable format.<br>
      * Result is Immutable and cannot be edited or sorted.
      */
     @Nonnull
     public List<CoinEntry> getCoreChain() { return this.coreChain; }
     /**
-     * Used by {@link io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_management.EditableChainData EditableChainData} to copy the side chains data into an editable format.<br>
+     * Used by {@link io.github.lightman314.lightmanscurrency.client.gui.screen.config.master_coin_list.data.MutableChainData MutableChainData} to copy the side chains data into an editable format.<br>
      * Result is Immutable and cannot be edited or sorted.
      */
     @Nonnull

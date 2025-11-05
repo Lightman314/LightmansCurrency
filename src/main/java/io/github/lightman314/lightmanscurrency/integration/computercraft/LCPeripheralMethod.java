@@ -12,14 +12,14 @@ import java.util.function.*;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public final class PeripheralMethod {
+public final class LCPeripheralMethod {
 
     private final String name;
     public String getMethodName() { return this.name; }
     private final Supplier<Boolean> accessible;
     public boolean isAccessible() { return this.accessible.get(); }
     private final LuaBiFunction<IComputerAccess,IArguments,Object[]> method;
-    private PeripheralMethod(String name, Supplier<Boolean> accessible,LuaBiFunction<IComputerAccess,IArguments,Object[]> method) { this.name = name; this.accessible = accessible; this.method = method; }
+    private LCPeripheralMethod(String name, Supplier<Boolean> accessible, LuaBiFunction<IComputerAccess,IArguments,Object[]> method) { this.name = name; this.accessible = accessible; this.method = method; }
 
     public Object[] execute(IComputerAccess computer,IArguments args) throws LuaException{
         Object[] result = this.method.apply(computer,args);
@@ -65,19 +65,19 @@ public final class PeripheralMethod {
         public Builder simple(LuaSupplier<Object> method) { return singleReturn((comp,args) -> method.get()); }
         public Builder simple(LuaRunnable method) { return noReturn((comp,args) -> method.run()); }
 
-        public PeripheralMethod build() { return new PeripheralMethod(this.name,this.accessible,Objects.requireNonNull(this.method)); }
+        public LCPeripheralMethod build() { return new LCPeripheralMethod(this.name,this.accessible,Objects.requireNonNull(this.method)); }
 
     }
 
     public static final class Registration
     {
-        private final Map<String,PeripheralMethod> methodMap = new HashMap<>();
+        private final Map<String, LCPeripheralMethod> methodMap = new HashMap<>();
         public Registration() { }
 
-        public List<PeripheralMethod> getResults() { return new ArrayList<>(this.methodMap.values()); }
+        public List<LCPeripheralMethod> getResults() { return new ArrayList<>(this.methodMap.values()); }
 
-        public void register(PeripheralMethod method) { this.methodMap.put(method.getMethodName(),method); }
-        public void register(PeripheralMethod.Builder builder) { this.register(builder.build()); }
+        public void register(LCPeripheralMethod method) { this.methodMap.put(method.getMethodName(),method); }
+        public void register(LCPeripheralMethod.Builder builder) { this.register(builder.build()); }
         public void remove(String method) { this.methodMap.remove(method); }
 
     }

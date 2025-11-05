@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.builtin.ConfigSelectionScreen;
 import io.github.lightman314.lightmanscurrency.api.events.client.RegisterVariantPropertiesEvent;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.config.MasterCoinListConfigOption;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
@@ -74,7 +75,7 @@ public class ClientProxy extends CommonProxy{
 
 	@Override
 	public void init(IEventBus eventBus, ModContainer modContainer) {
-		modContainer.registerExtensionPoint(IConfigScreenFactory.class,ConfigSelectionScreen.createFactory(LCConfig.CLIENT,LCConfig.COMMON,LCConfig.SERVER));
+		modContainer.registerExtensionPoint(IConfigScreenFactory.class,ConfigSelectionScreen.mixedFactory(LCConfig.CLIENT,LCConfig.COMMON,LCConfig.SERVER,MasterCoinListConfigOption.INSTANCE));
 		eventBus.addListener(this::registerVariantProperties);
 	}
 

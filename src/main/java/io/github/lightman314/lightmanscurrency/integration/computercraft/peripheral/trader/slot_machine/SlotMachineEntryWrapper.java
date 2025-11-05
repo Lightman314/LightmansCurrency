@@ -11,7 +11,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permis
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.AccessTrackingPeripheral;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.PeripheralMethod;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCArgumentHelper;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import net.minecraft.nbt.CompoundTag;
@@ -198,21 +198,21 @@ public class SlotMachineEntryWrapper extends AccessTrackingPeripheral {
     }
 
     @Override
-    protected void registerMethods(PeripheralMethod.Registration registration) {
-        registration.register(PeripheralMethod.builder("isValid").simple(this::isValid));
-        registration.register(PeripheralMethod.builder("getItems").simpleArray(this::getItems));
-        registration.register(PeripheralMethod.builder("getItemDetails").withArgs(this::getItemDetails));
-        registration.register(PeripheralMethod.builder("addItem").withContext(this::addItem));
-        registration.register(PeripheralMethod.builder("removeItem").withContext(this::removeItem));
-        registration.register(PeripheralMethod.builder("editItem").withContext(this::editItem));
-        registration.register(PeripheralMethod.builder("isMoney").simple(this::isMoney));
-        registration.register(PeripheralMethod.builder("getMoneyValue").simple(this::getMoneyValue));
-        registration.register(PeripheralMethod.builder("getOdds").simple(this::getOdds));
-        registration.register(PeripheralMethod.builder("setOdds").withContext(this::setOdds));
-        registration.register(PeripheralMethod.builder("hasCustomIcons").simple(this::hasCustomIcons));
-        registration.register(PeripheralMethod.builder("setHasCustomIcons").withContext(this::setHasCustomIcons));
-        registration.register(PeripheralMethod.builder("getCustomIcons").simpleArray(this::getCustomIcons));
-        registration.register(PeripheralMethod.builder("setCustomIcon").withContext(this::setCustomIcon));
+    protected void registerMethods(LCPeripheralMethod.Registration registration) {
+        registration.register(LCPeripheralMethod.builder("isValid").simple(this::isValid));
+        registration.register(LCPeripheralMethod.builder("getItems").simpleArray(this::getItems));
+        registration.register(LCPeripheralMethod.builder("getItemDetails").withArgs(this::getItemDetails));
+        registration.register(LCPeripheralMethod.builder("addItem").withContext(this::addItem));
+        registration.register(LCPeripheralMethod.builder("removeItem").withContext(this::removeItem));
+        registration.register(LCPeripheralMethod.builder("editItem").withContext(this::editItem));
+        registration.register(LCPeripheralMethod.builder("isMoney").simple(this::isMoney));
+        registration.register(LCPeripheralMethod.builder("getMoneyValue").simple(this::getMoneyValue));
+        registration.register(LCPeripheralMethod.builder("getOdds").simple(this::getOdds));
+        registration.register(LCPeripheralMethod.builder("setOdds").withContext(this::setOdds));
+        registration.register(LCPeripheralMethod.builder("hasCustomIcons").simple(this::hasCustomIcons));
+        registration.register(LCPeripheralMethod.builder("setHasCustomIcons").withContext(this::setHasCustomIcons));
+        registration.register(LCPeripheralMethod.builder("getCustomIcons").simpleArray(this::getCustomIcons));
+        registration.register(LCPeripheralMethod.builder("setCustomIcon").withContext(this::setCustomIcon));
     }
 
 }

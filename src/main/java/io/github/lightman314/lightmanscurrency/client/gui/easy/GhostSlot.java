@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.client.gui.easy;
 
-import dev.architectury.fluid.FluidStack;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IGhostSlotProvider;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 public record GhostSlot<T>(ScreenArea area, Consumer<T> handler, Class<T> clazz) {
 
     public static GhostSlot<ItemStack> simpleItem(ScreenPosition pos,Consumer<ItemStack> handler) { return new GhostSlot<>(pos.asArea(16,16),handler,ItemStack.class); }
-    public static GhostSlot<FluidStack> simpleFluid(ScreenPosition pos,Consumer<FluidStack> handler) { return new GhostSlot<>(pos.asArea(16,16),handler,FluidStack.class); }
+    public static GhostSlot<FluidStack> simpleFluid(ScreenPosition pos, Consumer<FluidStack> handler) { return new GhostSlot<>(pos.asArea(16,16),handler,FluidStack.class); }
 
     public void tryAccept(Object object) throws ClassCastException { this.handler.accept((T)object); }
 

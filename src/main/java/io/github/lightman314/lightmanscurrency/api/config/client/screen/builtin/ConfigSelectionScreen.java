@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.config.client.screen.builtin
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.ConfigScreen;
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.options.ConfigFileOption;
@@ -11,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -31,7 +33,6 @@ public final class ConfigSelectionScreen extends ConfigScreen {
         super(parentScreen);
         this.modName = modName;
         this.configFiles = configFiles;
-
     }
 
     @Override
@@ -86,8 +87,30 @@ public final class ConfigSelectionScreen extends ConfigScreen {
         return createFactory(entries);
     }
     public static IConfigScreenFactory createFactory(ConfigFileOption... configFiles) { return createFactory(ImmutableList.copyOf(configFiles)); }
-    public static IConfigScreenFactory createFactory(List<ConfigFileOption> configFiles) {
-        return (c,s) -> new ConfigSelectionScreen(s,c.getModInfo().getDisplayName(),ImmutableList.copyOf(configFiles));
+    public static IConfigScreenFactory createFactory(List<ConfigFileOption> configFiles) { return (c,s) -> createScreen(c,s,configFiles); }
+
+    public static IConfigScreenFactory mixedFactory(Object... configOptions)
+    {
+        List<ConfigFileOption> entries = new ArrayList<>();
+        for(Object file : configOptions)
+        {
+            if(file instanceof ConfigFile f)
+                entries.add(ConfigFileOption.create(f));
+            else if(file instanceof ConfigFileOption option)
+                entries.add(option);
+            else
+                LightmansCurrency.LogError(file.getClass().getName() + " was passed to a mixedFactory constructor, but it is not a supported config file/option!",new Throwable());
+        }
+        return createFactory(entries);
+    }
+
+    private static Screen createScreen(ModContainer container, Screen parentScreen, List<ConfigFileOption> options)
+    {
+        if(options.isEmpty())
+            return parentScreen;
+        if(options.size() == 1) //If only one config file, open that one directly
+            return options.getFirst().openScreen(parentScreen);
+        return new ConfigSelectionScreen(parentScreen,container.getModInfo().getDisplayName(),ImmutableList.copyOf(options));
     }
 
     private void editConfig(ConfigFileOption entry) {

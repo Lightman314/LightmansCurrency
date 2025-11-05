@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.integration.computercraft.periph
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.api.peripheral.IPeripheral;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
@@ -13,7 +12,8 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeSettingNotification;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.PeripheralMethod;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheral;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCArgumentHelper;
 import net.minecraft.core.Direction;
 
@@ -110,16 +110,16 @@ public abstract class InputTraderPeripheral<BE extends TraderBlockEntity<T>,T ex
     }
 
     @Override
-    protected void registerMethods(PeripheralMethod.Registration registration) {
+    protected void registerMethods(LCPeripheralMethod.Registration registration) {
         super.registerMethods(registration);
-        registration.register(PeripheralMethod.builder("allowsInputs").simple(this::allowsInputs));
-        registration.register(PeripheralMethod.builder("allowsInputSide").withArgs(this::allowInputSide));
-        registration.register(PeripheralMethod.builder("setInputSide").withContext(this::setInputSide));
-        registration.register(PeripheralMethod.builder("getInputSides").simpleArray(this::getInputSides));
-        registration.register(PeripheralMethod.builder("allowsOutputs").simple(this::allowsOutputs));
-        registration.register(PeripheralMethod.builder("allowsOutputSide").withArgs(this::allowOutputSide));
-        registration.register(PeripheralMethod.builder("setOutputSide").withContext(this::setOutputSide));
-        registration.register(PeripheralMethod.builder("getOutputSides").simpleArray(this::getOutputSides));
+        registration.register(LCPeripheralMethod.builder("allowsInputs").simple(this::allowsInputs));
+        registration.register(LCPeripheralMethod.builder("allowsInputSide").withArgs(this::allowInputSide));
+        registration.register(LCPeripheralMethod.builder("setInputSide").withContext(this::setInputSide));
+        registration.register(LCPeripheralMethod.builder("getInputSides").simpleArray(this::getInputSides));
+        registration.register(LCPeripheralMethod.builder("allowsOutputs").simple(this::allowsOutputs));
+        registration.register(LCPeripheralMethod.builder("allowsOutputSide").withArgs(this::allowOutputSide));
+        registration.register(LCPeripheralMethod.builder("setOutputSide").withContext(this::setOutputSide));
+        registration.register(LCPeripheralMethod.builder("getOutputSides").simpleArray(this::getOutputSides));
     }
 
     private static final class Simple extends InputTraderPeripheral<TraderBlockEntity<InputTraderData>,InputTraderData>
@@ -130,7 +130,7 @@ public abstract class InputTraderPeripheral<BE extends TraderBlockEntity<T>,T ex
 
         @Nullable
         @Override
-        protected IPeripheral wrapTrade(TradeData trade) throws LuaException {
+        protected LCPeripheral wrapTrade(TradeData trade) throws LuaException {
             int index = this.getTrader().indexOfTrade(trade);
             return TradeWrapper.createSimple(() -> {
                 TraderData trader = this.safeGetTrader();

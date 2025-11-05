@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.client.colors.*;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_management.*;
 import io.github.lightman314.lightmanscurrency.client.model.VariantBlockModel;
 import io.github.lightman314.lightmanscurrency.client.model.VariantItemModel;
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
@@ -200,8 +199,6 @@ public class ClientModEvents {
 		event.register(ModMenus.COIN_CHEST.get(), CoinChestScreen::new);
 
 		event.register(ModMenus.TAX_COLLECTOR.get(), TaxCollectorScreen::new);
-
-		event.register(ModMenus.COIN_MANAGEMENT.get(), CoinManagementScreen::new);
 
 		event.register(ModMenus.TEAM_MANAGEMENT.get(), TeamManagerScreen::new);
 

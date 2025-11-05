@@ -1447,6 +1447,11 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.CONFIG_TRADE_MOD_REGION_ID,"Villager Region");
         this.translate(LCText.CONFIG_TRADE_MOD_PROFESSION,"Villager Profession");
 
+        //Master Coin List Configuration
+        this.translate(LCText.CONFIG_MCL_LABEL,"Master Coin List");
+        this.translate(LCText.CONFIG_MCL_EXIT_WITHOUT_SAVING,"Exit w/o Saving");
+        this.translate(LCText.CONFIG_MCL_SAVE_CHANGES,"Save Changes");
+
         //Config Files
         /// Client Config
         this.translateConfigName(LCConfig.CLIENT,"Client Config");

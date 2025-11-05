@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheral;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.PeripheralMethod;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
@@ -20,7 +20,7 @@ import java.util.List;
 
 public class AuctionHousePeripheral extends LCPeripheral {
 
-    public static IPeripheral INSTANCE = new AuctionHousePeripheral();
+    public static LCPeripheral INSTANCE = new AuctionHousePeripheral();
 
     private AuctionHousePeripheral() {}
 
@@ -71,10 +71,10 @@ public class AuctionHousePeripheral extends LCPeripheral {
     }
 
     @Override
-    protected void registerMethods(PeripheralMethod.Registration registration) {
-        registration.register(PeripheralMethod.builder("getID").simple(this::getID));
-        registration.register(PeripheralMethod.builder("getAuctionCount").simple(this::getAuctionCount));
-        registration.register(PeripheralMethod.builder("getAuctions").simple(this::getAuctions));
+    protected void registerMethods(LCPeripheralMethod.Registration registration) {
+        registration.register(LCPeripheralMethod.builder("getID").simple(this::getID));
+        registration.register(LCPeripheralMethod.builder("getAuctionCount").simple(this::getAuctionCount));
+        registration.register(LCPeripheralMethod.builder("getAuctions").simpleArray(this::getAuctions));
     }
 
 }

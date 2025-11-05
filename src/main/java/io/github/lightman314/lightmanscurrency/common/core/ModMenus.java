@@ -72,8 +72,6 @@ public class ModMenus {
 
 		TAX_COLLECTOR = ModRegistries.MENUS.register("tax_collector", () -> CreateType((IContainerFactory<TaxCollectorMenu>)(id, inventory, data) -> new TaxCollectorMenu(id, inventory, data.readLong(), MenuValidator.decode(data))));
 
-		COIN_MANAGEMENT = ModRegistries.MENUS.register("coin_management", () -> CreateType((IContainerFactory<CoinManagementMenu>)(id,inventory,data) -> new CoinManagementMenu(id,inventory)));
-
 		TEAM_MANAGEMENT = ModRegistries.MENUS.register("team_management", () -> CreateType((IContainerFactory<TeamManagementMenu>)(id,inventory,data) -> new TeamManagementMenu(id,inventory)));
 
 		NOTIFICATIONS = ModRegistries.MENUS.register("notifications", () -> CreateType((IContainerFactory<NotificationMenu>)(id,inventory,data) -> new NotificationMenu(id,inventory)));
@@ -119,8 +117,6 @@ public class ModMenus {
 	public static final Supplier<MenuType<CoinChestMenu>> COIN_CHEST;
 
 	public static final Supplier<MenuType<TaxCollectorMenu>> TAX_COLLECTOR;
-
-	public static final Supplier<MenuType<CoinManagementMenu>> COIN_MANAGEMENT;
 
 	public static final Supplier<MenuType<TeamManagementMenu>> TEAM_MANAGEMENT;
 

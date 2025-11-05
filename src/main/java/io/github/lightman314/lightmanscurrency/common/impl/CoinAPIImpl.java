@@ -24,6 +24,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.network.message.data.SPacketSyncCoinData;
+import io.github.lightman314.lightmanscurrency.proxy.ClientProxy;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -566,6 +567,9 @@ public final class CoinAPIImpl extends CoinAPI {
 
     @Override
     public void SyncCoinDataWith(@Nullable Player target) {
+        //Don't sync if we're not in a world
+        if(LightmansCurrency.getProxy().safeGetDummyLevel() == null)
+            return;
         SPacketSyncCoinData packet = this.getSyncPacket();
         if(target == null)
             packet.sendToAll();

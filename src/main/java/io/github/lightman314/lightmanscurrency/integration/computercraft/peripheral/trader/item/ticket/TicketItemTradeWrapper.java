@@ -7,7 +7,7 @@ import dan200.computercraft.core.util.ArgumentHelpers;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ticket.TicketItemTrade;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.PeripheralMethod;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCArgumentHelper;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.item.ItemTradeWrapper;
 import net.minecraft.resources.ResourceLocation;
@@ -117,13 +117,13 @@ public class TicketItemTradeWrapper extends ItemTradeWrapper<TicketItemTrade> {
     }
 
     @Override
-    protected void registerMethods(PeripheralMethod.Registration registration) {
+    protected void registerMethods(LCPeripheralMethod.Registration registration) {
         super.registerMethods(registration);
-        registration.register(PeripheralMethod.builder("getTicketRecipe").withArgs(this::getTicketRecipe));
-        registration.register(PeripheralMethod.builder("setTicketRecipe").withContext(this::setTicketRecipe));
-        registration.register(PeripheralMethod.builder("getTicketCode").withContext(this::getTicketCode));
-        registration.register(PeripheralMethod.builder("setTicketCode").withContext(this::setTicketCode));
-        registration.register(PeripheralMethod.builder("getTicketDurability").withArgs(this::getTicketDurability));
-        registration.register(PeripheralMethod.builder("setTicketDurability").withContext(this::setTicketDurability));
+        registration.register(LCPeripheralMethod.builder("getTicketRecipe").withArgs(this::getTicketRecipe));
+        registration.register(LCPeripheralMethod.builder("setTicketRecipe").withContext(this::setTicketRecipe));
+        registration.register(LCPeripheralMethod.builder("getTicketCode").withContext(this::getTicketCode));
+        registration.register(LCPeripheralMethod.builder("setTicketCode").withContext(this::setTicketCode));
+        registration.register(LCPeripheralMethod.builder("getTicketDurability").withArgs(this::getTicketDurability));
+        registration.register(LCPeripheralMethod.builder("setTicketDurability").withContext(this::setTicketDurability));
     }
 }
