@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.integration.computercraft.periph
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
+import dan200.computercraft.core.util.ArgumentHelpers;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.SlotMachineTraderBlockEntity;
@@ -14,10 +15,8 @@ import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPerip
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCArgumentHelper;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.TraderPeripheral;
-import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -64,14 +63,18 @@ public class SlotMachinePeripheral extends TraderPeripheral<SlotMachineTraderBlo
         return false;
     }
 
-    public Object[] getEntries(IComputerAccess computer) throws LuaException{
-        List<Object> list = new ArrayList<>();
+    public int getEntryCount() throws LuaException { return this.getTrader().getAllEntries().size(); }
+    public int getValidEntryCount() throws LuaException { return this.getTrader().getValidEntries().size(); }
+
+    public Object getEntry(IComputerAccess computer, IArguments args) throws LuaException
+    {
+        int slot = args.getInt(0);
         SlotMachineTraderData trader = this.getTrader();
-        List<SlotMachineEntry> entries = trader.getAllEntries();
-        for(int i = 0; i < entries.size(); ++i)
-            list.add(this.wrapEntry(i).asTable(computer));
-        return list.toArray(Object[]::new);
+        ArgumentHelpers.assertBetween(slot,1,trader.getAllEntries().size(),"Entry Slot is out of bounds (%s)");
+        return this.wrapEntry(slot - 1).asTable(computer);
     }
+
+    public double getFailOdds() throws LuaException { return this.getTrader().getFailOdds(); }
 
     private SlotMachineEntryWrapper wrapEntry(int index) {
         return new SlotMachineEntryWrapper(this.entrySource(index),this::safeGetTrader);
@@ -98,6 +101,9 @@ public class SlotMachinePeripheral extends TraderPeripheral<SlotMachineTraderBlo
         registration.register(LCPeripheralMethod.builder("getStorage").withContextOnly(this::getStorage));
         registration.register(LCPeripheralMethod.builder("getPrice").simple(this::getPrice));
         registration.register(LCPeripheralMethod.builder("setPrice").withContext(this::setPrice));
-        registration.register(LCPeripheralMethod.builder("getEntries").withContextOnlyArray(this::getEntries));
+        registration.register(LCPeripheralMethod.builder("getEntryCount").simple(this::getEntryCount));
+        registration.register(LCPeripheralMethod.builder("getValidEntryCount").simple(this::getValidEntryCount));
+        registration.register(LCPeripheralMethod.builder("getEntry").withContext(this::getEntry));
+        registration.register(LCPeripheralMethod.builder("getFailOdds").simple(this::getFailOdds));
     }
 }

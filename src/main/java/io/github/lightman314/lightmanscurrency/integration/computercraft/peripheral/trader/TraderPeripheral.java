@@ -561,8 +561,7 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
                 LCPeripheral tradeWrapper = this.wrapTrade(event.getTrade());
                 LCLuaTable player = LCLuaTable.fromPlayer(event.getPlayerReference());
                 boolean canceled = event.isCanceled();
-                this.queueEvent("lc_trade_pre",computer -> new Object[] { this.asTable(computer),event.getTradeIndex(),tradeWrapper.asTable(computer),player});
-                this.getConnectedComputers().forEach(computer -> computer.queueEvent("lc_trade_pre",this,event.getTradeIndex(),tradeWrapper.asTable(computer),player));
+                this.queueEvent("lc_trade_pre",computer -> new Object[] { this.asTable(computer),event.getTradeIndex(),tradeWrapper.asTable(computer),player,canceled});
             } catch (LuaException ignored) {}
         }
     }
