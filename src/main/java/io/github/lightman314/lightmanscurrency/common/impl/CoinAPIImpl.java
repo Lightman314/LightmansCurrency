@@ -563,7 +563,12 @@ public final class CoinAPIImpl extends CoinAPI {
     }
 
     @Override
-    public void SyncCoinDataWith(PacketDistributor.PacketTarget target) { new SPacketSyncCoinData(getDataJson(this.loadedChains, false)).sendToTarget(target); }
+    public void SyncCoinDataWith(PacketDistributor.PacketTarget target) {
+        //Don't sync if we're not in a world
+        if(LightmansCurrency.getProxy().safeGetDummyLevel() == null)
+            return;
+        new SPacketSyncCoinData(getDataJson(this.loadedChains, false)).sendToTarget(target);
+    }
 
     @Override
     public void HandleSyncPacket(SPacketSyncCoinData packet) { this.loadMoneyDataFromJson(packet.getJson()); }

@@ -28,7 +28,8 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.settin
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeNameNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeSettingNotification;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.PeripheralMethod;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheral;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.AccessTrackingPeripheral;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
@@ -61,8 +62,8 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
     public TraderPeripheral(BE be) { this.source = Either.left(be); }
     public TraderPeripheral(T trader) { this.source = Either.right(trader.getID()); }
 
-    public static IPeripheral createSimple(TraderBlockEntity<TraderData> be) { return new Simple(be); }
-    public static IPeripheral createSimple(TraderData trader) { return new Simple(trader); }
+    public static LCPeripheral createSimple(TraderBlockEntity<TraderData> be) { return new Simple(be); }
+    public static LCPeripheral createSimple(TraderData trader) { return new Simple(trader); }
 
     private final Consumer<TradeEvent.PreTradeEvent> preTradeEventListener = this::preTradeEvent;
     private final Consumer<TradeEvent.PostTradeEvent> postTradeEventListener = this::postTradeEvent;
@@ -119,7 +120,7 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
     }
 
     @Nullable
-    protected abstract IPeripheral wrapTrade(TradeData trade) throws LuaException;
+    protected abstract LCPeripheral wrapTrade(TradeData trade) throws LuaException;
 
     @Override
     public Set<String> getAdditionalTypes() { return Set.of(BASE_TYPE); }
@@ -518,7 +519,7 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
         return users.toArray(String[]::new);
     }
 
-    public Object getUpgradeSlots(IComputerAccess computer) { return wrapContainer(() -> this.hasPermissions(computer,Permissions.OPEN_STORAGE),this::safeGetUpgradeContainer); }
+    public Object getUpgradeSlots(IComputerAccess computer) { return wrapContainer(computer,() -> this.hasPermissions(computer,Permissions.OPEN_STORAGE),this::safeGetUpgradeContainer); }
 
     private Container safeGetUpgradeContainer()
     {
@@ -538,7 +539,7 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
         public Set<String> getAdditionalTypes() { return Set.of(); }
         @Nullable
         @Override
-        protected IPeripheral wrapTrade(TradeData trade) throws LuaException {
+        protected LCPeripheral wrapTrade(TradeData trade) throws LuaException {
             int index = this.getTrader().indexOfTrade(trade);
             return TradeWrapper.createSimple(() -> {
                 TraderData trader = this.safeGetTrader();
@@ -557,10 +558,10 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
         if(event.getTrader() == trader)
         {
             try {
-                IPeripheral tradeWrapper = this.wrapTrade(event.getTrade());
+                LCPeripheral tradeWrapper = this.wrapTrade(event.getTrade());
                 LCLuaTable player = LCLuaTable.fromPlayer(event.getPlayerReference());
                 boolean canceled = event.isCanceled();
-                this.getConnectedComputers().queueEvent("lc_trade_pre",this,event.getTradeIndex(),tradeWrapper,player);
+                this.queueEvent("lc_trade_pre",computer -> new Object[] { this.asTable(computer),event.getTradeIndex(),tradeWrapper.asTable(computer),player,canceled});
             } catch (LuaException ignored) {}
         }
     }
@@ -572,57 +573,68 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
         if(event.getTrader() == trader)
         {
             try {
-                IPeripheral tradeWrapper = this.wrapTrade(event.getTrade());
+                LCPeripheral tradeWrapper = this.wrapTrade(event.getTrade());
                 LCLuaTable player = LCLuaTable.fromPlayer(event.getPlayerReference());
                 LCLuaTable finalPrice = LCLuaTable.fromMoney(event.getPricePaid());
                 LCLuaTable taxesPaid = LCLuaTable.fromMoney(event.getTaxesPaid());
-                this.getConnectedComputers().queueEvent("lc_trade",this,event.getTradeIndex(),tradeWrapper,player,finalPrice,taxesPaid);
+                this.queueEvent("lc_trade",computer -> new Object[] { this.asTable(computer),event.getTradeIndex(),tradeWrapper.asTable(computer),player,finalPrice,taxesPaid});
             } catch (LuaException ignored) {}
         }
     }
 
-    @Override
-    protected void registerMethods(PeripheralMethod.Registration registration) {
-        registration.register(PeripheralMethod.builder("isValid").simple(this::isValid));
-        registration.register(PeripheralMethod.builder("getID").simple(this::getID));
-        registration.register(PeripheralMethod.builder("isVisibleOnNetwork").simple(this::isVisibleOnNetwork));
-        registration.register(PeripheralMethod.builder("isCreative").simple(this::isCreative));
-        registration.register(PeripheralMethod.builder("isPersistent").simple(this::isPersistent));
-        registration.register(PeripheralMethod.builder("getOwner").simple(this::getOwner));
-        registration.register(PeripheralMethod.builder("getOwnerName").simple(this::getOwnerName));
-        registration.register(PeripheralMethod.builder("getStats").simple(this::getStats));
-        registration.register(PeripheralMethod.builder("getAllies").simpleArray(this::getAllies));
-        registration.register(PeripheralMethod.builder("addAlly").withContext(this::addAlly));
-        registration.register(PeripheralMethod.builder("removeAlly").withContext(this::removeAlly));
-        registration.register(PeripheralMethod.builder("getAllyPermissions").simple(this::getAllyPermissions));
-        registration.register(PeripheralMethod.builder("getAllyPermissionLevel").withArgs(this::getAllyPermissionLevel));
-        registration.register(PeripheralMethod.builder("setAllyPermissionLevel").withContext(this::setAllyPermissionLevel));
-        registration.register(PeripheralMethod.builder("getPlayerPermissionLevel").withArgs(this::getPlayerPermissionLevel));
-        registration.register(PeripheralMethod.builder("getMyPermissionLevel").withContext(this::getMyPermissionLevel));
-        registration.register(PeripheralMethod.builder("getLogs").withArgsArray(this::getLogs));
-        registration.register(PeripheralMethod.builder("getName").simple(this::getName));
-        registration.register(PeripheralMethod.builder("setName").withContext(this::setName));
-        registration.register(PeripheralMethod.builder("getIcon").simple(this::getIcon));
-        registration.register(PeripheralMethod.builder("setIcon").withContext(this::setIcon));
-        registration.register(PeripheralMethod.builder("hasBankAccount").simple(this::hasBankAccount));
-        registration.register(PeripheralMethod.builder("getLinkedAccount").simple(this::getLinkedAccount));
-        registration.register(PeripheralMethod.builder("setLinkedToBankAccount").withContext(this::setLinkedToBankAccount));
-        registration.register(PeripheralMethod.builder("showsSearchBox").simple(this::showsSearchBox));
-        registration.register(PeripheralMethod.builder("setShowsSearchBox").withContext(this::setShowsSearchBox));
-        registration.register(PeripheralMethod.builder("hasPushNotifications").simple(this::hasPushNotifications));
-        registration.register(PeripheralMethod.builder("setPushNotification").withContext(this::setPushNotifications));
-        registration.register(PeripheralMethod.builder("hasChatNotifications").simple(this::hasChatNotifications));
-        registration.register(PeripheralMethod.builder("setChatNotifications").withContext(this::setChatNotifications));
-        registration.register(PeripheralMethod.builder("teamNotificationLevel").simple(this::teamNotificationLevel));
-        registration.register(PeripheralMethod.builder("setTeamNotificationLevel").withContext(this::setTeamNotificationLevel));
-        registration.register(PeripheralMethod.builder("tradeCount").simple(this::tradeCount));
-        registration.register(PeripheralMethod.builder("validTradeCount").simple(this::validTradeCount));
-        registration.register(PeripheralMethod.builder("tradesWithStock").simple(this::tradesWithStock));
-        registration.register(PeripheralMethod.builder("acceptableTaxRate").simple(this::acceptableTaxRate));
-        registration.register(PeripheralMethod.builder("setAcceptableTaxRate").withContext(this::setAcceptableTaxRate));
-        registration.register(PeripheralMethod.builder("currentTaxRate").simple(this::currentTaxRate));
-        registration.register(PeripheralMethod.builder("getWorldPosition").simple(this::getWorldPosition));
-        registration.register(PeripheralMethod.builder("getCurrentUsers").simpleArray(this::getCurrentUsers));
-        registration.register(PeripheralMethod.builder("getUpgrades").withContextOnly(this::getUpgradeSlots));
+    private Object getTrade(IComputerAccess computer, IArguments args) throws LuaException
+    {
+        int slot = args.getInt(0);
+        TraderData trader = this.getTrader();
+        ArgumentHelpers.assertBetween(slot,1,trader.getTradeCount(),"Trade Slot is out of bounds (%s)");
+        return this.wrapTrade(trader.getTrade(slot - 1)).asTable(computer);
     }
+
+    @Override
+    protected void registerMethods(LCPeripheralMethod.Registration registration) {
+        registration.register(LCPeripheralMethod.builder("isValid").simple(this::isValid));
+        registration.register(LCPeripheralMethod.builder("getID").simple(this::getID));
+        registration.register(LCPeripheralMethod.builder("isVisibleOnNetwork").simple(this::isVisibleOnNetwork));
+        registration.register(LCPeripheralMethod.builder("isCreative").simple(this::isCreative));
+        registration.register(LCPeripheralMethod.builder("isPersistent").simple(this::isPersistent));
+        registration.register(LCPeripheralMethod.builder("getOwner").simple(this::getOwner));
+        registration.register(LCPeripheralMethod.builder("getOwnerName").simple(this::getOwnerName));
+        registration.register(LCPeripheralMethod.builder("getStats").simple(this::getStats));
+        registration.register(LCPeripheralMethod.builder("getAllies").simpleArray(this::getAllies));
+        registration.register(LCPeripheralMethod.builder("addAlly").withContext(this::addAlly));
+        registration.register(LCPeripheralMethod.builder("removeAlly").withContext(this::removeAlly));
+        registration.register(LCPeripheralMethod.builder("getAllyPermissions").simple(this::getAllyPermissions));
+        registration.register(LCPeripheralMethod.builder("getAllyPermissionLevel").withArgs(this::getAllyPermissionLevel));
+        registration.register(LCPeripheralMethod.builder("setAllyPermissionLevel").withContext(this::setAllyPermissionLevel));
+        registration.register(LCPeripheralMethod.builder("getPlayerPermissionLevel").withArgs(this::getPlayerPermissionLevel));
+        registration.register(LCPeripheralMethod.builder("getMyPermissionLevel").withContext(this::getMyPermissionLevel));
+        registration.register(LCPeripheralMethod.builder("getLogs").withArgsArray(this::getLogs));
+        registration.register(LCPeripheralMethod.builder("getName").simple(this::getName));
+        registration.register(LCPeripheralMethod.builder("setName").withContext(this::setName));
+        registration.register(LCPeripheralMethod.builder("getIcon").simple(this::getIcon));
+        registration.register(LCPeripheralMethod.builder("setIcon").withContext(this::setIcon));
+        registration.register(LCPeripheralMethod.builder("hasBankAccount").simple(this::hasBankAccount));
+        registration.register(LCPeripheralMethod.builder("getLinkedAccount").simple(this::getLinkedAccount));
+        registration.register(LCPeripheralMethod.builder("setLinkedToBankAccount").withContext(this::setLinkedToBankAccount));
+        registration.register(LCPeripheralMethod.builder("showsSearchBox").simple(this::showsSearchBox));
+        registration.register(LCPeripheralMethod.builder("setShowsSearchBox").withContext(this::setShowsSearchBox));
+        registration.register(LCPeripheralMethod.builder("hasPushNotifications").simple(this::hasPushNotifications));
+        registration.register(LCPeripheralMethod.builder("setPushNotification").withContext(this::setPushNotifications));
+        registration.register(LCPeripheralMethod.builder("hasChatNotifications").simple(this::hasChatNotifications));
+        registration.register(LCPeripheralMethod.builder("setChatNotifications").withContext(this::setChatNotifications));
+        registration.register(LCPeripheralMethod.builder("teamNotificationLevel").simple(this::teamNotificationLevel));
+        registration.register(LCPeripheralMethod.builder("setTeamNotificationLevel").withContext(this::setTeamNotificationLevel));
+        registration.register(LCPeripheralMethod.builder("tradeCount").simple(this::tradeCount));
+        registration.register(LCPeripheralMethod.builder("validTradeCount").simple(this::validTradeCount));
+        registration.register(LCPeripheralMethod.builder("tradesWithStock").simple(this::tradesWithStock));
+        registration.register(LCPeripheralMethod.builder("acceptableTaxRate").simple(this::acceptableTaxRate));
+        registration.register(LCPeripheralMethod.builder("setAcceptableTaxRate").withContext(this::setAcceptableTaxRate));
+        registration.register(LCPeripheralMethod.builder("currentTaxRate").simple(this::currentTaxRate));
+        registration.register(LCPeripheralMethod.builder("getWorldPosition").simple(this::getWorldPosition));
+        registration.register(LCPeripheralMethod.builder("getCurrentUsers").simpleArray(this::getCurrentUsers));
+        registration.register(LCPeripheralMethod.builder("getUpgrades").withContextOnly(this::getUpgradeSlots));
+    }
+
+    protected final void registerGetTrade(LCPeripheralMethod.Registration registration) { registration.register(LCPeripheralMethod.builder("getTrade").withContext(this::getTrade)); }
+
 }

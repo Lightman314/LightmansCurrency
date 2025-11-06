@@ -38,9 +38,7 @@ public abstract class ConfigScreen extends EasyScreen {
 
     //Set the screens "size" to the total screen size
     @Override
-    protected void preInit() {
-        this.resize(this.width, this.height);
-    }
+    protected void preInit() { this.resize(this.width, this.height); }
 
     @Override
     public final void onClose() {
@@ -48,16 +46,11 @@ public abstract class ConfigScreen extends EasyScreen {
         this.afterClose();
     }
 
-    protected void afterClose() {
-    }
+    protected void afterClose() { }
 
-    protected int headerSize() {
-        return 33;
-    }
+    protected int headerSize() { return 33; }
 
-    protected int footerSize() {
-        return 33;
-    }
+    protected int footerSize() { return 33; }
 
     @Override
     protected final void renderBG(EasyGuiGraphics gui) {

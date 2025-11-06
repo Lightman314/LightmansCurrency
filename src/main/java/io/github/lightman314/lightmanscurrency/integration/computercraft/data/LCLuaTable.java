@@ -12,6 +12,7 @@ import java.util.Set;
 
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
 import net.minecraft.nbt.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -143,8 +144,9 @@ public class LCLuaTable implements LuaTable<Object, Object> {
     public static LCLuaTable fromMoney(MoneyValue value) {
         LCLuaTable table = new LCLuaTable();
         table.put("numeric",value.getCoreValue());
-        table.put("text",value.getText("Empty"));
+        table.put("text",value.getText("Empty").getString());
         table.put("data",fromTag(value.save()));
+        table.put("arg", MoneyValueParser.writeParsable(value));
         return table;
     }
 

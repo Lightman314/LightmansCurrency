@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CapabilityInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CashRegisterBlockEntity;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.PeripheralMethod;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -36,13 +36,13 @@ public class CashRegisterPeripheral extends MultiTraderPeripheral {
     protected boolean stillAccessible(TraderData trader) { return this.be.getTraders().contains(trader); }
 
     @Override
-    protected void registerMethods(PeripheralMethod.Registration registration) {
+    protected void registerMethods(LCPeripheralMethod.Registration registration) {
         super.registerMethods(registration);
-        registration.register(PeripheralMethod.builder("getTraderPositions").simpleArray(this::getTraderPositions));
-        registration.register(PeripheralMethod.builder("addTraderPosition").withArgs(this::addTraderPosition));
-        registration.register(PeripheralMethod.builder("removeTraderPosition").withArgs(this::removeTraderPosition));
-        registration.register(PeripheralMethod.builder("getCustomTitle").simple(this::getCustomTitle));
-        registration.register(PeripheralMethod.builder("setCustomTitle").withArgs(this::setCustomTitle));
+        registration.register(LCPeripheralMethod.builder("getTraderPositions").simpleArray(this::getTraderPositions));
+        registration.register(LCPeripheralMethod.builder("addTraderPosition").withArgs(this::addTraderPosition));
+        registration.register(LCPeripheralMethod.builder("removeTraderPosition").withArgs(this::removeTraderPosition));
+        registration.register(LCPeripheralMethod.builder("getCustomTitle").simple(this::getCustomTitle));
+        registration.register(LCPeripheralMethod.builder("setCustomTitle").withArgs(this::setCustomTitle));
     }
 
     public LCLuaTable[] getTraderPositions()

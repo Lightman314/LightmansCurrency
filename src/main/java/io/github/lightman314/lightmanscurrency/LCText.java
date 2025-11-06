@@ -1337,6 +1337,11 @@ public class LCText {
     public static final TextEntry CONFIG_TRADE_MOD_REGION_ID = TextEntry.gui(MODID,"config.trade_mod.region_id");
     public static final TextEntry CONFIG_TRADE_MOD_PROFESSION = TextEntry.gui(MODID,"config.trade_mod.profession");
 
+    //Master Coin List Config
+    public static final TextEntry CONFIG_MCL_LABEL = TextEntry.gui(MODID,"config.master_coin_list.label");
+    public static final TextEntry CONFIG_MCL_EXIT_WITHOUT_SAVING = TextEntry.button(MODID,"config.master_coin_list.exit_without_saving");
+    public static final TextEntry CONFIG_MCL_SAVE_CHANGES = TextEntry.button(MODID,"config.master_coin_list.save_changes");
+
     ///OTHER MODS
 
     //JEI Info

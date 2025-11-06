@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.PeripheralMethod;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCArgumentHelper;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.TradeWrapper;
@@ -169,19 +169,19 @@ public class ItemTradeWrapper<T extends ItemTradeData> extends TradeWrapper<T> {
     }
 
     @Override
-    protected void registerMethods(PeripheralMethod.Registration registration) {
+    protected void registerMethods(LCPeripheralMethod.Registration registration) {
         super.registerMethods(registration);
-        registration.register(PeripheralMethod.builder("setDirection").withContext(this::setDirection));
-        registration.register(PeripheralMethod.builder("getRestrictionType").simple(this::getRestrictionType));
+        registration.register(LCPeripheralMethod.builder("setDirection").withContext(this::setDirection));
+        registration.register(LCPeripheralMethod.builder("getRestrictionType").simple(this::getRestrictionType));
         //Sell Item Methods
-        registration.register(PeripheralMethod.builder("getSellItems").simpleArray(this::getSellItems));
-        registration.register(PeripheralMethod.builder("getSellItemDetails").withArgs(this::getSellItemDetails));
-        registration.register(PeripheralMethod.builder("setSellItem").withContext(this::setSellItem));
+        registration.register(LCPeripheralMethod.builder("getSellItems").simpleArray(this::getSellItems));
+        registration.register(LCPeripheralMethod.builder("getSellItemDetails").withArgs(this::getSellItemDetails));
+        registration.register(LCPeripheralMethod.builder("setSellItem").withContext(this::setSellItem));
         //Barter Item Methods
-        registration.register(PeripheralMethod.builder("getBarterItems").simpleArray(this::getBarterItems));
-        registration.register(PeripheralMethod.builder("getBarterItemDetails").withArgs(this::getBarterItemDetails));
-        registration.register(PeripheralMethod.builder("setBarterItem").withContext(this::setBarterItem));
+        registration.register(LCPeripheralMethod.builder("getBarterItems").simpleArray(this::getBarterItems));
+        registration.register(LCPeripheralMethod.builder("getBarterItemDetails").withArgs(this::getBarterItemDetails));
+        registration.register(LCPeripheralMethod.builder("setBarterItem").withContext(this::setBarterItem));
         //Non Slot Specific
-        registration.register(PeripheralMethod.builder("setEnforceNBT").withContext(this::setEnforceNBT));
+        registration.register(LCPeripheralMethod.builder("setEnforceNBT").withContext(this::setEnforceNBT));
     }
 }

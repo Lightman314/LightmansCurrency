@@ -60,18 +60,18 @@ public abstract class LCPeripheral implements IDynamicPeripheral {
 
     protected void onDetachment(IComputerAccess computer) { }
 
-    private List<PeripheralMethod> methods = null;
-    protected abstract void registerMethods(PeripheralMethod.Registration registration);
+    private List<LCPeripheralMethod> methods = null;
+    protected abstract void registerMethods(LCPeripheralMethod.Registration registration);
 
     private void validateMethods() {
         if(this.methods == null)
         {
             //Make it map-backed so that future
-            PeripheralMethod.Registration registration = new PeripheralMethod.Registration();
+            LCPeripheralMethod.Registration registration = new LCPeripheralMethod.Registration();
             //Register built-in methods
-            registration.register(PeripheralMethod.builder("getType").simple(this::getType));
-            registration.register(PeripheralMethod.builder("getTypes").simpleArray(this::getTypes));
-            registration.register(PeripheralMethod.builder("isType").withArgs(this::isTypeArg));
+            registration.register(LCPeripheralMethod.builder("getType").simple(this::getType));
+            registration.register(LCPeripheralMethod.builder("getTypes").simpleArray(this::getTypes));
+            registration.register(LCPeripheralMethod.builder("isType").withArgs(this::isTypeArg));
             //Register peripheral methods
             this.registerMethods(registration);
             //Allow addons to add methods via event
@@ -81,28 +81,38 @@ public abstract class LCPeripheral implements IDynamicPeripheral {
         }
     }
 
-    private List<PeripheralMethod> getMethods() {
+    private List<LCPeripheralMethod> getMethods() {
         this.validateMethods();
-        return this.methods.stream().filter(PeripheralMethod::isAccessible).toList();
+        return this.methods.stream().filter(LCPeripheralMethod::isAccessible).toList();
     }
 
     @Override
     public final String[] getMethodNames() {
-        return this.getMethods().stream().map(PeripheralMethod::getMethodName).toArray(String[]::new);
+        return this.getMethods().stream().map(LCPeripheralMethod::getMethodName).toArray(String[]::new);
     }
 
     @Override
     public final MethodResult callMethod(IComputerAccess computer, ILuaContext context, int methodIndex, IArguments args) throws LuaException {
         this.validateMethods();
-        PeripheralMethod m = this.getMethods().get(methodIndex);
+        LCPeripheralMethod m = this.getMethods().get(methodIndex);
         //Copy the arguments for safekeeping
         IArguments argumentCopy = new ObjectArguments(args.getAll());
         return context.executeMainThreadTask(() -> m.execute(computer,argumentCopy));
     }
 
-    public static Object wrapContainer(Supplier<Boolean> canAccess,Container container) { return new InventoryPeripheral(canAccess,new InvWrapper(container)); }
-    public static Object wrapContainer(Supplier<Boolean> canAccess,Supplier<Container> container) { return new InventoryPeripheral(canAccess,new InvWrapper(new SuppliedContainer(container))); }
-    public static Object wrapInventory(Supplier<Boolean> canAccess,IItemHandler handler) { return new InventoryPeripheral(canAccess,handler); }
-    public static Object wrapInventory(Supplier<Boolean> canAccess,Supplier<IItemHandler> handler) { return new InventoryPeripheral(canAccess,handler); }
+    public static Object wrapContainer(IComputerAccess computer,Supplier<Boolean> canAccess,Container container) { return new InventoryPeripheral(canAccess,new InvWrapper(container)).asTable(computer); }
+    public static Object wrapContainer(IComputerAccess computer,Supplier<Boolean> canAccess,Supplier<Container> container) { return new InventoryPeripheral(canAccess,new InvWrapper(new SuppliedContainer(container))).asTable(computer); }
+    public static Object wrapInventory(IComputerAccess computer,Supplier<Boolean> canAccess,IItemHandler handler) { return new InventoryPeripheral(canAccess,handler).asTable(computer); }
+    public static Object wrapInventory(IComputerAccess computer,Supplier<Boolean> canAccess,Supplier<IItemHandler> handler) { return new InventoryPeripheral(canAccess,handler).asTable(computer); }
+
+    public final Object asTable(IComputerAccess computer) { return new LCPeripheralWrapper(this,computer); }
+
+    private record LCPeripheralWrapper(LCPeripheral peripheral,IComputerAccess computer) implements IDynamicLuaObject
+    {
+        @Override
+        public String[] getMethodNames() { return this.peripheral.getMethodNames(); }
+        @Override
+        public MethodResult callMethod(ILuaContext context, int index, IArguments args) throws LuaException { return this.peripheral.callMethod(computer,context,index,args); }
+    }
 
 }

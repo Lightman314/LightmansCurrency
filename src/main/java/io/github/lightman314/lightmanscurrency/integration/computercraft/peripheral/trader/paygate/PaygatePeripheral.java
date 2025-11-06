@@ -1,12 +1,12 @@
 package io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.paygate;
 
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.api.peripheral.IPeripheral;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.PeripheralMethod;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheral;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.TraderPeripheral;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -48,17 +48,9 @@ public class PaygatePeripheral extends TraderPeripheral<PaygateBlockEntity,Payga
 
     @Nullable
     @Override
-    protected IPeripheral wrapTrade(TradeData trade) throws LuaException{
+    protected LCPeripheral wrapTrade(TradeData trade) throws LuaException{
         int index = this.getTrader().indexOfTrade(trade);
         return new PaygateTradeWrapper(this.tradeSource(index),this::safeGetTrader);
-    }
-
-    public PaygateTradeWrapper[] getTrades() throws LuaException {
-        List<PaygateTradeWrapper> list = new ArrayList<>();
-        PaygateTraderData trader = this.getTrader();
-        for(int i = 0; i < trader.getTradeCount(); ++i)
-            list.add(new PaygateTradeWrapper(this.tradeSource(i),this::safeGetTrader));
-        return list.toArray(PaygateTradeWrapper[]::new);
     }
 
     public LCLuaTable getRedstoneState() throws LuaException {
@@ -88,10 +80,10 @@ public class PaygatePeripheral extends TraderPeripheral<PaygateBlockEntity,Payga
     }
 
     @Override
-    protected void registerMethods(PeripheralMethod.Registration registration) {
+    protected void registerMethods(LCPeripheralMethod.Registration registration) {
         super.registerMethods(registration);
-        registration.register(PeripheralMethod.builder("getTicketStubStorage").simpleArray(this::getTicketStubStorage));
-        registration.register(PeripheralMethod.builder("getTrades").simpleArray(this::getTrades));
-        registration.register(PeripheralMethod.builder("getRedstoneState").simple(this::getRedstoneState));
+        registration.register(LCPeripheralMethod.builder("getTicketStubStorage").simpleArray(this::getTicketStubStorage));
+        this.registerGetTrade(registration);
+        registration.register(LCPeripheralMethod.builder("getRedstoneState").simple(this::getRedstoneState));
     }
 }

@@ -13,8 +13,8 @@ import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.builtin.ConfigSelectionScreen;
 import io.github.lightman314.lightmanscurrency.api.events.client.RegisterVariantPropertiesEvent;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.*;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.config.MasterCoinListConfigOption;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_management.CoinManagementScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
@@ -77,7 +77,7 @@ public class ClientProxy extends CommonProxy{
 	public void init() {
 		FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerVariantProperties);
         FMLModContainer container = FMLJavaModLoadingContext.get().getContainer();
-        container.registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class,Suppliers.memoize(() -> ConfigSelectionScreen.createFactory(container,LCConfig.CLIENT,LCConfig.COMMON,LCConfig.SERVER)));
+        container.registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class,Suppliers.memoize(() -> ConfigSelectionScreen.mixedFactory(container,LCConfig.CLIENT,LCConfig.COMMON,LCConfig.SERVER,MasterCoinListConfigOption.INSTANCE)));
 	}
 
 	@Override
@@ -112,8 +112,6 @@ public class ClientProxy extends CommonProxy{
 		MenuScreens.register(ModMenus.COIN_CHEST.get(), CoinChestScreen::new);
 
 		MenuScreens.register(ModMenus.TAX_COLLECTOR.get(), TaxCollectorScreen::new);
-
-		MenuScreens.register(ModMenus.COIN_MANAGEMENT.get(), CoinManagementScreen::new);
 
 		MenuScreens.register(ModMenus.TEAM_MANAGEMENT.get(), TeamManagerScreen::new);
 

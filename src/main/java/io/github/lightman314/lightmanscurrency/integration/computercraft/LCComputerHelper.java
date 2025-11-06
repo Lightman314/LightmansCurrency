@@ -105,10 +105,10 @@ public class LCComputerHelper {
             peripheralSources.add(source);
     }
 
-    public static IPeripheral getPeripheral(TraderBlockEntity<?> be) {
+    public static LCPeripheral getPeripheral(TraderBlockEntity<?> be) {
         for(TraderPeripheralSource source : peripheralSources)
         {
-            IPeripheral result = source.tryCreate(be);
+            LCPeripheral result = source.tryCreate(be);
             if(result != null)
                 return result;
         }
@@ -117,10 +117,10 @@ public class LCComputerHelper {
         return TraderPeripheral.createSimple((TraderBlockEntity<TraderData>)be);
     }
 
-    public static IPeripheral getPeripheral(TraderData trader) {
+    public static LCPeripheral getPeripheral(TraderData trader) {
         for(TraderPeripheralSource source : peripheralSources)
         {
-            IPeripheral result = source.tryCreate(trader);
+            LCPeripheral result = source.tryCreate(trader);
             if(result != null)
                 return result;
         }

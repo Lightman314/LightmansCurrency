@@ -10,7 +10,7 @@ import dan200.computercraft.shared.peripheral.generic.GenericPeripheral;
 import dan200.computercraft.shared.platform.ForgeContainerTransfer;
 import dan200.computercraft.shared.util.CapabilityUtil;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheral;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.PeripheralMethod;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Direction;
 import net.minecraft.world.Container;
@@ -193,13 +193,13 @@ public class InventoryPeripheral extends LCPeripheral {
     }
 
     @Override
-    protected void registerMethods(PeripheralMethod.Registration registration) {
-        registration.register(PeripheralMethod.builder("size").simple(this::size).build());
-        registration.register(PeripheralMethod.builder("list").simple(this::list).build());
-        registration.register(PeripheralMethod.builder("getItemDetail").withArgs(this::getItemDetail).build());
-        registration.register(PeripheralMethod.builder("getItemLimit").withArgs(this::getItemLimit).build());
-        registration.register(PeripheralMethod.builder("pushItems").withContext(this::pushItems).withAccess(this.hasAccess).build());
-        registration.register(PeripheralMethod.builder("pullItems").withContext(this::pullItems).withAccess(this.hasAccess).build());
+    protected void registerMethods(LCPeripheralMethod.Registration registration) {
+        registration.register(LCPeripheralMethod.builder("size").simple(this::size).build());
+        registration.register(LCPeripheralMethod.builder("list").simple(this::list).build());
+        registration.register(LCPeripheralMethod.builder("getItemDetail").withArgs(this::getItemDetail).build());
+        registration.register(LCPeripheralMethod.builder("getItemLimit").withArgs(this::getItemLimit).build());
+        registration.register(LCPeripheralMethod.builder("pushItems").withContext(this::pushItems).withAccess(this.hasAccess).build());
+        registration.register(LCPeripheralMethod.builder("pullItems").withContext(this::pullItems).withAccess(this.hasAccess).build());
     }
 
 }

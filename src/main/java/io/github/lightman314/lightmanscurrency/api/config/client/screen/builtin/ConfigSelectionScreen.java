@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.config.client.screen.builtin
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.ConfigScreen;
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.options.ConfigFileOption;
@@ -87,13 +88,35 @@ public final class ConfigSelectionScreen extends ConfigScreen {
         return createFactory(container,entries);
     }
     public static ConfigScreenHandler.ConfigScreenFactory createFactory(ModContainer container,ConfigFileOption... configFiles) { return createFactory(container,ImmutableList.copyOf(configFiles)); }
-    public static ConfigScreenHandler.ConfigScreenFactory createFactory(ModContainer container,List<ConfigFileOption> configFiles) {
-        return new ConfigScreenHandler.ConfigScreenFactory((c,s) -> new ConfigSelectionScreen(s,container.getModInfo().getDisplayName(),ImmutableList.copyOf(configFiles)));
+    public static ConfigScreenHandler.ConfigScreenFactory createFactory(ModContainer container,List<ConfigFileOption> configFiles) { return new ConfigScreenHandler.ConfigScreenFactory((c,s) -> createScreen(container,s,configFiles)); }
+
+    public static ConfigScreenHandler.ConfigScreenFactory mixedFactory(ModContainer container,Object... configOptions)
+    {
+        List<ConfigFileOption> entries = new ArrayList<>();
+        for(Object file : configOptions)
+        {
+            if(file instanceof ConfigFile f)
+                entries.add(ConfigFileOption.create(f));
+            else if(file instanceof ConfigFileOption option)
+                entries.add(option);
+            else
+                LightmansCurrency.LogError(file.getClass().getName() + " was passed by a mixedFactory construct, but it is not a supported config file/option!",new Throwable());
+        }
+        return createFactory(container,entries);
     }
 
     private void editConfig(ConfigFileOption entry) {
         if(entry.canAccess(this.minecraft))
             this.minecraft.setScreen(entry.openScreen(this));
+    }
+
+    private static Screen createScreen(ModContainer container,Screen parentScreen, List<ConfigFileOption> options)
+    {
+        if(options.isEmpty())
+            return parentScreen;
+        if(options.size() == 1) //If only one config file, open that one directly
+            return options.get(0).openScreen(parentScreen);
+        return new ConfigSelectionScreen(parentScreen,container.getModInfo().getDisplayName(),ImmutableList.copyOf(options));
     }
 
 }

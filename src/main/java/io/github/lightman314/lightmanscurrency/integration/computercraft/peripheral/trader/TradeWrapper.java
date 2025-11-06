@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.attachments.builtin.E
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.PeripheralMethod;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCArgumentHelper;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.AccessTrackingPeripheral;
@@ -103,16 +103,16 @@ public abstract class TradeWrapper<T extends TradeData> extends AccessTrackingPe
     public boolean isOther() throws LuaException { return this.getTrade().getTradeDirection() == TradeDirection.OTHER; }
 
     @Override
-    protected void registerMethods(PeripheralMethod.Registration registration) {
-        registration.register(PeripheralMethod.builder("isValid").simple(this::isValid));
-        registration.register(PeripheralMethod.builder("getPrice").simple(this::getPrice));
-        registration.register(PeripheralMethod.builder("setPrice").withContext(this::setPrice));
-        registration.register(PeripheralMethod.builder("getStock").simple(this::getStock));
-        registration.register(PeripheralMethod.builder("getDirection").simple(this::getDirection));
-        registration.register(PeripheralMethod.builder("isSale").simple(this::isSale));
-        registration.register(PeripheralMethod.builder("isPurchase").simple(this::isPurchase));
-        registration.register(PeripheralMethod.builder("isBarter").simple(this::isBarter));
-        registration.register(PeripheralMethod.builder("isOther").simple(this::isOther));
+    protected void registerMethods(LCPeripheralMethod.Registration registration) {
+        registration.register(LCPeripheralMethod.builder("isValid").simple(this::isValid));
+        registration.register(LCPeripheralMethod.builder("getPrice").simple(this::getPrice));
+        registration.register(LCPeripheralMethod.builder("setPrice").withContext(this::setPrice));
+        registration.register(LCPeripheralMethod.builder("getStock").simple(this::getStock));
+        registration.register(LCPeripheralMethod.builder("getDirection").simple(this::getDirection));
+        registration.register(LCPeripheralMethod.builder("isSale").simple(this::isSale));
+        registration.register(LCPeripheralMethod.builder("isPurchase").simple(this::isPurchase));
+        registration.register(LCPeripheralMethod.builder("isBarter").simple(this::isBarter));
+        registration.register(LCPeripheralMethod.builder("isOther").simple(this::isOther));
     }
 
     private static final class Simple extends TradeWrapper<TradeData>

@@ -16,7 +16,7 @@ import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.Ancien
 import io.github.lightman314.lightmanscurrency.common.text.MultiLineTextEntry;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.OutputConflictHandling;
-import io.github.lightman314.lightmanscurrency.datagen.client.language.version_specific.*;
+import io.github.lightman314.lightmanscurrency.datagen.client.language.version_specific.VersionEnglishProvider;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
@@ -1446,6 +1446,11 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.CONFIG_TRADE_MOD_RESULT_REGIONAL,"Regional Result Replacement:");
         this.translate(LCText.CONFIG_TRADE_MOD_REGION_ID,"Villager Region");
         this.translate(LCText.CONFIG_TRADE_MOD_PROFESSION,"Villager Profession");
+
+        //Master Coin List Configuration
+        this.translate(LCText.CONFIG_MCL_LABEL,"Master Coin List");
+        this.translate(LCText.CONFIG_MCL_EXIT_WITHOUT_SAVING,"Exit w/o Saving");
+        this.translate(LCText.CONFIG_MCL_SAVE_CHANGES,"Save Changes");
 
         //Config Files
         /// Client Config
