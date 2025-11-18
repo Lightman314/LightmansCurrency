@@ -23,6 +23,6 @@ public class TerminalPocketUpgrade implements IPocketUpgrade {
     public ItemStack getCraftingItem() { return this.item.copy(); }
     @Override
     @Nullable
-    public IPeripheral createPeripheral(IPocketAccess pocketComputer) { return new TerminalPeripheral(); }
+    public IPeripheral createPeripheral(IPocketAccess pocketComputer) { return TerminalPeripheral.INSTANCE; }
 
 }

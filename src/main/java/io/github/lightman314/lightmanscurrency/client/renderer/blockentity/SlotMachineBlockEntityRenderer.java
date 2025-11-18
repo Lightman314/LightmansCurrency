@@ -46,7 +46,7 @@ public class SlotMachineBlockEntityRenderer implements BlockEntityRenderer<SlotM
 
 			ModelVariant variant = ModelVariantDataManager.getVariant(blockEntity.getCurrentVariant());
 			BakedModel model = mc.getModelManager().getModel(lightModel);
-			if(variant != null && variant.getTargets().contains(block.getBlockID()) && variant.getModels().size() == block.requiredModels())
+			if(variant != null && variant.getTargets().contains(block.getBlockID()) && variant.getBlockModels().size() == block.requiredModels())
 			{
 				VariantModelLocation newModel = VariantModelLocation.basic(blockEntity.getCurrentVariant(),block.getBlockID(),block.requiredModels() - 1);
 				model = ModelVariantDataManager.getModel(newModel);

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.traders.terminal.filters;
 
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.IBasicTraderFilter;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITradeSearchFilter;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.PendingSearch;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
@@ -35,15 +36,14 @@ public class ItemTraderSearchFilter implements IBasicTraderFilter {
 					itemList.add(new ItemWithContext(trade.getBarterItem(1),null));
 				}
 				search.processFilter(ITEM,filterItemsWithContext(itemList,lookup));
+                search.processFilter(BasicSearchFilter.TOOLTIP,filterItemTooltipsWithContext(itemList,lookup));
 			}
 		}
 	}
 
 	public static Predicate<String> filterItems(List<ItemStack> items,HolderLookup.Provider lookup)
 	{
-		List<ItemWithContext> list = new ArrayList<>();
-		items.forEach(i -> list.add(new ItemWithContext(i,null)));
-		return filterItemsWithContext(list,lookup);
+		return filterItemsWithContext(items.stream().map(s -> new ItemWithContext(s,null)).toList(),lookup);
 	}
 	public static Predicate<String> filterItemsWithContext(List<ItemWithContext> items,HolderLookup.Provider lookup)
 	{
@@ -60,6 +60,23 @@ public class ItemTraderSearchFilter implements IBasicTraderFilter {
 			return false;
 		};
 	}
+
+    public static Predicate<String> filterItemTooltips(List<ItemStack> items, HolderLookup.Provider lookup)
+    {
+        return input -> {
+            for(ItemStack stack : items)
+            {
+                if(ITradeSearchFilter.filterItemTooltips(stack,input,lookup))
+                    return true;
+            }
+            return false;
+        };
+    }
+
+    public static Predicate<String> filterItemTooltipsWithContext(List<ItemWithContext> items, HolderLookup.Provider lookup)
+    {
+        return filterItemTooltips(items.stream().map(ItemWithContext::item).toList(),lookup);
+    }
 
 	public record ItemWithContext(ItemStack item, @Nullable String customName) {  public boolean isEmpty() { return this.item.isEmpty(); } }
 

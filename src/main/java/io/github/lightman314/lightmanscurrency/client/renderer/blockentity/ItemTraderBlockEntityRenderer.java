@@ -10,8 +10,8 @@ import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.filter.FilterAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.client.renderer.ItemRenderHelper;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.ItemPositionData;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.custom_models.CustomModelDataManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
@@ -27,11 +27,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
@@ -155,7 +151,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 							pose.translate(0.25, 0.25, 0d);
 							pose.scale(0.5f, 0.5f, 0.5f);
 
-							renderItem(blockEntity,itemRenderer,renderItems.getFirst(),itemLight,pose,buffer,overlay);
+							ItemRenderHelper.renderItem(blockEntity,itemRenderer,renderItems.getFirst(),itemLight,pose,buffer,overlay);
 
 							pose.popPose();
 
@@ -166,12 +162,12 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 							pose.translate(-0.25, -0.25, 0.001d);
 							pose.scale(0.5f, 0.5f, 0.5f);
 
-							renderItem(blockEntity,itemRenderer,renderItems.get(1),itemLight,pose,buffer,overlay);
+							ItemRenderHelper.renderItem(blockEntity,itemRenderer,renderItems.get(1),itemLight,pose,buffer,overlay);
 
 							pose.popPose();
 						}
 						else
-							renderItem(blockEntity,itemRenderer,renderItems.getFirst(),itemLight,pose,buffer,overlay);
+                            ItemRenderHelper.renderItem(blockEntity,itemRenderer,renderItems.getFirst(),itemLight,pose,buffer,overlay);
 
 						pose.popPose();
 					}
@@ -180,21 +176,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 		} catch(Throwable t) { LightmansCurrency.LogError("Error rendering an Item Trader!", t); }
 	}
 
-	private static void renderItem(ItemTraderBlockEntity be, ItemRenderer renderer, ItemStack item, int lightLevel, PoseStack pose, MultiBufferSource buffer, int id)
-	{
-		//Get custom scale for the item
-		float scale = LCConfig.CLIENT.itemScaleOverrides.get().getCustomScale(item);
-		pose.scale(scale,scale,scale);
-		//Check for custom model for the item
-		ModelResourceLocation customModel = CustomModelDataManager.getCustomModel(be,item);
-		if(customModel == null)
-			renderer.renderStatic(item, ItemDisplayContext.FIXED, lightLevel, OverlayTexture.NO_OVERLAY, pose, buffer, be.getLevel(), id);
-		else
-		{
-			BakedModel model = Minecraft.getInstance().getModelManager().getModel(customModel);
-			renderer.render(item, ItemDisplayContext.FIXED, false, pose, buffer, lightLevel, OverlayTexture.NO_OVERLAY, model);
-		}
-	}
+
 
 	private static long rotationTime = 0;
 	public static long getRotationTime() { return rotationTime; }

@@ -1,7 +1,8 @@
 package io.github.lightman314.lightmanscurrency.api.misc.blockentity;
 
+import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVariantSupportingBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
@@ -82,7 +83,7 @@ public class EasyBlockEntity extends BlockEntity implements IClientTracker, IVar
         if(this.currentVariant != null)
         {
             BlockState state = this.getBlockState();
-            if(state.getBlock() instanceof IVariantBlock vb && !state.getValue(IVariantBlock.VARIANT))
+            if(VariantProvider.getVariantBlock(state.getBlock()) != null && !state.getValue(IVariantBlock.VARIANT))
                 this.level.setBlockAndUpdate(this.worldPosition,state.setValue(IVariantBlock.VARIANT,true));
         }
         if(this.isClient())

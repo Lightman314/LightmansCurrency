@@ -26,6 +26,7 @@ import io.github.lightman314.lightmanscurrency.api.stats.types.*;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.types.*;
+import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientCoinSorter;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientMoneyType;
@@ -125,7 +126,7 @@ public class LightmansCurrency {
         //Register configs
 		LCConfig.init();
 		LootManager.init();
-        
+
         // Register ourselves for server and other game events we are interested in
 		NeoForge.EVENT_BUS.register(this);
 
@@ -145,6 +146,9 @@ public class LightmansCurrency {
 		IntegrationUtil.SafeRunIfLoaded("curios", () -> LCCurios.setup(eventBus), "Error setting up Curios Compatibility!");
 		IntegrationUtil.SafeRunIfLoaded("create", () -> LCCreate.init(eventBus), "Error setting up Create Integration!");
 		IntegrationUtil.SafeRunIfLoaded("computercraft", () -> LCComputercraftSetup.setup(eventBus),"Error setting up ComputerCraft Integration!");
+
+        //Register item variant providers for basic items
+        VariantProvider.registerBasicVariantItem(ModItems.TRADING_CORE,ModItems.VARIANT_WAND,ModItems.ITEM_TRADE_FILTER);
 
     }
     
@@ -240,6 +244,7 @@ public class LightmansCurrency {
 		NotificationAPI.getApi().RegisterNotification(OwnableBlockEjectedNotification.TYPE);
 		NotificationAPI.getApi().RegisterNotification(CommandTradeNotification.TYPE);
 		NotificationAPI.getApi().RegisterNotification(GachaTradeNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(SalaryPaymentNotification.TYPE);
 
 		//Initialize the Notification Category deserializers
 		NotificationAPI.getApi().RegisterCategory(NotificationCategory.GENERAL_TYPE);

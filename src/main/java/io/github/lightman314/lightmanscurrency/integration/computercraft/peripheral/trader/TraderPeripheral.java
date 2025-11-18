@@ -122,6 +122,13 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
     @Nullable
     protected abstract LCPeripheral wrapTrade(TradeData trade) throws LuaException;
 
+    @Nullable
+    public final LCPeripheral safeWrapTrade(TradeData trade)
+    {
+        try { return this.wrapTrade(trade);
+        } catch (LuaException e) { return null; }
+    }
+
     @Override
     public Set<String> getAdditionalTypes() { return Set.of(BASE_TYPE); }
 
@@ -590,6 +597,19 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
         return this.wrapTrade(trader.getTrade(slot - 1)).asTable(computer);
     }
 
+    private LCLuaTable getTrades(IComputerAccess compouter) throws LuaException
+    {
+        TraderData trader = this.getTrader();
+        List<Object> results = new ArrayList<>();
+        for(int i = 0; i < trader.getTradeCount(); ++i)
+        {
+            TradeData trade = trader.getTrade(i);
+            if(trade != null)
+                results.add(this.wrapTrade(trade).asTable(compouter));
+        }
+        return LCLuaTable.fromList(results);
+    }
+
     @Override
     protected void registerMethods(LCPeripheralMethod.Registration registration) {
         registration.register(LCPeripheralMethod.builder("isValid").simple(this::isValid));
@@ -635,6 +655,9 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
         registration.register(LCPeripheralMethod.builder("getUpgrades").withContextOnly(this::getUpgradeSlots));
     }
 
-    protected final void registerGetTrade(LCPeripheralMethod.Registration registration) { registration.register(LCPeripheralMethod.builder("getTrade").withContext(this::getTrade)); }
+    protected final void registerGetTrade(LCPeripheralMethod.Registration registration) {
+        registration.register(LCPeripheralMethod.builder("getTrade").withContext(this::getTrade));
+        registration.register(LCPeripheralMethod.builder("getTrades").withContextOnly(this::getTrades));
+    }
 
 }

@@ -116,13 +116,9 @@ public class CoinChestMenu extends LazyMessageMenu {
             }
 
             if(slotStack.isEmpty())
-            {
                 slot.set(ItemStack.EMPTY);
-            }
             else
-            {
                 slot.setChanged();
-            }
         }
 
         return clickedStack;

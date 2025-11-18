@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.TaxBlockEntity
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;

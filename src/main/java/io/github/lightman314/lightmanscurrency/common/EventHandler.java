@@ -19,10 +19,11 @@ import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.common.attachments.EventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.api.events.WalletDropEvent;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModAttachmentTypes;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.common.menus.variant.ItemVariantSelectMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.network.message.event.SPacketSyncEventUnlocks;
@@ -401,6 +402,8 @@ public class EventHandler {
 	public static void onPlayerInteract(PlayerInteractEvent.RightClickBlock event)
 	{
 		Player player = event.getEntity();
+        if(player.level().isClientSide)
+            return;
 		ItemStack heldItem = player.getItemInHand(event.getHand());
 		if(InventoryUtil.ItemHasTag(heldItem, LCTags.Items.VARIANT_WANDS))
 		{
@@ -408,5 +411,16 @@ public class EventHandler {
 				event.setCanceled(true);
 		}
 	}
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onPlayerUseItem(PlayerInteractEvent.RightClickItem event)
+    {
+        Player player = event.getEntity();
+        if(player.level().isClientSide)
+            return;
+        ItemStack heldItem = player.getItemInHand(event.getHand());
+        if(InventoryUtil.ItemHasTag(heldItem,LCTags.Items.VARIANT_WANDS))
+            player.openMenu(ItemVariantSelectMenu.providerFor());
+    }
 	
 }

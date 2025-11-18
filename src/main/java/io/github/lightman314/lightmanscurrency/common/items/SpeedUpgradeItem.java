@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.common.upgrades.types.SpeedUpgrad
 
 import javax.annotation.Nonnull;
 
-public class SpeedUpgradeItem extends UpgradeItem{
+public class SpeedUpgradeItem extends UpgradeItem {
 
 	private final int delayAmount;
 	

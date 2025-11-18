@@ -4,9 +4,7 @@ import com.mojang.datafixers.util.Either;
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.widgets.builtin.list.ListEditBoxOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.builtin.ItemListOption;
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.ResourceLocationException;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -47,26 +45,23 @@ public class ItemListSettings extends EasyListSettings<Item,ItemListOption> {
         return Either.right(null);
     }
 
-    private Consumer<String> tryParseItem(Consumer<Object> consumer)
+    private Consumer<ResourceLocation> tryParseItem(Consumer<Object> consumer)
     {
-        return string -> {
-            try {
-                ResourceLocation id = VersionUtil.parseResource(string);
-                if(BuiltInRegistries.ITEM.containsKey(id))
-                {
-                    Item item = BuiltInRegistries.ITEM.get(id);
-                    if(this.option.allowedListValue(item))
-                        consumer.accept(item);
-                }
-            } catch (ResourceLocationException ignored) {}
+        return id -> {
+            if(BuiltInRegistries.ITEM.containsKey(id))
+            {
+                Item item = BuiltInRegistries.ITEM.get(id);
+                if(this.option.allowedListValue(item))
+                    consumer.accept(item);
+            }
         };
     }
 
     @Override
     public AbstractWidget buildEntry(int index) {
         return ListEditBoxOption.builder(this.option,index,this)
-                .inputBoxSetup(handler -> TextInputUtil.stringBuilder()
-                        .startingString(BuiltInRegistries.ITEM.getKey(this.getValue(index)).toString())
+                .inputBoxSetup(handler -> TextInputUtil.resourceBuilder(true)
+                        .startingValue(BuiltInRegistries.ITEM.getKey(this.getValue(index)))
                         .handler(this.tryParseItem(handler)))
                 .optionChangeHandler(editBox -> editBox.setValue(BuiltInRegistries.ITEM.getKey(this.getValue(index)).toString()))
                 .build();

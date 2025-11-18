@@ -3,13 +3,12 @@ package io.github.lightman314.lightmanscurrency.integration.create.attributes;
 import com.mojang.serialization.MapCodec;
 import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttribute;
 import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttributeType;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
@@ -34,8 +33,7 @@ public class VariantAttributeType implements ItemAttributeType {
 
     @Override
     public List<ItemAttribute> getAllAttributes(ItemStack stack, Level level) {
-
-        if(stack.getItem() instanceof BlockItem bi && bi.getBlock() instanceof IVariantBlock)
+        if(VariantProvider.getVariantItem(stack.getItem()) != null)
         {
             ResourceLocation variantID = stack.getOrDefault(ModDataComponents.MODEL_VARIANT,null);
             if(variantID != null)

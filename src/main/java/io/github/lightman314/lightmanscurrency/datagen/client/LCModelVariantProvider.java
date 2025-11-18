@@ -2,13 +2,15 @@ package io.github.lightman314.lightmanscurrency.datagen.client;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.UnbakedVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.FreezerDoorData;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.ItemPositionDataEntry;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.ShowInCreative;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.TooltipInfo;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.datagen.client.generators.ModelVariantProvider;
@@ -30,7 +32,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
         //Glassless variant for the Display Case
         final ResourceLocation DISPLAY_CASE_GLASSLESS = VersionUtil.lcResource("display_case/glassless");
 
-        this.add(DISPLAY_CASE_GLASSLESS,ModelVariant.builder()
+        this.add(DISPLAY_CASE_GLASSLESS,UnbakedVariant.builder()
                         .withName(LCText.BLOCK_VARIANT_DEFAULT.get())
                         .withItem(VersionUtil.lcResource("block/display_case/glassless/base"))
                         .withModel(VersionUtil.lcResource("block/display_case/glassless/base"))
@@ -42,7 +44,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
 
         ModBlocks.DISPLAY_CASE.forEach((color,block) ->
             this.add("display_case/glassless/" + color.getResourceSafeName(),
-                    ModelVariant.builder()
+                    UnbakedVariant.builder()
                             .withParent(DISPLAY_CASE_GLASSLESS)
                             .withTarget(block)
                             .withTexture("wool", ColorHelper.GetWoolTextureOfColor(color))
@@ -51,7 +53,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
 
         //Glassless variant for the Armor Stand
         this.add("armor_display/glassless",
-                ModelVariant.builder()
+                UnbakedVariant.builder()
                         .withTarget(ModBlocks.ARMOR_DISPLAY)
                         .withName(LCText.BLOCK_VARIANT_DEFAULT.get())
                         .withItem(VersionUtil.lcResource("block/armor_display/glassless/item"))
@@ -64,7 +66,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
         final ResourceLocation SKIN_DEFAULT = VersionUtil.lcResource("armor_display/skin_default");
         final ResourceLocation SKIN_GLASSLESS = VersionUtil.lcResource("armor_display/skin_glassless");
         this.add(SKIN_DEFAULT,
-                ModelVariant.builder()
+                UnbakedVariant.builder()
                         .withTarget(ModBlocks.ARMOR_DISPLAY)
                         .withItem(VersionUtil.lcResource("block/armor_display/skin/item"))
                         .withModel(VersionUtil.lcResource("block/armor_display/skin/bottom"),
@@ -74,7 +76,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
                         .build());
 
         this.add(SKIN_GLASSLESS,
-                ModelVariant.builder()
+                UnbakedVariant.builder()
                         .withTarget(ModBlocks.ARMOR_DISPLAY)
                         .withItem(VersionUtil.lcResource("block/armor_display/skin/glassless/item"))
                         .withModel(VersionUtil.lcResource("block/armor_display/skin/glassless/bottom"),
@@ -87,14 +89,14 @@ public class LCModelVariantProvider extends ModelVariantProvider {
         {
             Component name = LCText.BLOCK_VARIANT_ARMOR_SKIN.get(LCText.BLOCK_VARIANT_ARMOR_SKINS.get(i - 1).get());
             this.add("armor_display/skin/" + i + "/default",
-                    ModelVariant.builder()
+                    UnbakedVariant.builder()
                             .withParent(SKIN_DEFAULT)
                             .withName(name)
                             .withTexture("skin",VersionUtil.lcResource("block/armor_display/skin" + i))
                             .build()
             );
             this.add("armor_display/skin/" + i + "/glassless",
-                    ModelVariant.builder()
+                    UnbakedVariant.builder()
                             .withParent(SKIN_GLASSLESS)
                             .withName(name)
                             .withTexture("skin",VersionUtil.lcResource("block/armor_display/skin" + i))
@@ -103,7 +105,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
         }
 
         this.add("armor_display/skin/herobrine/default",
-                ModelVariant.builder()
+                UnbakedVariant.builder()
                         .withParent(SKIN_DEFAULT)
                         .withName(LCText.BLOCK_VARIANT_ARMOR_SKIN.get(LCText.BLOCK_VARIANT_ARMOR_SKIN_HEROBRINE.get()))
                         .withTexture("skin",VersionUtil.lcResource("block/armor_display/skin_herobrine"))
@@ -113,7 +115,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
         );
 
         this.add("armor_display/skin/herobrine/glassless",
-                ModelVariant.builder()
+                UnbakedVariant.builder()
                         .withParent(SKIN_GLASSLESS)
                         .withName(LCText.BLOCK_VARIANT_ARMOR_SKIN.get(LCText.BLOCK_VARIANT_ARMOR_SKIN_HEROBRINE.get()))
                         .withTexture("skin",VersionUtil.lcResource("block/armor_display/skin_herobrine"))
@@ -123,7 +125,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
         );
 
         final ResourceLocation FOOTLESS_VENDING_MACHINE = VersionUtil.lcResource("vending_machine/footless");
-        this.add(FOOTLESS_VENDING_MACHINE,ModelVariant.builder()
+        this.add(FOOTLESS_VENDING_MACHINE,UnbakedVariant.builder()
                         .withName(LCText.BLOCK_VARIANT_DEFAULT.get())
                         .withItem(VersionUtil.lcResource("block/vending_machine/footless/base_item"))
                         .withModel(VersionUtil.lcResource("block/vending_machine/footless/base_bottom"),
@@ -135,7 +137,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
         //Footless variant for the Vending Machine
         ModBlocks.VENDING_MACHINE.forEach((color,block) ->
             this.add("vending_machine/footless/" + color.getResourceSafeName(),
-                    ModelVariant.builder()
+                    UnbakedVariant.builder()
                             .withParent(FOOTLESS_VENDING_MACHINE)
                             .withTarget(block)
                             .withTexture("exterior",VersionUtil.lcResource("block/vending_machine/footless/" + color.getResourceSafeName() + "_exterior"))
@@ -144,7 +146,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
         );
 
         final ResourceLocation FOOTLESS_LARGE_VENDING_MACHINE = VersionUtil.lcResource("large_vending_machine/footless");
-        this.add(FOOTLESS_LARGE_VENDING_MACHINE,ModelVariant.builder()
+        this.add(FOOTLESS_LARGE_VENDING_MACHINE,UnbakedVariant.builder()
                         .withName(LCText.BLOCK_VARIANT_DEFAULT.get())
                         .withItem(VersionUtil.lcResource("block/large_vending_machine/footless/base_item"))
                         .withModel(VersionUtil.lcResource("block/large_vending_machine/footless/base_bottom_left"),
@@ -158,7 +160,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
         //Footless variant for the Large Vending Machine
         ModBlocks.VENDING_MACHINE_LARGE.forEach((color,block) ->
             this.add("large_vending_machine/footless/" + color.getResourceSafeName(),
-                    ModelVariant.builder()
+                    UnbakedVariant.builder()
                             .withParent(FOOTLESS_LARGE_VENDING_MACHINE)
                             .withTarget(block)
                             .withTexture("exterior",VersionUtil.lcResource("block/large_vending_machine/footless/" + color.getResourceSafeName() + "_exterior"))
@@ -168,7 +170,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
 
         final ResourceLocation FREEZER_INVERTED = VersionUtil.lcResource("freezer/inverted/base");
         //Inverted Freezer Door variants
-        this.add(FREEZER_INVERTED,ModelVariant.builder()
+        this.add(FREEZER_INVERTED,UnbakedVariant.builder()
                 .withName(LCText.BLOCK_VARIANT_DEFAULT.get())
                 .withModel(VersionUtil.lcResource("block/freezer/base_bottom")
                         ,VersionUtil.lcResource("block/freezer/base_top"),
@@ -181,7 +183,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
 
         ModBlocks.FREEZER.forEach((color,block) ->
                 this.add("freezer/inverted/" + color.getResourceSafeName(),
-                        ModelVariant.builder()
+                        UnbakedVariant.builder()
                                 .withParent(FREEZER_INVERTED)
                                 .withTarget(block)
                                 .withTexture("concrete",ColorHelper.GetConcreteTextureOfColor(color))
@@ -198,10 +200,15 @@ public class LCModelVariantProvider extends ModelVariantProvider {
             }
         });
 
+        //Trading Core Variants for display use
+        this.addItem("trading_core/alt1",LCText.BLOCK_VARIANT_ALT_NUMBERED.get(1),ModItems.TRADING_CORE,VersionUtil.lcResource("item/trading_core/1"));
+        this.addItem("trading_core/alt2",LCText.BLOCK_VARIANT_ALT_NUMBERED.get(2),ModItems.TRADING_CORE,VersionUtil.lcResource("item/trading_core/2"));
+        this.addItem("trading_core/alt3",LCText.BLOCK_VARIANT_ALT_NUMBERED.get(3),ModItems.TRADING_CORE,VersionUtil.lcResource("item/trading_core/3"));
+
         //Debug Examples
         /*
         this.add("example/property_example",
-                ModelVariant.builder()
+                UnbakedVariant.builder()
                         .withParent(VersionUtil.lcResource("display_case/glassless/white"))
                         .withName(EasyText.literal("Property Examples"))
                         .withSelectorTarget("lightmanscurrency:display_case*")
@@ -218,7 +225,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
     private void createForCardDisplay(ResourceLocation model,Component name,ResourceLocation itemPosition, String id)
     {
         ResourceLocation base = VersionUtil.lcResource("card_display/" + id + "/base");
-        this.add(base,ModelVariant.builder()
+        this.add(base,UnbakedVariant.builder()
                 .withModel(model)
                 .withItem(model)
                 .withName(name)
@@ -236,7 +243,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
     {
         ResourceLocation base = VersionUtil.lcResource(woodType.generateResourceLocation("card_display/" + id + "/","/base"));
         //Generate base variants
-        this.add(base,ModelVariant.builder()
+        this.add(base,UnbakedVariant.builder()
                 .withParent(parent)
                 .withTexture("log", data.logSideTexture)
                 .withTexture("logtop", data.logTopTexture)
@@ -246,7 +253,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
         for(Color color : Color.values())
         {
             this.add(woodType.generateResourceLocation("card_display/" + id + "/","/" + color.getResourceSafeName()),
-                    ModelVariant.builder()
+                    UnbakedVariant.builder()
                             .withTarget(ModBlocks.CARD_DISPLAY.get(woodType,color))
                             .withParent(base)
                             .withTexture("wool",ColorHelper.GetWoolTextureOfColor(color))

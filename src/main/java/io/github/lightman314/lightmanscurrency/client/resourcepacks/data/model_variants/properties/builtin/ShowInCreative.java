@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_
 import com.google.common.collect.ImmutableList;
 import com.google.gson.*;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantPropertyWithDefault;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;

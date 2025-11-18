@@ -8,6 +8,7 @@ import com.google.gson.*;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.UnbakedVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.models.VariantModelBakery;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.models.VariantModelLocation;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -25,7 +26,6 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.Reader;
@@ -58,10 +58,9 @@ public class ModelVariantDataManager implements PreparableReloadListener {
     public static ModelVariant getVariant(@Nullable ResourceLocation variant) {
         return variant == null ? null : INSTANCE.variants.get(variant);
     }
-    @Nonnull
+    
     public static List<ResourceLocation> getPotentialVariants(ResourceLocation target) { return INSTANCE.variantsByTarget.getOrDefault(target,ImmutableList.of()); }
-
-    @Nonnull
+    
     public static BakedModel getModel(VariantModelLocation modelID)
     {
         BakedModel result = INSTANCE.variantModels.get(modelID);
@@ -110,11 +109,11 @@ public class ModelVariantDataManager implements PreparableReloadListener {
             SimpleJsonResourceReloadListener.scanDirectory(resourceManager,DIRECTORY,GSON,result);
             return result;
         },executor).thenApply((variantData) ->{
-            Map<ResourceLocation,ModelVariant> temp = new HashMap<>();
+            Map<ResourceLocation,UnbakedVariant> temp = new HashMap<>();
             final Map<ResourceLocation,ImmutableList.Builder<ResourceLocation>> builders = new HashMap<>();
             variantData.forEach((id,json) -> {
                 try {
-                    ModelVariant variant = ModelVariant.parse(GsonHelper.convertToJsonObject(json,"top element"));
+                    UnbakedVariant variant = UnbakedVariant.parse(GsonHelper.convertToJsonObject(json,"top element"));
                     temp.put(id,variant);
                 }catch (JsonSyntaxException | IllegalArgumentException | ResourceLocationException e) {
                     LightmansCurrency.LogError("Parsing error loading model variant data " + id,e);
@@ -128,7 +127,7 @@ public class ModelVariantDataManager implements PreparableReloadListener {
             temp.forEach((id,variant) -> {
                 if(!variant.isInvalid())
                 {
-                    results.put(id,variant);
+                    results.put(id,variant.bake(id));
                     //Add to list of potential variants only if the ModelVariant is fully valid
                     for(ResourceLocation target : variant.getTargets())
                     {

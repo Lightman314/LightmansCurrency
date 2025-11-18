@@ -8,7 +8,6 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Supplier;
@@ -27,7 +26,7 @@ public final class CustomDataType<T extends CustomData> {
     /**
      * Used to create a new instance of the data<br>
      * Called on both the logical server & the logical client<br>
-     * On the logical server {@link CustomData#load(CompoundTag, HolderLookup.Provider)} will be called to load the data if the data file already exists<br>
+     * On the logical server {@link CustomData#load(CompoundTag, HolderLookup.Provider)} will be called to load the data if the data file already exists
      */
     public T create() { return this.constructor.get(); }
 
@@ -47,7 +46,6 @@ public final class CustomDataType<T extends CustomData> {
      * Use with caution only in instances where you have no way of knowing which side your own, but always assume the possiblity of only getting the client-side data.<br>
      * No alterations to the data should be done with this get, and you should treat it as read-only
      */
-    @Nonnull
     public T getUnknown() {
         if(this.isLoaded(false))
             return this.get(false);
@@ -56,9 +54,9 @@ public final class CustomDataType<T extends CustomData> {
 
     /**
      * Whether the data is loaded<br>
-     * Should always be true once the server is loaded, and will always return true on the logical client
+     * Should always be true once the server is loaded, and will always return true on the logical client unless this is server-only data
      */
-    public boolean isLoaded(boolean isClient) { return isClient || CustomSaveData.isLoaded(this); }
+    public boolean isLoaded(boolean isClient) { return (isClient && !this.serverOnly) || CustomSaveData.isLoaded(this); }
 
     /**
      * Whether the data is loaded<br>

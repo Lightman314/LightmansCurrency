@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.datagen.integration;
 import dan200.computercraft.api.pocket.IPocketUpgrade;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.pocket_upgrades.ATMPocketUpgrade;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.pocket_upgrades.TerminalPocketUpgrade;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.RegistrySetBuilder;
@@ -26,6 +27,8 @@ public class LCComputerCraftProvider {
         context.register(makeKey("terminal_portable"),new TerminalPocketUpgrade(new ItemStack(ModItems.PORTABLE_TERMINAL.get())));
         context.register(makeKey("gem_terminal_block"),new TerminalPocketUpgrade(new ItemStack(ModBlocks.GEM_TERMINAL.get())));
         context.register(makeKey("gem_terminal_portable"),new TerminalPocketUpgrade(new ItemStack(ModItems.PORTABLE_GEM_TERMINAL.get())));
+        context.register(makeKey("atm_block"),new ATMPocketUpgrade(new ItemStack(ModBlocks.ATM.get())));
+        context.register(makeKey("atm_portable"),new ATMPocketUpgrade(new ItemStack(ModItems.PORTABLE_ATM.get())));
     }
 
     private static ResourceKey<IPocketUpgrade> makeKey(String key) { return makeKey(VersionUtil.lcResource(key)); }

@@ -38,6 +38,7 @@ public abstract class BankReference extends MoneyHolder.Slave implements ISidedO
     protected final BankReferenceType type;
     protected BankReference(BankReferenceType type) { this.type = type; }
 
+    public final boolean isValid() { return this.get() != null; }
     @Nullable
     public abstract IBankAccount get();
 

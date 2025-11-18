@@ -32,7 +32,7 @@ public class TaxDataCache extends CustomData {
     private long nextID = 0;
     private final Map<Long, TaxEntry> entries = new HashMap<>();
 
-    private TaxDataCache() {}
+    private TaxDataCache() { }
 
     @Override
     public CustomDataType<?> getType() { return TYPE; }
@@ -74,7 +74,7 @@ public class TaxDataCache extends CustomData {
         if(result != null)
             return result;
         TaxEntry temp = new TaxEntry(TaxEntry.SERVER_TAX_ID,null,null);
-        this.entries.put(TaxEntry.SERVER_TAX_ID,temp);
+        this.entries.put(TaxEntry.SERVER_TAX_ID,temp.unlock());
         this.markEntryDirty(TaxEntry.SERVER_TAX_ID,temp.save(LookupHelper.getRegistryAccess()));
         return temp;
     }

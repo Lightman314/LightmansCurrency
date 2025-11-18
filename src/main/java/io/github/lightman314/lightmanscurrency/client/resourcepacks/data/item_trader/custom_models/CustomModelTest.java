@@ -2,15 +2,15 @@ package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_t
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +31,7 @@ public abstract class CustomModelTest {
     private final ResourceLocation type;
     public CustomModelTest(ResourceLocation type) { this.type = type;}
 
-    public abstract boolean test(ItemTraderBlockEntity blockEntity, ItemStack item);
+    public abstract boolean test(@Nullable BlockEntity blockEntity, ItemStack item);
 
     public final JsonObject write() {
         JsonObject json = new JsonObject();
@@ -42,7 +42,6 @@ public abstract class CustomModelTest {
 
     protected abstract void writeAdditional(JsonObject json);
 
-    @Nonnull
     public static CustomModelTest parse(JsonObject json) throws JsonSyntaxException, ResourceLocationException
     {
         String typeString = GsonHelper.getAsString(json,"type");

@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.items;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.items.data.CouponData;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.component.DataComponents;
@@ -17,7 +18,7 @@ import java.util.List;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class CouponItem extends Item {
+public class CouponItem extends Item implements IVariantItem {
 
     public CouponItem(Properties properties) { super(properties); }
 

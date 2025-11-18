@@ -42,7 +42,6 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
 
     @Override
     protected void renderWidget(EasyGuiGraphics gui) {
-
         ITaxCollector entry = this.entrySource.get();
         TraderData trader = this.parent.getTrader();
         if(entry != null && trader != null)

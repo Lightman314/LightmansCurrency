@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.items;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import io.github.lightman314.lightmanscurrency.LCTags;
@@ -16,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.common.items.data.SoundEntry;
 import io.github.lightman314.lightmanscurrency.common.items.data.WalletData;
 import io.github.lightman314.lightmanscurrency.common.items.data.WalletDataWrapper;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
@@ -56,7 +58,7 @@ import net.minecraft.world.phys.Vec3;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class WalletItem extends Item{
+public class WalletItem extends Item implements IVariantItem {
 	
 	private static final SoundEvent emptyOpenSound = SoundEvents.ARMOR_EQUIP_LEATHER.value();
 
@@ -73,7 +75,14 @@ public class WalletItem extends Item{
 	public static ResourceLocation lazyModel(String itemID) { return lazyModel(VersionUtil.lcResource(itemID)); }
 	public static ResourceLocation lazyModel(ResourceLocation itemID) { return itemID.withPrefix("item/wallet_hip/"); }
 
-	/**
+    @Override
+    public int requiredModels() { return 1; }
+
+    @Nullable
+    @Override
+    public ResourceLocation getDefaultModel(int index) { return index == 0 ? this.components().get(ModDataComponents.WALLET_MODEL.get()) : null; }
+
+    /**
 	 * Simplified constructor for wallets using the <code>lightmanscurrency</code> namespace for their model
 	 */
 	public WalletItem(int storageSize, ResourceLocation model, Properties properties) { this(storageSize, model, false, 0, DEFAULT_UPGRADE_LIMIT, SoundEntry.WALLET_DEFAULT, properties); }

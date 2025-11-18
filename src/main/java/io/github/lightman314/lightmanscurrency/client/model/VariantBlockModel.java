@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_v
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.models.VariantModelLocation;
 import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVariantSupportingBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockModelShaper;
@@ -189,7 +189,7 @@ public class VariantBlockModel implements IDynamicBakedModel {
         public String toString() {
             return "QuadCacheKey[" + (this.variantID == null ? "null" : this.variantID) + "," +
                     (this.state == null ? "null" : BlockModelShaper.stateToModelLocation(this.state)) + "," +
-                    this.side + "," +
+                    (this.side == null ? "null" : this.side) + "," +
                     (this.renderType == null ? "null" : this.renderType.name) + "]";
         }
     }

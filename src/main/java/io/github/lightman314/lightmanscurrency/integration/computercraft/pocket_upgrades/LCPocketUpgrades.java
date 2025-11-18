@@ -12,6 +12,7 @@ public class LCPocketUpgrades {
 
     private static final DeferredRegister<UpgradeType<? extends IPocketUpgrade>> TYPE_REGISTRY = DeferredRegister.create(IPocketUpgrade.typeRegistry(), LightmansCurrency.MODID);
     public static final Supplier<UpgradeType<TerminalPocketUpgrade>> TERMINAL_UPGRADE;
+    public static final Supplier<UpgradeType<ATMPocketUpgrade>> ATM_UPGRADE;
 
     public static void init(IEventBus bus) {
         TYPE_REGISTRY.register(bus);
@@ -19,6 +20,7 @@ public class LCPocketUpgrades {
 
     static {
         TERMINAL_UPGRADE = TYPE_REGISTRY.register("terminal",() -> UpgradeType.simpleWithCustomItem(TerminalPocketUpgrade::new));
+        ATM_UPGRADE = TYPE_REGISTRY.register("atm",() -> UpgradeType.simpleWithCustomItem(ATMPocketUpgrade::new));
     }
 
 }

@@ -27,6 +27,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBa
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.NetworkTraderButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextBoxWrapper;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.menus.TerminalMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
@@ -55,7 +57,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 
     public static final FixedSizeSprite BUTTON_SAVE = WidgetStateSprite.lazyHoverable(VersionUtil.lcResource("common/widgets/button_save"),12,12);
 
-	private EditBox searchField;
+	private TextBoxWrapper<String> searchField;
 	private int searchWidth = 118;
 	private static int scroll = 0;
 	private static String lastSearch = "";
@@ -133,13 +135,15 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 
 		this.searchWidth = (this.columns - 1) * NetworkTraderButton.WIDTH;
 
-		this.searchField = this.addChild(new EditBox(this.font, screenArea.x + 28, screenArea.y + 10, this.searchWidth - 17, 9, this.searchField, LCText.GUI_NETWORK_TERMINAL_SEARCH.get()));
-		this.searchField.setBordered(false);
-		this.searchField.setMaxLength(32);
-		this.searchField.setTextColor(0xFFFFFF);
-        this.searchField.setMaxLength(256);
-		this.searchField.setValue(lastSearch);
-		this.searchField.setResponder(this::onSearchChanged);
+        this.searchField = this.addChild(TextInputUtil.stringBuilder()
+                .position(screenArea.pos.offset(28,10))
+                .size(this.searchWidth - 17,9)
+                .noBorder()
+                .maxLength(256)
+                .startingValue(lastSearch)
+                .textColor(0xFFFFFF)
+                .handler(this::onSearchChanged)
+                .wrap().build());
 
         //Sort Type Selection
         this.sortTypeCache = TraderAPI.getApi().GetAllSortTypes();
@@ -221,16 +225,17 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 	@Override
 	public boolean keyPressed(int key, int scanCode, int mods)
 	{
-		String s = this.searchField.getValue();
-		if(this.searchField.keyPressed(key, scanCode, mods))
+        EditBox b = this.searchField.getWrappedWidget();
+		String s = b.getValue();
+		if(b.keyPressed(key, scanCode, mods))
 		{
-			if(!Objects.equals(s,  this.searchField.getValue()))
+			if(!Objects.equals(s,b.getValue()))
 			{
 				this.updateTraderList();
 			}
 			return true;
 		}
-		return this.searchField.isFocused() && this.searchField.isVisible() && key != GLFW_KEY_ESCAPE || super.keyPressed(key, scanCode, mods);
+		return b.isFocused() && b.isVisible() && key != GLFW_KEY_ESCAPE || super.keyPressed(key, scanCode, mods);
 	}
 	
 	@Override

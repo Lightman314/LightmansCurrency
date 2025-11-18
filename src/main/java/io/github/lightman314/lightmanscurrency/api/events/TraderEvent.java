@@ -23,10 +23,7 @@ public abstract class TraderEvent extends Event {
 	public final OwnerData getOwner() { return this.getTrader() == null ? null : this.getTrader().getOwner(); }
 	public TraderData getTrader() { return TraderAPI.getApi().GetTrader(false, this.traderID); }
 	
-	protected TraderEvent(long traderID)
-	{
-		this.traderID = traderID;
-	}
+	protected TraderEvent(long traderID) { this.traderID = traderID; }
 
     public static class RegisterAttachmentEvent extends TraderEvent
     {

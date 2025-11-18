@@ -163,6 +163,13 @@ public class BankAccountSelectionWidget extends EasyWidgetWithChildren implement
             return -1;
         if(matchB && !matchA)
             return 1;
+        //Put "highlighted" entries at the top of the list
+        boolean hA = this.accountHighlighted.test(rA);
+        boolean hB = this.accountHighlighted.test(rB);
+        if(hA && !hB)
+            return -1;
+        if(hB && !hA)
+            return 1;
         //Put null entries at the bottom of the list
         if(rA != null && rB == null)
             return -1;
@@ -170,6 +177,8 @@ public class BankAccountSelectionWidget extends EasyWidgetWithChildren implement
             return 1;
         if(rA == null && rB == null)
             return 0;
+
+
         //Otherwise sort by the accounts priority (inverted so that high priority is first)
         int priority = Integer.compare(rB.sortPriority(),rA.sortPriority());
         if(priority == 0)

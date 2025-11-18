@@ -39,9 +39,7 @@ public class AncientCoinItem extends Item implements ICoinLike {
     @Nullable
     public static AncientCoinType getAncientCoinType(ItemStack item)
     {
-        if(item.is(ModItems.COIN_ANCIENT.get()))
-            return item.get(ModDataComponents.ANCIENT_COIN_TYPE);
-        return null;
+        return item.getOrDefault(ModDataComponents.ANCIENT_COIN_TYPE,null);
     }
 
     @Override

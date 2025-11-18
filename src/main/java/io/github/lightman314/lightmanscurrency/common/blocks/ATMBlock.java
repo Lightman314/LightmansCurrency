@@ -2,14 +2,13 @@ package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.TallRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IEasyVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IEasyVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.menus.ATMMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
@@ -38,9 +37,8 @@ public class ATMBlock extends TallRotatableBlock implements IEasyVariantBlock {
 	@Override
 	protected boolean isBlockOpaque() { return false; }
 
-	@Nonnull
 	@Override
-	public InteractionResult useWithoutItem(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull BlockHitResult result)
+	public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{
@@ -56,7 +54,7 @@ public class ATMBlock extends TallRotatableBlock implements IEasyVariantBlock {
 	}
 	
 	@Override
-	public void appendHoverText(@Nonnull ItemStack stack, @Nonnull Item.TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
+	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, LCText.TOOLTIP_ATM);
 		super.appendHoverText(stack, context, tooltip, flagIn);

@@ -5,13 +5,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.datafixers.util.Pair;
-import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -27,7 +27,7 @@ public final class CustomModelData {
     private CustomModelData(List<Pair<CustomModelTest,ModelResourceLocation>> data) { this.data = ImmutableList.copyOf(data); if(this.data.isEmpty()) throw new IllegalArgumentException("Data & Tests cannot be empty!"); }
 
     @Nullable
-    public ModelResourceLocation getCustomModel(ItemTraderBlockEntity blockEntity, ItemStack item)
+    public ModelResourceLocation getCustomModel(@Nullable BlockEntity blockEntity, ItemStack item)
     {
         for(var pair : this.data)
         {

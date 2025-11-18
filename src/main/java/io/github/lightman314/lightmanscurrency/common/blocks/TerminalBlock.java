@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IEasyVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IEasyVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.TerminalMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockValidator;

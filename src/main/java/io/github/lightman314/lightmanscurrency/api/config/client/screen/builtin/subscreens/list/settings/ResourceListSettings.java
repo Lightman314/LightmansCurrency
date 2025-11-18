@@ -43,21 +43,13 @@ public class ResourceListSettings extends EasyListSettings<ResourceLocation,Reso
         return value == null ? "" : value.toString();
     }
 
-    private Consumer<String> tryParseString(Consumer<Object> handler)
-    {
-        return string -> {
-            try { handler.accept(VersionUtil.parseResource(string));
-            } catch (ResourceLocationException ignored) {}
-        };
-    }
-
     @Override
     public AbstractWidget buildEntry(int index) {
         return ListEditBoxOption.builder(this.option,index,this)
                 .inputBoxSetup(handler ->
-                    TextInputUtil.stringBuilder()
-                            .startingString(this.getValueString(index))
-                            .handler(this.tryParseString(handler)))
+                    TextInputUtil.resourceBuilder(true)
+                            .startingValue(this.getValue(index))
+                            .handler(handler::accept))
                 .optionChangeHandler(editBox -> editBox.setValue(this.getValueString(index)))
                 .build();
     }

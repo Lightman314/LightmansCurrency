@@ -6,7 +6,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.custom_models.tests.*;
-import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -17,6 +16,7 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -42,7 +42,7 @@ public class CustomModelDataManager extends SimpleJsonResourceReloadListener {
     private final Map<ResourceLocation,CustomModelData> data = new HashMap<>();
 
     @Nullable
-    public static ModelResourceLocation getCustomModel(ItemTraderBlockEntity blockEntity, ItemStack item)
+    public static ModelResourceLocation getCustomModel(@Nullable BlockEntity blockEntity, ItemStack item)
     {
         ResourceLocation itemID = BuiltInRegistries.ITEM.getKey(item.getItem());
         if(INSTANCE.data.containsKey(itemID))

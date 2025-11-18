@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.items.data.ATMCardData;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.common.menus.ATMCardMenu;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
@@ -24,7 +25,7 @@ import net.minecraft.world.level.Level;
 import javax.annotation.Nonnull;
 import java.util.List;
 
-public class ATMCardItem extends Item {
+public class ATMCardItem extends Item implements IVariantItem {
 
     public ATMCardItem(Properties properties) { super(properties); }
 

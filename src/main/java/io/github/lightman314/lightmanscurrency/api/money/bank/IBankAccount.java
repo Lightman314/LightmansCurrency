@@ -133,6 +133,8 @@ public interface IBankAccount extends IMoneyHolder, IClientTracker {
 
     Map<String, CustomTarget> extraSalaryTargets();
 
+    void deleteSalary(SalaryData salary);
+
     @Nullable
     StatTracker getStatTracker();
 

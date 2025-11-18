@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.NumberUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 
+import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -28,7 +29,10 @@ public final class DoubleParser implements Function<String,Double>, Predicate<St
     }
 
     @Override
-    public Double apply(String text) { return MathUtil.clamp(NumberUtil.GetDoubleValue(text,this.emptyValue.get()),this.minValue.get(),this.maxValue.get()); }
+    public Double apply(String text) {
+        Double val = NumberUtil.GetDoubleValue(text,this.emptyValue.get());
+        return val == null ? null : MathUtil.clamp(val,this.minValue.get(),this.maxValue.get());
+    }
 
     @Override
     public boolean test(String s) {
@@ -46,7 +50,7 @@ public final class DoubleParser implements Function<String,Double>, Predicate<St
     {
         private Supplier<Double> minValue = () -> Double.MAX_VALUE * -1d;
         private Supplier<Double> maxValue = () -> Double.MAX_VALUE;
-        private Supplier<Double> emptyValue = () -> 0d;
+        private Supplier<Double> emptyValue = () -> null;
         private Builder() {}
 
         public Builder min(double minValue) { this.minValue = () -> minValue; return this; }

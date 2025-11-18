@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.items.data.TicketData;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -21,7 +22,7 @@ import net.minecraft.world.item.component.DyedItemColor;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class TicketItem extends Item {
+public class TicketItem extends Item implements IVariantItem {
 
 
 	public TicketItem(Properties properties) { super(properties); }

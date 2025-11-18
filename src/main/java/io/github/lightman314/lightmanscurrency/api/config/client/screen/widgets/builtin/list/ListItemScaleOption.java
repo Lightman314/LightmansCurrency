@@ -3,8 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.config.client.screen.widgets
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.builtin.subscreens.list.settings.CustomItemScaleSettings;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
-import io.github.lightman314.lightmanscurrency.client.config.CustomItemScaleData;
-import io.github.lightman314.lightmanscurrency.client.config.CustomItemScaleData.ItemTest;
+import io.github.lightman314.lightmanscurrency.client.config.ItemTest;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IRemovalListener;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
@@ -76,7 +75,7 @@ public class ListItemScaleOption extends ListOptionWidget implements IRemovalLis
 
     private void changeItemTest(String test)
     {
-        ItemTest newTest = CustomItemScaleData.tryParseTest(test);
+        ItemTest newTest = ItemTest.tryParseTest(test);
         if(newTest != null)
             this.changeValue(Pair.of(newTest,this.settings.getValue(this.index).getSecond()));
     }

@@ -2,10 +2,10 @@ package io.github.lightman314.lightmanscurrency;
 
 import com.google.common.base.Suppliers;
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
@@ -20,6 +20,7 @@ import io.github.lightman314.lightmanscurrency.common.items.MoneyBagItem;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.items.data.MoneyBagData;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.component.DataComponents;
@@ -309,10 +310,11 @@ public class ModCreativeGroups {
     public static void ezPop(CreativeModeTab.Output populator, ItemLike item)  {
         populator.accept(item);
         //Check for variants
-        if(item.asItem() instanceof BlockItem bi && bi.getBlock() instanceof IVariantBlock vb && LightmansCurrency.getProxy().isClient())
+        IVariantItem itemVariant = VariantProvider.getVariantItem(item.asItem());
+        if(itemVariant != null && LightmansCurrency.getProxy().isClient())
         {
             List<Pair<ResourceLocation,ModelVariant>> foundVariants = new ArrayList<>();
-            for(ResourceLocation variantID : vb.getValidVariants())
+            for(ResourceLocation variantID : itemVariant.getValidVariants())
             {
                 ModelVariant variant = ModelVariantDataManager.getVariant(variantID);
                 if(variant != null && variant.getOrDefault(VariantProperties.SHOW_IN_CREATIVE).show())

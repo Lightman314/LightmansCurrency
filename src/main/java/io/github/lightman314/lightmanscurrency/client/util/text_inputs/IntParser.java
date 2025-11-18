@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 public final class IntParser implements Function<String,Integer>, Predicate<String> {
 
     public static final IntParser DEFAULT = builder().build();
-    public static final IntParser ONE_TO_ONE_HUNDRED = builder().min(1).empty(1).max(100).build();
+    public static final IntParser ONE_TO_ONE_HUNDRED = builder().min(1).max(100).build();
 
     private final Supplier<Integer> minValue;
     private final Supplier<Integer> maxValue;
@@ -29,7 +29,10 @@ public final class IntParser implements Function<String,Integer>, Predicate<Stri
     }
 
     @Override
-    public Integer apply(String text) { return MathUtil.clamp(NumberUtil.GetIntegerValue(text,this.emptyValue.get()),this.minValue.get(),this.maxValue.get()); }
+    public Integer apply(String text) {
+        Integer val = NumberUtil.GetIntegerValue(text,this.emptyValue.get());
+        return MathUtil.clamp(val,this.minValue.get(),this.maxValue.get());
+    }
 
     public static Builder builder() { return new Builder(); }
 
@@ -47,7 +50,7 @@ public final class IntParser implements Function<String,Integer>, Predicate<Stri
     {
         private Supplier<Integer> minValue = () -> Integer.MIN_VALUE;
         private Supplier<Integer> maxValue = () -> Integer.MAX_VALUE;
-        private Supplier<Integer> emptyValue = () -> 0;
+        private Supplier<Integer> emptyValue = () -> null;
         private Builder() {}
 
         public Builder min(int minValue) { this.minValue = () -> minValue; return this; }

@@ -70,6 +70,15 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
         return newSalary;
     }
 
+    @Override
+    public void deleteSalary(SalaryData salary) {
+        if(this.salaryData.contains(salary))
+        {
+            this.salaryData.remove(salary);
+            this.markDirty();
+        }
+    }
+
     int cardValidation = 0;
 	public int getCardValidation() { return this.cardValidation; }
 	public boolean isCardValid(int validationLevel) { return validationLevel >= this.cardValidation; }

@@ -42,8 +42,8 @@ public class CustomItemScaleConfigOption extends ListLikeOption<CustomItemScaleD
         {
             //Add value
             try {
-                Pair<CustomItemScaleData.ItemTest,Float> newValue = CustomItemScaleData.parse(cleanWhitespace(value));
-                List<Pair<CustomItemScaleData.ItemTest,Float>> currentValue = this.getCurrentValue().getRawData();
+                Pair<ItemTest,Float> newValue = CustomItemScaleData.parse(cleanWhitespace(value));
+                List<Pair<ItemTest,Float>> currentValue = this.getCurrentValue().getRawData();
                 currentValue.add(newValue);
                 this.set(new CustomItemScaleData(currentValue));
                 return Pair.of(true,null);
@@ -51,14 +51,14 @@ public class CustomItemScaleConfigOption extends ListLikeOption<CustomItemScaleD
         }
         if(index >= 0)
         {
-            List<Pair<CustomItemScaleData.ItemTest,Float>> currentValue = this.getCurrentValue().getRawData();
+            List<Pair<ItemTest,Float>> currentValue = this.getCurrentValue().getRawData();
             if(index >= currentValue.size())
                 return Pair.of(false, new ConfigParsingException("Invalid index. Maximum is " + (currentValue.size() - 1) + "!"));
             if(isEdit)
             {
                 //Replace action
                 try {
-                    Pair<CustomItemScaleData.ItemTest,Float> newValue = CustomItemScaleData.parse(cleanWhitespace(value));
+                    Pair<ItemTest,Float> newValue = CustomItemScaleData.parse(cleanWhitespace(value));
                     currentValue.set(index, newValue);
                     this.set(new CustomItemScaleData(currentValue));
                     return Pair.of(true,null);
@@ -84,7 +84,7 @@ public class CustomItemScaleConfigOption extends ListLikeOption<CustomItemScaleD
 
     private static CustomItemScaleData read(List<String> list)
     {
-        List<Pair<CustomItemScaleData.ItemTest,Float>> results = new ArrayList<>();
+        List<Pair<ItemTest,Float>> results = new ArrayList<>();
         for(int s = 0; s < list.size(); ++s)
         {
             try { results.add(CustomItemScaleData.parse(list.get(s)));

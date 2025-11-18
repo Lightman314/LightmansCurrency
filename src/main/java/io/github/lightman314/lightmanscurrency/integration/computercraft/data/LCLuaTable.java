@@ -1,19 +1,15 @@
 package io.github.lightman314.lightmanscurrency.integration.computercraft.data;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.*;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,13 +25,10 @@ public class LCLuaTable implements LuaTable<Object, Object> {
 
     private final Map<Object, Object> map;
 
-    public LCLuaTable() {
-        this.map = new HashMap<>();
-    }
+    public LCLuaTable() { this.map = new HashMap<>(); }
+    public LCLuaTable(Map<?, ?> map) { this.map = new HashMap<>(map); }
 
-    public LCLuaTable(Map<?, ?> map) {
-        this.map = new HashMap<>(map);
-    }
+    public LCLuaTable copy() { return new LCLuaTable(this.map); }
 
     //Unique to LC
     public static LCLuaTable fromTag(CompoundTag compound)
@@ -67,7 +60,7 @@ public class LCLuaTable implements LuaTable<Object, Object> {
     public static Object parseTag(Tag tag)
     {
         if(tag instanceof ByteArrayTag t)
-            return t.getAsByteArray();
+            return fromArray(t.getAsByteArray());
         if(tag instanceof ByteTag t)
             return t.getAsByte();
         if(tag instanceof CompoundTag t)
@@ -77,7 +70,7 @@ public class LCLuaTable implements LuaTable<Object, Object> {
         if(tag instanceof FloatTag t)
             return t.getAsFloat();
         if(tag instanceof IntArrayTag t)
-            return t.getAsIntArray();
+            return fromArray(t.getAsIntArray(),true);
         if(tag instanceof IntTag t)
             return t.getAsInt();
         if(tag instanceof ListTag t)
@@ -85,17 +78,60 @@ public class LCLuaTable implements LuaTable<Object, Object> {
             List<Object> result = new ArrayList<>();
             for (Tag value : t)
                 result.add(parseTag(value));
-            return result.toArray(Object[]::new);
+            return fromList(result);
         }
         if(tag instanceof LongArrayTag t)
-            return t.getAsLongArray();
+            return fromArray(t.getAsLongArray());
         if(tag instanceof LongTag t)
             return t.getAsLong();
         if(tag instanceof ShortTag t)
             return t.getAsShort();
         if(tag instanceof StringTag t)
             return t.getAsString();
+        LightmansCurrency.LogDebug("Unknown Tag type received " + tag.getClass().getName());
         return null;
+    }
+
+    public static LCLuaTable fromArray(byte[] array)
+    {
+        Object[] newArray = new Object[array.length];
+        for(int i = 0; i < array.length; ++i)
+            newArray[i] = array[i];
+        return fromArray(newArray);
+    }
+
+    public static Object fromArray(int[] array,boolean uuidTest)
+    {
+        if(uuidTest && array.length == 4)
+            return UUIDUtil.uuidFromIntArray(array).toString();
+        Object[] newArray = new Object[array.length];
+        for(int i = 0; i < array.length; ++i)
+            newArray[i] = array[i];
+        return fromArray(newArray);
+    }
+
+    public static LCLuaTable fromArray(long[] array)
+    {
+        Object[] newArray = new Object[array.length];
+        for(int i = 0; i < array.length; ++i)
+            newArray[i] = array[i];
+        return fromArray(newArray);
+    }
+
+    public static LCLuaTable fromArray(Object[] array)
+    {
+        LCLuaTable table = new LCLuaTable();
+        for(int i = 0; i < array.length; ++i)
+            table.put(i + 1,array[i]);
+        return table;
+    }
+
+    public static LCLuaTable fromList(List<?> list)
+    {
+        LCLuaTable table = new LCLuaTable();
+        for(int i = 0; i < list.size(); ++i)
+            table.put(i + 1,list.get(i));
+        return table;
     }
 
     @Nullable
@@ -106,7 +142,15 @@ public class LCLuaTable implements LuaTable<Object, Object> {
         if(object instanceof Byte b)
             return ByteTag.valueOf(b);
         if(object instanceof Map<?,?> map)
-            return toTag(map);
+        {
+            Set<?> keys = map.keySet();
+            if(keys.isEmpty())
+                return new CompoundTag();
+            if(isStringKey(keys))
+                return toTag(map);
+            else if(isIntKey(keys))
+                return toListTag(map);
+        }
         if(object instanceof Double d)
             return DoubleTag.valueOf(d);
         if(object instanceof Float f)
@@ -129,7 +173,14 @@ public class LCLuaTable implements LuaTable<Object, Object> {
         if(object instanceof Short s)
             return ShortTag.valueOf(s);
         if(object instanceof String s)
+        {
+            //Attempt to undo UUID to String conversion
+            try {
+                UUID uuid = UUID.fromString(s);
+                return new IntArrayTag(UUIDUtil.uuidToIntArray(uuid));
+            } catch (IllegalArgumentException ignored) {}
             return StringTag.valueOf(s);
+        }
         //Just in case tables always parse as arrays
         if(object instanceof Object[] oa)
         {
@@ -141,6 +192,75 @@ public class LCLuaTable implements LuaTable<Object, Object> {
         return null;
     }
 
+    private static Tag toListTag(Map<?,?> map)
+    {
+        ListTag result = new ListTag();
+        List<Tag> backingList = new ArrayList<>();
+        int type = 0;
+        for(Object key : map.keySet())
+        {
+            if(key instanceof Number n)
+            {
+                int index = n.intValue() - 1;
+                //If the index is invalid, ignore the entry
+                if(index < 0)
+                    continue;
+                while(backingList.size() < index)
+                    backingList.add(null);
+                Tag newEntry = parseObject(map.get(key));
+                //Confirm no conflicting types were added
+                if(type == 0)
+                    type = newEntry.getId();
+                else
+                {
+                    //Cannot parse anything anyway so stop trying
+                    if(type != newEntry.getId())
+                        return result;
+                }
+                //Add to backing list
+                backingList.set(index,newEntry);
+            }
+        }
+        if(backingList.stream().anyMatch(Objects::isNull))
+            return result;
+        if(type == Tag.TAG_BYTE)
+        {
+            //Turn into byte array
+            try {
+                byte[] array = new byte[backingList.size()];
+                for(int i = 0; i < backingList.size(); ++i)
+                    array[i] = ((NumericTag)backingList.get(i)).getAsByte();
+                return new ByteArrayTag(array);
+            } catch (ClassCastException ignored) {}
+        }
+        if(type == Tag.TAG_INT)
+        {
+            //Turn into int array
+            try {
+                int[] array = new int[backingList.size()];
+                for(int i = 0; i < backingList.size(); ++i)
+                    array[i] = ((NumericTag)backingList.get(i)).getAsInt();
+                return new IntArrayTag(array);
+            } catch (ClassCastException ignored) {}
+        }
+        if(type == Tag.TAG_LONG)
+        {
+            //Turn into long array
+            try {
+                long[] array = new long[backingList.size()];
+                for(int i = 0; i < backingList.size(); ++i)
+                    array[i] = ((NumericTag)backingList.get(i)).getAsLong();
+                return new LongArrayTag(array);
+            } catch (ClassCastException ignored) {}
+        }
+        result.addAll(backingList);
+        return result;
+    }
+
+    private static boolean isStringKey(Set<?> set) { return set.stream().allMatch(key -> key instanceof String); }
+
+    private static boolean isIntKey(Set<?> set) { return set.stream().allMatch(key -> key instanceof Number); }
+
     public static LCLuaTable fromMoney(MoneyValue value) {
         LCLuaTable table = new LCLuaTable();
         table.put("numeric",value.getCoreValue());
@@ -150,6 +270,15 @@ public class LCLuaTable implements LuaTable<Object, Object> {
         return table;
     }
 
+    public static LCLuaTable fromMoney(IMoneyViewer values)
+    {
+        LCLuaTable table = new LCLuaTable();
+        for(MoneyValue value : values.getStoredMoney().allValues())
+            table.put(value.getUniqueName(),fromMoney(value));
+        return table;
+    }
+
+    public static LCLuaTable fromPlayer(Player player) { return fromPlayer(PlayerReference.of(player)); }
     public static LCLuaTable fromPlayer(PlayerReference player) {
         LCLuaTable table = new LCLuaTable();
         table.put("Name",player.getName(false));

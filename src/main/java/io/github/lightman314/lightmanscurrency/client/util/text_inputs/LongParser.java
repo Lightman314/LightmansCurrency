@@ -28,7 +28,10 @@ public final class LongParser implements Function<String,Long>, Predicate<String
     }
 
     @Override
-    public Long apply(String text) { return MathUtil.clamp(NumberUtil.GetLongValue(text,this.emptyValue.get()),this.minValue.get(),this.maxValue.get()); }
+    public Long apply(String text) {
+        Long val = NumberUtil.GetLongValue(text,this.emptyValue.get());
+        return MathUtil.clamp(val,this.minValue.get(),this.maxValue.get());
+    }
 
     @Override
     public boolean test(String s) {
@@ -46,7 +49,7 @@ public final class LongParser implements Function<String,Long>, Predicate<String
     {
         private Supplier<Long> minValue = () -> Long.MIN_VALUE;
         private Supplier<Long> maxValue = () -> Long.MAX_VALUE;
-        private Supplier<Long> emptyValue = () -> 0L;
+        private Supplier<Long> emptyValue = () -> null;
         private Builder() {}
 
         public Builder min(long minValue) { this.minValue = () -> minValue; return this; }

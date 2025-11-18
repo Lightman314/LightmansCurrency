@@ -8,10 +8,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.player.PlayerAc
 import io.github.lightman314.lightmanscurrency.client.gui.widget.player.PlayerListWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.IntParser;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextBoxWrapper;
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerDiscounts;
-import net.minecraft.client.gui.components.EditBox;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
 
     public PlayerDiscountTab(@Nonnull TradeRulesClientTab<?> parent) { super(parent, PlayerDiscounts.TYPE); }
 
-    EditBox discountInput;
+    TextBoxWrapper<Integer> discountInput;
 
     @Override
     public void initialize(ScreenArea screenArea, boolean firstOpen) {
@@ -36,7 +36,7 @@ public class PlayerDiscountTab extends TradeRuleSubTab<PlayerDiscounts> {
                 .handler(this::onDiscountChanged)
                 .maxLength(3)
                 .startingValue(rule == null ? 1 : rule.getDiscount())
-                .build());
+                .wrap().build());
 
         this.addChild(PlayerListWidget.builder()
                 .position(screenArea.pos.offset(20,34))

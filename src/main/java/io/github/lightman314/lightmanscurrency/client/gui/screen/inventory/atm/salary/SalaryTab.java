@@ -48,6 +48,12 @@ public class SalaryTab extends ATMTab {
     private final List<SalarySubTab> subTabList = new ArrayList<>();
     private SalarySubTab currentTab;
 
+    public void afterSalaryDeletion()
+    {
+        this.selectedSalary = -1;
+        this.changeTab(this.subTabList.getFirst());
+    }
+
     private int selectedSalary = -1;
     public int getSelectedSalaryIndex() { return this.selectedSalary; }
     public void setSelectedSalary(int index) { this.selectedSalary = index; }

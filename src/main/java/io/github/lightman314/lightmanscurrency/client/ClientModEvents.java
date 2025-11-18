@@ -1,10 +1,12 @@
 package io.github.lightman314.lightmanscurrency.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.client.colors.*;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.variant.*;
 import io.github.lightman314.lightmanscurrency.client.model.VariantBlockModel;
 import io.github.lightman314.lightmanscurrency.client.model.VariantItemModel;
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
@@ -18,9 +20,10 @@ import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_v
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.FreezerBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.GachaMachineBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMachineBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.*;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.renderer.block.BlockModelShaper;
@@ -32,6 +35,7 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -111,7 +115,8 @@ public class ClientModEvents {
 		//Wrap each Variant Block item
 		for(Block b : BuiltInRegistries.BLOCK)
 		{
-			if(b instanceof IVariantBlock block)
+            IVariantBlock block = VariantProvider.getVariantBlock(b);
+			if(block != null)
 			{
 				for(BlockState state : b.getStateDefinition().getPossibleStates())
 				{
@@ -125,18 +130,26 @@ public class ClientModEvents {
 					else
 						LightmansCurrency.LogDebug("Missing block model:  " + modelID);
 				}
-				//Also wrap the item model
-				ModelResourceLocation itemModel = ModelResourceLocation.inventory(BuiltInRegistries.ITEM.getKey(b.asItem()));
-				BakedModel existingModel = modelRegistry.get(itemModel);
-				if(existingModel != null)
-				{
-					modelRegistry.put(itemModel,new VariantItemModel(block,existingModel));
-					wrappedModels.add(itemModel);
-				}
-				else
-					LightmansCurrency.LogWarning("Missing item model: " + itemModel);
+
 			}
 		}
+        for(Item i : BuiltInRegistries.ITEM)
+        {
+            IVariantItem item = VariantProvider.getVariantItem(i);
+            if(item != null)
+            {
+                //Wrap the item model
+                ModelResourceLocation itemModel = ModelResourceLocation.inventory(BuiltInRegistries.ITEM.getKey(i));
+                BakedModel existingModel = modelRegistry.get(itemModel);
+                if(existingModel != null)
+                {
+                    modelRegistry.put(itemModel,new VariantItemModel(item,existingModel));
+                    wrappedModels.add(itemModel);
+                }
+                else
+                    LightmansCurrency.LogWarning("Missing item model: " + itemModel);
+            }
+        }
 		LightmansCurrency.LogDebug("Wrapped " + wrappedModels.size() + " models with a custom VariantBlockModel");
 	}
 
@@ -206,7 +219,8 @@ public class ClientModEvents {
 
 		event.register(ModMenus.ATM_CARD.get(), ATMCardScreen::new);
 
-		event.register(ModMenus.VARIANT_SELECT.get(), VariantSelectScreen::new);
+		event.register(ModMenus.VARIANT_SELECT_BLOCK.get(), BlockVariantSelectScreen::new);
+		event.register(ModMenus.VARIANT_SELECT_ITEM.get(), ItemVariantSelectScreen::new);
 
         event.register(ModMenus.ITEM_FILTER.get(), ItemFilterScreen::new);
 	}

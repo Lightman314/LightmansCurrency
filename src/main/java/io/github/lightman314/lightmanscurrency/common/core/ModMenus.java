@@ -6,6 +6,8 @@ import io.github.lightman314.lightmanscurrency.common.menus.*;
 import io.github.lightman314.lightmanscurrency.common.menus.gacha_machine.GachaMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.slot_machine.SlotMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
+import io.github.lightman314.lightmanscurrency.common.menus.variant.BlockVariantSelectMenu;
+import io.github.lightman314.lightmanscurrency.common.menus.variant.ItemVariantSelectMenu;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu.*;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletBankMenu;
@@ -78,7 +80,8 @@ public class ModMenus {
 
 		ATM_CARD = ModRegistries.MENUS.register("atm_card", () -> CreateType((IContainerFactory<ATMCardMenu>)(id, inventory, data) -> new ATMCardMenu(id,inventory,data.readInt())));
 
-		VARIANT_SELECT = ModRegistries.MENUS.register("variant_select", () -> CreateType((IContainerFactory<VariantSelectMenu>)(id,inventory,data) -> new VariantSelectMenu(id,inventory,data.readBlockPos())));
+		VARIANT_SELECT_BLOCK = ModRegistries.MENUS.register("variant_select", () -> CreateType((IContainerFactory<BlockVariantSelectMenu>)(id, inventory, data) -> new BlockVariantSelectMenu(id,inventory,data.readBlockPos())));
+		VARIANT_SELECT_ITEM = ModRegistries.MENUS.register("item_variant_select", () -> CreateType((IContainerFactory<ItemVariantSelectMenu>)(id, inventory, data) -> new ItemVariantSelectMenu(id,inventory)));
 
         ITEM_FILTER = ModRegistries.MENUS.register("item_trade_filter", () -> CreateType((IContainerFactory<ItemFilterMenu>)(id,inventory,data) -> new ItemFilterMenu(id,inventory,data.readInt())));
 
@@ -124,7 +127,8 @@ public class ModMenus {
 
 	public static final Supplier<MenuType<ATMCardMenu>> ATM_CARD;
 
-	public static final Supplier<MenuType<VariantSelectMenu>> VARIANT_SELECT;
+	public static final Supplier<MenuType<BlockVariantSelectMenu>> VARIANT_SELECT_BLOCK;
+	public static final Supplier<MenuType<ItemVariantSelectMenu>> VARIANT_SELECT_ITEM;
 
     public static final Supplier<MenuType<ItemFilterMenu>> ITEM_FILTER;
 

@@ -1,14 +1,13 @@
-package io.github.lightman314.lightmanscurrency.common.menus;
+package io.github.lightman314.lightmanscurrency.common.menus.variant;
 
 import com.mojang.datafixers.util.Pair;
-import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IDeepBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.ITallBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IWideBlock;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVariantSupportingBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockValidator;
@@ -35,7 +34,7 @@ import java.util.List;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class VariantSelectMenu extends LazyMessageMenu {
+public class BlockVariantSelectMenu extends VariantSelectMenu {
 
     private final BlockPos pos;
     private final Level level;
@@ -43,53 +42,38 @@ public class VariantSelectMenu extends LazyMessageMenu {
     private final Block block;
     public Block getBlock() { return this.block; }
     public IVariantBlock getVariantBlock() { return this.variantBlock; }
-    public VariantSelectMenu(int id, Inventory inventory, BlockPos pos) {
-        super(ModMenus.VARIANT_SELECT.get(), id, inventory);
+    public BlockVariantSelectMenu(int id, Inventory inventory, BlockPos pos) {
+        super(ModMenus.VARIANT_SELECT_BLOCK.get(), id, inventory);
         this.pos = pos;
         this.level = inventory.player.level();
         this.block = this.level.getBlockState(this.pos).getBlock();
-        if(this.block instanceof IVariantBlock b)
-        {
-            this.variantBlock = b;
+        this.variantBlock = VariantProvider.getVariantBlock(this.block);
+        if(this.variantBlock  != null)
             this.addValidator(BlockValidator.of(this.pos,this.block));
-        }
         else
-        {
-            this.variantBlock = null;
             this.addValidator(() -> false);
-        }
         NeoForge.EVENT_BUS.register(this);
     }
 
     private int pendingClose = -1;
     private final List<Pair<BlockPos,Boolean>> pendingUpdates = new ArrayList<>();
 
-    public void SetVariant(@Nullable ResourceLocation variant)
-    {
-        if(this.isClient())
+    @Override
+    protected void changeVariant(@Nullable ResourceLocation variant) {
+        BlockEntity blockEntity = this.level.getBlockEntity(this.pos);
+        if(this.level.getBlockEntity(this.pos) instanceof IVariantSupportingBlockEntity be)
         {
-            if(variant == null)
-                this.SendMessageToServer(this.builder().setFlag("ClearVariant"));
-            else
-                this.SendMessageToServer(this.builder().setResourceLocation("SetVariant",variant));
-        }
-        else
-        {
-            if(variant != null && LCConfig.SERVER.variantBlacklist.matches(variant) && !this.player.isCreative())
+            if(be.isVariantLocked() && !this.player.isCreative())
             {
-                LightmansCurrency.LogWarning(this.player.getName().getString() + " just tried to assign a blacklisted Model Variant (" + variant + ")!");
+                LightmansCurrency.LogDebug(this.player.getName().getString() + " attempted to change the variant of a locked block!");
                 return;
             }
-            BlockEntity blockEntity = this.level.getBlockEntity(this.pos);
-            if(this.level.getBlockEntity(this.pos) instanceof IVariantSupportingBlockEntity be)
-            {
-                //Set Variant in the Block Entity
-                be.setVariant(variant);
-                //Update Block State to match variant data presence
-                updateVariantState(this.level,this.pos,variant != null);
-                //Close the container
-                this.pendingClose = 1;
-            }
+            //Set Variant in the Block Entity
+            be.setVariant(variant);
+            //Update Block State to match variant data presence
+            updateVariantState(this.level,this.pos,variant != null);
+            //Close the container
+            this.pendingClose = 1;
         }
     }
 
@@ -182,17 +166,7 @@ public class VariantSelectMenu extends LazyMessageMenu {
     }
 
     @Override
-    public void HandleMessage(LazyPacketData message) {
-        if(message.contains("SetVariant"))
-            this.SetVariant(message.getResourceLocation("SetVariant"));
-        if(message.contains("ClearVariant"))
-            this.SetVariant(null);
-    }
-
-    @Override
-    public ItemStack quickMoveStack(Player player, int index) {
-        return ItemStack.EMPTY;
-    }
+    public ItemStack quickMoveStack(Player player, int index) { return ItemStack.EMPTY; }
 
     @Override
     public void removed(Player player) {
@@ -229,7 +203,7 @@ public class VariantSelectMenu extends LazyMessageMenu {
     {
         @Nullable
         @Override
-        public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) { return new VariantSelectMenu(containerId,playerInventory,this.pos); }
+        public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) { return new BlockVariantSelectMenu(containerId,playerInventory,this.pos); }
     }
 
 }

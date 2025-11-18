@@ -15,7 +15,10 @@ public class AuctionSearchFilter implements IBasicTraderFilter {
         if(data instanceof AuctionTradeData auction)
         {
             if(auction.isActive())
+            {
                 search.processFilter(ItemTraderSearchFilter.ITEM,ItemTraderSearchFilter.filterItems(auction.getAuctionItems(),lookup));
+                search.processFilter(BasicSearchFilter.TOOLTIP,ItemTraderSearchFilter.filterItemTooltips(auction.getAuctionItems(),lookup));
+            }
         }
     }
 

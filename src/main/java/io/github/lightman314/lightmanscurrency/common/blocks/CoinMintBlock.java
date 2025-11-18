@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.menus.MintMenu;
 import net.minecraft.core.BlockPos;

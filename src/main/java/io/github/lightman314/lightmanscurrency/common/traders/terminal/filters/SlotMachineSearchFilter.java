@@ -25,6 +25,7 @@ public class SlotMachineSearchFilter implements IBasicTraderFilter {
                     items.addAll(entry.items);
             }
             search.processFilter(ItemTraderSearchFilter.ITEM,ItemTraderSearchFilter.filterItems(items,lookup));
+            search.processFilter(BasicSearchFilter.TOOLTIP,ItemTraderSearchFilter.filterItemTooltips(items,lookup));
         }
     }
 

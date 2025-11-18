@@ -1,11 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.text;
 
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -48,5 +50,8 @@ public final class MultiLineTextEntry {
     public static MultiLineTextEntry gui(String modid, String key) { return new MultiLineTextEntry("gui." + modid + "." + key); }
     
     public static MultiLineTextEntry message(String modid, String key) { return new MultiLineTextEntry("message." + modid + "." + key); }
+
+    public static MultiLineTextEntry notification(NotificationType<?> type) { return notification(type.type); }
+    public static MultiLineTextEntry notification(ResourceLocation type) { return new MultiLineTextEntry("notification." + type.getNamespace() + "." + type.getPath()); }
 
 }

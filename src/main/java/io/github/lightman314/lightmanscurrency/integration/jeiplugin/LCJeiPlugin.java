@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;

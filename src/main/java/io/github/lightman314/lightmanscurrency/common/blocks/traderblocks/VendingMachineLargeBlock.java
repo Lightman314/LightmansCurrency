@@ -7,15 +7,13 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockTallWideRotatable;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-
-import javax.annotation.Nonnull;
 
 public class VendingMachineLargeBlock extends TraderBlockTallWideRotatable implements IItemTraderBlock, IVariantBlock {
 	

@@ -11,7 +11,12 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUti
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
+import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ChestCoinCollectButton;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.TooltipInfo;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
@@ -19,6 +24,7 @@ import io.github.lightman314.lightmanscurrency.common.enchantments.MoneyMendingE
 import io.github.lightman314.lightmanscurrency.common.items.PortableATMItem;
 import io.github.lightman314.lightmanscurrency.common.items.PortableTerminalItem;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.ItemValidator;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
@@ -27,8 +33,12 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpe
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
@@ -65,6 +75,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.function.Consumer;
 
 @EventBusSubscriber(modid = LightmansCurrency.MODID, value = Dist.CLIENT)
 public class ClientEvents {
@@ -272,15 +284,72 @@ public class ClientEvents {
 				appendKeyBindTooltip(event, LCText.TOOLTIP_ATM_KEY_BIND,ClientEvents.KEY_PORTABLE_ATM);
 		}
 
+        //Variant Tooltips
+        IVariantItem vi = VariantProvider.getVariantItem(stack);
+        if(vi != null)
+            appendVariantTooltip(event,stack,vi,event.getFlags());
+
 		//Variant Wand tooltip
 		if(InventoryUtil.ItemHasTag(stack,LCTags.Items.VARIANT_WANDS))
 			TooltipItem.insertTooltip(event.getToolTip(), LCText.TOOLTIP_VARIANT_WAND);
 
 	}
 
+    private static void appendVariantTooltip(ItemTooltipEvent event,ItemStack stack, IVariantItem item, TooltipFlag flag)
+    {
+        Consumer<Component> adder = createInjection(event);
+        if(stack.has(ModDataComponents.MODEL_VARIANT))
+        {
+            ResourceLocation variantID = stack.get(ModDataComponents.MODEL_VARIANT);
+            ModelVariant variant = ModelVariantDataManager.getVariant(variantID);
+            int insertIndex = 1;
+            if(variant != null)
+            {
+                adder.accept(LCText.TOOLTIP_MODEL_VARIANT_NAME.get(variant.getName().withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.YELLOW));
+                if(variant.has(VariantProperties.TOOLTIP_INFO))
+                {
+                    TooltipInfo extraTooltip = variant.get(VariantProperties.TOOLTIP_INFO);
+                    if(extraTooltip.drawOnItem)
+                    {
+                        for(Component l : extraTooltip.getTooltip())
+                            adder.accept(l);
+                    }
+                }
+            }
+            if(flag.isAdvanced())
+                adder.accept(LCText.TOOLTIP_MODEL_VARIANT_ID.get(variantID.toString()).withStyle(ChatFormatting.DARK_GRAY));
+        }
+        if(stack.has(ModDataComponents.VARIANT_LOCK))
+            adder.accept(LCText.TOOLTIP_MODEL_VARIANT_LOCKED.getWithStyle(ChatFormatting.GRAY));
+    }
+
+    private static Consumer<Component> createInjection(ItemTooltipEvent event) { return createInjection(event.getToolTip()); }
+    private static Consumer<Component> createInjection(List<Component> tooltip)
+    {
+        if(tooltip.isEmpty())
+            return tooltip::add;
+        for(int i = 0; i < tooltip.size(); ++i)
+        {
+            Component line = tooltip.get(i);
+            TextColor color = line.getStyle().getColor();
+            if(color != null && color.getValue() == ChatFormatting.DARK_GRAY.getColor())
+                return new TooltipInjector(tooltip,i);
+        }
+        return tooltip::add;
+    }
+
 	private static void appendKeyBindTooltip(@Nonnull ItemTooltipEvent event, @Nonnull TextEntry tooltip, @Nonnull KeyMapping key)
 	{
 		event.getToolTip().add(1,tooltip.get(EasyText.makeMutable(key.getTranslatedKeyMessage()).withStyle(ChatFormatting.YELLOW)));
 	}
+
+    private static class TooltipInjector implements Consumer<Component>
+    {
+        private final List<Component> tooltips;
+        private int injectIndex;
+        TooltipInjector(List<Component> tooltips,int injectIndex) { this.tooltips = tooltips; this.injectIndex = injectIndex; }
+        @Override
+        public void accept(Component component) { this.tooltips.add(this.injectIndex++,component); }
+    }
 
 }

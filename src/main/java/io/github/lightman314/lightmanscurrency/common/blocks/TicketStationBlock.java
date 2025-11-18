@@ -8,7 +8,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.blockentity.TicketStationBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
 import net.minecraft.MethodsReturnNonnullByDefault;

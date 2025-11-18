@@ -19,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHou
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.atm.ATMPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.CashRegisterPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.TerminalPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.InputTraderPeripheral;
@@ -140,7 +141,7 @@ public class LCComputerHelper {
         registerTraderCapability(event,ModBlockEntities.GACHA_MACHINE);
         registerTraderCapability(event,ModBlockEntities.PAYGATE);
         //Register Terminal Peripheral
-        event.registerBlock(PeripheralCapability.get(),(level,pos,state,be,side) -> new TerminalPeripheral(),ModBlocks.TERMINAL.get(),ModBlocks.GEM_TERMINAL.get());
+        event.registerBlock(PeripheralCapability.get(),(level,pos,state,be,side) -> TerminalPeripheral.INSTANCE,ModBlocks.TERMINAL.get(),ModBlocks.GEM_TERMINAL.get());
         //Register Auction Stand Peripheral
         event.registerBlockEntity(PeripheralCapability.get(),ModBlockEntities.AUCTION_STAND.get(),(be,side) -> {
             if(LCConfig.SERVER.auctionHouseEnabled.get())
@@ -149,6 +150,8 @@ public class LCComputerHelper {
         });
         //Register Cash Register Peripheral
         event.registerBlockEntity(PeripheralCapability.get(),ModBlockEntities.CASH_REGISTER.get(),(be,side) -> new CashRegisterPeripheral(be));
+        //Register ATM Peripheral
+        event.registerBlock(PeripheralCapability.get(),(level,pos,state,be,side) -> ATMPeripheral.INSTANCE,ModBlocks.ATM.get());
     }
 
     private static void addTraderAttachments(TraderEvent.RegisterAttachmentEvent event)

@@ -12,6 +12,8 @@ public interface ConfigParser<T> {
     T tryParse(String cleanLine) throws ConfigParsingException;
     String write(T value);
 
-    default <X> ConfigParser<X> map(Function<T,X> write,Function<X,T> read) { return new MappedConfigParser<>(this,write,read); }
+    default <X> ConfigParser<X> map(ParsingFunction<T,X> read,Function<X,T> write) { return new MappedConfigParser<>(this,read,write); }
+
+    interface ParsingFunction<A,B> {  B apply(A a) throws ConfigParsingException; }
 
 }

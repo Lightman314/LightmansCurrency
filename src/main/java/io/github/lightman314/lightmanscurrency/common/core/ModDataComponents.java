@@ -33,10 +33,16 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<WalletData>> WALLET_DATA;
     public static final Supplier<DataComponentType<List<BlockPos>>> CASH_REGISTER_TRADER_POSITIONS;
     public static final Supplier<DataComponentType<List<ItemStack>>> COIN_JAR_CONTENTS;
+    /**
+     * @deprecated Use {@link ModDataComponents#TICKET_ID} and vanilla {@link net.minecraft.core.component.DataComponents#DYED_COLOR DataComponents#DYED_COLOR} instead
+     */
     @Deprecated(since = "2.2.6.3")
     public static final Supplier<DataComponentType<TicketData>> TICKET_DATA;
     public static final Supplier<DataComponentType<Long>> TICKET_ID;
     public static final Supplier<DataComponentType<Integer>> TICKET_USES;
+    /**
+     * @deprecated Use {@link ModDataComponents#COUPON_CODE} and vanilla {@link net.minecraft.core.component.DataComponents#DYED_COLOR DataComponents#DYED_COLOR} instead
+     */
     @Deprecated(since = "2.2.6.3")
     public static final Supplier<DataComponentType<CouponData>> COUPON_DATA;
     public static final Supplier<DataComponentType<Integer>> COUPON_CODE;
