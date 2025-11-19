@@ -213,7 +213,7 @@ dependencies {
     implementation "maven.modrinth:cc-tweaked:${computercraft_version}"
 
     //FTB Filter System
-    implementation "curse.maven:ftb-filter-system-943925:6899527"
+    compileOnly "curse.maven:ftb-filter-system-943925:6899527"
 
 }
 

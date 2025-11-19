@@ -82,7 +82,8 @@ public class VariantItemModel extends BakedModelWrapper<BakedModel> {
         @Nullable
         @Override
         public BakedModel resolve(BakedModel model, ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int seed) {
-            return VariantItemModel.this.getModel(stack).getOverrides().resolve(model,stack,level,entity,seed);
+            model = VariantItemModel.this.getModel(stack);
+            return model.getOverrides().resolve(model,stack,level,entity,seed);
         }
     }
 
