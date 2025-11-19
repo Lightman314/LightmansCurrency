@@ -515,9 +515,9 @@ public class UnbakedVariant {
         List<ResourceLocation> targets = this.getTargets();
         boolean itemVariant = this.isItemVariant();
         if(this.isItemVariant())
-            targetSelectorHelper.lookupItems(this.targetSelectors,this.targets,this.getModels().size());
+            targetSelectorHelper.lookupItems(this.getTargetSelectors(),targets,this.getModels().size());
         else
-            targetSelectorHelper.lookupBlocks(this.targetSelectors,this.targets,this.getModels().size());
+            targetSelectorHelper.lookupBlocks(this.getTargetSelectors(),targets,this.getModels().size());
         Map<ResourceLocation,Object> properties = new HashMap<>();
         mergeProperties(this,properties);
         return new ModelVariant(targets,this.getName(),this.getItemModel(),this.getModels(),this.getTextureOverrides(),properties,itemVariant);
