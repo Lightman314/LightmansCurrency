@@ -25,6 +25,8 @@ public record ShowInCreative(boolean show, boolean locked, List<ResourceLocation
     public static final VariantPropertyWithDefault<ShowInCreative> PROPERTY = new Property();
 
     public boolean showFor(IVariantItem item) {
+        if(!this.show)
+            return false;
         if(this.targets.isEmpty())
             return true;
         return this.targets.contains(item.getItemID());
