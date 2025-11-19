@@ -8,6 +8,7 @@ import com.google.gson.*;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.TargetSelectorHelper;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.UnbakedVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.models.VariantModelBakery;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.models.VariantModelLocation;
@@ -124,10 +125,11 @@ public class ModelVariantDataManager implements PreparableReloadListener {
             //Actually store the variants to the local caches
             Map<ResourceLocation,ModelVariant> results = new HashMap<>();
             Map<ResourceLocation,List<ResourceLocation>> results2 = new HashMap<>();
+            TargetSelectorHelper targetSelectorHelper = new TargetSelectorHelper();
             temp.forEach((id,variant) -> {
                 if(!variant.isInvalid())
                 {
-                    results.put(id,variant.bake(id));
+                    results.put(id,variant.bake(id,targetSelectorHelper));
                     //Add to list of potential variants only if the ModelVariant is fully valid
                     for(ResourceLocation target : variant.getTargets())
                     {

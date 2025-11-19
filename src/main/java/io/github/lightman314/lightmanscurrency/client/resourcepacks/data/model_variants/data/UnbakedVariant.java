@@ -17,7 +17,6 @@ import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_v
 import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import io.github.lightman314.lightmanscurrency.util.WildcardTargetSelector;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -509,7 +508,7 @@ public class UnbakedVariant {
         return false;
     }
 
-    public ModelVariant bake(ResourceLocation id)
+    public ModelVariant bake(ResourceLocation id,TargetSelectorHelper targetSelectorHelper)
     {
         if(this.isInvalid())
             throw new IllegalStateException("Cannot bake an invalid UnbakedVariant");
@@ -517,11 +516,10 @@ public class UnbakedVariant {
         //Assemble targets from selectors
         List<ResourceLocation> targets = this.getTargets();
         boolean itemVariant = this.isItemVariant();
-        List<WildcardTargetSelector> selectors = this.targetSelectors.stream().map(WildcardTargetSelector::parse).toList();
         if(this.isItemVariant())
-            addItemTargets(targets,selectors);
+            targetSelectorHelper.lookupItems(this.getTargetSelectors(),targets,this.getModels().size());
         else
-            addBlockTargets(targets,selectors,this.getModels().size());
+            targetSelectorHelper.lookupBlocks(this.getTargetSelectors(),targets,this.getModels().size());
         Map<ResourceLocation,Object> properties = new HashMap<>();
         mergeProperties(this,properties);
         return new ModelVariant(targets,this.getName(),this.getItemModel(),this.getModels(),this.getTextureOverrides(),properties,itemVariant);
@@ -596,57 +594,11 @@ public class UnbakedVariant {
         }
     }
 
-    private static void addItemTargets(List<ResourceLocation> targets, List<WildcardTargetSelector> targetSelectors)
-    {
-        for(Item item : BuiltInRegistries.ITEM)
-        {
-            IVariantItem variant = VariantProvider.getVariantItem(item);
-            if(variant != null)
-            {
-                ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
-                if(testSelectors(targetSelectors,id))
-                    addTarget(targets,id);
-            }
-        }
-    }
-
-    private static void addBlockTargets(List<ResourceLocation> targets, List<WildcardTargetSelector> targetSelectors, int modelCount)
-    {
-        for(Block block : BuiltInRegistries.BLOCK)
-        {
-            IVariantBlock variant = VariantProvider.getVariantBlock(block);
-            if(variant != null && variant.requiredModels() == modelCount)
-            {
-                ResourceLocation id = BuiltInRegistries.BLOCK.getKey(block);
-                if(testSelectors(targetSelectors,id))
-                    addTarget(targets,id);
-            }
-        }
-    }
-
-    private static boolean testSelectors(List<WildcardTargetSelector> targetSelectors,ResourceLocation id)
-    {
-        String idString = id.toString();
-        return targetSelectors.stream().anyMatch(s -> s.matches(idString));
-    }
-
-    private static void addTargets(List<ResourceLocation> targets, List<ResourceLocation> newTargets)
-    {
-        for(ResourceLocation newTarget : newTargets)
-            addTarget(targets,newTarget);
-    }
-
     private static void addTarget(List<ResourceLocation> targets, ResourceLocation target)
     {
         if(targets.contains(target))
             return;
         targets.add(target);
-    }
-
-    private static boolean matchesSelectors(ResourceLocation id, List<WildcardTargetSelector> targetSelectors)
-    {
-        String idString = id.toString();
-        return targetSelectors.stream().anyMatch(s -> s.matches(idString));
     }
 
     private static class VariantSorter implements Comparator<Pair<ResourceLocation,UnbakedVariant>>
