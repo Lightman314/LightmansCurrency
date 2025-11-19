@@ -4,6 +4,7 @@ import com.google.gson.JsonSyntaxException;
 import net.minecraft.MethodsReturnNonnullByDefault;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Objects;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -46,6 +47,16 @@ public record WildcardTargetSelector(String testString, TestType test)
             else
                 return new WildcardTargetSelector(selector,TestType.EQUALS);
         }
+    }
+
+    @Override
+    public int hashCode() { return Objects.hash(this.testString,this.test); }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof WildcardTargetSelector other)
+            return other.testString.equals(this.testString) && other.test == this.test;
+        return false;
     }
 
     @Override
