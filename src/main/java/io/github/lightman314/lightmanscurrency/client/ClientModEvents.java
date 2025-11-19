@@ -1,6 +1,9 @@
 package io.github.lightman314.lightmanscurrency.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.client.colors.*;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.model.VariantBlockModel;
@@ -15,7 +18,6 @@ import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.Freeze
 import io.github.lightman314.lightmanscurrency.client.renderer.entity.layers.WalletLayer;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.GachaMachineBlock;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMachineBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
@@ -28,6 +30,7 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeableLeatherItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
@@ -103,7 +106,8 @@ public class ClientModEvents {
 		//Wrap each Variant Block item
 		for(Block b : ForgeRegistries.BLOCKS)
 		{
-			if(b instanceof IVariantBlock block)
+            IVariantBlock block = VariantProvider.getVariantBlock(b);
+			if(block != null)
 			{
 				for(BlockState state : b.getStateDefinition().getPossibleStates())
 				{
@@ -117,18 +121,25 @@ public class ClientModEvents {
 					else
 						LightmansCurrency.LogDebug("Missing block model:  " + modelID);
 				}
-				//Also wrap the item model
-				ModelResourceLocation itemModel = new ModelResourceLocation(ForgeRegistries.ITEMS.getKey(b.asItem()),"inventory");
-				BakedModel existingModel = modelRegistry.get(itemModel);
-				if(existingModel != null)
-				{
-					modelRegistry.put(itemModel,new VariantItemModel(block,existingModel));
-					wrappedModels.add(itemModel);
-				}
-				else
-					LightmansCurrency.LogWarning("Missing item model: " + itemModel);
 			}
 		}
+        for(Item i : ForgeRegistries.ITEMS)
+        {
+            IVariantItem item = VariantProvider.getVariantItem(i);
+            if(item != null)
+            {
+                //Wrap the item model
+                ModelResourceLocation itemModel = new ModelResourceLocation(ForgeRegistries.ITEMS.getKey(i),"inventory");
+                BakedModel existingModel = modelRegistry.get(itemModel);
+                if(existingModel != null)
+                {
+                    modelRegistry.put(itemModel,new VariantItemModel(item,existingModel));
+                    wrappedModels.add(itemModel);
+                }
+                else
+                    LightmansCurrency.LogWarning("Missing item model: " + itemModel);
+            }
+        }
 		LightmansCurrency.LogDebug("Wrapped " + wrappedModels.size() + " models with a custom VariantBlockModel");
 	}
 	

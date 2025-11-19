@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.IntParser;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextBoxWrapper;
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -15,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.FreeSample;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
@@ -24,7 +24,7 @@ public class FreeSampleTab extends TradeRuleSubTab<FreeSample> {
 
     public FreeSampleTab(@Nonnull TradeRulesClientTab<?> parent) { super(parent, FreeSample.TYPE); }
 
-    EditBox limitInput;
+    TextBoxWrapper<Integer> limitInput;
     EasyButton buttonClearMemory;
 
     TimeInputWidget timeInput;
@@ -36,12 +36,12 @@ public class FreeSampleTab extends TradeRuleSubTab<FreeSample> {
 
         this.limitInput = this.addChild(TextInputUtil.intBuilder()
                 .position(screenArea.pos.offset(10,19))
-                .size(30,20)
+                .width(30)
                 .parser(IntParser.ONE_TO_ONE_HUNDRED)
                 .handler(this::onLimitChanged)
                 .maxLength(3)
                 .startingValue(rule == null ? 1 : rule.getLimit())
-                .build());
+                .wrap().build());
 
         this.buttonClearMemory = this.addChild(EasyTextButton.builder()
                 .position(screenArea.pos.offset(10,55))

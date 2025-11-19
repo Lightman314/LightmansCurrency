@@ -1,22 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.blocks;
 
-import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
-import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.TooltipInfo;
+import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVariantSupportingBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
-import net.minecraft.ChatFormatting;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -29,7 +21,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.List;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -70,34 +61,6 @@ public class EasyBlock extends Block {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable BlockGetter context, List<Component> tooltip, TooltipFlag flag) {
-        if(this instanceof IVariantBlock block)
-        {
-            ResourceLocation variantID = IVariantBlock.getItemVariant(stack);
-            if(variantID != null)
-            {
-                ModelVariant variant = ModelVariantDataManager.getVariant(variantID);
-                if(variant != null)
-                {
-                    tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_NAME.get(variant.getName().withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.YELLOW));
-                    if(variant.has(VariantProperties.TOOLTIP_INFO))
-                    {
-                        TooltipInfo extraTooltip = variant.get(VariantProperties.TOOLTIP_INFO);
-                        if(extraTooltip.drawOnItem)
-                            tooltip.addAll(extraTooltip.getTooltip());
-                    }
-                }
-                if(flag.isAdvanced())
-                    tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_ID.get(variantID.toString()).withStyle(ChatFormatting.DARK_GRAY));
-            }
-        }
-        CompoundTag tag = stack.getTag();
-        if(tag != null && tag.getBoolean("VariantLocked"))
-            tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_LOCKED.getWithStyle(ChatFormatting.GRAY));
-        super.appendHoverText(stack, context, tooltip, flag);
-    }
-
-    @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         this.tryCopyVariant(level,pos,stack);
     }
@@ -106,9 +69,10 @@ public class EasyBlock extends Block {
     {
         if(level.isClientSide)
             return;
-        if(this instanceof IVariantBlock && level.getBlockEntity(pos) instanceof IVariantSupportingBlockEntity be)
+        IVariantBlock vb = VariantProvider.getVariantBlock(this);
+        if(vb != null && level.getBlockEntity(pos) instanceof IVariantSupportingBlockEntity be)
         {
-            be.setVariant(IVariantBlock.getItemVariant(stack));
+            be.setVariant(IVariantItem.getItemVariant(stack));
             ((BlockEntity)be).onLoad();
         }
     }

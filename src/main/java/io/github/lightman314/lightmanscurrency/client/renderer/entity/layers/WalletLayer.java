@@ -1,5 +1,10 @@
 package io.github.lightman314.lightmanscurrency.client.renderer.entity.layers;
 
+import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
+import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.models.VariantModelLocation;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
@@ -14,6 +19,8 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -49,7 +56,7 @@ public class WalletLayer<T extends LivingEntity, M extends EntityModel<T>> exten
 			pose.translate(2f/16f, -7.5f/16f, 6f/16f);
 
 			Minecraft mc = Minecraft.getInstance();
-			BakedModel model = mc.getModelManager().getModel(walletItem.model);
+			BakedModel model = getWalletModel(wallet,mc,walletItem);
 			mc.getItemRenderer().render(wallet, ItemDisplayContext.FIXED, false, pose, bufferSource, light, OverlayTexture.NO_OVERLAY, model);
 
 			pose.popPose();
@@ -57,5 +64,27 @@ public class WalletLayer<T extends LivingEntity, M extends EntityModel<T>> exten
 		}
 		
 	}
+
+    private static BakedModel getWalletModel(ItemStack wallet, Minecraft mc, WalletItem w)
+    {
+        //Get Model Variant model
+        IVariantItem variantItem = VariantProvider.getVariantItem(wallet);
+        if(variantItem != null)
+        {
+            ResourceLocation variantID = IVariantItem.getItemVariant(wallet);
+            if(variantID != null)
+            {
+                ModelVariant variant = ModelVariantDataManager.getVariant(variantID);
+                if(variant != null && variant.isValidTarget(wallet))
+                {
+                    VariantModelLocation modelID = VariantModelLocation.basic(variantID,variantItem.getItemID(),0);
+                    if(modelID != null)
+                        return ModelVariantDataManager.getModel(modelID);
+                }
+            }
+        }
+        //Ger normal model
+        return mc.getModelManager().getModel(w.model);
+    }
 	
 }

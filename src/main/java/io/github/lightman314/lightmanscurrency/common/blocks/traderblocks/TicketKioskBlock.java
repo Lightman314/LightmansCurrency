@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.trader.TicketT
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockTallRotatable;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;

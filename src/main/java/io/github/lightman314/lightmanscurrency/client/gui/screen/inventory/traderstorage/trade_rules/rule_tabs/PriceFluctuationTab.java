@@ -7,11 +7,11 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.IntParser;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextBoxWrapper;
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PriceFluctuation;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
-import net.minecraft.client.gui.components.EditBox;
 
 import javax.annotation.Nonnull;
 
@@ -19,7 +19,7 @@ public class PriceFluctuationTab extends TradeRuleSubTab<PriceFluctuation> {
 
     public PriceFluctuationTab(@Nonnull TradeRulesClientTab<?> parent) { super(parent, PriceFluctuation.TYPE); }
 
-    EditBox fluctuationInput;
+    TextBoxWrapper<Integer> fluctuationInput;
 
     TimeInputWidget durationInput;
 
@@ -35,7 +35,7 @@ public class PriceFluctuationTab extends TradeRuleSubTab<PriceFluctuation> {
                 .startingValue(rule == null ? 10 : rule.getFluctuation())
                 .parser(IntParser.ONE_TO_ONE_HUNDRED)
                 .handler(this::onFluctuationChanged)
-                .build());
+                .wrap().build());
 
         this.durationInput = this.addChild(TimeInputWidget.builder()
                 .position(screenArea.pos.offset(63,75))

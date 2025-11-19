@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.salary;
 
+import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
@@ -9,16 +10,20 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.salary.SalaryData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.List;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -45,10 +50,17 @@ public class SalarySettingsTab extends SalarySubTab.EditTab {
         SalaryData salary = this.parent.getSelectedSalary();
 
         this.toggleAutoSalaryButton = this.addChild(EasyTextButton.builder()
-                .position(screenArea.pos.offset(20,10))
+                .position(screenArea.pos.offset(10,10))
                 .width(screenArea.width - 40)
                 .text(this::getToggleButtonText)
                 .pressAction(this::ToggleAutoSalary)
+                .build());
+
+        this.addChild(IconButton.builder()
+                .position(screenArea.pos.offset(screenArea.width - 30,10))
+                .icon(IconUtil.ICON_X)
+                .pressAction(this::DeleteSalary)
+                .addon(EasyAddonHelper.tooltips(this.getDeleteSalaryTooltip()))
                 .build());
 
         this.toggleLoginRequirementButton = this.addChild(PlainButton.builder()
@@ -64,16 +76,16 @@ public class SalarySettingsTab extends SalarySubTab.EditTab {
                 .build());
 
         this.salaryDelayInput = this.addChild(TimeInputWidget.builder()
-                .position(screenArea.pos.offset(20,80))
-                .spacing(10)
-                .unitRange(TimeUtil.TimeUnit.HOUR, TimeUtil.TimeUnit.DAY)
+                .position(screenArea.pos.offset(10,80))
+                .spacing(5)
+                .unitRange(TimeUtil.TimeUnit.MINUTE, TimeUtil.TimeUnit.DAY)
                 .handler(this::SetSalaryDelay)
                 .startTime(salary == null ? 0 : salary.getSalaryDelay())
                 .build());
 
         this.manualTriggerButton = this.addChild(EasyTextButton.builder()
-                .position(screenArea.pos.offset(20,126))
-                .width(screenArea.width - 40)
+                .position(screenArea.pos.offset(10,126))
+                .width(screenArea.width - 20)
                 .text(LCText.BUTTON_BANK_SALARY_SETTINGS_TRIGGER_SALARY)
                 .pressAction(this::ManuallyTriggerSalary)
                 .build());
@@ -100,6 +112,8 @@ public class SalarySettingsTab extends SalarySubTab.EditTab {
 
     private Component getToggleButtonText() { return this.isAutoSalaryEnabled() ? LCText.BUTTON_BANK_SALARY_SETTINGS_DISABLE.get() : LCText.BUTTON_BANK_SALARY_SETTINGS_ENABLE.get(); }
 
+    private List<Component> getDeleteSalaryTooltip() { return ImmutableList.of(LCText.TOOLTIP_BANK_SALARY_SETTINGS_DELETE.get(),LCText.TOOLTIP_WARNING_CANT_BE_UNDONE.getWithStyle(ChatFormatting.RED,ChatFormatting.BOLD)); }
+
     @Override
     public void tick() {
         SalaryData salary = this.parent.getSelectedSalary();
@@ -123,7 +137,7 @@ public class SalarySettingsTab extends SalarySubTab.EditTab {
         gui.drawString(LCText.GUI_BANK_SALARY_SETTINGS_DELAY.get(), 20, 65, 0x404040);
 
         if(salary.getSalaryDelay() > 0)
-            TextRenderUtil.drawVerticallyCenteredMultilineText(gui,LCText.GUI_BANK_SALARY_INFO_DELAY.get(new TimeUtil.TimeData(salary.getSalaryDelay()).getString()),80,this.screen.getXSize() - 90, 80, 33, 0x404040);
+            TextRenderUtil.drawVerticallyCenteredMultilineText(gui,LCText.GUI_BANK_SALARY_INFO_DELAY.get(new TimeUtil.TimeData(salary.getSalaryDelay()).getString()),85,this.screen.getXSize() - 90, 80, 33, 0x404040);
 
     }
 
@@ -145,6 +159,13 @@ public class SalarySettingsTab extends SalarySubTab.EditTab {
     private void SetSalaryDelay(TimeUtil.TimeData data) {
         this.SendEditMessage(this.builder()
                 .setLong("SalaryDelay",data.miliseconds));
+    }
+
+    private void DeleteSalary()
+    {
+        this.SendEditMessage(this.builder()
+                .setFlag("DeleteSalary"));
+        this.parent.afterSalaryDeletion();
     }
 
     private void ManuallyTriggerSalary() {

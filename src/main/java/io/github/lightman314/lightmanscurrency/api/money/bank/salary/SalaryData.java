@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.DepositWithdrawNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.SalaryPaymentNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
@@ -217,6 +218,8 @@ public class SalaryData {
                     this.removeTarget(target);
             }
         }
+        if(message.contains("DeleteSalary"))
+            this.account.deleteSalary(this);
 
     }
 
@@ -228,7 +231,21 @@ public class SalaryData {
             for(BankReference target : bonus.getTargets())
                 addToBankList(results,target);
         }
-        return results;
+        return results.stream().filter(BankReference::isValid).toList();
+    }
+    private void validateTargetsExist()
+    {
+        boolean changed = false;
+        for(BankReference target : new ArrayList<>(this.directTargets))
+        {
+            if(!target.isValid())
+            {
+                this.directTargets.remove(target);
+                changed = true;
+            }
+        }
+        if(changed)
+            this.markDirty();
     }
     private static void addToBankList(List<BankReference> list, BankReference toAdd)
     {
@@ -289,6 +306,8 @@ public class SalaryData {
     }
 
     public void forcePaySalaries(boolean validateOnlinePlayers) {
+        //Confirm that all current targets still actually exist
+        this.validateTargetsExist();
         //Comfirm that we can afford to pay everyone
         if(!this.canAffordNextSalary(validateOnlinePlayers))
         {
@@ -301,11 +320,6 @@ public class SalaryData {
         if(payment.isEmpty())
             return;
         this.incrementStat(StatKeys.Generic.SALARY_TRIGGERS,1);
-        if(!this.creativeSalaryMode)
-        {
-            this.account.pushNotification(() -> new DepositWithdrawNotification.Custom(this.getName(),this.account.getName(),false,payment),this.salaryNotification);
-            this.account.withdrawMoney(payment);
-        }
         //Still track the total salary paid even if it's not actually taken from our bank account
         this.incrementStat(StatKeys.Generic.MONEY_PAID,payment);
         List<BankReference> targetsToPay = this.getAllTargets();
@@ -313,6 +327,11 @@ public class SalaryData {
             targetsToPay = targetsToPay.stream().filter(this::wasOnline).toList();
         for(BankReference target : targetsToPay)
             this.payMember(target,this.salary);
+        if(!this.creativeSalaryMode)
+        {
+            this.account.pushNotification(SalaryPaymentNotification.create(this.account,this,payment,targetsToPay),this.salaryNotification);
+            this.account.withdrawMoney(payment);
+        }
         if(validateOnlinePlayers)
         {
             this.onlineDuringSalary.clear();

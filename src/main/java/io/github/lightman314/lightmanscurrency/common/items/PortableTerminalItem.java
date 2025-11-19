@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.items;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.TerminalMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.ItemValidator;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,7 +13,7 @@ import net.minecraft.world.level.Level;
 
 import javax.annotation.Nonnull;
 
-public class PortableTerminalItem extends TooltipItem {
+public class PortableTerminalItem extends TooltipItem implements IVariantItem {
 
 	public PortableTerminalItem(Properties properties)
 	{

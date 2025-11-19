@@ -20,6 +20,7 @@ public class BasicSearchFilter implements ITraderSearchFilter {
 	public static final String CUSTOMER_READY = "ready";
 	public static final String STOCK_COUNT = "stock";
 	public static final String TRADE_STOCK = "tradestock";
+    public static final String TOOLTIP = "tooltip";
 
 	@Override
 	public void filter(TraderData data, PendingSearch search) {

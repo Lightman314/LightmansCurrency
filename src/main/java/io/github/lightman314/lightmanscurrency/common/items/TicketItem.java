@@ -7,6 +7,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
@@ -22,7 +23,7 @@ import net.minecraft.world.level.Level;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class TicketItem extends Item{
+public class TicketItem extends Item implements IVariantItem {
 
 
 	public TicketItem(Properties properties) { super(properties); }

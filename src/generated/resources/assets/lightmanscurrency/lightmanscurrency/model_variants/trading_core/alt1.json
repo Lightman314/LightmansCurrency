@@ -1,0 +1,13 @@
+{
+  "itemVariant": true,
+  "name": {
+    "translate": "lightmanscurrency.block_variant.alternate.numbered",
+    "with": [
+      "1"
+    ]
+  },
+  "target": "lightmanscurrency:trading_core",
+  "textures": {
+    "layer0": "lightmanscurrency:item/trading_core/1"
+  }
+}

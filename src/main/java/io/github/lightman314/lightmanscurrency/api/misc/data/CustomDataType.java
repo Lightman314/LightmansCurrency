@@ -6,7 +6,6 @@ import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Supplier;
@@ -25,7 +24,7 @@ public final class CustomDataType<T extends CustomData> {
     /**
      * Used to create a new instance of the data<br>
      * Called on both the logical server & the logical client<br>
-     * On the logical server {@link CustomData#load(CompoundTag)} will be called to load the data if the data file already exists<br>
+     * On the logical server {@link CustomData#load(CompoundTag)} will be called to load the data if the data file already exists
      */
     public T create() { return this.constructor.get(); }
 
@@ -45,7 +44,6 @@ public final class CustomDataType<T extends CustomData> {
      * Use with caution only in instances where you have no way of knowing which side your own, but always assume the possiblity of only getting the client-side data.<br>
      * No alterations to the data should be done with this get, and you should treat it as read-only
      */
-    @Nonnull
     public T getUnknown() {
         if(this.isLoaded(false))
             return this.get(false);

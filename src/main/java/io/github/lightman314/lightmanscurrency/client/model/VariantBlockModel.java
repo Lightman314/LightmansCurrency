@@ -1,12 +1,12 @@
 package io.github.lightman314.lightmanscurrency.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.models.VariantModelHelper;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.models.VariantModelLocation;
 import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVariantSupportingBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.mixin.client.RenderStateShardAccessor;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.renderer.RenderType;
@@ -191,7 +191,7 @@ public class VariantBlockModel implements IDynamicBakedModel {
         public String toString() {
             return "QuadCacheKey[" + (this.variantID == null ? "null" : this.variantID) + "," +
                     (this.state == null ? "null" : BlockModelShaper.stateToModelLocation(this.state)) + "," +
-                    this.side + "," +
+                    (this.side == null ? "null" : this.side)+  "," +
                     (this.renderType instanceof RenderStateShardAccessor a ? a.getName() : "null") + "]";
         }
     }

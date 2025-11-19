@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.config.client.screen.builtin.
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.widgets.builtin.list.ListItemScaleOption;
 import io.github.lightman314.lightmanscurrency.client.config.CustomItemScaleConfigOption;
 import io.github.lightman314.lightmanscurrency.client.config.CustomItemScaleData;
-import io.github.lightman314.lightmanscurrency.client.config.CustomItemScaleData.ItemTest;
+import io.github.lightman314.lightmanscurrency.client.config.ItemTest;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.world.item.Items;
@@ -34,7 +34,7 @@ public class CustomItemScaleSettings extends ListScreenSettings {
         return list.get(index);
     }
 
-    private Pair<ItemTest,Float> createDummyEntry() { return Pair.of(CustomItemScaleData.create(() -> Items.AIR),1f); }
+    private Pair<ItemTest,Float> createDummyEntry() { return Pair.of(ItemTest.create(Items.AIR),1f); }
 
     @Override
     public AbstractWidget buildEntry(int index) { return ListItemScaleOption.create(this.option,index,this); }

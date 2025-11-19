@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -26,6 +27,17 @@ public class TextInputUtil {
     public static Builder<Long> longBuilder() { return new Builder<>(LongParser.DEFAULT).filter(NumberUtil::IsLongOrEmpty); }
     public static Builder<Float> floatBuilder() { return new Builder<>(FloatParser.DEFAULT).filter(NumberUtil::IsFloatOrEmpty); }
     public static Builder<Double> doubleBuilder() { return new Builder<>(DoubleParser.DEFAULT).filter(NumberUtil::IsDoubleOrEmpty); }
+    public static Builder<ResourceLocation> resourceBuilder() { return resourceBuilder(false); }
+    public static Builder<ResourceLocation> resourceBuilder(boolean requireNamespace) { return new Builder<>(requireNamespace ? ResourceParser.DEFAULT : ResourceParser.REQUIRE_NAMESPACE).filter(ResourceParser::isResourceOrEmpty); }
+
+    public static <T> Consumer<String> stringResponder(Consumer<T> handler, Function<String,T> reader)
+    {
+        return s -> {
+            T result = reader.apply(s);
+            if(result != null)
+                handler.accept(result);
+        };
+    }
 
     public static class Builder<T>
     {
@@ -41,10 +53,14 @@ public class TextInputUtil {
         private Function<T,String> writer = String::valueOf;
         String startingValue = "";
         private int maxLength = 32;
+        @Nullable
+        private Integer color = null;
         private Component message = EasyText.empty();
         private boolean renderBG = true;
 
         public Builder<T> font(Font font) { this.font = font; return this; }
+        public Builder<T> copyValue(@Nullable EditBox box) { if(box != null) this.startingString(box.getValue()); return this; }
+        public Builder<T> copyValue(@Nullable TextBoxWrapper<T> box) { if(box != null) this.startingString(box.getString()); return this; }
         public Builder<T> startingString(String value) { this.startingValue = value; return this; }
         public Builder<T> startingValue(T value) {
             //Trick numbers to
@@ -55,6 +71,7 @@ public class TextInputUtil {
             return this;
         }
         public Builder<T> maxLength(int maxLength) { this.maxLength = maxLength; return this; }
+        public Builder<T> textColor(int color) { this.color = color; return this; }
         public Builder<T> message(Component message) { this.message = Objects.requireNonNull(message); return this; }
 
         public Builder<T> position(int x, int y) { this.area = area.atPosition(x,y); return this; }
@@ -75,13 +92,15 @@ public class TextInputUtil {
 
         public Builder<T> apply(Consumer<Builder<T>> application) { application.accept(this); return this; }
 
-        public TextBoxWrapper.Builder<T> wrap() { return TextBoxWrapper.builder(this.build(),this.parser,this.writer); }
+        public TextBoxWrapper.Builder<T> wrap() { return TextBoxWrapper.builder(this.build(),this.handler,this.parser,this.writer); }
 
         public EditBox build() {
             EditBox box = new EditBox(this.font, this.area.x,this.area.y,this.area.width,this.area.height,this.message);
             box.setValue(this.startingValue);
             if(this.filter != null)
                 box.setFilter(this.filter);
+            if(this.color != null)
+                box.setTextColor(this.color);
             box.setResponder(s -> this.handler.accept(this.parser.apply(s)));
             box.setMaxLength(this.maxLength);
             box.setBordered(this.renderBG);

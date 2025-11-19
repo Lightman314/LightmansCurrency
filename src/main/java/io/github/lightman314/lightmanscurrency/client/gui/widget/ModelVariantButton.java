@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
 import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
@@ -13,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_v
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.TooltipInfo;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
@@ -33,7 +33,7 @@ import java.util.function.Supplier;
 public class ModelVariantButton extends EasyButton implements ITooltipWidget {
 
     private final IEasyScreen screen;
-    private final Supplier<IVariantBlock> targetSource;
+    private final Supplier<ItemLike> targetSource;
     private final Supplier<Pair<ResourceLocation,ModelVariant>> variantSource;
     private final Supplier<ResourceLocation> selectedVariant;
     private final Supplier<ResourceLocation> viewingVariant;
@@ -70,10 +70,10 @@ public class ModelVariantButton extends EasyButton implements ITooltipWidget {
         //Render the Icon
         if(entry.getSecond().getItemIcon() != null)
             gui.renderItem(entry.getSecond().getItemIcon(),1,1); //Render the actual item for the "default" model variant
-        else if(this.targetSource.get() instanceof ItemLike i && entry.getFirst() != null)
+        else if(entry.getFirst() != null)
         {
-            ItemStack item = new ItemStack(i);
-            IVariantBlock.setItemVariant(item,entry.getFirst());
+            ItemStack item = new ItemStack(this.targetSource.get());
+            IVariantItem.setItemVariant(item,entry.getFirst());
             gui.renderItem(item,1,1);
         }
         if(this.isMouseOver(gui.mousePos))
@@ -110,12 +110,12 @@ public class ModelVariantButton extends EasyButton implements ITooltipWidget {
 
         private IEasyScreen screen;
         private Supplier<Pair<ResourceLocation,ModelVariant>> source = () -> null;
-        private Supplier<IVariantBlock> target = () -> null;
+        private Supplier<ItemLike> target = () -> null;
         private Supplier<ResourceLocation> selectedVariant = () -> null;
         private Supplier<ResourceLocation> viewingVariant = () -> null;
 
         public Builder screen(IEasyScreen screen) { this.screen = screen; return this; }
-        public Builder target(Supplier<IVariantBlock> target) { this.target = target; return this; }
+        public Builder target(Supplier<ItemLike> target) { this.target = target; return this; }
         public Builder source(Supplier<Pair<ResourceLocation,ModelVariant>> source) { this.source = source; return this; }
         public Builder selected(Supplier<ResourceLocation> selectedVariant) { this.selectedVariant = selectedVariant; return this; }
         public Builder viewing(Supplier<ResourceLocation> viewingVariant) { this.viewingVariant = viewingVariant; return this; }

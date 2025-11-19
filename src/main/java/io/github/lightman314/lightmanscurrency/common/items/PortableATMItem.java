@@ -3,10 +3,10 @@ package io.github.lightman314.lightmanscurrency.common.items;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.common.menus.ATMMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.ItemValidator;
-import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -22,7 +22,7 @@ import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
 
-public class PortableATMItem extends TooltipItem{
+public class PortableATMItem extends TooltipItem implements IVariantItem {
 
 	public PortableATMItem(Properties properties)
 	{

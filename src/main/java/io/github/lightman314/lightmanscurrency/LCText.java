@@ -496,6 +496,7 @@ public class LCText {
     public static final TextEntry TOOLTIP_BANK_SALARY_SETTINGS = TextEntry.tooltip(MODID,"bank.salary.salary_settings");
     public static final TextEntry BUTTON_BANK_SALARY_SETTINGS_ENABLE = TextEntry.button(MODID,"bank.salary.salary_settings.enable");
     public static final TextEntry BUTTON_BANK_SALARY_SETTINGS_DISABLE = TextEntry.button(MODID,"bank.salary.salary_settings.disable");
+    public static final TextEntry TOOLTIP_BANK_SALARY_SETTINGS_DELETE = TextEntry.tooltip(MODID,"bank.salary.salary_settings.delete_salary");
     public static final TextEntry GUI_BANK_SALARY_SETTINGS_NOTIFICATION = TextEntry.gui(MODID,"bank.salary.salary_settings.notification");
     public static final TextEntry GUI_BANK_SALARY_SETTINGS_DELAY = TextEntry.gui(MODID,"bank.salary.salary_settings.delay");
     public static final TextEntry GUI_BANK_SALARY_SETTINGS_REQUIRE_LOGIN = TextEntry.gui(MODID,"bank.salary.salary_settings.require_login");
@@ -1022,6 +1023,7 @@ public class LCText {
     public static final TextEntry NOTIFICATION_BANK_WITHDRAW = TextEntry.notification(VersionUtil.lcResource("bank_withdraw"));
     public static final TextEntry NOTIFICATION_BANK_DEPOSIT_WITHDRAW_SERVER = TextEntry.notification(VersionUtil.lcResource("bank_deposit_or_withdraw"),"server");
     public static final TextEntry NOTIFICATION_BANK_LOW_BALANCE = TextEntry.notification(LowBalanceNotification.TYPE);
+    public static final MultiLineTextEntry NOTIFICATION_BANK_SALARY_PAYMENT = MultiLineTextEntry.notification(SalaryPaymentNotification.TYPE);
     //Ejection Notifications
     public static final TextEntry NOTIFICATION_EJECTION_ANARCHY = TextEntry.notification(OwnableBlockEjectedNotification.TYPE,"anarchy");
     public static final TextEntry NOTIFICATION_EJECTION_EJECTED = TextEntry.notification(OwnableBlockEjectedNotification.TYPE,"ejected");
@@ -1072,7 +1074,8 @@ public class LCText {
     public static final List<TextEntry> BLOCK_VARIANT_ARMOR_SKINS = TextEntry.blockVariantList("armor_display.skin",5);
     public static final TextEntry BLOCK_VARIANT_INNER_CORNER = TextEntry.blockVariant("inner_corner");
     public static final TextEntry BLOCK_VARIANT_OUTER_CORNER = TextEntry.blockVariant("outer_corner");
-
+    public static final TextEntry BLOCK_VARIANT_ALT = TextEntry.blockVariant("alternate");
+    public static final TextEntry BLOCK_VARIANT_ALT_NUMBERED = TextEntry.blockVariant("alternate.numbered");
 
     public static final TextEntry BLOCK_VARIANT_ARMOR_SKIN_HEROBRINE = TextEntry.blockVariant("armor_display.skin.herobrine");
 

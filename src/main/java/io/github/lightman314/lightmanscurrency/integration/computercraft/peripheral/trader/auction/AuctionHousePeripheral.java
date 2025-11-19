@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LC
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import java.util.List;
 public class AuctionHousePeripheral extends LCPeripheral {
 
     public static LCPeripheral INSTANCE = new AuctionHousePeripheral();
+    public static LazyOptional<IPeripheral> LAZY = LazyOptional.of(() -> INSTANCE);
 
     private AuctionHousePeripheral() {}
 

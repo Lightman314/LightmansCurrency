@@ -5,9 +5,10 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.mixin.client.ModelBakeryAccessor;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -20,7 +21,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -35,6 +36,8 @@ import java.util.function.Function;
 
 import static net.minecraft.client.resources.model.ModelBakery.*;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class VariantModelBakery {
 
 
@@ -83,34 +86,39 @@ public class VariantModelBakery {
             //Target-based generation
             for(ResourceLocation target : variant.getTargets())
             {
-                Block b = ForgeRegistries.BLOCKS.getValue(target);
-                if(b instanceof IVariantBlock block)
+                ModelProperties properties = ModelProperties.collectProperties(variant,target);
+                if(properties != null)
                 {
-                    int max = block.requiredModels();
-                    int rotatable = block.modelsRequiringRotation();
-                    boolean isRotatable = block instanceof IRotatableBlock;
+                    int max = properties.requiredModels();
+                    int rotatable = properties.modelsFromBlockState();
+                    boolean isRotatable = properties.isRotatable();
                     //Load the item model
                     if(variant.getItemModel() != null)
-                        this.loadModel(variant,id,variant.getItemModel(),-1,block.getBlockID(),false);
+                        this.loadModel(variant,id,variant.getItemModel(),-1,properties.target(),false);
                     else
-                        this.loadModel(variant,id,block.getItemID().withPrefix("item/"),-1,block.getBlockID(),false);
-                    if(variant.hasModels())
+                        this.loadModel(variant,id,properties.target().withPrefix("item/"),-1,properties.target(),false);
+                    if(variant.hasBlockModels())
                     {
                         //Load each model
                         for(int i = 0; i < max; ++i)
-                            this.loadModel(variant,id,variant.getModels().get(i),i,block.getBlockID(),isRotatable && i < rotatable);
+                            this.loadModel(variant,id,variant.getBlockModels().get(i),i,properties.target(),isRotatable && i < rotatable);
                     }
-                    else
+                    else if(properties.requiredModels > 0)
                     {
-                        List<ResourceLocation> models = this.getDefaultModels(b,block);
+                        List<ResourceLocation> models = this.getDefaultModels(properties);
                         max = Math.min(max,models.size());
                         //Load each model
                         for(int i = 0; i < max; ++i)
-                            this.loadModel(variant,id,models.get(i),i,block.getBlockID(),isRotatable && i < rotatable);
+                            this.loadModel(variant,id,models.get(i),i,properties.target(),isRotatable && i < rotatable);
                     }
                 }
                 else
-                    LightmansCurrency.LogWarning("Unable to set up variant '" + id + "' for target " + target + " as it is not a valid variant block.");
+                {
+                    if(variant.isItemVariant())
+                        LightmansCurrency.LogWarning("Unable to set up variant '" + id + "' for target " + target + " as it is not a valid variant item.");
+                    else
+                        LightmansCurrency.LogWarning("Unable to set up variant '" + id + "' for target " + target + " as it is not a valid variant block.");
+                }
             }
         });
         profilerFiller.pop();
@@ -118,6 +126,8 @@ public class VariantModelBakery {
         profilerFiller.popPush("resolve_parents");
         this.topLevelModels.values().forEach(model -> model.resolveParents(this::getModel));
         profilerFiller.pop();
+
+        LightmansCurrency.LogDebug("Loaded " + this.topLevelModels.size() + " models for variant use");
 
     }
 
@@ -139,13 +149,13 @@ public class VariantModelBakery {
         });
     }
 
-    private List<ResourceLocation> getDefaultModels(Block block, IVariantBlock variantBlock)
+    private List<ResourceLocation> getDefaultModels(ModelProperties properties)
     {
-        ResourceLocation blockID = variantBlock.getBlockID();
-        if(this.defaultModels.containsKey(blockID))
-            return this.defaultModels.get(blockID);
-        List<ResourceLocation> defaultModels = VariantModelHelper.getDefaultModels(block,variantBlock,this.blockStates, ModelBakeryAccessor::runPredicate);
-        this.defaultModels.put(blockID,defaultModels);
+        ResourceLocation target = properties.target();
+        if(this.defaultModels.containsKey(target))
+            return this.defaultModels.get(target);
+        List<ResourceLocation> defaultModels = VariantModelHelper.getDefaultModels(properties,this.blockStates,ModelBakeryAccessor::runPredicate);
+        this.defaultModels.put(target,defaultModels);
         return defaultModels;
     }
 
@@ -210,16 +220,16 @@ public class VariantModelBakery {
 
     private void loadModel(ModelVariant variant, ResourceLocation variantID, ResourceLocation model, int modelIndex, ResourceLocation target, boolean rotatable)
     {
-        ResourceLocation cacheVariant = variantID;
+        ResourceLocation cacheVariant = null;
         if(variant.hasTextureOverrides())
         {
+            //Cache the variant as it's relevant to the model key
+            cacheVariant = variantID;
             ResourceLocation newModelID = VersionUtil.modResource(variantID.getNamespace(), "lc_model_variants/" + variantID.getPath() + "/" + modelIndex);
             //Create new BlockModel for the given target
             VariantModelHelper.createCustomBlockModel(model,this.modelResources,variant.getTextureOverrides(),newModelID);
             model = newModelID;
         }
-        else
-            cacheVariant = null;
 
         if(rotatable)
         {
@@ -251,8 +261,6 @@ public class VariantModelBakery {
         }
     }
 
-    @MethodsReturnNonnullByDefault
-    @ParametersAreNonnullByDefault
     private class VariantModelBaker implements ModelBaker
     {
 
@@ -296,5 +304,26 @@ public class VariantModelBakery {
     }
 
     private record ModelCacheKey(ResourceLocation model, @Nullable ResourceLocation variant, int yRot) {}
+
+    public record ModelProperties(int requiredModels, int modelsFromBlockState, boolean isRotatable, ResourceLocation target, Function<Integer,ResourceLocation> defaultModelSource, Function<BlockState,Integer> stateIndexLookup)
+    {
+        @Nullable
+        private static ModelProperties collectProperties(ModelVariant variant, ResourceLocation target)
+        {
+            if(variant.isItemVariant())
+            {
+                IVariantItem item = VariantProvider.getVariantItem(ForgeRegistries.ITEMS.getValue(target));
+                if(item != null)
+                    return new ModelProperties(item.requiredModels(),0,false,item.getItemID(),item::getDefaultModel,s -> -1);
+            }
+            else
+            {
+                IVariantBlock block = VariantProvider.getVariantBlock(ForgeRegistries.BLOCKS.getValue(target));
+                if(block != null)
+                    return new ModelProperties(block.requiredModels(),block.modelsFromBlockState(),block.isRotatable(),block.getBlockID(),block::getCustomDefaultModel,block::getModelIndex);
+            }
+            return null;
+        }
+    }
 
 }

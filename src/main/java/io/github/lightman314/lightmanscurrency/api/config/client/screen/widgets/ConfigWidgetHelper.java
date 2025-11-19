@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.api.config.options.basic.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.client.config.CustomItemScaleConfigOption;
+import io.github.lightman314.lightmanscurrency.client.config.ItemTestListOption;
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.*;
 import io.github.lightman314.lightmanscurrency.common.config.BonusForEnchantmentListOption;
 import io.github.lightman314.lightmanscurrency.common.config.ItemOverrideListOption;
@@ -202,12 +203,9 @@ public class ConfigWidgetHelper {
             {
                 return SimpleEditBoxOption.builder(option,changeValueConsumer,canEdit)
                         .inputBoxSetup(handler ->
-                                TextInputUtil.stringBuilder()
-                                        .startingValue(option.get().toString())
-                                        .handler(string -> {
-                                            try { handler.accept(VersionUtil.parseResource(string));
-                                            } catch (ResourceLocationException ignored) {}
-                                        }))
+                                TextInputUtil.resourceBuilder(true)
+                                        .startingValue(option.get())
+                                        .handler(handler::accept))
                         .optionChangeHandler(text -> text.setValue(option.get().toString()))
                         .build();
             }
@@ -248,6 +246,8 @@ public class ConfigWidgetHelper {
                 return SimpleButtonOption.createForList(option,changeValueConsumer,screen,file,handler -> new MMItemOverrideSettings(option,handler));
             if(o instanceof BonusForEnchantmentListOption option)
                 return SimpleButtonOption.createForList(option,changeValueConsumer,screen,file,handler -> new MMBonusForEnchantmentListSettings(option,handler));
+            if(o instanceof ItemTestListOption option)
+                return SimpleButtonOption.createForList(option,changeValueConsumer,screen,file,handler -> new ItemTestListSettings(option,handler));
             return null;
         }
     }

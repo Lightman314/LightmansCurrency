@@ -148,7 +148,7 @@ public class TaxEntry implements ITaxCollector {
     @Override
     @Nonnull
     public OwnerData getOwner() { return this.owner; }
-    public final boolean canAccess(@Nonnull Player player) { if(this.isServerEntry()) return true; return this.owner.isMember(player); }
+    public final boolean canAccess(@Nonnull Player player) { if(this.isServerEntry()) return player.hasPermissions(2); return this.owner.isMember(player); }
 
     //Stored Money
     private final MoneyStorage storedMoney = new MoneyStorage(this::markStoredMoneyDirty);

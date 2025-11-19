@@ -47,26 +47,23 @@ public class ItemListSettings extends EasyListSettings<Item,ItemListOption> {
         return Either.right(null);
     }
 
-    private Consumer<String> tryParseItem(Consumer<Object> consumer)
+    private Consumer<ResourceLocation> tryParseItem(Consumer<Object> consumer)
     {
-        return string -> {
-            try {
-                ResourceLocation id = VersionUtil.parseResource(string);
-                if(ForgeRegistries.ITEMS.containsKey(id))
-                {
-                    Item item = ForgeRegistries.ITEMS.getValue(id);
-                    if(this.option.allowedListValue(item))
-                        consumer.accept(item);
-                }
-            } catch (ResourceLocationException ignored) {}
+        return id -> {
+            if(ForgeRegistries.ITEMS.containsKey(id))
+            {
+                Item item = ForgeRegistries.ITEMS.getValue(id);
+                if(this.option.allowedListValue(item))
+                    consumer.accept(item);
+            }
         };
     }
 
     @Override
     public AbstractWidget buildEntry(int index) {
         return ListEditBoxOption.builder(this.option,index,this)
-                .inputBoxSetup(handler -> TextInputUtil.stringBuilder()
-                        .startingString(ForgeRegistries.ITEMS.getKey(this.getValue(index)).toString())
+                .inputBoxSetup(handler -> TextInputUtil.resourceBuilder(true)
+                        .startingValue(ForgeRegistries.ITEMS.getKey(this.getValue(index)))
                         .handler(this.tryParseItem(handler)))
                 .optionChangeHandler(editBox -> editBox.setValue(ForgeRegistries.ITEMS.getKey(this.getValue(index)).toString()))
                 .build();

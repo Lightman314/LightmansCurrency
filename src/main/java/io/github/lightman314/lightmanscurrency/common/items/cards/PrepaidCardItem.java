@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.items.cards;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.capability.money.CapabilityMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.common.items.colored.ColoredItem;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import net.minecraft.ChatFormatting;
@@ -19,7 +20,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class PrepaidCardItem extends Item implements ColoredItem {
+public class PrepaidCardItem extends Item implements ColoredItem, IVariantItem {
 
     public PrepaidCardItem(Properties properties) { super(properties); }
 

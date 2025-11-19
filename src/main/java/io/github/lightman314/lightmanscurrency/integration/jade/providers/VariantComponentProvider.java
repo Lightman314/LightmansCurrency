@@ -1,12 +1,14 @@
 package io.github.lightman314.lightmanscurrency.integration.jade.providers;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.TooltipInfo;
 import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVariantSupportingBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.resources.ResourceLocation;
@@ -30,13 +32,14 @@ public class VariantComponentProvider implements IBlockComponentProvider{
     @Override
     @Nullable
     public IElement getIcon(BlockAccessor accessor, IPluginConfig config, IElement currentIcon) {
-        if(accessor.getBlock() instanceof IVariantBlock && accessor.getBlockEntity() instanceof IVariantSupportingBlockEntity be)
+        IVariantBlock block = VariantProvider.getVariantBlock(accessor.getBlock());
+        if(block != null && accessor.getBlockEntity() instanceof IVariantSupportingBlockEntity be)
         {
             ResourceLocation variant = be.getCurrentVariant();
             if(variant != null)
             {
                 ItemStack item = new ItemStack(accessor.getBlock());
-                IVariantBlock.setItemVariant(item,variant);
+                IVariantItem.setItemVariant(item,variant);
                 return ItemStackElement.of(item);
             }
         }
@@ -44,7 +47,8 @@ public class VariantComponentProvider implements IBlockComponentProvider{
     }
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
-        if(accessor.getBlock() instanceof IVariantBlock && accessor.getBlockEntity() instanceof IVariantSupportingBlockEntity be)
+        IVariantBlock block = VariantProvider.getVariantBlock(accessor.getBlock());
+        if(block != null && accessor.getBlockEntity() instanceof IVariantSupportingBlockEntity be)
         {
             ResourceLocation variantID = be.getCurrentVariant();
             if(variantID != null)

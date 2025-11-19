@@ -326,7 +326,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_COIN_JAR_COLORED,"Can be dyed in a crafting table");
         this.translate(LCText.TOOLTIP_MONEY_BAG,"When placed, up to 576 coins can be inserted by interacting with the bag while holding a coin","Interacting with the bag with an empty hand will extract a random coin from the bag","When mined the bag will drop with the coins still inside","Bag increases in size the more coins are contained within","In a pinch a sufficiently full bag can be used as a blunt weapon");
         this.translate(LCText.TOOLTIP_COLORED_ITEM, "Color: %s");
-        this.translate(LCText.TOOLTIP_VARIANT_WAND, "Right click on most Lightman's Currency blocks to select a model variant","Not all blocks have variants by default, but more can be added via resource pack");
+        this.translate(LCText.TOOLTIP_VARIANT_WAND, "Right click on most Lightman's Currency blocks to select a model variant","Not all blocks have variants by default, but more can be added via resource pack","Right click on the air or a non-variant block to change the variant of items in your inventory");
         this.translate(LCText.TOOLTIP_MODEL_VARIANT_NAME, "Variant: %s");
         this.translate(LCText.TOOLTIP_MODEL_VARIANT_ID, "Variant ID: %s");
         this.translate(LCText.TOOLTIP_MODEL_VARIANT_LOCKED, "Variant is Locked");
@@ -519,6 +519,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_BANK_SALARY_SETTINGS,"Salary Settings");
         this.translate(LCText.BUTTON_BANK_SALARY_SETTINGS_ENABLE,"Enable Auto-Salary");
         this.translate(LCText.BUTTON_BANK_SALARY_SETTINGS_DISABLE,"Disable Auto-Salary");
+        this.translate(LCText.TOOLTIP_BANK_SALARY_SETTINGS_DELETE,"Delete Salary");
         this.translate(LCText.GUI_BANK_SALARY_SETTINGS_NOTIFICATION,"Push Notification");
         this.translate(LCText.GUI_BANK_SALARY_SETTINGS_DELAY,"Auto-Salary Delay");
         this.translate(LCText.GUI_BANK_SALARY_SETTINGS_REQUIRE_LOGIN,"Require Login");
@@ -1100,6 +1101,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.NOTIFICATION_BANK_WITHDRAW,"withdrew");
         this.translate(LCText.NOTIFICATION_BANK_DEPOSIT_WITHDRAW_SERVER,"An admin");
         this.translate(LCText.NOTIFICATION_BANK_LOW_BALANCE,"Bank Account is below %s");
+        this.translate(LCText.NOTIFICATION_BANK_SALARY_PAYMENT,"%1$s paid %4$s accounts %2$s each for a total of %3$s","Accounts Paid: ");
         //Ejection Notifications
         this.translate(LCText.NOTIFICATION_EJECTION_ANARCHY,"%s was robbed or destroyed by another player");
         this.translate(LCText.NOTIFICATION_EJECTION_EJECTED,"%s was destroyed by unpreventable means, but its contents were safely ejected");
@@ -1155,6 +1157,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.BLOCK_VARIANT_ARMOR_SKINS.get(4),"Garrett");
         this.translate(LCText.BLOCK_VARIANT_INNER_CORNER,"Inner Corner");
         this.translate(LCText.BLOCK_VARIANT_OUTER_CORNER,"Outer Corner");
+        this.translate(LCText.BLOCK_VARIANT_ALT,"Alternate");
+        this.translate(LCText.BLOCK_VARIANT_ALT_NUMBERED,"Alternate #%s");
 
         this.translate(LCText.BLOCK_VARIANT_ARMOR_SKIN_HEROBRINE,"Herobrine");
 
@@ -1462,6 +1466,9 @@ public class EnglishProvider extends TranslationProvider {
                 "Setting to 0 will disable item rendering entirely, so use with caution.");
         this.translateConfigOption(LCConfig.CLIENT.itemScaleOverrides,"Item Scale Overrides",
                 "A list of item ids or item tags that should be rendered by Item Traders at a different scale.");
+        this.translateConfigOption(LCConfig.CLIENT.itemRenderBlacklist,"Item Render Blacklist",
+                "A list of item ids or item tags that should not be rendered by Item Traders at all",
+                "Use to hide high-poly item models from being rendered and lagging your game.");
         this.translateConfigOption(LCConfig.CLIENT.drawGachaBallItem,"Gacha Ball Full Render",
                 "Whether the Gacha Ball should render the item inside",
                 "Enabling will double the number of items being rendered, and can cause FPS issues near Gacha Machines if their fancy graphics are enabled");

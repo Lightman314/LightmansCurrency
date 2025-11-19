@@ -28,6 +28,7 @@ import io.github.lightman314.lightmanscurrency.api.stats.types.*;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.types.*;
+import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientCoinSorter;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientMoneyType;
@@ -150,6 +151,8 @@ public class LightmansCurrency {
 		IntegrationUtil.SafeRunIfLoaded("create", LCCreate::init, "Error settings up Create Integration!");
 		IntegrationUtil.SafeRunIfLoaded("computercraft", LCComputercraftSetup::setup, "Error settings up ComputerCraft Integration!");
 
+        VariantProvider.registerBasicVariantItem(ModItems.TRADING_CORE,ModItems.VARIANT_WAND,ModItems.ITEM_TRADE_FILTER);
+
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) { safeEnqueueWork(event, "Error during common setup!", this::commonSetupWork); }
@@ -249,6 +252,7 @@ public class LightmansCurrency {
 		NotificationAPI.getApi().RegisterNotification(OwnableBlockEjectedNotification.TYPE);
 		NotificationAPI.getApi().RegisterNotification(CommandTradeNotification.TYPE);
 		NotificationAPI.getApi().RegisterNotification(GachaTradeNotification.TYPE);
+		NotificationAPI.getApi().RegisterNotification(SalaryPaymentNotification.TYPE);
 
 		//Initialize the Notification Category deserializers
 		NotificationAPI.getApi().RegisterCategory(NotificationCategory.GENERAL_TYPE);

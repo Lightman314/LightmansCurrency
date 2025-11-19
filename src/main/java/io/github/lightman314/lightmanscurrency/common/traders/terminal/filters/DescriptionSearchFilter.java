@@ -11,14 +11,13 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class DescriptionSearchFilter implements IBasicTraderFilter {
 
     public static final String DESCRIPTION = "description";
-    public static final String TOOLTIP = "tooltip";
 
     @Override
     public void filterTrade(TradeData data, PendingSearch search) {
         if(data instanceof IDescriptionTrade trade)
         {
             search.processFilter(DESCRIPTION,trade.getDescription().toLowerCase()::contains);
-            search.processFilter(TOOLTIP,trade.getDescription().toLowerCase()::contains);
+            search.processFilter(BasicSearchFilter.TOOLTIP,trade.getDescription().toLowerCase()::contains);
         }
     }
 

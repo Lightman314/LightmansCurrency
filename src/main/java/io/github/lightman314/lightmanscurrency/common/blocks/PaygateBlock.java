@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
@@ -47,7 +47,7 @@ public class PaygateBlock extends TraderBlockRotatable implements IVariantBlock 
 	}
 
 	@Override
-	public int modelsRequiringRotation() { return 2; }
+	public int modelsFromBlockState() { return 2; }
 
 	@Override
 	public int getModelIndex(BlockState state) {

@@ -4,7 +4,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.SlotMachineTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockTallRotatable;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.BlockPos;

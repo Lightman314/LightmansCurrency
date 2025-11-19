@@ -13,9 +13,9 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.advancements.date.DateTrigger;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabilities;
 import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.CapabilityEventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.capability.event_unlocks.IEventUnlocks;
@@ -24,6 +24,7 @@ import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCa
 import io.github.lightman314.lightmanscurrency.api.events.WalletDropEvent;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.common.menus.variant.ItemVariantSelectMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
@@ -72,6 +73,7 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.network.NetworkHooks;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 
@@ -490,6 +492,8 @@ public class EventHandler {
 	public static void onPlayerInteract(PlayerInteractEvent.RightClickBlock event)
 	{
 		Player player = event.getEntity();
+        if(player.level().isClientSide)
+            return;
 		ItemStack heldItem = player.getItemInHand(event.getHand());
 		if(InventoryUtil.ItemHasTag(heldItem, LCTags.Items.VARIANT_WANDS))
 		{
@@ -497,5 +501,16 @@ public class EventHandler {
 				event.setCanceled(true);
 		}
 	}
+
+    @SubscribeEvent
+    public static void onPlayerUseItem(PlayerInteractEvent.RightClickItem event)
+    {
+        Player player = event.getEntity();
+        if(player.level().isClientSide)
+            return;
+        ItemStack heldItem = player.getItemInHand(event.getHand());
+        if(InventoryUtil.ItemHasTag(heldItem,LCTags.Items.VARIANT_WANDS) && player instanceof ServerPlayer sp)
+            NetworkHooks.openScreen(sp,ItemVariantSelectMenu.providerFor());
+    }
 	
 }

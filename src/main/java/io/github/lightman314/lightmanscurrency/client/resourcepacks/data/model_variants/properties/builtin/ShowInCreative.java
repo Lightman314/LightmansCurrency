@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.*;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantPropertyWithDefault;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
@@ -24,10 +24,10 @@ public record ShowInCreative(boolean show, boolean locked, List<ResourceLocation
 
     public static final VariantPropertyWithDefault<ShowInCreative> PROPERTY = new Property();
 
-    public boolean showFor(IVariantBlock block) {
+    public boolean showFor(IVariantItem item) {
         if(this.targets.isEmpty())
             return true;
-        return this.targets.contains(block.getBlockID());
+        return this.targets.contains(item.getItemID());
     }
 
     public ShowInCreative withTargets(List<ResourceLocation> targets) { return new ShowInCreative(this.show,this.locked,ImmutableList.copyOf(targets)); }

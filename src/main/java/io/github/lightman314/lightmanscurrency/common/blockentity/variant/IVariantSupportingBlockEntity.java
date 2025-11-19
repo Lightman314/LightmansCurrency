@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity.variant;
 
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -34,12 +34,9 @@ public interface IVariantSupportingBlockEntity {
     static void copyDataToItem(@Nullable ResourceLocation variant, boolean variantLocked, ItemStack item)
     {
         if(variant != null)
-            IVariantBlock.setItemVariant(item,variant);
+            IVariantItem.setItemVariant(item,variant);
         if(variantLocked)
-        {
-            CompoundTag tag = item.getOrCreateTag();
-            tag.putBoolean("VariantLocked",true);
-        }
+            IVariantItem.setLocked(item,variantLocked);
     }
 
 }

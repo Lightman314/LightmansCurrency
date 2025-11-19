@@ -10,10 +10,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.IntParser;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextBoxWrapper;
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.TimedSale;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
@@ -22,7 +22,7 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
 
     public TimedSaleTab(@Nonnull TradeRulesClientTab<?> parent) { super(parent, TimedSale.TYPE); }
 
-    EditBox discountInput;
+    TextBoxWrapper<Integer> discountInput;
 
     EasyButton buttonSetDiscount;
     EasyButton buttonStartSale;
@@ -41,7 +41,7 @@ public class TimedSaleTab extends TradeRuleSubTab<TimedSale> {
                 .parser(IntParser.ONE_TO_ONE_HUNDRED)
                 .startingValue(rule == null ? 1 : rule.getDiscount())
                 .handler(this::onDiscountChanged)
-                .build());
+                .wrap().build());
 
         this.buttonStartSale = this.addChild(EasyTextButton.builder()
                 .position(screenArea.pos.offset(25,45))

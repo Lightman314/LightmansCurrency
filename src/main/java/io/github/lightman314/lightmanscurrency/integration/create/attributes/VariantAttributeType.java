@@ -2,11 +2,11 @@ package io.github.lightman314.lightmanscurrency.integration.create.attributes;
 
 import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttribute;
 import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttributeType;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
@@ -26,9 +26,9 @@ public class VariantAttributeType implements ItemAttributeType {
     @Override
     public List<ItemAttribute> getAllAttributes(ItemStack stack, Level level) {
 
-        if(stack.getItem() instanceof BlockItem bi && bi.getBlock() instanceof IVariantBlock)
+        if(VariantProvider.getVariantItem(stack) != null)
         {
-            ResourceLocation variantID = IVariantBlock.getItemVariant(stack);
+            ResourceLocation variantID = IVariantItem.getItemVariant(stack);
             if(variantID != null)
                 return List.of(new VariantAttribute(variantID));
             return List.of(NO_VARIANT_ATTRIBUTE);
@@ -49,7 +49,7 @@ public class VariantAttributeType implements ItemAttributeType {
         private boolean isNullType() { return this.variantID.equals(NULL_ID); }
         @Override
         public boolean appliesTo(ItemStack stack, Level world) {
-            ResourceLocation variant = IVariantBlock.getItemVariant(stack);
+            ResourceLocation variant = IVariantItem.getItemVariant(stack);
             if(this.isNullType())
                 return variant == null;
             return Objects.equals(this.variantID,variant);

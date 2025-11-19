@@ -72,7 +72,7 @@ public class TaxDataCache extends CustomData {
         if(result != null)
             return result;
         TaxEntry temp = new TaxEntry(TaxEntry.SERVER_TAX_ID,null,null);
-        this.entries.put(TaxEntry.SERVER_TAX_ID,temp);
+        this.entries.put(TaxEntry.SERVER_TAX_ID,temp.unlock());
         this.markEntryDirty(TaxEntry.SERVER_TAX_ID,temp.save());
         return temp;
     }

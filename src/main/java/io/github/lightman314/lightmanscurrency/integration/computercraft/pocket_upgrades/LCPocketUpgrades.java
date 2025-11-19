@@ -11,6 +11,7 @@ public class LCPocketUpgrades {
 
     private static final DeferredRegister<PocketUpgradeSerialiser<?>> TYPE_REGISTRY = DeferredRegister.create(PocketUpgradeSerialiser.registryId(), LightmansCurrency.MODID);
     public static final Supplier<PocketUpgradeSerialiser<TerminalPocketUpgrade>> TERMINAL_UPGRADE;
+    public static final Supplier<PocketUpgradeSerialiser<ATMPocketUpgrade>> ATM_UPGRADE;
 
     public static void init(IEventBus bus) {
         TYPE_REGISTRY.register(bus);
@@ -18,6 +19,7 @@ public class LCPocketUpgrades {
 
     static {
         TERMINAL_UPGRADE = TYPE_REGISTRY.register("terminal",() -> PocketUpgradeSerialiser.simpleWithCustomItem(TerminalPocketUpgrade::new));
+        ATM_UPGRADE = TYPE_REGISTRY.register("atm",() -> PocketUpgradeSerialiser.simpleWithCustomItem(ATMPocketUpgrade::new));
     }
 
 }

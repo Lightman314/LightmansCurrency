@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.renderer.blockentity;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
-import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.client.renderer.ItemRenderHelper;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.ItemPositionBlockManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.ItemPositionData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.AuctionStandBlockEntity;
@@ -11,9 +11,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
@@ -66,26 +64,20 @@ public class AuctionStandBlockEntityRenderer implements BlockEntityRenderer<Auct
         if(displayItems.size() < 2)
         {
             //Only renderBG 1 item
-            scale = LCConfig.CLIENT.itemScaleOverrides.get().getCustomScale(displayItems.get(0));
-            pose.scale(scale,scale,scale);
-            this.itemRenderer.renderStatic(displayItems.get(0), ItemDisplayContext.FIXED, itemLight, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
+            ItemRenderHelper.renderItem(blockEntity,this.itemRenderer,displayItems.get(0),itemLight,pose,buffer,id);
         }
         else
         {
             //Render Item 1
             pose.pushPose();
             pose.translate(-0.55f,0f,0f);
-            scale = LCConfig.CLIENT.itemScaleOverrides.get().getCustomScale(displayItems.get(0));
-            pose.scale(scale,scale,scale);
-            this.itemRenderer.renderStatic(displayItems.get(0), ItemDisplayContext.FIXED, itemLight, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
+            ItemRenderHelper.renderItem(blockEntity,this.itemRenderer,displayItems.get(0),itemLight,pose,buffer,id);
             pose.popPose();
 
             //Render Item 2
             pose.pushPose();
             pose.translate(0.55f, 0f, 0f);
-            scale = LCConfig.CLIENT.itemScaleOverrides.get().getCustomScale(displayItems.get(1));
-            pose.scale(scale,scale,scale);
-            this.itemRenderer.renderStatic(displayItems.get(1),  ItemDisplayContext.FIXED, itemLight, OverlayTexture.NO_OVERLAY, pose, buffer, blockEntity.getLevel(), id);
+            ItemRenderHelper.renderItem(blockEntity,this.itemRenderer,displayItems.get(1),itemLight,pose,buffer,id);
             pose.popPose();
         }
         pose.popPose();

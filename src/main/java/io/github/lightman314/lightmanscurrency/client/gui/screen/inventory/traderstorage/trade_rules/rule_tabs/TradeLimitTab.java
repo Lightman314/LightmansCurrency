@@ -9,9 +9,9 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.IntParser;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextBoxWrapper;
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.TradeLimit;
-import net.minecraft.client.gui.components.EditBox;
 
 import javax.annotation.Nonnull;
 
@@ -19,7 +19,7 @@ public class TradeLimitTab extends TradeRuleSubTab<TradeLimit> {
 
     public TradeLimitTab(@Nonnull TradeRulesClientTab<?> parent) { super(parent, TradeLimit.TYPE); }
 
-    EditBox limitInput;
+    TextBoxWrapper<Integer> limitInput;
     EasyButton buttonClearMemory;
 
     @Override
@@ -33,7 +33,7 @@ public class TradeLimitTab extends TradeRuleSubTab<TradeLimit> {
                 .parser(IntParser.ONE_TO_ONE_HUNDRED)
                 .startingValue(rule == null ? 1 : rule.getLimit())
                 .handler(this::onLimitChanged)
-                .build());
+                .wrap().build());
 
         this.buttonClearMemory = this.addChild(EasyTextButton.builder()
                 .position(screenArea.pos.offset(10,55))

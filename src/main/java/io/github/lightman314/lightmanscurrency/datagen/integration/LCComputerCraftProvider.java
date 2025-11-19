@@ -23,11 +23,18 @@ public class LCComputerCraftProvider extends PocketUpgradeDataProvider {
         consumer.accept(createTerminalUpgrade("terminal_portable",ModItems.PORTABLE_TERMINAL));
         consumer.accept(createTerminalUpgrade("gem_terminal_block",ModBlocks.GEM_TERMINAL));
         consumer.accept(createTerminalUpgrade("gem_terminal_portable",ModItems.PORTABLE_GEM_TERMINAL));
+        consumer.accept(createATMUpgrade("atm_block",ModBlocks.ATM));
+        consumer.accept(createATMUpgrade("atm_portable",ModItems.PORTABLE_ATM));
     }
 
     private static Upgrade<PocketUpgradeSerialiser<?>> createTerminalUpgrade(String id, Supplier<? extends ItemLike> item)
     {
         return new Upgrade<>(VersionUtil.lcResource(id),LCPocketUpgrades.TERMINAL_UPGRADE.get(),json -> json.addProperty("item",ForgeRegistries.ITEMS.getKey(item.get().asItem()).toString()));
+    }
+
+    private static Upgrade<PocketUpgradeSerialiser<?>> createATMUpgrade(String id, Supplier<? extends ItemLike> item)
+    {
+        return new Upgrade<>(VersionUtil.lcResource(id),LCPocketUpgrades.ATM_UPGRADE.get(),json -> json.addProperty("item",ForgeRegistries.ITEMS.getKey(item.get().asItem()).toString()));
     }
 
 }

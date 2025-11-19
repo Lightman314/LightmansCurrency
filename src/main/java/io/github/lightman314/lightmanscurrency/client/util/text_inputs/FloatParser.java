@@ -28,7 +28,10 @@ public final class FloatParser implements Function<String,Float>, Predicate<Stri
     }
 
     @Override
-    public Float apply(String text) { return MathUtil.clamp(NumberUtil.GetFloatValue(text,this.emptyValue.get()),this.minValue.get(),this.maxValue.get()); }
+    public Float apply(String text) {
+        Float val = NumberUtil.GetFloatValue(text,this.emptyValue.get());
+        return val == null ? null : MathUtil.clamp(val,this.minValue.get(),this.maxValue.get());
+    }
 
     @Override
     public boolean test(String s) {
@@ -46,7 +49,7 @@ public final class FloatParser implements Function<String,Float>, Predicate<Stri
     {
         private Supplier<Float> minValue = () -> Float.MAX_VALUE * -1f;
         private Supplier<Float> maxValue = () -> Float.MAX_VALUE;
-        private Supplier<Float> emptyValue = () -> 0f;
+        private Supplier<Float> emptyValue = () -> null;
         private Builder() {}
 
         public Builder min(float minValue) { this.minValue = () -> minValue; return this; }

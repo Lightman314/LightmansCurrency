@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.common.items.colored.ColoredItem;
 import io.github.lightman314.lightmanscurrency.common.menus.ATMCardMenu;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
@@ -29,7 +30,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class ATMCardItem extends Item implements ColoredItem {
+public class ATMCardItem extends Item implements ColoredItem, IVariantItem {
 
     public ATMCardItem(Properties properties) { super(properties); }
 

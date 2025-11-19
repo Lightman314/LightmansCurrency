@@ -8,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.Ite
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -22,7 +21,7 @@ public class ItemTraderSearchFilter implements IBasicTraderFilter {
 	public static final String ITEM = "item";
 
 	@Override
-	public void filterTrade(@Nonnull TradeData data, @Nonnull PendingSearch search) {
+	public void filterTrade(TradeData data, PendingSearch search) {
 		if(data instanceof ItemTradeData trade)
 		{
 			if (trade.isValid()) {
@@ -35,15 +34,14 @@ public class ItemTraderSearchFilter implements IBasicTraderFilter {
 					itemList.add(new ItemWithContext(trade.getBarterItem(1),null));
 				}
 				search.processFilter(ITEM,filterItemsWithContext(itemList));
+                search.processFilter(BasicSearchFilter.TOOLTIP,filterItemTooltipsWithContext(itemList));
 			}
 		}
 	}
 
 	public static Predicate<String> filterItems(List<ItemStack> items)
 	{
-		List<ItemWithContext> list = new ArrayList<>();
-		items.forEach(i -> list.add(new ItemWithContext(i,null)));
-		return filterItemsWithContext(list);
+		return filterItemsWithContext(items.stream().map(s -> new ItemWithContext(s,null)).toList());
 	}
 	public static Predicate<String> filterItemsWithContext(List<ItemWithContext> items)
 	{
@@ -60,6 +58,23 @@ public class ItemTraderSearchFilter implements IBasicTraderFilter {
 			return false;
 		};
 	}
+
+    public static Predicate<String> filterItemTooltips(List<ItemStack> items)
+    {
+        return input -> {
+            for(ItemStack stack : items)
+            {
+                if(ITradeSearchFilter.filterItemTooltips(stack,input))
+                    return true;
+            }
+            return false;
+        };
+    }
+
+    public static Predicate<String> filterItemTooltipsWithContext(List<ItemWithContext> items)
+    {
+        return filterItemTooltips(items.stream().map(ItemWithContext::item).toList());
+    }
 
 	public record ItemWithContext(ItemStack item, @Nullable String customName) { public boolean isEmpty() { return this.item.isEmpty(); }}
 

@@ -2,10 +2,11 @@ package io.github.lightman314.lightmanscurrency;
 
 import com.google.common.base.Suppliers;
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.ModRegistries;
@@ -21,7 +22,6 @@ import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.Ancien
 import io.github.lightman314.lightmanscurrency.common.items.colored.ColoredItem;
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.ItemLike;
@@ -306,13 +306,14 @@ public class ModCreativeGroups {
     public static void ezPop(CreativeModeTab.Output populator, ItemLike item) {
         populator.accept(item);
         //Check for variants
-        if(item.asItem() instanceof BlockItem be && be.getBlock() instanceof IVariantBlock vb && LightmansCurrency.getProxy().isClient())
+        IVariantItem itemVariant = VariantProvider.getVariantItem(item.asItem());
+        if(itemVariant != null && LightmansCurrency.getProxy().isClient())
         {
             List<Pair<ResourceLocation,ModelVariant>> foundVariants = new ArrayList<>();
-            for(ResourceLocation variantID : vb.getValidVariants())
+            for(ResourceLocation variantID : itemVariant.getValidVariants())
             {
                 ModelVariant variant = ModelVariantDataManager.getVariant(variantID);
-                if(variant != null && variant.getOrDefault(VariantProperties.SHOW_IN_CREATIVE).show())
+                if(variant != null && variant.getOrDefault(VariantProperties.SHOW_IN_CREATIVE).showFor(itemVariant))
                     foundVariants.add(Pair.of(variantID,variant));
             }
             if(!foundVariants.isEmpty())
@@ -321,13 +322,9 @@ public class ModCreativeGroups {
                 for(Pair<ResourceLocation,ModelVariant> entry : foundVariants)
                 {
                     ItemStack stack = new ItemStack(item);
-                    IVariantBlock.setItemVariant(stack,entry.getFirst());
-                    if(entry.getSecond().get(VariantProperties.SHOW_IN_CREATIVE).locked())
-                    {
-                        CompoundTag tag = stack.getOrCreateTag();
-                        tag.putBoolean("VariantLock",true);
-                        stack.setTag(tag);
-                    }
+                    IVariantItem.setItemVariant(stack,entry.getFirst());
+                    if(entry.getSecond().getOrDefault(VariantProperties.SHOW_IN_CREATIVE).locked())
+                        IVariantItem.setLocked(stack,true);
                     populator.accept(stack);
                 }
             }
@@ -345,7 +342,6 @@ public class ModCreativeGroups {
         for (ItemLike item : list) result.add(new ItemStack(item));
         return result;
     }
-
 
     public static final RegistryObject<CreativeModeTab> COIN_GROUP;
     public static final RegistryObject<CreativeModeTab> MACHINE_GROUP;

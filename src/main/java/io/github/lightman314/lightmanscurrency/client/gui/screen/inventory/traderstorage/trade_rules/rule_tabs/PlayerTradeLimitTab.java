@@ -10,12 +10,12 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.IntParser;
+import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextBoxWrapper;
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerTradeLimit;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
@@ -25,7 +25,7 @@ public class PlayerTradeLimitTab extends TradeRuleSubTab<PlayerTradeLimit> {
 
     public PlayerTradeLimitTab(@Nonnull TradeRulesClientTab<?> parent) { super(parent, PlayerTradeLimit.TYPE); }
 
-    EditBox limitInput;
+    TextBoxWrapper<Integer> limitInput;
     EasyButton buttonClearMemory;
 
     TimeInputWidget timeInput;
@@ -42,7 +42,7 @@ public class PlayerTradeLimitTab extends TradeRuleSubTab<PlayerTradeLimit> {
                 .parser(IntParser.ONE_TO_ONE_HUNDRED)
                 .handler(this::onLimitChanged)
                 .startingValue(rule == null ? 1 : rule.getLimit())
-                .build());
+                .wrap().build());
 
         this.buttonClearMemory = this.addChild(EasyTextButton.builder()
                 .position(screenArea.pos.offset(10,55))

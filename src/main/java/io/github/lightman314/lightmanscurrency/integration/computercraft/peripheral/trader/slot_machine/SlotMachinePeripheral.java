@@ -18,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.integration.computercraft.periphe
 import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -75,6 +76,15 @@ public class SlotMachinePeripheral extends TraderPeripheral<SlotMachineTraderBlo
         return this.wrapEntry(slot - 1).asTable(computer);
     }
 
+    public LCLuaTable getEntries(IComputerAccess computer) throws LuaException
+    {
+        SlotMachineTraderData trader = this.getTrader();
+        List<Object> results = new ArrayList<>();
+        for(int i = 0; i < trader.getAllEntries().size(); ++i)
+            results.add(this.wrapEntry(i).asTable(computer));
+        return LCLuaTable.fromList(results);
+    }
+
     public double getFailOdds() throws LuaException { return this.getTrader().getFailOdds(); }
 
     private SlotMachineEntryWrapper wrapEntry(int index) {
@@ -105,6 +115,7 @@ public class SlotMachinePeripheral extends TraderPeripheral<SlotMachineTraderBlo
         registration.register(LCPeripheralMethod.builder("getEntryCount").simple(this::getEntryCount));
         registration.register(LCPeripheralMethod.builder("getValidEntryCount").simple(this::getValidEntryCount));
         registration.register(LCPeripheralMethod.builder("getEntry").withContext(this::getEntry));
+        registration.register(LCPeripheralMethod.builder("getEntries").withContextOnly(this::getEntries));
         registration.register(LCPeripheralMethod.builder("getFailOdds").simple(this::getFailOdds));
     }
 }

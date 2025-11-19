@@ -13,6 +13,8 @@ import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.Sort
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.types.SortByName;
 import io.github.lightman314.lightmanscurrency.client.config.CustomItemScaleConfigOption;
 import io.github.lightman314.lightmanscurrency.client.config.CustomItemScaleData;
+import io.github.lightman314.lightmanscurrency.client.config.ItemTest;
+import io.github.lightman314.lightmanscurrency.client.config.ItemTestListOption;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenCorner;
 import io.github.lightman314.lightmanscurrency.common.config.BonusForEnchantmentListOption;
@@ -56,7 +58,8 @@ public final class LCConfig {
         private Client() { super(VersionUtil.lcResource("client"),"lightmanscurrency-client"); }
 
         public final IntOption itemRenderLimit = IntOption.create(Integer.MAX_VALUE, 0);
-        public final CustomItemScaleConfigOption itemScaleOverrides = CustomItemScaleConfigOption.create(new CustomItemScaleData(Lists.newArrayList(Pair.of(CustomItemScaleData.create(LCTags.Items.DRAW_HALF_SIZE),0.5f))));
+        public final CustomItemScaleConfigOption itemScaleOverrides = CustomItemScaleConfigOption.create(new CustomItemScaleData(Lists.newArrayList(Pair.of(ItemTest.create(LCTags.Items.DRAW_HALF_SIZE),0.5f))));
+        public final ItemTestListOption itemRenderBlacklist = ItemTestListOption.create(new ArrayList<>());
         public final BooleanOption drawGachaBallItem = BooleanOption.createTrue();
         public final BooleanOption gachaMachineFancyGraphics = BooleanOption.createTrue();
 
@@ -105,6 +108,10 @@ public final class LCConfig {
 
             builder.comment("A list of item ids or item tags that should be rendered by Item Traders at a different scale.")
                     .add("itemScaleOverrides",this.itemScaleOverrides);
+
+            builder.comment("A list of item ids or item tags that should not be rendered by Item Traders at all",
+                            "Use to hide high-poly item models from being rendered and lagging your game.")
+                    .add("itemRenderBlacklist",this.itemRenderBlacklist);
 
             builder.comment("Whether the Gacha Ball should render the item inside",
                             "Enabling will double the number of items being rendered, and can cause FPS issues near Gacha Machines if their fancy graphics are enabled")

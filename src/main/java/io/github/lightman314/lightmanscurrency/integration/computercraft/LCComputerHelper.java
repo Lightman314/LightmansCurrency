@@ -16,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTra
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.SlotMachineTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.TerminalBlock;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
@@ -23,6 +24,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDat
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.CashRegisterPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.TerminalPeripheral;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.atm.ATMPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.InputTraderPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.auction.AuctionHousePeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.gacha_machine.GachaMachinePeripheral;
@@ -150,7 +152,7 @@ public class LCComputerHelper {
             //Terminal
             BlockState state = level.getBlockState(blockPos);
             if(state.getBlock() instanceof TerminalBlock terminal)
-                return LazyOptional.of(TerminalPeripheral::new);
+                return TerminalPeripheral.LAZY;
             //Get true block entity from any multi-blocks
             BlockEntity be = level.getBlockEntity(blockPos);
             if(be instanceof CapabilityInterfaceBlockEntity cap)
@@ -165,10 +167,13 @@ public class LCComputerHelper {
             }
             //Auction Stands
             if(be instanceof AuctionStandBlockEntity ah && LCConfig.SERVER.auctionHouseEnabled.get())
-                return LazyOptional.of(() -> AuctionHousePeripheral.INSTANCE);
+                return AuctionHousePeripheral.LAZY;
             //Cash Register
             if(be instanceof CashRegisterBlockEntity cr)
                 return LazyOptional.of(() -> new CashRegisterPeripheral(cr));
+            //ATM
+            if(state.getBlock() == ModBlocks.ATM.get())
+                return ATMPeripheral.LAZY;
             return LazyOptional.empty();
         }
 

@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.api.capability.money.CapabilityMo
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.MixedCapabilityProvider;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletMoneyViewer;
@@ -63,7 +64,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class WalletItem extends Item{
+public class WalletItem extends Item implements IVariantItem {
 	
 	private static final SoundEvent emptyOpenSound = SoundEvents.ARMOR_EQUIP_LEATHER;
 
@@ -92,7 +93,14 @@ public class WalletItem extends Item{
 	public static ResourceLocation lazyModel(String itemID) { return lazyModel(VersionUtil.lcResource(itemID)); }
 	public static ResourceLocation lazyModel(ResourceLocation itemID) { return itemID.withPrefix("item/wallet_hip/"); }
 
-	/**
+    @Override
+    public int requiredModels() { return 1; }
+
+    @Nullable
+    @Override
+    public ResourceLocation getDefaultModel(int index) { return index == 0 ? this.model : null; }
+
+    /**
 	 * Simplified constructor for wallets using the <code>lightmanscurrency</code> namespace for their model
 	 */
 	public WalletItem(int storageSize, ResourceLocation model, Properties properties) { this(storageSize,model,false,0,DEFAULT_UPGRADE_LIMIT,SoundEntry.WALLET_DEFAULT,properties); }

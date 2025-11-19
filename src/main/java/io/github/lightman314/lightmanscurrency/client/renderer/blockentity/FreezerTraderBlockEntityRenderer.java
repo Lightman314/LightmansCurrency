@@ -68,7 +68,7 @@ public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<Fre
 			BakedModel model = mc.getModelManager().getModel(freezerBlock.getDoorModel());
 
 			//Get custom freezer door model
-			if(variant != null && variant.isValidTarget((Block)freezerBlock) && variant.getModels().size() == freezerBlock.requiredModels())
+			if(variant != null && variant.isValidTarget((Block)freezerBlock) && variant.getBlockModels().size() == freezerBlock.requiredModels())
 			{
 				VariantModelLocation newModel = VariantModelLocation.basic(blockEntity.getCurrentVariant(),freezerBlock.getBlockID(),freezerBlock.requiredModels() - 1);
 				model = ModelVariantDataManager.getModel(newModel);

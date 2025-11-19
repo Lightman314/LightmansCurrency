@@ -2,11 +2,13 @@ package io.github.lightman314.lightmanscurrency.integration.jeiplugin;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
-import io.github.lightman314.lightmanscurrency.common.blocks.variant.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
@@ -79,7 +81,7 @@ public class LCJeiPlugin implements IModPlugin{
 		VariantSubtype variantSubtype = new VariantSubtype();
 		for(Item item : ForgeRegistries.ITEMS)
 		{
-			if(item instanceof BlockItem be && be.getBlock() instanceof IVariantBlock)
+			if(VariantProvider.getVariantItem(item) != null)
 				registration.registerSubtypeInterpreter(item,variantSubtype);
 		}
         registration.registerSubtypeInterpreter(ModBlocks.SUS_JAR.get().asItem(),new SusJarSubtype());
@@ -147,7 +149,7 @@ public class LCJeiPlugin implements IModPlugin{
 	{
 		@Override
 		public String apply(ItemStack stack, UidContext uidContext) {
-			ResourceLocation variant = IVariantBlock.getItemVariant(stack);
+			ResourceLocation variant = IVariantItem.getItemVariant(stack);
 			return variant == null ? "" : variant.toString();
 		}
 	}

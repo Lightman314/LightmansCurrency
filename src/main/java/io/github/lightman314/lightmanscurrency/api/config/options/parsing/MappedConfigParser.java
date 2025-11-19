@@ -11,8 +11,8 @@ public class MappedConfigParser<X,T> implements ConfigParser<T> {
 
     private final ConfigParser<X> original;
     private final Function<T,X> write;
-    private final Function<X,T> read;
-    public MappedConfigParser(ConfigParser<X> original,Function<X,T> read,Function<T, X> write) {
+    private final ParsingFunction<X,T> read;
+    public MappedConfigParser(ConfigParser<X> original,ParsingFunction<X,T> read,Function<T, X> write) {
         this.original = original;
         this.read = read;
         this.write = write;

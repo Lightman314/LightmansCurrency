@@ -15,6 +15,8 @@ import io.github.lightman314.lightmanscurrency.api.events.client.RegisterVariant
 import io.github.lightman314.lightmanscurrency.client.gui.screen.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.config.MasterCoinListConfigOption;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.variant.BlockVariantSelectScreen;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.variant.ItemVariantSelectScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
@@ -119,7 +121,8 @@ public class ClientProxy extends CommonProxy{
 
 		MenuScreens.register(ModMenus.ATM_CARD.get(), ATMCardScreen::new);
 
-		MenuScreens.register(ModMenus.VARIANT_SELECT.get(), VariantSelectScreen::new);
+		MenuScreens.register(ModMenus.VARIANT_SELECT_BLOCK.get(), BlockVariantSelectScreen::new);
+		MenuScreens.register(ModMenus.VARIANT_SELECT_ITEM.get(), ItemVariantSelectScreen::new);
 
 		MenuScreens.register(ModMenus.ITEM_FILTER.get(), ItemFilterScreen::new);
 

@@ -1,7 +1,13 @@
 package io.github.lightman314.lightmanscurrency.util;
 
+import net.minecraft.MethodsReturnNonnullByDefault;
+
+import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.text.DecimalFormat;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class NumberUtil {
 
     public static String GetPrettyString(int count) { return new DecimalFormat().format(count); }
@@ -16,7 +22,8 @@ public class NumberUtil {
         return true;
     }
 
-    public static int GetIntegerValue(String text, int defaultValue)
+    @Nullable
+    public static Integer GetIntegerValue(String text, @Nullable Integer defaultValue)
     {
         if(IsInteger(text))
             return Integer.parseInt(text);
@@ -33,7 +40,8 @@ public class NumberUtil {
         return true;
     }
 
-    public static long GetLongValue(String text, long defaultValue)
+    @Nullable
+    public static Long GetLongValue(String text, @Nullable Long defaultValue)
     {
         if(IsLong(text))
             return Long.parseLong(text);
@@ -50,7 +58,8 @@ public class NumberUtil {
         return true;
     }
 
-    public static float GetFloatValue(String text, float defaultValue)
+    @Nullable
+    public static Float GetFloatValue(String text, @Nullable Float defaultValue)
     {
         if(IsFloat(text))
             return Float.parseFloat(text);
@@ -67,7 +76,8 @@ public class NumberUtil {
         return true;
     }
 
-    public static double GetDoubleValue(String text, double defaultValue)
+    @Nullable
+    public static Double GetDoubleValue(String text, @Nullable Double defaultValue)
     {
         if(IsDouble(text))
             return Double.parseDouble(text);

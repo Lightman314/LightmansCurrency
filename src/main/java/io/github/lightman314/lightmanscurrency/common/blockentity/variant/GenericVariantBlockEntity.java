@@ -5,6 +5,9 @@ import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+@ParametersAreNonnullByDefault
 public class GenericVariantBlockEntity extends EasyBlockEntity {
 
     public GenericVariantBlockEntity(BlockPos pos, BlockState state) { super(ModBlockEntities.GENERIC_VARIANT.get(), pos, state); }
