@@ -5,7 +5,6 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 public class ResourceParser implements Function<String,ResourceLocation> {
 
@@ -20,7 +19,7 @@ public class ResourceParser implements Function<String,ResourceLocation> {
             VersionUtil.parseResource(s);
             return true;
         } catch (ResourceLocationException ignored) { return false; }
-    };
+    }
 
     private final boolean requireNamespace;
     public ResourceParser(boolean requireNamespace) { this.requireNamespace = requireNamespace; }

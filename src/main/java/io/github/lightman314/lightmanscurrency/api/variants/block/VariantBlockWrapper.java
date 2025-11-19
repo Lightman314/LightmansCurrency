@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.api.variants.block;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -21,11 +20,6 @@ public class VariantBlockWrapper implements IVariantBlock {
     @Override
     public final ResourceLocation getBlockID() { return BuiltInRegistries.BLOCK.getKey(this.getBlock()); }
     @Override
-    public final ResourceLocation getItemID() {
-        Block b = this.getBlock();
-        if(b instanceof ItemLike item)
-            return BuiltInRegistries.ITEM.getKey(item.asItem());
-        return BuiltInRegistries.BLOCK.getKey(b);
-    }
+    public final ResourceLocation getItemID() { return BuiltInRegistries.ITEM.getKey(this.getBlock().asItem()); }
 
 }

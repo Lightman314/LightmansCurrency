@@ -317,7 +317,7 @@ public class ModCreativeGroups {
             for(ResourceLocation variantID : itemVariant.getValidVariants())
             {
                 ModelVariant variant = ModelVariantDataManager.getVariant(variantID);
-                if(variant != null && variant.getOrDefault(VariantProperties.SHOW_IN_CREATIVE).show())
+                if(variant != null && variant.getOrDefault(VariantProperties.SHOW_IN_CREATIVE).showFor(itemVariant))
                     foundVariants.add(Pair.of(variantID,variant));
             }
             if(!foundVariants.isEmpty())
@@ -327,7 +327,7 @@ public class ModCreativeGroups {
                 {
                     ItemStack stack = new ItemStack(item);
                     stack.set(ModDataComponents.MODEL_VARIANT,entry.getFirst());
-                    if(entry.getSecond().get(VariantProperties.SHOW_IN_CREATIVE).locked())
+                    if(entry.getSecond().getOrDefault(VariantProperties.SHOW_IN_CREATIVE).locked())
                         stack.set(ModDataComponents.VARIANT_LOCK, Unit.INSTANCE);
                     populator.accept(stack);
                 }

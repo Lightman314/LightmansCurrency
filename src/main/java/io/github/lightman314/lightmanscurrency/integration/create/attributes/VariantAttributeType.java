@@ -33,7 +33,7 @@ public class VariantAttributeType implements ItemAttributeType {
 
     @Override
     public List<ItemAttribute> getAllAttributes(ItemStack stack, Level level) {
-        if(VariantProvider.getVariantItem(stack.getItem()) != null)
+        if(VariantProvider.getVariantItem(stack) != null)
         {
             ResourceLocation variantID = stack.getOrDefault(ModDataComponents.MODEL_VARIANT,null);
             if(variantID != null)

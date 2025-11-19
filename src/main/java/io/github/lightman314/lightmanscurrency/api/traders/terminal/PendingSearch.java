@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.api.traders.terminal;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.MethodsReturnNonnullByDefault;
 
 import javax.annotation.Nullable;
