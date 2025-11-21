@@ -35,12 +35,12 @@ public final class FloatParser implements Function<String,Float>, Predicate<Stri
 
     @Override
     public boolean test(String s) {
-        if(NumberUtil.IsFloatOrEmpty(s))
+        if(NumberUtil.IsFloat(s))
         {
             float value = this.apply(s);
             return value >= this.minValue.get() && value <= this.maxValue.get();
         }
-        return false;
+        return s.isEmpty();
     }
 
     public static Builder builder() { return new Builder(); }

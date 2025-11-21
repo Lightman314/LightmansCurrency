@@ -25,7 +25,6 @@ import java.util.List;
 
 public class CoinValueInput extends MoneyInputHandler implements IScrollable {
 
-
     public static final int MAX_BUTTON_COUNT = 6;
 
     private static final int SEGMENT_WIDTH = 20;

@@ -101,7 +101,7 @@ public class TextInputUtil {
                 box.setFilter(this.filter);
             if(this.color != null)
                 box.setTextColor(this.color);
-            box.setResponder(s -> this.handler.accept(this.parser.apply(s)));
+            box.setResponder(stringResponder(this.handler,this.parser));
             box.setMaxLength(this.maxLength);
             box.setBordered(this.renderBG);
             return box;

@@ -35,12 +35,12 @@ public final class DoubleParser implements Function<String,Double>, Predicate<St
 
     @Override
     public boolean test(String s) {
-        if(NumberUtil.IsDoubleOrEmpty(s))
+        if(NumberUtil.IsDouble(s))
         {
             double value = this.apply(s);
             return value >= this.minValue.get() && value <= this.maxValue.get();
         }
-        return false;
+        return s.isEmpty();
     }
 
     public static Builder builder() { return new Builder(); }
