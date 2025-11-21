@@ -38,12 +38,12 @@ public final class IntParser implements Function<String,Integer>, Predicate<Stri
 
     @Override
     public boolean test(String s) {
-        if(NumberUtil.IsIntegerOrEmpty(s))
+        if(NumberUtil.IsInteger(s))
         {
             int value = this.apply(s);
             return value >= this.minValue.get() && value <= this.maxValue.get();
         }
-        return false;
+        return s.isEmpty();
     }
 
     public static class Builder

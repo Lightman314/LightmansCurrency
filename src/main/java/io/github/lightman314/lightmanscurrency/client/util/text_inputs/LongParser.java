@@ -35,12 +35,12 @@ public final class LongParser implements Function<String,Long>, Predicate<String
 
     @Override
     public boolean test(String s) {
-        if(NumberUtil.IsLongOrEmpty(s))
+        if(NumberUtil.IsLong(s))
         {
             long value = this.apply(s);
             return value >= this.minValue.get() && value <= this.maxValue.get();
         }
-        return false;
+        return s.isEmpty();
     }
 
     public static Builder builder() { return new Builder(); }

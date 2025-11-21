@@ -50,6 +50,7 @@ public abstract class SimpleDisplayInput extends MoneyInputHandler {
                 .width(MoneyValueWidget.WIDTH - 20 - prefixWidth - postfixWidth)
                 .apply(DoubleParser.builder()
                         .min(0d)
+                        .empty(0d)
                         .consumer())
                 .maxLength(this.maxLength())
                 .handler(this::onValueChanges)
