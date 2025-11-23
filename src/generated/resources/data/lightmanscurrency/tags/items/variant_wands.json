@@ -1,9 +1,5 @@
 {
   "values": [
-    "lightmanscurrency:variant_wand",
-    {
-      "id": "create:wrench",
-      "required": false
-    }
+    "lightmanscurrency:variant_wand"
   ]
 }
