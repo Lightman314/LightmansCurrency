@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.datagen.common.tags;
 
 import com.simibubi.create.AllBlocks;
-import com.simibubi.create.AllItems;
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
@@ -258,8 +257,6 @@ public class LCItemTagProvider extends ItemTagsProvider {
         //Create Items
         if(ModList.get().isLoaded("create"))
         {
-            this.cTag(LCTags.Items.VARIANT_WANDS)
-                    .addOptional(AllItems.WRENCH);
             this.cTag(LCTags.Items.SETTINGS_WRITABLE)
                     .addOptional(AllBlocks.CLIPBOARD);
             this.cTag(LCTags.Items.SETTINGS_READABLE)
