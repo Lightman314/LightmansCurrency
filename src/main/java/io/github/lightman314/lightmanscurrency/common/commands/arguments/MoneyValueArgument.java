@@ -31,7 +31,6 @@ public class MoneyValueArgument implements ArgumentType<MoneyValue> {
     private MoneyValueArgument(HolderLookup<Item> items) { this.items = items; }
 
     public static MoneyValueArgument argument(CommandBuildContext context) { return new MoneyValueArgument(context.lookupOrThrow(Registries.ITEM)); }
-    public static MoneyValueArgument safeArgument(RegisterCommandsEvent event) { return argument(event.getBuildContext()); }
 
     public static MoneyValue getMoneyValue(CommandContext<CommandSourceStack> commandContext, String name) throws CommandSyntaxException {
         return commandContext.getArgument(name, MoneyValue.class);

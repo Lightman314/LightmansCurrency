@@ -12,6 +12,7 @@ public class MutableCoreChain {
     @Nullable
     public Item rootItem;
     public final List<MutableCoinEntry> entries = new ArrayList<>();
+    public int entryCount() { return this.entries.size() + (this.rootItem != null ? 1 : 0); }
 
     public MutableCoreChain() { }
 

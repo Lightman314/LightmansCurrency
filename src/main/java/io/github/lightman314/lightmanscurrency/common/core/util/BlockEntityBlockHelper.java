@@ -8,12 +8,10 @@ import java.util.function.Supplier;
 
 import com.google.common.collect.Lists;
 
-import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 
@@ -61,16 +59,6 @@ public class BlockEntityBlockHelper {
 			}
 		}
 		return result.toArray(Block[]::new);
-	}
-
-	public static Block[] getVariantBlocks() {
-		List<Block> blocks = new ArrayList<>();
-		for(Block b : BuiltInRegistries.BLOCK)
-		{
-			if(VariantProvider.getVariantBlock(b) != null)
-				blocks.add(b);
-		}
-		return blocks.toArray(Block[]::new);
 	}
 
 	public static <T extends Block> void addBlockToBlockEntity(ResourceLocation beType, Supplier<T> blockSource) { addBlocksToBlockEntity(beType, Lists.newArrayList(blockSource)); }

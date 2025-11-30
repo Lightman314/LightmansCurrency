@@ -6,7 +6,6 @@ import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableRefere
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
 /**
@@ -17,7 +16,6 @@ public interface ITaxable extends IClientTracker {
     /**
      * The name of the taxable machine.
      */
-    @Nonnull
     MutableComponent getName();
 
     /**
@@ -25,19 +23,23 @@ public interface ITaxable extends IClientTracker {
      * Said TaxableReference should always point to this machine unless/until it has been removed, destroyed,
      * or otherwise modified in such a way that it cannnot be said to be the same machine.
      */
-    @Nonnull
     TaxableReference getReference();
 
     /**
      * The {@link WorldPosition} of this machine.<br>
      * Used by the {@link ITaxCollector} to determine if this machine is within its tax collection area.
      */
-    @Nonnull
     WorldPosition getWorldPosition();
+
+    /**
+     * Whether this taxable should be targeted by the server tax if it's "Only Target Network Traders" toggle is enabled<br>
+     * Defaults to false if not implemented
+     */
+    default boolean isNetworkAccessible() { return false; }
 
     /**
      * A method with which to manually post a notification to this machines logger (if one is present).
      */
-    void pushNotification(@Nonnull Supplier<Notification> notification);
+    void pushNotification(Supplier<Notification> notification);
 
 }

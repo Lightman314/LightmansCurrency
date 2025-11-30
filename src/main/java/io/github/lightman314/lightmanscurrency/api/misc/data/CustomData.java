@@ -11,7 +11,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 
-import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault
@@ -69,7 +68,7 @@ public abstract class CustomData implements IClientTracker, LazyPacketData.IBuil
     protected abstract void load(CompoundTag tag, HolderLookup.Provider lookup);
 
     /**
-     * Public method used to call {@link #parseSyncPacket(LazyPacketData, HolderLookup.Provider)}
+     * Public method used to call {@link #parseSyncPacket(LazyPacketData, HolderLookup.Provider)}<br>
      * Called on the logical client. Has a check to confirm that this is in-fact the client-sided data before parsing the packet.
      * @param message The message sent from the server to sync the data with your client
      */
@@ -113,7 +112,7 @@ public abstract class CustomData implements IClientTracker, LazyPacketData.IBuil
     /**
      * Use to send sync packets from this data to it's client-side counter-parts.<br>
      * Will not send a packet if run from the logical client.<br>
-     * Only sends the packet to given player. Use {@link #sendSyncPacket(LazyPacketData.Builder,)} to send to all players<br>
+     * Only sends the packet to given player. Use {@link #sendSyncPacket(LazyPacketData.Builder)} to send to all players<br>
      * Packets will be handled client-side by {@link #parseSyncPacket(LazyPacketData, HolderLookup.Provider)}
      */
     public final void sendSyncPacket(LazyPacketData.Builder builder,ServerPlayer player) {
@@ -127,7 +126,6 @@ public abstract class CustomData implements IClientTracker, LazyPacketData.IBuil
      */
     public final void setChanged() { this.setChanged.run(); }
 
-    @Nonnull
     @Override
     public final LazyPacketData.Builder builder() { return LazyPacketData.builder(LookupHelper.getRegistryAccess()); }
 

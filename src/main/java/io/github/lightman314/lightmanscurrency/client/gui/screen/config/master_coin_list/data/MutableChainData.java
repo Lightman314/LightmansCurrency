@@ -29,12 +29,11 @@ public class MutableChainData {
         this.chain = newChain;
         this.parent.getData().put(this.chain,this);
     }
-    public boolean isEvent = false;
     public Component displayName = EasyText.empty();
+    public boolean isEvent = false;
     public CoinInputType inputType = CoinInputType.DEFAULT;
     public ValueDisplayData displayData = null;
     public final MutableATMData atmData = new MutableATMData();
-
     public final MutableCoreChain coreChain = new MutableCoreChain();
     public final List<MutableSideChain> sideChains = new ArrayList<>();
 
@@ -42,8 +41,8 @@ public class MutableChainData {
     public MutableChainData(MutableMasterCoinList parent,ChainData original)
     {
         this(parent, original.chain);
-        this.isEvent = original.isEvent;
         this.displayName = original.getDisplayName();
+        this.isEvent = original.isEvent;
         this.inputType = original.getInputType();
         this.displayData = original.getDisplayData();
         this.atmData.copyFrom(original.getAtmData());

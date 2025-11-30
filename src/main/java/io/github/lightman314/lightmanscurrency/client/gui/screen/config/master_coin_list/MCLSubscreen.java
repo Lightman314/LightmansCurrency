@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.config.master_c
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +20,14 @@ public abstract class MCLSubscreen extends ConfigScreen {
         super(parentScreen);
         this.root = rootScreen;
     }
+    public MCLSubscreen(MCLSubscreen parentScreen)
+    {
+        super(parentScreen);
+        this.root = parentScreen.root;
+    }
 
+    @Nullable
+    public final MutableChainData createChain(String chainKey) { return this.root.createChain(chainKey); }
     public final Map<String,MutableChainData> getData() { return this.root.getData(); }
     protected final boolean canEdit() { return MasterCoinListConfigOption.INSTANCE.canEdit(this.minecraft); }
 

@@ -6,8 +6,8 @@ import io.github.lightman314.lightmanscurrency.api.misc.blocks.IDeepBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.ITallBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IWideBlock;
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
-import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVariantSupportingBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.block.block_entity.IVariantDataStorage;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockValidator;
@@ -61,15 +61,16 @@ public class BlockVariantSelectMenu extends VariantSelectMenu {
     @Override
     protected void changeVariant(@Nullable ResourceLocation variant) {
         BlockEntity blockEntity = this.level.getBlockEntity(this.pos);
-        if(this.level.getBlockEntity(this.pos) instanceof IVariantSupportingBlockEntity be)
+        IVariantDataStorage data = IVariantDataStorage.get(this.level,this.pos);
+        if(data != null)
         {
-            if(be.isVariantLocked() && !this.player.isCreative())
+            if(data.isVariantLocked() && !this.player.isCreative())
             {
                 LightmansCurrency.LogDebug(this.player.getName().getString() + " attempted to change the variant of a locked block!");
                 return;
             }
             //Set Variant in the Block Entity
-            be.setVariant(variant);
+            data.setVariant(variant);
             //Update Block State to match variant data presence
             updateVariantState(this.level,this.pos,variant != null);
             //Close the container
@@ -156,8 +157,9 @@ public class BlockVariantSelectMenu extends VariantSelectMenu {
 
     @Nullable
     public ResourceLocation getSelectedVariant() {
-        if(this.level.getBlockEntity(this.pos) instanceof IVariantSupportingBlockEntity be)
-            return be.getCurrentVariant();
+        IVariantDataStorage data = IVariantDataStorage.get(this.level,this.pos);
+        if(data != null)
+            return data.getCurrentVariant();
         return null;
     }
 

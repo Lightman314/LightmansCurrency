@@ -68,7 +68,6 @@ public abstract class ConfigScreen extends EasyScreen {
         //Render the rest of the background
         this.renderAdditionalBG(gui);
 
-
     }
 
     @Override

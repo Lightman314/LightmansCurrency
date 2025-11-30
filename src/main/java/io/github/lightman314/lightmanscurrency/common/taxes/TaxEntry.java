@@ -30,6 +30,7 @@ import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableRefere
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -38,14 +39,16 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class TaxEntry implements ITaxCollector {
 
     public static final long SERVER_TAX_ID = -9;
@@ -66,16 +69,14 @@ public class TaxEntry implements ITaxCollector {
 
     private boolean isClient = false;
     public final boolean isClient() { return this.isClient; }
-    @Nonnull
     public final TaxEntry flagAsClient() { this.isClient = true; this.logger.flagAsClient(); return this.unlock(); }
 
     public final boolean isServerEntry() { return this.id == SERVER_TAX_ID; }
 
     private WorldPosition center = WorldPosition.VOID;
     public WorldPosition getCenter() { return this.center; }
-    public void moveCenter(@Nonnull WorldPosition newPosition) { if(this.center.equals(newPosition)) return; this.center = newPosition; this.markCenterDirty(); }
+    public void moveCenter(WorldPosition newPosition) { if(this.center.equals(newPosition)) return; this.center = newPosition; this.markCenterDirty(); }
     @Override
-    @Nonnull
     public WorldArea getArea() { return this.isInfiniteRange() ? WorldArea.ofInfiniteRange(this.center) : this.center.getArea(this.getRadius(), this.getHeight(), this.getVertOffset()); }
 
     private int radius = 10;
@@ -140,16 +141,16 @@ public class TaxEntry implements ITaxCollector {
     public boolean hasCustomName() { return !this.name.isBlank(); }
     public String getCustomName() { return this.name; }
     @Override
-    @Nonnull
+    
     public MutableComponent getName() { if(this.name.isBlank()) return this.getDefaultName(); return EasyText.literal(this.name); }
     public void setName(String name) { this.name = name; this.markNameDirty(); }
     protected MutableComponent getDefaultName() { return LCText.GUI_TAX_COLLECTOR_DEFAULT_NAME.get(this.isServerEntry() ? LCText.GUI_TAX_COLLECTOR_DEFAULT_NAME_SERVER.get() : this.owner.getName()); }
 
     private final OwnerData owner = new OwnerData(this, this::markOwnerDirty);
     @Override
-    @Nonnull
+    
     public OwnerData getOwner() { return this.owner; }
-    public final boolean canAccess(@Nonnull Player player) { if(this.isServerEntry()) return player.hasPermissions(2); return this.owner.isMember(player); }
+    public final boolean canAccess(Player player) { if(this.isServerEntry()) return player.hasPermissions(2); return this.owner.isMember(player); }
 
     //Stored Money
     private final MoneyStorage storedMoney = new MoneyStorage(this::markStoredMoneyDirty);
@@ -167,8 +168,8 @@ public class TaxEntry implements ITaxCollector {
     }
     public void clearStoredMoney() { this.storedMoney.clear(); }
 
-    @Nonnull
-    public final MoneyValue CalculateAndPayTaxes(@Nonnull ITaxable taxable, @Nonnull MoneyValue taxableAmount)
+    
+    public final MoneyValue CalculateAndPayTaxes(ITaxable taxable, MoneyValue taxableAmount)
     {
         MoneyValue amountToPay = taxableAmount.percentageOfValue(this.getTaxRate());
         if(!amountToPay.isEmpty())
@@ -180,7 +181,7 @@ public class TaxEntry implements ITaxCollector {
         return amountToPay;
     }
 
-    public final void PayTaxesDirectly(@Nullable ITaxable taxable, @Nonnull MoneyValue taxes)
+    public final void PayTaxesDirectly(@Nullable ITaxable taxable, MoneyValue taxes)
     {
         if(!taxes.isEmpty())
         {
@@ -224,7 +225,7 @@ public class TaxEntry implements ITaxCollector {
     //Ignored if this is an Admin Tax
     private final List<TaxableReference> acceptedEntries = new ArrayList<>();
     public final List<TaxableReference> getAcceptedEntries() { return ImmutableList.copyOf(this.acceptedEntries); }
-    public final void AcceptTaxable(@Nonnull ITaxable entry) {
+    public final void AcceptTaxable(ITaxable entry) {
         TaxableReference reference = entry.getReference();
         if(!this.acceptedEntries.contains(reference) && reference != null)
         {
@@ -232,7 +233,7 @@ public class TaxEntry implements ITaxCollector {
             this.markAcceptedEntriesDirty();
         }
     }
-    public final void TaxableWasRemoved(@Nonnull ITaxable entry)
+    public final void TaxableWasRemoved(ITaxable entry)
     {
         TaxableReference reference = entry.getReference();
         if(this.acceptedEntries.contains(reference))
@@ -243,9 +244,18 @@ public class TaxEntry implements ITaxCollector {
     }
 
     //Whether this Tax Entry applies to a trader at the given position
-    public boolean ShouldTax(@Nonnull ITaxable taxable) { return this.IsInArea(taxable) && (this.forcesAcceptance() || this.acceptedEntries.contains(taxable.getReference())); }
+    public boolean ShouldTax(ITaxable taxable) { return this.IsInArea(taxable) && (this.forcesAcceptance() || this.acceptedEntries.contains(taxable.getReference())); }
 
-    public boolean IsInArea(@Nonnull ITaxable taxable) { return this.isActive() && this.getArea().isInArea(taxable.getWorldPosition()); }
+    public boolean IsInArea(ITaxable taxable) {
+        return this.isActive() && this.getArea().isInArea(taxable.getWorldPosition()) && this.testNetworkTaxable(taxable);
+    }
+
+    private boolean testNetworkTaxable(ITaxable taxable)
+    {
+        if(this.isServerEntry() && this.onlyTargetNetwork)
+            return taxable.isNetworkAccessible();
+        return true;
+    }
 
     private long id = -1;
     public long getID() { return this.id; }
@@ -268,6 +278,9 @@ public class TaxEntry implements ITaxCollector {
     private boolean infiniteRange = false;
     public boolean isInfiniteRange() { return this.infiniteRange || this.isServerEntry(); }
     public void setInfiniteRange(boolean infiniteRange) { if(this.isServerEntry()) return; this.infiniteRange = infiniteRange; this.markAdminStateDirty(); }
+    private boolean onlyTargetNetwork = false;
+    public boolean isOnlyTargetingNetwork() { return this.isServerEntry() && this.onlyTargetNetwork; }
+    public void setOnlyTargetingNetwork(boolean newValue) { if(this.isServerEntry()) { this.onlyTargetNetwork = newValue; this.markAdminStateDirty(); } }
 
     protected final void markDirty(CompoundTag packet) { if(this.locked || this.isClient) return; TaxDataCache.TYPE.get(false).markEntryDirty(this.id,packet); }
     protected final void markDirty(Function<CompoundTag,CompoundTag> packet) { this.markDirty(packet.apply(new CompoundTag()));}
@@ -282,13 +295,13 @@ public class TaxEntry implements ITaxCollector {
         this.owner.SetOwner(owner != null ? PlayerOwner.of(owner) : FakeOwner.of("NULL"));
     }
 
-    public final void openMenu(@Nonnull Player player, @Nonnull MenuValidator validator)
+    public final void openMenu(Player player, MenuValidator validator)
     {
         if(this.canAccess(player))
             player.openMenu(new TaxCollectorMenuProvider(this.id, validator), EasyMenu.encoder(d -> d.writeLong(this.id), validator));
     }
 
-    public CompoundTag save(@Nonnull HolderLookup.Provider lookup)
+    public CompoundTag save(HolderLookup.Provider lookup)
     {
         CompoundTag tag = new CompoundTag();
         tag.putLong("ID", this.id);
@@ -311,6 +324,8 @@ public class TaxEntry implements ITaxCollector {
             this.saveAcceptedEntries(tag);
             this.saveBankState(tag);
         }
+        else //This data is exclusive to the server entry
+            this.saveServerOptions(tag);
 
         return tag;
     }
@@ -352,13 +367,13 @@ public class TaxEntry implements ITaxCollector {
 
     public final void markOwnerDirty() { this.markDirty(this::saveOwner); }
 
-    protected final CompoundTag saveOwner(CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
+    protected final CompoundTag saveOwner(CompoundTag tag, HolderLookup.Provider lookup) {
         tag.put("Owner", this.owner.save(lookup));
         return tag;
     }
 
     public final void markStoredMoneyDirty() { this.markDirty(this::saveStoredMoney); }
-    protected final CompoundTag saveStoredMoney(CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
+    protected final CompoundTag saveStoredMoney(CompoundTag tag, HolderLookup.Provider lookup) {
         tag.put("StoredMoney", this.storedMoney.save());
         return tag;
     }
@@ -366,8 +381,8 @@ public class TaxEntry implements ITaxCollector {
     public final void markAdminStateDirty() { this.markDirty(this::saveAdminState); }
 
     protected final CompoundTag saveAdminState(CompoundTag tag) {
-        tag.putBoolean("ForceAcceptance", this.forceAcceptance);
-        tag.putBoolean("IsInfiniteRange", this.infiniteRange);
+        tag.putBoolean("ForceAcceptance",this.forceAcceptance);
+        tag.putBoolean("IsInfiniteRange",this.infiniteRange);
         return tag;
     }
 
@@ -389,14 +404,14 @@ public class TaxEntry implements ITaxCollector {
     }
 
     public final void markNotificationsDirty() { this.markDirty(this::saveNotifications); }
-    protected final CompoundTag saveNotifications(CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
+    protected final CompoundTag saveNotifications(CompoundTag tag, HolderLookup.Provider lookup)
     {
         tag.put("Notifications", this.logger.save(lookup));
         return tag;
     }
 
     public final void markStatsDirty() { this.markDirty(this::saveStats); }
-    protected final CompoundTag saveStats(CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
+    protected final CompoundTag saveStats(CompoundTag tag, HolderLookup.Provider lookup)
     {
         tag.put("Statistics", this.stats.save(lookup));
         return tag;
@@ -409,7 +424,14 @@ public class TaxEntry implements ITaxCollector {
         return tag;
     }
 
-    public void load(CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
+    public final void markServerOptionsDirty() { this.markDirty(this::saveServerOptions); }
+    protected final CompoundTag saveServerOptions(CompoundTag tag)
+    {
+        tag.putBoolean("OnlyTargetNetwork",this.onlyTargetNetwork);
+        return tag;
+    }
+
+    public void load(CompoundTag tag, HolderLookup.Provider lookup)
     {
         if(tag.contains("ID"))
             this.id = tag.getLong("ID");
@@ -435,6 +457,8 @@ public class TaxEntry implements ITaxCollector {
             this.forceAcceptance = tag.getBoolean("ForceAcceptance");
         if(tag.contains("IsInfiniteRange"))
             this.infiniteRange = tag.getBoolean("IsInfiniteRange");
+        if(tag.contains("OnlyTargetNetwork"))
+            this.onlyTargetNetwork = tag.getBoolean("OnlyTargetNetwork");
         if(tag.contains("IsActivated"))
             this.active = tag.getBoolean("IsActivated");
         if(tag.contains("AcceptedEntries"))

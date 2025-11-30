@@ -1,10 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.loot;
 
 import com.mojang.serialization.MapCodec;
+import io.github.lightman314.lightmanscurrency.api.variants.block.loot.VariantDataModifier;
 import io.github.lightman314.lightmanscurrency.common.core.ModRegistries;
-import io.github.lightman314.lightmanscurrency.common.loot.glm.CoinsInChestsModifier;
-import io.github.lightman314.lightmanscurrency.common.loot.glm.BonusItemModifier;
-import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
+import io.github.lightman314.lightmanscurrency.common.loot.glm.*;
 
 import java.util.function.Supplier;
 
@@ -16,10 +15,12 @@ public class LootModifiers {
 		
 		COINS_IN_CHESTS = ModRegistries.GLOBAL_LOOT_MODIFIERS.register("coins_in_chests", () -> CoinsInChestsModifier.SERIALIZER);
 		BONUS_ITEM = ModRegistries.GLOBAL_LOOT_MODIFIERS.register("bonus_item", () -> BonusItemModifier.CODEC);
+		MODEL_VARIANT = ModRegistries.GLOBAL_LOOT_MODIFIERS.register("model_variant", () -> VariantDataModifier.CODEC);
 
 	}
 	
-	public static final Supplier<MapCodec<? extends IGlobalLootModifier>> COINS_IN_CHESTS;
-	public static final Supplier<MapCodec<? extends IGlobalLootModifier>> BONUS_ITEM;
-	
+	public static final Supplier<MapCodec<CoinsInChestsModifier>> COINS_IN_CHESTS;
+	public static final Supplier<MapCodec<BonusItemModifier>> BONUS_ITEM;
+	public static final Supplier<MapCodec<VariantDataModifier>> MODEL_VARIANT;
+
 }

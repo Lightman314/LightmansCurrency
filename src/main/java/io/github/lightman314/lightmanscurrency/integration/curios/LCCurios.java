@@ -6,6 +6,7 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameRules;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
 
@@ -48,10 +49,23 @@ public class LCCurios {
     @Nullable
     public static ItemStack getRandomItem(LivingEntity entity, Predicate<ItemStack> check) { return isLoaded() ? LCCuriosInternal.getRandomItem(entity,check) : null; }
 
+    public static DropRule getWalletDropRules(LivingEntity entity) {
+        if(isLoaded())
+            return LCCuriosInternal.getWalletDropRules(entity);
+        return DropRule.DEFAULT;
+    }
+
     public static void setup(IEventBus modBus)
     {
         if(isLoaded())
             LCCuriosInternal.setup(modBus);
+    }
+
+    //Non-curios enabled
+    public enum DropRule {
+        DEFAULT, KEEP, DROP, DESTROY;
+        public boolean shouldKeep(LivingEntity entity) { return this == KEEP || (this == DEFAULT && entity.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)); }
+        public boolean shouldDestroy() { return this == DESTROY; }
     }
 
 }

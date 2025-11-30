@@ -38,7 +38,6 @@ public class BonusItemModifier implements IGlobalLootModifier {
     @Nonnull
     @Override
     public ObjectArrayList<ItemStack> apply(@Nonnull ObjectArrayList<ItemStack> generatedLoot, @Nonnull LootContext context) {
-
         String lootTable = context.getQueriedLootTableId().toString();
         if(this.targets.contains(lootTable) && context.getRandom().nextFloat() < this.odds)
             generatedLoot.add(new ItemStack(this.item));

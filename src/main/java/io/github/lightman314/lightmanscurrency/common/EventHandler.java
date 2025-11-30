@@ -26,6 +26,7 @@ import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.variant.ItemVariantSelectMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.message.event.SPacketSyncEventUnlocks;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
 
@@ -43,7 +44,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
@@ -239,14 +239,22 @@ public class EventHandler {
 			{
 
 				boolean keepWallet = ModGameRules.safeGetCustomBool(player.level(), ModGameRules.KEEP_WALLET, false);
-				//If curios isn't also installed, assume keep inventory will also enforce the keepWallet rule
-				if(player.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY))
-					keepWallet = true;
+                boolean destroyWallet = false;
+                if(!keepWallet)
+                {
+                    //Look up alternative reasons to keep the wallet equipped
+                    //Note: If curios is not installed, will return the "DEFAULT" drop rule which will obey the vanilla keepInventory game rule
+                    LCCurios.DropRule dropRule = LCCurios.getWalletDropRules(player);
+                    if(dropRule.shouldDestroy())
+                        destroyWallet = true;
+                    else //Wallet cannot be flagged as "kept" if it's also flagged as being destroyed
+                        keepWallet = dropRule.shouldKeep(player);
+                }
 
 				int coinDropPercent = ModGameRules.safeGetCustomInt(player.level(), ModGameRules.COIN_DROP_PERCENT, 0);
 
 				//Post the Wallet Drop Event
-				WalletDropEvent wde = new WalletDropEvent(player, walletHandler, event.getSource(), keepWallet, coinDropPercent);
+				WalletDropEvent wde = new WalletDropEvent(player, walletHandler, event.getSource(), keepWallet, destroyWallet, coinDropPercent);
 				if(NeoForge.EVENT_BUS.post(wde).isCanceled())
 					return;
 
@@ -286,6 +294,11 @@ public class EventHandler {
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public static void onWalletDrop(@Nonnull WalletDropEvent event)
 	{
+        if(event.destroyWallet)
+        {
+            event.setWalletStack(ItemStack.EMPTY);
+            event.setDrops(new ArrayList<>());
+        }
 		if(event.keepWallet) //Keep the wallet, but drop the wallets contents
 		{
 			//Spawn the coin drops
@@ -366,6 +379,16 @@ public class EventHandler {
             account.tick();
         filler.pop();
 	}
+
+    @SubscribeEvent
+    public static void playerJoined(PlayerEvent.PlayerLoggedInEvent event)
+    {
+        if(event.getEntity() instanceof ServerPlayer player)
+        {
+            for(IBankAccount account : BankAPI.getApi().GetAllBankAccounts(false))
+                account.onPlayerJoined(player);
+        }
+    }
 
 	@SubscribeEvent
 	public static void treeGrowEvent(BlockGrowFeatureEvent event)

@@ -7,7 +7,6 @@ import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public interface ITaxCollector extends IClientTracker {
@@ -26,7 +25,6 @@ public interface ITaxCollector extends IClientTracker {
     /**
      * The effective area of the Tax Collector.
      */
-    @Nonnull
     WorldArea getArea();
 
     /**
@@ -37,41 +35,39 @@ public interface ITaxCollector extends IClientTracker {
     /**
      * The tax collectors name.
      */
-    @Nonnull
     MutableComponent getName();
 
     /**
      * The owner of this tax collector.
      */
-    @Nonnull
     OwnerData getOwner();
 
     /**
      * Whether the given player is allowed to access this tax collectors menus.
      */
-    boolean canAccess(@Nonnull Player player);
+    boolean canAccess(Player player);
 
     /**
      * Whether this tax collector will tax the given {@link ITaxable Taxable} machine.
      */
-    boolean ShouldTax(@Nonnull ITaxable taxable);
+    boolean ShouldTax(ITaxable taxable);
 
     /**
      * Whether the given {@link ITaxable} machine is within this tax collectors effective area.
      */
-    boolean IsInArea(@Nonnull ITaxable taxable);
+    boolean IsInArea(ITaxable taxable);
 
     /**
      * Flags the given {@link ITaxable Taxable} Machine as giving consent to being taxed by this tax collector.<br>
      * Required for {@link #ShouldTax(ITaxable)} to accept the given machine.
      */
-    void AcceptTaxable(@Nonnull ITaxable taxable);
+    void AcceptTaxable(ITaxable taxable);
 
     /**
      * Flags the given {@link ITaxable Taxable} Machine as removed from the world.<br>
      * Can also be used to remove the consent to be taxed by this tax collector, but that's not how tax collectors are designed to work.
      */
-    void TaxableWasRemoved(@Nonnull ITaxable taxable);
+    void TaxableWasRemoved(ITaxable taxable);
 
     /**
      * Calculates the taxes to be paid on the given monetary amount, and collects it.<br>
@@ -81,8 +77,7 @@ public interface ITaxCollector extends IClientTracker {
      * @param taxableAmount The amount of money to be taxed.
      * @return The amount of taxes that were collected by the tax collector.
      */
-    @Nonnull
-    MoneyValue CalculateAndPayTaxes(@Nonnull ITaxable taxable, @Nonnull MoneyValue taxableAmount);
+    MoneyValue CalculateAndPayTaxes(ITaxable taxable, MoneyValue taxableAmount);
 
     /**
      * Pays a pre-calculated amount of taxes to this tax collector<br>
@@ -91,6 +86,6 @@ public interface ITaxCollector extends IClientTracker {
      * @param taxable The taxable machine that is paying the taxes. May be <code>null</code>
      * @param taxes The amount of taxes to be paid to the tax collector.
      */
-    void PayTaxesDirectly(@Nullable ITaxable taxable, @Nonnull MoneyValue taxes);
+    void PayTaxesDirectly(@Nullable ITaxable taxable, MoneyValue taxes);
 
 }

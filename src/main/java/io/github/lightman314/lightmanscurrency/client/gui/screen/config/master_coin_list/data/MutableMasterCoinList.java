@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.config.MasterCoinListConfigOption;
 import net.minecraft.client.Minecraft;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,11 +14,14 @@ public class MutableMasterCoinList {
     private final Map<String, MutableChainData> data;
     public Map<String,MutableChainData> getData() { return this.data; }
 
-    public void createChain(String newChain)
+    @Nullable
+    public MutableChainData createChain(String newChain)
     {
         if(this.data.containsKey(newChain))
-            return;
-        this.data.put(newChain,new MutableChainData(this,newChain));
+            return null;
+        MutableChainData data = new MutableChainData(this,newChain);
+        this.data.put(newChain,data);
+        return data;
     }
 
     public final boolean canEdit() { return MasterCoinListConfigOption.INSTANCE.canEdit(Minecraft.getInstance()); }
@@ -31,7 +35,5 @@ public class MutableMasterCoinList {
         for(ChainData chain : CoinAPI.getApi().AllChainData())
             this.data.put(chain.chain,new MutableChainData(this,chain));
     }
-
-
 
 }

@@ -3,18 +3,12 @@ package io.github.lightman314.lightmanscurrency.api.misc.data;
 import io.github.lightman314.lightmanscurrency.common.data.ClientCustomDataCache;
 import io.github.lightman314.lightmanscurrency.common.data.CustomSaveData;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-@FieldsAreNonnullByDefault
 public final class CustomDataType<T extends CustomData> {
 
     public final String fileName;

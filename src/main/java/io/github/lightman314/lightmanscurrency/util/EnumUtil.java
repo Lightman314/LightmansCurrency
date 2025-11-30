@@ -18,6 +18,18 @@ public class EnumUtil {
 		},Enum::toString);
 	}
 
+    public static <T extends Enum<?>> T nextEnum(T value)
+    {
+        T[] allValues = (T[])value.getClass().getEnumConstants();
+        return enumFromOrdinal(value.ordinal() + 1,allValues,allValues[0]);
+    }
+
+    public static <T extends Enum<?>> T previousEnum(T value)
+    {
+        T[] allValues = (T[])value.getClass().getEnumConstants();
+        return enumFromOrdinal(value.ordinal() - 1, allValues, allValues[allValues.length - 1]);
+    }
+
 	public static <T extends Enum<?>> T enumFromOrdinal(int ordinal, T[] allValues, T defaultValue)
 	{
 		for(T val : allValues)

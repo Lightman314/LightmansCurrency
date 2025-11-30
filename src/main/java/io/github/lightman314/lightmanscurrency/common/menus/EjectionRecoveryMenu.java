@@ -7,10 +7,10 @@ import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.api.ejection.SafeEjectionAPI;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedContainer;
+import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.OutputSlot;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
@@ -20,8 +20,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-
-import javax.annotation.Nonnull;
 
 public class EjectionRecoveryMenu extends LazyMessageMenu {
 
@@ -93,7 +91,7 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 	}
 
 	@Override
-	public void HandleMessage(@Nonnull LazyPacketData message) {
+	public void HandleMessage(LazyPacketData message) {
 		if(message.contains("ChangeSelection", LazyPacketData.TYPE_INT))
 			this.changeSelection(message.getInt("ChangeSelection"));
 		if(message.contains("SelectionChanged"))
@@ -102,8 +100,8 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 			this.splitSelectedData();
 	}
 
-	@Nonnull
-	public ItemStack quickMoveStack(@Nonnull Player player, int slotIndex) {
+	
+	public ItemStack quickMoveStack(Player player, int slotIndex) {
 	      ItemStack itemstack = ItemStack.EMPTY;
 	      Slot slot = this.slots.get(slotIndex);
 	      if (slot != null && slot.hasItem()) {
@@ -128,7 +126,7 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
    }
 	
 	@Override
-	public void removed(@Nonnull Player player) {
+	public void removed(Player player) {
 		super.removed(player);
 		//Clear the dummy container for safety.
 		this.clearContainer(player, this.dummyContainer);
@@ -171,14 +169,10 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 		}
 	}
 	
-	private static class Provider implements MenuProvider {
+	private static class Provider implements EasyMenuProvider {
 
 		@Override
-		public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) { return new EjectionRecoveryMenu(id, inventory); }
-
-		@Nonnull
-		@Override
-		public Component getDisplayName() { return Component.empty(); }
+		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) { return new EjectionRecoveryMenu(id, inventory); }
 		
 	}
 	

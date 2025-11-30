@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
+import io.github.lightman314.lightmanscurrency.api.money.coins.data.CoinInputType;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplayData;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.InteractionType;
@@ -597,6 +598,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_TAX_COLLECTOR_ADMIN,"Admin Settings");
         this.translate(LCText.GUI_TAX_COLLECTOR_FORCE_ACCEPTANCE,"Force Acceptance");
         this.translate(LCText.GUI_TAX_COLLECTOR_INFINITE_RANGE,"Infinite Range");
+        this.translate(LCText.TOOLTIP_TAX_COLLECTOR_SERVER_SETTINGS,"Server TC Settings");
+        this.translate(LCText.GUI_TAX_COLLECTOR_ONLY_TARGET_NETWORK,"Only Target Network Objects");
         this.translate(LCText.GUI_TAX_COLLECTOR_TAXABLE_ACCEPT_COLLECTOR,"Accept");
         this.translate(LCText.TOOLTIP_TAX_COLLECTOR_TAXABLE_FORCE_IGNORE,"Ignore this Tax Collector!");
         this.translate(LCText.TOOLTIP_TAX_COLLECTOR_TAXABLE_PARDON_IGNORED,"Stop ignoring this Tax Collector!");
@@ -1455,6 +1458,19 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.CONFIG_MCL_LABEL,"Master Coin List");
         this.translate(LCText.CONFIG_MCL_EXIT_WITHOUT_SAVING,"Exit w/o Saving");
         this.translate(LCText.CONFIG_MCL_SAVE_CHANGES,"Save Changes");
+        this.translate(LCText.CONFIG_MCL_CHAIN_SELECT_CHAIN_INFO,"Chain Key: %1$s","Core Chain Entries: %2$s","Side Chains: %3$s","Event Chain: %4$s");
+        this.translate(LCText.CONFIG_MCL_CHAIN_SELECT_NEW_CHAIN,"Create New Coin Chain");
+        this.translate(LCText.CONFIG_MCL_CHAIN_EDIT_DELETE_CHAIN,"Delete Coin Chain");
+        this.translate(LCText.CONFIG_MCL_CHAIN_EDIT_CHAIN_ID,"Chain ID");
+        this.translate(LCText.CONFIG_MCL_CHAIN_EDIT_DISPLAY_NAME,"Display Name");
+        this.translate(LCText.CONFIG_MCL_CHAIN_EDIT_EVENT_CHAIN,"Event Chain: %s");
+        this.translate(LCText.CONFIG_MCL_CHAIN_EDIT_INPUT_TYPE,"Input Type: %s");
+        this.translate(LCText.CONFIG_MCL_CHAIN_EDIT_INPUT_TYPE_VALUES.get(CoinInputType.DEFAULT),"Default");
+        this.translate(LCText.CONFIG_MCL_CHAIN_EDIT_INPUT_TYPE_VALUES.get(CoinInputType.TEXT),"Numerical");
+        this.translate(LCText.CONFIG_MCL_CHAIN_EDIT_CORE_CHAIN,"Access Core Chain");
+        this.translate(LCText.CONFIG_MCL_CHAIN_EDIT_SIDE_CHAINS,"Access Side Chains");
+        this.translate(LCText.CONFIG_MCL_CHAIN_EDIT_DISPLAY_DATA,"Access Display Data");
+        this.translate(LCText.CONFIG_MCL_CHAIN_EDIT_ATM_DATA,"Access ATM Data");
 
         //Config Files
         /// Client Config

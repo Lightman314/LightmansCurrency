@@ -10,15 +10,10 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.tabs.AdminTab;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class AdminSettingsClientTab extends TaxCollectorClientTab<AdminTab> {
 
     public AdminSettingsClientTab(Object screen, AdminTab commonTab) { super(screen, commonTab); }

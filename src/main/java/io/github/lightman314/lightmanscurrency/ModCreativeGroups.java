@@ -40,7 +40,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
-@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = LightmansCurrency.MODID)
+@EventBusSubscriber(modid = LightmansCurrency.MODID)
 public class ModCreativeGroups {
 
     public static final ResourceLocation COIN_GROUP_ID = VersionUtil.lcResource("coins");

@@ -170,6 +170,14 @@ public class LCCuriosInternal {
         modBus.addListener(LCCuriosInternal::registerCuriosItems);
     }
 
+    public static LCCurios.DropRule getWalletDropRules(LivingEntity entity)
+    {
+        ICurioStacksHandler stacks = getStacks(entity,WALLET_SLOT);
+        if(stacks != null)
+            return convertRule(stacks.getDropRule());
+        return LCCurios.DropRule.DEFAULT;
+    }
+
     private static void registerCuriosItems(FMLCommonSetupEvent event)
     {
         BuiltInRegistries.ITEM.forEach(item -> {
@@ -178,11 +186,20 @@ public class LCCuriosInternal {
         });
     }
 
+    private static LCCurios.DropRule convertRule(ICurio.DropRule rule)
+    {
+        return switch (rule){
+            case DESTROY -> LCCurios.DropRule.DESTROY;
+            case ALWAYS_KEEP -> LCCurios.DropRule.KEEP;
+            case ALWAYS_DROP -> LCCurios.DropRule.DROP;
+            default -> LCCurios.DropRule.DEFAULT;
+        };
+    }
+
     private static class WalletCurio implements ICurioItem
     {
         private static final ICurioItem INSTANCE = new WalletCurio();
 
-        
         @Override
         public ICurio.SoundInfo getEquipSound(SlotContext slotContext, ItemStack stack) {
             return new ICurio.SoundInfo(SoundEvents.ARMOR_EQUIP_LEATHER.value(),1f,1f);
@@ -193,18 +210,17 @@ public class LCCuriosInternal {
 
         @Override
         public boolean canUnequip(SlotContext context, ItemStack stack) {
-
             if(context.entity() instanceof Player player && player.containerMenu instanceof WalletMenuBase menu)
                 return !menu.isEquippedWallet();
-            return true;
+            return ICurioItem.super.canUnequip(context,stack);
         }
 
-        
         @Override
         public ICurio.DropRule getDropRule(SlotContext context, DamageSource source, boolean recentlyHit, ItemStack stack) {
             if(ModGameRules.safeGetCustomBool(context.entity().level(), ModGameRules.KEEP_WALLET, false))
                 return ICurio.DropRule.ALWAYS_KEEP;
-            return ICurio.DropRule.DEFAULT;
+            return ICurioItem.super.getDropRule(context,source,recentlyHit,stack);
         }
+
     }
 }

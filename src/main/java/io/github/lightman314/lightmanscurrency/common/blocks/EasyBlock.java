@@ -1,8 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.blocks;
 
-import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVariantSupportingBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.variants.block.block_entity.IVariantDataStorage;
 import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
-import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
@@ -52,9 +51,10 @@ public class EasyBlock extends Block {
 
     @Override
     public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
-        ItemStack result = super.getCloneItemStack(state,target,level,pos,player);
-        if(player.isCrouching() && this instanceof IVariantBlock vb && level.getBlockEntity(pos) instanceof IVariantSupportingBlockEntity be)
-            IVariantSupportingBlockEntity.copyDataToItem(be,result);
+        ItemStack result = super.getCloneItemStack(state, target, level, pos, player);
+
+        if (player.isCrouching() && this instanceof IVariantBlock vb)
+            IVariantBlock.copyDataToItem(IVariantDataStorage.get(level,pos),result);
         return result;
     }
 
@@ -67,8 +67,8 @@ public class EasyBlock extends Block {
     {
         if(level.isClientSide)
             return;
-        if(this instanceof IVariantBlock && level.getBlockEntity(pos) instanceof IVariantSupportingBlockEntity be)
-            be.setVariant(stack.getOrDefault(ModDataComponents.MODEL_VARIANT,null),stack.has(ModDataComponents.VARIANT_LOCK));
+        if(this instanceof IVariantBlock)
+            IVariantBlock.copyDataFromItem(IVariantDataStorage.get(level,pos),stack);
     }
 
 }

@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.misc.blockentity;
 
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
-import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVariantSupportingBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.variants.block.block_entity.IVariantDataStorage;
 import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
@@ -21,7 +21,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class EasyBlockEntity extends BlockEntity implements IClientTracker, IVariantSupportingBlockEntity {
+public class EasyBlockEntity extends BlockEntity implements IClientTracker, IVariantDataStorage {
 
     public final RegistryAccess registryAccess() { return this.level.registryAccess(); }
 

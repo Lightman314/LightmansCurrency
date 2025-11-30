@@ -11,6 +11,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -22,7 +23,7 @@ import java.util.function.Supplier;
 public class VariantProvider<T,V> {
 
     private static final VariantProvider<Block,IVariantBlock> BLOCK_PROVIDER;
-    private static final VariantProvider<Item, IVariantItem> ITEM_PROVIDER;
+    private static final VariantProvider<Item,IVariantItem> ITEM_PROVIDER;
 
     private final List<Function<T,V>> providers = new ArrayList<>();
     private void addProvider(Function<T,V> provider) {
@@ -107,6 +108,8 @@ public class VariantProvider<T,V> {
 
     public static void registerVariantItem(Function<Item,IVariantItem> provider) { ITEM_PROVIDER.addProvider(Objects.requireNonNull(provider)); }
 
+    @Nullable
+    public static IVariantBlock getVariantBlock(BlockState state) { return getVariantBlock(state.getBlock()); }
     @Nullable
     public static IVariantBlock getVariantBlock(Block block) { return BLOCK_PROVIDER.get(block); }
     @Nullable

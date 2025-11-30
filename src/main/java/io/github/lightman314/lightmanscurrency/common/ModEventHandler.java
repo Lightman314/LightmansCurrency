@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.LCRegistries;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.capability.money.CapabilityMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.capability.money.CapabilityMoneyViewer;
+import io.github.lightman314.lightmanscurrency.api.capability.variant.CapabilityVariantData;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
@@ -25,9 +26,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 
-import javax.annotation.Nonnull;
-
-@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD,modid = LightmansCurrency.MODID)
+@EventBusSubscriber(modid = LightmansCurrency.MODID)
 public class ModEventHandler {
 
     @SubscribeEvent
@@ -38,7 +37,7 @@ public class ModEventHandler {
     }
 
     @SubscribeEvent
-    private static void registerCapabilityProviders(@Nonnull RegisterCapabilitiesEvent event)
+    private static void registerCapabilityProviders(RegisterCapabilitiesEvent event)
     {
         //Item Handlers
         //Register Item Handler for Item Traders
@@ -87,6 +86,10 @@ public class ModEventHandler {
         //Money Handler for the Bank Card
         event.registerItem(CapabilityMoneyHandler.MONEY_HANDLER_ITEM, (stack,c) -> new ATMCardMoneyHandler(stack),ModItems.ATM_CARD.get());
         event.registerItem(CapabilityMoneyHandler.MONEY_HANDLER_ITEM, (stack,c) -> new PrepaidCardMoneyHandler(stack),ModItems.PREPAID_CARD.get());
+
+        //Register variant capabilities for my blocks
+        CapabilityVariantData.registerNormalBlock(event,ModBlocks.TERMINAL.get(),ModBlocks.GEM_TERMINAL.get());
+        CapabilityVariantData.registerLCMultiBlock(event,ModBlocks.ATM.get());
 
     }
 

@@ -32,7 +32,7 @@ public class MasterCoinListConfigOption extends ConfigFileOption {
     public boolean canEdit(Minecraft minecraft) {
         if(minecraft.player != null)
             return minecraft.player.hasPermissions(2);
-        return false;
+        return true;
     }
 
     @Override

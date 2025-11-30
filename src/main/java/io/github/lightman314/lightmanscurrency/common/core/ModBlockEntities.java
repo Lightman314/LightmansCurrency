@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.core;
 
 import io.github.lightman314.lightmanscurrency.common.blockentity.*;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.*;
-import io.github.lightman314.lightmanscurrency.common.blockentity.variant.GenericVariantBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.util.BlockEntityBlockHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
@@ -60,8 +59,6 @@ public class ModBlockEntities {
 
 		MONEY_BAG = ModRegistries.BLOCK_ENTITIES.register("money_bag", () -> BlockEntityType.Builder.of(MoneyBagBlockEntity::new, ModBlocks.MONEY_BAG.get()).build(null));
 
-		GENERIC_VARIANT = register("generic_variant",GenericVariantBlockEntity::new,BlockEntityBlockHelper::getVariantBlocks);
-
 	}
 
 	private static <T extends BlockEntity> Supplier<BlockEntityType<T>> register(String id, BlockEntityType.BlockEntitySupplier<T> builder, ResourceLocation blockHelperID) { return register(id,builder,() -> BlockEntityBlockHelper.getBlocksForBlockEntity(blockHelperID)); }
@@ -115,8 +112,6 @@ public class ModBlockEntities {
 	public static final Supplier<BlockEntityType<AuctionStandBlockEntity>> AUCTION_STAND;
 
 	public static final Supplier<BlockEntityType<CoinChestBlockEntity>> COIN_CHEST;
-
-	public static final Supplier<BlockEntityType<GenericVariantBlockEntity>> GENERIC_VARIANT;
 
 	
 }

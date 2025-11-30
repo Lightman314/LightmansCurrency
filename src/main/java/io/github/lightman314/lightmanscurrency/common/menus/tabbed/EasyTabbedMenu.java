@@ -7,19 +7,15 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.IEasyTabbe
 import io.github.lightman314.lightmanscurrency.common.menus.LazyMessageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class EasyTabbedMenu<M extends IEasyTabbedMenu<T>,T extends EasyMenuTab<M,T>> extends LazyMessageMenu implements IEasyTabbedMenu<T> {
 
     private boolean tabsLocked = false;

@@ -23,12 +23,23 @@ import java.util.function.Predicate;
 public class TextInputUtil {
 
 	public static Builder<String> stringBuilder() { return new Builder<>(s -> s); }
+    public static Builder<Component> textBuilder() { return new Builder<>(ComponentParser.INSTANCE).writer(ComponentParser::write).maxLength(1024); }
 	public static Builder<Integer> intBuilder() { return new Builder<>(IntParser.DEFAULT).filter(NumberUtil::IsIntegerOrEmpty); }
 	public static Builder<Long> longBuilder() { return new Builder<>(LongParser.DEFAULT).filter(NumberUtil::IsLongOrEmpty); }
 	public static Builder<Float> floatBuilder() { return new Builder<>(FloatParser.DEFAULT).filter(NumberUtil::IsFloatOrEmpty); }
 	public static Builder<Double> doubleBuilder() { return new Builder<>(DoubleParser.DEFAULT).filter(NumberUtil::IsDoubleOrEmpty); }
     public static Builder<ResourceLocation> resourceBuilder() { return resourceBuilder(false); }
     public static Builder<ResourceLocation> resourceBuilder(boolean requireNamespace) { return new Builder<>(requireNamespace ? ResourceParser.DEFAULT : ResourceParser.REQUIRE_NAMESPACE).filter(ResourceParser::isResourceOrEmpty); }
+
+    public static boolean noEmptySpaces(String input)
+    {
+        for(char c : input.toCharArray())
+        {
+            if(Character.isWhitespace(c))
+                return false;
+        }
+        return true;
+    }
 
     public static <T> Consumer<String> stringResponder(Consumer<T> handler,Function<String,T> reader)
     {
@@ -51,7 +62,10 @@ public class TextInputUtil {
 		private Predicate<String> filter = null;
 		private Function<String,T> parser;
 		private Function<T,String> writer = String::valueOf;
-		String startingValue = "";
+        @Nullable
+		String startingText = null;
+        @Nullable
+        T startingValue = null;
 		private int maxLength = 32;
         @Nullable
         private Integer color = null;
@@ -61,15 +75,8 @@ public class TextInputUtil {
 		public Builder<T> font(Font font) { this.font = font; return this; }
         public Builder<T> copyValue(@Nullable EditBox box) { if(box != null) this.startingString(box.getValue()); return this; }
         public Builder<T> copyValue(@Nullable TextBoxWrapper<T> box) { if(box != null) this.startingString(box.getString()); return this; }
-		public Builder<T> startingString(String value) { this.startingValue = value; return this; }
-		public Builder<T> startingValue(T value) {
-			//Trick numbers to
-			if((value instanceof Double d && d == 0) || (value instanceof Float f && f == 0))
-				this.startingString("0");
-			else
-				this.startingString(String.valueOf(value));
-			return this;
-		}
+		public Builder<T> startingString(String value) { this.startingText = value; return this; }
+		public Builder<T> startingValue(T value) { this.startingValue = value; return this; }
 		public Builder<T> maxLength(int maxLength) { this.maxLength = maxLength; return this; }
         public Builder<T> textColor(int color) { this.color = color; return this; }
 		public Builder<T> message(Component message) { this.message = Objects.requireNonNull(message); return this; }
@@ -96,13 +103,26 @@ public class TextInputUtil {
 
 		public EditBox build() {
 			EditBox box = new EditBox(this.font, this.area.x,this.area.y,this.area.width,this.area.height,this.message);
-			box.setValue(this.startingValue);
+            //Set Max Length *before* setting starting value
+            box.setMaxLength(this.maxLength);
+            //Set Starting Value
+            if(this.startingText != null)
+			    box.setValue(this.startingText);
+            else if(this.startingValue != null)
+            {
+                if((this.startingValue instanceof Double d && d == 0d) || (this.startingValue instanceof Float f && f == 0f))
+                    box.setValue("0");
+                else
+                    box.setValue(this.writer.apply(this.startingValue));
+            }
+            //Set Filter
 			if(this.filter != null)
 				box.setFilter(this.filter);
+            //Set Color
             if(this.color != null)
                 box.setTextColor(this.color);
+            //Set Responder
 			box.setResponder(stringResponder(this.handler,this.parser));
-			box.setMaxLength(this.maxLength);
 			box.setBordered(this.renderBG);
 			return box;
 		}

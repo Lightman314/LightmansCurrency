@@ -7,7 +7,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import java.util.function.Function;
 
 public abstract class EasyMenuTab<M extends IEasyTabbedMenu<T>,T extends EasyMenuTab<M,T>> implements LazyPacketData.IBuilderProvider, IClientTracker {
@@ -17,16 +16,13 @@ public abstract class EasyMenuTab<M extends IEasyTabbedMenu<T>,T extends EasyMen
     @Override
     public final boolean isClient() { return this.menu.isClient(); }
 
-    public EasyMenuTab(@Nonnull M menu) { this.menu = menu; }
+    public EasyMenuTab(M menu) { this.menu = menu; }
 
-    @Nonnull
     @Override
     public final LazyPacketData.Builder builder() { return this.menu.builder(); }
-    @Nonnull
     public final RegistryAccess registryAccess() { return this.menu.registryAccess(); }
 
-    @Nonnull
-    public abstract Object createClientTab(@Nonnull Object screen);
+    public abstract Object createClientTab(Object screen);
 
     /**
      * Whether the player has permission to access this tab.
@@ -61,6 +57,6 @@ public abstract class EasyMenuTab<M extends IEasyTabbedMenu<T>,T extends EasyMen
      * Called when this tab is opened if the open packet contained additional data<br>
      * Is run before {@link #onTabOpen()}
      */
-    public void OpenMessage(@Nonnull LazyPacketData message) { this.receiveMessage(message); }
+    public void OpenMessage(LazyPacketData message) { this.receiveMessage(message); }
 
 }

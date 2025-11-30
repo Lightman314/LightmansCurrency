@@ -6,15 +6,12 @@ import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCol
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 
-import javax.annotation.Nonnull;
-
 public class BasicSettingsTab extends TaxCollectorTab {
 
     public BasicSettingsTab(TaxCollectorMenu menu) { super(menu); }
 
-    @Nonnull
     @Override
-    public Object createClientTab(@Nonnull Object screen) { return new BasicSettingsClientTab(screen, this); }
+    public Object createClientTab(Object screen) { return new BasicSettingsClientTab(screen, this); }
 
     public void SetActive(boolean newState)
     {
