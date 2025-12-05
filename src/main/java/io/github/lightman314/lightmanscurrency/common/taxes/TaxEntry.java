@@ -280,7 +280,7 @@ public class TaxEntry implements ITaxCollector {
     public void setInfiniteRange(boolean infiniteRange) { if(this.isServerEntry()) return; this.infiniteRange = infiniteRange; this.markAdminStateDirty(); }
     private boolean onlyTargetNetwork = false;
     public boolean isOnlyTargetingNetwork() { return this.isServerEntry() && this.onlyTargetNetwork; }
-    public void setOnlyTargetingNetwork(boolean newValue) { if(this.isServerEntry()) { this.onlyTargetNetwork = newValue; this.markAdminStateDirty(); } }
+    public void setOnlyTargetingNetwork(boolean newValue) { if(this.isServerEntry()) { this.onlyTargetNetwork = newValue; this.markServerOptionsDirty(); } }
 
     protected final void markDirty(CompoundTag packet) { if(this.locked || this.isClient) return; TaxDataCache.TYPE.get(false).markEntryDirty(this.id,packet); }
     protected final void markDirty(Function<CompoundTag,CompoundTag> packet) { this.markDirty(packet.apply(new CompoundTag()));}

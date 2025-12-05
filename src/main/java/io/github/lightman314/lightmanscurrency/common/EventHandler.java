@@ -298,6 +298,7 @@ public class EventHandler {
         {
             event.setWalletStack(ItemStack.EMPTY);
             event.setDrops(new ArrayList<>());
+            return;
         }
 		if(event.keepWallet) //Keep the wallet, but drop the wallets contents
 		{

@@ -31,7 +31,7 @@ public final class IntParser implements Function<String,Integer>, Predicate<Stri
     @Override
     public Integer apply(String text) {
         Integer val = NumberUtil.GetIntegerValue(text,this.emptyValue.get());
-        return MathUtil.clamp(val,this.minValue.get(),this.maxValue.get());
+        return val == null ? null : MathUtil.clamp(val,this.minValue.get(),this.maxValue.get());
     }
 
     public static Builder builder() { return new Builder(); }

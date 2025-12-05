@@ -44,8 +44,7 @@ public class CapabilityInterfaceBlockEntity extends BlockEntity implements IVari
 	public ResourceLocation getCurrentVariant() {
 		AtomicReference<ResourceLocation> result = new AtomicReference<>(null);
 		this.tryRunOnCoreBlockEntity(be -> {
-            IVariantDataStorage data = IVariantDataStorage.get(be);
-            if(data != null)
+            if(be instanceof IVariantDataStorage data)
                 result.set(data.getCurrentVariant());
 		});
 		return result.get();
@@ -54,8 +53,7 @@ public class CapabilityInterfaceBlockEntity extends BlockEntity implements IVari
 	@Override
 	public void setVariant(@Nullable ResourceLocation variant) {
 		this.tryRunOnCoreBlockEntity(be -> {
-            IVariantDataStorage data = IVariantDataStorage.get(be);
-            if(data != null)
+            if(be instanceof IVariantDataStorage data)
                 data.setVariant(variant);
 		});
 	}
@@ -63,8 +61,7 @@ public class CapabilityInterfaceBlockEntity extends BlockEntity implements IVari
 	@Override
 	public void setVariant(@Nullable ResourceLocation variant, boolean locked) {
 		this.tryRunOnCoreBlockEntity(be -> {
-            IVariantDataStorage data = IVariantDataStorage.get(be);
-            if(data != null)
+            if(be instanceof IVariantDataStorage data)
                 data.setVariant(variant,locked);
 		});
 	}

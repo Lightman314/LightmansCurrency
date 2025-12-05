@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.util.text_inputs;
 
+import com.mojang.datafixers.util.Either;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
@@ -62,10 +63,7 @@ public class TextInputUtil {
 		private Predicate<String> filter = null;
 		private Function<String,T> parser;
 		private Function<T,String> writer = String::valueOf;
-        @Nullable
-		String startingText = null;
-        @Nullable
-        T startingValue = null;
+        Either<String,T> startingValue = Either.left("");
 		private int maxLength = 32;
         @Nullable
         private Integer color = null;
@@ -75,8 +73,8 @@ public class TextInputUtil {
 		public Builder<T> font(Font font) { this.font = font; return this; }
         public Builder<T> copyValue(@Nullable EditBox box) { if(box != null) this.startingString(box.getValue()); return this; }
         public Builder<T> copyValue(@Nullable TextBoxWrapper<T> box) { if(box != null) this.startingString(box.getString()); return this; }
-		public Builder<T> startingString(String value) { this.startingText = value; return this; }
-		public Builder<T> startingValue(T value) { this.startingValue = value; return this; }
+		public Builder<T> startingString(String value) { this.startingValue = Either.left(value); return this; }
+		public Builder<T> startingValue(T value) { this.startingValue = Either.right(value); return this; }
 		public Builder<T> maxLength(int maxLength) { this.maxLength = maxLength; return this; }
         public Builder<T> textColor(int color) { this.color = color; return this; }
 		public Builder<T> message(Component message) { this.message = Objects.requireNonNull(message); return this; }
@@ -106,15 +104,14 @@ public class TextInputUtil {
             //Set Max Length *before* setting starting value
             box.setMaxLength(this.maxLength);
             //Set Starting Value
-            if(this.startingText != null)
-			    box.setValue(this.startingText);
-            else if(this.startingValue != null)
-            {
-                if((this.startingValue instanceof Double d && d == 0d) || (this.startingValue instanceof Float f && f == 0f))
-                    box.setValue("0");
-                else
-                    box.setValue(this.writer.apply(this.startingValue));
-            }
+            this.startingValue
+                    .ifLeft(box::setValue)
+                    .ifRight(startingValue -> {
+                        if((startingValue instanceof Double d && d == 0d) || (startingValue instanceof Float f && f == 0f))
+                            box.setValue("0");
+                        else
+                            box.setValue(this.writer.apply(startingValue));
+                    });
             //Set Filter
 			if(this.filter != null)
 				box.setFilter(this.filter);

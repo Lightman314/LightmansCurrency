@@ -490,9 +490,10 @@ public class SalaryData {
         //Load or invalidate cache
         if(tag.contains("Cache"))
         {
-            this.quickSalaryCache = MoneyValue.load(tag.getCompound("QuickSalary"));
+            CompoundTag cache = tag.getCompound("Cache");
+            this.quickSalaryCache = MoneyValue.load(cache.getCompound("QuickSalary"));
             if(tag.contains("TotalSalary"))
-                this.totalSalaryCache = MoneyValue.load(tag.getCompound("TotalSalary"));
+                this.totalSalaryCache = MoneyValue.load(cache.getCompound("TotalSalary"));
             else
                 this.quickSalaryCache = MoneyValue.empty();
         }

@@ -30,7 +30,7 @@ public final class LongParser implements Function<String,Long>, Predicate<String
     @Override
     public Long apply(String text) {
         Long val = NumberUtil.GetLongValue(text,this.emptyValue.get());
-        return MathUtil.clamp(val,this.minValue.get(),this.maxValue.get());
+        return val == null ? null : MathUtil.clamp(val,this.minValue.get(),this.maxValue.get());
     }
 
     @Override
