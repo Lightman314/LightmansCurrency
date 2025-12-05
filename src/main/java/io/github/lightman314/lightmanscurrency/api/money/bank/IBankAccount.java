@@ -12,9 +12,11 @@ import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.level.ServerPlayer;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -128,7 +130,7 @@ public interface IBankAccount extends IMoneyHolder, IClientTracker {
 
     default void checkForOnlinePlayers() {
         for(SalaryData s : this.getSalaries())
-            s.checkForOnlinePlayers();
+            s.checkForOnlinePlayers(true);
     }
 
     Map<String, CustomTarget> extraSalaryTargets();
@@ -141,5 +143,11 @@ public interface IBankAccount extends IMoneyHolder, IClientTracker {
     void markDirty();
 
     void tick();
+
+    default void onPlayerJoined(ServerPlayer player)
+    {
+        for(SalaryData salary : new ArrayList<>(this.getSalaries()))
+            salary.onPlayerJoin(player);
+    }
 
 }

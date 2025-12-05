@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency;
 
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.capability.variant.CapabilityVariantData;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigAPI;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigReloadable;
@@ -29,6 +30,9 @@ import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.types.*;
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
+import io.github.lightman314.lightmanscurrency.api.variants.block.block_entity.IVariantDataStorage;
+import io.github.lightman314.lightmanscurrency.api.variants.block.builtin.VariantChunkDataStorageAttachment;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientCoinSorter;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientMoneyType;
@@ -332,6 +336,10 @@ public class LightmansCurrency {
 		//Setup Mod Compats
 		IntegrationUtil.SafeRunIfLoaded("ftbteams", LCFTBTeams::setup,"Error setting up FTB Teams compat!");
 
+        //Register variant capabilites for my blocks
+        CapabilityVariantData.registerNormalBlock(ModBlocks.TERMINAL.get(),ModBlocks.GEM_TERMINAL.get());
+        CapabilityVariantData.registerLCMultiBlock(ModBlocks.ATM.get());
+
 	}
 
     private void clientSetup(final FMLClientSetupEvent event) { safeEnqueueWork(event, "Error during client setup!", getProxy()::setupClient); }
@@ -341,6 +349,8 @@ public class LightmansCurrency {
     	event.register(IWalletHandler.class);
 		event.register(IMoneyHandler.class);
     	event.register(IMoneyViewer.class);
+    	event.register(IVariantDataStorage.class);
+    	event.register(VariantChunkDataStorageAttachment.class);
     }
 
     @SubscribeEvent

@@ -161,6 +161,24 @@ public class LCCuriosInternal {
         return null;
     }
 
+    public static LCCurios.DropRule getWalletDropRules(LivingEntity entity)
+    {
+        ICurioStacksHandler stacks = getStacks(entity,WALLET_SLOT);
+        if(stacks != null)
+            return convertRule(stacks.getDropRule());
+        return LCCurios.DropRule.DEFAULT;
+    }
+
+    private static LCCurios.DropRule convertRule(ICurio.DropRule rule)
+    {
+        return switch (rule) {
+            case DESTROY ->  LCCurios.DropRule.DESTROY;
+            case ALWAYS_KEEP -> LCCurios.DropRule.KEEP;
+            case ALWAYS_DROP -> LCCurios.DropRule.DROP;
+            default -> LCCurios.DropRule.DEFAULT;
+        };
+    }
+
     @Nullable
     public static ICapabilityProvider createWalletProvider(ItemStack stack)
     {
@@ -180,7 +198,7 @@ public class LCCuriosInternal {
                         //Prevent unequipping if the wallet is open in the menu.
                         return !menu.isEquippedWallet();
                     }
-                    return true;
+                    return ICurio.super.canUnequip(context);
                 }
                 
                 @Override
@@ -188,8 +206,7 @@ public class LCCuriosInternal {
                 {
                     if(ModGameRules.safeGetCustomBool(context.entity().level(), ModGameRules.KEEP_WALLET, false))
                         return DropRule.ALWAYS_KEEP;
-                    else
-                        return DropRule.DEFAULT;
+                    return ICurio.super.getDropRule(context,source,lootingLevel,recentlyHit);
                 }
             });
         } catch(Throwable t) { return null; }

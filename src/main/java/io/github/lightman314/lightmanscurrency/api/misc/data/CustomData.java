@@ -4,17 +4,9 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.network.message.data.SPacketSyncCustomData;
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
-@FieldsAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public abstract class CustomData implements IClientTracker, LazyPacketData.IBuilderProvider {
 
     public abstract CustomDataType<?> getType();
@@ -65,7 +57,7 @@ public abstract class CustomData implements IClientTracker, LazyPacketData.IBuil
     protected abstract void load(CompoundTag tag);
 
     /**
-     * Public method used to call {@link #parseSyncPacket(LazyPacketData)}
+     * Public method used to call {@link #parseSyncPacket(LazyPacketData)}<br>
      * Called on the logical client. Has a check to confirm that this is in-fact the client-sided data before parsing the packet.
      * @param message The message sent from the server to sync the data with your client
      */
@@ -122,7 +114,6 @@ public abstract class CustomData implements IClientTracker, LazyPacketData.IBuil
      */
     public final void setChanged() { this.setChanged.run(); }
 
-    @Nonnull
     @Override
     public final LazyPacketData.Builder builder() { return LazyPacketData.builder(); }
 

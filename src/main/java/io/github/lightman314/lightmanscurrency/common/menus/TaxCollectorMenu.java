@@ -14,8 +14,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
-
 public class TaxCollectorMenu extends EasyTabbedMenu<TaxCollectorMenu,TaxCollectorTab> {
 
     public final long entryID;
@@ -39,8 +37,7 @@ public class TaxCollectorMenu extends EasyTabbedMenu<TaxCollectorMenu,TaxCollect
     }
 
     @Override
-    @Nonnull
-    public ItemStack quickMoveStack(@Nonnull Player player, int slot) { return ItemStack.EMPTY; }
+    public ItemStack quickMoveStack(Player player, int slot) { return ItemStack.EMPTY; }
 
     public void CollectStoredMoney()
     {
@@ -81,7 +78,7 @@ public class TaxCollectorMenu extends EasyTabbedMenu<TaxCollectorMenu,TaxCollect
     public boolean isAdmin() { return LCAdminMode.isAdminPlayer(this.player); }
 
     @Override
-    protected void HandleMessages(@Nonnull LazyPacketData message) {
+    protected void HandleMessages(LazyPacketData message) {
         if(message.contains("CollectStoredMoney"))
             this.CollectStoredMoney();
     }

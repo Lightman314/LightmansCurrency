@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.blockentity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.ICapabilityBlock;
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
-import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVariantSupportingBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.variants.block.block_entity.IVariantDataStorage;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-public class CapabilityInterfaceBlockEntity extends BlockEntity implements IVariantSupportingBlockEntity {
+public class CapabilityInterfaceBlockEntity extends BlockEntity implements IVariantDataStorage {
 	
 	public CapabilityInterfaceBlockEntity(BlockPos pos, BlockState state) {
 		super(ModBlockEntities.CAPABILITY_INTERFACE.get(), pos, state);
@@ -31,7 +31,7 @@ public class CapabilityInterfaceBlockEntity extends BlockEntity implements IVari
 	{
 		AtomicReference<ResourceLocation> result = new AtomicReference<>(null);
 		this.tryRunOnCoreBlockEntity(be -> {
-			if(be instanceof IVariantSupportingBlockEntity vsbe)
+			if(be instanceof IVariantDataStorage vsbe)
 				result.set(vsbe.getCurrentVariant());
 		});
 		return result.get();
@@ -41,7 +41,7 @@ public class CapabilityInterfaceBlockEntity extends BlockEntity implements IVari
 	public void setVariant(@Nullable ResourceLocation variant)
 	{
 		this.tryRunOnCoreBlockEntity(be -> {
-			if(be instanceof IVariantSupportingBlockEntity vsbe)
+			if(be instanceof IVariantDataStorage vsbe)
 				vsbe.setVariant(variant);
 		});
 	}
@@ -50,7 +50,7 @@ public class CapabilityInterfaceBlockEntity extends BlockEntity implements IVari
 	public void setVariant(@Nullable ResourceLocation variant, boolean locked)
 	{
 		this.tryRunOnCoreBlockEntity(be -> {
-			if(be instanceof IVariantSupportingBlockEntity vsbe)
+			if(be instanceof IVariantDataStorage vsbe)
 				vsbe.setVariant(variant,locked);
 		});
 	}
@@ -59,7 +59,7 @@ public class CapabilityInterfaceBlockEntity extends BlockEntity implements IVari
 	public boolean isVariantLocked() {
 		AtomicBoolean result = new AtomicBoolean(false);
 		this.tryRunOnCoreBlockEntity(be -> {
-			if(be instanceof IVariantSupportingBlockEntity vsbe)
+			if(be instanceof IVariantDataStorage vsbe)
 				result.set(vsbe.isVariantLocked());
 		});
 		return result.get();

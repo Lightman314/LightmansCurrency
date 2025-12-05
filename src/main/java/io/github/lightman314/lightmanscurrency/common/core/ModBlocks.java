@@ -49,38 +49,38 @@ public class ModBlocks {
 	private static final SoundType CHOCOLATE_SOUND = SoundType.MUD_BRICKS;
 
 	//Coin piles
-	public static final RegistryObject<Block> COINPILE_COPPER;
-	public static final RegistryObject<Block> COINPILE_IRON;
-	public static final RegistryObject<Block> COINPILE_GOLD;
-	public static final RegistryObject<Block> COINPILE_DIAMOND;
-	public static final RegistryObject<Block> COINPILE_EMERALD;
-	public static final RegistryObject<Block> COINPILE_NETHERITE;
+	public static final Supplier<Block> COINPILE_COPPER;
+	public static final Supplier<Block> COINPILE_IRON;
+	public static final Supplier<Block> COINPILE_GOLD;
+	public static final Supplier<Block> COINPILE_DIAMOND;
+	public static final Supplier<Block> COINPILE_EMERALD;
+	public static final Supplier<Block> COINPILE_NETHERITE;
 
-	public static final RegistryObject<Block> COINPILE_CHOCOLATE_COPPER;
-	public static final RegistryObject<Block> COINPILE_CHOCOLATE_IRON;
-	public static final RegistryObject<Block> COINPILE_CHOCOLATE_GOLD;
-	public static final RegistryObject<Block> COINPILE_CHOCOLATE_DIAMOND;
-	public static final RegistryObject<Block> COINPILE_CHOCOLATE_EMERALD;
-	public static final RegistryObject<Block> COINPILE_CHOCOLATE_NETHERITE;
+	public static final Supplier<Block> COINPILE_CHOCOLATE_COPPER;
+	public static final Supplier<Block> COINPILE_CHOCOLATE_IRON;
+	public static final Supplier<Block> COINPILE_CHOCOLATE_GOLD;
+	public static final Supplier<Block> COINPILE_CHOCOLATE_DIAMOND;
+	public static final Supplier<Block> COINPILE_CHOCOLATE_EMERALD;
+	public static final Supplier<Block> COINPILE_CHOCOLATE_NETHERITE;
 
 	//Coin blocks
-	public static final RegistryObject<Block> COINBLOCK_COPPER;
-	public static final RegistryObject<Block> COINBLOCK_IRON;
-	public static final RegistryObject<Block> COINBLOCK_GOLD;
-	public static final RegistryObject<Block> COINBLOCK_EMERALD;
-	public static final RegistryObject<Block> COINBLOCK_DIAMOND;
-	public static final RegistryObject<Block> COINBLOCK_NETHERITE;
-	public static final RegistryObject<Block> COINBLOCK_CHOCOLATE_COPPER;
-	public static final RegistryObject<Block> COINBLOCK_CHOCOLATE_IRON;
-	public static final RegistryObject<Block> COINBLOCK_CHOCOLATE_GOLD;
-	public static final RegistryObject<Block> COINBLOCK_CHOCOLATE_EMERALD;
-	public static final RegistryObject<Block> COINBLOCK_CHOCOLATE_DIAMOND;
-	public static final RegistryObject<Block> COINBLOCK_CHOCOLATE_NETHERITE;
+	public static final Supplier<Block> COINBLOCK_COPPER;
+	public static final Supplier<Block> COINBLOCK_IRON;
+	public static final Supplier<Block> COINBLOCK_GOLD;
+	public static final Supplier<Block> COINBLOCK_EMERALD;
+	public static final Supplier<Block> COINBLOCK_DIAMOND;
+	public static final Supplier<Block> COINBLOCK_NETHERITE;
+	public static final Supplier<Block> COINBLOCK_CHOCOLATE_COPPER;
+	public static final Supplier<Block> COINBLOCK_CHOCOLATE_IRON;
+	public static final Supplier<Block> COINBLOCK_CHOCOLATE_GOLD;
+	public static final Supplier<Block> COINBLOCK_CHOCOLATE_EMERALD;
+	public static final Supplier<Block> COINBLOCK_CHOCOLATE_DIAMOND;
+	public static final Supplier<Block> COINBLOCK_CHOCOLATE_NETHERITE;
 
 	//Machines
 	//Misc Machines
-	public static final RegistryObject<Block> ATM;
-	public static final RegistryObject<Block> COIN_MINT;
+	public static final Supplier<Block> ATM;
+	public static final Supplier<Block> COIN_MINT;
 
 	//Display Case
 	public static final RegistryObjectBundle<Block,Color> DISPLAY_CASE;
@@ -99,60 +99,60 @@ public class ModBlocks {
 	public static final RegistryObjectBiBundle<Block,WoodType,Color> CARD_DISPLAY;
 
 	//Armor Display
-	public static final RegistryObject<Block> ARMOR_DISPLAY;
+	public static final Supplier<Block> ARMOR_DISPLAY;
 
 	//Freezer
 	public static final RegistryObjectBundle<FreezerBlock,Color> FREEZER;
 
 
 	//Network Traders
-	public static final RegistryObject<Block> ITEM_NETWORK_TRADER_1;
-	public static final RegistryObject<Block> ITEM_NETWORK_TRADER_2;
-	public static final RegistryObject<Block> ITEM_NETWORK_TRADER_3;
-	public static final RegistryObject<Block> ITEM_NETWORK_TRADER_4;
+	public static final Supplier<Block> ITEM_NETWORK_TRADER_1;
+	public static final Supplier<Block> ITEM_NETWORK_TRADER_2;
+	public static final Supplier<Block> ITEM_NETWORK_TRADER_3;
+	public static final Supplier<Block> ITEM_NETWORK_TRADER_4;
 
 	//Trader Interface
-	public static final RegistryObject<Block> ITEM_TRADER_INTERFACE;
+	public static final Supplier<Block> ITEM_TRADER_INTERFACE;
 
 	//Cash Register
-	public static final RegistryObject<Block> CASH_REGISTER;
+	public static final Supplier<Block> CASH_REGISTER;
 
 	//Terminal
-	public static final RegistryObject<Block> TERMINAL;
-	public static final RegistryObject<Block> GEM_TERMINAL;
+	public static final Supplier<Block> TERMINAL;
+	public static final Supplier<Block> GEM_TERMINAL;
 
 	//Paygate
-	public static final RegistryObject<Block> PAYGATE;
+	public static final Supplier<Block> PAYGATE;
 
 	//Ticket Kiosk
-	public static final RegistryObject<Block> TICKET_KIOSK;
+	public static final Supplier<Block> TICKET_KIOSK;
 
 	//Bookshelf Traders
 	public static final RegistryObjectBundle<Block,WoodType> BOOKSHELF_TRADER;
 
 	//Slot Machine
-	public static final RegistryObject<Block> SLOT_MACHINE;
+	public static final Supplier<Block> SLOT_MACHINE;
 	public static final RegistryObjectBundle<Block,Color> GACHA_MACHINE;
 
 	//Command Trader
-	public static final RegistryObject<Block> COMMAND_TRADER;
+	public static final Supplier<Block> COMMAND_TRADER;
 
 	//Ticket Machine
-	public static final RegistryObject<Block> TICKET_STATION;
+	public static final Supplier<Block> TICKET_STATION;
 
 	//Coin Chest
-	public static final RegistryObject<Block> COIN_CHEST;
+	public static final Supplier<Block> COIN_CHEST;
 
 	//Tax Block
-	public static final RegistryObject<Block> TAX_COLLECTOR;
+	public static final Supplier<Block> TAX_COLLECTOR;
 
 	//Money Bag
-	public static final RegistryObject<Block> MONEY_BAG;
+	public static final Supplier<Block> MONEY_BAG;
 
 	//Coin Jars
-	public static final RegistryObject<Block> PIGGY_BANK;
-	public static final RegistryObject<Block> COINJAR_BLUE;
-	public static final RegistryObject<Block> SUS_JAR;
+	public static final Supplier<Block> PIGGY_BANK;
+	public static final Supplier<Block> COINJAR_BLUE;
+	public static final Supplier<Block> SUS_JAR;
 
 	//Auciton Stands
 	public static final RegistryObjectBundle<Block,WoodType> AUCTION_STAND;
@@ -627,14 +627,14 @@ public class ModBlocks {
 	/**
 	* Block Registration Code
 	*/
-	private static <T extends Block> RegistryObject<T> register(String name, Supplier<T> sup)
+	private static <T extends Block> Supplier<T> register(String name, Supplier<T> sup)
 	{
 		return register(name, getDefaultGenerator(), sup);
 	}
 	
-	private static <T extends Block> RegistryObject<T> register(String name, Function<Block,Item> itemGenerator, Supplier<T> sup)
+	private static <T extends Block> Supplier<T> register(String name, Function<Block,Item> itemGenerator, Supplier<T> sup)
 	{
-		RegistryObject<T> block = ModRegistries.BLOCKS.register(name, sup);
+		Supplier<T> block = ModRegistries.BLOCKS.register(name, sup)::get;
 		if(block != null)
 			ModRegistries.ITEMS.register(name, () -> itemGenerator.apply(block.get()));
 		return block;

@@ -13,11 +13,13 @@ public class MutableMasterCoinList {
     private final Map<String,MutableChainData> data;
     public Map<String,MutableChainData> getData() { return this.data; }
 
-    public void createChain(String newChain)
+    public MutableChainData createChain(String newChain)
     {
         if(this.data.containsKey(newChain))
-            return;
-        this.data.put(newChain,new MutableChainData(this,newChain));
+            return null;
+        MutableChainData data = new MutableChainData(this,newChain);
+        this.data.put(newChain,data);
+        return data;
     }
 
     public final boolean canEdit() { return MasterCoinListConfigOption.INSTANCE.canEdit(Minecraft.getInstance()); }

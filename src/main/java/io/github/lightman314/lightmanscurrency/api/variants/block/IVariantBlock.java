@@ -3,8 +3,9 @@ package io.github.lightman314.lightmanscurrency.api.variants.block;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.*;
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
+import io.github.lightman314.lightmanscurrency.api.variants.block.block_entity.IVariantDataStorage;
+import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
-import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVariantSupportingBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.menus.variant.BlockVariantSelectMenu;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -12,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -30,6 +32,11 @@ public interface IVariantBlock {
 
     BooleanProperty VARIANT = BooleanProperty.create("variant");
 
+    /**
+     * A method used to obtain the index of the model from the variants "block model data" that should be utilized for the given state
+     * @param state A random block state for this variant block
+     * @return The index of the model that should be used
+     */
     default int getModelIndex(BlockState state)
     {
         int index = 0;
@@ -45,6 +52,9 @@ public interface IVariantBlock {
         return index;
     }
 
+    /**
+     * @return The block id of this block
+     */
     default ResourceLocation getBlockID()
     {
         if(this instanceof Block block)
@@ -94,7 +104,8 @@ public interface IVariantBlock {
             if(level.isClientSide)
                 return true;
             //Prevent opening the menu if the
-            if(level.getBlockEntity(pos) instanceof IVariantSupportingBlockEntity be && be.isVariantLocked() && !player.isCreative())
+            IVariantDataStorage data = IVariantDataStorage.get(level,pos);
+            if(data != null && data.isVariantLocked() && !player.isCreative())
             {
                 player.displayClientMessage(LCText.TOOLTIP_MODEL_VARIANT_LOCKED.getWithStyle(ChatFormatting.RED),true);
                 return true;
@@ -105,5 +116,13 @@ public interface IVariantBlock {
         //Don't do anything if it's not a variant supporting block
         return false;
     }
+
+    static void copyDataToItem(@Nullable IVariantDataStorage data, ItemStack item) { if(data == null) return; copyDataToItem(data.getCurrentVariant(),data.isVariantLocked(),item); }
+    static void copyDataToItem(@Nullable ResourceLocation variant, boolean variantLocked, ItemStack item) {
+        IVariantItem.setItemVariant(item,variant);
+        IVariantItem.setLocked(item,variantLocked);
+    }
+
+    static void copyDataFromItem(@Nullable IVariantDataStorage data, ItemStack item) { if(data == null) return; data.setVariant(IVariantItem.getItemVariant(item),IVariantItem.isLocked(item)); }
 
 }

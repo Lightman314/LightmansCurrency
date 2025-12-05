@@ -57,17 +57,20 @@ public class SalaryData {
         if(this.requireLoginForSalary == requireLoginForSalary)
             return;
         this.requireLoginForSalary = requireLoginForSalary;
-        this.checkForOnlinePlayers();
+        this.checkForOnlinePlayers(false);
+        this.validateSalaryCache();
         this.markDirty();
     }
     long lastSalaryTime = 0;
     public long getLastSalaryTime() { return this.lastSalaryTime; }
+    //Used by Teams when converting old salary data into new salary data
     public void forceLastSalaryTime(long lastSalaryTime) {
         if(this.lastSalaryTime == lastSalaryTime)
             return;
         this.lastSalaryTime = lastSalaryTime;
         if(this.lastSalaryTime > 0)
-            this.checkForOnlinePlayers();
+            this.checkForOnlinePlayers(false);
+        this.validateSalaryCache();
         this.markDirty();
     }
     public void setAutoSalaryEnabled(boolean enabled)
@@ -78,10 +81,11 @@ public class SalaryData {
         {
             this.lastSalaryTime = TimeUtil.getCurrentTime();
             this.onlineDuringSalary.clear();
-            this.checkForOnlinePlayers();
+            this.checkForOnlinePlayers(false);
         }
         else
             this.lastSalaryTime = 0;
+        this.validateSalaryCache();
         this.markDirty();
     }
     boolean salaryNotification = true;
@@ -108,8 +112,13 @@ public class SalaryData {
     public MoneyValue getSalary() { return this.salary; }
     public void setSalary(MoneyValue salary) {
         this.salary = salary;
+        this.validateSalaryCache();
         this.markDirty();
     }
+
+    private boolean cacheInvalid = false;
+    private MoneyValue quickSalaryCache = MoneyValue.empty();
+    private MoneyValue totalSalaryCache = MoneyValue.empty();
 
     //Custom Bank Salary Settings
     String name = "";
@@ -133,12 +142,16 @@ public class SalaryData {
         }
         this.directTargets.add(target);
         if(this.requireLoginForSalary)
-            this.checkForOnlinePlayers();
+            this.checkForOnlinePlayers(false);
+        this.validateSalaryCache();
         this.markDirty();
     }
     public void removeTarget(BankReference target) {
         if(this.directTargets.remove(target))
+        {
+            this.validateSalaryCache();
             this.markDirty();
+        }
     }
 
     Set<String> customTargets = new HashSet<>();
@@ -159,6 +172,7 @@ public class SalaryData {
         if(this.account.extraSalaryTargets().containsKey(key) && !this.customTargets.contains(key))
         {
             this.customTargets.add(key);
+            this.validateSalaryCache();
             this.markDirty();
         }
     }
@@ -167,6 +181,7 @@ public class SalaryData {
         if(this.customTargets.contains(key))
         {
             this.customTargets.remove(key);
+            this.validateSalaryCache();
             this.markDirty();
         }
     }
@@ -245,7 +260,10 @@ public class SalaryData {
             }
         }
         if(changed)
+        {
+            this.validateSalaryCache();
             this.markDirty();
+        }
     }
     private static void addToBankList(List<BankReference> list, BankReference toAdd)
     {
@@ -258,15 +276,31 @@ public class SalaryData {
     }
     public boolean isTarget(Player player) { return this.getAllTargets().stream().anyMatch(br -> br.isSalaryTarget(player)); }
 
-    public MoneyValue getTotalSalaryCost(boolean validateOnlinePlayers) {
-        if(this.salary.isEmpty())
-            return MoneyValue.empty();
-        int validMemberCount;
-        if(validateOnlinePlayers && this.requireLoginForSalary)
-            validMemberCount = (int)this.getAllTargets().stream().filter(this::wasOnline).count();
+    @Deprecated(since = "2.3.0.2")
+    public MoneyValue getTotalSalaryCost(boolean validateOnlinePlayers) { return this.getTotalSalaryCost(validateOnlinePlayers,true); }
+    public MoneyValue getTotalSalaryCost(boolean validateOnlinePlayers, boolean performCalculation) {
+        if(performCalculation)
+        {
+            if(this.salary.isEmpty())
+                return MoneyValue.empty();
+            int validMemberCount;
+            if(validateOnlinePlayers && this.requireLoginForSalary)
+                validMemberCount = (int)this.getAllTargets().stream().filter(this::wasOnline).count();
+            else
+                validMemberCount = this.getAllTargets().size();
+            return this.salary.fromCoreValue(this.salary.getCoreValue() * validMemberCount);
+        }
         else
-            validMemberCount = this.getAllTargets().size();
-        return this.salary.fromCoreValue(this.salary.getCoreValue() * validMemberCount);
+        {
+            if(this.cacheInvalid)
+            {
+                this.validateSalaryCache();
+                this.markDirty();
+            }
+            if(validateOnlinePlayers && this.requireLoginForSalary)
+                return this.totalSalaryCache;
+            return this.quickSalaryCache;
+        }
     }
 
     private boolean wasOnline(BankReference account)
@@ -279,12 +313,14 @@ public class SalaryData {
         return false;
     }
 
-    public boolean canAffordNextSalary(boolean validateOnlinePlayers) {
+    @Deprecated(since = "2.3.0.2")
+    public boolean canAffordNextSalary(boolean validateOnlinePlayers) { return this.canAffordNextSalary(validateOnlinePlayers,true); }
+    public boolean canAffordNextSalary(boolean validateOnlinePlayers, boolean performCalculation) {
         if(this.creativeSalaryMode)
             return true;
         if(this.salary.isEmpty())
             return false;
-        return this.account.getMoneyStorage().containsValue(this.getTotalSalaryCost(validateOnlinePlayers));
+        return this.account.getMoneyStorage().containsValue(this.getTotalSalaryCost(validateOnlinePlayers,performCalculation));
     }
 
     public void tick()
@@ -297,26 +333,28 @@ public class SalaryData {
                 this.forcePaySalaries(true);
             }
         }
+        if(this.cacheInvalid)
+            this.validateSalaryCache();
     }
 
     public void onPlayerJoin(ServerPlayer player)
     {
         if(this.isTarget(player))
-            this.flagPlayerAsOnline(player);
+            this.flagPlayerAsOnline(player,true);
     }
 
     public void forcePaySalaries(boolean validateOnlinePlayers) {
         //Confirm that all current targets still actually exist
         this.validateTargetsExist();
         //Comfirm that we can afford to pay everyone
-        if(!this.canAffordNextSalary(validateOnlinePlayers))
+        if(!this.canAffordNextSalary(validateOnlinePlayers,true))
         {
             this.failedLastSalary = true;
             this.markDirty();
             return;
         }
         this.failedLastSalary = false;
-        MoneyValue payment = this.getTotalSalaryCost(validateOnlinePlayers);
+        MoneyValue payment = this.getTotalSalaryCost(validateOnlinePlayers,true);
         if(payment.isEmpty())
             return;
         this.incrementStat(StatKeys.Generic.SALARY_TRIGGERS,1);
@@ -335,7 +373,8 @@ public class SalaryData {
         if(validateOnlinePlayers)
         {
             this.onlineDuringSalary.clear();
-            this.checkForOnlinePlayers();
+            this.checkForOnlinePlayers(false);
+            this.validateSalaryCache();
         }
         this.markDirty();
     }
@@ -347,7 +386,10 @@ public class SalaryData {
             stats.incrementStat(key,value);
     }
 
-    public void checkForOnlinePlayers()
+    @Deprecated(since = "2.3.0.2",forRemoval = true)
+    public void checkForOnlinePlayers() { this.checkForOnlinePlayers(true); }
+
+    public void checkForOnlinePlayers(boolean updateCache)
     {
         if(!this.requireLoginForSalary || !this.isAutoSalaryEnabled())
             return;
@@ -360,12 +402,12 @@ public class SalaryData {
             for(BankReference target : targets)
             {
                 if(target.isSalaryTarget(player))
-                    this.flagPlayerAsOnline(player);
+                    this.flagPlayerAsOnline(player,updateCache);
             }
         }
     }
 
-    private void flagPlayerAsOnline(ServerPlayer player)
+    private void flagPlayerAsOnline(ServerPlayer player, boolean updateCache)
     {
         //Online state is not relevant if no auto-salary is enabled, or if the login requirement is not required
         if(!this.requireLoginForSalary || !this.isAutoSalaryEnabled())
@@ -374,6 +416,8 @@ public class SalaryData {
         if(!this.onlineDuringSalary.contains(playerID))
         {
             this.onlineDuringSalary.add(playerID);
+            if(updateCache)
+                this.validateSalaryCache();
             this.markDirty();
         }
     }
@@ -409,6 +453,12 @@ public class SalaryData {
             customTargets.add(StringTag.valueOf(ct));
         tag.put("CustomTargets",customTargets);
         tag.putBoolean("FailedLast",this.failedLastSalary);
+        //Salary Cache
+        CompoundTag cache = new CompoundTag();
+        cache.put("QuickTotal",this.quickSalaryCache.save());
+        if(this.requireLoginForSalary)
+            cache.put("FullTotal",this.totalSalaryCache.save());
+        tag.put("Cache",cache);
         return tag;
     }
 
@@ -436,6 +486,33 @@ public class SalaryData {
         for(int i = 0; i < customTargets.size(); ++i)
             this.customTargets.add(customTargets.getString(i));
         this.failedLastSalary = tag.getBoolean("FailedLast");
+        //Load or invalidate cache
+        if(tag.contains("Cache"))
+        {
+            CompoundTag cache = tag.getCompound("Cache");
+            this.quickSalaryCache = MoneyValue.load(cache.getCompound("QuickSalary"));
+            if(cache.contains("TotalSalary"))
+                this.totalSalaryCache = MoneyValue.load(cache.getCompound("TotalSalary"));
+            else
+                this.totalSalaryCache = MoneyValue.empty();
+        }
+        else
+            this.cacheInvalid = true;
+    }
+
+    protected final void validateSalaryCache()
+    {
+        int totalTargets = this.getAllTargets().size();
+        this.quickSalaryCache = this.salary.fromCoreValue(this.salary.getCoreValue() * totalTargets);
+        if(this.requireLoginForSalary)
+        {
+            int loggedInTargets = (int)this.getAllTargets().stream().filter(this::wasOnline).count();
+            this.totalSalaryCache = this.salary.fromCoreValue(this.salary.getCoreValue() * loggedInTargets);
+        }
+        else
+            this.totalSalaryCache = MoneyValue.empty();
+        //Remove invalid flag
+        this.cacheInvalid = false;
     }
 
     protected final void markDirty() { this.account.markDirty(); }

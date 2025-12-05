@@ -45,6 +45,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderS
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.api.traders.settings.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.info.core.TraderStatsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.info.InfoSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.info.TraderInfoClientTab;
@@ -55,7 +56,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trade
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.*;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.addons.MiscTabAddon;
-import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVariantSupportingBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModStats;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.TraderEjectionData;
@@ -269,7 +269,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 					CompoundTag itemTag = result.getOrCreateTag();
 					itemTag.putLong("StoredTrader",this.id);
 					//Add the model variant to the item
-					IVariantSupportingBlockEntity.copyDataToItem(this.blockVariant,this.blockVariantLocked,result);
+					IVariantBlock.copyDataToItem(this.blockVariant,this.blockVariantLocked,result);
 					//Give the item to the player
 					ItemHandlerHelper.giveItemToPlayer(player,result);
 				}
@@ -784,7 +784,10 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	@Override
 	public WorldPosition getWorldPosition() { return this.worldPosition; }
 
-	public final List<ITaxCollector> getApplicableTaxes() { return TaxAPI.getApi().GetTaxCollectorsFor(this).stream().filter(this::AllowTaxEntry).toList(); }
+    @Override
+    public boolean isNetworkAccessible() { return this.showOnTerminal(); }
+
+    public final List<ITaxCollector> getApplicableTaxes() { return TaxAPI.getApi().GetTaxCollectorsFor(this).stream().filter(this::AllowTaxEntry).toList(); }
 	public final List<ITaxCollector> getPossibleTaxes() { return TaxAPI.getApi().GetPotentialTaxCollectorsFor(this); }
 	public final int getTotalTaxPercentage()
 	{
@@ -1377,7 +1380,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 				blockStack = b.getDropBlockItem(level, pos, state);
 			if(blockStack.isEmpty())
 				LightmansCurrency.LogWarning("Block drop for trader is empty!");
-			IVariantSupportingBlockEntity.copyDataToItem(this.blockVariant,this.blockVariantLocked,blockStack);
+			IVariantBlock.copyDataToItem(this.blockVariant,this.blockVariantLocked,blockStack);
 		}
 
 		return this.getContents(blockStack);
@@ -1428,7 +1431,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 			//Give the item this traders ID for future loading
 			CompoundTag itemTag = item.getOrCreateTag();
 			itemTag.putLong("StoredTrader",this.id);
-			IVariantSupportingBlockEntity.copyDataToItem(this.blockVariant,this.blockVariantLocked,item);
+			IVariantBlock.copyDataToItem(this.blockVariant,this.blockVariantLocked,item);
 		}
 		//Set State to Ejected
 		this.setState(TraderState.EJECTED);

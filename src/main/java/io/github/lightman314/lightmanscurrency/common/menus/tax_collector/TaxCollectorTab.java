@@ -5,8 +5,6 @@ import io.github.lightman314.lightmanscurrency.common.menus.tabbed.EasyMenuTab;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
-
 public abstract class TaxCollectorTab extends EasyMenuTab<TaxCollectorMenu,TaxCollectorTab> {
 
     public final TaxEntry getEntry() { return this.menu.getEntry(); }
@@ -16,6 +14,6 @@ public abstract class TaxCollectorTab extends EasyMenuTab<TaxCollectorMenu,TaxCo
     public final boolean isServerEntry() { return this.menu.isServerEntry(); }
     protected TaxCollectorTab(TaxCollectorMenu menu) { super(menu); }
 
-    public boolean canOpen(@Nonnull Player player) { return true; }
+    public boolean canOpen(Player player) { return true; }
 
 }

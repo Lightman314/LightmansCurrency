@@ -2,13 +2,14 @@ package io.github.lightman314.lightmanscurrency.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.block.block_entity.IVariantDataStorage;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.models.VariantModelHelper;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.models.VariantModelLocation;
-import io.github.lightman314.lightmanscurrency.common.blockentity.variant.IVariantSupportingBlockEntity;
 import io.github.lightman314.lightmanscurrency.mixin.client.RenderStateShardAccessor;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -54,8 +55,13 @@ public class VariantBlockModel implements IDynamicBakedModel {
     @Override
     public ModelData getModelData(BlockAndTintGetter level, BlockPos pos, BlockState state, ModelData modelData) {
         ResourceLocation variantID = null;
-        if(level.getBlockEntity(pos) instanceof IVariantSupportingBlockEntity be)
-            variantID = be.getCurrentVariant();
+        //We need the actual level to get the IVariantDataStorage cap, so get it from MC
+        BlockAndTintGetter l = Minecraft.getInstance().level;
+        if(l == null) //Use the given level if no client level could be found
+            l = level;
+        IVariantDataStorage data = IVariantDataStorage.get(l,pos);
+        if(data != null)
+            variantID = data.getCurrentVariant();
         //Add my own properties to the existing model data
         return modelData.derive()
                 .with(VARIANT,variantID)

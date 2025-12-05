@@ -3,16 +3,12 @@ package io.github.lightman314.lightmanscurrency.api.taxes;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxReferenceType;
 import io.github.lightman314.lightmanscurrency.common.impl.TaxAPIImpl;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class TaxAPI {
 
     private static TaxAPI instance;

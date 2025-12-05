@@ -15,11 +15,12 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.data.BlockTagsProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 public class LCBlockTagProvider extends BlockTagsProvider {
 
@@ -189,8 +190,8 @@ public class LCBlockTagProvider extends BlockTagsProvider {
     private record CustomTagAppender(IntrinsicTagAppender<Block> appender) {
 
         public CustomTagAppender add(Block block) { this.appender.add(block); return this; }
-        public CustomTagAppender add(RegistryObject<? extends Block> block) { this.appender.add(block.get()); return this; }
-        public CustomTagAppender addOptional(RegistryObject<? extends Block> block) { this.appender.addOptional(block.getId()); return this; }
+        public CustomTagAppender add(Supplier<? extends Block> block) { this.appender.add(block.get()); return this; }
+        public CustomTagAppender addOptional(Supplier<? extends Block> block) { this.appender.addOptional(ForgeRegistries.BLOCKS.getKey(block.get())); return this; }
         public CustomTagAppender add(RegistryObjectBundle<? extends Block,?> bundle) {
             bundle.forEach((key,block) -> {
                 if(key instanceof IOptionalKey ok)

@@ -6,6 +6,7 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.Container;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
@@ -14,6 +15,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.Cancelable;
 
 import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 
 /**
  * Event called when a player dies and the wallet drops are calculated.<br>
@@ -28,41 +30,43 @@ import javax.annotation.Nonnull;
  * Use {@link #setWalletStack(ItemStack)} to replace the players equipped wallet completely. Set to {@link ItemStack#EMPTY} to unequip it entirely.<br>
  *  * Note: Default behaviour is done in {@link net.minecraftforge.eventbus.api.EventPriority#LOW}
  */
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 @Cancelable
 public class WalletDropEvent extends PlayerEvent {
 
 	private Container walletInventory;
 	private ItemStack walletStack;
-	@Nonnull
 	public Container getWalletInventory() { return this.walletInventory; }
-	@Nonnull
 	public ItemStack getWalletStack()
 	{
 		ItemStack result = this.walletStack.copy();
 		WalletItem.putWalletInventory(result, this.walletInventory);
 		return result;
 	}
-	public void setWalletStack(@Nonnull ItemStack wallet) {
+	public void setWalletStack(ItemStack wallet) {
 		this.walletStack = wallet.copy();
 		this.walletInventory = WalletItem.getWalletInventory(this.walletStack);
 	}
 	public final DamageSource source;
 	private List<ItemStack> walletDrops = new ArrayList<>();
-	@Nonnull
+	
 	public List<ItemStack> getDrops() { return this.walletDrops; }
-	public void setDrops(@Nonnull List<ItemStack> drops) { this.walletDrops = new ArrayList<>(drops); }
-	public void addDrop(@Nonnull ItemStack drop) { this.walletDrops.add(drop); }
-	public void addDrops(@Nonnull Collection<ItemStack> drop) { this.walletDrops.addAll(drop); }
+	public void setDrops(List<ItemStack> drops) { this.walletDrops = new ArrayList<>(drops); }
+	public void addDrop(ItemStack drop) { this.walletDrops.add(drop); }
+	public void addDrops(Collection<ItemStack> drop) { this.walletDrops.addAll(drop); }
 	public final boolean keepWallet;
+    public final boolean destroyWallet;
 	public final int coinDropPercent;
 	
-	public WalletDropEvent(@Nonnull Player player, @Nonnull IWalletHandler walletHandler, @Nonnull Container walletInventory, @Nonnull DamageSource source, boolean keepWallet, int coinDropPercent)
+	public WalletDropEvent(Player player, IWalletHandler walletHandler, Container walletInventory, DamageSource source, boolean keepWallet, boolean destroyWallet, int coinDropPercent)
 	{
 		super(player);
 		this.walletStack = walletHandler.getWallet().copy();
 		this.walletInventory = walletInventory;
 		this.source = source;
 		this.keepWallet = keepWallet;
+        this.destroyWallet = destroyWallet;
 		this.coinDropPercent = coinDropPercent;
 	}
 	

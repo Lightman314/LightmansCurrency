@@ -5,14 +5,17 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableReference;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public final class TaxStats {
 
     private final TaxEntry entry;
@@ -75,7 +78,7 @@ public final class TaxStats {
         }
     }
 
-    public void OnTaxesCollected(@Nonnull ITaxable taxable, @Nonnull MoneyValue collectedAmount)
+    public void OnTaxesCollected(ITaxable taxable, MoneyValue collectedAmount)
     {
         this.removeInvalidDataInternal();
         this.totalCollected.addValue(collectedAmount);
@@ -100,7 +103,7 @@ public final class TaxStats {
     }
 
     @Nullable
-    private CollectionData getDataEntry(@Nonnull TaxableReference taxable)
+    private CollectionData getDataEntry(TaxableReference taxable)
     {
         for(CollectionData data : this.collectionCount)
         {

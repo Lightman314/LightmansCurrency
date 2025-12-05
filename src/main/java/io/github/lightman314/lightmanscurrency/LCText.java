@@ -3,6 +3,8 @@ package io.github.lightman314.lightmanscurrency;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
+import io.github.lightman314.lightmanscurrency.api.money.coins.data.CoinInputType;
 import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesCollectedNotification;
 import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesPaidNotification;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
@@ -572,6 +574,8 @@ public class LCText {
     public static final TextEntry TOOLTIP_TAX_COLLECTOR_ADMIN = TextEntry.tooltip(MODID,"tax_collector.admin");
     public static final TextEntry GUI_TAX_COLLECTOR_FORCE_ACCEPTANCE = TextEntry.gui(MODID,"tax_collector.force_acceptance");
     public static final TextEntry GUI_TAX_COLLECTOR_INFINITE_RANGE = TextEntry.gui(MODID,"tax_collector.infinite_range");
+    public static final TextEntry TOOLTIP_TAX_COLLECTOR_SERVER_SETTINGS = TextEntry.tooltip(MODID,"tax_collector.server_settings");
+    public static final TextEntry GUI_TAX_COLLECTOR_ONLY_TARGET_NETWORK = TextEntry.gui(MODID,"tax_collector.only_target_network");
     public static final TextEntry GUI_TAX_COLLECTOR_TAXABLE_ACCEPT_COLLECTOR = TextEntry.gui(MODID,"tax_collector.taxable.accept_collector");
     public static final TextEntry TOOLTIP_TAX_COLLECTOR_TAXABLE_FORCE_IGNORE = TextEntry.tooltip(MODID,"tax_collector.taxable.force_ignore_collector");
     public static final TextEntry TOOLTIP_TAX_COLLECTOR_TAXABLE_PARDON_IGNORED = TextEntry.tooltip(MODID,"tax_collector.taxable.pardon_ignored_collector");
@@ -1344,6 +1348,18 @@ public class LCText {
     public static final TextEntry CONFIG_MCL_LABEL = TextEntry.gui(MODID,"config.master_coin_list.label");
     public static final TextEntry CONFIG_MCL_EXIT_WITHOUT_SAVING = TextEntry.button(MODID,"config.master_coin_list.exit_without_saving");
     public static final TextEntry CONFIG_MCL_SAVE_CHANGES = TextEntry.button(MODID,"config.master_coin_list.save_changes");
+    public static final MultiLineTextEntry CONFIG_MCL_CHAIN_SELECT_CHAIN_INFO = MultiLineTextEntry.tooltip(MODID,"config.master_coin_list.chain_select.chain_info");
+    public static final TextEntry CONFIG_MCL_CHAIN_SELECT_NEW_CHAIN = TextEntry.button(MODID,"config.master_coin_list.chain_select.new_chain");
+    public static final TextEntry CONFIG_MCL_CHAIN_EDIT_DELETE_CHAIN = TextEntry.button(MODID,"config.master_coin_list.chain_edit.delete_chain");
+    public static final TextEntry CONFIG_MCL_CHAIN_EDIT_CHAIN_ID = TextEntry.gui(MODID,"config.master_coin_list.chain_edit.chain_id");
+    public static final TextEntry CONFIG_MCL_CHAIN_EDIT_DISPLAY_NAME = TextEntry.gui(MODID,"config.master_coin_list.chain_edit.display_name");
+    public static final TextEntry CONFIG_MCL_CHAIN_EDIT_EVENT_CHAIN = TextEntry.button(MODID,"config.master_coin_list.chain_edit.event_chain");
+    public static final TextEntry CONFIG_MCL_CHAIN_EDIT_INPUT_TYPE = TextEntry.button(MODID,"config.master_coin_list.chain_edit.input_type");
+    public static final TextEntryBundle<CoinInputType> CONFIG_MCL_CHAIN_EDIT_INPUT_TYPE_VALUES = TextEntryBundle.of(CoinInputType.values(),"button.lightmanscurrency.config.master_coin_list.chain_edit.input_type");
+    public static final TextEntry CONFIG_MCL_CHAIN_EDIT_CORE_CHAIN = TextEntry.button(MODID,"config.master_coin_list.chain_edit.core_chain");
+    public static final TextEntry CONFIG_MCL_CHAIN_EDIT_SIDE_CHAINS = TextEntry.button(MODID,"config.master_coin_list.chain_edit.side_chains");
+    public static final TextEntry CONFIG_MCL_CHAIN_EDIT_DISPLAY_DATA = TextEntry.button(MODID,"config.master_coin_list.chain_edit.display_data");
+    public static final TextEntry CONFIG_MCL_CHAIN_EDIT_ATM_DATA = TextEntry.button(MODID,"config.master_coin_list.chain_edit.atm_data");
 
     ///OTHER MODS
 

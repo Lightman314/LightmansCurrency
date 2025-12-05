@@ -12,6 +12,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -118,6 +119,8 @@ public class VariantProvider<T,V> {
 
     public static void registerVariantItem(Function<Item,IVariantItem> provider) { ITEM_PROVIDER.addProvider(Objects.requireNonNull(provider)); }
 
+    @Nullable
+    public static IVariantBlock getVariantBlock(BlockState state) { return getVariantBlock(state.getBlock()); }
     @Nullable
     public static IVariantBlock getVariantBlock(Block block) { return BLOCK_PROVIDER.get(block); }
     @Nullable

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.integration.jade.providers;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
+import io.github.lightman314.lightmanscurrency.api.variants.block.block_entity.IVariantDataStorage;
 import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
@@ -32,41 +33,51 @@ public class VariantComponentProvider implements IBlockComponentProvider{
     @Override
     @Nullable
     public IElement getIcon(BlockAccessor accessor, IPluginConfig config, IElement currentIcon) {
+
         IVariantBlock block = VariantProvider.getVariantBlock(accessor.getBlock());
-        if(block != null && accessor.getBlockEntity() instanceof IVariantSupportingBlockEntity be)
+        if(block != null)
         {
-            ResourceLocation variant = be.getCurrentVariant();
-            if(variant != null)
+            IVariantDataStorage data = IVariantDataStorage.get(accessor.getLevel(),accessor.getPosition());
+            if(data != null)
             {
-                ItemStack item = new ItemStack(accessor.getBlock());
-                IVariantItem.setItemVariant(item,variant);
-                return ItemStackElement.of(item);
+                ResourceLocation variant = data.getCurrentVariant();
+                if(variant != null)
+                {
+                    ItemStack item = new ItemStack(accessor.getBlock());
+                    IVariantItem.setItemVariant(item,variant);
+                    return ItemStackElement.of(item);
+                }
             }
+
         }
         return IBlockComponentProvider.super.getIcon(accessor, config, currentIcon);
     }
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
         IVariantBlock block = VariantProvider.getVariantBlock(accessor.getBlock());
-        if(block != null && accessor.getBlockEntity() instanceof IVariantSupportingBlockEntity be)
+        if(block != null)
         {
-            ResourceLocation variantID = be.getCurrentVariant();
-            if(variantID != null)
+            IVariantDataStorage data = IVariantDataStorage.get(accessor.getLevel(),accessor.getPosition());
+            if(data != null)
             {
-                ModelVariant variant = ModelVariantDataManager.getVariant(variantID);
-                if(variant != null)
+                ResourceLocation variantID = data.getCurrentVariant();
+                if(variantID != null)
                 {
-                    tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_NAME.get(variant.getName().withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.YELLOW));
-                    if(variant.has(VariantProperties.TOOLTIP_INFO))
+                    ModelVariant variant = ModelVariantDataManager.getVariant(variantID);
+                    if(variant != null)
                     {
-                        TooltipInfo extraTooltip = variant.get(VariantProperties.TOOLTIP_INFO);
-                        if(extraTooltip.drawOnJade)
-                            tooltip.addAll(extraTooltip.getTooltip());
+                        tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_NAME.get(variant.getName().withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.YELLOW));
+                        if(variant.has(VariantProperties.TOOLTIP_INFO))
+                        {
+                            TooltipInfo extraTooltip = variant.get(VariantProperties.TOOLTIP_INFO);
+                            if(extraTooltip.drawOnJade)
+                                tooltip.addAll(extraTooltip.getTooltip());
+                        }
                     }
                 }
+                if(data.isVariantLocked() && config.get(LOCKED_CONFIG))
+                    tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_LOCKED.getWithStyle(ChatFormatting.GOLD,ChatFormatting.BOLD));
             }
-            if(be.isVariantLocked() && config.get(LOCKED_CONFIG))
-                tooltip.add(LCText.TOOLTIP_MODEL_VARIANT_LOCKED.getWithStyle(ChatFormatting.GOLD,ChatFormatting.BOLD));
         }
     }
     @Override

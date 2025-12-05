@@ -1,8 +1,10 @@
 package io.github.lightman314.lightmanscurrency.common.blocks.variant;
 
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
+
 /**
  * @deprecated Placeholder to prevent compat mods from breaking<br>
- * Moved to {@link io.github.lightman314.lightmanscurrency.api.variants.block.IEasyVariantBlock}
+ * Removed entirely in favor of external variant data storage
  */
 @Deprecated(since = "2.3.0.1",forRemoval = true)
-public interface IEasyVariantBlock extends io.github.lightman314.lightmanscurrency.api.variants.block.IEasyVariantBlock { }
+public interface IEasyVariantBlock extends IVariantBlock { }

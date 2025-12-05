@@ -2,15 +2,11 @@ package io.github.lightman314.lightmanscurrency.common.menus.tabbed;
 
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import net.minecraft.MethodsReturnNonnullByDefault;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Map;
 import java.util.function.Consumer;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public interface IEasyTabbedMenu<T extends EasyMenuTab<?,T>> extends LazyPacketData.IBuilderProvider, IClientTracker {
 
     void setMessageListener(Consumer<LazyPacketData> listener);

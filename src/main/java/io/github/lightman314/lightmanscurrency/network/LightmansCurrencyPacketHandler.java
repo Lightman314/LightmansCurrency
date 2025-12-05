@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.network;
 import io.github.lightman314.lightmanscurrency.network.message.*;
 import io.github.lightman314.lightmanscurrency.network.message.auction.*;
 import io.github.lightman314.lightmanscurrency.network.message.bank.*;
+import io.github.lightman314.lightmanscurrency.network.message.cap.*;
 import io.github.lightman314.lightmanscurrency.network.message.command.*;
 import io.github.lightman314.lightmanscurrency.network.message.config.*;
 import io.github.lightman314.lightmanscurrency.network.message.data.*;
@@ -157,6 +158,10 @@ public class LightmansCurrencyPacketHandler {
 
 		//Custom Data Syncing
 		registerS2C(SPacketSyncCustomData.class,SPacketSyncCustomData.HANDLER);
+
+        //Variant Capability Syncing
+        registerS2C(SPacketSyncVariantBECap.class,SPacketSyncVariantBECap.HANDLER);
+        registerS2C(SPacketSyncVariantChunkCap.class,SPacketSyncVariantChunkCap.HANDLER);
 
 	}
 

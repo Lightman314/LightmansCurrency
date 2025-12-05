@@ -122,6 +122,9 @@ public class TimeUtil {
 					count++;
 				}
 			}
+            //Force it to be 0s if the text would otherwise be empty
+            if(text.isEmpty())
+                return getUnitString(TimeUnit.SECOND,shortText,true);
 			return text.toString();
 		}
 	}

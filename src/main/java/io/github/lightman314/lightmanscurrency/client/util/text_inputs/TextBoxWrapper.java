@@ -13,7 +13,7 @@ import java.util.function.Function;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class TextBoxWrapper<T> extends EasyWidget implements IWidgetWrapper {
+public class TextBoxWrapper<T> extends EasyWidget implements IWidgetWrapper.WrappingGuiEvents {
 
     private boolean ignoreChanges = false;
     private final EditBox editBox;

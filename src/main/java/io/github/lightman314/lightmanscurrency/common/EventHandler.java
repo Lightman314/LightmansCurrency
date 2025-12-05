@@ -50,7 +50,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
@@ -306,9 +305,17 @@ public class EventHandler {
 				{
 
 					boolean keepWallet = ModGameRules.safeGetCustomBool(player.level(), ModGameRules.KEEP_WALLET, false);
-					//If curios isn't also installed, assume keep inventory will also enforce the keepWallet rule
-					if(!LCCurios.hasWalletSlot(player) && player.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY))
-						keepWallet = true;
+					boolean destroyWallet = false;
+                    if(!keepWallet)
+                    {
+                        //Look up alternative reasons to keep the wallet equipped
+                        //Note: If curios is not installed, will return the "DEFAULT" drop rule which will obey the vanilla keepInventory game rule
+                        LCCurios.DropRule dropRule = LCCurios.getWalletDropRules(player);
+                        if(dropRule.shouldDestroy())
+                            destroyWallet = true;
+                        else
+                            keepWallet = dropRule.shouldKeep(player);
+                    }
 
 					int coinDropPercent = ModGameRules.safeGetCustomInt(player.level(), ModGameRules.COIN_DROP_PERCENT, 0);
 
@@ -316,7 +323,7 @@ public class EventHandler {
 					SimpleContainer walletInventory = WalletItem.getWalletInventory(walletStack);
 
 					//Post the Wallet Drop Event
-					WalletDropEvent wde = new WalletDropEvent(player, walletHandler, walletInventory, event.getSource(), keepWallet, coinDropPercent);
+					WalletDropEvent wde = new WalletDropEvent(player, walletHandler, walletInventory, event.getSource(), keepWallet, destroyWallet, coinDropPercent);
 					if(MinecraftForge.EVENT_BUS.post(wde))
 						return;
 
@@ -358,6 +365,12 @@ public class EventHandler {
 	@SubscribeEvent(priority = EventPriority.LOW)
 	public static void onWalletDrop(@Nonnull WalletDropEvent event)
 	{
+        if(event.destroyWallet)
+        {
+            event.setWalletStack(ItemStack.EMPTY);
+            event.setDrops(new ArrayList<>());
+            return;
+        }
 		if(event.keepWallet) //Keep the wallet, but drop the wallets contents
 		{
 			//Spawn the coin drops
@@ -456,6 +469,16 @@ public class EventHandler {
             account.tick();
         filler.pop();
 	}
+
+    @SubscribeEvent
+    public static void playerJoined(PlayerEvent.PlayerLoggedInEvent event)
+    {
+        if(event.getEntity() instanceof ServerPlayer player)
+        {
+            for(IBankAccount account : BankAPI.getApi().GetAllBankAccounts(false))
+                account.onPlayerJoined(player);
+        }
+    }
 
 	@SubscribeEvent
 	public static void treeGrowEvent(SaplingGrowTreeEvent event)

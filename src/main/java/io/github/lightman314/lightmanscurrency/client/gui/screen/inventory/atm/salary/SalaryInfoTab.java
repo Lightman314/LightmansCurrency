@@ -77,21 +77,22 @@ public class SalaryInfoTab extends SalarySubTab.EditTab {
         if(accessLevel >= SalaryData.PERM_EDIT)
         {
             //Required Funds
-            MoneyValue totalCost = salary.getTotalSalaryCost(false);
+            MoneyValue totalCost = salary.getTotalSalaryCost(false,false);
             if(!totalCost.isEmpty())
                 TextRenderUtil.drawCenteredMultilineText(gui,LCText.GUI_BANK_SALARY_INFO_REQUIRED_FUNDS.get(totalCost.getText()),leftEdge,width,66,0x404040);
             //Required Auto-Salary Funds
             if(salary.getLoginRequiredForSalary())
             {
-                totalCost = salary.getTotalSalaryCost(true);
+                totalCost = salary.getTotalSalaryCost(true,false);
                 if(!totalCost.isEmpty())
                     TextRenderUtil.drawCenteredMultilineText(gui,LCText.GUI_BANK_SALARY_INFO_CURRENT_REQUIRED_FUNDS.get(totalCost.getText()), leftEdge,width, 86, 0x404040);
             }
 
             Component fundsWarning = null;
-            if(!salary.canAffordNextSalary(true))
+            if(!salary.canAffordNextSalary(true,false))
                 fundsWarning = LCText.GUI_BANK_SALARY_INFO_INSUFFICIENT_FUNDS.get();
-            else if(!salary.canAffordNextSalary(false))
+            //Don't bother checkinf ig it's possible to not afford the next salary if a login isn't required
+            else if(salary.getLoginRequiredForSalary() && !salary.canAffordNextSalary(false,false))
                 fundsWarning = LCText.GUI_BANK_SALARY_INFO_POSSIBLE_INSUFFICIENT_FUNDS.get();
             //Insufficient Funds warning
             if(fundsWarning != null)

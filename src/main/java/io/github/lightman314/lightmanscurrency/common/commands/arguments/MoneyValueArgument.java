@@ -15,7 +15,6 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
@@ -31,7 +30,6 @@ public class MoneyValueArgument implements ArgumentType<MoneyValue> {
     private MoneyValueArgument(HolderLookup<Item> items) { this.items = items; }
 
     public static MoneyValueArgument argument(CommandBuildContext context) { return new MoneyValueArgument(context.holderLookup(ForgeRegistries.ITEMS.getRegistryKey())); }
-    public static MoneyValueArgument safeArgument(RegisterCommandsEvent event) { return argument(event.getBuildContext()); }
 
     public static MoneyValue getMoneyValue(CommandContext<CommandSourceStack> commandContext, String name) throws CommandSyntaxException {
         return commandContext.getArgument(name, MoneyValue.class);

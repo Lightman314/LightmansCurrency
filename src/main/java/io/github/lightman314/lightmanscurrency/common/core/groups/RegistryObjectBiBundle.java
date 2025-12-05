@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.core.groups;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.util.TriConsumer;
-import net.minecraftforge.registries.RegistryObject;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -19,15 +18,15 @@ public class RegistryObjectBiBundle<T,L,M> {
 
     public RegistryObjectBiBundle(@Nonnull Comparator<L> sorter1, @Nonnull Comparator<M> sorter2) { this.sorter1 = sorter1; this.sorter2 = sorter2; }
 
-    private final Map<L, Map<M,RegistryObject<T>>> values = new HashMap<>();
+    private final Map<L, Map<M,Supplier<T>>> values = new HashMap<>();
 
-    public void put(L key1, M key2, RegistryObject<T> value) {
+    public void put(L key1, M key2, Supplier<T> value) {
         if(this.locked)
         {
             LightmansCurrency.LogWarning("Attempted to put an object in the bundle after it's been locked.");
             return;
         }
-        Map<M,RegistryObject<T>> childMap = this.values.getOrDefault(key1, new HashMap<>());
+        Map<M,Supplier<T>> childMap = this.values.getOrDefault(key1, new HashMap<>());
         if(childMap.containsKey(key2))
         {
             LightmansCurrency.LogWarning("Attempted to put a second object with key '" + key1.toString() + "," + key2.toString() + "' into the registry bundle.");
@@ -37,10 +36,10 @@ public class RegistryObjectBiBundle<T,L,M> {
         this.values.put(key1,childMap);
     }
 
-    public RegistryObject<T> getRegistryObject(L key1, M key2) {
+    public Supplier<T> getRegistryObject(L key1, M key2) {
         if(this.values.containsKey(key1))
         {
-            Map<M,RegistryObject<T>> childMap = this.values.get(key1);
+            Map<M,Supplier<T>> childMap = this.values.get(key1);
             if(childMap.containsKey(key2))
                 return childMap.get(key2);
         }
@@ -48,7 +47,7 @@ public class RegistryObjectBiBundle<T,L,M> {
     }
 
     public T get(L key1, M key2) {
-        RegistryObject<T> result = this.getRegistryObject(key1, key2);
+        Supplier<T> result = this.getRegistryObject(key1, key2);
         if(result != null)
             return result.get();
         return null;
@@ -88,8 +87,8 @@ public class RegistryObjectBiBundle<T,L,M> {
         return keys;
     }
 
-    private List<M> getKey2Sorted(Map<M,RegistryObject<T>> map) { return this.getKey2Sorted(map, this.sorter2); }
-    private List<M> getKey2Sorted(Map<M,RegistryObject<T>> map, Comparator<M> sorter) {
+    private List<M> getKey2Sorted(Map<M,Supplier<T>> map) { return this.getKey2Sorted(map, this.sorter2); }
+    private List<M> getKey2Sorted(Map<M,Supplier<T>> map, Comparator<M> sorter) {
         List<M> keys = new ArrayList<>(map.keySet());
         keys.sort(sorter);
         return keys;
@@ -116,7 +115,7 @@ public class RegistryObjectBiBundle<T,L,M> {
         List<Supplier<T>> result = new ArrayList<>();
         for(L key1 : this.values.keySet())
         {
-            Map<M,RegistryObject<T>> childMap = this.values.get(key1);
+            Map<M,Supplier<T>> childMap = this.values.get(key1);
             for(M key2 : childMap.keySet())
                 result.add(() -> this.get(key1, key2));
         }
@@ -128,11 +127,11 @@ public class RegistryObjectBiBundle<T,L,M> {
             consumer.accept(key);
     }
 
-    public void forEach(TriConsumer<L,M,RegistryObject<T>> consumer) {
+    public void forEach(TriConsumer<L,M,Supplier<T>> consumer) {
         List<L> key1 = this.getKey1Sorted();
         for(L k1 : key1)
         {
-            Map<M,RegistryObject<T>> map = this.values.get(k1);
+            Map<M,Supplier<T>> map = this.values.get(k1);
             List<M> key2 = this.getKey2Sorted(map);
             for(M k2 : key2)
                 consumer.accept(k1,k2,map.get(k2));

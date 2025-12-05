@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.TallRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.api.variants.block.IEasyVariantBlock;
+import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.menus.ATMMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
@@ -34,7 +34,7 @@ import net.minecraftforge.network.NetworkHooks;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class ATMBlock extends TallRotatableBlock implements IEasyVariantBlock {
+public class ATMBlock extends TallRotatableBlock implements IVariantBlock {
 	
 	public ATMBlock(Properties properties) { super(properties); }
 

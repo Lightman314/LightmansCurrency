@@ -245,7 +245,7 @@ public class LootManager {
 	@SuppressWarnings("deprecation")
 	public static List<ItemStack> safelyGetLoot(LootTable table, LootContext context) {
 		List<ItemStack> results = new ArrayList<>();
-		//Call getRandomItems(LootContext,Consumer<ItemStack>) to keep it from being modified by the GLM's and getting stuck in an infinite loop.
+		//Call getRandomItemsRaw(LootContext,Consumer<ItemStack>) to keep it from being modified by the GLM's and getting stuck in an infinite loop.
 		table.getRandomItemsRaw(context, results::add);
 		return results;
 	}
