@@ -55,6 +55,7 @@ import io.github.lightman314.lightmanscurrency.integration.claiming.ftbchunks.LC
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCComputercraftSetup;
 import io.github.lightman314.lightmanscurrency.integration.create.LCCreate;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
+import io.github.lightman314.lightmanscurrency.integration.ftb_filter.LCFTBFilterSystemLauncher;
 import io.github.lightman314.lightmanscurrency.integration.ftbteams.LCFTBTeams;
 import io.github.lightman314.lightmanscurrency.integration.immersiveengineering.LCImmersive;
 import io.github.lightman314.lightmanscurrency.integration.impactor.LCImpactorCompat;
@@ -146,6 +147,7 @@ public class LightmansCurrency {
 		IntegrationUtil.SafeRunIfLoaded("curios", () -> LCCurios.setup(eventBus), "Error setting up Curios Compatibility!");
 		IntegrationUtil.SafeRunIfLoaded("create", () -> LCCreate.init(eventBus), "Error setting up Create Integration!");
 		IntegrationUtil.SafeRunIfLoaded("computercraft", () -> LCComputercraftSetup.setup(eventBus),"Error setting up ComputerCraft Integration!");
+        IntegrationUtil.SafeRunIfLoaded("ftbfiltersystem", LCFTBFilterSystemLauncher::launch,"Error setting up FTB Filter System Integration!");
 
         //Register item variant providers for basic items
         VariantProvider.registerBasicVariantItem(ModItems.TRADING_CORE,ModItems.VARIANT_WAND,ModItems.ITEM_TRADE_FILTER);

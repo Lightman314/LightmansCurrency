@@ -214,6 +214,7 @@ dependencies {
 
     //FTB Filter System
     compileOnly "curse.maven:ftb-filter-system-943925:6899527"
+    //runtimeOnly "curse.maven:ftb-library-forge-404465:7260617"
 
 }
 
