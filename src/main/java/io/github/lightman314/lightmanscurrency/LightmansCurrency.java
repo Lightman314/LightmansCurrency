@@ -64,6 +64,7 @@ import io.github.lightman314.lightmanscurrency.integration.computercraft.LCCompu
 import io.github.lightman314.lightmanscurrency.integration.create.LCCreate;
 import io.github.lightman314.lightmanscurrency.integration.discord.LCDiscord;
 import io.github.lightman314.lightmanscurrency.integration.claiming.ftbchunks.LCFTBChunksIntegration;
+import io.github.lightman314.lightmanscurrency.integration.ftb_filter.LCFTBFilterSystemLauncher;
 import io.github.lightman314.lightmanscurrency.integration.ftbteams.LCFTBTeams;
 import io.github.lightman314.lightmanscurrency.integration.impactor.LCImpactorCompat;
 import io.github.lightman314.lightmanscurrency.integration.quark.QuarkCustomWoodTypes;
@@ -154,6 +155,7 @@ public class LightmansCurrency {
 		IntegrationUtil.SafeRunIfLoaded("immersiveengineering", LCImmersive::registerRotationBlacklists, null);
 		IntegrationUtil.SafeRunIfLoaded("create", LCCreate::init, "Error settings up Create Integration!");
 		IntegrationUtil.SafeRunIfLoaded("computercraft", LCComputercraftSetup::setup, "Error settings up ComputerCraft Integration!");
+		IntegrationUtil.SafeRunIfLoaded("ftbfiltersystem", LCFTBFilterSystemLauncher::launch, "Error settings up FTb Filter System Integration!");
 
         VariantProvider.registerBasicVariantItem(ModItems.TRADING_CORE,ModItems.VARIANT_WAND,ModItems.ITEM_TRADE_FILTER);
 

@@ -7,6 +7,7 @@ import dev.ftb.mods.ftbfiltersystem.api.filter.SmartFilter;
 import io.github.lightman314.lightmanscurrency.api.filter.IItemTradeFilter;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.integration.ftb_filter.LCFTBFilterSystem;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
@@ -49,8 +50,9 @@ public class FTBFilter implements IItemTradeFilter {
                         //Don't bother displaying the arg if it's empty
                         Component arg = f.getDisplayArg();
                         if(!arg.getString().isEmpty())
-                            line.append("(").append(arg).append(")");
+                            line.append(" ").append(arg.copy().withStyle(ChatFormatting.BLUE));
                     }
+                    tooltip.add(line);
                 }
                 return tooltip;
             } catch (FilterException ignored) {}
