@@ -20,20 +20,18 @@ import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.function.Supplier;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public abstract class BankReference extends MoneyHolder.Slave implements ISidedObject {
 
-    private boolean isClient = false;
-    public boolean isClient() { return this.isClient; }
+    private Supplier<Boolean> isClient = () -> false;
+    public boolean isClient() { return this.isClient.get(); }
 
-    
     public BankReference flagAsClient() { return this.flagAsClient(true); }
-    
-    public BankReference flagAsClient(boolean isClient) { this.isClient = isClient; return this; }
-    
-    public BankReference flagAsClient(IClientTracker parent) { return this.flagAsClient(parent.isClient()); }
+    public BankReference flagAsClient(boolean isClient) { this.isClient = () -> isClient; return this; }
+    public BankReference flagAsClient(IClientTracker parent) { this.isClient = parent::isClient; return this; }
 
     protected final BankReferenceType type;
     protected BankReference(BankReferenceType type) { this.type = type; }

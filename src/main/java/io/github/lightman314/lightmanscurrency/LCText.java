@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
-import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.CoinInputType;
 import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesCollectedNotification;
 import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesPaidNotification;
@@ -144,6 +143,8 @@ public class LCText {
     public static final TextEntry ITEM_UPGRADE_TEMPLATE = TextEntry.item(ModItems.UPGRADE_SMITHING_TEMPLATE);
 
     public static final TextEntry ITEM_VARIANT_WAND = TextEntry.item(ModItems.VARIANT_WAND);
+
+    //public static final TextEntry ITEM_TRANSACTION_REGISTER = TextEntry.item(ModItems.TRANSACTION_REGISTER);
 
     public static final TextEntry ITEM_ITEM_TRADE_FILTER = TextEntry.item(ModItems.ITEM_TRADE_FILTER);
 
@@ -688,6 +689,7 @@ public class LCText {
     public static final TextEntry GUI_TRADER_STATS_EMPTY = TextEntry.gui(MODID,"trader.stats.empty");
     public static final TextEntry TOOLTIP_TRADER_TAXES = TextEntry.tooltip(MODID,"trader.tax_info");
     public static final TextEntry GUI_TRADER_TAXES_TOTAL_RATE = TextEntry.tooltip(MODID,"trader.tax_info.total_rate");
+    public static final TextEntry GUI_TRADER_TAXES_TOTAL_RATE_RANGE = TextEntry.tooltip(MODID,"trader.tax_info.total_rate.range");
     public static final TextEntry GUI_TRADER_TAXES_NO_TAX_COLLECTORS = TextEntry.gui(MODID,"trade.tax_info.no_tax_collectors");
     public static final TextEntry TOOLTIP_TRADER_STORAGE = TextEntry.tooltip(MODID,"trader.storage");
     public static final TextEntry TOOLTIP_TRADER_MONEY_STORAGE = TextEntry.tooltip(MODID,"trader.money_storage");

@@ -50,7 +50,12 @@ public interface ITaxCollector extends IClientTracker {
     /**
      * Whether this tax collector will tax the given {@link ITaxable Taxable} machine.
      */
-    boolean ShouldTax(ITaxable taxable);
+    default boolean ShouldTax(ITaxable taxable) { return this.ShouldTax(ITaxableContext.defaultContext(taxable)); }
+
+    /**
+     * Whether this tax collector will tax the given {@link ITaxable Taxable} machine.
+     */
+    boolean ShouldTax(ITaxableContext context);
 
     /**
      * Whether the given {@link ITaxable} machine is within this tax collectors effective area.
@@ -59,7 +64,7 @@ public interface ITaxCollector extends IClientTracker {
 
     /**
      * Flags the given {@link ITaxable Taxable} Machine as giving consent to being taxed by this tax collector.<br>
-     * Required for {@link #ShouldTax(ITaxable)} to accept the given machine.
+     * Required for {@link #ShouldTax(ITaxableContext)} to accept the given machine.
      */
     void AcceptTaxable(ITaxable taxable);
 

@@ -9,6 +9,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonSyntaxException;
+import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.api.events.TraderEvent;
@@ -35,6 +36,7 @@ import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
+import io.github.lightman314.lightmanscurrency.api.taxes.ITaxableContext;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.attachments.TraderAttachment;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderScreen;
@@ -524,19 +526,21 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	}
 	public MoneyStorage getInternalStoredMoney() { return this.storedMoney; }
 
-	public MoneyValue addStoredMoney(MoneyValue amount, boolean shouldTax) {
+    @Deprecated(since = "2.3.0.3")
+	public MoneyValue addStoredMoney(MoneyValue amount, boolean shouldTax) { return this.addStoredMoney(amount,shouldTax ? ITaxableContext.simpleContext(this,this.showOnTerminal()) : null); }
+	public MoneyValue addStoredMoney(MoneyValue amount, @Nullable ITaxableContext context) {
 		if(amount == null)
 			return MoneyValue.empty();
 		MoneyValue taxesPaid = MoneyValue.empty();
-		if(shouldTax)
+		if(context != null)
 		{
-			taxesPaid = this.payTaxesOn(amount);
+			taxesPaid = this.payTaxesOn(amount,context);
 			if(!amount.containsValue(taxesPaid))
 			{
 				//Remove excess money
 				//Will add warning for owner if tax percent is somehow greater than 100%
 				//May also lock the trader from interactions until they can report the issue to the relevant parties
-				this.removeStoredMoney(taxesPaid.subtractValue(amount), false);
+				this.removeStoredMoney(taxesPaid.subtractValue(amount), null);
 				return taxesPaid;
 			}
 			else
@@ -558,12 +562,14 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		return taxesPaid;
 	}
 
-	public MoneyValue removeStoredMoney(MoneyValue amount, boolean shouldTax) {
+    @Deprecated(since = "2.3.0.3")
+	public MoneyValue removeStoredMoney(MoneyValue amount, boolean shouldTax) { return this.removeStoredMoney(amount,shouldTax ? ITaxableContext.simpleContext(this,this.showOnTerminal()) : null); }
+	public MoneyValue removeStoredMoney(MoneyValue amount, @Nullable ITaxableContext context) {
 		MoneyValue taxesPaid = MoneyValue.empty();
-		if(shouldTax)
+		if(context != null)
 		{
 			//Then pay taxes
-			taxesPaid = this.payTaxesOn(amount);
+			taxesPaid = this.payTaxesOn(amount,context);
 			if(!taxesPaid.isEmpty())
 				amount = amount.addValue(taxesPaid);
 		}
@@ -590,10 +596,12 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 			Permissions.PermissionWarning(player, "collect stored coins", Permissions.COLLECT_COINS);
 	}
 
-	public final MoneyValue payTaxesOn(MoneyValue amount)
+    @Deprecated(since = "2.3.0.3")
+	public final MoneyValue payTaxesOn(MoneyValue amount) { return this.payTaxesOn(amount,ITaxableContext.simpleContext(this,this.showOnTerminal())); }
+	public final MoneyValue payTaxesOn(MoneyValue amount, ITaxableContext context)
 	{
 		MoneyValue paidCache = MoneyValue.empty();
-		for(ITaxCollector tax : this.getApplicableTaxes())
+		for(ITaxCollector tax : this.getApplicableTaxes(context))
 		{
 			//Obey ignored tax settings
 			if(!this.ShouldIgnoreTaxEntry(tax))
@@ -776,8 +784,8 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 			return be;
 		return null;
 	}
-	
-	@Override
+
+    @Override
 	public TaxableReference getReference() { return new TaxableTraderReference(this.getID()); }
 	
 	@Override
@@ -786,17 +794,35 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
     @Override
     public boolean isNetworkAccessible() { return this.showOnTerminal(); }
 
-    public final List<ITaxCollector> getApplicableTaxes() { return TaxAPI.getApi().GetTaxCollectorsFor(this).stream().filter(this::AllowTaxEntry).toList(); }
+    @Deprecated(since = "2.3.0.3")
+    public final List<ITaxCollector> getApplicableTaxes() { return this.getApplicableTaxes(ITaxableContext.simpleContext(this,this.showOnTerminal())); }
+    public final List<ITaxCollector> getApplicableTaxes(ITaxableContext context) { return TaxAPI.getApi().GetTaxCollectorsFor(context).stream().filter(this::AllowTaxEntry).toList(); }
 	public final List<ITaxCollector> getPossibleTaxes() { return TaxAPI.getApi().GetPotentialTaxCollectorsFor(this); }
-	public final int getTotalTaxPercentage()
+	public final int getTotalTaxPercentage() { return this.getTotalTaxPercentage(ITaxableContext.defaultContext(this)); }
+	public final int getTotalTaxPercentage(ITaxableContext context)
 	{
-		List<? extends ITaxCollector> entries = this.getApplicableTaxes();
+		List<ITaxCollector> entries = this.getApplicableTaxes(context);
 		int taxPercentage = 0;
 		for(ITaxCollector entry : entries)
 			taxPercentage += entry.getTaxRate();
 		return taxPercentage;
 	}
-	public final boolean exceedsAcceptableTaxRate() { return this.getTotalTaxPercentage() > this.acceptableTaxRate; }
+    public final Pair<Integer,Integer> getTotalTaxPercentageRange()
+    {
+        int min = Integer.MAX_VALUE;
+        int max = 0;
+        Set<ITaxableContext> set = this.getPossibleContexts();
+        if(set.isEmpty())
+            set = ITaxableContext.defaultSet(this);
+        for(ITaxableContext c : set)
+        {
+            int result = this.getTotalTaxPercentage(c);
+            min = Math.min(result,min);
+            max = Math.max(result,max);
+        }
+        return Pair.of(min,max);
+    }
+	public final boolean exceedsAcceptableTaxRate(ITaxableContext context) { return this.getTotalTaxPercentage(context) > this.acceptableTaxRate; }
 
 	//Updates the world position of the trader.
 	public void move(Level level, BlockPos pos)
@@ -1536,7 +1562,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
     public final TradeResult TryExecuteTrade(TradeContext context, int tradeIndex)
 	{
 		this.latestTrade = null;
-		if(this.exceedsAcceptableTaxRate())
+		if(this.exceedsAcceptableTaxRate(context.getTaxContext()))
 			return TradeResult.FAIL_TAX_EXCEEDED_LIMIT;
 		TradeResult result = this.ExecuteTrade(context,tradeIndex);
 		if(result.isSuccess())

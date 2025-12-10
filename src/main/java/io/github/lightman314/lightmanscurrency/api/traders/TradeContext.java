@@ -15,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHold
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.MultiMoneyHolder;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.taxes.ITaxableContext;
 import io.github.lightman314.lightmanscurrency.api.ticket.TicketCollectionResult;
 import io.github.lightman314.lightmanscurrency.api.traders.discount_codes.CouponSource;
 import io.github.lightman314.lightmanscurrency.api.traders.discount_codes.IDiscountCodeSource;
@@ -68,6 +69,9 @@ public class TradeContext {
 	public boolean hasPlayer() { return this.player != null; }
 	@Nullable
 	public Player getPlayer() { return this.player; }
+
+    private final ITaxableContext taxContext;
+    public ITaxableContext getTaxContext() { return this.taxContext; }
 	
 	//Public as it will be needed to run trade events to confirm a trades alerts/cost for display purposes
 	private final PlayerReference playerReference;
@@ -126,6 +130,7 @@ public class TradeContext {
 		this.isStorageMode = builder.storageMode;
 		this.trader = builder.trader;
 		this.player = builder.player;
+        this.taxContext = builder.taxableContext;
 		this.moneyHolders = new MultiMoneyHolder(builder.moneyHandlers);
 		this.discountCodeSources = builder.discountCodes;
         this.discountCodeSources.sort(Comparator.comparingInt(IDiscountCodeSource::priority).reversed());
@@ -753,8 +758,11 @@ public class TradeContext {
     public Object getCustomData(ResourceLocation key) { return this.customData.get(key); }
 	
 	public static TradeContext createStorageMode(TraderData trader) { return new Builder(trader).build(); }
-	public static Builder create(TraderData trader, Player player) { return new Builder(trader, player,true); }
-	public static Builder create(TraderData trader, PlayerReference player) { return new Builder(trader, player); }
+    @Deprecated(since = "2.3.0.3")
+	public static Builder create(TraderData trader, Player player) { return create(trader,player,false); }
+	public static Builder create(TraderData trader, Player player, boolean networkAccess) { return new Builder(trader, player,true, ITaxableContext.simpleContext(trader,networkAccess)); }
+	public static Builder create(TraderData trader, PlayerReference player) { return create(trader,player,false); }
+	public static Builder create(TraderData trader, PlayerReference player, boolean networkAccess) { return new Builder(trader, player, ITaxableContext.simpleContext(trader,networkAccess)); }
 
 	@MethodsReturnNonnullByDefault
 	@FieldsAreNonnullByDefault
@@ -764,6 +772,7 @@ public class TradeContext {
 		//Core
 		private final boolean storageMode;
 		private final TraderData trader;
+        private final ITaxableContext taxableContext;
 		@Nullable
 		private final Player player;
 		@Nullable
@@ -788,10 +797,11 @@ public class TradeContext {
 
         private final Map<ResourceLocation,Object> customData = new HashMap<>();
 
-		private Builder(TraderData trader) { this.storageMode = true; this.trader = trader; this.player = null; this.playerReference = null; }
-		private Builder(TraderData trader, @Nullable Player player, boolean playerInteractable) {
+		private Builder(TraderData trader) { this.storageMode = true; this.trader = trader; this.player = null; this.playerReference = null; this.taxableContext = ITaxableContext.defaultContext(this.trader); }
+		private Builder(TraderData trader, @Nullable Player player, boolean playerInteractable, ITaxableContext taxableContext) {
 			this.trader = trader;
 			this.player = player;
+            this.taxableContext = taxableContext;
 			if(this.player != null)
 				this.withDiscountCodes(this.player.getInventory(),s -> ItemHandlerHelper.giveItemToPlayer(this.player,s));
 			this.playerReference = PlayerReference.of(player);
@@ -799,7 +809,7 @@ public class TradeContext {
 			if(playerInteractable)
 				this.withMoneyHolder(MoneyAPI.getApi().GetPlayersMoneyHandler(player));
 		}
-		private Builder(TraderData trader, @Nullable PlayerReference player) { this.trader = trader; this.playerReference = player; this.player = null; this.storageMode = false; }
+		private Builder(TraderData trader, @Nullable PlayerReference player, ITaxableContext taxableContext) { this.trader = trader; this.playerReference = player; this.player = null; this.storageMode = false; this.taxableContext = taxableContext; }
 
 		public Builder withDiscountCodes(Container container, Consumer<ItemStack> overflowHandler) { return this.withDiscountCodes(new CouponSource(container,overflowHandler)); }
 

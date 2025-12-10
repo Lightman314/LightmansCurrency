@@ -569,7 +569,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			//Give the paid cost to storage
 			MoneyValue taxesPaid = MoneyValue.empty();
 			if(this.canStoreMoney())
-				taxesPaid = this.addStoredMoney(price, true);
+				taxesPaid = this.addStoredMoney(price, context.getTaxContext());
 
 			//Ignore editing internal storage if this is flagged as creative.
 			if(!this.isCreative())
@@ -638,7 +638,7 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 			if(!this.isCreative())
 			{
 				//Remove the coins from storage
-				taxesPaid = this.removeStoredMoney(price, true);
+				taxesPaid = this.removeStoredMoney(price, context.getTaxContext());
 			}
 
 			//Handle Stats

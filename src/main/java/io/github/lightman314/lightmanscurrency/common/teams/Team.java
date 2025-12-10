@@ -36,7 +36,10 @@ import net.minecraft.world.entity.player.Player;
 public class Team implements ITeam, ISidedObject {
 
 	public static final int MAX_NAME_LENGTH = 32;
-	
+
+    private boolean locked = true;
+    public Team initialize() { this.locked = false; return this; }
+
 	private final long id;
 	@Override
 	public long getID() { return this.id; }
@@ -287,6 +290,8 @@ public class Team implements ITeam, ISidedObject {
 	
 	public void markDirty()
 	{
+        if(this.locked)
+            return;
 		if(!this.isClient)
 			TeamDataCache.TYPE.get(this).markTeamDirty(this.id);
 	}
@@ -396,7 +401,7 @@ public class Team implements ITeam, ISidedObject {
                             salary.setSalaryNotification(salaryNotification);
                             salary.setSalaryDelay(salaryDelay);
                             salary.setSalaryCreative(null,creativeSalary);
-                            salary.setSalary(memberSalary);
+                            salary.setSalary(adminSalary);
                             salary.forceFailedLastSalary(failedLastSalary);
                             salary.setLoginRequiredForSalary(loginRequired);
                             salary.forceOnlinePlayerList(logins);
@@ -424,7 +429,6 @@ public class Team implements ITeam, ISidedObject {
 		@Override
 		public int compare(ITeam o1, ITeam o2)
 		{
-
 			if (o1.isOwner(this.player) && !o2.isOwner(this.player))
 				return -1;
 			if (!o1.isOwner(this.player) && o2.isOwner(this.player))
@@ -436,7 +440,6 @@ public class Team implements ITeam, ISidedObject {
 				return 1;
 
 			return o1.getName().compareToIgnoreCase(o2.getName());
-
 		}
 
 	}

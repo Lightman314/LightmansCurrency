@@ -122,7 +122,7 @@ public abstract class TradeRenderManager<T extends TradeData> {
             return null;
         List<AlertData> alerts = new ArrayList<>();
         this.addTradeRuleAlertData(alerts, context);
-        if(context.hasTrader() && context.getTrader().exceedsAcceptableTaxRate())
+        if(context.hasTrader() && context.getTrader().exceedsAcceptableTaxRate(context.getTaxContext()))
             alerts.add(AlertData.error(LCText.TOOLTIP_TAX_LIMIT.get()));
         this.getAdditionalAlertData(context, alerts);
         return alerts;

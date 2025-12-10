@@ -22,7 +22,6 @@ import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
@@ -75,7 +74,7 @@ public class CustomSaveData extends SavedData {
     }
 
     private final CustomData data;
-    private CustomSaveData(@Nonnull CustomData data) {
+    private CustomSaveData(CustomData data) {
         this.data = data;
         this.data.initServer(this::setDirty);
     }

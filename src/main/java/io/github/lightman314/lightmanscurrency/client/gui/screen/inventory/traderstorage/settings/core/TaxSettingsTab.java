@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core;
 
+import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
@@ -21,6 +22,7 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Objects;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -69,10 +71,16 @@ public class TaxSettingsTab extends SettingsSubTab {
         TraderData trader = this.menu.getTrader();
         if(trader != null)
         {
-            int totalRate = trader.getTotalTaxPercentage();
+            Pair<Integer,Integer> result = trader.getTotalTaxPercentageRange();
             int acceptableRate = trader.getAcceptableTaxRate();
-            int color = totalRate > acceptableRate ? AlertType.ERROR.color : totalRate == acceptableRate ? AlertType.WARN.color : AlertType.HELPFUL.color;
-            TextRenderUtil.drawCenteredText(gui, LCText.GUI_TRADER_TAXES_TOTAL_RATE.get(totalRate), this.screen.getXSize() / 2, 16, color);
+            //If min rate > acceptable rate -> ERROR
+            //If max rate > acceptable rate OR min rate == acceptable rate -> WARNING
+            //Otherwise HELPFUL
+            int color = result.getFirst() > acceptableRate ? AlertType.ERROR.color : result.getSecond() > acceptableRate || result.getFirst() == acceptableRate ? AlertType.WARN.color : AlertType.HELPFUL.color;
+            if(Objects.equals(result.getFirst(),result.getSecond()))
+                TextRenderUtil.drawCenteredText(gui, LCText.GUI_TRADER_TAXES_TOTAL_RATE.get(result.getFirst()), this.screen.getXSize() / 2, 16, color);
+            else
+                TextRenderUtil.drawCenteredText(gui, LCText.GUI_TRADER_TAXES_TOTAL_RATE_RANGE.get(result.getFirst(),result.getSecond()), this.screen.getXSize() / 2, 16, color);
         }
 
         gui.drawString(LCText.GUI_TRADER_SETTINGS_TAXES_ACCEPTABLE_RATE.get(this.getAcceptableTaxRate()), 34, 37, 0x404040);

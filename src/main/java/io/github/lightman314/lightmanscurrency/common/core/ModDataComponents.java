@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.common.data.types.LootTableEntry;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.items.data.*;
 import io.github.lightman314.lightmanscurrency.common.items.data.ATMCardData;
+import io.github.lightman314.lightmanscurrency.common.items.data.register.TransactionList;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.data.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
@@ -61,6 +62,7 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<Unit>> VARIANT_LOCK;
     public static final Supplier<DataComponentType<SavedSettingData>> SETTINGS_DATA;
     public static final Supplier<DataComponentType<FilterData>> FILTER_DATA;
+    public static final Supplier<DataComponentType<TransactionList>> REGISTER_TRANSACTIONS;
 
     //Item Attributes
     public static final Supplier<DataComponentType<Integer>> WALLET_CAPACITY;
@@ -100,6 +102,7 @@ public class ModDataComponents {
         VARIANT_LOCK = registerUnit("variant_lock");
         SETTINGS_DATA = register("settings_data",builder -> builder.persistent(SavedSettingData.CODEC).networkSynchronized(SavedSettingData.STREAM_CODEC));
         FILTER_DATA = register("filter_data",builder -> builder.persistent(FilterData.CODEC).networkSynchronized(FilterData.STREAM_CODEC));
+        REGISTER_TRANSACTIONS = register("register_transactions",builder -> builder.persistent(TransactionList.CODEC).networkSynchronized(TransactionList.STREAM_CODEC));
 
         //Custom Item Attributes
         WALLET_CAPACITY = registerInt("wallet_capacity");

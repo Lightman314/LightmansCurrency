@@ -1,6 +1,9 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.core;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.JsonOps;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -8,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUti
 import io.github.lightman314.lightmanscurrency.api.settings.SettingsNode;
 import io.github.lightman314.lightmanscurrency.api.settings.SettingsSubNode;
 import io.github.lightman314.lightmanscurrency.api.settings.data.NodeSelections;
+import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
@@ -23,6 +27,8 @@ import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.util.GsonHelper;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -33,7 +39,10 @@ import java.util.List;
 @ParametersAreNonnullByDefault
 public class SettingsClipboardClientTab extends TraderStorageClientTab<SettingsClipboardTab> implements IScrollable {
 
-    public SettingsClipboardClientTab(Object screen, SettingsClipboardTab commonTab) { super(screen, commonTab); }
+    public SettingsClipboardClientTab(Object screen, SettingsClipboardTab commonTab) {
+        super(screen, commonTab);
+        this.commonTab.setCopyResultConsumer(this::setClipboard);
+    }
 
     public static final int NODES_PER_PAGE = 8;
 
@@ -54,7 +63,6 @@ public class SettingsClipboardClientTab extends TraderStorageClientTab<SettingsC
                 .width(74)
                 .text(LCText.BUTTON_TRADER_SETTINGS_COPY)
                 .pressAction(this::tryCopy)
-                .addon(EasyAddonHelper.activeCheck(this.commonTab::canWriteSettings))
                 .build());
 
         this.addChild(EasyTextButton.builder()
@@ -62,7 +70,7 @@ public class SettingsClipboardClientTab extends TraderStorageClientTab<SettingsC
                 .width(74)
                 .text(LCText.BUTTON_TRADER_SETTINGS_PASTE)
                 .pressAction(this::tryLoad)
-                .addon(EasyAddonHelper.activeCheck(this.commonTab::canReadSettings))
+                .addon(EasyAddonHelper.activeCheck(this::canReadSettings))
                 .build());
 
         this.addChild(ScrollBarWidget.builder()
@@ -110,6 +118,17 @@ public class SettingsClipboardClientTab extends TraderStorageClientTab<SettingsC
             }
         }
 
+    }
+
+    private boolean canReadSettings()
+    {
+        if(this.commonTab.canReadSettingsFromStack())
+            return true;
+        try {
+            JsonElement json = GsonHelper.parse(this.getClipboard(),true);
+            SavedSettingData data = SavedSettingData.CODEC.decode(RegistryOps.create(JsonOps.INSTANCE,this.registryAccess()),json).getOrThrow().getFirst();
+            return true;
+        } catch (JsonParseException | IllegalStateException ignored) { return false; }
     }
 
     @Override
@@ -210,9 +229,19 @@ public class SettingsClipboardClientTab extends TraderStorageClientTab<SettingsC
         }
     }
 
-    private void tryCopy() { this.commonTab.copySettings(this.selections); }
+    private void tryCopy() {
+        if(this.commonTab.canWriteSettingsToStack())
+            this.commonTab.copySettingsToStack(this.selections);
+        else
+            this.commonTab.copySettingsDirectly(this.selections);
+    }
 
-    private void tryLoad() { this.commonTab.loadSettings(this.selections); }
+    private void tryLoad() {
+        if(this.commonTab.canReadSettingsFromStack())
+            this.commonTab.loadSettingsFromStack(this.selections);
+        else if(this.canReadSettings())
+            this.commonTab.loadSettingsDirectly(this.selections,this.getClipboard());
+    }
 
     public int getVisibleNodes() {
         TraderData trader = this.menu.getTrader();

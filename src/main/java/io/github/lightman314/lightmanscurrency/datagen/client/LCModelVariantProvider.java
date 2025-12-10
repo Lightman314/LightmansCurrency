@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.datagen.client;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.UnbakedVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.FreezerDoorData;
@@ -257,6 +256,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
                             .withTarget(ModBlocks.CARD_DISPLAY.get(woodType,color))
                             .withParent(base)
                             .withTexture("wool",ColorHelper.GetWoolTextureOfColor(color))
+                            .asOptional(woodType.isModded()) //Flag the variant as optional
                             .build());
         }
     }

@@ -167,6 +167,8 @@ public class EnglishProvider extends TranslationProvider {
 
         this.translate(LCText.ITEM_VARIANT_WAND,"Variant Wand");
 
+        //this.translate(LCText.ITEM_TRANSACTION_REGISTER,"Transaction Register");
+
         this.translate(LCText.ITEM_ITEM_TRADE_FILTER,"Custom Item Trade Filter");
 
         //Blocks
@@ -726,6 +728,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.GUI_TRADER_STATS_EMPTY,"No Statistics Recorded");
         this.translate(LCText.TOOLTIP_TRADER_TAXES,"Tax Information");
         this.translate(LCText.GUI_TRADER_TAXES_TOTAL_RATE,"Total Tax Rate: %s%%");
+        this.translate(LCText.GUI_TRADER_TAXES_TOTAL_RATE_RANGE,"Total Tax Rate: %1$s-%2$s%%");
         this.translate(LCText.GUI_TRADER_TAXES_NO_TAX_COLLECTORS,"No active Tax Collectors in range");
         this.translate(LCText.TOOLTIP_TRADER_STORAGE,"Trader Storage");
         this.translate(LCText.TOOLTIP_TRADER_MONEY_STORAGE,"Money Storage");

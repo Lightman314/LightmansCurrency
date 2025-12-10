@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.ITab
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.core.RegistryAccess;
 
@@ -78,5 +79,9 @@ public abstract class EasyTab implements ITab, IEasyTickable, LazyPacketData.IBu
     protected void closeAction() { }
 
     public void tick() {}
+
+    public final String getClipboard() { return Minecraft.getInstance().keyboardHandler.getClipboard(); }
+
+    public final void setClipboard(String newValue) { Minecraft.getInstance().keyboardHandler.setClipboard(newValue); }
 
 }

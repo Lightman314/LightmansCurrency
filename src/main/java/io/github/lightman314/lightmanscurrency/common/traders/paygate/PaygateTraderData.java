@@ -358,7 +358,7 @@ public class PaygateTraderData extends TraderData {
 			if(!this.isCreative())
 			{
 				//Give the paid cost to storage
-				taxesPaid = this.addStoredMoney(price, true);
+				taxesPaid = this.addStoredMoney(price, context.getTaxContext());
 			}
 
 			//Handle Stats

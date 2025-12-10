@@ -84,7 +84,7 @@ public class TeamSelectionClientTab extends TeamManagementClientTab<TeamSelectio
             if(team.isMember(this.menu.player))
                 this.teamList.add(team);
         });
-        this.teamList.sort(Team.sorterFor(this.menu.player));
+        this.teamList.sort(TeamAPI.getApi().SorterForPlayer(this.menu.player));
     }
 
     @Override

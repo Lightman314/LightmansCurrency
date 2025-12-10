@@ -224,7 +224,7 @@ public class SalaryData {
         }
         if(message.contains("DirectTarget"))
         {
-            BankReference target = BankReference.load(message.getNBT("DirectTarget"));
+            BankReference target = BankReference.load(message.getNBT("DirectTarget")).flagAsClient(this.account);
             if(target != null)
             {
                 if(message.getBoolean("NewState"))
@@ -243,7 +243,7 @@ public class SalaryData {
         for(CustomTarget bonus : this.getCustomTargets())
         {
             for(BankReference target : bonus.getTargets())
-                addToBankList(results,target);
+                this.addToBankList(results,target);
         }
         return results.stream().filter(BankReference::isValid).toList();
     }
@@ -264,14 +264,14 @@ public class SalaryData {
             this.markDirty();
         }
     }
-    private static void addToBankList(List<BankReference> list, BankReference toAdd)
+    private void addToBankList(List<BankReference> list, BankReference toAdd)
     {
         for(BankReference entry : list)
         {
             if(entry.equals(toAdd))
                 return;
         }
-        list.add(toAdd);
+        list.add(toAdd.flagAsClient(this.account));
     }
     public boolean isTarget(Player player) { return this.getAllTargets().stream().anyMatch(br -> br.isSalaryTarget(player)); }
 
@@ -480,7 +480,7 @@ public class SalaryData {
         {
             BankReference br = BankReference.load(targets.getCompound(i));
             if(br != null)
-                this.directTargets.add(br);
+                this.directTargets.add(br.flagAsClient(this.account));
         }
         ListTag customTargets = tag.getList("CustomTargets",Tag.TAG_STRING);
         this.customTargets.clear();

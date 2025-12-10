@@ -91,7 +91,7 @@ public class TraderMoneyStorageTab extends TraderStorageTab {
                     {
                         //Put money from coin slots into storage
                         coinSlotHandler.extractMoney(value,false);
-                        trader.addStoredMoney(value,false);
+                        trader.addStoredMoney(value,null);
                     }
                 }
                 if(this.isClient())
@@ -104,7 +104,7 @@ public class TraderMoneyStorageTab extends TraderStorageTab {
             {
                 amountLeft = coinSlotHandler.extractMoney(amount,false);
                 MoneyValue insertAmount = amount.subtractValue(amountLeft);
-                trader.addStoredMoney(insertAmount,false);
+                trader.addStoredMoney(insertAmount,null);
             }
             //If the coin slots did not have sufficient funds, insert from the players money
             if(!amountLeft.isEmpty())
@@ -113,7 +113,7 @@ public class TraderMoneyStorageTab extends TraderStorageTab {
                 IMoneyHandler playerHandler = MoneyAPI.getApi().GetPlayersMoneyHandler(this.menu.getPlayer());
                 MoneyValue remainder = playerHandler.extractMoney(amountLeft,false);
                 MoneyValue insertAmount = amountLeft.subtractValue(remainder);
-                trader.addStoredMoney(insertAmount,false);
+                trader.addStoredMoney(insertAmount,null);
             }
             if(this.isClient())
                 this.menu.SendMessage(this.builder().setMoneyValue("StoreMoney",amount));

@@ -47,6 +47,8 @@ public class TeamBankAccount extends BankAccount {
     private record MembersOnlyTarget(ITeam team) implements CustomTarget.ForPlayers
     {
         @Override
+        public boolean isClient() {return this.team.isClient(); }
+        @Override
         public List<PlayerReference> getPlayers() { return this.team.getMembers(); }
         @Override
         public Component getName() { return LCText.GUI_TEAM_SALARY_TARGET_MEMBERS.get(); }
@@ -54,6 +56,8 @@ public class TeamBankAccount extends BankAccount {
 
     private record AdminsTarget(ITeam team) implements CustomTarget.ForPlayers
     {
+        @Override
+        public boolean isClient() { return this.team.isClient();}
         @Override
         public List<PlayerReference> getPlayers() { return this.team.getAdminsAndOwner(); }
         @Override

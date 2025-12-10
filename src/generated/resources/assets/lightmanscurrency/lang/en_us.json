@@ -1957,6 +1957,7 @@
   "tooltip.lightmanscurrency.trader.storage": "Trader Storage",
   "tooltip.lightmanscurrency.trader.tax_info": "Tax Information",
   "tooltip.lightmanscurrency.trader.tax_info.total_rate": "Total Tax Rate: %s%%",
+  "tooltip.lightmanscurrency.trader.tax_info.total_rate.range": "Total Tax Rate: %1$s-%2$s%%",
   "tooltip.lightmanscurrency.trader.trade_rules.trade": "Edit Trade-Specific Rules",
   "tooltip.lightmanscurrency.trader.trade_rules.trader": "Trader Rules",
   "tooltip.lightmanscurrency.trader.upgrade": "Upgrades",

@@ -187,7 +187,7 @@ dependencies {
     compileOnly "curse.maven:farming-for-blockheads-261924:5426962"
     compileOnly "curse.maven:balm-531761:5442096"
 
-    //Create Stock Ticket Compat
+    //Create Stock Ticker Compat
     implementation("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
     implementation("net.createmod.ponder:Ponder-NeoForge-${minecraft_version}:${ponder_version}")
     compileOnly("dev.engine-room.flywheel:flywheel-neoforge-api-${minecraft_version}:${flywheel_version}")

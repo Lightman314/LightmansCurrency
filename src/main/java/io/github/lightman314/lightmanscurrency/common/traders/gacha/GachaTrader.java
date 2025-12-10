@@ -263,7 +263,7 @@ public class GachaTrader extends InputTraderData {
 
         MoneyValue taxesPaid = MoneyValue.empty();
         if(this.canStoreMoney())
-            taxesPaid = this.addStoredMoney(cost,true);
+            taxesPaid = this.addStoredMoney(cost,context.getTaxContext());
         //Flag the trader storage as changed
         if(!this.isCreative())
             this.markStorageDirty();
