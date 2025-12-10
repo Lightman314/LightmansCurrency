@@ -8,6 +8,8 @@
       }
     }
   ],
-  "RotationType": "FACING",
+  "RotationType": {
+    "type": "lightmanscurrency:facing"
+  },
   "Scale": 0.875
 }

@@ -48,7 +48,6 @@ import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.SpeedUpgrade;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -59,7 +58,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -293,7 +291,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	public TradeContext getTradeContext(@Nonnull TraderData trader)
 	{
 		if(this.interaction.trades())
-			return this.buildTradeContext(TradeContext.create(trader,this.getReferencedPlayer()).withBankAccount(this.getAccountReference())).build();
+			return this.buildTradeContext(TradeContext.create(trader,this.getReferencedPlayer(),true).withBankAccount(this.getAccountReference())).build();
 		else
 			return TradeContext.createStorageMode(trader);
 	}

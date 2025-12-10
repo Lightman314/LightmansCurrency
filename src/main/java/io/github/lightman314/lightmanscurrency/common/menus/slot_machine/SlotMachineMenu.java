@@ -157,7 +157,7 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
 
     public final TradeContext getContext(@Nullable ResultHolder rewardHolder)
     {
-        TradeContext.Builder builder = TradeContext.create(this.getTrader(), this.player).withCoinSlots(this.coins);
+        TradeContext.Builder builder = TradeContext.create(this.getTrader(), this.player, this.validator.isThroughNetwork).withCoinSlots(this.coins);
         if(rewardHolder != null)
             builder.withItemHandler(rewardHolder.itemHandler()).withMoneyHolder(rewardHolder.moneyHolder()).withCustomData(ResultHolder.CONTEXT_KEY,rewardHolder);
         return builder.build();

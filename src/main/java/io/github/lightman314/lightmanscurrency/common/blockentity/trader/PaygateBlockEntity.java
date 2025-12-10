@@ -228,7 +228,7 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> imp
 			long ticketID = TicketItem.GetTicketID(heldItem);
 			if(ticketID >= -1)
 			{
-				TradeContext context = TradeContext.create(trader,player).build();
+				TradeContext context = TradeContext.create(trader,player,false).build();
 				for(int i = 0; i < trader.getTradeCount(); ++i)
 				{
 					PaygateTradeData trade = trader.getTrade(i);

@@ -153,7 +153,7 @@ public class GachaMachineMenu extends LazyMessageMenu implements IValidatedMenu,
 
     public final TradeContext getContext(@Nullable Container rewardHolder)
     {
-        TradeContext.Builder builder = TradeContext.create(this.getTrader(), this.player).withCoinSlots(this.coins);
+        TradeContext.Builder builder = TradeContext.create(this.getTrader(), this.player, this.validator.isThroughNetwork).withCoinSlots(this.coins);
         if(rewardHolder != null)
             builder.withItemHandler(new InvWrapper(rewardHolder));
         return builder.build();
