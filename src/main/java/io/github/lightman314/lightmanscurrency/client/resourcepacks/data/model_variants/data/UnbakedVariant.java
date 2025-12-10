@@ -209,6 +209,8 @@ public class UnbakedVariant {
             json.addProperty("itemVariant",true);
         if(this.dummy)
             json.addProperty("dummy",true);
+        if(this.optional)
+            json.addProperty("optional",true);
         return json;
     }
 

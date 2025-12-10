@@ -759,9 +759,10 @@ public class TradeContext {
 	
 	public static TradeContext createStorageMode(TraderData trader) { return new Builder(trader).build(); }
     @Deprecated(since = "2.3.0.3")
-	public static Builder create(TraderData trader, Player player) { return create(trader,player,false); }
+	public static Builder create(TraderData trader, Player player) { return create(trader,player,trader.showOnTerminal()); }
 	public static Builder create(TraderData trader, Player player, boolean networkAccess) { return new Builder(trader, player,true, ITaxableContext.simpleContext(trader,networkAccess)); }
-	public static Builder create(TraderData trader, PlayerReference player) { return create(trader,player,false); }
+    @Deprecated(since = "2.3.0.3")
+    public static Builder create(TraderData trader, PlayerReference player) { return create(trader,player,trader.showOnTerminal()); }
 	public static Builder create(TraderData trader, PlayerReference player, boolean networkAccess) { return new Builder(trader, player, ITaxableContext.simpleContext(trader,networkAccess)); }
 
 	@MethodsReturnNonnullByDefault

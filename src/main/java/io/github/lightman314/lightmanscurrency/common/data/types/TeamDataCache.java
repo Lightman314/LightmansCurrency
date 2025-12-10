@@ -112,9 +112,9 @@ public class TeamDataCache extends CustomData {
     protected void parseSyncPacket(LazyPacketData message, HolderLookup.Provider lookup) {
         if(message.contains("UpdateTeam"))
         {
-            Team team = Team.load(message.getNBT("UpdateTeam"),message.lookup).flagAsClient(this);
+            Team team = Team.load(message.getNBT("UpdateTeam"),message.lookup);
             if(team != null)
-                this.teams.put(team.getID(),team.initialize());
+                this.teams.put(team.getID(),team.flagAsClient(this).initialize());
         }
         if(message.contains("DeleteTeam"))
             this.teams.remove(message.getLong("DeleteTeam"));

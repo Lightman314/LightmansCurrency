@@ -55,13 +55,10 @@ public class Team implements ITeam, ISidedObject {
 	public boolean isClient() { return this.isClient; }
 
 	@Override
-	
-	public Team flagAsClient() { this.isClient = true; return this; }
+	public Team flagAsClient() { return this.flagAsClient(true); }
 	@Override
-	
-	public Team flagAsClient(boolean isClient) { this.isClient = isClient; return this; }
+	public Team flagAsClient(boolean isClient) { this.isClient = isClient; if(this.bankAccount != null) this.bankAccount.flagAsClient(this); return this; }
 	@Override
-	
 	public Team flagAsClient(IClientTracker context) { this.isClient = context.isClient(); return this; }
 
 	List<PlayerReference> admins = new ArrayList<>();

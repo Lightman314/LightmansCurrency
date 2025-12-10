@@ -67,7 +67,7 @@ public class PaygateBlock extends TraderBlockRotatable implements IVariantBlock 
 				if(tradeIndex >= 0)
 				{
 					PaygateTraderData trader = paygate.getTraderData();
-					if(trader != null && trader.TryExecuteTrade(TradeContext.create(trader,player).build(),tradeIndex).isSuccess())
+					if(trader != null && trader.TryExecuteTrade(TradeContext.create(trader,player,false).build(),tradeIndex).isSuccess())
 						return ItemInteractionResult.SUCCESS;
 				}
 			}

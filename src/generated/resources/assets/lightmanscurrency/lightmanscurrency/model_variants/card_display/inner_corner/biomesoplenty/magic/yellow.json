@@ -1,5 +1,6 @@
 {
   "parent": "lightmanscurrency:card_display/inner_corner/biomesoplenty/magic/base",
+  "optional": true,
   "target": "lightmanscurrency:card_display_biomesoplenty_magic_yellow",
   "textures": {
     "wool": "minecraft:block/yellow_wool"

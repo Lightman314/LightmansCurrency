@@ -1,5 +1,6 @@
 {
   "parent": "lightmanscurrency:card_display/outer_corner/biomesoplenty/jacaranda/base",
+  "optional": true,
   "target": "lightmanscurrency:card_display_biomesoplenty_jacaranda_orange",
   "textures": {
     "wool": "minecraft:block/orange_wool"

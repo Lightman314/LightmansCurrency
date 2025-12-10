@@ -281,7 +281,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	//Don't mark final to prevent conflicts with LC Tech not yet updating to the new method
 	public TradeContext getTradeContext(@Nonnull TraderData trader) {
 		if(this.interaction.trades())
-			return this.buildTradeContext(TradeContext.create(trader,this.getReferencedPlayer()).withBankAccount(this.getAccountReference())).build();
+			return this.buildTradeContext(TradeContext.create(trader,this.getReferencedPlayer(),true).withBankAccount(this.getAccountReference())).build();
 		else
 			return TradeContext.createStorageMode(trader);
 	}
