@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.upgrades;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonArray;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;

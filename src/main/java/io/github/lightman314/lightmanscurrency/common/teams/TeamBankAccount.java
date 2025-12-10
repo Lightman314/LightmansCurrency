@@ -23,7 +23,7 @@ public class TeamBankAccount extends BankAccount {
     public static final String TARGET_MEMBERS = "members";
     public static final String TARGET_ADMINS = "admins";
 
-    public TeamBankAccount(ITeam team,Runnable markDirty) {
+    public TeamBankAccount(ITeam team, Runnable markDirty) {
         super(markDirty);
         this.bonusOptions = ImmutableMap.copyOf(this.buildOptions(team));
     }
@@ -46,6 +46,8 @@ public class TeamBankAccount extends BankAccount {
     private record MembersOnlyTarget(ITeam team) implements CustomTarget.ForPlayers
     {
         @Override
+        public boolean isClient() { return this.team.isClient(); }
+        @Override
         public List<PlayerReference> getPlayers() { return this.team.getMembers(); }
         @Override
         public Component getName() { return LCText.GUI_TEAM_SALARY_TARGET_MEMBERS.get(); }
@@ -53,6 +55,8 @@ public class TeamBankAccount extends BankAccount {
 
     private record AdminsTarget(ITeam team) implements CustomTarget.ForPlayers
     {
+        @Override
+        public boolean isClient() { return this.team.isClient(); }
         @Override
         public List<PlayerReference> getPlayers() { return this.team.getAdminsAndOwner(); }
         @Override

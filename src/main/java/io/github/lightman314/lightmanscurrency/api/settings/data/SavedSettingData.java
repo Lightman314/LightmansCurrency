@@ -1,17 +1,25 @@
 package io.github.lightman314.lightmanscurrency.api.settings.data;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
+import io.github.lightman314.lightmanscurrency.util.TriConsumer;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.util.GsonHelper;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 @MethodsReturnNonnullByDefault
@@ -88,6 +96,28 @@ public final class SavedSettingData
         return tag;
     }
 
+    public JsonObject write()
+    {
+        JsonObject json = new JsonObject();
+        if(!this.boolData.isEmpty())
+            json.add("booleans",writeMap(this.boolData,JsonObject::addProperty));
+        if(!this.intData.isEmpty())
+            json.add("integers",writeMap(this.intData,JsonObject::addProperty));
+        if(!this.floatData.isEmpty())
+            json.add("floats",writeMap(this.floatData,JsonObject::addProperty));
+        if(!this.stringData.isEmpty())
+            json.add("strings",writeMap(this.stringData,JsonObject::addProperty));
+        if(!this.tagData.isEmpty())
+            json.add("compounds",writeMap(this.tagData,(e,k,tag) -> e.addProperty(k,tag.getAsString())));
+        return json;
+    }
+
+    private static <T> JsonObject writeMap(Map<String,T> map, TriConsumer<JsonObject,String,T> writer)
+    {
+        JsonObject entry = new JsonObject();
+        map.forEach((key,val) -> writer.accept(entry,key,val));
+        return entry;
+    }
     
     public static SavedSettingData parse(CompoundTag tag)
     {
@@ -107,6 +137,38 @@ public final class SavedSettingData
         if(tag.contains("compounds",Tag.TAG_LIST))
             UpgradeData.readMap(tagData,tag.getList("compounds",Tag.TAG_COMPOUND),t -> t.getCompound("value"));
         return new SavedSettingData(boolData,intData,floatData,stringData,tagData);
+    }
+
+    public static SavedSettingData read(JsonElement element) throws JsonSyntaxException
+    {
+        JsonObject json = GsonHelper.convertToJsonObject(element,"root");
+        Map<String,Boolean> boolData = new HashMap<>();
+        Map<String,Long> intData = new HashMap<>();
+        Map<String,Double> floatData = new HashMap<>();
+        Map<String,String> stringData = new HashMap<>();
+        Map<String,CompoundTag> tagData = new HashMap<>();
+        if(json.has("booleans"))
+            readMap(GsonHelper.getAsJsonObject(json,"booleans"),GsonHelper::getAsBoolean,boolData);
+        if(json.has("integers"))
+            readMap(GsonHelper.getAsJsonObject(json,"integers"),GsonHelper::getAsLong,intData);
+        if(json.has("floats"))
+            readMap(GsonHelper.getAsJsonObject(json,"floats"),GsonHelper::getAsDouble,floatData);
+        if(json.has("strings"))
+            readMap(GsonHelper.getAsJsonObject(json,"strings"),GsonHelper::getAsString,stringData);
+        if(json.has("compounds"))
+            readMap(GsonHelper.getAsJsonObject(json,"compounds"),(j,k) -> {
+                try {
+                    return TagParser.parseTag(GsonHelper.getAsString(j,k));
+                } catch (CommandSyntaxException e) { throw new JsonSyntaxException(e); }
+            },tagData);
+        return new SavedSettingData(boolData,intData,floatData,stringData,tagData);
+    }
+
+    private static <T> Map<String,T> readMap(JsonObject json, BiFunction<JsonObject,String,T> reader,Map<String,T> map) throws JsonSyntaxException
+    {
+        for(String key : json.keySet())
+            map.put(key,reader.apply(json,key));
+        return map;
     }
 
     @Override

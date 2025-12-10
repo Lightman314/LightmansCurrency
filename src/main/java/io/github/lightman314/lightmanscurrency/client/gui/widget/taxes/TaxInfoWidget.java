@@ -42,7 +42,6 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
 
     @Override
     protected void renderWidget(EasyGuiGraphics gui) {
-
         ITaxCollector entry = this.entrySource.get();
         TraderData trader = this.parent.getTrader();
         if(entry != null && trader != null)
@@ -54,7 +53,13 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
             else if(trader.ShouldIgnoreAllTaxes())
                 statusColor = 0xFF7F00;
             else if(entry.ShouldTax(trader))
-                statusColor = 0x00FF00;
+            {
+                //Display a darker green if the "taxable" state varies on the context
+                if(trader.getPossibleContexts().stream().anyMatch(c -> !entry.ShouldTax(c)))
+                    statusColor = 0x00AC00;
+                else
+                    statusColor = 0x00FF00;
+            }
             gui.drawString(entry.getName(), 0, 0, statusColor);
             gui.drawString(LCText.GUI_TAX_COLLECTOR_TAX_RATE.get(entry.getTaxRate()), this.parent.canPlayerForceIgnore() ? 12 : 0, 15, 0x404040);
         }

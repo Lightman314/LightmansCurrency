@@ -256,6 +256,7 @@ public class LCModelVariantProvider extends ModelVariantProvider {
                             .withTarget(ModBlocks.CARD_DISPLAY.get(woodType,color))
                             .withParent(base)
                             .withTexture("wool",ColorHelper.GetWoolTextureOfColor(color))
+                            .asOptional(woodType.isModded())
                             .build());
         }
     }

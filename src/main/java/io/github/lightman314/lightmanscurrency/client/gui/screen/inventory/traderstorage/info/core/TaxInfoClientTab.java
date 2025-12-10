@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.info.core;
 
+import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
@@ -24,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class TaxInfoClientTab extends InfoSubTab implements IScrollable, ITaxInfoInteractable {
 
@@ -71,7 +73,12 @@ public class TaxInfoClientTab extends InfoSubTab implements IScrollable, ITaxInf
         TraderData trader = this.getTrader();
         if(trader != null)
         {
-            TextRenderUtil.drawCenteredText(gui, LCText.GUI_TRADER_TAXES_TOTAL_RATE.get(trader.getTotalTaxPercentage()), this.screen.getXSize() / 2, 6, 0x404040);
+            Pair<Integer,Integer> result = trader.getTotalTaxPercentageRange();
+            if(Objects.equals(result.getFirst(), result.getSecond()))
+                TextRenderUtil.drawCenteredText(gui, LCText.GUI_TRADER_TAXES_TOTAL_RATE.get(result.getFirst()), this.screen.getXSize() / 2, 6, 0x404040);
+            else
+                TextRenderUtil.drawCenteredText(gui, LCText.GUI_TRADER_TAXES_TOTAL_RATE_RANGE.get(result.getFirst(),result.getSecond()), this.screen.getXSize() / 2, 6, 0x404040);
+
             if(trader.getPossibleTaxes().isEmpty())
                 TextRenderUtil.drawCenteredMultilineText(gui, LCText.GUI_TRADER_TAXES_NO_TAX_COLLECTORS.get(), 10, this.screen.getXSize() - 20, 60, 0x404040);
         }

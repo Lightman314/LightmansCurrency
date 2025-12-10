@@ -9,7 +9,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
@@ -17,12 +16,14 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public abstract class MenuValidator {
 
     public final MenuValidatorType type;
+    public boolean isThroughNetwork = false;
     protected MenuValidator(MenuValidatorType type) { this.type = type; }
 
     public final void encode(FriendlyByteBuf buffer)
     {
         buffer.writeUtf(this.type.type.toString());
         this.encodeAdditional(buffer);
+        buffer.writeBoolean(this.isThroughNetwork);
         //LightmansCurrency.LogDebug("Encoded MenuValidator of type '" + this.type.type);
     }
 
@@ -35,6 +36,8 @@ public abstract class MenuValidator {
         CompoundTag tag = new CompoundTag();
         this.saveAdditional(tag);
         tag.putString("Type", this.type.type.toString());
+        if(this.isThroughNetwork)
+            tag.put("NetworkAccess",new CompoundTag());
         //LightmansCurrency.LogDebug("Saved MenuValidator of type '" + this.type.type);
     }
 
@@ -50,12 +53,15 @@ public abstract class MenuValidator {
             if(decoder != null)
             {
                 //LightmansCurrency.LogDebug("Decoding MenuValidator of type '" + type + "'!");
-                return decoder.decode(buffer);
+                MenuValidator result = decoder.decode(buffer);
+                result.isThroughNetwork = buffer.readBoolean();
+                return result;
             }
             LightmansCurrency.LogError("Could not decode MenuValidator of type '" + type + "'!");
             return SimpleValidator.NULL;
         } catch(Throwable t) { LightmansCurrency.LogError("Error decoding MenuValidator!"); return SimpleValidator.NULL; }
     }
+
 
     public static MenuValidator load(CompoundTag tag)
     {
@@ -65,7 +71,9 @@ public abstract class MenuValidator {
             if(decoder != null)
             {
                 //LightmansCurrency.LogDebug("Loading MenuValidator of type '" + type + "'!");
-                return decoder.load(tag);
+                MenuValidator result = decoder.load(tag);
+                result.isThroughNetwork = tag.contains("NetworkAccess");
+                return result;
             }
             LightmansCurrency.LogError("Could not load MenuValidator of type '" + type + "'!");
             return SimpleValidator.NULL;

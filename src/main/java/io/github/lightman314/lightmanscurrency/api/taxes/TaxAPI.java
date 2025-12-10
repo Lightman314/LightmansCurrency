@@ -37,28 +37,30 @@ public abstract class TaxAPI {
     @Nullable
     public abstract ITaxCollector GetTaxCollector(boolean isClient, long collectorID);
 
-    @Nullable
     public final ITaxCollector GetServerTaxCollector(IClientTracker context) { return this.GetServerTaxCollector(context.isClient()); }
     public abstract ITaxCollector GetServerTaxCollector(boolean isClient);
+
+    /**
+     * @deprecated Use context sensitive version {@link #GetTaxCollectorsFor(ITaxableContext)}
+     */
+    @Deprecated(since = "2.3.0.3")
+    public final List<ITaxCollector> GetTaxCollectorsFor(ITaxable taxable) { return this.GetTaxCollectorsFor(ITaxableContext.simpleContext(taxable,false)); }
 
     /**
      * Gets a list of all tax collectors that are currently active and flagged as taxing the given taxable object<br>
      * Note: A tax collector will not be considered active on a taxable object unless {@link #AcknowledgeTaxCollectors(ITaxable)} is called first
      */
-    
-    public abstract List<ITaxCollector> GetTaxCollectorsFor(ITaxable taxable);
+    public abstract List<ITaxCollector> GetTaxCollectorsFor(ITaxableContext context);
 
     /**
      * Gets a list of all tax collectors that apply to the taxable objects current location
      */
-    
     public abstract List<ITaxCollector> GetPotentialTaxCollectorsFor(ITaxable taxable);
 
     /**
      * Flags the given taxable object as acknowledging all tax collectors that apply to its current location
      * @return A list of all tax collectors that now apply to this tax collector
      */
-    
     public abstract List<ITaxCollector> AcknowledgeTaxCollectors(ITaxable taxable);
 
 }

@@ -7,7 +7,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.IIndependentProperty;
@@ -49,6 +48,7 @@ public class UnbakedVariant {
         return this.itemVariant;
     }
     private final boolean dummy;
+    private final boolean optional;
 
     @Nullable
     private final ResourceLocation parent;
@@ -112,7 +112,7 @@ public class UnbakedVariant {
 
     private final Map<ResourceLocation,Object> properties;
 
-    private UnbakedVariant(@Nullable ResourceLocation parent, List<ResourceLocation> targets, List<String> selectorTargets, @Nullable Component name, @Nullable ResourceLocation item, List<ResourceLocation> models, Map<String,ResourceLocation> textureOverrides, Map<ResourceLocation,Object> properties, boolean itemVariant, boolean dummy)
+    private UnbakedVariant(@Nullable ResourceLocation parent, List<ResourceLocation> targets, List<String> selectorTargets, @Nullable Component name, @Nullable ResourceLocation item, List<ResourceLocation> models, Map<String,ResourceLocation> textureOverrides, Map<ResourceLocation,Object> properties, boolean itemVariant, boolean dummy, boolean optional)
     {
         this.parent = parent;
         this.targets = ImmutableList.copyOf(targets);
@@ -124,6 +124,7 @@ public class UnbakedVariant {
         this.properties = ImmutableMap.copyOf(properties);
         this.itemVariant = itemVariant;
         this.dummy = dummy;
+        this.optional = optional;
     }
 
     public boolean has(VariantProperty<?> property) {
@@ -206,6 +207,8 @@ public class UnbakedVariant {
             json.addProperty("itemVariant",true);
         if(this.dummy)
             json.addProperty("dummy",true);
+        if(this.optional)
+            json.addProperty("optional",true);
         return json;
     }
 
@@ -290,7 +293,8 @@ public class UnbakedVariant {
         }
         boolean itemVariant = GsonHelper.getAsBoolean(json,"itemVariant",false);
         boolean dummy = GsonHelper.getAsBoolean(json,"dummy",false);
-        return new UnbakedVariant(parent,targets,targetSelectors,name,item,models,textureOverrides,properties,itemVariant,dummy);
+        boolean optional = GsonHelper.getAsBoolean(json,"optional",false);
+        return new UnbakedVariant(parent,targets,targetSelectors,name,item,models,textureOverrides,properties,itemVariant,dummy,optional);
     }
 
     public void validate(@Nullable Map<ResourceLocation, UnbakedVariant> otherVariants, ResourceLocation id) {
@@ -341,7 +345,7 @@ public class UnbakedVariant {
         //Missing targets
         if(!hasTarget)
         {
-            if(id != null)
+            if(id != null && !loop.optional())
                 LightmansCurrency.LogDebug(id + " has no valid targets!");
             return true;
         }
@@ -379,13 +383,19 @@ public class UnbakedVariant {
                 {
                     for(ResourceLocation t : targets)
                     {
+                        if(!ForgeRegistries.BLOCKS.containsKey(t))
+                        {
+                            if(id != null && !loop.optional())
+                                LightmansCurrency.LogDebug(id + " targets a block that doesn't exist (" + t + ")");
+                            return true;
+                        }
                         Block block = ForgeRegistries.BLOCKS.getValue(t);
                         IVariantBlock vb = VariantProvider.getVariantBlock(block);
                         if(vb != null)
                         {
                             if(vb.requiredModels() != v.models.size())
                             {
-                                if(id != null)
+                                if(id != null && !loop.optional())
                                     LightmansCurrency.LogDebug(id + " does not have the same model count as " + t);
                                 return true;
                             }
@@ -402,20 +412,26 @@ public class UnbakedVariant {
                 {
                     for(ResourceLocation t : targets)
                     {
+                        if(!ForgeRegistries.ITEMS.containsKey(t))
+                        {
+                            if(id != null && !loop.optional())
+                                LightmansCurrency.LogDebug(id + " targets an item that doesn't exist (" + t + ")");
+                            return true;
+                        }
                         Item item = ForgeRegistries.ITEMS.getValue(t);
                         IVariantItem vi = VariantProvider.getVariantItem(item);
                         if(vi != null)
                         {
                             if(vi.requiredModels() != v.models.size())
                             {
-                                if(id != null)
+                                if(id != null && !loop.optional())
                                     LightmansCurrency.LogDebug(id + " does not have the same model count as " + t);
                                 return true;
                             }
                         }
                         else
                         {
-                            if(id != null)
+                            if(id != null && !loop.optional())
                                 LightmansCurrency.LogDebug(id + " targets an invalid variant item (" + t + ")");
                             return true;
                         }
@@ -435,14 +451,14 @@ public class UnbakedVariant {
                 {
                     if(vi.requiredModels() > 0)
                     {
-                        if(id != null)
+                        if(id != null && !loop.optional())
                             LightmansCurrency.LogDebug(id + " does not have the same model count as " + t);
                         return true;
                     }
                 }
                 else
                 {
-                    if(id != null)
+                    if(id != null && !loop.optional())
                         LightmansCurrency.LogDebug(id + " targets an invalid variant item (" + t + ")");
                     return true;
                 }
@@ -471,7 +487,7 @@ public class UnbakedVariant {
         //If no textures are present, a model/item must be present
         if(hasModels != hasItem && !itemVariant)
         {
-            if(id != null)
+            if(id != null && !loop.optional())
             {
                 if(hasModels)
                     LightmansCurrency.LogDebug(id + " has custom block models defined, but no custom item model");
@@ -482,7 +498,7 @@ public class UnbakedVariant {
         }
         if(!hasTextures && !hasModels && !hasIndependentProperty)
         {
-            if(id != null)
+            if(id != null && !loop.optional())
                 LightmansCurrency.LogDebug(id + " does not have any custom models or custom textures defined");
             return true;
         }
@@ -547,6 +563,7 @@ public class UnbakedVariant {
         private final Map<ResourceLocation,Object> properties = new HashMap<>();
         private boolean itemVariant = false;
         private boolean dummy = false;
+        private boolean optional = false;
 
         private Builder() { VariantProperty.confirmRegistration(); }
 
@@ -573,8 +590,9 @@ public class UnbakedVariant {
 
         public Builder asItemVariant() { this.itemVariant = true; return this; }
         public Builder asDummy() { this.dummy = true; return this; }
+        public Builder asOptional(boolean optional) { this.optional = optional; return this; }
 
-        public UnbakedVariant build() { return new UnbakedVariant(this.parent,this.targets,this.selectorTargets,this.name,this.item,this.models,this.textureOverrides,this.properties,this.itemVariant,this.dummy); }
+        public UnbakedVariant build() { return new UnbakedVariant(this.parent,this.targets,this.selectorTargets,this.name,this.item,this.models,this.textureOverrides,this.properties,this.itemVariant,this.dummy,this.optional); }
 
     }
 
@@ -582,6 +600,7 @@ public class UnbakedVariant {
         LoopData(ResourceLocation firstID,UnbakedVariant firstVariant) {
             this(Lists.newArrayList(firstID),Lists.newArrayList(firstVariant));
         }
+        private boolean optional() { return this.variants.get(this.variants.size() - 1).optional; }
         <T extends Throwable> boolean checkAndAdd(ResourceLocation id, UnbakedVariant variant)
         {
             if(this.ids.contains(id))
@@ -589,27 +608,6 @@ public class UnbakedVariant {
             this.ids.add(id);
             this.variants.add(variant);
             return false;
-        }
-    }
-
-    private static class VariantSorter implements Comparator<Pair<ResourceLocation,UnbakedVariant>>
-    {
-        @Override
-        public int compare(Pair<ResourceLocation, UnbakedVariant> a, Pair<ResourceLocation, UnbakedVariant> b) {
-            ResourceLocation idA = a.getFirst();
-            ResourceLocation idB = b.getFirst();
-            if(idA == null)
-                return -1;
-            if(idB == null)
-                return 1;
-            UnbakedVariant varA = a.getSecond();
-            UnbakedVariant varB = b.getSecond();
-            String nameA = varA.getName().getString();
-            String nameB = varB.getName().getString();
-            int nameSort = nameA.compareToIgnoreCase(nameB);
-            if(nameSort == 0)
-                return idA.compareNamespaced(idB);
-            return nameSort;
         }
     }
 

@@ -36,6 +36,9 @@ public class Team implements ITeam, ISidedObject {
 
     public static final int MAX_NAME_LENGTH = 32;
 
+    private boolean locked = true;
+    public Team initialize() { this.locked = false; return this; }
+
     private final long id;
     @Override
     public long getID() { return this.id; }
@@ -51,14 +54,11 @@ public class Team implements ITeam, ISidedObject {
     public boolean isClient() { return this.isClient; }
 
     @Override
-
     public Team flagAsClient() { this.isClient = true; return this; }
     @Override
-
-    public Team flagAsClient(boolean isClient) { this.isClient = isClient; return this; }
+    public Team flagAsClient(boolean isClient) { this.isClient = isClient; if(this.bankAccount != null) this.bankAccount.flagAsClient(this); return this; }
     @Override
-
-    public Team flagAsClient(IClientTracker context) { this.isClient = context.isClient(); return this; }
+    public Team flagAsClient(IClientTracker context) { return this.flagAsClient(context.isClient()); }
 
     List<PlayerReference> admins = new ArrayList<>();
     @Override
@@ -227,6 +227,7 @@ public class Team implements ITeam, ISidedObject {
         this.bankAccount = new TeamBankAccount(this,this::markDirty);
         this.bankAccount.updateOwnersName(this.teamName);
         this.bankAccount.setNotificationConsumer(this::notificationSender);
+        this.bankAccount.flagAsClient(this);
         this.markDirty();
     }
 
@@ -286,6 +287,8 @@ public class Team implements ITeam, ISidedObject {
 
     public void markDirty()
     {
+        if(this.locked)
+            return;
         if(!this.isClient)
             TeamDataCache.TYPE.get(this).markTeamDirty(this.id);
     }
@@ -395,7 +398,7 @@ public class Team implements ITeam, ISidedObject {
                             salary.setSalaryNotification(salaryNotification);
                             salary.setSalaryDelay(salaryDelay);
                             salary.setSalaryCreative(null,creativeSalary);
-                            salary.setSalary(memberSalary);
+                            salary.setSalary(adminSalary);
                             salary.forceFailedLastSalary(failedLastSalary);
                             salary.setLoginRequiredForSalary(loginRequired);
                             salary.forceOnlinePlayerList(logins);

@@ -1,5 +1,6 @@
 {
   "parent": "lightmanscurrency:card_display/inner_corner/biomeswevegone/florus/base",
+  "optional": true,
   "target": "lightmanscurrency:card_display_biomeswevegone_florus_orange",
   "textures": {
     "wool": "minecraft:block/orange_wool"

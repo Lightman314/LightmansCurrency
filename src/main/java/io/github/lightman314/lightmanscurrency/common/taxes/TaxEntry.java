@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.ownership.builtin.FakeOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
+import io.github.lightman314.lightmanscurrency.api.taxes.ITaxableContext;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.data.types.TaxDataCache;
@@ -243,16 +244,16 @@ public class TaxEntry implements ITaxCollector {
     }
 
     //Whether this Tax Entry applies to a trader at the given position
-    public boolean ShouldTax(ITaxable taxable) { return this.IsInArea(taxable) && (this.forcesAcceptance() || this.acceptedEntries.contains(taxable.getReference())); }
+    public boolean ShouldTax(ITaxableContext context) { return this.IsInArea(context.taxable()) && this.testNetworkTaxable(context) && (this.forcesAcceptance() || this.acceptedEntries.contains(context.taxable().getReference())); }
 
     public boolean IsInArea(ITaxable taxable) {
-        return this.isActive() && this.getArea().isInArea(taxable.getWorldPosition()) && this.testNetworkTaxable(taxable);
+        return this.isActive() && this.getArea().isInArea(taxable.getWorldPosition());
     }
 
-    private boolean testNetworkTaxable(ITaxable taxable)
+    private boolean testNetworkTaxable(ITaxableContext context)
     {
         if(this.isServerEntry() && this.onlyTargetNetwork)
-            return taxable.isNetworkAccessible();
+            return context.networkAccess();
         return true;
     }
 

@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.impl;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
+import io.github.lightman314.lightmanscurrency.api.taxes.ITaxableContext;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxReferenceType;
 import io.github.lightman314.lightmanscurrency.common.data.types.TaxDataCache;
@@ -47,7 +48,7 @@ public class TaxAPIImpl extends TaxAPI {
     public ITaxCollector GetServerTaxCollector(boolean isClient) { return TaxDataCache.TYPE.get(isClient).getServerEntry(); }
 
     @Override
-    public List<ITaxCollector> GetTaxCollectorsFor(ITaxable taxable) { return TaxDataCache.TYPE.get(taxable).getAllEntries().stream().filter(e -> e.ShouldTax(taxable)).map(e -> (ITaxCollector)e).toList(); }
+    public List<ITaxCollector> GetTaxCollectorsFor(ITaxableContext context) { return TaxDataCache.TYPE.get(context.taxable()).getAllEntries().stream().filter(e -> e.ShouldTax(context)).map(e -> (ITaxCollector)e).toList(); }
 
     @Override
     public List<ITaxCollector> GetPotentialTaxCollectorsFor(ITaxable taxable) { return TaxDataCache.TYPE.get(taxable).getAllEntries().stream().filter(e -> e.IsInArea(taxable)).map(e -> (ITaxCollector)e).toList(); }

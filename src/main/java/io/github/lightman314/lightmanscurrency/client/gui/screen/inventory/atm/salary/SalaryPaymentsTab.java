@@ -57,7 +57,7 @@ public class SalaryPaymentsTab extends SalarySubTab.EditTab {
                 .position(screenArea.pos.offset(20,20))
                 .width(screenArea.width - 40)
                 .startingString(salary != null ? salary.getInternalName() : "")
-                .maxLength(16)
+                .maxLength(32)
                 .handler(this::SetName)
                 .wrap().build());
 

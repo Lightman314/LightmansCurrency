@@ -1,5 +1,6 @@
 {
   "parent": "lightmanscurrency:card_display/outer_corner/biomeswevegone/rainbow_eucalyptus/base",
+  "optional": true,
   "target": "lightmanscurrency:card_display_biomeswevegone_rainbow_eucalyptus_gray",
   "textures": {
     "wool": "minecraft:block/gray_wool"

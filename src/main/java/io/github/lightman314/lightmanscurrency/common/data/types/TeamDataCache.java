@@ -64,7 +64,7 @@ public class TeamDataCache extends CustomData {
         {
             Team team = Team.load(teamList.getCompound(i));
             if(team != null)
-                this.teams.put(team.getID(),team);
+                this.teams.put(team.getID(),team.initialize());
         }
     }
 
@@ -88,7 +88,7 @@ public class TeamDataCache extends CustomData {
     {
         long teamID = this.getNextID();
         Team newTeam = Team.of(teamID, PlayerReference.of(owner), teamName);
-        this.teams.put(teamID, newTeam);
+        this.teams.put(teamID, newTeam.initialize());
 
         this.markTeamDirty(teamID);
 
@@ -112,7 +112,7 @@ public class TeamDataCache extends CustomData {
         {
             Team team = Team.load(message.getNBT("UpdateTeam"));
             if(team != null)
-                this.teams.put(team.getID(),team.flagAsClient(this));
+                this.teams.put(team.getID(),team.flagAsClient(this).initialize());
         }
         if(message.contains("DeleteTeam"))
             this.teams.remove(message.getLong("DeleteTeam"));

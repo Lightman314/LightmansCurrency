@@ -270,7 +270,7 @@ public class CommandTrader extends TraderData {
             //Give the paid cost to storage
             MoneyValue taxesPaid = MoneyValue.empty();
             if(this.canStoreMoney())
-                taxesPaid = this.addStoredMoney(price, true);
+                taxesPaid = this.addStoredMoney(price, context.getTaxContext());
 
             //Run Command
             player.server.getCommands().performPrefixedCommand(this.sourceForPlayer(player),trade.formatCommand(player));

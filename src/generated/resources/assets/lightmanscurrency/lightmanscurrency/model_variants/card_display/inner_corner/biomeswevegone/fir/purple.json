@@ -1,5 +1,6 @@
 {
   "parent": "lightmanscurrency:card_display/inner_corner/biomeswevegone/fir/base",
+  "optional": true,
   "target": "lightmanscurrency:card_display_biomeswevegone_fir_purple",
   "textures": {
     "wool": "minecraft:block/purple_wool"

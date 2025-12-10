@@ -7,7 +7,6 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
 
-import javax.annotation.Nonnull;
 import java.util.function.Consumer;
 
 public abstract class LazyMessageMenu extends EasyMenu {
@@ -18,10 +17,9 @@ public abstract class LazyMessageMenu extends EasyMenu {
     private Consumer<LazyPacketData> clientHandler = m -> {};
     public void addMessageListener(Consumer<LazyPacketData> consumer) { this.clientHandler = consumer; }
 
-    @Nonnull
     public final LazyPacketData.Builder builder() { return LazyPacketData.builder(); }
 
-    public void SendMessage(@Nonnull LazyPacketData.Builder message)
+    public void SendMessage(LazyPacketData.Builder message)
     {
         if(this.isClient())
             this.SendMessageToServer(message);
@@ -29,14 +27,14 @@ public abstract class LazyMessageMenu extends EasyMenu {
             this.SendMessageToClient(message);
     }
 
-    public void SendMessageToServer(@Nonnull LazyPacketData.Builder message)
+    public void SendMessageToServer(LazyPacketData.Builder message)
     {
         if(this.isServer())
             return;
         new CPacketLazyMenu(this.containerId,message).send();
     }
 
-    public void SendMessageToClient(@Nonnull LazyPacketData.Builder message)
+    public void SendMessageToClient(LazyPacketData.Builder message)
     {
         if(this.isClient())
             return;
@@ -49,6 +47,6 @@ public abstract class LazyMessageMenu extends EasyMenu {
         this.clientHandler.accept(message);
     }
 
-    protected abstract void HandleMessage(@Nonnull LazyPacketData message);
+    protected abstract void HandleMessage(LazyPacketData message);
 
 }

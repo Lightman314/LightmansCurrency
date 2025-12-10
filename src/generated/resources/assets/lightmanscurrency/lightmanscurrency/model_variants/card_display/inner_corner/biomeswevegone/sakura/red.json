@@ -1,5 +1,6 @@
 {
   "parent": "lightmanscurrency:card_display/inner_corner/biomeswevegone/sakura/base",
+  "optional": true,
   "target": "lightmanscurrency:card_display_biomeswevegone_sakura",
   "textures": {
     "wool": "minecraft:block/red_wool"

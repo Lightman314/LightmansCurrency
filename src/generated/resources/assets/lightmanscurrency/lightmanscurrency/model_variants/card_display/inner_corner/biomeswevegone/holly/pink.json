@@ -1,5 +1,6 @@
 {
   "parent": "lightmanscurrency:card_display/inner_corner/biomeswevegone/holly/base",
+  "optional": true,
   "target": "lightmanscurrency:card_display_biomeswevegone_holly_pink",
   "textures": {
     "wool": "minecraft:block/pink_wool"

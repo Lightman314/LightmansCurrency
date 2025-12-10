@@ -426,7 +426,7 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
             if(!this.isCreative())
             {
                 //Give the paid cost to storage
-                taxesPaid = this.addStoredMoney(price, true);
+                taxesPaid = this.addStoredMoney(price, context.getTaxContext());
 
                 //Push out of stock notification
                 if(!this.hasStock())

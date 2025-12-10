@@ -1,5 +1,6 @@
 {
   "parent": "lightmanscurrency:card_display/inner_corner/biomeswevegone/cika/base",
+  "optional": true,
   "target": "lightmanscurrency:card_display_biomeswevegone_cika_cyan",
   "textures": {
     "wool": "minecraft:block/cyan_wool"

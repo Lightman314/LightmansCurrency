@@ -9,13 +9,10 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
-
 public class TerminalMenu extends EasyMenu implements IValidatedMenu {
 
     private final MenuValidator validator;
 
-    @Nonnull
     @Override
     public MenuValidator getValidator() { return this.validator; }
 
@@ -23,11 +20,12 @@ public class TerminalMenu extends EasyMenu implements IValidatedMenu {
     {
         super(ModMenus.NETWORK_TERMINAL.get(), id, inventory, validator);
         this.validator = validator;
+        //Flag the validator has having gone through the network
+        this.validator.isThroughNetwork = true;
         this.addValidator(p -> !QuarantineAPI.IsDimensionQuarantined(p));
     }
 
-    @Nonnull
     @Override
-    public ItemStack quickMoveStack(@Nonnull Player player, int slot) { return ItemStack.EMPTY; }
+    public ItemStack quickMoveStack(Player player, int slot) { return ItemStack.EMPTY; }
 
 }

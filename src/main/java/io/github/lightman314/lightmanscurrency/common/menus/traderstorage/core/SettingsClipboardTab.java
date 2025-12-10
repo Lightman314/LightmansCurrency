@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.settings.data.NodeSelections;
@@ -12,9 +14,11 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderSt
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.core.SettingsClipboardClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SettingsCopySlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
+import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -25,6 +29,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 @MethodsReturnNonnullByDefault
@@ -33,6 +39,7 @@ public class SettingsClipboardTab extends TraderStorageTab {
 
     public SettingsClipboardTab(ITraderStorageMenu menu) { super(menu); }
 
+    private Consumer<String> copyResultConsumer = s -> {};
     private final Container container = new SimpleContainer(1);
     private SettingsCopySlot slot;
     public EasySlot getSlot() { return this.slot; }
@@ -66,20 +73,22 @@ public class SettingsClipboardTab extends TraderStorageTab {
     @Override
     public void onMenuClose() { this.menu.clearContainer(this.container); }
 
-    public boolean canWriteSettings() { return InventoryUtil.ItemHasTag(this.container.getItem(0), LCTags.Items.SETTINGS_WRITABLE); }
-    public boolean canReadSettings() {
+    public void setCopyResultConsumer(Consumer<String> consumer) { this.copyResultConsumer = Objects.requireNonNull(consumer); }
+
+    public boolean canWriteSettingsToStack() { return InventoryUtil.ItemHasTag(this.container.getItem(0), LCTags.Items.SETTINGS_WRITABLE); }
+    public boolean canReadSettingsFromStack() {
         ItemStack stack = this.container.getItem(0);
         CompoundTag tag = stack.getTag();
         return tag != null && tag.contains("CopiedSettings") && InventoryUtil.ItemHasTag(stack, LCTags.Items.SETTINGS_READABLE);
     }
 
-    public void copySettings(NodeSelections selections)
+    public void copySettingsToStack(NodeSelections selections)
     {
         if(this.isClient())
             this.menu.SendMessage(this.builder().setCompound("CopySettings",selections.write()));
         else
         {
-            if(!this.canWriteSettings())
+            if(!this.canWriteSettingsToStack())
                 return;
             TraderData trader = this.menu.getTrader();
             if(trader == null)
@@ -96,13 +105,27 @@ public class SettingsClipboardTab extends TraderStorageTab {
         }
     }
 
-    public void loadSettings(NodeSelections selections)
+    public void copySettingsDirectly(NodeSelections selections)
+    {
+        if(this.isClient())
+            this.menu.SendMessage(this.builder().setCompound("CopySettingsDirectly",selections.write()));
+        else
+        {
+            TraderData trader = this.menu.getTrader();
+            if(trader == null)
+                return;
+            SavedSettingData data = trader.saveSettings(this.menu.getPlayer(),selections);
+            this.menu.SendMessage(this.builder().setString("CopyDataResults", FileUtil.GSON.toJson(data.write())));
+        }
+    }
+
+    public void loadSettingsFromStack(NodeSelections selections)
     {
         if(this.isClient())
             this.menu.SendMessage(this.builder().setCompound("ReadSettings",selections.write()));
         else
         {
-            if(!this.canReadSettings())
+            if(!this.canReadSettingsFromStack())
                 return;
             TraderData trader = this.menu.getTrader();
             if(trader == null)
@@ -116,12 +139,39 @@ public class SettingsClipboardTab extends TraderStorageTab {
         }
     }
 
+    public void loadSettingsDirectly(NodeSelections selections, String clipboard)
+    {
+        if(this.isClient())
+        {
+            this.menu.SendMessage(this.builder()
+                    .setCompound("ReadSettingsDirectly",selections.write())
+                    .setString("Data",clipboard));
+        }
+        else
+        {
+            TraderData trader = this.menu.getTrader();
+            if(trader == null)
+                return;
+            try {
+                JsonObject json = GsonHelper.parse(clipboard,true);
+                SavedSettingData data = SavedSettingData.read(json);
+                trader.loadSettings(this.menu.getPlayer(),data,selections);
+            } catch (JsonParseException | IllegalStateException ignored) {}
+        }
+    }
+
     @Override
     public void receiveMessage(LazyPacketData message) {
         if(message.contains("CopySettings"))
-            this.copySettings(NodeSelections.read(message.getNBT("CopySettings")));
+            this.copySettingsToStack(NodeSelections.read(message.getNBT("CopySettings")));
         if(message.contains("ReadSettings"))
-            this.loadSettings(NodeSelections.read(message.getNBT("ReadSettings")));
+            this.loadSettingsFromStack(NodeSelections.read(message.getNBT("ReadSettings")));
+        if(message.contains("CopySettingsDirectly"))
+            this.copySettingsDirectly(NodeSelections.read(message.getNBT("CopySettingsDirectly")));
+        if(message.contains("ReadSettingsDirectly") && message.contains("Data"))
+            this.loadSettingsDirectly(NodeSelections.read(message.getNBT("ReadSettingsDirectly")),message.getString("Data"));
+        if(message.contains("CopyDataResult"))
+            this.copyResultConsumer.accept(message.getString("CopyDataResult"));
     }
 
 }

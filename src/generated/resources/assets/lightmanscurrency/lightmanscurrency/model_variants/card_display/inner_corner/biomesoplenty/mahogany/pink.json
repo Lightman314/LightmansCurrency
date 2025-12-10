@@ -1,5 +1,6 @@
 {
   "parent": "lightmanscurrency:card_display/inner_corner/biomesoplenty/mahogany/base",
+  "optional": true,
   "target": "lightmanscurrency:card_display_biomesoplenty_mahogany_pink",
   "textures": {
     "wool": "minecraft:block/pink_wool"

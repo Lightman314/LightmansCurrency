@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableRefere
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import net.minecraft.network.chat.MutableComponent;
 
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -36,6 +37,13 @@ public interface ITaxable extends IClientTracker {
      * Defaults to false if not implemented
      */
     default boolean isNetworkAccessible() { return false; }
+
+    /**
+     * Used in various places to calculate the total tax "range" in situations where the tax rate may change depending on the interaction context<br>
+     * If {@link #isNetworkAccessible()} returns {@link ITaxableContext#fullSet(ITaxable)}<br>
+     * Otherwise returns {@link ITaxableContext#defaultSet(ITaxable)}
+     */
+    default Set<ITaxableContext> getPossibleContexts() { return this.isNetworkAccessible() ? ITaxableContext.fullSet(this) : ITaxableContext.defaultSet(this); }
 
     /**
      * A method with which to manually post a notification to this machines logger (if one is present).

@@ -1,5 +1,6 @@
 {
   "parent": "lightmanscurrency:card_display/outer_corner/biomeswevegone/white_mangrove/base",
+  "optional": true,
   "target": "lightmanscurrency:card_display_biomeswevegone_white_mangrove_yellow",
   "textures": {
     "wool": "minecraft:block/yellow_wool"

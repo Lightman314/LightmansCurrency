@@ -1,5 +1,6 @@
 {
   "parent": "lightmanscurrency:card_display/outer_corner/biomeswevegone/baobab/base",
+  "optional": true,
   "target": "lightmanscurrency:card_display_biomeswevegone_baobab_brown",
   "textures": {
     "wool": "minecraft:block/brown_wool"

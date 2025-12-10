@@ -11,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextBu
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.menus.teams.TeamManagementClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.teams.tabs.TeamSelectionTab;
-import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
@@ -84,7 +83,7 @@ public class TeamSelectionClientTab extends TeamManagementClientTab<TeamSelectio
             if(team.isMember(this.menu.player))
                 this.teamList.add(team);
         });
-        this.teamList.sort(Team.sorterFor(this.menu.player));
+        this.teamList.sort(TeamAPI.getApi().SorterForPlayer(this.menu.player));
     }
 
     @Override
