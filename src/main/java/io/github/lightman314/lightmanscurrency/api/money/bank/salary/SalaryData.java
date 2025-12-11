@@ -131,7 +131,7 @@ public class SalaryData {
     }
 
     List<BankReference> directTargets = new ArrayList<>();
-    public List<BankReference> getPlayerTargets() { return ImmutableList.copyOf(this.directTargets); }
+    public List<BankReference> getDirectTargets() { return ImmutableList.copyOf(this.directTargets); }
     public void addTarget(BankReference target) {
         if(target.get() == this.account)
             return;
@@ -159,7 +159,7 @@ public class SalaryData {
     public List<CustomTarget> getCustomTargets()
     {
         List<CustomTarget> options = new ArrayList<>();
-        Map<String, CustomTarget> data = this.account.extraSalaryTargets();
+        Map<String,CustomTarget> data = this.account.extraSalaryTargets();
         for(String key : this.customTargets)
         {
             CustomTarget entry = data.get(key);
@@ -167,6 +167,16 @@ public class SalaryData {
                 options.add(entry);
         }
         return options;
+    }
+    public List<BankReference> getCustomTargetAccounts()
+    {
+        List<BankReference> list = new ArrayList<>();
+        for(CustomTarget t : this.getCustomTargets())
+        {
+            for(BankReference br : t.getTargets())
+                this.addToBankList(list,br);
+        }
+        return list;
     }
     public void addCustomTarget(String key) {
         if(this.account.extraSalaryTargets().containsKey(key) && !this.customTargets.contains(key))
@@ -267,11 +277,8 @@ public class SalaryData {
     }
     private void addToBankList(List<BankReference> list, BankReference toAdd)
     {
-        for(BankReference entry : list)
-        {
-            if(entry.equals(toAdd))
-                return;
-        }
+        if(list.stream().anyMatch(br -> br.equals(toAdd)))
+            return;
         list.add(toAdd.flagAsClient(this.account));
     }
     public boolean isTarget(Player player) { return this.getAllTargets().stream().anyMatch(br -> br.isSalaryTarget(player)); }
