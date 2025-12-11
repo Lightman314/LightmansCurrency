@@ -19,7 +19,9 @@ import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @MethodsReturnNonnullByDefault
@@ -68,11 +70,12 @@ public class SalaryTargetTab extends SalarySubTab.EditTab {
                 .handler(this::toggleTarget)
                 .build());
 
+        this.updateTargetCache();
+
     }
 
     @Override
     public void renderBG(EasyGuiGraphics gui) {
-
         if(!this.extraOptions.isEmpty())
         {
             //Render Custom Options Label
@@ -86,15 +89,30 @@ public class SalaryTargetTab extends SalarySubTab.EditTab {
         }
     }
 
-    private boolean accountAllowed(BankReference reference) { return !reference.equals(this.menu.getBankAccountReference()); }
 
-    private boolean accountSelected(BankReference reference)
+
+    private List<BankReference> ignoreList = new ArrayList<>();
+    private List<BankReference> targetCache = new ArrayList<>();
+
+    @Override
+    public void tick() { this.updateTargetCache(); }
+    //Calculate the selected target list AND the blocked target list only once per frame
+    private void updateTargetCache()
     {
         SalaryData salary = this.parent.getSelectedSalary();
         if(salary == null)
-            return false;
-        return salary.getAllTargets().stream().anyMatch(br -> br.equals(reference));
+        {
+            this.targetCache = new ArrayList<>();
+            this.ignoreList = new ArrayList<>();
+        }
+        this.targetCache = salary.getDirectTargets();
+        this.ignoreList = new ArrayList<>(salary.getCustomTargetAccounts());
+        this.ignoreList.add(this.menu.getBankAccountReference());
     }
+
+    private boolean accountAllowed(BankReference reference) { return this.ignoreList.stream().noneMatch(br -> br.equals(reference)); }
+
+    private boolean accountSelected(BankReference reference) { return this.targetCache.stream().anyMatch(br -> br.equals(reference)); }
 
     private boolean isOptionEnabled(String option)
     {
