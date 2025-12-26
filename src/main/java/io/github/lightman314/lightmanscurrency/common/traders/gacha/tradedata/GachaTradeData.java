@@ -5,19 +5,14 @@ import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
-import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
-import io.github.lightman314.lightmanscurrency.common.traders.gacha.tradedata.client.GachaTradeButtonRenderer;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
@@ -31,7 +26,6 @@ public class GachaTradeData extends TradeData {
         this.trader = trader;
     }
 
-    @Nonnull
     @Override
     public MoneyValue getCost() { return this.trader.getPrice(); }
 
@@ -50,9 +44,6 @@ public class GachaTradeData extends TradeData {
     public boolean AcceptableDifferences(TradeComparisonResult result) { return false; }
     @Override
     public List<Component> GetDifferenceWarnings(TradeComparisonResult differences) { return List.of(); }
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public TradeRenderManager<?> getButtonRenderer() { return new GachaTradeButtonRenderer(this); }
 
     @Override
     public void OnInputDisplayInteraction(BasicTradeEditTab tab, int index, TradeInteractionData data, ItemStack heldItem) { }

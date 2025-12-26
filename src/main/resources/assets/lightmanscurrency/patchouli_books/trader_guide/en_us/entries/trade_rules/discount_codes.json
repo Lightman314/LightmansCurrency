@@ -1,0 +1,33 @@
+{
+	"name": "Discount Codes",
+	"icon": "lightmanscurrency:coupon",
+	"category": "lightmanscurrency:trade_rules",
+	"pages":[
+		"The \"Discount Codes\" rule allows you to create Discount Codes that customers can use to obtain a percentage-based discount.$(br2)These codes may be input by the customer into the trader screen directly, or by holding a coupon crafted with that code in their inventory.",
+		{
+			"type":"lightmanscurrency:wide_image_2",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/discount_codes/code_list.png",
+			"text":"The Discount Codes rule allows for several codes to be created and processed seperately. Each already created code will be listed in the rules settings, with a text box at the bottom where you can add new codes."
+		},
+		{
+			"type":"lightmanscurrency:wide_image_2",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/discount_codes/code_settings.png",
+			"text":"After creating a new Discount Code, you can then customize the discount percentage (e.g. input of 10 is a 10% discount), as well as define any more advanced limitations."
+		},
+		"The \"Limit\" input field, allows you to define how many times a given $(bold)player$() is allowed to use the discount code before their code will be ignored. This can be combined with the Time Input below to limit players to a certain number of uses per day, hour, etc.$(br2)A limit input of 0 results in no limits being applied through the rule, though finite uses can be done by giving them a coupon with a limited number of uses.",
+		{
+			"type":"patchouli:text",
+			"anchor":"using_codes",
+			"text":"There are two ways for the customer to actually apply a discount code to a trade. The first one is by having someone craft a $(item)Coupon$() at a Ticket Station with the code input for the coupon matching the desired Discount Code.$(br2)Any players holding a coupon created in this way will automatically have the discount code applied to any trades they interact with, and this method allows you to sell",
+			"title":"Using Discount Codes"
+		},
+		"discounts on your trades while keeping the actual discount code a secret.$(br2)This method is the most flexible way to discreetly give discounts to certain customers without having to manually manage a list of players with discounts in the $(l:trade_rules/discount_list)Discounts$() rule, and has the added flexibility of you being able to define a finite number of uses to the $(item)Coupon$() when you craft it.",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/discount_codes/code_input.png",
+			"text":"The second option is to tell your customer the code directly, upon which they can click on the \"Apply Discount Codes\" button on the Trading Screen and type the code in manually to have the discount be applied."
+		},
+		"Once your desired codes are applied, simply click the \"Apply Discount Codes\" button again to return to the normal trading screen.$(br2)One last thing of note: be careful who you tell your discount codes to, as anyone is capable of crafting a coupon with your discount codes and abusing them if you tell them to someone who isn't trustworthy."
+	]
+	
+}

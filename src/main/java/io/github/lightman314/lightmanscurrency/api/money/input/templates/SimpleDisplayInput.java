@@ -10,28 +10,31 @@ import io.github.lightman314.lightmanscurrency.client.util.text_inputs.DoublePar
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.text.DecimalFormat;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public abstract class SimpleDisplayInput extends MoneyInputHandler {
 
     protected SimpleDisplayInput() { }
 
     private Component prefix = EasyText.empty();
-    protected void setPrefix(@Nonnull String prefix) { this.prefix = EasyText.literal(prefix); }
-    protected void setPrefix(@Nonnull Component prefix) { this.prefix = prefix; }
+    protected void setPrefix(String prefix) { this.prefix = EasyText.literal(prefix); }
+    protected void setPrefix(Component prefix) { this.prefix = prefix; }
     private Component postfix = EasyText.empty();
-    protected void setPostfix(@Nonnull String postfix) { this.postfix = EasyText.literal(postfix); }
-    protected void setPostfix(@Nonnull Component postfix) { this.postfix = postfix; }
+    protected void setPostfix(String postfix) { this.postfix = EasyText.literal(postfix); }
+    protected void setPostfix(Component postfix) { this.postfix = postfix; }
 
     private EditBox input;
     private Component error = null;
 
     @Override
-    public void initialize(@Nonnull ScreenArea widgetArea) {
+    public void initialize(ScreenArea widgetArea) {
         int prefixWidth = this.getFont().width(this.prefix);
         if(prefixWidth > 0)
             prefixWidth += 2;
@@ -72,8 +75,7 @@ public abstract class SimpleDisplayInput extends MoneyInputHandler {
     protected Component getErrorText() { return EasyText.literal("DISPLAY FORMAT TOO LONG"); }
 
     @Override
-    protected void renderBG(@Nonnull ScreenArea widgetArea, @Nonnull EasyGuiGraphics gui) {
-        super.renderBG(widgetArea, gui);
+    protected void renderBG(ScreenArea widgetArea, EasyGuiGraphics gui, MoneyValueWidget parent) {
         if(this.input == null)
         {
             if(this.error != null)
@@ -86,11 +88,11 @@ public abstract class SimpleDisplayInput extends MoneyInputHandler {
         if(this.isFree())
             this.input.setValue("");
         if(!this.prefix.getString().isEmpty())
-            gui.drawShadowed(this.prefix, 10, 28, 0xFFFFFF);
+            gui.drawShadowed(this.prefix, 10, 28, parent.fancyTextColor);
         if(!this.postfix.getString().isEmpty())
         {
             int width = gui.font.width(this.postfix);
-            gui.drawShadowed(this.postfix, widgetArea.width - 10 - width, 28, 0xFFFFFF);
+            gui.drawString(this.postfix, widgetArea.width - 10 - width, 28, parent.fancyTextColor);
         }
     }
 
@@ -103,7 +105,7 @@ public abstract class SimpleDisplayInput extends MoneyInputHandler {
     }
 
     @Override
-    public void onValueChanged(@Nonnull MoneyValue newValue) {
+    public void onValueChanged(MoneyValue newValue) {
         String text;
         double valueNumber = 0d;
         if(newValue.getUniqueName().equals(this.getUniqueName()))
@@ -123,9 +125,8 @@ public abstract class SimpleDisplayInput extends MoneyInputHandler {
         return df.format(value);
     }
 
-    @Nonnull
     protected abstract MoneyValue getValueFromInput(double inputValue);
-    protected abstract double getTextFromDisplay(@Nonnull MoneyValue value);
+    protected abstract double getTextFromDisplay(MoneyValue value);
     protected int getRelevantDecimals() { return 0; }
 
 }

@@ -10,9 +10,6 @@ import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingDat
 import io.github.lightman314.lightmanscurrency.api.traders.rules.ICopySupportingRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.FreeSampleTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.PriceTweakingTradeRule;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
@@ -31,8 +28,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -286,9 +281,5 @@ public class FreeSample extends PriceTweakingTradeRule implements ICopySupportin
 		else if(updateInfo.contains("ClearMemory"))
 			this.memory.clear();
 	}
-
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new FreeSampleTab(parent); }
 	
 }

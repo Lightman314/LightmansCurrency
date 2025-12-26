@@ -11,15 +11,18 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextBu
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
+import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
+@MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 public class DiscountCodeTab extends TraderClientTab {
 
-    public DiscountCodeTab(@Nonnull ITraderScreen screen) { super(screen); }
+    public DiscountCodeTab(ITraderScreen screen) { super(screen); }
 
     EditBox codeInput;
 
@@ -76,7 +79,7 @@ public class DiscountCodeTab extends TraderClientTab {
     protected void clearCodes() { this.menu.clearDiscountCodes(); }
 
     @Override
-    public void renderBG(@Nonnull EasyGuiGraphics gui) {
+    public void renderBG(EasyGuiGraphics gui) {
 
     }
 

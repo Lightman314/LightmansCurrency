@@ -1,0 +1,20 @@
+{
+	"name": "Trade Limits",
+	"icon": "lightmanscurrency:textures/gui/trader_guide/trade_rules/trade_limits/icon.png",
+	"category": "lightmanscurrency:trade_rules",
+	"pages":[
+		"The \"Trade Limit\" & \"Player Trade Limit\" rules allow you to limit the number of interactions your customers can have with a given trade or trader.",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/trade_limits/global_inputs.png",
+			"text":"Both of these rules have two primary inputs. The first being the \"limit\" count, which is how many interactions are allowed before this rule locks the trade.$(br)The second is a button that allows you to forget about prior interactions and effectively reset the rule."
+		},
+		"Now that is where the similarities end. The normal \"Trade Limit\" rule applies to all players equally, and only allows the given number of trade/trader interactions period. Once that limit has been reached the trade/trader can no longer be interacted with at all by any player.$(br2) Now the \"Player Trade Limit\" rule is a bit more flexible and only limits each customer from interacting with the trade more than the given amount of times.",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/trade_limits/timer_input.png",
+			"text":"It also has an additional timer input that allows you to forget about previous interactions from a player after a given amount of time has passed. This can be used to limit interactions so that other customers have an opportunity to buy an item that has a limited supply."
+		}
+	]
+
+}

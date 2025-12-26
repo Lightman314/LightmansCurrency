@@ -29,6 +29,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -84,7 +85,7 @@ public final class EasyGuiGraphics {
     //Color Rendering
     public void setColor(float r, float g, float b) { this.setColor(r,g,b,1f); }
     public void setColor(float r, float g, float b, float a) { this.gui.setColor(r,g,b,a); }
-    public void setColor(int color) { this.setColor(OutlineUtil.decodeColor(color)); }
+    public void setColor(int color) { this.setColor(FastColor.ARGB32.red(color)/256f,FastColor.ARGB32.green(color)/256f,FastColor.ARGB32.blue(color)/256f,FastColor.ARGB32.alpha(color)/256f); }
     public void setColor(int color, float alpha) { this.setColor(OutlineUtil.decodeColor(color,alpha)); }
     public void setColor(Vector4f color) { this.gui.setColor(color.x,color.y,color.z,color.w); }
     public void resetColor() { this.setColor(1f,1f,1f,1f); }

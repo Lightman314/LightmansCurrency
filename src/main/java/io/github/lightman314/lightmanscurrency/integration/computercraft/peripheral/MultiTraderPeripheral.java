@@ -8,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.AccessTrackingPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCComputerHelper;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.TraderPeripheral;
@@ -88,9 +87,8 @@ public abstract class MultiTraderPeripheral extends AccessTrackingPeripheral {
         TraderData trader = TraderAPI.getApi().GetTrader(false,args.getInt(0));
         if(trader == null || !this.stillAccessible(trader))
             return new Object[] { null, new LuaException("Trader could not be located") };
-        LCPeripheral result = LCComputerHelper.getPeripheral(trader);
-        if(result instanceof AccessTrackingPeripheral at)
-            at.setParent(this);
+        AccessTrackingPeripheral result = LCComputerHelper.getPeripheral(trader);
+        result.setParent(this);
         return new Object[] { result.asTable(computer), null };
     }
 

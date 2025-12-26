@@ -64,6 +64,11 @@ public abstract class MoneyAPI {
      */
     public abstract IMoneyHolder GetPlayersMoneyHandler(Player player);
 
+    /**
+     * Gets an unsafe version of the {@link IMoneyHolder} for the given player.
+     */
+    public abstract IMoneyHolder GetPlayersMoneyHandlerUnsafe(Player player);
+
     ///Container related functions
 
     /**

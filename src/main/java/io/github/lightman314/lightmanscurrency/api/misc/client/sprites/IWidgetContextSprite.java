@@ -4,7 +4,8 @@ import net.minecraft.client.gui.components.AbstractWidget;
 
 public interface IWidgetContextSprite {
 
-    void updateWidgetContext(AbstractWidget widget);
+    default void updateWidgetContext(AbstractWidget widget) { this.updateWidgetContext(widget.isActive(),widget.isHovered()); }
+    void updateWidgetContext(boolean active, boolean hovered);
     FixedSizeSprite getSprite(boolean active,boolean focused);
 
 }

@@ -7,9 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.money.types.IPlayerMoneyHandl
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import io.github.lightman314.lightmanscurrency.integration.impactor.money.client.ImpactorMoneyInputHandler;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.impactdev.impactor.api.economy.EconomyService;
 import net.impactdev.impactor.api.economy.currency.Currency;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
@@ -17,13 +15,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -72,14 +67,5 @@ public class ImpactorCurrencyType extends CurrencyType {
 
     @Override
     public MoneyValueParser getValueParser() { return ImpactorValueParser.INSTANCE; }
-
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public List<Object> getInputHandlers(@Nullable Player player) {
-        List<Object> result = new ArrayList<>();
-        for(Currency currency : EconomyService.instance().currencies().registered())
-            result.add(new ImpactorMoneyInputHandler(currency));
-        return result;
-    }
 
 }

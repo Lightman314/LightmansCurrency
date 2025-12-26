@@ -1,4 +1,4 @@
-package io.github.lightman314.lightmanscurrency.common.traders;
+package io.github.lightman314.lightmanscurrency.common.traders.input;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;

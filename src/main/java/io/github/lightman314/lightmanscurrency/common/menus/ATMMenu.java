@@ -31,7 +31,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,13 +78,13 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 	}
 
 	@Override
-	protected void onValidationTick(@Nonnull Player player) {
+	protected void onValidationTick(Player player) {
 		//Run get bank account code during valid check so that it auto-validates the account access and updates the client as necessary.
 		this.getBankAccountReference();
 	}
 
 	@Override
-	public void removed(@Nonnull Player player)
+	public void removed(Player player)
 	{
 		super.removed(player);
 		this.clearContainer(player,  this.coinInput);
@@ -101,10 +100,9 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 			}
 		}
 	}
-	
-	@Nonnull
+
 	@Override
-	public ItemStack quickMoveStack(@Nonnull Player player, int index)
+	public ItemStack quickMoveStack(Player player, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
@@ -181,7 +179,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 	
 	public void clearMessage() { this.transferMessage = null; }
 
-	public void SetNotificationValueAndUpdate(@Nonnull String type, @Nonnull MoneyValue newValue)
+	public void SetNotificationValueAndUpdate(String type, MoneyValue newValue)
 	{
 		IBankAccount ba = this.getBankAccount();
 		if(ba != null)
@@ -190,7 +188,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 	}
 
 	@Override
-	public void HandleMessage(@Nonnull LazyPacketData message) {
+	public void HandleMessage(LazyPacketData message) {
 		if(message.contains("ExchangeCoinCommand"))
 			this.ExchangeCoins(message.getString("ExchangeCoinCommand"));
 		if(message.contains("NotificationValueChange"))

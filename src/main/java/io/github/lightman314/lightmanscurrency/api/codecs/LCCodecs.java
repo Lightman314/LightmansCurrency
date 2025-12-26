@@ -5,6 +5,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.money.value.FlexibleMoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
@@ -17,6 +18,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -33,13 +35,19 @@ public class LCCodecs {
     private LCCodecs() {}
 
     public static final Codec<MoneyValue> MONEY_VALUE = easyCodec(MoneyValue::save,MoneyValue::load,"Money Value");
-    public static final StreamCodec<ByteBuf,MoneyValue> MONEY_VALUE_STREAM = ByteBufCodecs.fromCodecTrusted(MONEY_VALUE);
+    public static final StreamCodec<FriendlyByteBuf,MoneyValue> MONEY_VALUE_STREAM = StreamCodec.of((buf,val) -> val.encode(buf),MoneyValue::decode);
 
     public static final Codec<MoneyValue> MONEY_VALUE_NON_EMPTY = MONEY_VALUE.validate(value -> {
         if(value.isEmpty() && !value.isFree())
             return DataResult.error(() -> "Money Value cannot be empty!");
         return DataResult.success(value);
     });
+
+    public static final Codec<FlexibleMoneyValue> FLEXIBLE_MONEY_VALUE = RecordCodecBuilder.create(builder -> builder.group(
+                    Codec.BOOL.fieldOf("negative").forGetter(v -> v.negative),
+                    LCCodecs.MONEY_VALUE.fieldOf("value").forGetter(v -> v.value))
+            .apply(builder,FlexibleMoneyValue::of));
+    public static final StreamCodec<FriendlyByteBuf,FlexibleMoneyValue> FLEXIBLE_MONEY_VALUE_STREAM = StreamCodec.of((buf,val) -> val.encode(buf),FlexibleMoneyValue::decode);
 
     public static final Codec<BankReference> BANK_REFERENCE = easyCodec(BankReference::save,BankReference::load,"Bank Reference");
     public static final StreamCodec<ByteBuf,BankReference> BANK_REFERENCE_STREAM = ByteBufCodecs.fromCodec(BANK_REFERENCE);

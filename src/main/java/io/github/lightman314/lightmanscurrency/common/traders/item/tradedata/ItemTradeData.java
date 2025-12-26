@@ -21,10 +21,8 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInt
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
-import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.ProductComparisonResult;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.client.ItemTradeButtonRenderer;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.BasicTradeEditTab;
@@ -42,8 +40,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -613,11 +609,6 @@ public class ItemTradeData extends TradeData {
 		}
 		return list;
 	}
-
-	
-    @Override
-	@OnlyIn(Dist.CLIENT)
-	public TradeRenderManager<?> getButtonRenderer() { return new ItemTradeButtonRenderer(this); }
 
 	@Override
 	public void OnInputDisplayInteraction(BasicTradeEditTab tab, int index, TradeInteractionData data, ItemStack heldItem) {

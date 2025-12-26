@@ -13,6 +13,12 @@ public interface FixedSizeSprite {
     int getHeight();
 
     default void render(EasyGuiGraphics gui, ScreenPosition position, AbstractWidget widget) { this.render(gui,position.x,position.y,widget); }
+    default void render(EasyGuiGraphics gui, ScreenPosition position, boolean active, boolean hovered) { this.render(gui,position.x,position.y,active,hovered); }
+    default void render(EasyGuiGraphics gui, int x, int y, boolean active, boolean hovered) {
+        if(this instanceof IWidgetContextSprite wcs)
+            wcs.updateWidgetContext(active,hovered);
+        this.render(gui,x,y);
+    }
     default void render(EasyGuiGraphics gui, int x, int y, AbstractWidget widget) {
         if(this instanceof IWidgetContextSprite wcs)
             wcs.updateWidgetContext(widget);

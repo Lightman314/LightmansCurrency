@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FlexibleSizeSprite;
 import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.renderer.ATMIconRenderer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMExchangeButtonData;
@@ -48,7 +49,8 @@ public class ATMExchangeButton extends EasyButton {
 		//Draw the icons
 		for(ATMIconData icon : this.data.getIcons())
 		{
-			try { icon.render(this, gui, highlighted);
+			try {
+                ATMIconRenderer.renderIcon(this,icon,gui,highlighted);
 			} catch(Throwable t) { LightmansCurrency.LogError("Error rendering ATM Conversion Button icon.", t); }
 		}
 

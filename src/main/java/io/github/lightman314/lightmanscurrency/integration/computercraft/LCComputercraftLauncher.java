@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.integration.computercraft;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.neoforged.bus.api.IEventBus;
 
-public class LCComputercraftSetup {
+public class LCComputercraftLauncher {
 
     public static void setup(IEventBus modBus)
     {

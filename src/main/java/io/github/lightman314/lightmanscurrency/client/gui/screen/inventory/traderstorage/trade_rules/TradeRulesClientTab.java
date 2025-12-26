@@ -2,7 +2,9 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.events.client.RegisterTradeRuleTabsEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.SmallTabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
@@ -16,12 +18,25 @@ import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHo
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import net.minecraft.network.chat.MutableComponent;
+import net.neoforged.fml.ModLoader;
+import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends TraderStorageClientTab<T> {
+
+    private static Map<TradeRuleType<?>,Function<TradeRulesClientTab<?>,TradeRulesClientSubTab>> tabBuilders = null;
+
+    @ApiStatus.Internal
+    public static void initialize()
+    {
+        if(tabBuilders == null)
+            tabBuilders = ModLoader.postEventWithReturn(new RegisterTradeRuleTabsEvent()).getTabBuilders();
+    }
 
     private int selectedTab = 0;
     private final List<TradeRulesClientSubTab> tabs = new ArrayList<>();
@@ -84,7 +99,11 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
             for(TradeRule rule : host.getRules())
             {
                 try{
-                    this.tabs.add(rule.createTab(this));
+                    var builder = tabBuilders.get(rule.type);
+                    if(builder != null)
+                        this.tabs.add(builder.apply(this));
+                    else //Use deprecated method if no builder is registered
+                        rule.createTab(this);
                 } catch(Throwable t) {
                     LightmansCurrency.LogError("Trade Rule of type '" + rule.type + "' encountered an error creating its tab. Trade Rule will not be editable!", t);
                 }

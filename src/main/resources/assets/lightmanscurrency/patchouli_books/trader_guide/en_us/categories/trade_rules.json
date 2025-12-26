@@ -1,0 +1,5 @@
+{
+	"name":"Trade Rules",
+	"description": "Specialty rules applied to trades to modify prices, limit interactions, and other such shenanigans",
+	"icon":"minecraft:writable_book"
+}

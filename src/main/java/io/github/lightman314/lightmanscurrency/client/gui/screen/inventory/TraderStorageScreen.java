@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.traders.client.TraderClientHooks;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -27,8 +28,6 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpe
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
-import javax.annotation.Nonnull;
-
 public class TraderStorageScreen extends AdvancedTabbedMenuScreen<ITraderStorageMenu,TraderStorageMenu,TraderStorageTab,ITraderStorageScreen> implements ITraderStorageScreen {
 	
 	EasyButton buttonShowTrades;
@@ -38,7 +37,6 @@ public class TraderStorageScreen extends AdvancedTabbedMenuScreen<ITraderStorage
 	private final LazyWidgetPositioner rightEdgePositioner = LazyWidgetPositioner.create(this, LazyWidgetPositioner.createTopdown(), TraderScreen.WIDTH, 0, 20);
 
 	@Override
-	@Nonnull
 	public IWidgetPositioner getRightEdgePositioner() { return this.rightEdgePositioner; }
 
 	public TraderStorageScreen(TraderStorageMenu menu, Inventory inventory, Component title) {
@@ -47,7 +45,6 @@ public class TraderStorageScreen extends AdvancedTabbedMenuScreen<ITraderStorage
 		menu.setMessageListener(this::serverMessage);
 	}
 
-	@Nonnull
 	@Override
 	protected IWidgetPositioner getTabButtonPositioner() {
 		return LazyWidgetPositioner.create(this,LazyWidgetPositioner.createTopdown(WidgetRotation.LEFT),ScreenPosition.of(TabButton.NEGATIVE_SIZE,0), TabButton.SIZE);
@@ -85,7 +82,7 @@ public class TraderStorageScreen extends AdvancedTabbedMenuScreen<ITraderStorage
 
 		TraderData trader = this.menu.getTrader();
 		if(trader != null)
-			trader.onStorageScreenInit(this, this::addChild);
+            TraderClientHooks.forEach(trader,attachment -> attachment.onStorageScreenInit(trader,this,this::addChild));
 
 		//Initialize the current tab
 		this.currentTab().onOpen();
@@ -95,7 +92,7 @@ public class TraderStorageScreen extends AdvancedTabbedMenuScreen<ITraderStorage
 	}
 
 	@Override
-	protected void renderBackground(@Nonnull EasyGuiGraphics gui) {
+	protected void renderBackground(EasyGuiGraphics gui) {
 
 		if(this.menu.getTrader() == null)
 		{

@@ -21,9 +21,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.text.TimeUnitTextEntry;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.client.PaygateTradeButtonRenderer;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
-import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
@@ -45,8 +43,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -377,11 +373,6 @@ public class PaygateTradeData extends TradeData implements IDirectionalSettingsO
 
 	
 	private static MutableComponent formatUnitShort(int count, TimeUnitTextEntry entry) { return EasyText.literal(String.valueOf(count)).append(entry.shortText.get()); }
-
-	
-    @Override
-	@OnlyIn(Dist.CLIENT)
-	public TradeRenderManager<?> getButtonRenderer() { return new PaygateTradeButtonRenderer(this); }
 
 	@Override
 	public void OnInputDisplayInteraction(BasicTradeEditTab tab, int index, TradeInteractionData data, ItemStack heldItem) {

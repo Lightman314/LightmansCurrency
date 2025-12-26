@@ -8,9 +8,6 @@ import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingDat
 import io.github.lightman314.lightmanscurrency.api.traders.rules.ICopySupportingRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.data.PlayerMemory;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.PlayerTradeLimitTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
@@ -24,8 +21,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -34,11 +29,13 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class PlayerTradeLimit extends TradeRule implements ICopySupportingRule {
 
+    public static final int MAX_LIMIT = 1000000;
+
 	public static final TradeRuleType<PlayerTradeLimit> TYPE = new TradeRuleType<>(VersionUtil.lcResource("player_trade_limit"),PlayerTradeLimit::new);
 	
 	private int limit = 1;
 	public int getLimit() { return this.limit; }
-	public void setLimit(int newLimit) { this.limit = MathUtil.clamp(newLimit,1,100); }
+	public void setLimit(int newLimit) { this.limit = MathUtil.clamp(newLimit,1,MAX_LIMIT); }
 	
 	private long timeLimit = 0;
 	private boolean enforceTimeLimit() { return this.timeLimit > 0; }
@@ -164,9 +161,5 @@ public class PlayerTradeLimit extends TradeRule implements ICopySupportingRule {
 		if(json.has("ForgetTime"))
 			this.timeLimit = json.get("ForgetTime").getAsLong();
 	}
-
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new PlayerTradeLimitTab(parent); }
 	
 }

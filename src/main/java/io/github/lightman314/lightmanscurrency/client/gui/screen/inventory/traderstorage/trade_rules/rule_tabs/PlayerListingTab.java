@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRuleSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.player.PlayerAction;
@@ -20,7 +19,7 @@ import java.util.List;
 
 public class PlayerListingTab extends TradeRuleSubTab<PlayerListing> {
 
-    public PlayerListingTab(@Nonnull TradeRulesClientTab<?> parent, @Nonnull TradeRuleType<PlayerListing> ruleType) { super(parent, ruleType); }
+    public PlayerListingTab(@Nonnull TradeRulesClientTab<?> parent) { super(parent,PlayerListing.TYPE); }
 
     EasyButton buttonToggleMode;
 

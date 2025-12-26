@@ -3,10 +3,12 @@ package io.github.lightman314.lightmanscurrency.common.blockentity;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.common.items.CoinJarItem;
+import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedContainer;
 import net.minecraft.core.HolderLookup;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
@@ -35,7 +37,9 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 	public void clearStorage() { this.storage.clear(); }
 	
 	private final ItemViewer viewer = new ItemViewer(this);
+    private final IMoneyViewer moneyViewer = MoneyAPI.getApi().GetContainersMoneyHandler(new SuppliedContainer(() -> InventoryUtil.buildInventory(this.storage)),s -> {},this);
 	public IItemHandler getViewer() { return this.viewer; }
+    public IMoneyViewer getMoneyViewer() { return this.moneyViewer; }
 	
 	public CoinJarBlockEntity(BlockPos pos, BlockState state)
 	{

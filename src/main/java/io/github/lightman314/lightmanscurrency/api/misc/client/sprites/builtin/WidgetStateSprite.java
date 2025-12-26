@@ -7,7 +7,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FlexibleS
 import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
 import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.IWidgetContextSprite;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -85,7 +84,7 @@ public class WidgetStateSprite implements FixedSizeSprite, IWidgetContextSprite 
     }
 
     @Override
-    public void updateWidgetContext(AbstractWidget widget) { this.lastState = Pair.of(widget.isActive(),widget.isHovered()); }
+    public void updateWidgetContext(boolean active, boolean hovered) { this.lastState = Pair.of(active,hovered); }
 
     public static Builder builder(FixedSizeSprite activeSprite) { return new Builder(activeSprite,activeSprite); }
 

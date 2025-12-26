@@ -243,7 +243,8 @@ public class LCItemTagProvider extends ItemTagsProvider {
         this.cTag(ItemTags.DYEABLE)
                 .add(ModBlocks.SUS_JAR)
                 .add(ModItems.ATM_CARD)
-                .add(ModItems.WALLET_LEATHER);
+                .add(ModItems.WALLET_LEATHER)
+                .add(ModItems.TRANSACTION_REGISTER);
 
         ///MODDED TAGS
         //Add Wallets to Wallet Slot

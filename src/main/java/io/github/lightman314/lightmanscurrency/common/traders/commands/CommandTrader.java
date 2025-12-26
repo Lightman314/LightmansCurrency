@@ -16,11 +16,8 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.api.traders.permissions.PermissionOption;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.command.CommandSettingsAddon;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.addons.MiscTabAddon;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.misc.UpgradesTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.command.CommandTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.CommandTradeNotification;
@@ -45,8 +42,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -130,6 +125,10 @@ public class CommandTrader extends TraderData {
                 JsonObject tradeData = new JsonObject();
                 tradeData.add("Price",trade.getCost().toJson());
                 tradeData.addProperty("Command",trade.getCommand());
+                if(!trade.getDescription().isBlank())
+                    tradeData.addProperty("Description",trade.getDescription());
+                if(!trade.getTooltip().isBlank())
+                    tradeData.addProperty("Tooltip",trade.getTooltip());
 
                 JsonArray ruleData = TradeRule.saveRulesToJson(trade.getRules(),lookup);
                 if(!ruleData.isEmpty())
@@ -173,6 +172,8 @@ public class CommandTrader extends TraderData {
 
                 //Command
                 newTrade.setCommand(GsonHelper.getAsString(tradeData,"Command"));
+                newTrade.setDescription(GsonHelper.getAsString(tradeData,"Description",""));
+                newTrade.setTooltip(GsonHelper.getAsString(tradeData,"Tooltip",""));
 
                 if(tradeData.has("Rules"))
                     newTrade.setRules(TradeRule.Parse(GsonHelper.getAsJsonArray(tradeData, "Rules"), newTrade, lookup));
@@ -305,17 +306,6 @@ public class CommandTrader extends TraderData {
     public void initStorageTabs(ITraderStorageMenu menu) {
         menu.setTab(TraderStorageTab.TAB_TRADE_STORAGE,new UpgradesTab(menu,1));
         menu.setTab(TraderStorageTab.TAB_TRADE_ADVANCED,new CommandTradeEditTab(menu));
-    }
-
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    protected void addPermissionOptions(List<PermissionOption> options) { }
-
-    @Override
-    public List<MiscTabAddon> getMiscTabAddons() {
-        List<MiscTabAddon> results = super.getMiscTabAddons();
-        results.add(new CommandSettingsAddon());
-        return results;
     }
 
     @Override

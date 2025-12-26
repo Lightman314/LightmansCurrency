@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.api.capability.money.CapabilityMo
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.types.IPlayerMoneyHandler;
-import io.github.lightman314.lightmanscurrency.api.money.types.builtin.other.ContainerMoneyHandlerWrapper;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
@@ -25,7 +24,6 @@ import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -47,7 +45,7 @@ public final class NullCurrencyType extends CurrencyType {
 
     @Nullable
     @Override
-    public IMoneyHandler createMoneyHandlerForContainer(Container container, Consumer<ItemStack> overflowHandler, IClientTracker tracker) { return new ContainerMoneyHandlerWrapper(container,tracker); }
+    public IMoneyHandler createMoneyHandlerForContainer(Container container, Consumer<ItemStack> overflowHandler, IClientTracker tracker) { return null; }
 
     @Override
     public MoneyValue loadMoneyValue(CompoundTag valueTag) {
@@ -57,13 +55,9 @@ public final class NullCurrencyType extends CurrencyType {
     }
     @Override
     public MoneyValue loadMoneyValueJson(JsonObject json) { return GsonHelper.getAsBoolean(json, "Free", false) ? MoneyValue.free() : MoneyValue.empty(); }
-
     
     @Override
     public MoneyValueParser getValueParser() { return DefaultValueParser.INSTANCE; }
-
-    @Override
-    public List<Object> getInputHandlers(@Nullable Player player) { return new ArrayList<>(); }
 
     @Override
     public boolean allowItemInMoneySlot(Player player, ItemStack item) {

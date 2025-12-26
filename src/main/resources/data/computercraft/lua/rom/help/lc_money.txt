@@ -1,0 +1,16 @@
+Functions in the LC Money API:
+lc_money.addMoney( val1, val2 )
+  Adds the two money values together and returns the result
+lc_money.subtractMoney( val1, val2 )
+  Subtracts the second money value from the first and returns the result
+lc_money.percentageOfMoney( val, percentage )
+  Gets the given percentage of the money value and returns the result
+lc_money.multiplyMoney( val, mult )
+  Multiplies the money value by the multiplier and returns the result
+lc_money.readInventoryValues( table )
+  Obtains the monetary value of the item data in the given table.
+  Works with singular items, or a table containing many item entries.
+  Can read the contents of other "inventory" peripherals from the table produced by their "list" function
+
+Money Value arguments accept strings in the MoneyValueArgument format (i.e. "coin;5-lightmanscurrency:coin_copper")
+Also accepts data tables that were returned by various other Lightman's Currency peripherals (including the results of these methods)

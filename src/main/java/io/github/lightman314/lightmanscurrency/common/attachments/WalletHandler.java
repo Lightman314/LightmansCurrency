@@ -30,6 +30,7 @@ import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nonnull;
+import java.util.function.Consumer;
 
 public class WalletHandler extends MoneyHandler implements INBTSerializable<CompoundTag>, IClientTracker, IEasyTickable
 {
@@ -76,21 +77,25 @@ public class WalletHandler extends MoneyHandler implements INBTSerializable<Comp
         }
     }
 
-    private void handleOverflow(@Nonnull ItemStack overflow)
+    private Consumer<ItemStack> overflowHandler(boolean simulation)
     {
-        if(this.entity instanceof Player player)
-            ItemHandlerHelper.giveItemToPlayer(player, overflow);
-        else if(this.entity != null)
-        {
-            IItemHandler handler = this.entity.getCapability(Capabilities.ItemHandler.ENTITY,null);
-            if(handler != null)
+        if(simulation)
+            return i -> {};
+        return overflow -> {
+            if(this.entity instanceof Player player)
+                ItemHandlerHelper.giveItemToPlayer(player, overflow);
+            else if(this.entity != null)
             {
-                for(int i = 0; i < handler.getSlots() && !overflow.isEmpty(); ++i)
-                    overflow = handler.insertItem(i,overflow, false);
+                IItemHandler handler = this.entity.getCapability(Capabilities.ItemHandler.ENTITY,null);
+                if(handler != null)
+                {
+                    for(int i = 0; i < handler.getSlots() && !overflow.isEmpty(); ++i)
+                        overflow = handler.insertItem(i,overflow, false);
+                }
+                if(!overflow.isEmpty())
+                    InventoryUtil.dumpContents(this.entity.level(), this.entity.blockPosition(), overflow);
             }
-            if(!overflow.isEmpty())
-                InventoryUtil.dumpContents(this.entity.level(), this.entity.blockPosition(), overflow);
-        }
+        };
     }
 
     @Nonnull
@@ -170,11 +175,11 @@ public class WalletHandler extends MoneyHandler implements INBTSerializable<Comp
     public MoneyValue insertMoney(@Nonnull MoneyValue insertAmount, boolean simulation) {
         WalletDataWrapper wrapper = this.getWalletWrapper();
         Container contents = wrapper.getContents();
-        IMoneyHandler handler = CoinCurrencyType.INSTANCE.createMoneyHandlerForContainer(contents,this::handleOverflow,this);
+        IMoneyHandler handler = CoinCurrencyType.INSTANCE.createMoneyHandlerForContainer(contents,this.overflowHandler(simulation),this);
         MoneyValue result = handler.insertMoney(insertAmount, simulation);
         //If changed, update wallet menus
-        if(!InventoryUtil.ContainerMatches(contents,wrapper.getContents()))
-            this.updateWalletContents(wrapper, contents);
+        if(!InventoryUtil.ContainerMatches(contents,wrapper.getContents()) && !simulation)
+            this.updateWalletContents(wrapper,contents);
         return result;
     }
 
@@ -183,9 +188,9 @@ public class WalletHandler extends MoneyHandler implements INBTSerializable<Comp
     public MoneyValue extractMoney(@Nonnull MoneyValue extractAmount, boolean simulation) {
         WalletDataWrapper wrapper = this.getWalletWrapper();
         Container contents = wrapper.getContents();
-        IMoneyHandler handler = CoinCurrencyType.INSTANCE.createMoneyHandlerForContainer(contents,this::handleOverflow,this);
+        IMoneyHandler handler = CoinCurrencyType.INSTANCE.createMoneyHandlerForContainer(contents,this.overflowHandler(simulation),this);
         MoneyValue result = handler.extractMoney(extractAmount,simulation);
-        if(!InventoryUtil.ContainerMatches(contents,wrapper.getContents()))
+        if(!InventoryUtil.ContainerMatches(contents,wrapper.getContents()) && !simulation)
             this.updateWalletContents(wrapper,contents);
         return result;
     }
@@ -199,6 +204,7 @@ public class WalletHandler extends MoneyHandler implements INBTSerializable<Comp
             CoinAPI.getApi().SortCoinsByValue(contents);
         }
         wrapper.setContents(contents, this.entity);
+        this.setChanged();
     }
 
     @Override

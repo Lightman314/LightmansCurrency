@@ -7,20 +7,18 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.money.value.IItemBasedValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
-import io.github.lightman314.lightmanscurrency.common.money.ancient_money.client.AncientPriceEntry;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Range;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import java.math.BigDecimal;
 import java.util.List;
 
 public class AncientMoneyValue extends MoneyValue implements IItemBasedValue {
@@ -52,6 +50,7 @@ public class AncientMoneyValue extends MoneyValue implements IItemBasedValue {
     public boolean isEmpty() { return this.count <= 0; }
 
     @Override
+    @Range(from = 0, to = Long.MAX_VALUE)
     public long getCoreValue() { return Math.max(0,this.count); }
 
     @Override
@@ -111,10 +110,24 @@ public class AncientMoneyValue extends MoneyValue implements IItemBasedValue {
         return this.fromCoreValue(newValue);
     }
 
-    //No interest on ancient coins please and thank you :)
     @Nonnull
     @Override
-    public MoneyValue multiplyValue(double multiplier) { return empty(); }
+    public MoneyValue multiplyValue(double multiplier) {
+        BigDecimal value = BigDecimal.valueOf(this.getCoreValue());
+        BigDecimal result = value.multiply(BigDecimal.valueOf(multiplier));
+        //If less than 1, return empty
+        if(result.compareTo(BigDecimal.valueOf(0.5d)) < 0)
+            return MoneyValue.empty();
+        if(result.compareTo(BigDecimal.valueOf(Long.MAX_VALUE)) > 0)
+        {
+            //If larger than max long value, return max long value
+            return of(this.type,Long.MAX_VALUE);
+        }
+        long rounding = 0;
+        if(result.remainder(BigDecimal.ONE).compareTo(BigDecimal.valueOf(0.5d)) >= 0)
+            rounding = 1;
+        return of(this.type, result.longValue() + rounding);
+    }
 
     @Nonnull
     @Override
@@ -167,9 +180,5 @@ public class AncientMoneyValue extends MoneyValue implements IItemBasedValue {
             throw new JsonSyntaxException("Count cannot be less than 1");
         return of(type,count);
     }
-
-    @Nonnull
-    @Override
-    public DisplayEntry getDisplayEntry(@Nullable List<Component> additionalTooltips, boolean tooltipOverride) { return new AncientPriceEntry(this, additionalTooltips, tooltipOverride); }
 
 }

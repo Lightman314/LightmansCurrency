@@ -6,13 +6,16 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.IClientTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.containers.CoinContainer;
+import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedContainer;
 import io.github.lightman314.lightmanscurrency.common.menus.containers.UpgradeContainer;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
@@ -80,6 +83,8 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
     private final UpgradeContainer upgrades;
     @Nonnull
     public final UpgradeContainer getUpgrades() { return this.upgrades; }
+
+    public final IMoneyViewer moneyViewer = MoneyAPI.getApi().GetContainersMoneyHandler(this.storage,s -> {},this);
 
     private List<CoinChestUpgradeData> unfilteredUpgradeDataCache = new ArrayList<>();
     private List<CoinChestUpgradeData> upgradeDataCache = new ArrayList<>();

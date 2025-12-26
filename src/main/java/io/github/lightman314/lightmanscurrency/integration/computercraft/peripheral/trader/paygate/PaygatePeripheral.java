@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheral;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.AccessTrackingPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.TraderPeripheral;
@@ -48,9 +48,11 @@ public class PaygatePeripheral extends TraderPeripheral<PaygateBlockEntity,Payga
 
     @Nullable
     @Override
-    protected LCPeripheral wrapTrade(TradeData trade) throws LuaException{
+    protected AccessTrackingPeripheral wrapTrade(TradeData trade) throws LuaException{
         int index = this.getTrader().indexOfTrade(trade);
-        return new PaygateTradeWrapper(this.tradeSource(index),this::safeGetTrader);
+        PaygateTradeWrapper wrapper = new PaygateTradeWrapper(this.tradeSource(index),this::safeGetTrader);
+        wrapper.setParent(this);
+        return wrapper;
     }
 
     public LCLuaTable getRedstoneState() throws LuaException {

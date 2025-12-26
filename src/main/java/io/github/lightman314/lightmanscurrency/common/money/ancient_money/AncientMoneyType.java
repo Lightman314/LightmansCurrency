@@ -9,13 +9,10 @@ import io.github.lightman314.lightmanscurrency.api.money.types.IPlayerMoneyHandl
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
-import io.github.lightman314.lightmanscurrency.common.attachments.EventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
-import io.github.lightman314.lightmanscurrency.common.money.ancient_money.client.AncientCoinValueInput;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.handlers.AncientContainerMoneyHandler;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.handlers.AncientPlayerMoneyHandler;
-import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -25,8 +22,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -105,14 +100,6 @@ public class AncientMoneyType extends CurrencyType {
 
     @Override
     public MoneyValueParser getValueParser() { return AncientMoneyParser.INSTANCE; }
-
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public List<Object> getInputHandlers(@Nullable Player player) {
-        if(EventUnlocks.isUnlocked(player, "ancient_coins") || LCAdminMode.isAdminPlayer(player))
-            return List.of(new AncientCoinValueInput());
-        return List.of();
-    }
 
     @Override
     public boolean allowItemInMoneySlot(Player player, ItemStack item) { return item.getItem() == ModItems.COIN_ANCIENT.get(); }

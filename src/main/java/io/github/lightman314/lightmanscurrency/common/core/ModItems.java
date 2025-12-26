@@ -152,7 +152,7 @@ public class ModItems {
 		VARIANT_WAND = ModRegistries.ITEMS.register("variant_wand", () -> new Item(new Item.Properties().stacksTo(1)));
 
         //Utility Items
-        //TRANSACTION_REGISTER = ModRegistries.ITEMS.register("transaction_register",() -> new TransactionRegisterItem(new Item.Properties()));
+        TRANSACTION_REGISTER = ModRegistries.ITEMS.register("transaction_register",() -> new TransactionRegisterItem(new Item.Properties()));
 
         //Item Trade Filter
         ITEM_TRADE_FILTER = ModRegistries.ITEMS.register("item_trade_filter",() -> new FilterItem(new Item.Properties()));
@@ -204,7 +204,7 @@ public class ModItems {
 	public static final Supplier<Item> PORTABLE_GEM_TERMINAL;
 	public static final Supplier<Item> PORTABLE_ATM;
 
-    //public static final Supplier<Item> TRANSACTION_REGISTER; //WIP, but bug fix says no
+    public static final Supplier<Item> TRANSACTION_REGISTER;
 	
 	public static final Supplier<Item> ITEM_CAPACITY_UPGRADE_1;
 	public static final Supplier<Item> ITEM_CAPACITY_UPGRADE_2;

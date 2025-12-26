@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.traders.trade.client;
 
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.events.client.RegisterTradeRenderManagersEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
@@ -22,19 +23,37 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.ModLoader;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-@OnlyIn(Dist.CLIENT)
 public abstract class TradeRenderManager<T extends TradeData> {
+
+    private static Map<Class<? extends TradeData>,Function<TradeData,TradeRenderManager<?>>> renderManagers;
+    public static void initialize()
+    {
+        if(renderManagers != null)
+            return;
+        renderManagers = ModLoader.postEventWithReturn(new RegisterTradeRenderManagersEvent()).getResults();
+    }
+
+    @SuppressWarnings("deprecation")
+    public static TradeRenderManager<?> getTradeRenderer(TradeData trade)
+    {
+        Function<TradeData,TradeRenderManager<?>> builder = renderManagers.get(trade.getClass());
+        if(builder != null)
+            return builder.apply(trade);
+        //Use deprecated method
+        return trade.getButtonRenderer();
+    }
 
     public final T trade;
     protected TradeRenderManager(T trade) { this.trade = trade; }

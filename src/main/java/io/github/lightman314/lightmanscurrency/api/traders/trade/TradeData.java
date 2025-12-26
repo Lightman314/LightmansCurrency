@@ -230,10 +230,13 @@ public abstract class TradeData implements ITradeRuleHost {
 	 * Used to inform them about what changes have been made so that they can make an informed decision about whether they want to accept the changes or not.
 	 */
 	public abstract List<Component> GetDifferenceWarnings(TradeComparisonResult differences);
-	
+
+    /**
+     * @deprecated Get via {@link TradeRenderManager#getTradeRenderer(TradeData)}<br>Register via {@link io.github.lightman314.lightmanscurrency.api.events.client.RegisterTradeRenderManagersEvent RegisterTradeRenderManagersEvent}
+     */
 	@OnlyIn(Dist.CLIENT)
-	
-	public abstract TradeRenderManager<?> getButtonRenderer();
+    @Deprecated(since = "2.3.0.4")
+	public TradeRenderManager<?> getButtonRenderer() { throw new IllegalStateException("Trade " + this.getClass().getName() + " did not properly register a Trade Render Manager!"); }
 
 	/**
 	 * Called when an input display is clicked on in display mode.

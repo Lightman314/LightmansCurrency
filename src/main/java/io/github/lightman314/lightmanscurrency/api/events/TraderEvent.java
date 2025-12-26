@@ -1,10 +1,11 @@
 package io.github.lightman314.lightmanscurrency.api.events;
 
 import com.google.common.collect.ImmutableSet;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.api.traders.attachments.TraderAttachment;
+import io.github.lightman314.lightmanscurrency.api.traders.attachments.TraderAttachment.TraderAttachmentType;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.Event;
@@ -12,7 +13,6 @@ import net.neoforged.bus.api.Event;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -28,8 +28,8 @@ public abstract class TraderEvent extends Event {
     public static class RegisterAttachmentEvent extends TraderEvent
     {
         private final TraderData trader;
-        private final Set<TraderAttachment.TraderAttachmentType<?>> attachments;
-        public Set<TraderAttachment.TraderAttachmentType<?>> getAttachments() { return ImmutableSet.copyOf(this.attachments); }
+        private final Set<TraderAttachmentType<?>> attachments;
+        public Set<TraderAttachmentType<?>> getAttachments() { return ImmutableSet.copyOf(this.attachments); }
         public RegisterAttachmentEvent(TraderData trader)
         {
             super(trader.getID());
@@ -38,7 +38,9 @@ public abstract class TraderEvent extends Event {
         }
         @Override
         public TraderData getTrader() { return this.trader; }
-        public void addAttachment(TraderAttachment.TraderAttachmentType<?> type) { this.attachments.add(type); }
+        public void addAttachment(TraderAttachmentType<?> type) { this.attachments.add(type); LightmansCurrency.LogDebug("Added " + type + " as a trader attachment."); }
+        public void removeAttachment(TraderAttachmentType<?> type) { this.attachments.remove(type); }
+        public void clearAttachments() { this.attachments.clear(); }
     }
 
 	public static class CreateNetworkTraderEvent extends TraderEvent

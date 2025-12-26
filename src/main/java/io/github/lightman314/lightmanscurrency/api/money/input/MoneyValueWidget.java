@@ -4,7 +4,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSize
 import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.WidgetStateSprite;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
-import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
+import io.github.lightman314.lightmanscurrency.api.money.client.ClientMoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
@@ -94,6 +94,9 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
 
     private final MoneyValueWidget oldWidget;
 
+    public final int textColor;
+    public final int fancyTextColor;
+
     private MoneyValueWidget(Builder builder)
     {
         super(builder);
@@ -105,6 +108,8 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
         this.drawBG = builder.drawBG;
         this.allowFreeInput = builder.allowFree;
         this.allowHandlerChange = builder.allowHandlerChange;
+        this.textColor = builder.textColor;
+        this.fancyTextColor = builder.fancyTextColor;
     }
 
     private Map<String,MoneyInputHandler> setupHandlers()
@@ -112,17 +117,11 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
         Minecraft mc = Minecraft.getInstance();
         Player player = mc.player;
         Map<String,MoneyInputHandler> handlers = new HashMap<>();
-        for(CurrencyType type : MoneyAPI.getApi().AllCurrencyTypes())
+        for(MoneyInputHandler handler : ClientMoneyAPI.getApi().GetMoneyInputs(player))
         {
-            for(Object h : type.getInputHandlers(player))
-            {
-                if(h instanceof MoneyInputHandler handler)
-                {
-                    handlers.put(handler.getUniqueName(), handler);
-                    handler.setup(this, this::addChild, this::removeChild, this::onHandlerChangeValue);
-                    this.handlerKeys.add(handler.getUniqueName());
-                }
-            }
+            handlers.put(handler.getUniqueName(), handler);
+            handler.setup(this, this::addChild, this::removeChild, this::onHandlerChangeValue);
+            this.handlerKeys.add(handler.getUniqueName());
         }
         if(handlers.isEmpty())
             throw new RuntimeException("No valid MoneyInputHandlers are included in the registered CurrencyTypes!");
@@ -261,7 +260,7 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
         //Render the current price in the top-right corner
         int priceWidth = gui.font.width(this.currentValue.getString());
         int freeButtonOffset = this.allowFreeInput ? 15 : 5;
-        gui.drawString(this.currentValue.getText(), this.width - freeButtonOffset - priceWidth, 5, 0x404040);
+        gui.drawString(this.currentValue.getText(), this.width - freeButtonOffset - priceWidth, 5, this.textColor);
 
     }
 
@@ -313,6 +312,8 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
         private MoneyValue startingValue = MoneyValue.empty();
         private boolean drawBG = false;
         private boolean allowFree = true;
+        private int textColor = 0x404040;
+        private int fancyTextColor = 0xFFFFFF;
         private Supplier<Boolean> allowHandlerChange = () -> true;
 
         public Builder old(@Nullable MoneyValueWidget widget) { this.oldWidget = widget; return this; }
@@ -329,7 +330,8 @@ public class MoneyValueWidget extends EasyWidgetWithChildren {
         public Builder blockFreeInputs() { this.allowFree = false; return this; }
         public Builder allowHandlerChange(boolean allowHandlerChange) { this.allowHandlerChange = () -> allowHandlerChange; return this; }
         public Builder allowHandlerChange(Supplier<Boolean> allowHandlerChange) { this.allowHandlerChange = allowHandlerChange; return this; }
-
+        public Builder textColor(int textColor) { return this.textColors(textColor,textColor); }
+        public Builder textColors(int textColor, int fancyTextColor) { this.textColor = textColor; this.fancyTextColor = fancyTextColor; return this; }
         public MoneyValueWidget build() { return new MoneyValueWidget(this); }
 
     }

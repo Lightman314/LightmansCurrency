@@ -7,13 +7,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-@OnlyIn(Dist.CLIENT)
 public class IconButton extends EasyButton {
 	
 	public static final int SIZE = 20;

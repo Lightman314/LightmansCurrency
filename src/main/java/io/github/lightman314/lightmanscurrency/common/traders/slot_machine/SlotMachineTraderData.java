@@ -14,7 +14,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.TraderItemHandler;
 import io.github.lightman314.lightmanscurrency.common.menus.slot_machine.ResultHolder;
-import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.input.InputTraderData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slot_machine.SlotMachineMenu;
@@ -50,14 +50,12 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.items.IItemHandler;
 
@@ -166,12 +164,6 @@ public class SlotMachineTraderData extends InputTraderData implements TraderItem
     public SlotMachineTraderData(Level level, BlockPos pos) { super(TYPE, level, pos); }
 
     private final ImmutableList<SlotMachineTrade> trade = ImmutableList.of(new SlotMachineTrade(this));
-
-    @Override
-    public IconData inputSettingsTabIcon() { return ItemIcon.ofItem(Items.HOPPER); }
-
-    @Override
-    public MutableComponent inputSettingsTabTooltip() { return LCText.TOOLTIP_TRADER_SETTINGS_INPUT_ITEM.get(); }
 
     @Override
     public IconData getIcon() { return IconUtil.ICON_TRADER_ALT; }

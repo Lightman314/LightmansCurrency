@@ -1,0 +1,15 @@
+{
+	"name": "Free Sample",
+	"icon": "lightmanscurrency:textures/gui/trader_guide/trade_rules/free_sample/icon.png",
+	"category": "lightmanscurrency:trade_rules",
+	"pages":[
+		"The \"Free Sample\" rule allows you to give customers a limited number of Free trade interactions before the normally defined price is utilized.",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/free_sample/inputs.png",
+			"text":"The rule has very basic inputs, most of which should be straightforward. The text box at the top-left allows you to define how many free samples they can claim before the rule ignores them."
+		},
+		"The Time Input at the bottom allows you to tell the rule to forget about previous interactions so that players may claim a new free sample every so often.$(br2)There is also a Reset button in the middle that clears the rules memory, allowing players who have already claimed their free sample to claim them once again."
+	]
+	
+}

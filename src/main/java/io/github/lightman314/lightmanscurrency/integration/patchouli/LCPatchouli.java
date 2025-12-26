@@ -32,7 +32,7 @@ public class LCPatchouli {
         return (arg,style) -> {
             WalletItem wallet = getWallet(arg);
             if(wallet != null)
-                return String.valueOf(WalletItem.InventorySize(new ItemStack(wallet)));
+                return String.valueOf(WalletItem.InventorySize(wallet.getDefaultInstance()));
             return "0";
         };
     }

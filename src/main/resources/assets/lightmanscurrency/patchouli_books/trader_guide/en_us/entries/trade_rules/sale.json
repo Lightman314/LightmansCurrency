@@ -1,0 +1,14 @@
+{
+	"name": "Sale",
+	"icon": "lightmanscurrency:textures/gui/trader_guide/trade_rules/sale/icon.png",
+	"category": "lightmanscurrency:trade_rules",
+	"pages":[
+		"The \"Sale\" rule allows you to give all players a discount for a predefined period of time. It's functionally similar to the $(l:trade_rules/discount_list)Discounts$() rule, but applying to all players for a limited period of time.",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/sale/inputs.png",
+			"text":"This rule has three inputs of note. The text box in the top-left allows you to define the discount percentage (e.g. input of 10 is a 10% discount).$(br2)At the very bottom is a time input that determines how long the sale will last."
+		},
+		"In-between these two inputs is the Start/Stop button that toggles the sales state.$(br2)While the sale is $(l)inactive$() this button will allow you to actually start the sale, and the text above it will state the currently defined sale duration.$(br2)While the sale is $(l)active$() it will allow you to stop the sale early, and the text above will list the time remaining until the sale is over."
+	]
+}

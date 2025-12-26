@@ -27,6 +27,7 @@ import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.types.*;
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
+import io.github.lightman314.lightmanscurrency.common.blocks.MoneyBagBlock;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientCoinSorter;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientMoneyType;
@@ -52,7 +53,7 @@ import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import io.github.lightman314.lightmanscurrency.integration.biomesoplenty.BOPCustomWoodTypes;
 import io.github.lightman314.lightmanscurrency.integration.claiming.flan.LCFlanIntegration;
 import io.github.lightman314.lightmanscurrency.integration.claiming.ftbchunks.LCFTBChunksIntegration;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.LCComputercraftSetup;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.LCComputercraftLauncher;
 import io.github.lightman314.lightmanscurrency.integration.create.LCCreate;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.integration.ftb_filter.LCFTBFilterSystemLauncher;
@@ -146,7 +147,7 @@ public class LightmansCurrency {
 		IntegrationUtil.SafeRunIfLoaded("immersiveengineering", LCImmersive::registerRotationBlacklists, null);
 		IntegrationUtil.SafeRunIfLoaded("curios", () -> LCCurios.setup(eventBus), "Error setting up Curios Compatibility!");
 		IntegrationUtil.SafeRunIfLoaded("create", () -> LCCreate.init(eventBus), "Error setting up Create Integration!");
-		IntegrationUtil.SafeRunIfLoaded("computercraft", () -> LCComputercraftSetup.setup(eventBus),"Error setting up ComputerCraft Integration!");
+		IntegrationUtil.SafeRunIfLoaded("computercraft", () -> LCComputercraftLauncher.setup(eventBus),"Error setting up ComputerCraft Integration!");
         IntegrationUtil.SafeRunIfLoaded("ftbfiltersystem", LCFTBFilterSystemLauncher::launch,"Error setting up FTB Filter System Integration!");
 
         //Register item variant providers for basic items
@@ -306,6 +307,7 @@ public class LightmansCurrency {
 		//Setup Block Protection
 		BlockProtectionHelper.ProtectBlock(b -> b instanceof IOwnableBlock);
 		BlockProtectionHelper.ProtectBlock(b -> b instanceof CoinBlock);
+		BlockProtectionHelper.ProtectBlock(b -> b instanceof MoneyBagBlock);
 
 		PrettyTextWriter.register(BookTextWriter.INSTANCE);
 

@@ -2,13 +2,10 @@ package io.github.lightman314.lightmanscurrency.common.traders.paygate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
-import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettings;
@@ -17,29 +14,20 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.ticket.TicketCollectionResult;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
-import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderScreen;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.addons.MiscTabAddon;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.paygate.PaygateSettingAddon;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.PaygateNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.api.traders.permissions.PermissionOption;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.paygate.PaygateTradeEditTab;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
-import io.github.lightman314.lightmanscurrency.network.message.paygate.CPacketCollectTicketStubs;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -55,8 +43,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nullable;
@@ -454,48 +440,7 @@ public class PaygateTraderData extends TraderData {
 		menu.setTab(TraderStorageTab.TAB_TRADE_ADVANCED, new PaygateTradeEditTab(menu));
 	}
 
-	@Override
-	protected void addPermissionOptions(List<PermissionOption> options) { }
-
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void onScreenInit(ITraderScreen screen, Consumer<Object> addWidget) {
-		//Add Collect Ticket Stub button
-		IconButton button = this.createTicketStubCollectionButton(() -> screen.getMenu().getPlayer(),() -> true);
-		addWidget.accept(button);
-		screen.getRightEdgePositioner().addWidget(button);
-	}
-
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void onStorageScreenInit(ITraderStorageScreen screen, Consumer<Object> addWidget) {
-		//Add Collect Ticket Stub button
-		IconButton button = this.createTicketStubCollectionButton(() -> screen.getMenu().getPlayer(),screen::showRightEdgeWidgets);
-		addWidget.accept(button);
-		screen.getRightEdgePositioner().addWidget(button);
-	}
-
-
-	@OnlyIn(Dist.CLIENT)
-	private IconButton createTicketStubCollectionButton(Supplier<Player> playerSource,Supplier<Boolean> visible)
-	{
-		return IconButton.builder()
-				.pressAction(() -> new CPacketCollectTicketStubs(this.getID()).send())
-				.icon(ItemIcon.ofItem(ModItems.TICKET_STUB))
-				.addon(EasyAddonHelper.toggleTooltip(() -> this.getStoredTicketStubs() > 0, () -> LCText.TOOLTIP_TRADER_PAYGATE_COLLECT_TICKET_STUBS.get(this.getStoredTicketStubs()), EasyText::empty))
-				.addon(EasyAddonHelper.visibleCheck(() -> this.areTicketStubsRelevant() && this.hasPermission(playerSource.get(), Permissions.OPEN_STORAGE) && visible.get()))
-				.addon(EasyAddonHelper.activeCheck(() -> this.getStoredTicketStubs() > 0))
-				.build();
-	}
-
-	@Override
-	public List<MiscTabAddon> getMiscTabAddons() {
-		List<MiscTabAddon> list = super.getMiscTabAddons();
-		list.add(PaygateSettingAddon.INSTANCE);
-		return list;
-	}
-
-	private boolean areTicketStubsRelevant() {
+	public boolean areTicketStubsRelevant() {
 		return this.getStoredTicketStubs() > 0 || this.trades.stream().anyMatch(t -> t.isTicketTrade() && t.shouldStoreTicketStubs());
 	}
 

@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
@@ -16,7 +15,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,12 +24,11 @@ import java.util.Map;
  * @see EasyTabbedMenuScreen
  * @see io.github.lightman314.lightmanscurrency.common.menus.tabbed.EasyTabbedMenu EasyTabbedMenu
  */
-public abstract class EasyClientTabbedMenuScreen<M extends AbstractContainerMenu,S extends EasyClientTabbedMenuScreen<M,S,T>,T extends EasyClientTab<M,S,T>> extends EasyMenuScreen<M> {
+public abstract class EasyClientTabbedMenuScreen<M extends AbstractContainerMenu,S extends EasyClientTabbedMenuScreen<M,S,T>,T extends EasyClientTab<M,S,T>> extends EasyClientTab.ClientMenuScreen<M,S,T> {
 
     private boolean tabsLocked = false;
     private int currentTabIndex = -1;
     private int currentAddIndex = 0;
-    @Nonnull
     public final T currentTab() { return this.menuTabs.get(this.currentTabIndex); }
     private Map<Integer,T> menuTabs = null;
     public final Map<Integer,T> getAllTabs() { return this.menuTabs == null ? ImmutableMap.of() : ImmutableMap.copyOf(this.menuTabs); }
@@ -80,7 +77,6 @@ public abstract class EasyClientTabbedMenuScreen<M extends AbstractContainerMenu
         this.currentTab().onOpen();
     }
 
-    @Nonnull
     protected abstract IWidgetPositioner getTabButtonPositioner();
 
     protected abstract void init(ScreenArea screenArea);
@@ -93,7 +89,7 @@ public abstract class EasyClientTabbedMenuScreen<M extends AbstractContainerMenu
     /**
      * Simpler version of {@link #setTab(int, T)} but for when the key is considered irrelevant and can be generated automatically
      */
-    public final void addTab(@Nonnull T tab)
+    public final void addTab(T tab)
     {
         if(this.tabsLocked || this.menuTabs == null)
             this.setTab(this.currentAddIndex,tab);
@@ -104,7 +100,7 @@ public abstract class EasyClientTabbedMenuScreen<M extends AbstractContainerMenu
     /**
      * Called by subclass during {@link #registerTabs()} to register the relevant tabs
      */
-    public final void setTab(int key, @Nonnull T tab)
+    public final void setTab(int key, T tab)
     {
         if(this.tabsLocked)
         {
@@ -158,27 +154,27 @@ public abstract class EasyClientTabbedMenuScreen<M extends AbstractContainerMenu
     }
 
     @Override
-    protected final void renderBG(@Nonnull EasyGuiGraphics gui) {
+    protected final void renderBG(EasyGuiGraphics gui) {
         this.renderBackground(gui);
         this.currentTab().renderBG(gui);
     }
-    protected abstract void renderBackground(@Nonnull EasyGuiGraphics gui);
+    protected abstract void renderBackground(EasyGuiGraphics gui);
 
     @Override
-    protected final void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
+    protected final void renderAfterWidgets(EasyGuiGraphics gui) {
         this.renderLate(gui);
         this.currentTab().renderAfterWidgets(gui);
     }
-    protected void renderLate(@Nonnull EasyGuiGraphics gui) {}
+    protected void renderLate(EasyGuiGraphics gui) {}
 
     @Override
     public boolean blockInventoryClosing() { return this.currentTab() != null && this.currentTab().blockInventoryClosing(); }
 
     @Nullable
     @Override
-    public Pair<ItemStack,ScreenArea> getHoveredItem(@Nonnull ScreenPosition mousePos) { return this.currentTab().getHoveredItem(mousePos); }
+    public Pair<ItemStack,ScreenArea> getHoveredItem(ScreenPosition mousePos) { return this.currentTab().getHoveredItem(mousePos); }
     @Nullable
     @Override
-    public Pair<FluidStack,ScreenArea> getHoveredFluid(@Nonnull ScreenPosition mousePos) { return this.currentTab().getHoveredFluid(mousePos); }
+    public Pair<FluidStack,ScreenArea> getHoveredFluid(ScreenPosition mousePos) { return this.currentTab().getHoveredFluid(mousePos); }
 
 }

@@ -98,6 +98,7 @@ public class ModCreativeGroups {
                     ezPop(p, ModItems.ITEM_TRADE_FILTER);
                     //Variant Wand
                     ezPop(p, ModItems.VARIANT_WAND);
+                    ezPop(p, ModItems.TRANSACTION_REGISTER);
                     //Event Coins
                     ezPop(p, ModItems.COIN_CHOCOLATE_COPPER);
                     ezPop(p, ModBlocks.COINPILE_CHOCOLATE_COPPER);

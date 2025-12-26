@@ -14,6 +14,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 /**
  * A basic {@link IMoneyHandler} container wrapper that allows interaction to the {@link CapabilityMoneyHandler#MONEY_HANDLER_ITEM} capabilities of all items within the container
@@ -21,10 +22,9 @@ import java.util.NoSuchElementException;
 public class ContainerMoneyHandlerWrapper extends MoneyHandler implements Iterable<IMoneyHandler> {
 
     private final Container container;
-
     private final IClientTracker tracker;
 
-    public ContainerMoneyHandlerWrapper(@Nonnull Container container, @Nonnull IClientTracker tracker) { this.container = container; this.tracker = tracker; }
+    public ContainerMoneyHandlerWrapper(@Nonnull Container container, @Nonnull IClientTracker tracker) { this.container = container; this.tracker = Objects.requireNonNull(tracker); }
 
     @Nonnull
     @Override

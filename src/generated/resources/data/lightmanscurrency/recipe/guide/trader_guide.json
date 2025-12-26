@@ -1,0 +1,25 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:mod_loaded",
+      "modid": "patchouli"
+    }
+  ],
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:book"
+    },
+    {
+      "item": "lightmanscurrency:upgrade_smithing_template"
+    }
+  ],
+  "result": {
+    "components": {
+      "patchouli:book": "lightmanscurrency:trader_guide"
+    },
+    "count": 1,
+    "id": "patchouli:guide_book"
+  }
+}

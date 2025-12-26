@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.settings.data;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -187,7 +188,11 @@ public final class SavedSettingData
         private final String node;
         private MutableNodeAccess(Mutable data,String node) { this.data = data; this.node = node + "."; }
 
-        public MutableNodeAccess forSubNode(String subNode) { return new MutableNodeAccess(this.data,this.node + "." + subNode); }
+        public MutableNodeAccess forSubNode(String subNode) {
+            if(subNode.isEmpty())
+                return this;
+            return new MutableNodeAccess(this.data,this.node + "." + subNode);
+        }
 
         public boolean hasBoolValue(String tag) { return this.data.boolData.containsKey(this.node + tag); }
         public boolean hasIntValue(String tag) { return this.data.intData.containsKey(this.node + tag); }

@@ -145,6 +145,7 @@ public class LCClientPlugin implements REIClientPlugin {
         this.registerExclusionZones(zones,WalletBankScreen.class);
         this.registerExclusionZones(zones,TeamManagerScreen.class);
         this.registerExclusionZones(zones,NotificationScreen.class);
+        this.registerExclusionZones(zones,TransactionRegisterScreen.class);
     }
 
     @SuppressWarnings("UnstableApiUsage")

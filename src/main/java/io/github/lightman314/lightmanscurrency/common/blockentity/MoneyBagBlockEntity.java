@@ -3,13 +3,16 @@ package io.github.lightman314.lightmanscurrency.common.blockentity;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.MoneyBagItemViewer;
 import io.github.lightman314.lightmanscurrency.common.blocks.MoneyBagBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.data.types.LootTableEntry;
 import io.github.lightman314.lightmanscurrency.common.items.data.MoneyBagData;
+import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedContainer;
 import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -39,7 +42,6 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Range;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
@@ -63,9 +65,10 @@ public class MoneyBagBlockEntity extends EasyBlockEntity implements IServerTicke
     private final List<ItemStack> contents = new ArrayList<>();
 
     public final IItemHandler viewer = new MoneyBagItemViewer(this);
+    public final IMoneyViewer moneyViewer = MoneyAPI.getApi().GetContainersMoneyHandler(new SuppliedContainer(() -> InventoryUtil.buildInventory(this.contents)),s -> {},this);
 
-    public MoneyBagBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { this(ModBlockEntities.MONEY_BAG.get(),pos,state); }
-    protected MoneyBagBlockEntity(@Nonnull BlockEntityType<?> type, @Nonnull BlockPos pos, @Nonnull BlockState state) {
+    public MoneyBagBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.MONEY_BAG.get(),pos,state); }
+    protected MoneyBagBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
     }
 

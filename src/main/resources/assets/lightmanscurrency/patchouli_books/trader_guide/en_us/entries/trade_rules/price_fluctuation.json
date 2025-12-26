@@ -1,0 +1,16 @@
+{
+	"name": "Price Fluctuation",
+	"icon": "lightmanscurrency:textures/gui/trader_guide/trade_rules/price_fluctuation/icon.png",
+	"category": "lightmanscurrency:trade_rules",
+	"pages":[
+		"The \"Price Fluctuation\" rule allows you to randomize a trades price every so often, within a given percentage of its defined price.",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/price_fluctuation/inputs.png",
+			"text":"The rule has two inputs, the first being the percentate of fluctuation/variance from the base price that this rule can give.$(br2)The second input is a time input that determines how often the price will randomly change."
+		},
+		"A few additional things of note:$(li)For the sake of consistency and effeciency, the timer is based on time from Jan 1, 1970, so you can set up the delay to be 1h and have it re-randomize less than 5m after you set up the rule if that goes past the 1h mark.$(li)The randomized range is from -X% -> X%, so there is a chance for the price to randomize at +0% and use the default price.",
+		"$(li)Even if applied to all trades each trades price will be randomized seperately (within the same range of course). This means that trade 1 could randomly be +5% and trade 2 be at -3% from the same trade rule."
+	]
+	
+}

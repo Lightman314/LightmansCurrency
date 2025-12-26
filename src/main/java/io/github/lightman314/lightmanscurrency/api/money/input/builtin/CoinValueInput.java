@@ -19,7 +19,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +34,7 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
     private final ChainData chain;
     private final List<CoinEntry> coinData;
 
-    public CoinValueInput(@Nonnull ChainData chain)
+    public CoinValueInput(ChainData chain)
     {
         this.chain = chain;
         this.coinData = this.chain.getAllEntries(false, ChainData.SORT_HIGHEST_VALUE_FIRST);
@@ -43,11 +42,9 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
         this.scroll = this.getMaxScroll();
     }
 
-    @Nonnull
     @Override
     public Component inputName() { return this.chain.getDisplayName(); }
 
-    @Nonnull
     @Override
     public String getUniqueName() { return MoneyValue.generateCustomUniqueName(CoinCurrencyType.TYPE, this.chain.chain); }
 
@@ -59,7 +56,7 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
     private EasyButton buttonScrollRight = null;
 
     @Override
-    public void initialize(@Nonnull ScreenArea widgetArea) {
+    public void initialize(ScreenArea widgetArea) {
         this.increaseButtons.clear();
         this.decreaseButtons.clear();
         int buttonCount = this.coinData.size();
@@ -107,7 +104,7 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
     }
 
     @Override
-    protected void renderBG(@Nonnull ScreenArea widgetArea, @Nonnull EasyGuiGraphics gui) {
+    protected void renderBG(ScreenArea widgetArea, EasyGuiGraphics gui, MoneyValueWidget parent) {
         this.validateScroll();
 
         int buttonCount = Math.min(this.coinData.size(), MAX_BUTTON_COUNT);
@@ -122,7 +119,7 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
             //Draw String
             String countString = String.valueOf(this.getQuantityOfCoin(coin));
             int width = gui.font.width(countString);
-            gui.drawString(countString, startX + (x * SEGMENT_TOTAL) + 10 - (width / 2), 47, 0x404040);
+            gui.drawString(countString, startX + (x * SEGMENT_TOTAL) + 10 - (width / 2), 47, parent.textColor);
         }
     }
 
@@ -155,7 +152,7 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
         }
     }
 
-    private long getQuantityOfCoin(@Nonnull CoinEntry coin)
+    private long getQuantityOfCoin(CoinEntry coin)
     {
         MoneyValue currentValue = this.currentValue();
         if(currentValue instanceof CoinValue coinValue)
@@ -164,7 +161,7 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
     }
 
     @Override
-    public void onValueChanged(@Nonnull MoneyValue newValue) { }
+    public void onValueChanged(MoneyValue newValue) { }
 
     private void scrollLeft() {
         this.scroll--;
@@ -244,7 +241,7 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
             LightmansCurrency.LogError("Invalid index (" + coinIndex + ") found for the decreasing button.");
     }
 
-    private int getLargeIncreaseAmount(@Nonnull CoinEntry coin)
+    private int getLargeIncreaseAmount(CoinEntry coin)
     {
         Pair<CoinEntry,Integer> upperExchange = coin.getUpperExchange();
         if(upperExchange != null)
@@ -259,7 +256,7 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
         }
     }
 
-    private int getLargeAmount(@Nonnull Pair<CoinEntry,Integer> exchange)
+    private int getLargeAmount(Pair<CoinEntry,Integer> exchange)
     {
         if(exchange.getSecond() >= 64)
             return 16;

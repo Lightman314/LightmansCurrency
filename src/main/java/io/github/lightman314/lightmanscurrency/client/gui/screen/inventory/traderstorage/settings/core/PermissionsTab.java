@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.traders.client.TraderClientHooks;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
@@ -56,7 +57,7 @@ public class PermissionsTab extends SettingsSubTab implements IScrollable {
         this.options = new ArrayList<>();
         TraderData trader = this.menu.getTrader();
         if(trader != null)
-            this.options.addAll(trader.getPermissionOptions());
+            this.options.addAll(TraderClientHooks.getPermissionOptions(trader));
         int startHeight = screenArea.y + START_HEIGHT;
         int xPos = screenArea.x + 20;
         for(int i = 0; i < this.options.size(); ++i)

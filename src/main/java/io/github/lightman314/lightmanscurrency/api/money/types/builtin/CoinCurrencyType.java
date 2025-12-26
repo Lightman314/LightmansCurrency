@@ -22,8 +22,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -63,7 +61,10 @@ public class CoinCurrencyType extends CurrencyType {
 
     @Nullable
     @Override
-    public IPlayerMoneyHandler createMoneyHandlerForPlayer(Player player) { return new CoinPlayerMoneyHandler(player); }
+    public IPlayerMoneyHandler createMoneyHandlerForPlayer(Player player) { return new CoinPlayerMoneyHandler(player,false); }
+    @Nullable
+    @Override
+    public IPlayerMoneyHandler createUnsafeMoneyHandlerForPlayer(Player player) { return new CoinPlayerMoneyHandler(player,true); }
 
     @Nullable
     @Override
@@ -75,26 +76,8 @@ public class CoinCurrencyType extends CurrencyType {
     @Override
     public MoneyValue loadMoneyValueJson(JsonObject json) { return CoinValue.loadCoinValue(json); }
 
-    
     @Override
     public MoneyValueParser getValueParser() { return CoinValueParser.INSTANCE; }
-
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public List<Object> getInputHandlers(@Nullable Player player) {
-        List<Object> results = new ArrayList<>();
-        for(ChainData chain : CoinAPI.getApi().AllChainData())
-        {
-            //Only add input handler if the chain is visible to the player
-            if(player == null || chain.isVisibleTo(player))
-            {
-                Object i = chain.getInputHandler();
-                if(i != null)
-                    results.add(i);
-            }
-        }
-        return results;
-    }
 
     @Override
     public boolean allowItemInMoneySlot(Player player, ItemStack item) { return CoinAPI.getApi().IsCoin(item,true); }

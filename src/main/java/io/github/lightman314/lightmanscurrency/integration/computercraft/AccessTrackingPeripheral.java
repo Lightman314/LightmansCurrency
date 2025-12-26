@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.integration.computercraft;
 
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.peripheral.AttachedComputerSet;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -33,6 +34,22 @@ public abstract class AccessTrackingPeripheral extends LCPeripheral {
         //Manually trigger the "onFirstAttachment" code for new peripherals as they are attached
         if(this.parent.getConnectedComputers().hasComputers())
             this.onFirstAttachment();
+    }
+
+    @Override
+    protected boolean hasComputer(IComputerAccess computer) {
+        boolean result = super.hasComputer(computer);
+        if(!result)
+        {
+            if(this.parent != null)
+            {
+                LightmansCurrency.LogDebug(this.getClass().getSimpleName() + " has a parent peripheral, now checking if that peripheral has the computer attached!");
+                return this.parent.hasComputer(computer);
+            }
+            else
+                LightmansCurrency.LogDebug(this.getClass().getSimpleName() + " does not have a parent peripheral!");
+        }
+        return result;
     }
 
     protected boolean childStillValid(IPeripheral child) { return true; }

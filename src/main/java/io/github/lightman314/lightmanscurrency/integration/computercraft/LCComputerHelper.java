@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.integration.computercraft;
 
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralCapability;
 import io.github.lightman314.lightmanscurrency.LCConfig;
@@ -14,11 +15,12 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.trader.Paygate
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.SlotMachineTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.input.InputTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.apis.LuaMoneyAPI;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.atm.ATMPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.CashRegisterPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.TerminalPeripheral;
@@ -47,6 +49,8 @@ public class LCComputerHelper {
     public static void setup(IEventBus modBus)
     {
         LCPocketUpgrades.init(modBus);
+        //Register globals
+        ComputerCraftAPI.registerAPIFactory(LuaMoneyAPI.FACTORY);
         //Register Event Listener
         modBus.addListener(LCComputerHelper::registerCapabilities);
         NeoForge.EVENT_BUS.addListener(LCComputerHelper::addTraderAttachments);
@@ -115,10 +119,10 @@ public class LCComputerHelper {
         return TraderPeripheral.createSimple((TraderBlockEntity<TraderData>)be);
     }
 
-    public static LCPeripheral getPeripheral(TraderData trader) {
+    public static AccessTrackingPeripheral getPeripheral(TraderData trader) {
         for(TraderPeripheralSource source : peripheralSources)
         {
-            LCPeripheral result = source.tryCreate(trader);
+            AccessTrackingPeripheral result = source.tryCreate(trader);
             if(result != null)
                 return result;
         }

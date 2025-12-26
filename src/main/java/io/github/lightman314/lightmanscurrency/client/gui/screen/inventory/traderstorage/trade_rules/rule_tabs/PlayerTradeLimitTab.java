@@ -37,9 +37,8 @@ public class PlayerTradeLimitTab extends TradeRuleSubTab<PlayerTradeLimit> {
 
         this.limitInput = this.addChild(TextInputUtil.intBuilder()
                 .position(screenArea.pos.offset(10,19))
-                .size(30,20)
-                .maxLength(3)
-                .parser(IntParser.ONE_TO_ONE_HUNDRED)
+                .size(60,20)
+                .apply(IntParser.builder().min(1).max(PlayerTradeLimit.MAX_LIMIT).consumer())
                 .handler(this::onLimitChanged)
                 .startingValue(rule == null ? 1 : rule.getLimit())
                 .wrap().build());

@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "lightmanscurrency:transaction_register"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "money": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:coins"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "paper": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:paper"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "paper",
+      "money"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:transaction_register"
+    ]
+  }
+}

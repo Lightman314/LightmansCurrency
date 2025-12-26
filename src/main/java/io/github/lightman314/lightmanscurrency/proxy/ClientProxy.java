@@ -12,7 +12,13 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.builtin.ConfigSelectionScreen;
 import io.github.lightman314.lightmanscurrency.api.events.client.RegisterVariantPropertiesEvent;
+import io.github.lightman314.lightmanscurrency.api.money.client.ClientMoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.client.builtin.ClientCoinType;
+import io.github.lightman314.lightmanscurrency.api.money.client.builtin.ClientNullType;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.renderer.ATMIconRenderer;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.config.MasterCoinListConfigOption;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
@@ -21,7 +27,6 @@ import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.NormalBookRenderer;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.RotationHandler;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
-import io.github.lightman314.lightmanscurrency.common.attachments.EventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.*;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
@@ -30,6 +35,7 @@ import io.github.lightman314.lightmanscurrency.common.items.AncientCoinItem;
 import io.github.lightman314.lightmanscurrency.common.items.MoneyBagItem;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
+import io.github.lightman314.lightmanscurrency.common.money.ancient_money.client.ClientAncientType;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
 import io.github.lightman314.lightmanscurrency.api.events.NotificationEvent;
@@ -37,6 +43,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
 import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.integration.curios.client.LCCuriosClient;
+import io.github.lightman314.lightmanscurrency.integration.impactor.LCImpactorClient;
 import io.github.lightman314.lightmanscurrency.integration.patchouli.LCPatchouli;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -128,6 +135,17 @@ public class ClientProxy extends CommonProxy{
         //Register Item Position Rotation Handlers
         RotationHandler.setup();
 
+        //Collect Trade Rule Tab Constructors
+        TradeRulesClientTab.initialize();
+        ATMIconRenderer.initialize();
+        TradeRenderManager.initialize();
+
+        //Register Client Money Types
+        ClientMoneyAPI.getApi().RegisterClientType(ClientNullType.INSTANCE);
+        ClientMoneyAPI.getApi().RegisterClientType(ClientCoinType.INSTANCE);
+        ClientMoneyAPI.getApi().RegisterClientType(ClientAncientType.INSTANCE);
+        IntegrationUtil.SafeRunIfLoaded("impactor", LCImpactorClient::setupClient, "Error setting up Impactor Compat!");
+
 	}
 
 	private void registerVariantProperties(RegisterVariantPropertiesEvent event) {
@@ -167,10 +185,7 @@ public class ClientProxy extends CommonProxy{
 	}
 	
 	@Override
-	public long getTimeDesync()
-	{
-		return timeOffset;
-	}
+	public long getTimeDesync() { return this.timeOffset; }
 	
 	@Override
 	public void setTimeDesync(long serverTime)
@@ -231,14 +246,6 @@ public class ClientProxy extends CommonProxy{
 		Minecraft mc = Minecraft.getInstance();
 		if(mc.player.containerMenu instanceof PlayerTradeMenu menu)
 			menu.reloadTrade(trade);
-	}
-
-	@Override
-	public void syncEventUnlocks(List<String> unlocksList) {
-		Minecraft mc = Minecraft.getInstance();
-		EventUnlocks unlocks = mc.player.getData(ModAttachmentTypes.EVENT_UNLOCKS);
-		if(unlocks != null)
-			unlocks.sync(unlocksList);
 	}
 
 	@Override

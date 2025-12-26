@@ -27,9 +27,7 @@ public class LCImpactorCompat {
 
     public static void setup() {
         if(LCConfig.COMMON.compatImpactor.get())
-        {
             MoneyAPI.getApi().RegisterCurrencyType(ImpactorCurrencyType.INSTANCE);
-        }
     }
 
     @Nullable

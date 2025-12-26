@@ -10,7 +10,6 @@ import com.mojang.serialization.JsonOps;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.events.BuildDefaultMoneyDataEvent;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
-import io.github.lightman314.lightmanscurrency.api.money.coins.data.client.CoinInputTypeHelper;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEntry;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.MainCoinEntry;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.SideBaseCoinEntry;
@@ -40,8 +39,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.ItemLike;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -445,9 +442,6 @@ public class ChainData {
     @Nullable
     @Deprecated(since = "2.2.0.4")
     public Pair<CoinEntry,Integer> getUpperExchange(@Nonnull CoinEntry entry) { return entry.getUpperExchange(); }
-
-    @OnlyIn(Dist.CLIENT)
-    public Object getInputHandler() { return CoinInputTypeHelper.getHandler(this.inputType, this); }
 
     private static void validateNoDuplicateCoins(@Nonnull CoinEntry newEntry, @Nonnull List<CoinEntry> existingEntries)
     {

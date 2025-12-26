@@ -48,7 +48,7 @@ public class RuleSubNode extends SettingsSubNode<SettingsNode> {
         {
             if(rule.isActive() && rule instanceof ICopySupportingRule csr)
             {
-                SavedSettingData.MutableNodeAccess ruleNode = data.forSubNode(rule.type.type.toString());
+                SavedSettingData.MutableNodeAccess ruleNode = data.forSubNode(rule.type.toString());
                 csr.writeSettings(ruleNode);
             }
         }
@@ -60,7 +60,7 @@ public class RuleSubNode extends SettingsSubNode<SettingsNode> {
         {
             if(rule instanceof ICopySupportingRule csr)
             {
-                SavedSettingData.NodeAccess ruleNode = data.forSubNode(rule.type.type.toString());
+                SavedSettingData.NodeAccess ruleNode = data.forSubNode(rule.type.toString());
                 if(ruleNode.isEmpty())
                 {
                     //If no data is present for this rule, reset the rule to inactive and default settings

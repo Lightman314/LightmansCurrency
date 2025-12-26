@@ -8,7 +8,9 @@ import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.types.builtin.other.ContainerMoneyHandlerWrapper;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
@@ -19,10 +21,12 @@ import io.github.lightman314.lightmanscurrency.api.taxes.ITaxableContext;
 import io.github.lightman314.lightmanscurrency.api.ticket.TicketCollectionResult;
 import io.github.lightman314.lightmanscurrency.api.traders.discount_codes.CouponSource;
 import io.github.lightman314.lightmanscurrency.api.traders.discount_codes.IDiscountCodeSource;
+import io.github.lightman314.lightmanscurrency.api.traders.misc.PlayerInventoryFailsafe;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.ICanCopy;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.InteractionSlot;
+import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
 import net.minecraft.FieldsAreNonnullByDefault;
@@ -808,7 +812,10 @@ public class TradeContext {
 			this.playerReference = PlayerReference.of(player);
 			this.storageMode = false;
 			if(playerInteractable)
-				this.withMoneyHolder(MoneyAPI.getApi().GetPlayersMoneyHandler(player));
+            {
+                this.withMoneyHolder(MoneyAPI.getApi().GetPlayersMoneyHandlerUnsafe(player));
+                this.withMoneyHandler(new PlayerInventoryFailsafe(player),EasyText.empty(),1000,1000);
+            }
 		}
 		private Builder(TraderData trader, @Nullable PlayerReference player, ITaxableContext taxableContext) { this.trader = trader; this.playerReference = player; this.player = null; this.storageMode = false; this.taxableContext = taxableContext; }
 
@@ -828,10 +835,13 @@ public class TradeContext {
 		public Builder withCoinSlots(Container coinSlots) {
 			if(this.player == null)
 				return this;
-			return this.withMoneyHandler(MoneyAPI.getApi().GetContainersMoneyHandler(coinSlots, this.player), LCText.TOOLTIP_MONEY_SOURCE_SLOTS.get(), 100);
+            IClientTracker tracker = this.trader != null ? this.trader : IClientTracker.entityWrapper(this.player);
+            return this.withMoneyHandler(new ContainerMoneyHandlerWrapper(coinSlots,tracker),LCText.TOOLTIP_MONEY_SOURCE_SLOTS.get(),-200,-200)
+                    .withMoneyHandler(MoneyAPI.getApi().GetContainersMoneyHandler(coinSlots, this.player), LCText.TOOLTIP_MONEY_SOURCE_SLOTS.get(), 100);
 		}
 
 		public Builder withMoneyHandler(IMoneyHandler moneyHandler, Component title, int priority) { return this.withMoneyHolder(MoneyHolder.createFromHandler(moneyHandler, title, priority)); }
+		public Builder withMoneyHandler(IMoneyHandler moneyHandler, Component title, int priority, int inversePriority) { return this.withMoneyHolder(MoneyHolder.createFromHandler(moneyHandler, title, priority, inversePriority)); }
 		public Builder withMoneyHolder(IMoneyHolder moneyHandler) {
 			if(!this.moneyHandlers.contains(moneyHandler))
 				this.moneyHandlers.add(moneyHandler);

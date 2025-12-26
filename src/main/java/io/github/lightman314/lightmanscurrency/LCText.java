@@ -17,6 +17,8 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.ModStats;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
+import io.github.lightman314.lightmanscurrency.common.items.data.register.TransactionData;
+import io.github.lightman314.lightmanscurrency.common.items.data.register.TransactionType;
 import io.github.lightman314.lightmanscurrency.common.seasonal_events.chocolate.ChocolateEventCoins;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.*;
@@ -144,7 +146,7 @@ public class LCText {
 
     public static final TextEntry ITEM_VARIANT_WAND = TextEntry.item(ModItems.VARIANT_WAND);
 
-    //public static final TextEntry ITEM_TRANSACTION_REGISTER = TextEntry.item(ModItems.TRANSACTION_REGISTER);
+    public static final TextEntry ITEM_TRANSACTION_REGISTER = TextEntry.item(ModItems.TRANSACTION_REGISTER);
 
     public static final TextEntry ITEM_ITEM_TRADE_FILTER = TextEntry.item(ModItems.ITEM_TRADE_FILTER);
 
@@ -1068,6 +1070,27 @@ public class LCText {
     public static final TextEntry NOTIFICATION_TRADE_GACHA = TextEntry.notification(GachaTradeNotification.TYPE);
     //Item Notification Parts
     public static final TextEntry NOTIFICATION_ITEM_FORMAT = TextEntry.notification(VersionUtil.lcResource("items"),"format");
+
+    //Transaction Register
+    public static final TextEntryBundle<TransactionType> GUI_TRANSACTION_REGISTER_TYPE_NAME = TextEntryBundle.of(TransactionType.values(),"gui.lightmanscurrency.transaction_register.transaction_type.name");
+    public static final TextEntryBundle<TransactionType> GUI_TRANSACTION_REGISTER_TYPE_ARGUMENT_LABEL = TextEntryBundle.of(TransactionType.values(),"gui.lightmanscurrency.transaction_register.transaction_type.argument_label");
+    public static final TextEntry GUI_TRANSACTION_REGISTER_LABEL_INDEX = TextEntry.gui(MODID,"transaction_register.label.index");
+    public static final TextEntry GUI_TRANSACTION_REGISTER_LABEL_COMMENT = TextEntry.gui(MODID,"transaction_register.label.description");
+    public static final TextEntry GUI_TRANSACTION_REGISTER_LABEL_TYPE = TextEntry.gui(MODID,"transaction_register.label.type");
+    public static final TextEntry GUI_TRANSACTION_REGISTER_LABEL_CHANGE = TextEntry.gui(MODID,"transaction_register.label.change");
+    public static final TextEntry GUI_TRANSACTION_REGISTER_LABEL_CHANGE_MONEY = TextEntry.gui(MODID,"transaction_register.label.change.money");
+    public static final TextEntry GUI_TRANSACTION_REGISTER_LABEL_CHANGE_MULT = TextEntry.gui(MODID,"transaction_register.label.change.mult");
+    public static final TextEntry GUI_TRANSACTION_REGISTER_MULT_FORMAT = TextEntry.gui(MODID,"transaction_register.mult_format");
+    public static final TextEntry GUI_TRANSACTION_REGISTER_LABEL_BALANCE = TextEntry.gui(MODID,"transaction_register.label.balance");
+    public static final TextEntry TOOLTIP_TRANSACTION_REGISTER_EDIT = TextEntry.tooltip(MODID,"transaction_register.edit");
+    public static final TextEntry TOOLTIP_TRANSACTION_REGISTER_CREATE = TextEntry.tooltip(MODID,"transaction_register.create");
+    public static final TextEntryBundle<TransactionType> TOOLTIP_TRANSACTION_REGISTER_TRANSACTION = TextEntryBundle.of(TransactionType.values(),"tooltip.lightmanscurrency.transaction_register.transaction_info");
+    public static final TextEntry TOOLTIP_TRANSACTION_REGISTER_BALANCE = TextEntry.tooltip(MODID,"transaction_register.balance");
+    public static final TextEntry TOOLTIP_TRANSACTION_REGISTER_STARTING_BALANCE = TextEntry.tooltip(MODID,"transaction_register.starting_balance");
+    public static final TextEntry GUI_TRANSACTION_REGISTER_LABEL_STARTING_BALANCE = TextEntry.gui(MODID,"transaction_register.label.starting_balance");
+    public static final TextEntry TOOLTIP_TRANSACTION_REGISTER_BACK = TextEntry.tooltip(MODID,"transaction_register.back");
+    public static final TextEntry TOOLTIP_TRANSACTION_REGISTER_DELETE_TRANSACTION = TextEntry.tooltip(MODID,"transaction_register.delete_transaction");
+    public static final TextEntry TOOLTIP_TRANSACTION_REGISTER_REDO_CALCULATIONS = TextEntry.tooltip(MODID,"transaction_register.redo_calculations");
 
     //Variants
     public static final TextEntry GUI_VARIANT_MENU = TextEntry.gui(MODID,"block_variants.title");

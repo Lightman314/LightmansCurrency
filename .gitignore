@@ -28,7 +28,6 @@ repo
 
 # Custom
 Build Backups
-.cache
 *.zip
 *.pxf
 optional_assets

@@ -46,7 +46,7 @@ public class BankUpgradeSelectTab extends CoinChestTab.Upgrade {
     private BankReference selectedAccount() {
         CoinChestUpgradeData data = this.getUpgradeData();
         if(data != null && data.upgrade instanceof CoinChestBankUpgrade upgrade)
-            return upgrade.getTargetAccount(data);
+            return upgrade.getTargetAccount(this.menu.be,data);
         return null;
     }
 

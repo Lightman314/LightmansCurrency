@@ -116,7 +116,6 @@ public interface IBankAccount extends IMoneyHolder, IClientTracker {
      * Will automatically trigger a Low-Balance notification if this withdrawl pushes the accounts balance below the defined notification level for this {@link MoneyValue#getUniqueName() Money Type}.
      * @return The {@link MoneyValue amount} successfully withdrawn from the bank account.
      */
-    
     MoneyValue withdrawMoney(MoneyValue withdrawAmount);
 
     /**

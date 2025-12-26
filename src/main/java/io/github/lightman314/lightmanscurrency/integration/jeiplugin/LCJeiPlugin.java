@@ -104,6 +104,7 @@ public class LCJeiPlugin implements IModPlugin{
 		this.registerExclusionZones(registration,WalletBankScreen.class);
 		this.registerExclusionZones(registration,TeamManagerScreen.class);
 		this.registerExclusionZones(registration,NotificationScreen.class);
+		this.registerExclusionZones(registration,TransactionRegisterScreen.class);
 
         this.registerGhostSlots(registration,ItemFilterScreen.class);
         this.registerGhostSlots(registration,TraderStorageScreen.class);

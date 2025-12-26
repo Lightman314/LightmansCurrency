@@ -77,8 +77,6 @@ public class CommonProxy {
 
 	public void loadPlayerTrade(ClientPlayerTrade trade) { }
 
-	public void syncEventUnlocks(List<String> unlocks) {}
-
 	public void sendClientMessage(Component message) {}
 
 	public List<GameProfile> getPlayerList(boolean logicalClient)

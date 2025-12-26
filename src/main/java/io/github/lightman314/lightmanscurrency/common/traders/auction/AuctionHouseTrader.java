@@ -31,7 +31,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.api.traders.permissions.PermissionOption;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.api.events.AuctionHouseEvent.AuctionEvent.AuctionBidEvent;
@@ -435,9 +434,6 @@ public class AuctionHouseTrader extends TraderData implements IEasyTickable {
 
 	@Override
 	public boolean supportsMultiPriceEditing() { return false; }
-
-	@Override
-	protected void addPermissionOptions(List<PermissionOption> options) { }
 	
 	@Override
 	protected void modifyDefaultAllyPermissions(Map<String,Integer> defaultValues) { defaultValues.clear(); }

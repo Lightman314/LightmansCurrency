@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.api.money.types;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
-import io.github.lightman314.lightmanscurrency.api.money.input.MoneyInputHandler;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -37,10 +36,7 @@ public abstract class CurrencyType {
     }
 
     private final ResourceLocation type;
-
-    public final ResourceLocation getType() {
-        return this.type;
-    }
+    public final ResourceLocation getType() { return this.type; }
 
     /**
      * A quick method to sum a list of money values for {@link MoneyView} purposes
@@ -85,6 +81,14 @@ public abstract class CurrencyType {
     public abstract IPlayerMoneyHandler createMoneyHandlerForPlayer(Player player);
 
     /**
+     * Method used by {@link io.github.lightman314.lightmanscurrency.api.money.MoneyAPI#GetPlayersMoneyHandlerUnsafe(Player) MoneyAPI#GetPlayersMoneyHandlerUnsafe(Player)} to create a universal {@link io.github.lightman314.lightmanscurrency.common.impl.PlayerMoneyHolder PlayerMoneyHolder} for said player.<br>
+     * The {@link IPlayerMoneyHandler} returned should not utilize the players inventory as an item overflow if the money-related items did not fit in their wallet, etc.<br>
+     * Method is {@link Nullable} and should return null if it is not possible for the player to <b>ever</b> handle money of this type.
+     */
+    @Nullable
+    public IPlayerMoneyHandler createUnsafeMoneyHandlerForPlayer(Player player) { return this.createMoneyHandlerForPlayer(player); }
+
+    /**
      * Method used by {@link io.github.lightman314.lightmanscurrency.api.money.MoneyAPI#GetContainersMoneyHandler(Container, Consumer, IClientTracker) MoneyAPI#GetContainersMoneyHandler(Container, Consumer)} to create a combined {@link IMoneyHandler} for said container using the provided {@link Consumer itemOverflowHandler} to handle any items that won't fit in the container<br>
      * Method is {@link Nullable} and should return null if it is not possible for money of this type to be stored or handled in an item form that doesn't have the {@link io.github.lightman314.lightmanscurrency.api.capability.money.CapabilityMoneyHandler#MONEY_HANDLER_ITEM IMoneyHandler} item capability
      */
@@ -123,14 +127,8 @@ public abstract class CurrencyType {
      */
     public abstract MoneyValueParser getValueParser();
 
-    /**
-     * Only in {@link Dist#CLIENT}<br>
-     * Return a list of each {@link MoneyInputHandler} required for this mod!<br>
-     * {@link MoneyInputHandler}s are used by {@link io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget MoneyValueWidget} to allow defining prices for your mods' currency<br>
-     * See {@link io.github.lightman314.lightmanscurrency.api.money.input.templates.SimpleDisplayInput SimpleDisplayInput} for a simple text template, or {@link io.github.lightman314.lightmanscurrency.api.money.input.builtin.CoinValueInput CoinValueInput} to see how my mod handles this for coins<br>
-     * Returns a list as it's possible for a single currency type to contain several variants (such as different coin chains, etc.)
-     */
     @OnlyIn(Dist.CLIENT)
-    public abstract List<Object> getInputHandlers(@Nullable Player player);
+    @Deprecated(since = "2.3.0.4")
+    public List<Object> getInputHandlers(@Nullable Player player) { return new ArrayList<>(); }
 
 }

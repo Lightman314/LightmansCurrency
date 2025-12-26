@@ -213,7 +213,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 			List<? extends TradeData> trades = trader.getTradeData();
 			for (TradeData trade : trades) {
 				if (this.tradeFilter.test(trade) && this.tradeMatchesSearch(source, trade,search)) {
-					TradeRenderManager<?> trm = trade.getButtonRenderer();
+					TradeRenderManager<?> trm = TradeRenderManager.getTradeRenderer(trade);
 					int tradeWidth = trm.tradeButtonWidth(context);
 					if (currentRowWidth + tradeWidth > this.getMinAvailableWidth() && !currentRow.isEmpty()) {
 						//Start new row
@@ -398,7 +398,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 				if (trade.getFirst() != null && trade.getSecond() != null) {
 					TradeContext context = this.getContext.apply(trade.getFirst());
 					visibleButtons++;
-					totalWidth += trade.getSecond().getButtonRenderer().tradeButtonWidth(context);
+					totalWidth += TradeRenderManager.getTradeRenderer(trade.getSecond()).tradeButtonWidth(context);
 				}
 			}
 			//Position the buttons in this row
@@ -412,7 +412,7 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 					TradeContext context = this.getContext.apply(trade.getFirst());
 					button.setPosition(this.getPosition().offset(xOffset, yOffset));
 					button.visible = true;
-					xOffset += trade.getSecond().getButtonRenderer().tradeButtonWidth(context) + spacing;
+					xOffset += TradeRenderManager.getTradeRenderer(trade.getSecond()).tradeButtonWidth(context) + spacing;
 
 				} else
 					button.visible = false;

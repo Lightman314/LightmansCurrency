@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.api.trader_interface.menu;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.tabbed.EasyMenuTab;
-import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nonnull;
 
@@ -17,10 +16,6 @@ public abstract class TraderInterfaceTab extends EasyMenuTab<TraderInterfaceMenu
 	public static final int TAB_OWNERSHIP = 100;
 	
 	protected TraderInterfaceTab(TraderInterfaceMenu menu) { super(menu); }
-
-
-    @Deprecated(since = "2.2.1.4")
-	public void receiveMessage(CompoundTag ignored) {}
 
 	public abstract void handleMessage(@Nonnull LazyPacketData message);
 

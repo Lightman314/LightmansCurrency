@@ -63,15 +63,18 @@ public class ModEventHandler {
         //Register Item Handlers for the Item Trader Interface
         IRotatableBlock.registerRotatableCapability(event,Capabilities.ItemHandler.BLOCK, ModBlockEntities.TRADER_INTERFACE_ITEM.get(), (be, relativeSide) -> be.getItemHandler().getHandler(relativeSide));
 
-        //Item Handler for Coin Chest
+        //Item Handler & Money Viewer for Coin Chest
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.COIN_CHEST.get(),(be,direction) -> be.getItemHandler());
-        //Item Viewer for Coin Jar
+        event.registerBlockEntity(CapabilityMoneyViewer.MONEY_VIEWER_BLOCK, ModBlockEntities.COIN_CHEST.get(),(be,direction) -> be.moneyViewer);
+        //Item & Money Viewer for Coin Jar
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.COIN_JAR.get(), (b,s) -> b.getViewer());
+        event.registerBlockEntity(CapabilityMoneyViewer.MONEY_VIEWER_BLOCK,ModBlockEntities.COIN_JAR.get(),(be,s) -> be.getMoneyViewer());
         //Item Handler for Coin Mint
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.COIN_MINT.get(), (mint,side) -> mint.getItemHandler());
 
         //Item Viewer for the Money Bag
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MONEY_BAG.get(), (b,s) -> b.viewer);
+        event.registerBlockEntity(CapabilityMoneyViewer.MONEY_VIEWER_BLOCK, ModBlockEntities.MONEY_BAG.get(), (b,s) -> b.moneyViewer);
 
         //Money-related capabilities
         //Money Viewer for Wallets

@@ -10,6 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public final class TradeRuleType<T extends TradeRule> {
@@ -42,6 +43,9 @@ public final class TradeRuleType<T extends TradeRule> {
         rule.setActive(true);
         return rule;
     }
+
+    @Override
+    public int hashCode() {return this.type.hashCode(); }
 
     @Override
     public String toString() { return this.type.toString(); }

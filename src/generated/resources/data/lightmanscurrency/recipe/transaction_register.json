@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "l": {
+      "tag": "c:leathers"
+    },
+    "p": {
+      "item": "minecraft:paper"
+    },
+    "r": {
+      "tag": "c:dusts/redstone"
+    }
+  },
+  "pattern": [
+    " l ",
+    "rpr",
+    " l "
+  ],
+  "result": {
+    "count": 1,
+    "id": "lightmanscurrency:transaction_register"
+  }
+}

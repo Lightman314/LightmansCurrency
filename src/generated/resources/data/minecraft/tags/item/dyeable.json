@@ -2,6 +2,7 @@
   "values": [
     "lightmanscurrency:sus_jar",
     "lightmanscurrency:atm_card",
-    "lightmanscurrency:wallet_leather"
+    "lightmanscurrency:wallet_leather",
+    "lightmanscurrency:transaction_register"
   ]
 }

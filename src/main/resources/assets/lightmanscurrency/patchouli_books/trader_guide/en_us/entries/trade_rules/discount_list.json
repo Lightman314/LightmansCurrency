@@ -1,0 +1,15 @@
+{
+	"name": "Discounts",
+	"icon": "lightmanscurrency:textures/gui/trader_guide/trade_rules/discount_list/icon.png",
+	"category": "lightmanscurrency:trade_rules",
+	"pages":[
+		"The \"Discounts\" rule allows you to give a defined list of players a percentage discount on trade(s). Think of it as a more direct version of the $(l:trade_rules/discount_codes)Discount Codes$() rule, but more secure and far less flexible.",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/discount_list/inputs.png",
+			"text":"This rule has only two inputs of note. The text box in the top-left allows you to define the discount percentage (e.g. input of 10 is a 10% discount).$(br2)Below this is the list of players who qualify for the discount."
+		},
+		"Simply type a players username into the text box, and click on the + button once the game finds their profile to add them to the list.$(br)You can also view and remove players from the list below by clicking on the X button next to a players name."
+	]
+
+}

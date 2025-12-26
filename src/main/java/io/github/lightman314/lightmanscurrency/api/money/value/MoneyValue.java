@@ -6,11 +6,11 @@ import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.client.ClientMoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.types.builtin.NullCurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.display.EmptyPriceEntry;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
@@ -26,6 +26,7 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.Range;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -131,7 +132,7 @@ public abstract class MoneyValue {
      */
     public boolean sameType(@Nonnull MoneyValue otherValue) { return otherValue.getUniqueName().equals(this.getUniqueName()) || this instanceof NullValue || otherValue instanceof NullValue; }
 
-
+    @Range(from = 0,to = Long.MAX_VALUE)
     public abstract long getCoreValue();
 
     /**
@@ -387,7 +388,8 @@ public abstract class MoneyValue {
 
     @Nonnull
     @OnlyIn(Dist.CLIENT)
-    public abstract DisplayEntry getDisplayEntry(@Nullable List<Component> additionalTooltips, boolean tooltipOverride);
+    @Deprecated(since = "2.3.0.4")
+    public DisplayEntry getDisplayEntry(@Nullable List<Component> additionalTooltips, boolean tooltipOverride) { return ClientMoneyAPI.getApi().GetDisplayEntry(this,additionalTooltips,tooltipOverride); }
 
     private static final class NullValue extends MoneyValue
     {
@@ -406,6 +408,7 @@ public abstract class MoneyValue {
         @Override
         public boolean isEmpty() { return true; }
         @Override
+        @Range(from = 0, to = Long.MAX_VALUE)
         public long getCoreValue() { return 0; }
         @Nonnull
         @Override
@@ -434,9 +437,6 @@ public abstract class MoneyValue {
         @Nonnull
         @Override
         public MoneyValue fromCoreValue(long value) { return this; }
-        @Nonnull
-        @Override
-        public DisplayEntry getDisplayEntry(@Nullable List<Component> tooltips, boolean tooltipOverride) { return new EmptyPriceEntry(this, tooltips); }
         @Override
         public String toString() { return "NullMoneyValue:"+ (this.free ? "Free" : "Empty"); }
     }

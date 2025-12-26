@@ -21,20 +21,28 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nonnull;
+import java.util.Calendar;
 
 public class CoinChestRenderer implements BlockEntityRenderer<CoinChestBlockEntity> {
 
     public static final Material COIN_CHEST_MATERIAL = new Material(Sheets.CHEST_SHEET, VersionUtil.lcResource("entity/chest/coin_chest"));
+    public static final Material COIN_CHEST_MATERIAL_XMAS = new Material(Sheets.CHEST_SHEET, VersionUtil.lcResource("entity/chest/coin_chest_christmas"));
 
     private final ModelPart lid;
     private final ModelPart bottom;
     private final ModelPart lock;
 
+    private final boolean xmasTextures;
+
     public CoinChestRenderer(BlockEntityRendererProvider.Context context) {
+        Calendar calendar = Calendar.getInstance();
+        this.xmasTextures = calendar.get(Calendar.MONTH) + 1 == 12 && calendar.get(Calendar.DATE) >= 24 && calendar.get(Calendar.DATE) <= 26;
+
         ModelPart modelpart = context.bakeLayer(ModelLayers.CHEST);
         this.bottom = modelpart.getChild("bottom");
         this.lid = modelpart.getChild("lid");
         this.lock = modelpart.getChild("lock");
+
     }
 
     @Override
@@ -53,7 +61,7 @@ public class CoinChestRenderer implements BlockEntityRenderer<CoinChestBlockEnti
             float f1 = blockEntity.getOpenNess(partialTicks);
             f1 = 1.0F - f1;
             f1 = 1.0F - f1 * f1 * f1;
-            VertexConsumer vertexconsumer = COIN_CHEST_MATERIAL.buffer(buffer, RenderType::entityCutout);
+            VertexConsumer vertexconsumer = this.getMaterial().buffer(buffer, RenderType::entityCutout);
             this.render(pose, vertexconsumer, this.lid, this.lock, this.bottom, f1, lightLevel, id);
 
             pose.popPose();
@@ -67,5 +75,7 @@ public class CoinChestRenderer implements BlockEntityRenderer<CoinChestBlockEnti
         lock.render(pose, vertex, lightLevel, id);
         bottom.render(pose, vertex, lightLevel, id);
     }
+
+    private Material getMaterial() { return this.xmasTextures ? COIN_CHEST_MATERIAL_XMAS : COIN_CHEST_MATERIAL; }
 
 }

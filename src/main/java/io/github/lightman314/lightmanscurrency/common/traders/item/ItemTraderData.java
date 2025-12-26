@@ -8,7 +8,6 @@ import java.util.function.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.settings.SettingsNode;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
@@ -30,7 +29,7 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.trader
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.OutOfStockNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.input.InputTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage.ITraderItemFilter;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
@@ -57,11 +56,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.items.IItemHandler;
 
@@ -262,12 +259,6 @@ public class ItemTraderData extends InputTraderData implements ITraderItemFilter
 		}
 		return 0;
 	}
-	
-	@Override
-	public IconData inputSettingsTabIcon() { return ItemIcon.ofItem(Items.HOPPER); }
-
-	@Override
-	public MutableComponent inputSettingsTabTooltip() { return LCText.TOOLTIP_TRADER_SETTINGS_INPUT_ITEM.get(); }
 
 	@Override
 	public IconData getIcon() { return IconUtil.ICON_TRADER; }

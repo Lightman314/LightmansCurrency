@@ -2,20 +2,14 @@ package io.github.lightman314.lightmanscurrency.api.traders.attachments;
 
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.api.traders.permissions.PermissionOption;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Map;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 @MethodsReturnNonnullByDefault
@@ -32,11 +26,7 @@ public abstract class TraderAttachment {
     public abstract CompoundTag save(HolderLookup.Provider lookup);
     public abstract void load(CompoundTag tag, HolderLookup.Provider lookup);
 
-    @OnlyIn(Dist.CLIENT)
-    public void addSettingsTabs(TraderSettingsClientTab tab, Consumer<SettingsSubTab> consumer) { }
     public void modifyDefaultPermissions(Map<String,Integer> defaultPermissions) { }
-    @OnlyIn(Dist.CLIENT)
-    public void addPermissionOptions(Consumer<PermissionOption> consumer) { }
 
     public void handleSettingsChange(Player player, LazyPacketData message) { }
 

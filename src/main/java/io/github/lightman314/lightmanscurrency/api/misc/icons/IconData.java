@@ -57,7 +57,6 @@ public abstract class IconData {
 		registerIconType(TextIcon.TYPE);
 		registerIconType(NumberIcon.TYPE);
 		registerIconType(MultiIcon.TYPE);
-
 	}
 
 	@Nullable

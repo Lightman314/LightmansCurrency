@@ -3,13 +3,16 @@ package io.github.lightman314.lightmanscurrency.client.util;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
 
 public class TextRenderUtil {
 
@@ -112,6 +115,25 @@ public class TextRenderUtil {
 		else
 			gui.drawString(component, centerX - (width/2), yPos, color);
 	}
+
+    public static void drawScrollingString(EasyGuiGraphics gui, String text, int x, int y, int width, int color) { drawScrollingString(gui,EasyText.literal(text),x,y,width,color); }
+    public static void drawScrollingString(EasyGuiGraphics gui, Component text, int x, int y, int width, int color)
+    {
+        int textWidth = gui.font.width(text);
+        if(textWidth > width)
+        {
+            int maxScroll = textWidth - width + 1;
+            double d0 = (double)TimeUtil.getCurrentTime() / 1000.0;
+            double d1 = Math.max((double)maxScroll * 0.5,3.0);
+            double d2 = Math.sin((Math.PI / 2D) * Math.cos((Math.PI * 2D) * d0 / d1)) / 2.0 + 0.5;
+            double d3 = Mth.lerp(d2,0,maxScroll);
+            gui.enableScissor(x - 1,y - 1,width + 2,y + gui.font.lineHeight + 2);
+            gui.drawString(text,(int)(x - d3) + 1,y,color);
+            gui.disableScissor();
+        }
+        else
+            drawCenteredText(gui,text,x + (width / 2),y,color);
+    }
 	
 	public static void drawRightEdgeText(EasyGuiGraphics gui, String string, int rightPos, int yPos, int color) { drawRightEdgeText(gui, Component.literal(string), rightPos, yPos, color); }
 	public static void drawRightEdgeText(EasyGuiGraphics gui, Component component, int rightPos, int yPos, int color) {

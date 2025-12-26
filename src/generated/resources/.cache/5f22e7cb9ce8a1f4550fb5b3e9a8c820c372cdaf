@@ -1,0 +1,5 @@
+// 1.21.1	2025-12-12T22:05:03.8009088	Global Loot Modifiers : lightmanscurrency
+9eb28a3731f7244335e2cb38725593f2733ef1ec data/lightmanscurrency/loot_modifiers/additions/ender_dragon_wallet_in_end_cities.json
+c3abeb84d19175e88289b1608a3ee05cb541cf3a data/lightmanscurrency/loot_modifiers/additions/netherite_wallet_in_bastions.json
+b309337eae845c8b9a03740e71566563d496ec30 data/lightmanscurrency/loot_modifiers/coins_in_chests.json
+e0a1ccce4d8ecf7c2730cb6d29089da92580e542 data/neoforge/loot_modifiers/global_loot_modifiers.json

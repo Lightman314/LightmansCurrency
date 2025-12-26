@@ -54,7 +54,11 @@ public class TradeButton extends EasyButton implements ITooltipSource, IGhostSlo
 	public TradeRenderManager<?> getTradeRenderer() {
 		TradeData trade = this.getTrade();
 		if(trade != null)
-			return trade.getButtonRenderer();
+        {
+            try{
+                return TradeRenderManager.getTradeRenderer(trade);
+            } catch (IllegalStateException ignored) { }
+        }
 		return null;
 	}
 	private final Supplier<TradeContext> contextSource;
@@ -267,7 +271,7 @@ public class TradeButton extends EasyButton implements ITooltipSource, IGhostSlo
 		TradeData trade = this.getTrade();
 		if(trade == null)
 			return;
-		TradeRenderManager<?> tr = trade.getButtonRenderer();
+		TradeRenderManager<?> tr = this.getTradeRenderer();
 		if(tr == null)
 			return;
 

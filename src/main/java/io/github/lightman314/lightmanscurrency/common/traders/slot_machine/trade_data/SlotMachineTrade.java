@@ -8,14 +8,10 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInt
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade_data.client.SlotMachineTradeButtonRenderer;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
-import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nonnull;
 import java.util.List;
@@ -46,11 +42,6 @@ public class SlotMachineTrade extends TradeData {
 
     @Override
     public List<Component> GetDifferenceWarnings(TradeComparisonResult differences) { return ImmutableList.of(); }
-
-    @Nonnull
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public TradeRenderManager<?> getButtonRenderer() { return new SlotMachineTradeButtonRenderer(this); }
 
     //No Storage Menu Interactions for this Trade Type
     @Override

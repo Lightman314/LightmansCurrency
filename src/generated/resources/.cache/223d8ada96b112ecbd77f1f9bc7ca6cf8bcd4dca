@@ -1,0 +1,20 @@
+// 1.21.1	2025-12-12T22:05:03.7856222	Tags for minecraft:block mod id lightmanscurrency
+840f39b9c6aaaf386396d261655775d912c2ba57 data/cadmus/tags/block/allows_claim_interactions.json
+8c2a560a97eeaec8b91dd28a09fcd29da60237de data/carryon/tags/block/block_blacklist.json
+27bc4507858a13ca7a75e1cc74b1c0afc70939d8 data/create/tags/block/non_breakable.json
+dbc7beda60456f2bfbee437569585fa4cb5a1529 data/create/tags/block/non_movable.json
+dbc7beda60456f2bfbee437569585fa4cb5a1529 data/c/tags/block/relocation_not_supported.json
+840f39b9c6aaaf386396d261655775d912c2ba57 data/ftbchunks/tags/block/interact_whitelist.json
+ff80a4537164e3e3cd9d3432d7603cff6988c80f data/lightmanscurrency/tags/block/auction_stand.json
+f8b0738fb0a3831b80f8ca933f9806a5d35e6353 data/lightmanscurrency/tags/block/card_display.json
+97d0aa68f665596cf89c9b1fb469c72b0167dfdf data/lightmanscurrency/tags/block/multi_block.json
+8e35b77f0c853e858b788a62fa2a59533f7dbb8d data/lightmanscurrency/tags/block/owner_protected.json
+61c81eacba14fb64333f557b0f5b85b342881cfb data/lightmanscurrency/tags/block/safe_interactable.json
+f083a53b25699acc2945160199dc0ae0c771df31 data/lightmanscurrency/tags/block/shelf.json
+728b0f053358aa999564a503a09b0b61bf82093c data/lightmanscurrency/tags/block/shelf_2x2.json
+6e2f2d56c34bb503f05f9c08de7a98f33e527a30 data/lightmanscurrency/tags/block/terminal.json
+585eb66cbd9c4d90c14b32c20441f99f0add11d9 data/minecraft/tags/block/beacon_base_blocks.json
+27bc4507858a13ca7a75e1cc74b1c0afc70939d8 data/minecraft/tags/block/dragon_immune.json
+6fe49f224e2a542afd119dfcc3e85a108bb96d9e data/minecraft/tags/block/mineable/axe.json
+c965da6589f7185ba4c29b43b1a0b5a25f95f3f7 data/minecraft/tags/block/mineable/pickaxe.json
+27bc4507858a13ca7a75e1cc74b1c0afc70939d8 data/minecraft/tags/block/wither_immune.json

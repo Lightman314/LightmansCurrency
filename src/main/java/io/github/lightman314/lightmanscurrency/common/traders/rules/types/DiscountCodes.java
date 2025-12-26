@@ -14,9 +14,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.ICopySupportingRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.data.PlayerMemory;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.DiscountCodesTab;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.PriceTweakingTradeRule;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
@@ -31,8 +28,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
@@ -244,10 +239,6 @@ public class DiscountCodes extends PriceTweakingTradeRule implements ICopySuppor
         if(updateInfo.contains("Remove"))
             this.rules.remove(updateInfo.getString("Remove"));
     }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new DiscountCodesTab(parent); }
 
     public static class DiscountRules
     {

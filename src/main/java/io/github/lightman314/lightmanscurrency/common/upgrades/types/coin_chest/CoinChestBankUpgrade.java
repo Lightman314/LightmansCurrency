@@ -63,13 +63,19 @@ public class CoinChestBankUpgrade extends TickableCoinChestUpgrade {
     public void setMoneyLimit(@Nonnull CoinChestUpgradeData data, @Nonnull MoneyValue moneyLimit) { this.editData(data,d -> d.setMoneyLimit(moneyLimit)); }
 
     @Nullable
-    public BankReference getTargetAccount(@Nonnull CoinChestUpgradeData data) { return this.getData(data).targetAccount; }
+    public BankReference getTargetAccount(CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) {
+        BankReference br = this.getData(data).targetAccount;
+        if(br != null)
+            br.flagAsClient(be);
+        return br;
+    }
     @Nullable
     public IBankAccount getSelectedBankAccount(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data)
     {
         BankUpgradeData d = this.getData(data);
-        if(d.targetAccount != null && d.player != null && d.targetAccount.allowedAccess(d.player))
-            return d.targetAccount.flagAsClient(be).get();
+        BankReference br = this.getTargetAccount(be,data);
+        if(br != null && d.player != null && br.allowedAccess(d.player))
+            return br.get();
         return null;
     }
 

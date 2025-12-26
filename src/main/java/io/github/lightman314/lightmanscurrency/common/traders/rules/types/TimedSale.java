@@ -7,9 +7,6 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.ICopySupportingRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.TimedSaleTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.PriceTweakingTradeRule;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
@@ -25,8 +22,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -207,10 +202,6 @@ public class TimedSale extends PriceTweakingTradeRule implements ICopySupporting
 			return new TimeData(this.startTime + this.duration - TimeUtil.getCurrentTime());
 		}
 	}
-
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new TimedSaleTab(parent); }
 	
 	
 }

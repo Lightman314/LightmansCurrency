@@ -1,21 +1,25 @@
 package io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral;
 
 import dan200.computercraft.api.detail.VanillaDetailRegistries;
-import dan200.computercraft.api.lua.IArguments;
-import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.*;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.util.ArgumentHelpers;
 import dan200.computercraft.shared.peripheral.generic.GenericPeripheral;
 import dan200.computercraft.shared.platform.ForgeContainerTransfer;
 import dan200.computercraft.shared.util.CapabilityUtil;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheral;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.AccessTrackingPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
+import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -25,23 +29,21 @@ import net.neoforged.neoforge.items.wrapper.InvWrapper;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Supplier;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class InventoryPeripheral extends LCPeripheral {
+public class InventoryPeripheral extends AccessTrackingPeripheral {
 
     private final Supplier<Boolean> hasAccess;
     private final Supplier<IItemHandler> handler;
-    public InventoryPeripheral(Supplier<Boolean> hasAccess, IItemHandler handler) { this(hasAccess,() -> handler); }
-    public InventoryPeripheral(Supplier<Boolean> hasAccess, Supplier<IItemHandler> handler)
+    private final Runnable setChanged;
+    public InventoryPeripheral(Supplier<Boolean> hasAccess, Supplier<IItemHandler> handler, Runnable setChanged)
     {
         this.hasAccess = hasAccess;
         this.handler = handler;
+        this.setChanged = setChanged;
     }
 
     private boolean hasHandler() { return this.handler.get() != null; }
@@ -153,7 +155,7 @@ public class InventoryPeripheral extends LCPeripheral {
     }
 
     @Nullable
-    private static IItemHandler extractHandler(IPeripheral peripheral) {
+    public static IItemHandler extractHandler(IPeripheral peripheral) {
         Object object = peripheral.getTarget();
         Direction var10000;
         if (peripheral instanceof GenericPeripheral sided) {
@@ -188,14 +190,16 @@ public class InventoryPeripheral extends LCPeripheral {
         }
     }
 
-    private static int moveItem(IItemHandler from, int fromSlot, IItemHandler to, int toSlot, int limit) {
+    private int moveItem(IItemHandler from, int fromSlot, IItemHandler to, int toSlot, int limit) {
         ForgeContainerTransfer fromWrapper = (new ForgeContainerTransfer(from)).singleSlot(fromSlot);
         ForgeContainerTransfer toWrapper = new ForgeContainerTransfer(to);
         if (toSlot >= 0) {
             toWrapper = toWrapper.singleSlot(toSlot);
         }
-
-        return Math.max(0, fromWrapper.moveTo(toWrapper, limit));
+        int result = Math.max(0, fromWrapper.moveTo(toWrapper, limit));
+        if(result > 0)
+            this.setChanged.run();
+        return result;
     }
 
     @Override
@@ -206,6 +210,43 @@ public class InventoryPeripheral extends LCPeripheral {
         registration.register(LCPeripheralMethod.builder("getItemLimit").withArgs(this::getItemLimit).build());
         registration.register(LCPeripheralMethod.builder("pushItems").withContext(this::pushItems).withAccess(this.hasAccess).build());
         registration.register(LCPeripheralMethod.builder("pullItems").withContext(this::pullItems).withAccess(this.hasAccess).build());
+    }
+
+    public static List<ItemStack> tryParseContents(Map<?,?> map) throws LuaException
+    {
+        StringBuilder keys = new StringBuilder();
+        for(Object key : map.keySet())
+        {
+            if(!keys.isEmpty())
+                keys.append(",");
+            keys.append(key).append(":").append(map.get(key).getClass().getName());
+        }
+        LightmansCurrency.LogDebug("Map Keys: " + keys);
+        if(map.get("list") instanceof ILuaFunction listFunction)
+        {
+            MethodResult mr = listFunction.call(new ObjectArguments());
+            Object[] result = mr.getResult();
+            if(result != null && result[0] instanceof Map<?,?> table)
+            {
+                List<ItemStack> list = new ArrayList<>();
+                for(Object key : table.keySet())
+                {
+                    if(table.get(key) instanceof Map<?,?> entry)
+                    {
+                        //Get item id and count
+                        try {
+                            Item item = BuiltInRegistries.ITEM.get(VersionUtil.parseResource((String)entry.get("name")));
+                            int count = (int)entry.get("count");
+                            list.add(new ItemStack(item,count));
+                        } catch (ClassCastException | ResourceLocationException ignored) { throw new LuaException("Table is not an inventory (1)!"); }
+                    }
+                    else
+                        throw new LuaException("Table is not an inventory (2)!");
+                }
+                return list;
+            }
+        }
+        throw new LuaException("Table is not an inventory (3)!");
     }
 
 }

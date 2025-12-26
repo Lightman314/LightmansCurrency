@@ -1,0 +1,25 @@
+{
+	"name": "Accessing Trade Rules",
+	"icon": "minecraft:book",
+	"category": "lightmanscurrency:trade_rules",
+	"pages":[
+		"Trade Rules are special rules that you can apply to a trader or trade that can be used to manipulate a trades price or accessibility to certain customers.$(br2)Most traders have two different types Trade Rule lists, one that targets all of the traders trades at once, and several that only targets the selected trade (what with one list for each trade).",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/accessing_rules/all_trades_rule_button.png",
+			"text":"Trade Rules that apply to $(bold)All Trades$() on the trader can be accessed via the \"Trader Rules\" tab in the Trader's Storage menu."
+		},
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/accessing_rules/targeted_trade_rule_button.png",
+			"text":"Trade Rules that apply to only the $(bold)Selected Trade$() can be accessed by clicking on the \"Trade-Specific Rules\" button that appears when in a trades details tab."
+		},
+		"After accessing the Trade Rule list for your given target(s), you then have the ability to toggle each available rule.$(br2)Once a rule is activated, a new tab will appear on the right allowing you to modify that rules particular settings$(br2)Only active trade rules will actually be applied to the targeted trades, and some rules exclusivly only target a single trade while others may exclusively target all trades.",
+		{
+			"type":"lightmanscurrency:image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/accessing_rules/rule_list.png"
+		},
+		"Each rule has their own set of settings and functions, each of which are detailed in the $(l:trade_rules)Trade Rules$() section of this guide."
+	]
+	
+}

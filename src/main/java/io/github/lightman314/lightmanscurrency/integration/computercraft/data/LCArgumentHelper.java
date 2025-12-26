@@ -5,6 +5,9 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaValues;
+import dan200.computercraft.api.peripheral.IComputerAccess;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.value.FlexibleMoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
@@ -13,14 +16,28 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 public class LCArgumentHelper {
+
+    public static FlexibleMoneyValue parseFlexibleMoneyValue(IArguments args, int index) throws LuaException
+    {
+        if(Objects.equals(args.getType(index),"string"))
+            return FlexibleMoneyValue.positive(parseMoneyValue(args,index,true));
+        else
+        {
+            //Try to parse from map
+            Map<?,?> table = args.getTable(index);
+            boolean negative = Objects.equals(table.get("negative"),true);
+            MoneyValue val = parseMoneyValue(args,index,true);
+            return FlexibleMoneyValue.of(negative,val);
+        }
+    }
 
     public static MoneyValue parseMoneyValue(IArguments args,int index, boolean allowEmpty) throws LuaException
     {
@@ -33,8 +50,12 @@ public class LCArgumentHelper {
         }
         else
         {
+            Map<?,?> table = args.getTable(index);
+            //Get the "data" entry from a Money Value result if it's present
+            if(table.get("data") instanceof Map<?,?> other)
+                table = other;
             //Try to parse from map
-            CompoundTag tag = LCLuaTable.toTag(args.getTable(index));
+            CompoundTag tag = LCLuaTable.toTag(table);
             MoneyValue result = MoneyValue.load(tag);
             if(result == null)
                 throw LuaValues.badArgumentOf(args,index,"money_value");
@@ -50,7 +71,7 @@ public class LCArgumentHelper {
         } catch (ResourceLocationException e) { throw LuaValues.badArgumentOf(args,index,"id"); }
     }
 
-    public static ItemStack parseItem(IArguments args, int index) throws LuaException
+    public static ItemStack paseBasicItem(IArguments args, int index) throws LuaException
     {
         if(Objects.equals(args.getType(index), "string"))
         {
@@ -87,6 +108,34 @@ public class LCArgumentHelper {
             if(fluid.isEmpty())
                 throw LuaValues.badArgumentOf(args,index,"fluid");
             return fluid.get();
+        }
+    }
+
+    public static List<ItemStack> parseBasicItems(IArguments args, int index) throws LuaException
+    {
+        Map<?,?> table = args.getTable(0);
+        List<ItemStack> list = new ArrayList<>();
+        if(table.containsKey("name") && table.containsKey("count"))
+            list.add(parseBasicItem(table));
+        else for(Object key : table.keySet())
+        {
+            if(table.get(key) instanceof Map<?,?> entry)
+                list.add(parseBasicItem(entry));
+            else
+                throw new LuaException("Table does not contain item data!");
+        }
+        return list;
+    }
+
+    public static ItemStack parseBasicItem(Map<?,?> table) throws LuaException
+    {
+        try {
+            Item item = BuiltInRegistries.ITEM.get(VersionUtil.parseResource((String)table.get("name")));
+            int count = ((Number)table.get("count")).intValue();
+            return new ItemStack(item,count);
+        } catch (ClassCastException | NullPointerException | ResourceLocationException e) {
+            //LightmansCurrency.LogDebug("Failed parse",e);
+            throw new LuaException("Table does not contain item data!");
         }
     }
 

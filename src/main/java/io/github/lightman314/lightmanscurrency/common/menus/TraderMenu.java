@@ -89,7 +89,6 @@ public class TraderMenu extends LazyMessageMenu implements IValidatedMenu, ITrad
 		}
 	}
 
-	
 	public TradeContext getContext(@Nullable TraderData trader) {
 		long traderID = trader == null ? -1 : trader.getID();
         return TradeContext.create(trader,this.player,this.validator.isThroughNetwork).withCoinSlots(this.coins).withInteractionSlot(this.interactionSlot).withDiscountCodes(this.discountCodes).build();

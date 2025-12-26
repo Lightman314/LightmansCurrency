@@ -40,8 +40,8 @@ public final class IntParser implements Function<String,Integer>, Predicate<Stri
     public boolean test(String s) {
         if(NumberUtil.IsInteger(s))
         {
-            int value = this.apply(s);
-            return value >= this.minValue.get() && value <= this.maxValue.get();
+            Integer val = NumberUtil.GetIntegerValue(s,null);
+            return val != null && val >= this.minValue.get() && val <= this.maxValue.get();
         }
         return s.isEmpty();
     }

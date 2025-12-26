@@ -31,9 +31,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.conditions.ICondition;
 import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
+import vazkii.patchouli.common.item.ItemModBook;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -582,7 +584,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('n', Tags.Items.NUGGETS_IRON)
                 .save(consumer, ID("upgrades/copy_template"));
         //Added in v2.2.5.2
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC,ModItems.UPGRADE_SMITHING_TEMPLATE.get(),10)
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC,ModItems.UPGRADE_SMITHING_TEMPLATE.get(),9)
                 .group("lightmans_template_copy")
                 .unlockedBy("money",MoneyKnowledge())
                 .unlockedBy("trader",TraderKnowledge())
@@ -1041,18 +1043,29 @@ public class LCRecipeProvider extends RecipeProvider {
                 .requires(ModItems.ITEM_TRADE_FILTER.get())
                 .save(consumer,VersionUtil.lcResource("item_trade_filter_reset"));
 
+        //2.3.0.4
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC,ModItems.TRANSACTION_REGISTER.get())
+                .unlockedBy("paper",LazyTrigger(Items.PAPER))
+                .unlockedBy("money",MoneyKnowledge())
+                .pattern(" l ")
+                .pattern("rpr")
+                .pattern(" l ")
+                .define('l',Tags.Items.LEATHERS)
+                .define('p',Items.PAPER)
+                .define('r',Tags.Items.DUSTS_REDSTONE)
+                .save(consumer);
+
+
         //Patchouli guide book
-        //TODO add once the book is ready
-        /*if(ModList.get().isLoaded("patchouli"))
+        if(ModList.get().isLoaded("patchouli"))
         {
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC,ItemModBook.forBook(VersionUtil.lcResource("trader_guide")))
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ItemModBook.forBook(VersionUtil.lcResource("trader_guide")))
                     .requires(Items.BOOK)
-                    .requires(ModItems.TRADING_CORE.get())
+                    .requires(ModItems.UPGRADE_SMITHING_TEMPLATE.get())
                     .unlockedBy("trader",TraderKnowledge())
                     .unlockedBy("money",MoneyKnowledge())
                     .save(consumer.withConditions(new ModLoadedCondition("patchouli")),VersionUtil.lcResource("guide/trader_guide"));
-        }*/
-
+        }
 
     }
 
