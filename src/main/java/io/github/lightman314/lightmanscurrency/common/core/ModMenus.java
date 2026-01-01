@@ -85,6 +85,8 @@ public class ModMenus {
 
         ITEM_FILTER = ModRegistries.MENUS.register("item_trade_filter", () -> CreateType((IContainerFactory<ItemFilterMenu>)(id,inventory,data) -> new ItemFilterMenu(id,inventory,data.readInt())));
 
+        TRANSACTION_REGISTER = ModRegistries.MENUS.register("transaction_register",() -> CreateType((IContainerFactory<TransactionRegisterMenu>)(id,inventory,data) -> new TransactionRegisterMenu(id,inventory,data.readInt())));
+
 	}
 	
 	public static final Supplier<MenuType<ATMMenu>> ATM;
@@ -132,6 +134,8 @@ public class ModMenus {
 	public static final Supplier<MenuType<ItemVariantSelectMenu>> VARIANT_SELECT_ITEM;
 
 	public static final Supplier<MenuType<ItemFilterMenu>> ITEM_FILTER;
+
+	public static final Supplier<MenuType<TransactionRegisterMenu>> TRANSACTION_REGISTER;
 
 	private static <T extends AbstractContainerMenu> MenuType<T> CreateType(MenuType.MenuSupplier<T> supplier){ return new MenuType<>(supplier, FeatureFlagSet.of()); }
 

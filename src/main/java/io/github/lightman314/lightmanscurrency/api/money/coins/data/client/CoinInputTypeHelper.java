@@ -5,17 +5,10 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.data.CoinInputTyp
 import io.github.lightman314.lightmanscurrency.api.money.input.MoneyInputHandler;
 import io.github.lightman314.lightmanscurrency.api.money.input.builtin.CoinDisplayInput;
 import io.github.lightman314.lightmanscurrency.api.money.input.builtin.CoinValueInput;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-import javax.annotation.Nonnull;
-
 
 public class CoinInputTypeHelper {
-
-    @Nonnull
-    @OnlyIn(Dist.CLIENT)
-    public static MoneyInputHandler getHandler(@Nonnull CoinInputType type, @Nonnull ChainData chain)
+    
+    public static MoneyInputHandler getHandler(CoinInputType type, ChainData chain)
     {
         return switch (type) {
             case DEFAULT -> new CoinValueInput(chain);

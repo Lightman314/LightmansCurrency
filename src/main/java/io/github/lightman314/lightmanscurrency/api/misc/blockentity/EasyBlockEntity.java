@@ -80,7 +80,7 @@ public class EasyBlockEntity extends BlockEntity implements IClientTracker, IVar
         if(this.currentVariant != null)
         {
             BlockState state = this.getBlockState();
-            if(VariantProvider.getVariantBlock(state.getBlock()) != null && !state.getValue(IVariantBlock.VARIANT))
+            if(VariantProvider.getVariantBlock(state.getBlock()) != null && state.hasProperty(IVariantBlock.VARIANT) && !state.getValue(IVariantBlock.VARIANT))
                 this.level.setBlockAndUpdate(this.worldPosition,state.setValue(IVariantBlock.VARIANT,true));
         }
         if(this.isClient())

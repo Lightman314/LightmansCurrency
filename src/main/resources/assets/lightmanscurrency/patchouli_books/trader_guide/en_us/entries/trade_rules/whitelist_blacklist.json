@@ -1,0 +1,15 @@
+{
+	"name": "Whitelist/Blacklist",
+	"icon": "lightmanscurrency:textures/gui/trader_guide/trade_rules/whitelist_blacklist/icon.png",
+	"category": "lightmanscurrency:trade_rules",
+	"pages":[
+		"The \"Whitelist/Blacklist\" rule allows you to limit which customers are allowed to interact with a given trade/trader.",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/whitelist_blacklist/inputs.png",
+			"text":"The rule has two primary inputs, the first being the \"Mode\" toggle at the very top which changes the rule from Whitelist mode (only allow players on the list) or Blacklist mode (deny players on the list)."
+		},
+		"The second input is the actual list of Players whom you wish to Whitelist or Blacklist. Simply type a players username into the text box, and click on the + button once the game finds their profile to add them to the list.$(br)You can also view and remove players from the list below by clicking on the X button next to a players name."
+	]
+	
+}

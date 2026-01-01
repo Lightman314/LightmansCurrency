@@ -12,9 +12,15 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.builtin.ConfigSelectionScreen;
 import io.github.lightman314.lightmanscurrency.api.events.client.RegisterVariantPropertiesEvent;
+import io.github.lightman314.lightmanscurrency.api.money.client.ClientMoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.client.builtin.ClientCoinType;
+import io.github.lightman314.lightmanscurrency.api.money.client.builtin.ClientNullType;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.renderer.ATMIconRenderer;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.config.MasterCoinListConfigOption;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.variant.BlockVariantSelectScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.variant.ItemVariantSelectScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
@@ -35,12 +41,16 @@ import io.github.lightman314.lightmanscurrency.common.items.AncientCoinItem;
 import io.github.lightman314.lightmanscurrency.common.items.MoneyBagItem;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
+import io.github.lightman314.lightmanscurrency.common.money.ancient_money.client.ClientAncientType;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
 import io.github.lightman314.lightmanscurrency.api.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
+import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.integration.curios.client.LCCuriosClient;
+import io.github.lightman314.lightmanscurrency.integration.impactor.LCImpactorClient;
+import io.github.lightman314.lightmanscurrency.integration.patchouli.LCPatchouli;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
@@ -125,6 +135,7 @@ public class ClientProxy extends CommonProxy{
 		MenuScreens.register(ModMenus.VARIANT_SELECT_ITEM.get(), ItemVariantSelectScreen::new);
 
 		MenuScreens.register(ModMenus.ITEM_FILTER.get(), ItemFilterScreen::new);
+		MenuScreens.register(ModMenus.TRANSACTION_REGISTER.get(), TransactionRegisterScreen::new);
 
     	//Register Tile Entity Renderers
     	BlockEntityRenderers.register(ModBlockEntities.ITEM_TRADER.get(), ItemTraderBlockEntityRenderer::create);
@@ -161,8 +172,22 @@ public class ClientProxy extends CommonProxy{
 		if(LCCurios.isLoaded())
 			LCCuriosClient.registerRenderLayers();
 
+        //Register Patchouli Functions
+        IntegrationUtil.SafeRunIfLoaded("patchouli",LCPatchouli::init,"Error setting up Patchouli Compat!");
+
         //Register Item Position Rotation Handlers
         RotationHandler.setup();
+
+        //Collect Trade Rule Tab Constructors
+        TradeRulesClientTab.intialize();
+        ATMIconRenderer.initialize();
+        TradeRenderManager.intialize();
+
+        //Register Client Money Types
+        ClientMoneyAPI.getApi().RegisterClientType(ClientNullType.INSTANCE);
+        ClientMoneyAPI.getApi().RegisterClientType(ClientCoinType.INSTANCE);
+        ClientMoneyAPI.getApi().RegisterClientType(ClientAncientType.INSTANCE);
+        IntegrationUtil.SafeRunIfLoaded("impactor", LCImpactorClient::setupClient,"Error setting up Impactor Compat!");
 
 	}
 

@@ -78,10 +78,14 @@ public class CoinChestBankUpgrade extends TickableCoinChestUpgrade {
     }
 
     @Nullable
-    public BankReference getTargetAccount(@Nonnull CoinChestUpgradeData data) {
+    public BankReference getTargetAccount(CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) {
         CompoundTag tag = data.getItemTag();
         if(tag.contains("TargetAccount"))
-            return BankReference.load(tag.getCompound("TargetAccount"));
+        {
+            BankReference br = BankReference.load(tag.getCompound("TargetAccount"));
+            if(br != null)
+                br.flagAsClient(be);
+        }
         return null;
     }
     private PlayerReference getPlayerContext(@Nonnull CoinChestUpgradeData data) {
@@ -93,10 +97,10 @@ public class CoinChestBankUpgrade extends TickableCoinChestUpgrade {
     @Nullable
     public IBankAccount getSelectedBankAccount(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data)
     {
-        BankReference targetAccount = this.getTargetAccount(data);
+        BankReference br = this.getTargetAccount(be,data);
         PlayerReference player = this.getPlayerContext(data);
-        if(targetAccount != null && player != null && targetAccount.allowedAccess(player))
-            return targetAccount.flagAsClient(be).get();
+        if(br != null && player != null && br.allowedAccess(player))
+            return br.get();
         return null;
     }
 
@@ -133,8 +137,8 @@ public class CoinChestBankUpgrade extends TickableCoinChestUpgrade {
     @Override
     public int getTickFrequency() { return 100; }
 
-    private boolean canInteract(CoinChestUpgradeData data) {
-        BankReference targetAccount = this.getTargetAccount(data);
+    private boolean canInteract(CoinChestBlockEntity be, CoinChestUpgradeData data) {
+        BankReference targetAccount = this.getTargetAccount(be,data);
         PlayerReference player = this.getPlayerContext(data);
         List<ItemStack> overflowItems = this.getOverflowItems(data);
         return targetAccount != null && player != null && overflowItems.isEmpty();
@@ -144,12 +148,12 @@ public class CoinChestBankUpgrade extends TickableCoinChestUpgrade {
     public void OnServerTick(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) {
         if(QuarantineAPI.IsDimensionQuarantined(be))
             return;
-        if(this.canInteract(data))
+        if(this.canInteract(be,data))
             this.TryInteract(be,data);
     }
 
     private void TryInteract(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) {
-        BankReference targetAccount = this.getTargetAccount(data);
+        BankReference targetAccount = this.getTargetAccount(be,data);
         PlayerReference player = this.getPlayerContext(data);
         List<ItemStack> overflowItems = this.getOverflowItems(data);
 

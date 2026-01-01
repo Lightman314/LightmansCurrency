@@ -11,9 +11,6 @@ import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingDat
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.ICopySupportingRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.DailyTradesTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
@@ -27,8 +24,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -196,10 +191,6 @@ public class DailyTrades extends TradeRule implements ICopySupportingRule {
         if(updateInfo.contains("SetDelay"))
             this.interactionDelay = updateInfo.getLong("SetDelay");
     }
-
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new DailyTradesTab(parent); }
 
     private static class Data
     {

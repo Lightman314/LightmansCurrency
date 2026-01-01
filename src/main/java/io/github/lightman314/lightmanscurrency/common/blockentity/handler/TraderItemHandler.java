@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.blockentity.handler;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.input.InputTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.Direction;

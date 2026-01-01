@@ -8,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
-import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
@@ -33,7 +32,6 @@ import mezz.jei.api.registration.*;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -104,6 +102,7 @@ public class LCJeiPlugin implements IModPlugin{
 		this.registerExclusionZones(registration, WalletBankScreen.class);
 		this.registerExclusionZones(registration, TeamManagerScreen.class);
 		this.registerExclusionZones(registration, NotificationScreen.class);
+		this.registerExclusionZones(registration, TransactionRegisterScreen.class);
 
         this.registerGhostSlots(registration,ItemFilterScreen.class);
         this.registerGhostSlots(registration,TraderStorageScreen.class);

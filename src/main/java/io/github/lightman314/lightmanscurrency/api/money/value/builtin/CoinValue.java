@@ -16,8 +16,6 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEnt
 import io.github.lightman314.lightmanscurrency.api.money.types.builtin.CoinCurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.value.IItemBasedValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.display.CoinPriceEntry;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
@@ -26,13 +24,13 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.Range;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -444,6 +442,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 	}
 
 	@Override
+    @Range(from = 0, to = Long.MAX_VALUE)
 	public long getCoreValue() {
 		ChainData chainData = CoinAPI.getApi().ChainData(this.chain);
 		if(chainData == null)
@@ -579,10 +578,6 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 		}
 		throw new JsonSyntaxException("Coin Value entry input is not a valid Json Element.");
 	}
-
-	@Nonnull
-	@Override
-	public DisplayEntry getDisplayEntry(@Nullable List<Component> additionalTooltips, boolean tooltipOverride) { return new CoinPriceEntry(this, additionalTooltips, tooltipOverride); }
 
 	@Override
 	public String toString() {

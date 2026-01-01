@@ -231,8 +231,8 @@ public abstract class TradeData implements ITradeRuleHost {
 	public abstract List<Component> GetDifferenceWarnings(TradeComparisonResult differences);
 
 	@OnlyIn(Dist.CLIENT)
-	
-	public abstract TradeRenderManager<?> getButtonRenderer();
+	@Deprecated(since = "2.3.0.4")
+	public TradeRenderManager<?> getButtonRenderer() { throw new IllegalStateException("Trade " + this.getClass().getName() + " did not properly register a Trade Render Manager!"); }
 
 	/**
 	 * Called when an input display is clicked on in display mode.

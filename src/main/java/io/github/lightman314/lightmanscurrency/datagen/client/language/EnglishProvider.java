@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
 import io.github.lightman314.lightmanscurrency.api.traders.attachments.builtin.ExternalAuthorizationAttachment;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
+import io.github.lightman314.lightmanscurrency.common.items.data.register.TransactionType;
 import io.github.lightman314.lightmanscurrency.common.text.MultiLineTextEntry;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.OutputConflictHandling;
@@ -166,6 +167,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.ITEM_UPGRADE_TEMPLATE,"Smithing Template");
 
         this.translate(LCText.ITEM_VARIANT_WAND,"Variant Wand");
+
+        this.translate(LCText.ITEM_TRANSACTION_REGISTER,"Transaction Register");
 
         this.translate(LCText.ITEM_ITEM_TRADE_FILTER,"Custom Item Trade Filter");
 
@@ -726,6 +729,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.GUI_TRADER_STATS_EMPTY,"No Statistics Recorded");
         this.translate(LCText.TOOLTIP_TRADER_TAXES,"Tax Information");
         this.translate(LCText.GUI_TRADER_TAXES_TOTAL_RATE,"Total Tax Rate: %s%%");
+        this.translate(LCText.GUI_TRADER_TAXES_TOTAL_RATE_RANGE,"Total Tax Rate: %1$s-%2$s%%");
         this.translate(LCText.GUI_TRADER_TAXES_NO_TAX_COLLECTORS,"No active Tax Collectors in range");
         this.translate(LCText.TOOLTIP_TRADER_STORAGE,"Trader Storage");
         this.translate(LCText.TOOLTIP_TRADER_MONEY_STORAGE,"Money Storage");
@@ -1143,6 +1147,31 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.NOTIFICATION_TRADE_GACHA,"%1$s paid %2$s and won %3$s");
         //Item Notification Parts
         this.translate(LCText.NOTIFICATION_ITEM_FORMAT,"%1$sx %2$s");
+
+        //Transaction Register
+        this.translate(LCText.GUI_TRANSACTION_REGISTER_TYPE_NAME.get(TransactionType.ADD),"Add Money");
+        this.translate(LCText.GUI_TRANSACTION_REGISTER_TYPE_NAME.get(TransactionType.SUBTRACT),"Subtract Money");
+        this.translate(LCText.GUI_TRANSACTION_REGISTER_TYPE_NAME.get(TransactionType.MULTIPLY),"Multiply Balance");
+        this.translate(LCText.GUI_TRANSACTION_REGISTER_TYPE_ARGUMENT_LABEL.get(TransactionType.ADD),"Amount to Add");
+        this.translate(LCText.GUI_TRANSACTION_REGISTER_TYPE_ARGUMENT_LABEL.get(TransactionType.SUBTRACT),"Amount to Subtract");
+        this.translate(LCText.GUI_TRANSACTION_REGISTER_TYPE_ARGUMENT_LABEL.get(TransactionType.MULTIPLY),"Multiplier");
+        this.translate(LCText.GUI_TRANSACTION_REGISTER_LABEL_INDEX,"#");
+        this.translate(LCText.GUI_TRANSACTION_REGISTER_LABEL_COMMENT,"Details");
+        this.translate(LCText.GUI_TRANSACTION_REGISTER_LABEL_TYPE,"Transaction Type");
+        this.translate(LCText.GUI_TRANSACTION_REGISTER_LABEL_CHANGE,"+/-");
+        this.translate(LCText.GUI_TRANSACTION_REGISTER_MULT_FORMAT,"x%s");
+        this.translate(LCText.GUI_TRANSACTION_REGISTER_LABEL_BALANCE,"Bal");
+        this.translate(LCText.TOOLTIP_TRANSACTION_REGISTER_EDIT,"Click to edit transaction");
+        this.translate(LCText.TOOLTIP_TRANSACTION_REGISTER_CREATE,"Click to create new transaction");
+        this.translate(LCText.TOOLTIP_TRANSACTION_REGISTER_TRANSACTION.get(TransactionType.ADD),"Adding %s");
+        this.translate(LCText.TOOLTIP_TRANSACTION_REGISTER_TRANSACTION.get(TransactionType.SUBTRACT),"Subtracting %s");
+        this.translate(LCText.TOOLTIP_TRANSACTION_REGISTER_TRANSACTION.get(TransactionType.MULTIPLY),"Multiplying by %s");
+        this.translate(LCText.TOOLTIP_TRANSACTION_REGISTER_BALANCE,"Balance: %s");
+        this.translate(LCText.TOOLTIP_TRANSACTION_REGISTER_STARTING_BALANCE,"Change Starting Balance");
+        this.translate(LCText.GUI_TRANSACTION_REGISTER_LABEL_STARTING_BALANCE,"Starting Balance");
+        this.translate(LCText.TOOLTIP_TRANSACTION_REGISTER_BACK,"Back");
+        this.translate(LCText.TOOLTIP_TRANSACTION_REGISTER_DELETE_TRANSACTION,"Delete Transaction");
+        this.translate(LCText.TOOLTIP_TRANSACTION_REGISTER_REDO_CALCULATIONS,"Update All Calculations");
 
         //Block Variants
         this.translate(LCText.GUI_VARIANT_MENU,"Variant Selection");
@@ -1885,7 +1914,7 @@ public class EnglishProvider extends TranslationProvider {
 
         final ResourceLocation TRADER_GUIDE = VersionUtil.lcResource("trader_guide");
         //Patchouli
-        this.translateGuide(TRADER_GUIDE,"Trading Guide (WIP)","A guide to Buying and Selling your way to unfathomable riches");
+        this.translateGuide(TRADER_GUIDE,"Trading Guide","A guide to Buying and Selling your way to unfathomable riches");
 
 
     }

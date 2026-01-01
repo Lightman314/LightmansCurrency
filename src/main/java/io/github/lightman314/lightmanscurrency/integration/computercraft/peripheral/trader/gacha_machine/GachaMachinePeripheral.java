@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.GachaMachineBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheral;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.AccessTrackingPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCArgumentHelper;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
@@ -24,7 +24,7 @@ public class GachaMachinePeripheral extends TraderPeripheral<GachaMachineBlockEn
 
     @Nullable
     @Override
-    protected LCPeripheral wrapTrade(TradeData trade) { return this; }
+    protected AccessTrackingPeripheral wrapTrade(TradeData trade) { return this; }
 
     @Override
     public String getType() { return "lc_trader_gacha"; }
@@ -33,7 +33,14 @@ public class GachaMachinePeripheral extends TraderPeripheral<GachaMachineBlockEn
 
     public int getStorageCapacity() throws LuaException { return this.getTrader().getMaxItems(); }
 
-    public Object getStorage(IComputerAccess computer) throws LuaException { return wrapInventory(computer,() -> this.hasPermissions(computer, Permissions.OPEN_STORAGE),this::safeGetStorage); }
+    public Object getStorage(IComputerAccess computer) throws LuaException { return wrapInventory(computer,() -> this.hasPermissions(computer, Permissions.OPEN_STORAGE),this::safeGetStorage,this::markStorageChanged,this); }
+
+    protected void markStorageChanged()
+    {
+        GachaTrader trader = this.safeGetTrader();
+        if(trader != null)
+            trader.markStorageDirty();
+    }
 
     private IItemHandler safeGetStorage()
     {

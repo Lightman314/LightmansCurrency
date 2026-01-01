@@ -64,6 +64,11 @@ public abstract class MoneyAPI {
      */
     public abstract IMoneyHolder GetPlayersMoneyHandler(Player player);
 
+    /**
+     * Gets an unsafe version of the {@link IMoneyHolder} for the given player.
+     */
+    public abstract IMoneyHolder GetPlayerMoneyHandlerUnsafe(Player player);
+
     ///Container related functions
     /**
      * Creates a {@link IMoneyHandler} for the given container that will allow the handling of all applicable {@link CurrencyType CurrencyTypes}.<br>

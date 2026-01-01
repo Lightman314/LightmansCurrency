@@ -184,14 +184,13 @@ public class MoneyBagItem extends BlockItem {
             builder.put(Attributes.ATTACK_DAMAGE,
                     new AttributeModifier(BASE_ATTACK_DAMAGE_UUID,"Weapon modifier",damage,AttributeModifier.Operation.ADDITION));
         }
-        //Reduce attach speed
+        //Reduce attack speed
         float speed = LCConfig.SERVER.moneyBagBaseAtkSpeed.get() + (LCConfig.SERVER.moneyBagAtkSpeedPerSize.get() * size);
         if(speed != 0f)
         {
             builder.put(Attributes.ATTACK_SPEED,
                     new AttributeModifier(BASE_ATTACK_SPEED_UUID,"Weapon modifier",speed, AttributeModifier.Operation.ADDITION));
         }
-
         return builder.build();
     }
 

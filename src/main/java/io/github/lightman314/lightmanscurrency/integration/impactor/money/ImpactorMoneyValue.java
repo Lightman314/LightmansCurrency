@@ -1,27 +1,22 @@
 package io.github.lightman314.lightmanscurrency.integration.impactor.money;
 
 import com.google.gson.JsonObject;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.display.TextDisplayEntry;
-import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.integration.impactor.LCImpactorCompat;
 import net.impactdev.impactor.api.economy.EconomyService;
 import net.impactdev.impactor.api.economy.accounts.Account;
 import net.impactdev.impactor.api.economy.currency.Currency;
 import net.kyori.adventure.key.Key;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Range;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
@@ -60,6 +55,7 @@ public class ImpactorMoneyValue extends MoneyValue {
     }
 
     @Override
+    @Range(to = 0,from = Long.MAX_VALUE)
     public long getCoreValue() { return Math.max(0,this.value.multiply(getDecimalNullifier(this.currency)).longValue()); }
 
     @Override
@@ -140,12 +136,6 @@ public class ImpactorMoneyValue extends MoneyValue {
     protected void writeAdditionalToJson(@Nonnull JsonObject json) {
         json.addProperty("Currency",this.currency.key().toString());
         json.addProperty("Value",this.value);
-    }
-
-    @Nonnull
-    @Override
-    public DisplayEntry getDisplayEntry(@Nullable List<Component> additionalTooltips, boolean tooltipOverride) {
-        return TextDisplayEntry.of(this.getText(EasyText.empty()),TextRenderUtil.TextFormatting.create().centered().middle());
     }
 
     public static MoneyValue load(CompoundTag tag) {

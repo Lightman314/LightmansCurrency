@@ -10,9 +10,9 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeSettingNotification;
-import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.input.InputTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheral;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.AccessTrackingPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCArgumentHelper;
 import net.minecraft.core.Direction;
@@ -130,9 +130,9 @@ public abstract class InputTraderPeripheral<BE extends TraderBlockEntity<T>,T ex
 
         @Nullable
         @Override
-        protected LCPeripheral wrapTrade(TradeData trade) throws LuaException {
+        protected AccessTrackingPeripheral wrapTrade(TradeData trade) throws LuaException {
             int index = this.getTrader().indexOfTrade(trade);
-            return TradeWrapper.createSimple(() -> {
+            TradeWrapper<?> wrapper = TradeWrapper.createSimple(() -> {
                 TraderData trader = this.safeGetTrader();
                 if(trader != null)
                 {
@@ -142,6 +142,8 @@ public abstract class InputTraderPeripheral<BE extends TraderBlockEntity<T>,T ex
                 }
                 return null;
             },this::safeGetTrader);
+            wrapper.setParent(this);
+            return wrapper;
         }
 
         @Override

@@ -44,6 +44,8 @@ public final class TradeRuleType<T extends TradeRule> {
     }
 
     @Override
+    public int hashCode() { return this.type.hashCode(); }
+    @Override
     public String toString() { return this.type.toString(); }
 
 }

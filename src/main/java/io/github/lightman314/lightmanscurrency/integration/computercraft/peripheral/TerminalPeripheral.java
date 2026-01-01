@@ -5,8 +5,8 @@ import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TraderEvent;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.AccessTrackingPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCComputerHelper;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.TraderPeripheral;
 import net.minecraftforge.common.MinecraftForge;
@@ -61,7 +61,7 @@ public class TerminalPeripheral extends MultiTraderPeripheral {
         //Only push event if trader is visible on the network
         if(t.canShowOnTerminal() && LCComputerHelper.getPeripheral(t) instanceof TraderPeripheral<?,?> trader)
         {
-            LCPeripheral tradeWrapper = trader.safeWrapTrade(event.getTrade());
+            AccessTrackingPeripheral tradeWrapper = trader.safeWrapTrade(event.getTrade());
             if(tradeWrapper == null)
                 return;
             LCLuaTable player = LCLuaTable.fromPlayer(event.getPlayerReference());
@@ -76,7 +76,7 @@ public class TerminalPeripheral extends MultiTraderPeripheral {
         //Only push event if trader is visible on the network
         if(t.canShowOnTerminal() && LCComputerHelper.getPeripheral(t) instanceof TraderPeripheral<?,?> trader)
         {
-            LCPeripheral tradeWrapper = trader.safeWrapTrade(event.getTrade());
+            AccessTrackingPeripheral tradeWrapper = trader.safeWrapTrade(event.getTrade());
             if(tradeWrapper == null)
                 return;
             LCLuaTable player = LCLuaTable.fromPlayer(event.getPlayerReference());
@@ -88,14 +88,14 @@ public class TerminalPeripheral extends MultiTraderPeripheral {
 
     private void newTraderEvent(TraderEvent.CreateNetworkTraderEvent event)
     {
-        LCPeripheral trader = LCComputerHelper.getPeripheral(event.getTrader());
+        AccessTrackingPeripheral trader = LCComputerHelper.getPeripheral(event.getTrader());
         LCLuaTable player = LCLuaTable.fromPlayer(event.getPlayer());
         this.queueEvent("lc_trader_created",computer -> new Object[] { trader.asTable(computer),player,event.getID()});
     }
 
     private void removeTraderEvent(TraderEvent.RemoveNetworkTraderEvent event)
     {
-        LCPeripheral trader = LCComputerHelper.getPeripheral(event.getTrader());
+        AccessTrackingPeripheral trader = LCComputerHelper.getPeripheral(event.getTrader());
         this.queueEvent("lc_trader_removed",computer -> new Object[] { trader.asTable(computer),event.getID()});
     }
 

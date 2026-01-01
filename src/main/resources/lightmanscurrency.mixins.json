@@ -13,6 +13,7 @@
     "MerchantMenuMixin",
     "ShapedAndShapelessRecipeMixin",
     "TemplatePoolAccess",
+    "compat.computercraft.DetailRegistryMixin",
     "compat.create.StockTickerBlockEntityAccessor",
     "compat.create.StockTickerBlockMixin",
     "compat.create.StockTickerInteractionHandlerMixin",

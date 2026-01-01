@@ -83,7 +83,7 @@ public class WalletItem extends Item implements IVariantItem {
 
 	private final int storageSize;
 
-	private final int bonusMagnet;
+	public final int bonusMagnet;
 	public final boolean indestructible;
 
 	public final ResourceLocation model;

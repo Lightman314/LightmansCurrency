@@ -1,0 +1,17 @@
+{
+	"name": "Demand-Based Pricing",
+	"icon": "lightmanscurrency:textures/gui/trader_guide/trade_rules/demand_pricing/icon.png",
+	"category": "lightmanscurrency:trade_rules",
+	"pages":[
+		"The \"Demand-Based Pricing\" rule is a trade rule that can only be applied to a single trade.$(br2)When enabled the price will change in a linear manner depending on the trades current stock, giving the trade a higher price when low on stock and a lower price when plenty of stock is available.",
+		{
+			"type":"lightmanscurrency:wide_image_2",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/demand_pricing/inputs.png",
+			"text":"The primary inputs for this rule are the min/max stock inputs determining the upper and lower limits of the stock range.$(br)It also includes an additional price input, defining the 2nd price for the range."
+		},
+		"This trade also utilizes the trades built-in price input, and combining that with its own price input it creates the \"Price Range\" that will limit the price depending on the stock limits defined further. These two inputs are flexible and can have the trades price be either larger or smaller than the price defined in the rules inputs, so long as both prices are the same type of currency.$(br)It also supports \"Free\" as the smaller price",
+		"The upper/lower stock inputs define at which stock levels the given prices will be utilized, as well as how the price is scaled. When the stock is less than the lower stock the trade will be given the larger of the prices from the price range, and when the stock is larger than the upper stock the trade will be given the smaller of the prices from the price range. When in-between the two stock values, a middle price will be calculated in a linear manner ",
+		"depending on which stock limit it is closer to.$(br2)If you ever get confused as to why the inputs are not working, the info tab above the rules inputs will tell you what is wrong with the current inputs.$(br2)The price modifications from this rule apply directly to the base price, so other rules that modify the price via percentage will scale off of the new price instead of the trade-defined price."
+	]
+	
+}

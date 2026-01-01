@@ -26,7 +26,9 @@ public final class MoneyAPIImpl extends MoneyAPI {
 
     private final Map<ResourceLocation, CurrencyType> registeredCurrencyTypes = new HashMap<>();
     private final Map<UUID,PlayerMoneyHolder> clientPlayerCache = new HashMap<>();
+    private final Map<UUID,PlayerMoneyHolder> clientPlayerUnsafeCache = new HashMap<>();
     private final Map<UUID,PlayerMoneyHolder> serverPlayerCache = new HashMap<>();
+    private final Map<UUID,PlayerMoneyHolder> serverPlayerUnsafeCache = new HashMap<>();
 
     public MoneyAPIImpl() {}
 
@@ -54,7 +56,7 @@ public final class MoneyAPIImpl extends MoneyAPI {
 
     @Override
     public IMoneyHolder GetPlayersMoneyHandler(Player player) {
-        Map<UUID,PlayerMoneyHolder> cache = player.isLocalPlayer() ? this.clientPlayerCache : this.serverPlayerCache;
+        Map<UUID,PlayerMoneyHolder> cache = player.level().isClientSide ? this.clientPlayerCache : this.serverPlayerCache;
         if(!cache.containsKey(player.getUUID()))
         {
             List<IPlayerMoneyHandler> handlers = new ArrayList<>();
@@ -62,6 +64,21 @@ public final class MoneyAPIImpl extends MoneyAPI {
             {
                 IPlayerMoneyHandler h = type.createMoneyHandlerForPlayer(player);
                 if(h != null)
+                    handlers.add(h);
+            }
+            cache.put(player.getUUID(), new PlayerMoneyHolder(handlers));
+        }
+        return cache.get(player.getUUID()).updatePlayer(player);
+    }
+
+    @Override
+    public IMoneyHolder GetPlayerMoneyHandlerUnsafe(Player player) {
+        Map<UUID, PlayerMoneyHolder> cache = player.level().isClientSide ? this.clientPlayerUnsafeCache : this.serverPlayerUnsafeCache;
+        if (!cache.containsKey(player.getUUID())) {
+            List<IPlayerMoneyHandler> handlers = new ArrayList<>();
+            for (CurrencyType type : this.registeredCurrencyTypes.values()) {
+                IPlayerMoneyHandler h = type.createUnsafeMoneyHandlerForPlayer(player);
+                if (h != null)
                     handlers.add(h);
             }
             cache.put(player.getUUID(), new PlayerMoneyHolder(handlers));

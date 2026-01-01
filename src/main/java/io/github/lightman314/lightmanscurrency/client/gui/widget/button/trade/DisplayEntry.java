@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade;
 
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.api.money.client.ClientMoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.display.*;
@@ -94,10 +95,10 @@ public abstract class DisplayEntry {
     @Deprecated(since = "2.2.5.4")
     public static DisplayEntry of(MoneyValue price, List<Component> additionalTooltips) { return of(price, additionalTooltips, false); }
     @Deprecated(since = "2.2.5.4")
-    public static DisplayEntry of(MoneyValue price, List<Component> additionalTooltips, boolean tooltipOverride) { return price.getDisplayEntry(additionalTooltips, tooltipOverride); }
+    public static DisplayEntry of(MoneyValue price, List<Component> additionalTooltips, boolean tooltipOverride) { return ClientMoneyAPI.getApi().GetDisplayEntry(price,additionalTooltips,tooltipOverride); }
 
-    public static DisplayEntry forMoney(MoneyValue price) { return price.getDisplayEntry(null,false); }
-    public static DisplayEntry forMoneyWithAddedTooltip(MoneyValue price, List<Component> additionalTooltips) { return price.getDisplayEntry(additionalTooltips,false); }
-    public static DisplayEntry forMoneyWithSetTooltip(MoneyValue price, List<Component> tooltip) { return price.getDisplayEntry(tooltip,true); }
+    public static DisplayEntry forMoney(MoneyValue price) { return ClientMoneyAPI.getApi().GetDisplayEntry(price,null,false); }
+    public static DisplayEntry forMoneyWithAddedTooltip(MoneyValue price, List<Component> additionalTooltips) { return ClientMoneyAPI.getApi().GetDisplayEntry(price,additionalTooltips,false); }
+    public static DisplayEntry forMoneyWithSetTooltip(MoneyValue price, List<Component> tooltip) { return ClientMoneyAPI.getApi().GetDisplayEntry(price,tooltip,true); }
 
 }

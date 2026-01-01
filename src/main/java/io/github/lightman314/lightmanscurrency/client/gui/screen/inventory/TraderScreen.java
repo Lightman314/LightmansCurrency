@@ -3,11 +3,13 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.traders.client.TraderClientHooks;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.EasyClientUnenforcedTabbedMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.common.DiscountCodeTab;
 import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
@@ -19,7 +21,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.TraderClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.common.TraderInteractionTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
@@ -37,7 +38,7 @@ import net.minecraft.world.inventory.Slot;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderScreen {
+public class TraderScreen extends EasyClientUnenforcedTabbedMenuScreen<TraderMenu,TraderScreen,TraderClientTab> implements ITraderScreen {
 
 	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/trader.png");
 
@@ -55,17 +56,6 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderS
 	IconButton buttonOpenTerminal;
     IconButton buttonSubmitCodes;
 
-	TraderClientTab currentTab = DEFAULT_TAB;
-	@Override
-	public void setTab(TraderClientTab tab) {
-		//Close the old tab
-		this.currentTab.onClose();
-		//Set the new tab
-		this.currentTab = tab;
-		this.currentTab.onOpen();
-	}
-	public void closeTab() { this.setTab(DEFAULT_TAB); }
-
 	private final LazyWidgetPositioner rightEdgePositioner = LazyWidgetPositioner.create(this, LazyWidgetPositioner.createTopdown(), TraderScreen.WIDTH,0, 20);
 
 	@Override
@@ -74,12 +64,12 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderS
 	protected boolean forceShowTerminalButton() { return false; }
 
 	public TraderScreen(TraderMenu menu, Inventory inventory, Component title) {
-		super(menu, inventory, title);
+		super(menu, inventory, title, TraderInteractionTab::new);
 		this.resize(TraderScreen.WIDTH, TraderScreen.HEIGHT);
 	}
 
 	@Override
-	public void initialize(ScreenArea screenArea) {
+	protected void init(ScreenArea screenArea) {
 
 		this.rightEdgePositioner.clear();
 		this.addChild(this.rightEdgePositioner);
@@ -110,11 +100,8 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderS
 		{
 			TraderData trader = this.menu.getSingleTrader();
 			if(trader != null)
-				trader.onScreenInit(this, this::addChild);
+                TraderClientHooks.forEach(trader,attachment -> attachment.onScreenInit(trader,this,this::addChild));
 		}
-
-		//Initialize the current tab
-		this.currentTab.onOpen();
 
 		this.containerTick();
 
@@ -123,13 +110,13 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderS
 	private boolean showTerminalButton() { return this.forceShowTerminalButton() || (this.menu.isSingleTrader() && this.menu.getSingleTrader().showOnTerminal()); }
 
 	@Override
-	protected void renderBG(EasyGuiGraphics gui) {
+	protected void renderBackground(EasyGuiGraphics gui) {
 
 		//Main BG
 		gui.renderNormalBackground(GUI_TEXTURE, this);
 
 		//Info widget
-		gui.blit(GUI_TEXTURE, INFO_WIDGET_POSITION, this.imageWidth + 38, 0, 10, 10);
+        SpriteUtil.GENERIC_INFO.render(gui,INFO_WIDGET_POSITION);
 
 		//Coin Slots
 		for(Slot slot : this.menu.getCoinSlots())
@@ -138,9 +125,6 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderS
 		//Interaction Slot BG
 		if(this.menu.getInteractionSlot().isActive())
 			gui.renderSlot(this,this.menu.getInteractionSlot());
-
-		try { this.currentTab.renderBG(gui);
-		} catch(Throwable t) { LightmansCurrency.LogError("Error rendering trader tab " + this.currentTab.getClass().getName(), t); }
 
 		//Labels
 		gui.drawString(this.playerInventoryTitle, TraderMenu.SLOT_OFFSET + 8, this.imageHeight - 94, 0x404040);
@@ -152,9 +136,7 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderS
 	}
 
 	@Override
-	protected void renderAfterWidgets(EasyGuiGraphics gui) {
-		try { this.currentTab.renderAfterWidgets(gui);
-		} catch (Throwable t) { LightmansCurrency.LogError("Error rendering trader tab tooltips " + this.currentTab.getClass().getName(), t); }
+	protected void renderLate(EasyGuiGraphics gui) {
 
 		if(INFO_WIDGET_POSITION.offset(this).isMouseInArea(gui.mousePos, 10, 10))
 			gui.renderComponentTooltip(this.menu.getContext(null).getAvailableFundsDescription());
@@ -178,13 +160,10 @@ public class TraderScreen extends EasyMenuScreen<TraderMenu> implements ITraderS
 
     private void OpenCodeSelection()
     {
-        if(this.currentTab instanceof DiscountCodeTab codeTab)
+        if(this.currentTab() instanceof DiscountCodeTab codeTab)
             this.closeTab();
         else
             this.setTab(CODE_TAB);
     }
-
-	@Override
-	public boolean blockInventoryClosing() { return this.currentTab.blockInventoryClosing(); }
 
 }

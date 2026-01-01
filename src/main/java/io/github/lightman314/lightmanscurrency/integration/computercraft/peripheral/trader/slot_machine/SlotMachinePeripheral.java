@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.trader.SlotMac
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheral;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.AccessTrackingPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCArgumentHelper;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
@@ -34,14 +34,21 @@ public class SlotMachinePeripheral extends TraderPeripheral<SlotMachineTraderBlo
 
     @Nullable
     @Override
-    protected LCPeripheral wrapTrade(TradeData trade) { return this; }
+    protected AccessTrackingPeripheral wrapTrade(TradeData trade) { return this; }
 
     @Override
     public String getType() { return "lc_trader_slot_machine"; }
 
     public int getStorageStackLimit() throws LuaException { return this.getTrader().getStorageStackLimit(); }
 
-    public Object getStorage(IComputerAccess computer) { return wrapInventory(computer,() -> this.hasPermissions(computer, Permissions.OPEN_STORAGE),this::safeGetStorage); }
+    public Object getStorage(IComputerAccess computer) { return wrapInventory(computer,() -> this.hasPermissions(computer, Permissions.OPEN_STORAGE),this::safeGetStorage,this::markStorageChanged,this); }
+
+    private void markStorageChanged()
+    {
+        SlotMachineTraderData trader = this.safeGetTrader();
+        if(trader != null)
+            trader.markStorageDirty();
+    }
 
     private IItemHandler safeGetStorage()
     {

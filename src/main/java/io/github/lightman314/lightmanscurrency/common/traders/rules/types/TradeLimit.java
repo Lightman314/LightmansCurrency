@@ -7,9 +7,6 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.ICopySupportingRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.TradeLimitTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
@@ -21,8 +18,6 @@ import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -30,11 +25,13 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class TradeLimit extends TradeRule implements ICopySupportingRule {
 
+    public static final int MAX_LIMIT = 1000000;
+
 	public static final TradeRuleType<TradeLimit> TYPE = new TradeRuleType<>(VersionUtil.lcResource("trade_limit"),TradeLimit::new);
 	
 	private int limit = 1;
 	public int getLimit() { return this.limit; }
-	public void setLimit(int newLimit) { this.limit = MathUtil.clamp(newLimit,1,100); }
+	public void setLimit(int newLimit) { this.limit = MathUtil.clamp(newLimit,1,MAX_LIMIT); }
 	
 	int count = 0;
 	public void resetCount() { this.count = 0; }
@@ -132,10 +129,5 @@ public class TradeLimit extends TradeRule implements ICopySupportingRule {
 		if(data.contains("Count", Tag.TAG_INT))
 			this.count = data.getInt("Count");
 	}
-
-	
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new TradeLimitTab(parent); }
 	
 }

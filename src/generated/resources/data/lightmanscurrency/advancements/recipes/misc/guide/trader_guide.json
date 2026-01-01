@@ -1,0 +1,56 @@
+{
+  "advancements": [
+    {
+      "advancement": {
+        "parent": "minecraft:recipes/root",
+        "criteria": {
+          "has_the_recipe": {
+            "conditions": {
+              "recipe": "patchouli:guide_book"
+            },
+            "trigger": "minecraft:recipe_unlocked"
+          },
+          "money": {
+            "conditions": {
+              "items": [
+                {
+                  "tag": "lightmanscurrency:coins"
+                }
+              ]
+            },
+            "trigger": "minecraft:inventory_changed"
+          },
+          "trader": {
+            "conditions": {
+              "items": [
+                {
+                  "tag": "lightmanscurrency:trader"
+                }
+              ]
+            },
+            "trigger": "minecraft:inventory_changed"
+          }
+        },
+        "requirements": [
+          [
+            "trader",
+            "money",
+            "has_the_recipe"
+          ]
+        ],
+        "rewards": {
+          "recipes": [
+            "patchouli:guide_book"
+          ]
+        },
+        "sends_telemetry_event": false
+      },
+      "conditions": [
+        {
+          "type": "forge:mod_loaded",
+          "modid": "patchouli"
+        }
+      ]
+    }
+  ]
+}

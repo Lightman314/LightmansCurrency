@@ -287,9 +287,12 @@ public abstract class TradeRule {
 		return null;
 	}
 
+    /**
+     * @deprecated See {@link io.github.lightman314.lightmanscurrency.api.events.client.RegisterTradeRuleTabsEvent RegisterTradeRuleTabsEvent}
+     */
 	@OnlyIn(Dist.CLIENT)
-	
-	public abstract TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent);
+    @Deprecated(since = "2.3.0.4")
+	public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { throw new UnsupportedOperationException("Trade rule has not registered a tab constructor for type " + this.type.type); }
 
 	
 	public static TradeRule CreateRule(ResourceLocation type)

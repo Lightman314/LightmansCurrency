@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
@@ -21,6 +20,7 @@ public abstract class MoneyHolder extends MoneyHandler implements IMoneyHolder {
     public static final IMoneyHolder EMPTY = new Empty();
 
     public static IMoneyHolder createFromHandler(IMoneyHandler handler, Component tooltipTitle, int priority) { return new HandlerSlave(handler, tooltipTitle, priority); }
+    public static IMoneyHolder createFromHandler(IMoneyHandler handler, Component tooltipTitle, int priority, int inversePriority) { return new HandlerSlave(handler, tooltipTitle, priority, inversePriority); }
 
     /**
      * Easy implementation of {@link IMoneyHolder} that simply points to another parent money holder.
@@ -75,14 +75,20 @@ public abstract class MoneyHolder extends MoneyHandler implements IMoneyHolder {
         private final IMoneyHandler handler;
         private final Component title;
         private final int priority;
-        private HandlerSlave(IMoneyHandler handler, Component title, int priority) {
+        private final int inversePriority;
+        private HandlerSlave(IMoneyHandler handler, Component title, int priority) { this(handler,title,priority,priority * -1); }
+        private HandlerSlave(IMoneyHandler handler, Component title, int priority, int inversePriority) {
             this.handler = handler;
             this.title = title;
             this.priority = priority;
+            this.inversePriority = inversePriority;
         }
 
         @Override
         public int priority() { return this.priority; }
+        @Override
+        public int inversePriority() { return this.inversePriority; }
+
         @Override
         public Component getTooltipTitle() { return this.title; }
         

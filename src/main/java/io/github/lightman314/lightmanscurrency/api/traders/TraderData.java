@@ -42,17 +42,16 @@ import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxableContext;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.attachments.TraderAttachment;
+import io.github.lightman314.lightmanscurrency.api.traders.attachments.TraderAttachment.TraderAttachmentType;
+import io.github.lightman314.lightmanscurrency.api.traders.client.TraderClientHooks;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderScreen;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.api.traders.settings.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.info.core.TraderStatsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.info.InfoSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.info.TraderInfoClientTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.info.core.TaxInfoClientTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.info.core.TraderLogClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.core.*;
@@ -97,7 +96,6 @@ import io.github.lightman314.lightmanscurrency.common.notifications.categories.T
 import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.api.traders.permissions.BooleanPermission;
 import io.github.lightman314.lightmanscurrency.api.traders.permissions.PermissionOption;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
@@ -175,8 +173,10 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	public long getID() { return this.id; }
 	public void setID(long id) { this.id = id; }
 
-    private final Map<TraderAttachment.TraderAttachmentType<?>,TraderAttachment> attachments;
-    public <T extends TraderAttachment> boolean hasAttachment(TraderAttachment.TraderAttachmentType<T> type)
+    private final List<Object> clientAttachments = new ArrayList<>();
+    public List<Object> getClientAttachments() { return ImmutableList.copyOf(this.clientAttachments); }
+    private final Map<TraderAttachmentType<?>,TraderAttachment> attachments;
+    public <T extends TraderAttachment> boolean hasAttachment(TraderAttachmentType<T> type)
     {
         if(this.attachments.containsKey(type))
         {
@@ -188,7 +188,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
         return false;
     }
     @Nullable
-    public <T extends TraderAttachment> T getAttachment(TraderAttachment.TraderAttachmentType<T> type)
+    public <T extends TraderAttachment> T getAttachment(TraderAttachmentType<T> type)
     {
         if(this.attachments.containsKey(type))
         {
@@ -311,10 +311,19 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	@Override
 	public final TraderData flagAsClient() { return this.flagAsClient(true); }
 	@Override
-	public final TraderData flagAsClient(boolean isClient) { this.isClient = isClient; this.logger.flagAsClient(this); return this; }
+	public final TraderData flagAsClient(boolean isClient) {
+        if(this.isClient == isClient)
+            return this;
+        this.isClient = isClient;
+        this.logger.flagAsClient(this);
+        if(this.isClient && this.clientAttachments.isEmpty())
+            this.clientAttachments.addAll(TraderClientHooks.collectClientAttachments(this));
+        return this;
+    }
 	@Override
 	public final TraderData flagAsClient(IClientTracker context) { return this.flagAsClient(context.isClient()); }
-	public boolean isClient() { return this.isClient; }
+	public final boolean isClient() { return this.isClient; }
+    public final boolean isServer() { return ISidedObject.super.isServer(); }
 
 	private final OwnerData owner = new OwnerData(this, () -> this.markDirty(this::saveOwner));
 
@@ -865,13 +874,13 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		builder.accept(new TraderRuleSettings(this));
 	}
 
-    protected ImmutableMap<TraderAttachment.TraderAttachmentType<?>,TraderAttachment> registerAttachments()
+    protected ImmutableMap<TraderAttachmentType<?>,TraderAttachment> registerAttachments()
     {
         //Post attachment event
         TraderEvent.RegisterAttachmentEvent event = VersionUtil.postEvent(new TraderEvent.RegisterAttachmentEvent(this));
         //Assemble attachments
-        ImmutableMap.Builder<TraderAttachment.TraderAttachmentType<?>,TraderAttachment> builder = ImmutableMap.builder();
-        for(TraderAttachment.TraderAttachmentType<?> type : event.getAttachments())
+        ImmutableMap.Builder<TraderAttachmentType<?>,TraderAttachment> builder = ImmutableMap.builder();
+        for(TraderAttachmentType<?> type : event.getAttachments())
             builder.put(type,type.build(this));
         return builder.buildKeepingLast();
     }
@@ -1892,56 +1901,33 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	}
 
 	@OnlyIn(Dist.CLIENT)
+    @Deprecated(since = "2.3.0.4")
 	public final List<SettingsSubTab> getSettingsTabs(TraderSettingsClientTab tab) {
 		//Set up defailt tabs
-		List<SettingsSubTab> tabs = Lists.newArrayList(new NameTab(tab), new CreativeSettingsTab(tab),new PersistentTab(tab), new AllyTab(tab), new PermissionsTab(tab), new MiscTab(tab), new TaxSettingsTab(tab));
+		List<SettingsSubTab> tabs = new ArrayList<>();
 		//Add Trader-Defined tabs
 		this.addSettingsTabs(tab, tabs);
-        //Add attachment defined tabs
-        for(TraderAttachment attachment : this.attachments.values())
-            attachment.addSettingsTabs(tab,tabs::add);
-		//Add Ownership Tab last
-		tabs.add(new OwnershipTab(tab));
 		return tabs;
 	}
 
 	@OnlyIn(Dist.CLIENT)
+    @Deprecated(since = "2.3.0.4")
 	protected void addSettingsTabs(TraderSettingsClientTab tab, List<SettingsSubTab> tabs) { }
 
 	@OnlyIn(Dist.CLIENT)
+    @Deprecated(since = "2.3.0.4")
 	public final List<PermissionOption> getPermissionOptions(){
-		List<PermissionOption> options = Lists.newArrayList(
-				BooleanPermission.of(Permissions.OPEN_STORAGE),
-				BooleanPermission.of(Permissions.CHANGE_NAME),
-				BooleanPermission.of(Permissions.EDIT_TRADES),
-				BooleanPermission.of(Permissions.COLLECT_COINS),
-				BooleanPermission.of(Permissions.STORE_COINS),
-				BooleanPermission.of(Permissions.EDIT_TRADE_RULES),
-				BooleanPermission.of(Permissions.EDIT_SETTINGS),
-				BooleanPermission.of(Permissions.ADD_REMOVE_ALLIES),
-				BooleanPermission.of(Permissions.EDIT_PERMISSIONS),
-				BooleanPermission.of(Permissions.VIEW_LOGS),
-				BooleanPermission.of(Permissions.BANK_LINK),
-				BooleanPermission.of(Permissions.BREAK_TRADER),
-				BooleanPermission.of(Permissions.TRANSFER_OWNERSHIP)
-			);
-		if(this.showOnTerminal())
-			options.add(BooleanPermission.of(Permissions.INTERACTION_LINK));
-
+		List<PermissionOption> options = new ArrayList<>();
 		this.addPermissionOptions(options);
-
-        for(TraderAttachment attachment : this.attachments.values())
-            attachment.addPermissionOptions(options::add);
-
-		this.handleBlockedPermissions(options);
-
 		return options;
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	protected abstract void addPermissionOptions(List<PermissionOption> options);
+    @Deprecated(since = "2.3.0.4")
+	protected void addPermissionOptions(List<PermissionOption> options) { }
 
 	@OnlyIn(Dist.CLIENT)
+    @Deprecated(since = "2.3.0.4")
 	protected final void handleBlockedPermissions(List<PermissionOption> options)
 	{
 		//Remove blocked permissions from the permissions options list.
@@ -1959,22 +1945,27 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	}
 
 	@OnlyIn(Dist.CLIENT)
+    @Deprecated(since = "2.3.0.4")
 	public final List<InfoSubTab> getInfoTabs(TraderInfoClientTab tab) {
-		List<InfoSubTab> tabs = Lists.newArrayList(new TraderLogClientTab(tab,false), new TraderStatsClientTab(tab), new TraderLogClientTab(tab,true), new TaxInfoClientTab(tab));
+		List<InfoSubTab> tabs = new ArrayList<>();
 		this.addInfoTabs(tab,tabs);
 		return tabs;
 	}
 
 	@OnlyIn(Dist.CLIENT)
+    @Deprecated(since = "2.3.0.4")
 	protected void addInfoTabs(TraderInfoClientTab tab, List<InfoSubTab> tabs) { }
 
 	@OnlyIn(Dist.CLIENT)
+    @Deprecated(since = "2.3.0.4")
 	public void onScreenInit(ITraderScreen screen, Consumer<Object> addWidget) { }
 
 	@OnlyIn(Dist.CLIENT)
+    @Deprecated(since = "2.3.0.4")
 	public void onStorageScreenInit(ITraderStorageScreen screen, Consumer<Object> addWidget) { }
 
 	@OnlyIn(Dist.CLIENT)
+    @Deprecated(since = "2.3.0.4")
 	public List<MiscTabAddon> getMiscTabAddons() { return new ArrayList<>(); }
 
 	public final void pushLocalNotification(Notification notification)

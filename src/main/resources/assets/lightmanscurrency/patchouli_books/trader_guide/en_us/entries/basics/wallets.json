@@ -1,0 +1,87 @@
+{
+	"name": "Wallets",
+	"icon": "lightmanscurrency:wallet_gold",
+	"category": "lightmanscurrency:basics",
+	"pages":[
+		"Wallets are one of the most important items in Lightman's Currency, and are highly recommended that you craft one as early as possible.$(br2)Wallets are used to store any coins, and will automatically interface with any trading machine and easily extract and insert coins whenever you attempt to make or collect a payment.",
+		"This allows for a hand-free way of storing money and making monetary interactions without losing any inventory slots to coins.$(br2)By default, higher quality wallets have better abilities than those below and also have a larger inventory space.$(br2)I should also note that Wallets are a core part of the mod, and some methods of making purchases $(l)require$() that you have a wallet equipped to make a payment.",
+		{
+			"type":"patchouli:crafting",
+			"recipe":"lightmanscurrency:wallet/wallet_leather",
+			"text":"$(br) * Default Size: $(lightmanscurrency_wallet_slots:wallet_leather) slots$(br)$(l:basics/wallets#coin_exchange)$(lightmanscurrency_wallet_exchange:lightmanscurrency-wallet_leather; * Coin Exchange)$()$(br)$(l:basics/wallets#coin_pickup)$(lightmanscurrency_wallet_pickup:lightmanscurrency-wallet_leather; * Coin Pickup)$()$(br)$(l:basics/wallets#bank_access)$(lightmanscurrency_wallet_bank:lightmanscurrency-wallet_leather; * Limited Bank Access)$()$(br2)Can by dyed any color just like vanilla leather armor."
+		},
+		{
+			"type":"patchouli:crafting",
+			"recipe":"lightmanscurrency:wallet/wallet_copper",
+			"text":"$(br) * Default Size: $(lightmanscurrency_wallet_slots:wallet_copper) slots$(br)$(l:basics/wallets#coin_exchange)$(lightmanscurrency_wallet_exchange:lightmanscurrency-wallet_copper; * Coin Exchange)$()$(br)$(l:basics/wallets#coin_pickup)$(lightmanscurrency_wallet_pickup:lightmanscurrency-wallet_copper; * Coin Pickup)$()$(br)$(l:basics/wallets#bank_access)$(lightmanscurrency_wallet_bank:lightmanscurrency-wallet_copper; * Limited Bank Access)$()"
+		},
+		{
+			"type":"patchouli:crafting",
+			"recipe":"lightmanscurrency:wallet/wallet_iron",
+			"text":"$(br) * Default Size: $(lightmanscurrency_wallet_slots:wallet_iron) slots$(br)$(l:basics/wallets#coin_exchange)$(lightmanscurrency_wallet_exchange:lightmanscurrency-wallet_iron; * Coin Exchange)$()$(br)$(l:basics/wallets#coin_pickup)$(lightmanscurrency_wallet_pickup:lightmanscurrency-wallet_iron; * Coin Pickup)$()$(br)$(l:basics/wallets#bank_access)$(lightmanscurrency_wallet_bank:lightmanscurrency-wallet_iron; * Limited Bank Access)$()"
+		},
+		{
+			"type":"patchouli:crafting",
+			"recipe":"lightmanscurrency:wallet/wallet_gold",
+			"text":"$(br) * Default Size: $(lightmanscurrency_wallet_slots:wallet_gold) slots$(br)$(l:basics/wallets#coin_exchange)$(lightmanscurrency_wallet_exchange:lightmanscurrency-wallet_gold; * Coin Exchange)$()$(br)$(l:basics/wallets#coin_pickup)$(lightmanscurrency_wallet_pickup:lightmanscurrency-wallet_gold; * Coin Pickup)$()$(br)$(l:basics/wallets#bank_access)$(lightmanscurrency_wallet_bank:lightmanscurrency-wallet_gold; * Limited Bank Access)$()"
+		},
+		{
+			"type":"patchouli:crafting",
+			"recipe":"lightmanscurrency:wallet/wallet_emerald",
+			"text":"$(br) * Default Size: $(lightmanscurrency_wallet_slots:wallet_emerald) slots$(br)$(l:basics/wallets#coin_exchange)$(lightmanscurrency_wallet_exchange:lightmanscurrency-wallet_emerald; * Coin Exchange)$()$(br)$(l:basics/wallets#coin_pickup)$(lightmanscurrency_wallet_pickup:lightmanscurrency-wallet_emerald; * Coin Pickup)$()$(br)$(l:basics/wallets#bank_access)$(lightmanscurrency_wallet_bank:lightmanscurrency-wallet_emerald; * Limited Bank Access)$()"
+		},
+		{
+			"type":"patchouli:crafting",
+			"recipe":"lightmanscurrency:wallet/wallet_diamond",
+			"text":"$(br) * Default Size: $(lightmanscurrency_wallet_slots:wallet_diamond) slots$(br)$(l:basics/wallets#coin_exchange)$(lightmanscurrency_wallet_exchange:lightmanscurrency-wallet_diamond; * Coin Exchange)$()$(br)$(l:basics/wallets#coin_pickup)$(lightmanscurrency_wallet_pickup:lightmanscurrency-wallet_diamond; * Coin Pickup)$()$(br)$(l:basics/wallets#bank_access)$(lightmanscurrency_wallet_bank:lightmanscurrency-wallet_diamond; * Limited Bank Access)$()"
+		},
+		{
+			"type":"patchouli:crafting",
+			"recipe":"lightmanscurrency:wallet/wallet_netherite",
+			"text":"$(br) * Default Size: $(lightmanscurrency_wallet_slots:wallet_netherite) slots$(br)$(l:basics/wallets#coin_exchange)$(lightmanscurrency_wallet_exchange:lightmanscurrency-wallet_netherite; * Coin Exchange)$()$(br)$(l:basics/wallets#coin_pickup)$(lightmanscurrency_wallet_pickup:lightmanscurrency-wallet_netherite; * Coin Pickup)$()$(br)$(l:basics/wallets#bank_access)$(lightmanscurrency_wallet_bank:lightmanscurrency-wallet_netherite; * Limited Bank Access)$()$(br3)Immune to fire damage"
+		},
+		{
+			"type":"patchouli:crafting",
+			"recipe":"lightmanscurrency:wallet/wallet_nether_star",
+			"text":"$(br) * Default Size: $(lightmanscurrency_wallet_slots:wallet_nether_star) slots$(br)$(l:basics/wallets#coin_exchange)$(lightmanscurrency_wallet_exchange:lightmanscurrency-wallet_nether_star; * Coin Exchange)$()$(br)$(l:basics/wallets#coin_pickup)$(lightmanscurrency_wallet_pickup:lightmanscurrency-wallet_nether_star; * Coin Pickup)$()$(br)$(l:basics/wallets#bank_access)$(lightmanscurrency_wallet_bank:lightmanscurrency-wallet_nether_star; * Limited Bank Access)$()$(br) * $(lightmanscurrency_wallet_magnet:wallet_nether_star) Bonus $(item)Coin Magnet$() levels$(br2)Completely invulnerable"
+		},
+		{
+			"type":"patchouli:spotlight",
+			"item":"lightmanscurrency:wallet_ender_dragon",
+			"link_recipe":true,
+			"text":"10% chance of spawning in an End City chest.$(br)Cannot be crafted.$(br2) * Default Size: $(lightmanscurrency_wallet_slots:wallet_ender_dragon) slots$(br)$(l:basics/wallets#coin_exchange)$(lightmanscurrency_wallet_exchange:lightmanscurrency-wallet_ender_dragon; * Coin Exchange)$()$(br)$(l:basics/wallets#coin_pickup)$(lightmanscurrency_wallet_pickup:lightmanscurrency-wallet_ender_dragon; * Coin Pickup)$()$(br)$(l:basics/wallets#bank_access)$(lightmanscurrency_wallet_bank:lightmanscurrency-wallet_ender_dragon; * Limited Bank Access)$()$(br) * $(lightmanscurrency_wallet_magnet:wallet_ender_dragon) Bonus $(item)Coin Magnet$() levels$(br)Can be upgraded 2 additional times$(br)    Immune to fire damage"
+		},
+		"In addition to the base crafting recipe, most wallets can also be upgraded from their lower quality counterparts using the extra materials.$(br2)They can also be upgraded a limited number of times by using a $(item)Diamond$() on the wallet within any menu that isn't related to wallets.",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"flag":"!mod:curios",
+			"image":"lightmanscurrency:textures/gui/trader_guide/basics/wallets/wallet_slot_normal.png",
+			"text":"While the wallet $(o)can$() be opened by using the wallet item, most of the wallet abilities (auto-collection, and payment utilization) only function when equipped in the Wallet Slot as shown above."
+		},
+		{
+			"type":"lightmanscurrency:wide_image",
+			"flag":"mod:curios",
+			"image":"lightmanscurrency:textures/gui/trader_guide/basics/wallets/wallet_slot_curios.png",
+			"text":"While the wallet $(o)can$() be opened by using the wallet item, most of the wallet abilities (auto-collection, and payment utilization) only function when equipped in the curios Wallet Slot as shown above."
+		},
+		{
+			"type":"patchouli:text",
+			"anchor":"coin_exchange",
+			"title":"Coin Exchange",
+			"text":"Wallets with the $(l)Coin Exchange$() ability gain a new button in the wallet menu that allows you to manually exchange all coins currently within your wallet to their highest value coin (and thus lowest item count).$(br2)This ability is essential when it comes to using the physical space in your wallet efficiently."
+		},
+		{
+			"type":"patchouli:text",
+			"anchor":"coin_pickup",
+			"title":"Coin Pickup",
+			"text":"Wallets with the $(l)Coin Pickup$() ability will now automatically redirect coin items directly to your wallet whenever you pick them up from the ground. Wallets with this ability are also now able to be enchanted with the Coin Magnet enchantment.$(br)Since this ability unlocks after the Exchange ability, collected coins will also be automatically exchanged to the highest value coin to conserve wallet space."
+		},
+		{
+			"type":"patchouli:text",
+			"anchor":"bank_access",
+			"title":"Bank Access",
+			"text":"Wallets with Bank Access gain the ability to directly deposit or withdraw money from their Bank Accounts from within the Wallet Menu.$(br2)Users with these wallets gain access to a second menu by pressing on a button in the top-left of their normal wallet menu, which has simpler versions of the ATM's bank account selection and interaction tabs."
+		}
+	]
+	
+}

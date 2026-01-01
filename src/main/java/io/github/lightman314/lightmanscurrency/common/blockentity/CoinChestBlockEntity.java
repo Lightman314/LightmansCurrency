@@ -6,9 +6,12 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.IClientTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabilities;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
@@ -82,6 +85,8 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
     private final UpgradeContainer upgrades;
     @Nonnull
     public final UpgradeContainer getUpgrades() { return this.upgrades; }
+
+    private final IMoneyViewer moneyViewer = MoneyAPI.getApi().GetContainersMoneyHandler(this.storage,s -> {},this);
 
     private List<CoinChestUpgradeData> unfilteredUpgradeDataCache = new ArrayList<>();
     private List<CoinChestUpgradeData> upgradeDataCache = new ArrayList<>();
@@ -310,6 +315,8 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
     public @Nonnull <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
         if(cap == ForgeCapabilities.ITEM_HANDLER)
             return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, LazyOptional.of(() -> this.handler));
+        if(cap == CurrencyCapabilities.MONEY_VIEWER)
+            return CurrencyCapabilities.MONEY_VIEWER.orEmpty(cap,LazyOptional.of(() -> this.moneyViewer));
         return super.getCapability(cap, side);
     }
 

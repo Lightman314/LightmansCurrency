@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDat
 import io.github.lightman314.lightmanscurrency.common.traders.item.ticket.TicketItemTrade;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheral;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.AccessTrackingPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.InputTraderPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.item.ticket.TicketItemTradeWrapper;
@@ -27,7 +27,14 @@ public class ItemTraderPeripheral extends InputTraderPeripheral<ItemTraderBlockE
 
     public int getStorageStackLimit() throws LuaException { return this.getTrader().getStorageStackLimit(); }
 
-    public Object getStorage(IComputerAccess computer) { return wrapInventory(computer,() -> this.hasPermissions(computer,Permissions.OPEN_STORAGE),this::safeGetStorage); }
+    public Object getStorage(IComputerAccess computer) { return wrapInventory(computer,() -> this.hasPermissions(computer,Permissions.OPEN_STORAGE),this::safeGetStorage,this::markStorageChanged,this); }
+
+    private void markStorageChanged()
+    {
+        ItemTraderData trader = this.safeGetTrader();
+        if(trader != null)
+            trader.markStorageDirty();
+    }
 
     private IItemHandler safeGetStorage()
     {
@@ -49,11 +56,15 @@ public class ItemTraderPeripheral extends InputTraderPeripheral<ItemTraderBlockE
 
     @Nullable
     @Override
-    protected LCPeripheral wrapTrade(TradeData trade) throws LuaException {
+    protected AccessTrackingPeripheral wrapTrade(TradeData trade) throws LuaException {
         int index = this.getTrader().indexOfTrade(trade);
+        ItemTradeWrapper<?> wrapper;
         if(trade instanceof TicketItemTrade)
-            return new TicketItemTradeWrapper(this.tradeSource(index),this::safeGetTrader);
-        return new ItemTradeWrapper<>(this.tradeSource(index),this::safeGetTrader);
+            wrapper = new TicketItemTradeWrapper(this.tradeSource(index),this::safeGetTrader);
+        else
+            wrapper = new ItemTradeWrapper<>(this.tradeSource(index),this::safeGetTrader);
+        wrapper.setParent(this);
+        return wrapper;
     }
 
     @Override

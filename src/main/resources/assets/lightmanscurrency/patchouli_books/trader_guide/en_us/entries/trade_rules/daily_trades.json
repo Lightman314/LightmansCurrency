@@ -1,0 +1,20 @@
+{
+	"name": "Daily Trade Progression",
+	"icon": "lightmanscurrency:textures/gui/trader_guide/trade_rules/daily_trades/icon.png",
+	"category": "lightmanscurrency:trade_rules",
+	"pages":[
+		"The \"Daily Trade Progression\" rule is a trade rule that can only be applied to all trades.$(br2)When enabled customers will only be able to interact with each trade in order, and cannot interact with the next trade in the list until the defined time has passed.",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/daily_trades/input.png",
+			"text":"The rule has a Time Input that allows you to define the wait time required in-between sequential trades. True to the rules name the default value is 1 day, however this can be customized to as little as 1 minute or as long as 30 days."
+		},
+		"You can also manually reset the rules memory to force all players to restart back from the first trade.$(br2)A few words of caution, this rule functions based on the trades index so if you have an undefined trade inbetween two fully defined trades, customers will not be able to properly progress past the missing trade.",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/daily_trades/example_trades.png",
+			"text":"Above you can see an example setup with 4 trades with this rule applied. All trades except for the first trade are locked until they interact with it, and alerts will be given as appropriate informing the customer how long it is until they're able to interact with the next trade."
+		}
+	]
+	
+}

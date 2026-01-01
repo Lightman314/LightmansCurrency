@@ -11,9 +11,6 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.ICopySupportingRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientSubTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.PlayerListingTab;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.IRuleLoadListener;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
@@ -27,8 +24,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -170,11 +165,6 @@ public class PlayerListing extends TradeRule implements ICopySupportingRule {
             this.whitelistMode = updateInfo.getBoolean("ChangeMode");
         }
     }
-
-    
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public TradeRulesClientSubTab createTab(TradeRulesClientTab<?> parent) { return new PlayerListingTab(parent,TYPE); }
 
     private static final class DataListener implements IRuleLoadListener
     {

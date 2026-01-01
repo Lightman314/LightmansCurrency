@@ -35,6 +35,17 @@ public abstract class AccessTrackingPeripheral extends LCPeripheral {
             this.onFirstAttachment();
     }
 
+    @Override
+    protected boolean hasComputer(IComputerAccess computer) {
+        boolean result = super.hasComputer(computer);
+        if(!result)
+        {
+            if(this.parent != null)
+                return this.parent.hasComputer(computer);
+        }
+        return result;
+    }
+
     protected boolean childStillValid(IPeripheral child) { return true; }
 
     protected final boolean stillValid() {

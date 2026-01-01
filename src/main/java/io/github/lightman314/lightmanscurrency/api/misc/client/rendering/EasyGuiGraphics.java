@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSou
 import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
-import io.github.lightman314.lightmanscurrency.client.util.OutlineUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
@@ -30,6 +29,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -80,8 +80,8 @@ public final class EasyGuiGraphics {
     //Color Rendering
     public void setColor(float r, float g, float b) { this.setColor(r,g,b,1f); }
     public void setColor(float r, float g, float b, float a) { this.gui.setColor(r,g,b,a); }
-    public void setColor(int color) { this.setColor(OutlineUtil.decodeColor(color)); }
-    public void setColor(int color, float alpha) { this.setColor(OutlineUtil.decodeColor(color,alpha)); }
+    public void setColor(int color) { this.setColor(FastColor.ARGB32.red(color)/256f,FastColor.ARGB32.green(color)/256f,FastColor.ARGB32.blue(color)/256f,FastColor.ARGB32.alpha(color)/256f); }
+    public void setColor(int color, float alpha) { this.setColor(FastColor.ARGB32.red(color)/256f,FastColor.ARGB32.green(color)/256f,FastColor.ARGB32.blue(color)/256f,alpha); }
     public void setColor(Vector4f color) { this.gui.setColor(color.x,color.y,color.z,color.w); }
     public void resetColor() { this.setColor(1f,1f,1f,1f); }
 

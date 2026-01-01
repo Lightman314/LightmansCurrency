@@ -26,6 +26,7 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 public class WalletHandler extends MoneyHandler implements IWalletHandler
 {
@@ -50,21 +51,25 @@ public class WalletHandler extends MoneyHandler implements IWalletHandler
         this.wasVisible = true;
     }
 
-    private void handleOverflow(@Nonnull ItemStack overflow)
+    private Consumer<ItemStack> overflowHandler(boolean simulation)
     {
-        if(this.entity instanceof Player player)
-            ItemHandlerHelper.giveItemToPlayer(player, overflow);
-        else
-        {
-            LazyOptional<IItemHandler> optional = this.entity.getCapability(ForgeCapabilities.ITEM_HANDLER);
-            AtomicReference<ItemStack> reference = new AtomicReference<>(overflow);
-            optional.ifPresent((handler) ->{
-                for(int i = 0; i < handler.getSlots() && !reference.get().isEmpty(); ++i)
-                    reference.set(handler.insertItem(i,reference.get(), false));
-            });
-            if(!reference.get().isEmpty())
-                InventoryUtil.dumpContents(this.entity.level(), this.entity.blockPosition(), reference.get());
-        }
+        if(simulation)
+            return i -> {};
+        return overflow -> {
+            if(this.entity instanceof Player player)
+                ItemHandlerHelper.giveItemToPlayer(player, overflow);
+            else if(this.entity != null)
+            {
+                LazyOptional<IItemHandler> optional = this.entity.getCapability(ForgeCapabilities.ITEM_HANDLER);
+                AtomicReference<ItemStack> reference = new AtomicReference<>(overflow);
+                optional.ifPresent((handler) ->{
+                    for(int i = 0; i < handler.getSlots() && !reference.get().isEmpty(); ++i)
+                        reference.set(handler.insertItem(i,reference.get(), false));
+                });
+                if(!reference.get().isEmpty())
+                    InventoryUtil.dumpContents(this.entity.level(), this.entity.blockPosition(), reference.get());
+            }
+        };
     }
 
     @Nullable
@@ -168,21 +173,19 @@ public class WalletHandler extends MoneyHandler implements IWalletHandler
         if(container != null)
         {
             Container cache = InventoryUtil.copyInventory(container);
-            IMoneyHandler handler = CoinCurrencyType.INSTANCE.createMoneyHandlerForContainer(container,this::handleOverflow,this);
+            IMoneyHandler handler = CoinCurrencyType.INSTANCE.createMoneyHandlerForContainer(container,this.overflowHandler(simulation),this);
             MoneyValue result = handler.insertMoney(insertAmount, simulation);
             //If changed, update wallet menus
-            if(!InventoryUtil.ContainerMatches(container,cache))
+            if(!InventoryUtil.ContainerMatches(container,cache) && !simulation)
                 this.updateWalletContents(container);
             return result;
         }
         else if(insertAmount instanceof CoinValue coinValue)
         {
             //Manually give to the player/entity
-            if(!simulation)
-            {
-                for(ItemStack stack : coinValue.getAsSeperatedItemList())
-                    this.handleOverflow(stack);
-            }
+            Consumer<ItemStack> handler = this.overflowHandler(simulation);
+            for(ItemStack stack : coinValue.getAsSeperatedItemList())
+                handler.accept(stack);
             return MoneyValue.empty();
         }
         return insertAmount;
@@ -195,9 +198,9 @@ public class WalletHandler extends MoneyHandler implements IWalletHandler
         if (container != null)
         {
             Container cache = InventoryUtil.copyInventory(container);
-            IMoneyHandler handler = CoinCurrencyType.INSTANCE.createMoneyHandlerForContainer(container, this::handleOverflow, this);
+            IMoneyHandler handler = CoinCurrencyType.INSTANCE.createMoneyHandlerForContainer(container, this.overflowHandler(simulation), this);
             MoneyValue result = handler.extractMoney(extractAmount,simulation);
-            if(!InventoryUtil.ContainerMatches(container,cache))
+            if(!InventoryUtil.ContainerMatches(container,cache) && !simulation)
                 this.updateWalletContents(container);
             return result;
         }

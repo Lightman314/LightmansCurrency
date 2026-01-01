@@ -25,7 +25,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.gacha.
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.gacha.GachaStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.GachaTradeNotification;
-import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.input.InputTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.tradedata.GachaTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
@@ -173,12 +173,6 @@ public class GachaTrader extends InputTraderData {
         if(compound.contains("Color"))
             this.color = compound.getInt("Color");
     }
-
-    @Override
-    public IconData inputSettingsTabIcon() { return ItemIcon.ofItem(Items.HOPPER); }
-
-    @Override
-    public MutableComponent inputSettingsTabTooltip() { return LCText.TOOLTIP_TRADER_SETTINGS_INPUT_ITEM.get(); }
 
     @Override
     protected void loadAdditionalFromJson(JsonObject json) throws JsonSyntaxException, ResourceLocationException {

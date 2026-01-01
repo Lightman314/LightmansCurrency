@@ -1,0 +1,29 @@
+{
+  "type": "forge:conditional",
+  "recipes": [
+    {
+      "conditions": [
+        {
+          "type": "forge:mod_loaded",
+          "modid": "patchouli"
+        }
+      ],
+      "recipe": {
+        "type": "patchouli:shapeless_book_recipe",
+        "book": "lightmanscurrency:trader_guide",
+        "category": "misc",
+        "ingredients": [
+          {
+            "item": "minecraft:book"
+          },
+          {
+            "item": "lightmanscurrency:upgrade_smithing_template"
+          }
+        ],
+        "result": {
+          "item": "patchouli:guide_book"
+        }
+      }
+    }
+  ]
+}

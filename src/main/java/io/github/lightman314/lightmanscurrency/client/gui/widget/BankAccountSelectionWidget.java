@@ -42,6 +42,8 @@ public class BankAccountSelectionWidget extends EasyWidgetWithChildren implement
     private String lastSearch = "";
     private int scroll = 0;
 
+    private List<BankReference> bankAccountCache = new ArrayList<>();
+
     private BankAccountSelectionWidget(Builder builder)
     {
         super(builder);
@@ -95,13 +97,6 @@ public class BankAccountSelectionWidget extends EasyWidgetWithChildren implement
         }
     }
 
-    private List<BankReference> getBankAccounts()
-    {
-        List<BankReference> list = new ArrayList<>(BankAPI.getApi().GetAllBankReferences(true).stream().filter(this.filter).filter(this::searchFilter).toList());
-        list.sort(this);
-        return list;
-    }
-
     private boolean searchFilter(BankReference reference)
     {
         if(this.lastSearch.isBlank())
@@ -115,10 +110,9 @@ public class BankAccountSelectionWidget extends EasyWidgetWithChildren implement
     @Nullable
     private BankReference getAccount(int index)
     {
-        List<BankReference> accounts = this.getBankAccounts();
         int i = index + this.scroll;
-        if(i >= 0 && i < accounts.size())
-            return accounts.get(i);
+        if(i >= 0 && i < this.bankAccountCache.size())
+            return this.bankAccountCache.get(i);
         return null;
     }
 
@@ -142,6 +136,18 @@ public class BankAccountSelectionWidget extends EasyWidgetWithChildren implement
         this.searchBox.visible = this.visible;
         if(this.visible)
             this.validateScroll();
+        this.updateBankAccountCache();
+    }
+
+    private void updateBankAccountCache()
+    {
+        if(!this.visible)
+        {
+            this.bankAccountCache = new ArrayList<>();
+            return;
+        }
+        this.bankAccountCache = new ArrayList<>(BankAPI.getApi().GetAllBankReferences(true).stream().filter(this.filter).filter(this::searchFilter).toList());
+        this.bankAccountCache.sort(this);
     }
 
     @Override
@@ -151,7 +157,7 @@ public class BankAccountSelectionWidget extends EasyWidgetWithChildren implement
     public void setScroll(int newScroll) { this.scroll = newScroll; }
 
     @Override
-    public int getMaxScroll() { return IScrollable.calculateMaxScroll(this.rows,this.getBankAccounts().size()); }
+    public int getMaxScroll() { return IScrollable.calculateMaxScroll(this.rows,this.bankAccountCache.size()); }
 
     //Filter so that the currently selected bank account is at the top of the list
     @Override

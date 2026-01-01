@@ -7,7 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheral;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.AccessTrackingPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -19,9 +19,9 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AuctionHousePeripheral extends LCPeripheral {
+public class AuctionHousePeripheral extends AccessTrackingPeripheral {
 
-    public static LCPeripheral INSTANCE = new AuctionHousePeripheral();
+    public static AccessTrackingPeripheral INSTANCE = new AuctionHousePeripheral();
     public static LazyOptional<IPeripheral> LAZY = LazyOptional.of(() -> INSTANCE);
 
     private AuctionHousePeripheral() {}

@@ -3,18 +3,11 @@ package io.github.lightman314.lightmanscurrency.api.traders.attachments.builtin;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.attachments.TraderAttachment;
-import io.github.lightman314.lightmanscurrency.api.traders.permissions.BooleanPermission;
-import io.github.lightman314.lightmanscurrency.api.traders.permissions.PermissionOption;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.SettingsSubTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.TraderSettingsClientTab;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.settings.attachment.ExternalAuthorizationTab;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -22,7 +15,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
@@ -73,18 +65,6 @@ public class ExternalAuthorizationAttachment extends TraderAttachment {
     @Override
     public void modifyDefaultPermissions(Map<String, Integer> defaultPermissions) {
         defaultPermissions.put(EDIT_AUTHORIZATION_PERMISSION,0);
-    }
-
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public void addPermissionOptions(Consumer<PermissionOption> consumer) {
-        consumer.accept(BooleanPermission.of(EDIT_AUTHORIZATION_PERMISSION));
-    }
-
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public void addSettingsTabs(TraderSettingsClientTab tab, Consumer<SettingsSubTab> consumer) {
-        consumer.accept(new ExternalAuthorizationTab(tab));
     }
 
     @Override

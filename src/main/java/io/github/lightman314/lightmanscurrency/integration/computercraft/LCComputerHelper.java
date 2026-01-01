@@ -1,6 +1,9 @@
 package io.github.lightman314.lightmanscurrency.integration.computercraft;
 
+import dan200.computercraft.api.ComputerCraftAPI;
 import dan200.computercraft.api.ForgeComputerCraftAPI;
+import dan200.computercraft.api.detail.VanillaDetailRegistries;
+import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.IPeripheralProvider;
 import io.github.lightman314.lightmanscurrency.LCConfig;
@@ -17,11 +20,15 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.trader.Paygate
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.SlotMachineTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.TerminalBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.input.InputTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.apis.LuaMoneyAPI;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.data.BasicItemParser;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.data.builtin.AncientCoinParser;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.detail_providers.AncientCoinDetailProviders;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.CashRegisterPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.TerminalPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.atm.ATMPeripheral;
@@ -35,6 +42,7 @@ import io.github.lightman314.lightmanscurrency.integration.computercraft.periphe
 import io.github.lightman314.lightmanscurrency.integration.computercraft.pocket_upgrades.LCPocketUpgrades;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -45,14 +53,22 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LCComputerHelper {
 
-    public static List<TraderPeripheralSource> peripheralSources = new ArrayList<>();
+    private static final List<BasicItemParser> itemParsers = new ArrayList<>();
+    private static final List<TraderPeripheralSource> peripheralSources = new ArrayList<>();
 
     public static void setup(IEventBus modBus)
     {
         LCPocketUpgrades.init(modBus);
+        //Register globals
+        ComputerCraftAPI.registerAPIFactory(LuaMoneyAPI.FACTORY);
+        //Register detail providers
+        VanillaDetailRegistries.ITEM_STACK.addProvider(AncientCoinDetailProviders.INSTANCE);
+        //Register Item Parsers
+        registerItemParser(AncientCoinParser.INSTANCE);
         //Register Event Listener
         modBus.addListener(LCComputerHelper::registerPeripheralProviders);
         MinecraftForge.EVENT_BUS.addListener(LCComputerHelper::addTraderAttachments);
@@ -107,10 +123,10 @@ public class LCComputerHelper {
             peripheralSources.add(source);
     }
 
-    public static LCPeripheral getPeripheral(TraderBlockEntity<?> be) {
+    public static AccessTrackingPeripheral getPeripheral(TraderBlockEntity<?> be) {
         for(TraderPeripheralSource source : peripheralSources)
         {
-            LCPeripheral result = source.tryCreate(be);
+            AccessTrackingPeripheral result = source.tryCreate(be);
             if(result != null)
                 return result;
         }
@@ -119,10 +135,10 @@ public class LCComputerHelper {
         return TraderPeripheral.createSimple((TraderBlockEntity<TraderData>)be);
     }
 
-    public static LCPeripheral getPeripheral(TraderData trader) {
+    public static AccessTrackingPeripheral getPeripheral(TraderData trader) {
         for(TraderPeripheralSource source : peripheralSources)
         {
-            LCPeripheral result = source.tryCreate(trader);
+            AccessTrackingPeripheral result = source.tryCreate(trader);
             if(result != null)
                 return result;
         }
@@ -177,6 +193,14 @@ public class LCComputerHelper {
             return LazyOptional.empty();
         }
 
+    }
+
+    public static void registerItemParser(BasicItemParser parser) { itemParsers.add(parser); }
+
+    public static void modifyItemParsing(ItemStack input,Map<?,?> table) throws LuaException
+    {
+        for (BasicItemParser p : itemParsers)
+            p.modifyResult(input,table);
     }
 
 }

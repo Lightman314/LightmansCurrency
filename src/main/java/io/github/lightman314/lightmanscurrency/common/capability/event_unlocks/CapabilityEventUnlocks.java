@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.capability.event_unlocks;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabilities;
-import io.github.lightman314.lightmanscurrency.network.message.event.SPacketSyncEventUnlocks;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;

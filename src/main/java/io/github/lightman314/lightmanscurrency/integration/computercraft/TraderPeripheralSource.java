@@ -9,25 +9,25 @@ import java.util.function.Function;
 public interface TraderPeripheralSource {
 
     @Nullable
-    LCPeripheral tryCreate(TraderBlockEntity<?> be);
+    AccessTrackingPeripheral tryCreate(TraderBlockEntity<?> be);
     @Nullable
-    LCPeripheral tryCreate(TraderData trader);
+    AccessTrackingPeripheral tryCreate(TraderData trader);
 
-    static TraderPeripheralSource simple(Function<TraderBlockEntity<?>,LCPeripheral> blockSource,Function<TraderData,LCPeripheral> dataSource) { return new Simple(blockSource,dataSource); }
-    static TraderPeripheralSource blockOnly(Function<TraderBlockEntity<?>,LCPeripheral> blockSource) { return new Simple(blockSource,d -> null); }
-    static TraderPeripheralSource dataOnly(Function<TraderData,LCPeripheral> dataSource) { return new Simple(b -> null,dataSource); }
+    static TraderPeripheralSource simple(Function<TraderBlockEntity<?>,AccessTrackingPeripheral> blockSource,Function<TraderData,AccessTrackingPeripheral> dataSource) { return new Simple(blockSource,dataSource); }
+    static TraderPeripheralSource blockOnly(Function<TraderBlockEntity<?>,AccessTrackingPeripheral> blockSource) { return new Simple(blockSource,d -> null); }
+    static TraderPeripheralSource dataOnly(Function<TraderData,AccessTrackingPeripheral> dataSource) { return new Simple(b -> null,dataSource); }
 
     class Simple implements TraderPeripheralSource
     {
-        private final Function<TraderBlockEntity<?>,LCPeripheral> blockSource;
-        private final Function<TraderData,LCPeripheral> traderSource;
-        private Simple(Function<TraderBlockEntity<?>,LCPeripheral> blockSource,Function<TraderData,LCPeripheral> traderSource) { this.blockSource = blockSource; this.traderSource = traderSource; }
+        private final Function<TraderBlockEntity<?>,AccessTrackingPeripheral> blockSource;
+        private final Function<TraderData,AccessTrackingPeripheral> traderSource;
+        private Simple(Function<TraderBlockEntity<?>,AccessTrackingPeripheral> blockSource,Function<TraderData,AccessTrackingPeripheral> traderSource) { this.blockSource = blockSource; this.traderSource = traderSource; }
         @Nullable
         @Override
-        public LCPeripheral tryCreate(TraderBlockEntity<?> be) { return this.blockSource.apply(be); }
+        public AccessTrackingPeripheral tryCreate(TraderBlockEntity<?> be) { return this.blockSource.apply(be); }
         @Nullable
         @Override
-        public LCPeripheral tryCreate(TraderData trader) { return this.traderSource.apply(trader); }
+        public AccessTrackingPeripheral tryCreate(TraderData trader) { return this.traderSource.apply(trader); }
     }
 
 }

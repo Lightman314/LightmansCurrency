@@ -12,11 +12,12 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonH
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.common.traders.InputTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.input.InputTraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.input.client.ClientInputTraderHooks;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
 import javax.annotation.Nonnull;
@@ -40,22 +41,22 @@ public class InputTab extends SettingsSubTab {
     public IconData getIcon() {
         InputTraderData trader = this.getInputTrader();
         if(trader != null)
-            return trader.inputSettingsTabIcon();
+            return ClientInputTraderHooks.getSettingsTabIcon(trader);
         return ItemIcon.ofItem(Items.HOPPER);
     }
 
     @Override
-    public MutableComponent getTooltip() {
+    public Component getTooltip() {
         InputTraderData trader = this.getInputTrader();
         if(trader != null)
-            return trader.inputSettingsTabTooltip();
+            return ClientInputTraderHooks.getSettingsTabTooltip(trader);
         return LCText.TOOLTIP_TRADER_SETTINGS_INPUT_GENERIC.get();
     }
 
     public List<? extends InputTabAddon> getAddons() {
         InputTraderData trader = this.getInputTrader();
         if(trader != null)
-            return trader.inputSettingsAddons();
+            return ClientInputTraderHooks.getSettingsTabAddons(trader);
         return ImmutableList.of();
     }
 

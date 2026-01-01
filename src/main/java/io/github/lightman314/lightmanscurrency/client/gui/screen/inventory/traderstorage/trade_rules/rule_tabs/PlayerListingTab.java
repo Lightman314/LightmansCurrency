@@ -20,7 +20,7 @@ import java.util.List;
 
 public class PlayerListingTab extends TradeRuleSubTab<PlayerListing> {
 
-    public PlayerListingTab(@Nonnull TradeRulesClientTab<?> parent, @Nonnull TradeRuleType<PlayerListing> ruleType) { super(parent, ruleType); }
+    public PlayerListingTab(@Nonnull TradeRulesClientTab<?> parent) { super(parent,PlayerListing.TYPE); }
 
     EasyButton buttonToggleMode;
 

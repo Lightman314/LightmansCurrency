@@ -38,9 +38,7 @@ public abstract class CurrencyType {
 
     private final ResourceLocation type;
 
-    public final ResourceLocation getType() {
-        return this.type;
-    }
+    public final ResourceLocation getType() { return this.type; }
 
     /**
      * A quick method to sum a list of money values for {@link MoneyView} purposes
@@ -83,6 +81,14 @@ public abstract class CurrencyType {
      */
     @Nullable
     public abstract IPlayerMoneyHandler createMoneyHandlerForPlayer(Player player);
+
+    /**
+     * Method used by {@link io.github.lightman314.lightmanscurrency.api.money.MoneyAPI#GetPlayerMoneyHandlerUnsafe(Player) MoneyAPI#GetPlayerMoneyHandlerUnsafe(Player)} to create a universal {@link io.github.lightman314.lightmanscurrency.common.impl.PlayerMoneyHolder PlayerMonetHolder} for said player.<br>
+     * The {@link IPlayerMoneyHandler} returned should not utilize the players inventory as an item overflow if the money-related items did not fit in their wallet, etc.<br>
+     * Method is {@link Nullable} and should return null if it is not possible for the player to <b>ever</b> handle money of this type.
+     */
+    @Nullable
+    public IPlayerMoneyHandler createUnsafeMoneyHandlerForPlayer(Player player) { return this.createMoneyHandlerForPlayer(player); }
 
     /**
      * Method used by {@link io.github.lightman314.lightmanscurrency.api.money.MoneyAPI#GetContainersMoneyHandler(Container, Consumer, IClientTracker) MoneyAPI#GetContainersMoneyHandler(Container, Consumer)} to create a combined {@link IMoneyHandler} for said container using the provided {@link Consumer itemOverflowHandler} to handle any items that won't fit in the container<br>
@@ -131,6 +137,7 @@ public abstract class CurrencyType {
      * Returns a list as it's possible for a single currency type to contain several variants (such as different coin chains, etc.)
      */
     @OnlyIn(Dist.CLIENT)
-    public abstract List<Object> getInputHandlers(@Nullable Player player);
+    @Deprecated(since = "2.3.0.4")
+    public List<Object> getInputHandlers(@Nullable Player player) { return new ArrayList<>(); }
 
 }

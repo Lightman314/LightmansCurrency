@@ -27,7 +27,11 @@ mixin {
 jarJar.enable()
 
 tasks.named("jarJar") {
-    archiveClassifier = "build"
+    archiveClassifier = ""
+}
+
+tasks.named("jar") {
+    archiveClassifier = "incomplete"
 }
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
@@ -155,6 +159,9 @@ dependencies {
     //implementation fg.deobf("mezz.jei:jei-1.19.4-forge-api:13.1.0.2")
     //JEI when not working on plugin, to save compile/runClient time
     implementation fg.deobf("curse.maven:jei-238222:6600311")
+
+    //Patchouli
+    implementation fg.deobf("curse.maven:patchouli-306770:6164575")
 
     //REI
     compileOnly fg.deobf("me.shedaniel:RoughlyEnoughItems-api-forge:$rei_version")

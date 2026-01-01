@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
+import io.github.lightman314.lightmanscurrency.common.capability.CurrencyCapabilities;
 import io.github.lightman314.lightmanscurrency.common.items.CoinJarItem;
+import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedContainer;
 import net.minecraft.world.item.DyeableLeatherItem;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,6 +43,7 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 	public void clearStorage() { this.storage.clear(); }
 	
 	private final ItemViewer viewer = new ItemViewer(this);
+    private final IMoneyViewer moneyViewer = MoneyAPI.getApi().GetContainersMoneyHandler(new SuppliedContainer(() -> InventoryUtil.buildInventory(this.storage)),s -> {},this);
 	
 	public CoinJarBlockEntity(BlockPos pos, BlockState state)
 	{
@@ -188,6 +193,8 @@ public class CoinJarBlockEntity extends EasyBlockEntity
     public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
 		if(cap == ForgeCapabilities.ITEM_HANDLER)
 			return ForgeCapabilities.ITEM_HANDLER.orEmpty(cap, LazyOptional.of(() -> this.viewer));
+        if(cap == CurrencyCapabilities.MONEY_VIEWER)
+            return CurrencyCapabilities.MONEY_VIEWER.orEmpty(cap,LazyOptional.of(() -> this.moneyViewer));
 		return super.getCapability(cap, side);
 	}
 

@@ -2,16 +2,18 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyTab;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.EasyClientTab;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
+import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
 import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public abstract class TraderClientTab extends EasyTab {
+public abstract class TraderClientTab extends EasyClientTab.Unenforced<TraderMenu, TraderScreen,TraderClientTab> {
 	
 	protected final ITraderScreen screen;
 	protected final ITraderMenu menu;
@@ -26,7 +28,7 @@ public abstract class TraderClientTab extends EasyTab {
 	public final Component getTooltip() { return EasyText.empty(); }
 
 	protected TraderClientTab(@Nonnull ITraderScreen screen) {
-		super(screen);
+		super((TraderScreen)screen);
 		this.screen = screen;
 		this.menu = this.screen.getMenu();
 		this.font = this.screen.getFont();

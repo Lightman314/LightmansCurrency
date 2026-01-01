@@ -14,7 +14,6 @@ public class NormalSprite implements FixedSizeSprite {
     public final SpriteSource image;
     public NormalSprite(SpriteSource image) { this.image = image; }
 
-
     @Override
     public int getWidth() { return this.image.width(); }
     @Override

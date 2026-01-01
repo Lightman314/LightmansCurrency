@@ -39,6 +39,9 @@ public class SalaryTargetTab extends SalarySubTab.EditTab {
 
     private final Map<String, CustomTarget> extraOptions = new HashMap<>();
 
+    private List<BankReference> ignoreList = new ArrayList<>();
+    private List<BankReference> targetCache = new ArrayList<>();
+
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
         IBankAccount account = this.menu.getBankAccount();
@@ -89,14 +92,10 @@ public class SalaryTargetTab extends SalarySubTab.EditTab {
         }
     }
 
-
-
-    private List<BankReference> ignoreList = new ArrayList<>();
-    private List<BankReference> targetCache = new ArrayList<>();
-
+    //Calculate the selected target list AND the blocked target list only once per frame
     @Override
     public void tick() { this.updateTargetCache(); }
-    //Calculate the selected target list AND the blocked target list only once per frame
+
     private void updateTargetCache()
     {
         SalaryData salary = this.parent.getSelectedSalary();

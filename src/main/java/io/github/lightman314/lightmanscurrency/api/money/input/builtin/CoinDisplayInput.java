@@ -9,23 +9,19 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
-
 public class CoinDisplayInput extends SimpleDisplayInput {
 
     private final ChainData chain;
 
-    public CoinDisplayInput(@Nonnull ChainData chain)
+    public CoinDisplayInput(ChainData chain)
     {
         this.chain = chain;
         this.setPrefixAndPostfix();
     }
 
-    @Nonnull
     @Override
     public MutableComponent inputName() { return this.chain.getDisplayName(); }
 
-    @Nonnull
     @Override
     public String getUniqueName() { return MoneyValue.generateCustomUniqueName(CoinCurrencyType.TYPE, this.chain.chain); }
 
@@ -38,13 +34,12 @@ public class CoinDisplayInput extends SimpleDisplayInput {
             this.setPostfix(format.getSecond());
         }
     }
-
-    @Nonnull
+    
     @Override
     protected MoneyValue getValueFromInput(double inputValue) { return this.chain.getDisplayData().parseDisplayInput(inputValue); }
 
     @Override
-    protected double getTextFromDisplay(@Nonnull MoneyValue value) {
+    protected double getTextFromDisplay(MoneyValue value) {
         double valueNumber = 0d;
         if(value instanceof CoinValue coinValue && coinValue.getChain().equals(this.chain.chain))
         {

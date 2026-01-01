@@ -9,7 +9,7 @@ import dan200.computercraft.core.util.ArgumentHelpers;
 import dan200.computercraft.shared.peripheral.generic.GenericPeripheral;
 import dan200.computercraft.shared.platform.ForgeContainerTransfer;
 import dan200.computercraft.shared.util.CapabilityUtil;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheral;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.AccessTrackingPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Direction;
@@ -33,15 +33,16 @@ import java.util.function.Supplier;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class InventoryPeripheral extends LCPeripheral {
+public class InventoryPeripheral extends AccessTrackingPeripheral {
 
     private final Supplier<Boolean> hasAccess;
     private final Supplier<IItemHandler> handler;
-    public InventoryPeripheral(Supplier<Boolean> hasAccess, IItemHandler handler) { this(hasAccess,() -> handler); }
-    public InventoryPeripheral(Supplier<Boolean> hasAccess, Supplier<IItemHandler> handler)
+    private final Runnable setChanged ;
+    public InventoryPeripheral(Supplier<Boolean> hasAccess, Supplier<IItemHandler> handler, Runnable setChanged)
     {
         this.hasAccess = hasAccess;
         this.handler = handler;
+        this.setChanged = setChanged;
     }
 
     private boolean hasHandler() { return this.handler.get() != null; }
@@ -153,7 +154,7 @@ public class InventoryPeripheral extends LCPeripheral {
     }
 
     @Nullable
-    private static IItemHandler extractHandler(IPeripheral peripheral) {
+    public static IItemHandler extractHandler(IPeripheral peripheral) {
         Object object = peripheral.getTarget();
         Direction var10000;
         if (peripheral instanceof GenericPeripheral sided) {
@@ -182,14 +183,17 @@ public class InventoryPeripheral extends LCPeripheral {
         return null;
     }
 
-    private static int moveItem(IItemHandler from, int fromSlot, IItemHandler to, int toSlot, int limit) {
+    private int moveItem(IItemHandler from, int fromSlot, IItemHandler to, int toSlot, int limit) {
         ForgeContainerTransfer fromWrapper = (new ForgeContainerTransfer(from)).singleSlot(fromSlot);
         ForgeContainerTransfer toWrapper = new ForgeContainerTransfer(to);
         if (toSlot >= 0) {
             toWrapper = toWrapper.singleSlot(toSlot);
         }
 
-        return Math.max(0, fromWrapper.moveTo(toWrapper, limit));
+        int result = Math.max(0,fromWrapper.moveTo(toWrapper,limit));
+        if(result > 0)
+            this.setChanged.run();
+        return result;
     }
 
     @Override

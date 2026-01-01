@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.common.menus.tabbed.IEasyTabbedMe
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public abstract class EasyMenuClientTab<X extends T,M extends IEasyTabbedMenu<T>,T extends EasyMenuTab<M,T>,S extends IEasyTabbedMenuScreen<M,T,S>,C extends EasyMenuClientTab<X,M,T,S,C>> extends EasyTab {
@@ -19,7 +18,7 @@ public abstract class EasyMenuClientTab<X extends T,M extends IEasyTabbedMenu<T>
     public final M menu;
     public final X commonTab;
 
-    public EasyMenuClientTab(@Nonnull Object screen, @Nonnull X commonTab) {
+    public EasyMenuClientTab(Object screen, X commonTab) {
         super((S)screen);
         this.screen = (S)screen;
         this.menu = this.screen.getMenuInterface();
@@ -28,11 +27,11 @@ public abstract class EasyMenuClientTab<X extends T,M extends IEasyTabbedMenu<T>
 
     public boolean tabVisible() { return this.commonTab.canOpen(this.screen.getPlayer()); }
 
-    protected void OpenMessage(@Nonnull LazyPacketData clientData) {}
+    protected void OpenMessage(LazyPacketData clientData) {}
 
     @Nullable
-    public Pair<ItemStack,ScreenArea> getHoveredItem(@Nonnull ScreenPosition mousePos) { return null; }
+    public Pair<ItemStack,ScreenArea> getHoveredItem(ScreenPosition mousePos) { return null; }
     @Nullable
-    public Pair<FluidStack,ScreenArea> getHoveredFluid(@Nonnull ScreenPosition mousePos) { return null; }
+    public Pair<FluidStack,ScreenArea> getHoveredFluid(ScreenPosition mousePos) { return null; }
 
 }

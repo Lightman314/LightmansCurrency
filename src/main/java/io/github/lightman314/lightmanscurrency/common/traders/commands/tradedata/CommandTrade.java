@@ -8,18 +8,14 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.IDescriptionTra
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
-import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
 import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.traders.commands.CommandTrader;
-import io.github.lightman314.lightmanscurrency.common.traders.commands.tradedata.client.CommandTradeButtonRenderer;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -100,11 +96,6 @@ public class CommandTrade extends TradeData implements IDescriptionTrade {
 
     @Override
     public List<Component> GetDifferenceWarnings(TradeComparisonResult differences) { return new ArrayList<>(); }
-
-    
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public TradeRenderManager<?> getButtonRenderer() { return new CommandTradeButtonRenderer(this); }
 
     @Override
     public void OnInputDisplayInteraction(BasicTradeEditTab tab, int index, TradeInteractionData data, ItemStack heldItem) {

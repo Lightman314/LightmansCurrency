@@ -24,10 +24,8 @@ import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionPlayerStorage;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.PersistentAuctionData;
-import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.client.AuctionTradeButtonRenderer;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
-import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
 import io.github.lightman314.lightmanscurrency.api.events.AuctionHouseEvent.AuctionEvent.AuctionCompletedEvent;
 import io.github.lightman314.lightmanscurrency.api.events.AuctionHouseEvent.AuctionEvent.CancelAuctionEvent;
@@ -43,8 +41,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.items.ItemHandlerHelper;
 
@@ -435,11 +431,6 @@ public class AuctionTradeData extends TradeData {
 			this.persistentID = compound.getString("PersistentID");
 
 	}
-
-	@Nonnull
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public TradeRenderManager<?> getButtonRenderer() { return new AuctionTradeButtonRenderer(this); }
 
 	@Override
 	public void OnInputDisplayInteraction(@Nonnull BasicTradeEditTab tab, int index, @Nonnull TradeInteractionData data, @Nonnull ItemStack heldItem) { this.openCancelAuctionTab(tab); }

@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
+import io.github.lightman314.lightmanscurrency.api.events.client.RegisterClientTraderAttachmentsEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
@@ -13,6 +14,9 @@ import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGui
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.attachments.builtin.ExternalAuthorizationAttachment;
+import io.github.lightman314.lightmanscurrency.api.traders.client.builtin.ClientExternalAuthorizationAttachment;
+import io.github.lightman314.lightmanscurrency.api.traders.client.builtin.ClientInputTraderAttachment;
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ChestCoinCollectButton;
@@ -27,6 +31,15 @@ import io.github.lightman314.lightmanscurrency.common.items.PortableTerminalItem
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.ItemValidator;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
+import io.github.lightman314.lightmanscurrency.common.traders.commands.CommandTrader;
+import io.github.lightman314.lightmanscurrency.common.traders.commands.client.ClientCommandAttachment;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
+import io.github.lightman314.lightmanscurrency.common.traders.input.InputTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.input.client.ClientInputSubtraderAttachment;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.paygate.client.ClientPaygateAttachment;
+import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketOpenATM;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
@@ -359,6 +372,24 @@ public class ClientEvents {
         TooltipInjector(List<Component> tooltips, int injectIndex) { this.tooltips = tooltips; this.injectIndex = injectIndex; }
         @Override
         public void accept(Component component) { this.tooltips.add(this.injectIndex++,component); }
+    }
+
+    @SubscribeEvent
+    public static void setupClientTraderAttachments(RegisterClientTraderAttachmentsEvent event)
+    {
+        TraderData trader = event.getTrader();
+        //Trader-specific attachments
+        if(trader instanceof InputTraderData)
+            event.register(ClientInputTraderAttachment.INSTANCE);
+        if(trader instanceof ItemTraderData || trader instanceof GachaTrader || trader instanceof SlotMachineTraderData)
+            event.register(ClientInputSubtraderAttachment.ITEM_TRADER);
+        if(trader instanceof PaygateTraderData)
+            event.register(ClientPaygateAttachment.INSTANCE);
+        if(trader instanceof CommandTrader)
+            event.register(ClientCommandAttachment.INSTANCE);
+        //Add client attachment if the common attachment is present
+        if(trader.hasAttachment(ExternalAuthorizationAttachment.TYPE))
+            event.register(ClientExternalAuthorizationAttachment.INSTANCE);
     }
 
 }

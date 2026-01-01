@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.traders.client.TraderClientHooks;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.SmallTabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
@@ -55,7 +56,7 @@ public class TraderSettingsClientTab extends TraderStorageClientTab<TraderSettin
         this.tabs.clear();
         TraderData trader = this.menu.getTrader();
         if(trader != null)
-            this.tabs.addAll(trader.getSettingsTabs(this));
+            this.tabs.addAll(TraderClientHooks.getSettingsTabs(trader,this));
 
         //Create Tab buttons
         for(int i = 0; i < this.tabs.size(); ++i)

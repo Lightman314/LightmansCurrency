@@ -15,8 +15,6 @@ import io.github.lightman314.lightmanscurrency.common.money.ancient_money.Ancien
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
-
 public class AncientCoinValueInput extends MoneyInputHandler {
 
     AncientCoinType selectedType = AncientCoinType.COPPER;
@@ -24,20 +22,18 @@ public class AncientCoinValueInput extends MoneyInputHandler {
 
     public AncientCoinValueInput() { }
 
-    @Nonnull
     @Override
     public MutableComponent inputName() { return LCText.ANCIENT_COIN_VALUE_NAME.get(); }
 
     //Generate matching unique name for the money value with this ancient money type
-    @Nonnull
     @Override
     public String getUniqueName() { return MoneyValue.generateCustomUniqueName(AncientMoneyType.TYPE,selectedType.resourceSafeName()); }
 
     @Override
-    public boolean isForValue(@Nonnull MoneyValue value) { return value instanceof AncientMoneyValue; }
+    public boolean isForValue(MoneyValue value) { return value instanceof AncientMoneyValue; }
 
     @Override
-    public void initialize(@Nonnull ScreenArea widgetArea) {
+    public void initialize(ScreenArea widgetArea) {
 
         //Recalibrate the selected coin type
         this.onValueChanged(this.currentValue());
@@ -81,17 +77,17 @@ public class AncientCoinValueInput extends MoneyInputHandler {
     }
 
     @Override
-    protected void renderBG(@Nonnull ScreenArea widgetArea, @Nonnull EasyGuiGraphics gui) {
+    protected void renderBG(ScreenArea widgetArea, EasyGuiGraphics gui, MoneyValueWidget parent) {
 
         //Draw Coin Sprite
         gui.renderItem(this.selectedType.asItem(), (widgetArea.width / 2) - 8, 30);
         //Draw String
-        TextRenderUtil.drawCenteredText(gui, String.valueOf(this.count), widgetArea.width / 2, 47, 0x404040);
+        TextRenderUtil.drawCenteredText(gui, String.valueOf(this.count), widgetArea.width / 2, 47, parent.textColor);
 
     }
 
     @Override
-    public void onValueChanged(@Nonnull MoneyValue newValue) {
+    public void onValueChanged(MoneyValue newValue) {
         if(newValue instanceof AncientMoneyValue value)
         {
             this.selectedType = value.type;

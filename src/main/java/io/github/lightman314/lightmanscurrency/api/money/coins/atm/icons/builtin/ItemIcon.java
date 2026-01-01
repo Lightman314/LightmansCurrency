@@ -1,12 +1,9 @@
 package io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.IconType;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.atm.ATMExchangeButton;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.ATMIconData;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
@@ -15,8 +12,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
@@ -27,21 +22,19 @@ public class ItemIcon extends ATMIconData {
 	public static final IconType TYPE = IconType.create(TYPE_NAME, ItemIcon::new);
 	
 	private final boolean simpleItem;
-	private final ItemStack item;
+	public final ItemStack item;
 	
 	public ItemIcon(JsonObject data) throws JsonSyntaxException, ResourceLocationException {
 		super(data);
-		
-		JsonElement itemData = data.get("item");
-		String itemID = GsonHelper.getAsString(data, "item", "NO_RESULT");
-		if(!itemID.equals("NO_RESULT"))
+
+		if(!data.has("item") && data.get("item").isJsonPrimitive())
 		{
-			this.item = new ItemStack(ForgeRegistries.ITEMS.getValue(VersionUtil.parseResource(itemID)));
+			this.item = new ItemStack(ForgeRegistries.ITEMS.getValue(VersionUtil.parseResource(GsonHelper.getAsString(data,"item"))));
 			this.simpleItem = true;
 		}
 		else
 		{
-			this.item = FileUtil.parseItemStack(GsonHelper.convertToJsonObject(itemData, "item"));
+			this.item = FileUtil.parseItemStack(GsonHelper.getAsJsonObject(data,"item"));
 			this.item.setCount(1);
 			this.simpleItem = false;
 		}
@@ -72,12 +65,6 @@ public class ItemIcon extends ATMIconData {
 	
 	@Nonnull
 	@Override
-	protected ResourceLocation getType() { return TYPE_NAME; }
-
-	@Override
-	@OnlyIn(Dist.CLIENT)
-	public void render(@Nonnull ATMExchangeButton button, @Nonnull EasyGuiGraphics gui, boolean isHovered) {
-		gui.renderItem(this.item, this.xPos, this.yPos, "");
-	}
+	public ResourceLocation getType() { return TYPE_NAME; }
 	
 }

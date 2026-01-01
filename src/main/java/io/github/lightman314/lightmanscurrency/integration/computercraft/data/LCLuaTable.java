@@ -4,6 +4,7 @@ import java.util.*;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.money.value.FlexibleMoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
@@ -201,9 +202,9 @@ public class LCLuaTable implements LuaTable<Object, Object> {
         {
             if(key instanceof Number n)
             {
-                int index = n.intValue() - 1;
+                int index = n.intValue();
                 //If the index is invalid, ignore the entry
-                if(index < 0)
+                if(index < 1)
                     continue;
                 while(backingList.size() < index)
                     backingList.add(null);
@@ -218,7 +219,7 @@ public class LCLuaTable implements LuaTable<Object, Object> {
                         return result;
                 }
                 //Add to backing list
-                backingList.set(index,newEntry);
+                backingList.set(index - 1,newEntry);
             }
         }
         if(backingList.stream().anyMatch(Objects::isNull))
@@ -263,10 +264,19 @@ public class LCLuaTable implements LuaTable<Object, Object> {
 
     public static LCLuaTable fromMoney(MoneyValue value) {
         LCLuaTable table = new LCLuaTable();
+        table.put("type",value.getUniqueName());
         table.put("numeric",value.getCoreValue());
         table.put("text",value.getText("Empty").getString());
         table.put("data",fromTag(value.save()));
         table.put("arg",MoneyValueParser.writeParsable(value));
+        return table;
+    }
+
+    public static LCLuaTable fromMoney(FlexibleMoneyValue value)
+    {
+        LCLuaTable table = fromMoney(value.value);
+        if(value.negative)
+            table.put("negative",value.negative);
         return table;
     }
 

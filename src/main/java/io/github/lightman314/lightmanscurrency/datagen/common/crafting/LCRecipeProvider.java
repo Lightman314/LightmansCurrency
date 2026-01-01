@@ -33,6 +33,7 @@ import net.minecraftforge.common.Tags;
 import net.minecraftforge.common.crafting.ConditionalRecipe;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.common.crafting.conditions.ModLoadedCondition;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
@@ -1037,6 +1038,26 @@ public class LCRecipeProvider extends RecipeProvider {
                 .requires(ModItems.ITEM_TRADE_FILTER.get())
                 .save(consumer,VersionUtil.lcResource("item_trade_filter_reset"));
 
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC,ModItems.TRANSACTION_REGISTER.get())
+                .unlockedBy("paper",LazyTrigger(Items.PAPER))
+                .unlockedBy("money",MoneyKnowledge())
+                .pattern(" l ")
+                .pattern("rpr")
+                .pattern(" l ")
+                .define('l',Tags.Items.LEATHER)
+                .define('p',Items.PAPER)
+                .define('r',Tags.Items.DUSTS_REDSTONE)
+                .save(consumer);
+        //Patchouli guide book
+        if(ModList.get().isLoaded("patchouli"))
+        {
+            BookRecipeBuilder.shapeless(RecipeCategory.MISC,VersionUtil.lcResource("trader_guide"))
+                    .requires(Items.BOOK)
+                    .requires(ModItems.UPGRADE_SMITHING_TEMPLATE.get())
+                    .unlockedBy("trader",TraderKnowledge())
+                    .unlockedBy("money",MoneyKnowledge())
+                    .save(lazyConditional(consumer,VersionUtil.lcResource("guide/trader_guide"),new ModLoadedCondition("patchouli")));
+        }
     }
 
     protected static void GenerateWalletRecipes(@Nonnull Consumer<FinishedRecipe> consumer, List<Pair<Ingredient, Supplier<? extends ItemLike>>> ingredientWalletPairs)

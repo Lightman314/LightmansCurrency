@@ -1,11 +1,19 @@
 package io.github.lightman314.lightmanscurrency.client;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.events.client.RegisterATMIconRenderersEvent;
+import io.github.lightman314.lightmanscurrency.api.events.client.RegisterTradeRenderManagersEvent;
+import io.github.lightman314.lightmanscurrency.api.events.client.RegisterTradeRuleTabsEvent;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin.SimpleArrowIcon;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin.SpriteIcon;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.renderer.builtin.BuiltInIconRenderer;
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.client.colors.*;
 import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
+import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.rule_tabs.*;
 import io.github.lightman314.lightmanscurrency.client.model.VariantBlockModel;
 import io.github.lightman314.lightmanscurrency.client.model.VariantItemModel;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.*;
@@ -21,6 +29,20 @@ import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.SlotMa
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.client.AuctionTradeButtonRenderer;
+import io.github.lightman314.lightmanscurrency.common.traders.commands.tradedata.CommandTrade;
+import io.github.lightman314.lightmanscurrency.common.traders.commands.tradedata.client.CommandTradeButtonRenderer;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.tradedata.GachaTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.tradedata.client.GachaTradeButtonRenderer;
+import io.github.lightman314.lightmanscurrency.common.traders.item.ticket.TicketItemTrade;
+import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.client.ItemTradeButtonRenderer;
+import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.client.PaygateTradeButtonRenderer;
+import io.github.lightman314.lightmanscurrency.common.traders.rules.types.*;
+import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade_data.SlotMachineTrade;
+import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade_data.client.SlotMachineTradeButtonRenderer;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.entity.EntityRenderer;
@@ -29,7 +51,6 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -56,11 +77,7 @@ public class ClientModEvents {
 		event.register(SusBlockColor.INSTANCE,ModBlocks.SUS_JAR.get());
 		event.register(new GachaBallColor(),ModItems.GACHA_BALL.get());
 		//Default Leather Colors for the leather wallet
-		event.register((stack,layer) -> {
-			if(stack.getItem() instanceof DyeableLeatherItem item)
-				return item.getColor(stack);
-			return -1;
-		},ModItems.WALLET_LEATHER.get());
+		event.register(new VanillaColor(),ModItems.WALLET_LEATHER.get(),ModItems.TRANSACTION_REGISTER.get());
 	}
 
 	@SubscribeEvent
@@ -180,5 +197,37 @@ public class ClientModEvents {
 		event.registerReloadListener(CustomModelDataManager.INSTANCE);
 		event.registerReloadListener(ModelVariantDataManager.INSTANCE);
 	}
+
+    @SubscribeEvent
+    public static void registerTradeRuleTabBuilders(RegisterTradeRuleTabsEvent event)
+    {
+        event.register(DailyTrades.TYPE,DailyTradesTab::new);
+        event.register(DemandPricing.TYPE,DemandPricingTab::new);
+        event.register(DiscountCodes.TYPE,DiscountCodesTab::new);
+        event.register(FreeSample.TYPE,FreeSampleTab::new);
+        event.register(PlayerDiscounts.TYPE,PlayerDiscountTab::new);
+        event.register(PlayerListing.TYPE,PlayerListingTab::new);
+        event.register(PlayerTradeLimit.TYPE,PlayerTradeLimitTab::new);
+        event.register(PriceFluctuation.TYPE,PriceFluctuationTab::new);
+        event.register(TimedSale.TYPE,TimedSaleTab::new);
+        event.register(TradeLimit.TYPE,TradeLimitTab::new);
+    }
+
+    @SubscribeEvent
+    public static void registerATMIconRenderers(RegisterATMIconRenderersEvent event)
+    {
+        event.registerSet(BuiltInIconRenderer.INSTANCE,ItemIcon.TYPE,SimpleArrowIcon.TYPE,SpriteIcon.TYPE);
+    }
+
+    @SubscribeEvent
+    public static void registerTradeButtonRenderers(RegisterTradeRenderManagersEvent event)
+    {
+        event.register(AuctionTradeButtonRenderer::new,AuctionTradeData.class);
+        event.register(CommandTradeButtonRenderer::new,CommandTrade.class);
+        event.register(GachaTradeButtonRenderer::new,GachaTradeData.class);
+        event.register(ItemTradeButtonRenderer::new,ItemTradeData.class,TicketItemTrade.class);
+        event.register(PaygateTradeButtonRenderer::new,PaygateTradeData.class);
+        event.register(SlotMachineTradeButtonRenderer::new,SlotMachineTrade.class);
+    }
 	
 }

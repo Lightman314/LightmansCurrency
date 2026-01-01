@@ -190,7 +190,11 @@ public final class SavedSettingData
         private final String node;
         private NodeAccess(SavedSettingData data, String node) { this.data = data; this.node = node + "."; }
 
-        public NodeAccess forSubNode(String subNode) { return new NodeAccess(this.data,this.node + "." + subNode); }
+        public NodeAccess forSubNode(String subNode) {
+            if(subNode.isEmpty())
+                return this;
+            return new NodeAccess(this.data,this.node + "." + subNode);
+        }
 
         private boolean hasNodeEntry(Map<String,?> map) { return SavedSettingData.hasNodeEntry(map,this.node); }
 

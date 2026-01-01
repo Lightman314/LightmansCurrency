@@ -28,7 +28,6 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.settin
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeNameNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.ChangeSettingNotification;
 import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.AccessTrackingPeripheral;
@@ -62,8 +61,8 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
     public TraderPeripheral(BE be) { this.source = Either.left(be); }
     public TraderPeripheral(T trader) { this.source = Either.right(trader.getID()); }
 
-    public static LCPeripheral createSimple(TraderBlockEntity<TraderData> be) { return new Simple(be); }
-    public static LCPeripheral createSimple(TraderData trader) { return new Simple(trader); }
+    public static AccessTrackingPeripheral createSimple(TraderBlockEntity<TraderData> be) { return new Simple(be); }
+    public static AccessTrackingPeripheral createSimple(TraderData trader) { return new Simple(trader); }
 
     private final Consumer<TradeEvent.PreTradeEvent> preTradeEventListener = this::preTradeEvent;
     private final Consumer<TradeEvent.PostTradeEvent> postTradeEventListener = this::postTradeEvent;
@@ -120,10 +119,10 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
     }
 
     @Nullable
-    protected abstract LCPeripheral wrapTrade(TradeData trade) throws LuaException;
+    protected abstract AccessTrackingPeripheral wrapTrade(TradeData trade) throws LuaException;
 
     @Nullable
-    public final LCPeripheral safeWrapTrade(TradeData trade)
+    public final AccessTrackingPeripheral safeWrapTrade(TradeData trade)
     {
         try { return this.wrapTrade(trade);
         } catch (LuaException e) { return null; }
@@ -526,7 +525,7 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
         return users.toArray(String[]::new);
     }
 
-    public Object getUpgradeSlots(IComputerAccess computer) { return wrapContainer(computer,() -> this.hasPermissions(computer,Permissions.OPEN_STORAGE),this::safeGetUpgradeContainer); }
+    public Object getUpgradeSlots(IComputerAccess computer) { return wrapContainer(computer,() -> this.hasPermissions(computer,Permissions.OPEN_STORAGE),this::safeGetUpgradeContainer,() -> {},this); }
 
     private Container safeGetUpgradeContainer()
     {
@@ -546,7 +545,7 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
         public Set<String> getAdditionalTypes() { return Set.of(); }
         @Nullable
         @Override
-        protected LCPeripheral wrapTrade(TradeData trade) throws LuaException {
+        protected AccessTrackingPeripheral wrapTrade(TradeData trade) throws LuaException {
             int index = this.getTrader().indexOfTrade(trade);
             return TradeWrapper.createSimple(() -> {
                 TraderData trader = this.safeGetTrader();
@@ -565,7 +564,7 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
         if(event.getTrader() == trader)
         {
             try {
-                LCPeripheral tradeWrapper = this.wrapTrade(event.getTrade());
+                AccessTrackingPeripheral tradeWrapper = this.wrapTrade(event.getTrade());
                 LCLuaTable player = LCLuaTable.fromPlayer(event.getPlayerReference());
                 boolean canceled = event.isCanceled();
                 this.queueEvent("lc_trade_pre",computer -> new Object[] { this.asTable(computer),event.getTradeIndex(),tradeWrapper.asTable(computer),player,canceled});
@@ -580,7 +579,7 @@ public abstract class TraderPeripheral<BE extends TraderBlockEntity<T>,T extends
         if(event.getTrader() == trader)
         {
             try {
-                LCPeripheral tradeWrapper = this.wrapTrade(event.getTrade());
+                AccessTrackingPeripheral tradeWrapper = this.wrapTrade(event.getTrade());
                 LCLuaTable player = LCLuaTable.fromPlayer(event.getPlayerReference());
                 LCLuaTable finalPrice = LCLuaTable.fromMoney(event.getPricePaid());
                 LCLuaTable taxesPaid = LCLuaTable.fromMoney(event.getTaxesPaid());

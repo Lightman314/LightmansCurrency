@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.integration.computercraft;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-public class LCComputercraftSetup {
+public class LCComputercraftLauncher {
 
     public static void setup()
     {

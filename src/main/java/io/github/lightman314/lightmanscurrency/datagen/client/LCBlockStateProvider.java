@@ -432,6 +432,9 @@ public class LCBlockStateProvider extends BlockStateProvider {
         this.itemModels().basicItem(VersionUtil.lcResource("trader_guide"));
         this.registerBasicItem(ModItems.ITEM_TRADE_FILTER);
 
+        //2.3.0.4
+        this.registerLayeredItem(ModItems.TRANSACTION_REGISTER);
+
     }
 
     //ITEM MODEL REGISTRATION
