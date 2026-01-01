@@ -103,7 +103,7 @@ public abstract class TradeRulesClientTab<T extends TradeRulesTab> extends Trade
                     if(builder != null)
                         this.tabs.add(builder.apply(this));
                     else //Use deprecated method if no builder is registered
-                        rule.createTab(this);
+                        this.tabs.add(rule.createTab(this));
                 } catch(Throwable t) {
                     LightmansCurrency.LogError("Trade Rule of type '" + rule.type + "' encountered an error creating its tab. Trade Rule will not be editable!", t);
                 }

@@ -33,7 +33,7 @@ public class TransactionRegisterScreen extends EasyClientUnenforcedTabbedMenuScr
         //Render BG
         gui.renderNormalBackground(GUI_TEXTURE,this);
         //Render Overlay
-        gui.setColor(this.menu.getColor());
+        gui.setColor(this.menu.getColor(),1f);
         gui.blit(OVERLAY_TEXTURE,0,0,0,0,this.imageWidth,this.imageHeight);
         gui.resetColor();
         //Re-render the BG behind the item name

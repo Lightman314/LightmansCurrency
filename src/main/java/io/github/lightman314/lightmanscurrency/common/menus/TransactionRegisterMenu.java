@@ -10,10 +10,7 @@ import io.github.lightman314.lightmanscurrency.common.items.data.register.Transa
 import io.github.lightman314.lightmanscurrency.common.items.data.register.TransactionType;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
-import net.mehvahdjukaar.moonlight.api.util.math.colors.RGBColor;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;

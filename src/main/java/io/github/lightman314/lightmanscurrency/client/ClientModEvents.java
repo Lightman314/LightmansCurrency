@@ -5,6 +5,8 @@ import io.github.lightman314.lightmanscurrency.api.events.client.RegisterATMIcon
 import io.github.lightman314.lightmanscurrency.api.events.client.RegisterTradeRenderManagersEvent;
 import io.github.lightman314.lightmanscurrency.api.events.client.RegisterTradeRuleTabsEvent;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin.SimpleArrowIcon;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin.SpriteIcon;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.renderer.builtin.BuiltInIconRenderer;
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.client.colors.*;
@@ -262,7 +264,7 @@ public class ClientModEvents {
     @SubscribeEvent
     public static void regsterATMIconRenderers(RegisterATMIconRenderersEvent event)
     {
-        event.registerSet(BuiltInIconRenderer.INSTANCE, ItemIcon.TYPE_NAME);
+        event.registerSet(BuiltInIconRenderer.INSTANCE,ItemIcon.TYPE,SimpleArrowIcon.TYPE,SpriteIcon.TYPE);
     }
 
 	@SubscribeEvent

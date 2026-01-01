@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency.integration.computercraft;
 
 import dan200.computercraft.api.ComputerCraftAPI;
+import dan200.computercraft.api.detail.VanillaDetailRegistries;
+import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralCapability;
 import io.github.lightman314.lightmanscurrency.LCConfig;
@@ -21,6 +23,9 @@ import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.apis.LuaMoneyAPI;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.data.BasicItemParser;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.data.builtin.AncientCoinParser;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.detail_providers.AncientCoinDetailProvider;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.atm.ATMPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.CashRegisterPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.TerminalPeripheral;
@@ -32,6 +37,7 @@ import io.github.lightman314.lightmanscurrency.integration.computercraft.periphe
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.paygate.PaygatePeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.slot_machine.SlotMachinePeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.pocket_upgrades.LCPocketUpgrades;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
@@ -39,18 +45,24 @@ import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 
 public class LCComputerHelper {
 
-    public static List<TraderPeripheralSource> peripheralSources = new ArrayList<>();
+    private static final List<BasicItemParser> itemParsers = new ArrayList<>();
+    private static final List<TraderPeripheralSource> peripheralSources = new ArrayList<>();
 
     public static void setup(IEventBus modBus)
     {
         LCPocketUpgrades.init(modBus);
         //Register globals
         ComputerCraftAPI.registerAPIFactory(LuaMoneyAPI.FACTORY);
+        //Register detail providers
+        VanillaDetailRegistries.ITEM_STACK.addProvider(AncientCoinDetailProvider.INSTANCE);
+        //Register Item Parsers
+        registerItemParser(AncientCoinParser.INSTANCE);
         //Register Event Listener
         modBus.addListener(LCComputerHelper::registerCapabilities);
         NeoForge.EVENT_BUS.addListener(LCComputerHelper::addTraderAttachments);
@@ -173,6 +185,13 @@ public class LCComputerHelper {
                 return getPeripheral(tbe);
             return null;
         });
+    }
+
+    public static void registerItemParser(BasicItemParser parser) { itemParsers.add(parser); }
+    public static void modifyItemParsing(ItemStack input, Map<?,?> table) throws LuaException
+    {
+        for(BasicItemParser p : itemParsers)
+            p.modifyResult(input,table);
     }
 
 }

@@ -584,7 +584,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('n', Tags.Items.NUGGETS_IRON)
                 .save(consumer, ID("upgrades/copy_template"));
         //Added in v2.2.5.2
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC,ModItems.UPGRADE_SMITHING_TEMPLATE.get(),9)
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC,ModItems.UPGRADE_SMITHING_TEMPLATE.get(),10)
                 .group("lightmans_template_copy")
                 .unlockedBy("money",MoneyKnowledge())
                 .unlockedBy("trader",TraderKnowledge())

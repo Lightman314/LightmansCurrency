@@ -204,7 +204,7 @@ public class LCLuaTable implements LuaTable<Object, Object> {
             {
                 int index = n.intValue();
                 //If the index is invalid, ignore the entry
-                if(index < 0)
+                if(index < 1)
                     continue;
                 while(backingList.size() < index)
                     backingList.add(null);

@@ -78,7 +78,7 @@ public class ItemTradeWrapper<T extends ItemTradeData> extends TradeWrapper<T> {
     {
         int slot = args.getInt(0);
         ArgumentHelpers.assertBetween(slot,1,2,"Slot out of range (%s)");
-        ItemStack newItem = LCArgumentHelper.paseBasicItem(args,1);
+        ItemStack newItem = LCArgumentHelper.parseItem(args,1);
         Optional<Integer> count = args.optInt(2);
         if(count.isPresent())
         {
@@ -128,7 +128,7 @@ public class ItemTradeWrapper<T extends ItemTradeData> extends TradeWrapper<T> {
     {
         int slot = args.getInt(0);
         ArgumentHelpers.assertBetween(slot,1,2,"Slot out of range (%s)");
-        ItemStack newItem = LCArgumentHelper.paseBasicItem(args,1);
+        ItemStack newItem = LCArgumentHelper.parseItem(args,1);
         Optional<Integer> count = args.optInt(2);
         if(count.isPresent())
         {

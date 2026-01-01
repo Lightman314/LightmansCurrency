@@ -8,7 +8,6 @@ import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.types.builtin.other.ContainerMoneyHandlerWrapper;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
@@ -814,7 +813,7 @@ public class TradeContext {
 			if(playerInteractable)
             {
                 this.withMoneyHolder(MoneyAPI.getApi().GetPlayersMoneyHandlerUnsafe(player));
-                this.withMoneyHandler(new PlayerInventoryFailsafe(player),EasyText.empty(),1000,1000);
+                this.withMoneyHolder(new PlayerInventoryFailsafe(player));
             }
 		}
 		private Builder(TraderData trader, @Nullable PlayerReference player, ITaxableContext taxableContext) { this.trader = trader; this.playerReference = player; this.player = null; this.storageMode = false; this.taxableContext = taxableContext; }

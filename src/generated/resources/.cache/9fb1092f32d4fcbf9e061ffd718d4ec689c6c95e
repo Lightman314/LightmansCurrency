@@ -1,4 +1,4 @@
-// 1.21.1	2025-12-19T17:38:03.9298889	Recipes
+// 1.21.1	2026-01-01T15:53:19.3460802	Recipes
 72ebeef3afda55d787ba4e697d99612cd67860a4 data/lightmanscurrency/advancement/recipes/coin_mint/coin_mint/melt_coin_copper.json
 f960548fee213e7023b348b503171200865718ca data/lightmanscurrency/advancement/recipes/coin_mint/coin_mint/melt_coin_diamond.json
 9fa094fb97fbae266315934d512bd9089989bf0e data/lightmanscurrency/advancement/recipes/coin_mint/coin_mint/melt_coin_emerald.json
@@ -1274,7 +1274,7 @@ de5697b19244f16ff771b8dcce980839253102ff data/lightmanscurrency/recipe/upgrades/
 c86a63f27291be3e8e5cff92727b188aa54036c1 data/lightmanscurrency/recipe/upgrades/coin_chest_magnet_upgrade_4.json
 769c8fa4a878ca19a55e6808c7b933c435bb4932 data/lightmanscurrency/recipe/upgrades/coin_chest_security_upgrade.json
 7c1437038a3d08321bb6f9e376f04517f3e055ff data/lightmanscurrency/recipe/upgrades/copy_template.json
-f31d11225c5daeb259579d99bab1d473620a8545 data/lightmanscurrency/recipe/upgrades/copy_template_bulk.json
+e43250618f4e86cdb83151202aef28eb508a673b data/lightmanscurrency/recipe/upgrades/copy_template_bulk.json
 74b7dc31fdd131269211e14f1e8eee4ced744bf6 data/lightmanscurrency/recipe/upgrades/create_template.json
 b226b0bfd4924a58f663f5d573649321b77d297a data/lightmanscurrency/recipe/upgrades/hopper_upgrade.json
 baa32f5bdf7095d24c61140e6d9b7cccc1d35535 data/lightmanscurrency/recipe/upgrades/interaction_upgrade_1.json

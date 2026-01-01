@@ -93,7 +93,7 @@ public class SlotMachineEntryWrapper extends AccessTrackingPeripheral {
 
     public boolean addItem(IComputerAccess computer, IArguments args) throws LuaException
     {
-        ItemStack item = LCArgumentHelper.paseBasicItem(args,0);
+        ItemStack item = LCArgumentHelper.parseItem(args,0);
         SlotMachineEntry entry = this.getEntry();
         if(entry.items.size() >= SlotMachineEntry.ITEM_LIMIT)
             return false;
@@ -123,7 +123,7 @@ public class SlotMachineEntryWrapper extends AccessTrackingPeripheral {
     public boolean editItem(IComputerAccess computer, IArguments args) throws LuaException
     {
         int slot = args.getInt(0);
-        ItemStack item = LCArgumentHelper.paseBasicItem(args,0);
+        ItemStack item = LCArgumentHelper.parseItem(args,0);
         SlotMachineEntry entry = this.getEntry();
         ArgumentHelpers.assertBetween(slot,1,entry.items.size(),"Slot out of range (%s)");
         if(this.hasPermission(computer))
