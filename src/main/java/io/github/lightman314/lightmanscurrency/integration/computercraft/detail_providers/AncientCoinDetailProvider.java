@@ -6,13 +6,13 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.Map;
 
-public class AncientCoinDetailProviders implements DetailProvider<ItemStack> {
+public class AncientCoinDetailProvider implements DetailProvider<ItemStack> {
 
-    public static final DetailProvider<ItemStack> INSTANCE = new AncientCoinDetailProviders();
-    private AncientCoinDetailProviders() {}
+    public static final DetailProvider<ItemStack> INSTANCE = new AncientCoinDetailProvider();
+    private AncientCoinDetailProvider() {}
     @Override
     public void provideDetails(Map<? super String, Object> map, ItemStack stack) {
         if(stack.getItem() instanceof AncientCoinItem item)
-            map.put("AncientCoinType",AncientCoinItem.getAncientCoinType(stack));
+            map.put("AncientCoinType",AncientCoinItem.getAncientCoinType(stack).toString());
     }
 }

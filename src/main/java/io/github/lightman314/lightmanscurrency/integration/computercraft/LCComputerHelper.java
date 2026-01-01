@@ -28,7 +28,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotM
 import io.github.lightman314.lightmanscurrency.integration.computercraft.apis.LuaMoneyAPI;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.BasicItemParser;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.builtin.AncientCoinParser;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.detail_providers.AncientCoinDetailProviders;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.detail_providers.AncientCoinDetailProvider;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.CashRegisterPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.TerminalPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.atm.ATMPeripheral;
@@ -66,7 +66,7 @@ public class LCComputerHelper {
         //Register globals
         ComputerCraftAPI.registerAPIFactory(LuaMoneyAPI.FACTORY);
         //Register detail providers
-        VanillaDetailRegistries.ITEM_STACK.addProvider(AncientCoinDetailProviders.INSTANCE);
+        VanillaDetailRegistries.ITEM_STACK.addProvider(AncientCoinDetailProvider.INSTANCE);
         //Register Item Parsers
         registerItemParser(AncientCoinParser.INSTANCE);
         //Register Event Listener
