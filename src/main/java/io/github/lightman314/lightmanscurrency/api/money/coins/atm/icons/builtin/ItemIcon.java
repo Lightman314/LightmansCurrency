@@ -27,7 +27,7 @@ public class ItemIcon extends ATMIconData {
 	public ItemIcon(JsonObject data) throws JsonSyntaxException, ResourceLocationException {
 		super(data);
 
-		if(!data.has("item") && data.get("item").isJsonPrimitive())
+		if(data.has("item") && data.get("item").isJsonPrimitive())
 		{
 			this.item = new ItemStack(ForgeRegistries.ITEMS.getValue(VersionUtil.parseResource(GsonHelper.getAsString(data,"item"))));
 			this.simpleItem = true;
