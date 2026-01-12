@@ -71,7 +71,7 @@ public class GachaStorageTab extends TraderStorageTab {
             if(storage.getSpace() > 0)
             {
                 storage.insertItem(stack);
-                trader.markStorageDirty();
+                trader.markUpgradesDirty();
                 return true;
             }
             else

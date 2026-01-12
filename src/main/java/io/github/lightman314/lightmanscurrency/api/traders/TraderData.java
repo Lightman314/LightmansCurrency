@@ -892,6 +892,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		this.markDirty(this.save());
 	}
 
+    public final void markUpgradesDirty() { this.upgradesChanged(this.upgrades); }
 	private void upgradesChanged(Container container)
 	{
 		if(container == this.upgrades)

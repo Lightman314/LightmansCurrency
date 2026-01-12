@@ -67,10 +67,14 @@ public class ItemStorageTab extends TraderInterfaceTab {
 			{
 				storage.tryAddItem(stack);
 				be.setItemBufferDirty();
+                be.setUpgradeSlotsDirty();
 				return true;
 			}
 			else
-				return be.quickInsertUpgrade(stack);
+            {
+                be.setItemBufferDirty();
+                return be.quickInsertUpgrade(stack);
+            }
 		}
 		return super.quickMoveStack(stack);
 	}
@@ -120,8 +124,6 @@ public class ItemStorageTab extends TraderInterfaceTab {
 					{
 						removeStack.setCount(removedAmount);
 						storage.removeItem(removeStack);
-						//Mark the storage dirty
-						be.setItemBufferDirty();
 					}
 				}
 			}
@@ -131,8 +133,6 @@ public class ItemStorageTab extends TraderInterfaceTab {
 				if(leftClick)
 				{
 					storage.tryAddItem(heldItem);
-					//Mark the storage dirty
-					be.setItemBufferDirty();
 				}
 				else
 				{
@@ -145,8 +145,6 @@ public class ItemStorageTab extends TraderInterfaceTab {
 						if(heldItem.isEmpty())
 							this.menu.setCarried(ItemStack.EMPTY);
 					}
-					//Mark the storage dirty
-					be.setItemBufferDirty();
 				}
 			}
 			if(this.menu.isClient())
@@ -156,6 +154,8 @@ public class ItemStorageTab extends TraderInterfaceTab {
 						.setBoolean("HeldShift", isShiftHeld)
 						.setBoolean("LeftClick", leftClick));
 			}
+            else
+                be.setItemBufferDirty();
 		}
 	}
 

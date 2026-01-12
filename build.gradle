@@ -51,6 +51,15 @@ minecraft {
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
     runs {
+
+        server {
+            property 'forge.enabledGameTestNamespaces', mod_id
+
+            //Fix other mods mixins
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+        }
+
         client {
             workingDirectory project.file('run')
 

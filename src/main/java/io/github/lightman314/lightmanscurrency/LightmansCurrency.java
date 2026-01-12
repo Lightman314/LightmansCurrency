@@ -116,10 +116,9 @@ public class LightmansCurrency {
 
 	public static final String MODID = "lightmanscurrency";
 
-	private static final CommonProxy PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
+	private static final CommonProxy PROXY = DistExecutor.unsafeRunForDist(() -> ClientProxy::new, () -> CommonProxy::new);
 	@Nonnull
 	public static CommonProxy getProxy() { return PROXY; }
-
 
     private static final Logger LOGGER = LogManager.getLogger();
 

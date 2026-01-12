@@ -60,7 +60,6 @@ public class ItemStorageTab extends TraderStorageTab{
 	@Override
 	public void onTabClose() { EasySlot.SetInactive(this.slots); }
 
-
 	@Override
 	public boolean quickMoveStack(ItemStack stack) {
 		if(this.menu.getTrader() instanceof ItemTraderData trader) {
@@ -71,10 +70,15 @@ public class ItemStorageTab extends TraderStorageTab{
 			{
 				storage.tryAddItem(stack);
 				trader.markStorageDirty();
+                trader.markUpgradesDirty();
 				return true;
 			}
 			else
-				return trader.quickInsertUpgrade(stack);
+            {
+                //Always mark as dirty just in case the client thought it succeeded even though it failed
+                trader.markStorageDirty();
+                return trader.quickInsertUpgrade(stack);
+            }
 		}
 		return super.quickMoveStack(stack);
 	}
@@ -126,8 +130,6 @@ public class ItemStorageTab extends TraderStorageTab{
 					{
 						removeStack.setCount(removedAmount);
 						storage.removeItem(removeStack);
-						//Mark the storage dirty
-						trader.markStorageDirty();
 					}
 				}
 			}
@@ -137,8 +139,6 @@ public class ItemStorageTab extends TraderStorageTab{
 				if(leftClick)
 				{
 					storage.tryAddItem(heldItem);
-					//Mark the storage dirty
-					trader.markStorageDirty();
 				}
 				else
 				{
@@ -151,12 +151,12 @@ public class ItemStorageTab extends TraderStorageTab{
 						if(heldItem.isEmpty())
 							this.menu.setHeldItem(ItemStack.EMPTY);
 					}
-					//Mark the storage dirty
-					trader.markStorageDirty();
 				}
 			}
-			if(this.menu.isClient())
-				this.sendStorageClickMessage(storageSlot, isShiftHeld, leftClick);
+            if(this.menu.isClient())
+                this.sendStorageClickMessage(storageSlot, isShiftHeld, leftClick);
+            else //Always mark as dirty, just in case the client thought it succeeded even though it failed
+                trader.markStorageDirty();
 		}
 	}
 
