@@ -68,8 +68,14 @@ public class SlotMachineStorageTab extends TraderStorageTab{
             if(storage.getFittableAmount(stack) > 0)
             {
                 storage.tryAddItem(stack);
+                trader.markUpgradesDirty();
                 trader.markStorageDirty();
                 return true;
+            }
+            else
+            {
+                trader.markStorageDirty();
+                return trader.quickInsertUpgrade(stack);
             }
         }
         return super.quickMoveStack(stack);
@@ -122,8 +128,6 @@ public class SlotMachineStorageTab extends TraderStorageTab{
                     {
                         removeStack.setCount(removedAmount);
                         storage.removeItem(removeStack);
-                        //Mark the storage dirty
-                        trader.markStorageDirty();
                     }
                 }
             }
@@ -133,8 +137,6 @@ public class SlotMachineStorageTab extends TraderStorageTab{
                 if(leftClick)
                 {
                     storage.tryAddItem(heldItem);
-                    //Mark the storage dirty
-                    trader.markStorageDirty();
                 }
                 else
                 {
@@ -147,12 +149,12 @@ public class SlotMachineStorageTab extends TraderStorageTab{
                         if(heldItem.isEmpty())
                             this.menu.setHeldItem(ItemStack.EMPTY);
                     }
-                    //Mark the storage dirty
-                    trader.markStorageDirty();
                 }
             }
             if(this.menu.isClient())
                 this.sendStorageClickMessage(storageSlot, isShiftHeld, leftClick);
+            else
+                trader.markStorageDirty();
         }
     }
 
