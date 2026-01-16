@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 public class GiveCommandMixin {
 
     @WrapOperation(method = "giveItem",at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;add(Lnet/minecraft/world/item/ItemStack;)Z"))
-    private static boolean giveItemWalletIntercept(Inventory instance, ItemStack stack, Operation<Boolean> original)
+    private static boolean giveItemWalletIntercept(Inventory instance, final ItemStack stack, Operation<Boolean> original)
     {
         if(!LCConfig.COMMON.interceptGiveCommand.get())
             return original.call(instance,stack);
@@ -26,9 +26,11 @@ public class GiveCommandMixin {
             WalletHandler walletHandler = WalletHandler.get(player);
             if(walletHandler == null)
                 return original.call(instance,stack);
-            stack = walletHandler.PickupCoins(stack);
+            ItemStack result = walletHandler.PickupCoins(stack);
+            //Match the given stacks count with the results count, as the give command expects the item to be empty if it succeeded
+            stack.setCount(result.getCount());
             //Placed the entire item inside the players wallet, so the addition was a success
-            if(stack.isEmpty())
+            if(result.isEmpty())
                 return true;
         }
         //Not a coin, or not all the items fit in the wallet. Return the base add method

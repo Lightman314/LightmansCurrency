@@ -5,6 +5,7 @@ import java.util.List;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.common.EventHandler;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
@@ -75,7 +76,7 @@ public class CoinMagnetEnchantment {
 		if(entity instanceof ItemEntity item)
 		{
 			//Deny if the item is reserved for a given player/entity
-			if(item.getTarget() != null && !item.getTarget().equals(potentialPickup.getUUID()))
+			if(!EventHandler.canPlayerPickup(item,potentialPickup))
 				return false;
 			return CoinAPI.getApi().IsAllowedInCoinContainer(item.getItem(), false);
 		}

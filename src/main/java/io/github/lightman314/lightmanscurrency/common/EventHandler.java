@@ -40,6 +40,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -84,7 +85,7 @@ public class EventHandler {
 		ItemEntity ie = event.getItemEntity();
 		ItemStack pickupItem = ie.getItem();
 		Player player = event.getPlayer();
-		if(ie.hasPickUpDelay() || !CoinAPI.getApi().IsAllowedInCoinContainer(pickupItem, false) || (ie.getTarget() != null && !ie.getTarget().equals(player.getUUID())))
+		if(!canPlayerPickup(ie,player) || !CoinAPI.getApi().IsAllowedInCoinContainer(pickupItem, false))
 			return;
 
 		WalletMenuBase activeContainer = null;
@@ -120,6 +121,13 @@ public class EventHandler {
 		}
 		
 	}
+
+    public static boolean canPlayerPickup(ItemEntity ie, Entity entity)
+    {
+        if(ie.hasPickUpDelay())
+            return false;
+        return ie.getTarget() == null || ie.getTarget().equals(entity.getUUID());
+    }
 
 	//Block break event for trader protection functionality.
 	//Redundant with the addition of the BreakSpeed event listener, but I'm keeping it in just to be safe.
