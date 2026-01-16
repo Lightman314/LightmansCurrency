@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -152,11 +153,28 @@ public class CommandLCAdmin {
 									.then(Commands.argument("contents",ItemArgument.item(context))
 											.executes(c -> createGachaBall(c,-1))
 											.then(Commands.argument("color",ColorArgument.argument())
-													.executes(c -> createGachaBall(c,ColorArgument.getColor(c,"color"))))))));
+													.executes(c -> createGachaBall(c,ColorArgument.getColor(c,"color"))))))))
+                .then(Commands.literal("testGive")
+                        .then(Commands.argument("player",EntityArgument.players())
+                                .then(Commands.argument("item",ItemArgument.item(context))
+                                        .executes(c -> testGive(c,1))
+                                        .then(Commands.argument("count",IntegerArgumentType.integer(1))
+                                                .executes(c -> testGive(c,IntegerArgumentType.getInteger(c,"count")))))));
 
 		dispatcher.register(lcAdminCommand);
 
 	}
+
+    static int testGive(CommandContext<CommandSourceStack> commandContext,int count) throws CommandSyntaxException {
+        ItemInput item = ItemArgument.getItem(commandContext,"item");
+        int result = 0;
+        for(ServerPlayer player : EntityArgument.getPlayers(commandContext,"player"))
+        {
+            ItemHandlerHelper.giveItemToPlayer(player,item.createItemStack(count,false));
+            result++;
+        }
+        return result;
+    }
 
 	static int toggleAdmin(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException{
 

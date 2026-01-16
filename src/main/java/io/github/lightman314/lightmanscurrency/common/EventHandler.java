@@ -94,7 +94,7 @@ public class EventHandler {
 		ItemStack pickupItem = ie.getItem();
 		Player player = event.getEntity();
 
-		if(ie.hasPickUpDelay() || !CoinAPI.getApi().IsAllowedInCoinContainer(pickupItem, false) || !matchesTarget(ie,player))
+		if(!canPlayerPickup(ie,player))
 			return;
 
 		ItemStack coinStack = event.getItem().getItem();
@@ -135,8 +135,10 @@ public class EventHandler {
 		
 	}
 
-	public static boolean matchesTarget(ItemEntity ie, Entity entity)
+	public static boolean canPlayerPickup(ItemEntity ie, Entity entity)
 	{
+        if(ie.hasPickUpDelay())
+            return false;
 		CompoundTag data = ie.saveWithoutId(new CompoundTag());
 		if(data.contains("Owner"))
 		{

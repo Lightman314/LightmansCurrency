@@ -85,6 +85,7 @@ public class CoinChestBankUpgrade extends TickableCoinChestUpgrade {
             BankReference br = BankReference.load(tag.getCompound("TargetAccount"));
             if(br != null)
                 br.flagAsClient(be);
+            return br;
         }
         return null;
     }

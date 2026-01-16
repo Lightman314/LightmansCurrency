@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.IWalletHandler;
 import io.github.lightman314.lightmanscurrency.common.capability.wallet.WalletCapability;
@@ -18,7 +19,7 @@ import org.spongepowered.asm.mixin.injection.At;
 public class GiveCommandMixin {
 
     @WrapOperation(method = "giveItem",at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;add(Lnet/minecraft/world/item/ItemStack;)Z"))
-    private static boolean giveItemWalletIntercept(Inventory instance, ItemStack stack, Operation<Boolean> original)
+    private static boolean giveItemWalletIntercept(Inventory instance, final ItemStack stack, Operation<Boolean> original)
     {
         if(!LCConfig.COMMON.interceptGiveCommand.get())
             return original.call(instance,stack);
@@ -31,9 +32,11 @@ public class GiveCommandMixin {
             ItemStack wallet = walletHandler.getWallet();
             if(WalletItem.isWallet(wallet))
             {
-                stack = WalletItem.PickupCoin(wallet,stack);
+                ItemStack result = WalletItem.PickupCoin(wallet,stack);
+                //Match the given stacks count with the results count, as the give command expects the item to be empty if it succeeded
+                stack.setCount(result.getCount());
                 //Placed the entire item inside the players wallet, so the addition was a success
-                if(stack.isEmpty())
+                if(result.isEmpty())
                     return true;
             }
         }

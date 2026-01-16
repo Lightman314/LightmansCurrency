@@ -80,7 +80,7 @@ public class CoinMagnetEnchantment extends WalletEnchantment {
 		if(entity instanceof ItemEntity item)
 		{
 			//Deny if the item is reserved for a given player/entity
-			if(!EventHandler.matchesTarget(item,potentialPickup))
+			if(!EventHandler.canPlayerPickup(item,potentialPickup))
 				return false;
 			return CoinAPI.getApi().IsAllowedInCoinContainer(item.getItem(), false);
 		}
