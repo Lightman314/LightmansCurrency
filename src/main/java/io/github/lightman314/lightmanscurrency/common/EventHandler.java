@@ -94,7 +94,7 @@ public class EventHandler {
 		ItemStack pickupItem = ie.getItem();
 		Player player = event.getEntity();
 
-		if(!canPlayerPickup(ie,player))
+		if(!canPlayerPickup(ie,player) || !CoinAPI.getApi().IsAllowedInCoinContainer(pickupItem,false))
 			return;
 
 		ItemStack coinStack = event.getItem().getItem();
