@@ -1,0 +1,5 @@
+{
+	"name":"交易规则",
+	"description": "应用于交易的特殊规则，用于修改价格、限制互动以及其他类似操作",
+	"icon":"minecraft:writable_book"
+}

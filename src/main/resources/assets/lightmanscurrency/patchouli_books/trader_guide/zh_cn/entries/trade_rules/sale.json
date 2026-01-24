@@ -1,0 +1,14 @@
+{
+	"name": "促销",
+	"icon": "lightmanscurrency:textures/gui/trader_guide/trade_rules/sale/icon.png",
+	"category": "lightmanscurrency:trade_rules",
+	"pages": [
+		"“促销”规则允许您在预定义的时间内为所有玩家提供折扣。它在功能上类似于$(l:trade_rules/discount_list)折扣$()规则，但适用于所有玩家，且时间有限。",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/sale/inputs.png",
+			"text":"此规则有三个需要注意的输入项。左上角的文本框允许您定义折扣百分比（例如，输入10表示10%的折扣）。$(br2)最底部是一个时间输入项，用于确定促销将持续多长时间。"
+		},
+		"这两个输入项之间是开始/停止按钮，用于切换促销状态。$(br2)当促销$(l)未激活$()时，此按钮将允许您实际开始促销，其上方文本将显示当前定义的促销持续时间。$(br2)当促销$(l)激活$()时，它将允许您提前停止促销，上方文本将列出距离促销结束的剩余时间。"
+	]
+}

@@ -1,0 +1,14 @@
+{
+	"name": "白名单/黑名单",
+	"icon": "lightmanscurrency:textures/gui/trader_guide/trade_rules/whitelist_blacklist/icon.png",
+	"category": "lightmanscurrency:trade_rules",
+	"pages": [
+		"“白名单/黑名单”规则允许您限制哪些顾客可以与给定的交易/交易者进行互动。",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/whitelist_blacklist/inputs.png",
+			"text":"此规则有两个主要输入项：第一个是最顶部的“模式”切换开关，用于将规则在白名单模式（仅允许列表中的玩家）和黑名单模式（拒绝列表中的玩家）之间切换。"
+		},
+		"第二个输入项是您希望加入白名单或黑名单的实际玩家列表。只需在文本框中输入玩家的用户名，当游戏找到他们的个人资料后点击+按钮，即可将其添加到列表中。$(br)您也可以通过点击玩家姓名旁边的X按钮，在下方列表中查看或移除玩家。"
+	]
+}

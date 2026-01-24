@@ -1,0 +1,19 @@
+{
+	"name": "每日交易进度",
+	"icon": "lightmanscurrency:textures/gui/trader_guide/trade_rules/daily_trades/icon.png",
+	"category": "lightmanscurrency:trade_rules",
+	"pages": [
+		"“每日交易进度”规则是只能同时应用于所有交易项目的规则。$(br2)启用后，顾客将只能按顺序与每个交易项目互动，并且在规定的时间过去之前，无法与列表中的下一级交易互动。",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/daily_trades/input.png",
+			"text":"该规则有一个时间输入项，允许您定义连续交易之间所需的等待时间。正如其名，默认值为1天，但您可以自定义时间，范围可从短至1分钟到长达30天。"
+		},
+		"您也可以手动重置规则的记忆，以强制所有玩家从第一个交易重新开始。$(br2)请注意：此规则基于交易索引生效，因此，如果您在两个已完整定义的交易之间存在一个未定义的交易，顾客将无法正常跳过那个缺失的交易并继续进度。",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/daily_trades/example_trades.png",
+			"text":"上面您可以看到一个应用了此规则的包含4个交易的示例设置。除了第一个交易外，所有交易都被锁定，直到顾客与之互动为止。系统会适时给出提示，告知顾客还需要等待多长时间才能与下一个交易互动。"
+		}
+	]
+}

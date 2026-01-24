@@ -1,0 +1,19 @@
+{
+	"name": "交易限制",
+	"icon": "lightmanscurrency:textures/gui/trader_guide/trade_rules/trade_limits/icon.png",
+	"category": "lightmanscurrency:trade_rules",
+	"pages": [
+		"“交易限制”和“玩家交易限制”规则允许您限制顾客与特定交易或交易者进行互动的次数。",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/trade_limits/global_inputs.png",
+			"text":"这两个规则都有两个主要输入项。第一个是“限制”计数，表示在此规则锁定交易之前允许的互动次数。$(br)第二个是一个按钮，允许您忘记先前的互动，从而有效地重置规则。"
+		},
+		"相似之处到此为止。普通的“交易限制”规则对所有玩家一视同仁，并且只允许给定次数的交易/交易者互动。一旦达到该限制，任何玩家都无法再与该交易/交易者进行互动。$(br2)而“玩家交易限制”规则则更灵活一些，它只限制每个顾客与交易互动的次数不超过给定数量。",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/trade_limits/timer_input.png",
+			"text":"它还有一个额外的计时器输入项，允许您在经过给定时间后忘记玩家的先前互动。这可以用来限制互动次数，以便其他顾客有机会购买供应有限的物品。"
+		}
+	]
+}

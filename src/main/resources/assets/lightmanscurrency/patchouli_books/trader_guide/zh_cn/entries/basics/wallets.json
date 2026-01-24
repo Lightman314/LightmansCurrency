@@ -1,0 +1,86 @@
+{
+	"name": "钱包",
+	"icon": "lightmanscurrency:wallet_gold",
+	"category": "lightmanscurrency:basics",
+	"pages": [
+		"钱包是Lightman's Currency中最重要的物品之一，强烈建议您尽早制作一个。$(br2)钱包用于存储任何硬币，并将自动与任何交易机器交互，在您尝试进行或接收付款时轻松提取和存入硬币。",
+		"这提供了一种无需占用物品栏空间即可存储货币和进行货币互动的便捷方式。$(br2)默认情况下，更高级的钱包具有比低级钱包更好的能力以及更大的存储空间。$(br2)我还应该指出，钱包是此模组的核心部分，某些购买方式$(l)要求$()您装备钱包才能进行支付。",
+		{
+			"type":"patchouli:crafting",
+			"recipe":"lightmanscurrency:wallet/wallet_leather",
+			"text":"$(br) * 默认大小：$(lightmanscurrency_wallet_slots:wallet_leather) 格$(br)$(l:basics/wallets#coin_exchange)$(lightmanscurrency_wallet_exchange:lightmanscurrency-wallet_leather; * 硬币兑换)$()$(br)$(l:basics/wallets#coin_pickup)$(lightmanscurrency_wallet_pickup:lightmanscurrency-wallet_leather; * 硬币拾取)$()$(br)$(l:basics/wallets#bank_access)$(lightmanscurrency_wallet_bank:lightmanscurrency-wallet_leather; * 有限银行访问)$()$(br2)可以像原版皮革盔甲一样染成任何颜色。"
+		},
+		{
+			"type":"patchouli:crafting",
+			"recipe":"lightmanscurrency:wallet/wallet_copper",
+			"text":"$(br) * 默认大小：$(lightmanscurrency_wallet_slots:wallet_copper) 格$(br)$(l:basics/wallets#coin_exchange)$(lightmanscurrency_wallet_exchange:lightmanscurrency-wallet_copper; * 硬币兑换)$()$(br)$(l:basics/wallets#coin_pickup)$(lightmanscurrency_wallet_pickup:lightmanscurrency-wallet_copper; * 硬币拾取)$()$(br)$(l:basics/wallets#bank_access)$(lightmanscurrency_wallet_bank:lightmanscurrency-wallet_copper; * 有限银行访问)$()"
+		},
+		{
+			"type":"patchouli:crafting",
+			"recipe":"lightmanscurrency:wallet/wallet_iron",
+			"text":"$(br) * 默认大小：$(lightmanscurrency_wallet_slots:wallet_iron) 格$(br)$(l:basics/wallets#coin_exchange)$(lightmanscurrency_wallet_exchange:lightmanscurrency-wallet_iron; * 硬币兑换)$()$(br)$(l:basics/wallets#coin_pickup)$(lightmanscurrency_wallet_pickup:lightmanscurrency-wallet_iron; * 硬币拾取)$()$(br)$(l:basics/wallets#bank_access)$(lightmanscurrency_wallet_bank:lightmanscurrency-wallet_iron; * 有限银行访问)$()"
+		},
+		{
+			"type":"patchouli:crafting",
+			"recipe":"lightmanscurrency:wallet/wallet_gold",
+			"text":"$(br) * 默认大小：$(lightmanscurrency_wallet_slots:wallet_gold) 格$(br)$(l:basics/wallets#coin_exchange)$(lightmanscurrency_wallet_exchange:lightmanscurrency-wallet_gold; * 硬币兑换)$()$(br)$(l:basics/wallets#coin_pickup)$(lightmanscurrency_wallet_pickup:lightmanscurrency-wallet_gold; * 硬币拾取)$()$(br)$(l:basics/wallets#bank_access)$(lightmanscurrency_wallet_bank:lightmanscurrency-wallet_gold; * 有限银行访问)$()"
+		},
+		{
+			"type":"patchouli:crafting",
+			"recipe":"lightmanscurrency:wallet/wallet_emerald",
+			"text":"$(br) * 默认大小：$(lightmanscurrency_wallet_slots:wallet_emerald) 格$(br)$(l:basics/wallets#coin_exchange)$(lightmanscurrency_wallet_exchange:lightmanscurrency-wallet_emerald; * 硬币兑换)$()$(br)$(l:basics/wallets#coin_pickup)$(lightmanscurrency_wallet_pickup:lightmanscurrency-wallet_emerald; * 硬币拾取)$()$(br)$(l:basics/wallets#bank_access)$(lightmanscurrency_wallet_bank:lightmanscurrency-wallet_emerald; * 有限银行访问)$()"
+		},
+		{
+			"type":"patchouli:crafting",
+			"recipe":"lightmanscurrency:wallet/wallet_diamond",
+			"text":"$(br) * 默认大小：$(lightmanscurrency_wallet_slots:wallet_diamond) 格$(br)$(l:basics/wallets#coin_exchange)$(lightmanscurrency_wallet_exchange:lightmanscurrency-wallet_diamond; * 硬币兑换)$()$(br)$(l:basics/wallets#coin_pickup)$(lightmanscurrency_wallet_pickup:lightmanscurrency-wallet_diamond; * 硬币拾取)$()$(br)$(l:basics/wallets#bank_access)$(lightmanscurrency_wallet_bank:lightmanscurrency-wallet_diamond; * 有限银行访问)$()"
+		},
+		{
+			"type":"patchouli:crafting",
+			"recipe":"lightmanscurrency:wallet/wallet_netherite",
+			"text":"$(br) * 默认大小：$(lightmanscurrency_wallet_slots:wallet_netherite) 格$(br)$(l:basics/wallets#coin_exchange)$(lightmanscurrency_wallet_exchange:lightmanscurrency-wallet_netherite; * 硬币兑换)$()$(br)$(l:basics/wallets#coin_pickup)$(lightmanscurrency_wallet_pickup:lightmanscurrency-wallet_netherite; * 硬币拾取)$()$(br)$(l:basics/wallets#bank_access)$(lightmanscurrency_wallet_bank:lightmanscurrency-wallet_netherite; * 有限银行访问)$()$(br3)免疫火焰伤害"
+		},
+		{
+			"type":"patchouli:crafting",
+			"recipe":"lightmanscurrency:wallet/wallet_nether_star",
+			"text":"$(br) * 默认大小：$(lightmanscurrency_wallet_slots:wallet_nether_star) 格$(br)$(l:basics/wallets#coin_exchange)$(lightmanscurrency_wallet_exchange:lightmanscurrency-wallet_nether_star; * 硬币兑换)$()$(br)$(l:basics/wallets#coin_pickup)$(lightmanscurrency_wallet_pickup:lightmanscurrency-wallet_nether_star; * 硬币拾取)$()$(br)$(l:basics/wallets#bank_access)$(lightmanscurrency_wallet_bank:lightmanscurrency-wallet_nether_star; * 有限银行访问)$()$(br) * $(lightmanscurrency_wallet_magnet:wallet_nether_star) 额外 $(item)硬币磁铁$() 等级$(br2)完全无敌"
+		},
+		{
+			"type":"patchouli:spotlight",
+			"item":"lightmanscurrency:wallet_ender_dragon",
+			"link_recipe":true,
+			"text":"有10%的几率在末地城箱子中生成。$(br)无法合成。$(br2) * 默认大小：$(lightmanscurrency_wallet_slots:wallet_ender_dragon) 格$(br)$(l:basics/wallets#coin_exchange)$(lightmanscurrency_wallet_exchange:lightmanscurrency-wallet_ender_dragon; * 硬币兑换)$()$(br)$(l:basics/wallets#coin_pickup)$(lightmanscurrency_wallet_pickup:lightmanscurrency-wallet_ender_dragon; * 硬币拾取)$()$(br)$(l:basics/wallets#bank_access)$(lightmanscurrency_wallet_bank:lightmanscurrency-wallet_ender_dragon; * 有限银行访问)$()$(br) * $(lightmanscurrency_wallet_magnet:wallet_ender_dragon) 额外 $(item)硬币磁铁$() 等级$(br)可以额外升级2次$(br)    免疫火焰伤害"
+		},
+		"除了基础的合成配方外，大多数钱包还可以使用额外的材料从较低品质的对应物升级而来。$(br2)它们还可以在任意与钱包无关的菜单中使用$(item)钻石$()进行有限次数的升级。",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"flag":"!mod:curios",
+			"image":"lightmanscurrency:textures/gui/trader_guide/basics/wallets/wallet_slot_normal.png",
+			"text":"虽然钱包$(o)可以$()通过使用钱包物品打开，但大多数钱包能力（自动收集和支付使用）仅在装备于如上图所示的钱包槽位时才起作用。"
+		},
+		{
+			"type":"lightmanscurrency:wide_image",
+			"flag":"mod:curios",
+			"image":"lightmanscurrency:textures/gui/trader_guide/basics/wallets/wallet_slot_curios.png",
+			"text":"虽然钱包$(o)可以$()通过使用钱包物品打开，但大多数钱包能力（自动收集和支付使用）仅在装备于如上图所示的curios钱包槽位时才起作用。"
+		},
+		{
+			"type":"patchouli:text",
+			"anchor":"coin_exchange",
+			"title":"硬币兑换",
+			"text":"具有$(l)硬币兑换$()能力的钱包在钱包菜单中获得一个新按钮，允许您将钱包内当前所有硬币兑换成最高面值的硬币（从而减少物品数量）。$(br2)在有效利用钱包物理空间方面，此能力至关重要。"
+		},
+		{
+			"type":"patchouli:text",
+			"anchor":"coin_pickup",
+			"title":"硬币拾取",
+			"text":"具有$(l)硬币拾取$()能力的钱包现在会在您从地上拾取硬币时自动将其直接导入您的钱包。具有此能力的钱包现在也可以附魔硬币磁铁附魔。$(br)由于此能力在兑换能力之后解锁，收集的硬币也会自动兑换成最高面值的硬币以节省钱包空间。"
+		},
+		{
+			"type":"patchouli:text",
+			"anchor":"bank_access",
+			"title":"银行访问",
+			"text":"具有银行访问能力的钱包能够在钱包菜单内直接从其银行账户存款或取款。$(br2)拥有这些钱包的用户通过点击正常钱包菜单左上角的按钮可以访问第二个菜单，该菜单包含ATM银行账户选择和交互选项卡的简化版本。"
+		}
+	]
+}

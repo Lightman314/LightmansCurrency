@@ -1,0 +1,24 @@
+{
+  "name": "访问交易规则",
+  "icon": "minecraft:book",
+  "category": "lightmanscurrency:trade_rules",
+  "pages": [
+    "交易规则是您可以应用于整个交易机器或单个交易项目的特殊规则，可用于操纵交易价格或对特定客户的访问性。$(br2)大多数交易者有两种不同类型的交易规则列表：一种针对所有交易同时生效，另一种仅针对选定的交易（每个交易都有一个列表）。",
+    {
+      "type": "lightmanscurrency:wide_image",
+      "image": "lightmanscurrency:textures/gui/trader_guide/trade_rules/accessing_rules/all_trades_rule_button.png",
+      "text": "适用于交易者上$(bold)所有交易$()的交易规则可以通过交易者存储菜单中的“交易者规则”选项卡访问。"
+    },
+    {
+      "type": "lightmanscurrency:wide_image",
+      "image": "lightmanscurrency:textures/gui/trader_guide/trade_rules/accessing_rules/targeted_trade_rule_button.png",
+      "text": "仅适用于$(bold)选定交易$()的交易规则可以通过点击交易详情选项卡中出现的“交易特定规则”按钮来访问。"
+    },
+    "在访问了给定目标的交易规则列表后，您就可以切换每个可用的规则。$(br2)一旦规则被激活，右侧将出现一个新选项卡，允许您修改该规则的具体设置。$(br2)只有激活的交易规则才会实际应用于目标交易，有些规则仅针对单个交易，而其他规则可能专门针对所有交易。",
+    {
+      "type": "lightmanscurrency:image",
+      "image": "lightmanscurrency:textures/gui/trader_guide/trade_rules/accessing_rules/rule_list.png"
+    },
+    "每个规则都有自己的一套设置和功能，每个规则在本指南的$(l:trade_rules)交易规则$()部分中有详细说明。"
+  ]
+}
