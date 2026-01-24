@@ -1,0 +1,15 @@
+{
+	"name": "价格波动",
+	"icon": "lightmanscurrency:textures/gui/trader_guide/trade_rules/price_fluctuation/icon.png",
+	"category": "lightmanscurrency:trade_rules",
+	"pages": [
+		"“价格波动”规则允许您在一定百分比范围内，每隔一段时间随机调整交易的价格。",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/price_fluctuation/inputs.png",
+			"text":"此规则有两个输入项：第一个是波动/变化百分比，表示规则可以给出的价格相对于基础价格的浮动范围。$(br2)第二个是时间输入项，决定价格随机变化的频率。"
+		},
+		"需要注意的几点：$(li)为了保持一致性和效率，计时器基于1970年1月1日以来的时间，因此您可以将延迟设置为1小时，但如果设置规则时已超过1小时标记，则可能在设置规则后不到5分钟就会重新随机化。$(li)随机化范围是从 -X% 到 +X%，因此价格有可能随机化为+0%，即使用默认价格。",
+		"$(li)即使应用于所有交易，每个交易的价格也将分别随机化（当然在相同范围内）。这意味着在同一交易规则下，交易1可能随机为+5%，而交易2为-3%。"
+	]
+}

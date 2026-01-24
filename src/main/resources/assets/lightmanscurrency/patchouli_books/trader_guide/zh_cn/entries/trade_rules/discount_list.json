@@ -1,0 +1,14 @@
+{
+	"name": "折扣",
+	"icon": "lightmanscurrency:textures/gui/trader_guide/trade_rules/discount_list/icon.png",
+	"category": "lightmanscurrency:trade_rules",
+	"pages": [
+		"“折扣”规则允许您为指定的玩家列表提供交易百分比折扣。可以将其视为$(l:trade_rules/discount_codes)折扣码$()规则更直接的版本，但更安全且灵活性较低。",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/discount_list/inputs.png",
+			"text":"此规则只有两个需要注意的输入项。左上角的文本框允许您定义折扣百分比（例如，输入10表示10%的折扣）。$(br2)下方是符合折扣资格的玩家列表。"
+		},
+		"只需在文本框中输入玩家的用户名，当游戏找到他们的个人资料后点击+按钮，即可将其添加到列表中。$(br)您也可以通过点击玩家姓名旁边的X按钮，在下方列表中查看或移除玩家。"
+	]
+}

@@ -1,0 +1,32 @@
+{
+	"name": "折扣码",
+	"icon": "lightmanscurrency:coupon",
+	"category": "lightmanscurrency:trade_rules",
+	"pages": [
+		"“折扣码”规则允许您创建折扣码，顾客可以使用这些折扣码获得基于百分比的折扣。$(br2)顾客可以直接在交易者界面中输入这些代码，或者通过持有使用该代码在库存中制作的优惠券来使用。",
+		{
+			"type":"lightmanscurrency:wide_image_2",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/discount_codes/code_list.png",
+			"text":"折扣码规则允许创建和处理多个独立的代码。每个已创建的代码将列在规则设置中，底部有一个文本框，您可以在其中添加新代码。"
+		},
+		{
+			"type":"lightmanscurrency:wide_image_2",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/discount_codes/code_settings.png",
+			"text":"创建新的折扣码后，您可以自定义折扣百分比（例如，输入10表示10%的折扣），以及定义任何更高级的限制。"
+		},
+		"“限制”输入字段允许您定义给定$(bold)玩家$()在代码被忽略之前可以使用折扣码的次数。这可以与下面的时间输入结合使用，将玩家限制为每天、每小时等特定使用次数。$(br2)限制输入为0表示不通过规则应用任何限制，但可以通过给他们一张使用次数有限的优惠券来实现有限次使用。",
+		{
+			"type":"patchouli:text",
+			"anchor":"using_codes",
+			"text":"顾客有两种方式将折扣码实际应用于交易。第一种是让某人在票务站制作一张$(item)优惠券$()，其中输入的代码与所需的折扣码匹配。$(br2)任何持有以这种方式创建的优惠券的玩家将自动将折扣码应用于他们交互的任何交易，这种方法允许您在保持实际折扣码秘密的同时，在交易上出售折扣。",
+			"title":"使用折扣码"
+		},
+		"这是最灵活的方式，可以谨慎地向某些顾客提供折扣，而不必在$(l:trade_rules/discount_list)折扣$()规则中手动管理有折扣的玩家列表，并且具有额外的灵活性，您可以在制作$(item)优惠券$()时定义有限的使用次数。",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/discount_codes/code_input.png",
+			"text":"第二种选择是直接告诉您的顾客代码，然后他们可以点击交易屏幕上的“应用折扣码”按钮，并手动输入代码以应用折扣。"
+		},
+		"一旦应用了您想要的代码，只需再次点击“应用折扣码”按钮即可返回到正常的交易屏幕。$(br2)最后一点注意：请小心您将折扣码告诉谁，因为任何人都可以用您的折扣码制作优惠券，如果您告诉不值得信任的人，他们可能会滥用这些折扣码。"
+	]
+}

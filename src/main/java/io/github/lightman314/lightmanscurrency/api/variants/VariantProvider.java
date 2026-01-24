@@ -76,6 +76,8 @@ public class VariantProvider<T,V> {
     @Nullable
     public final V get(T value)
     {
+        if(value == null)
+            return null;
         ResourceLocation key = this.keyGetter.apply(Objects.requireNonNull(value));
         if(this.resultCache.containsKey(key))
             return this.resultCache.get(key);

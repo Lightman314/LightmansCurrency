@@ -1,0 +1,14 @@
+{
+	"name": "免费样品",
+	"icon": "lightmanscurrency:textures/gui/trader_guide/trade_rules/free_sample/icon.png",
+	"category": "lightmanscurrency:trade_rules",
+	"pages": [
+		"“免费样品”规则允许您让顾客在进行有限次数的免费交易互动后，再恢复使用通常定义的价格。",
+		{
+			"type":"lightmanscurrency:wide_image",
+			"image":"lightmanscurrency:textures/gui/trader_guide/trade_rules/free_sample/inputs.png",
+			"text":"此规则的输入项非常简单，大部分都一目了然。左上角的文本框允许您定义顾客在规则忽略他们之前可以领取多少份免费样品。"
+		},
+		"底部的时间输入项允许您设置规则清除先前互动记录的时间间隔，以便玩家可以每隔一段时间领取一份新的免费样品。$(br2)中间还有一个重置按钮，可以清除规则的记忆，让已经领取过免费样品的玩家能够再次领取。"
+	]
+}
