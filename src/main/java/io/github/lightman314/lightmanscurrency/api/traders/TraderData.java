@@ -23,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.ownership.IOwnable;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.FakeOwner;
@@ -1189,6 +1190,9 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		
 		if(compound.contains("Logger"))
 			this.logger.load(compound.getCompound("Logger"), lookup);
+        //Update Logger
+        if(compound.contains("AddNotification"))
+            this.logger.addNotification(NotificationAPI.getApi().LoadNotification(compound.getCompound("AddNotification"),lookup));
 
 		if(compound.contains("Stats"))
 			this.statTracker.load(compound.getCompound("Stats"), lookup);
@@ -1974,7 +1978,9 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		if(this.isClient)
 			return;
 		this.logger.addNotification(notification);
-		this.markDirty(this::saveLogger);
+        //Only send the new notification to the client.
+        //They should be able to properly sync the merging functionality, and even if they can't, it's only a visual issue at worst...
+        this.markDirty(tag -> tag.put("AddNotification",notification.save(this.registryAccess())));
 	}
 	
 	public final void pushNotification(Supplier<Notification> notificationSource) {

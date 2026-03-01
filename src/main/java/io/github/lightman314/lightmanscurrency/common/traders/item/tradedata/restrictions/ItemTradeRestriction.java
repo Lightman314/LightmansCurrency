@@ -175,7 +175,7 @@ public class ItemTradeRestriction {
 	{
 		if(sellItem.isEmpty())
 			return;
-		traderStorage.removeItem(sellItem);
+		traderStorage.removeItemUnlimited(sellItem);
 	}
 
 	public boolean alwaysEnforceNBT(int tradeSlot) { return false; }

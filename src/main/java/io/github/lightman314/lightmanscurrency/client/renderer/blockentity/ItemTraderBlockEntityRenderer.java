@@ -87,6 +87,9 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 	public static void renderItems(ItemTraderBlockEntity blockEntity, float partialTicks, PoseStack pose, MultiBufferSource buffer, int lightLevel, int overlay)
 	{
 		try{
+            final int renderLimit = LCConfig.CLIENT.itemRenderLimit.get();
+            if(renderLimit <= 0) //Stop doing unnecessary calculations as soon as possible
+                return;
 			TraderData rawTrader = blockEntity.getRawTraderData();
 			if(!(rawTrader instanceof ItemTraderData trader))
 				return;
@@ -98,7 +101,6 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 			if(positionData.isEmpty())
 				return;
 			final int maxIndex = positionData.getEntryCount();
-			final int renderLimit = LCConfig.CLIENT.itemRenderLimit.get();
 			BlockState state = blockEntity.getBlockState();
 			ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
 			Level level = blockEntity.getLevel();
@@ -126,7 +128,8 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 					//Get scale
 					float scale = positionData.getScale(tradeSlot);
 
-					for(int pos = 0; pos < renderLimit && pos < positions.size() && pos < trader.getTradeStock(tradeSlot); pos++)
+                    final int stock = trader.getTradeStock(tradeSlot);
+                    for(int pos = 0; pos < renderLimit && pos < positions.size() && pos < stock; pos++)
 					{
 
 						pose.pushPose();

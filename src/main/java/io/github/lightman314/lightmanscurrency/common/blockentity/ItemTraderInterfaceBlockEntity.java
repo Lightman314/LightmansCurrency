@@ -197,6 +197,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	protected void drainTick(@Nonnull TraderData t) {
 		if(t instanceof ItemTraderData trader && trader.hasPermission(this.owner.getPlayerForContext(), Permissions.INTERACTION_LINK))
 		{
+            boolean changed = false;
 			for(int i = 0; i < trader.getTradeCount(); ++i)
 			{
 				ItemTradeData trade = trader.getTrade(i);
@@ -225,20 +226,24 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 								ItemStack movingStack = drainItem.copy();
 								movingStack.setCount(Math.min(movingStack.getMaxStackSize(), drainableAmount));
 								//Remove the stack from storage
-								ItemStack removed = trader.getStorage().removeItem(movingStack);
+								ItemStack removed = trader.getStorage().removeItemUnlimited(movingStack);
 								//InventoryUtil.RemoveItemCount(trader.getStorage(), movingStack);
 								//Put the stack in the item buffer (if possible)
 								ItemStack leftovers = ItemHandlerHelper.insertItemStacked(this.itemBuffer, removed, false);
 								//If some items couldn't be put in the item buffer, put them back in storage
 								if(!leftovers.isEmpty())
 									trader.getStorage().forceAddItem(leftovers);
-								this.setItemBufferDirty();
-								trader.markStorageDirty();
+								changed = true;
 							}
 						}
 					}
 				}
 			}
+            if(changed)
+            {
+                this.setItemBufferDirty();
+                trader.markStorageDirty();
+            }
 		}
 	}
 
@@ -246,6 +251,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	protected void restockTick(@Nonnull TraderData t) {
 		if(t instanceof ItemTraderData trader && trader.hasPermission(this.owner.getPlayerForContext(), Permissions.INTERACTION_LINK))
 		{
+            boolean changed = false;
 			for(int i = 0; i < trader.getTradeCount(); ++i)
 			{
 				ItemTradeData trade = trader.getTrade(i);
@@ -262,7 +268,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 								ItemStack movingStack = stockItem.copy();
 								movingStack.setCount(Math.min(movingStack.getMaxStackSize(), stockableAmount));
 								//Remove the item from the item buffer
-								ItemStack removedItem = this.itemBuffer.removeItem(movingStack);
+								ItemStack removedItem = this.itemBuffer.removeItemUnlimited(movingStack);
 								if(removedItem.getCount() == movingStack.getCount())
 								{
 									trader.getStorage().tryAddItem(movingStack);
@@ -274,13 +280,17 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 								}
 								else
 									this.itemBuffer.forceAddItem(removedItem);
-								this.setItemBufferDirty();
-								trader.markStorageDirty();
+								changed = true;
 							}
 						}
 					}
 				}
 			}
+            if(changed)
+            {
+                this.setItemBufferDirty();
+                trader.markStorageDirty();
+            }
 		}
 	}
 
@@ -369,7 +379,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 									if (placed > 0) {
 										query = false;
 										stack.setCount(placed);
-										this.itemBuffer.removeItem(stack);
+										this.itemBuffer.removeItemUnlimited(stack);
 										markBufferDirty = true;
 									}
 								}
@@ -377,7 +387,6 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 						}
 					}
 				}
-				
 			}
 		}
 		if(markBufferDirty)
