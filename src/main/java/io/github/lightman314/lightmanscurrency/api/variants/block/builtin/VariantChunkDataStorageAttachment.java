@@ -67,8 +67,11 @@ public class VariantChunkDataStorageAttachment implements ICapabilitySerializabl
         return result;
     }
 
-    public void syncWith(ServerPlayer player)
+    public void trySyncWith(ServerPlayer player)
     {
+        //Don't send a packet if the data is empty
+        if(this.data.isEmpty())
+            return;
         new SPacketSyncVariantChunkCap(this.parent.getPos(),this.copyData()).sendTo(player);
     }
 

@@ -254,7 +254,12 @@ dependencies {
     implementation fg.deobf("maven.modrinth:cc-tweaked:${computercraft_version}")
 
     //FTB Filter System
-    compileOnly "curse.maven:ftb-filter-system-943925:6466153"
+    compileOnly fg.deobf("curse.maven:ftb-filter-system-943925:6466153")
+
+    //Runtime testing of sophisticated storage
+    runtimeOnly fg.deobf("curse.maven:sophisticated-core-618298:7645911")
+    runtimeOnly fg.deobf("curse.maven:sophisticated-storage-619320:7603098")
+    runtimeOnly fg.deobf("curse.maven:sophisticated-backpacks-422301:7645913")
 
 }
 

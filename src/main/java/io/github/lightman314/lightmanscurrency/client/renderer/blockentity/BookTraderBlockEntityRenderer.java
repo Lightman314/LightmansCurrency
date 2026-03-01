@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.BookRenderer;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.BookTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
@@ -25,13 +26,15 @@ public class BookTraderBlockEntityRenderer implements BlockEntityRenderer<BookTr
     @Override
     public void render(@Nonnull BookTraderBlockEntity blockEntity, float partialTicks, @NotNull PoseStack pose, @NotNull MultiBufferSource buffer, int lightLevel, int id)
     {
+        //Don't render books when the item render limit is 0
+        if(LCConfig.CLIENT.itemRenderLimit.get() <= 0)
+            return;
         ItemTraderData trader = blockEntity.getTraderData();
         if(trader == null)
             return;
 
         for(int tradeSlot = 0; tradeSlot < trader.getTradeCount() && tradeSlot < blockEntity.maxRenderIndex(); tradeSlot++)
         {
-
             ItemTradeData trade = trader.getTrade(tradeSlot);
             if(trade.hasStock(trader))
             {

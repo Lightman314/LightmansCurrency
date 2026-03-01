@@ -26,6 +26,7 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.ownership.IOwnable;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.FakeOwner;
@@ -149,7 +150,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	public static final Predicate<Notification> LOGS_NORMAL_FILTER = n -> !n.getCategory().matches(NullCategory.INSTANCE);
 	public static final Predicate<Notification> LOGS_SETTINGS_FILTER = n -> n.getCategory().matches(NullCategory.INSTANCE);
 
-	private final Map<String, SettingsNode> settingsNodes = new HashMap<>();
+	private final Map<String,SettingsNode> settingsNodes = new HashMap<>();
 
 	@Nullable
 	@Override
@@ -1181,6 +1182,9 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 
 		if(compound.contains("Logger"))
 			this.logger.load(compound.getCompound("Logger"));
+        //Update Logger
+        if(compound.contains("AddNotification"))
+            this.logger.addNotification(NotificationAPI.getApi().LoadNotification(compound.getCompound("AddNotification")));
 
 		if(compound.contains("Stats"))
 			this.statTracker.load(compound.getCompound("Stats"));
@@ -1973,8 +1977,10 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 	{
 		if(this.isClient)
 			return;
-		this.logger.addNotification(notification);
-		this.markDirty(this::saveLogger);
+        this.logger.addNotification(notification);
+        //Only send the new notification to the client.
+        //They should be able to properly sync the merging functionality, and even if they can't, it's only a visual issue at worst...
+        this.markDirty(tag -> tag.put("AddNotification",notification.save()));
 	}
 
 	public final void pushNotification(Supplier<Notification> notificationSource) {

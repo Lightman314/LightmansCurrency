@@ -26,6 +26,7 @@ public class VariantDataStorageAttachment implements IVariantDataStorage, ICapab
     private ResourceLocation variant = null;
     private boolean locked = false;
     private final BlockEntity parent;
+    public boolean shouldDoInitialSync() { return this.variant != null || this.locked; }
     public VariantDataStorageAttachment(BlockEntity parent) { this.parent = parent; }
 
     @Nullable

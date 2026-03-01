@@ -108,7 +108,7 @@ public class TraderItemHandler<T extends InputTraderData & TraderItemHandler.IIt
 				ItemStack stackInSlot = this.getStackInSlot(slot).copy();
 				if(stackInSlot.isEmpty() || !this.allowExtraction(stackInSlot))
 					return ItemStack.EMPTY;
-				int amountToRemove = Math.min(amount, Math.min(stackInSlot.getCount(), stackInSlot.getMaxStackSize()));
+				int amountToRemove = Math.min(amount,stackInSlot.getCount());
 				if(amountToRemove > 0)
 				{
 					ItemStack result = stackInSlot.copy();
@@ -116,7 +116,7 @@ public class TraderItemHandler<T extends InputTraderData & TraderItemHandler.IIt
 					if(!simulate)
 					{
 						stackInSlot.setCount(amountToRemove);
-						result = this.getStorage().removeItem(stackInSlot);
+						result = this.getStorage().removeItemUnlimited(stackInSlot);
 					}
 					this.trader.markStorageDirty();
 					return result;

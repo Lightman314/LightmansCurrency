@@ -224,7 +224,7 @@ public final class SlotMachineEntry {
                 if(!trader.isCreative())
                 {
                     for(ItemStack i : this.items)
-                        trader.getStorage().removeItem(i);
+                        trader.getStorage().removeItemUnlimited(i);
                     trader.markStorageDirty();
                 }
             }

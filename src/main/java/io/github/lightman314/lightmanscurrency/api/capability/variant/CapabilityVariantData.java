@@ -123,11 +123,11 @@ public class CapabilityVariantData {
         //Send sync packet to newly watching players
         event.getChunk().getBlockEntities().forEach((pos,be) ->
             be.getCapability(CAPABILITY).ifPresent(data -> {
-                if(data instanceof VariantDataStorageAttachment attachment)
+                if(data instanceof VariantDataStorageAttachment attachment && attachment.shouldDoInitialSync())
                     attachment.syncWith(event.getPlayer());
             }));
         event.getChunk().getCapability(VariantChunkDataStorageAttachment.CAP).ifPresent(data ->
-            data.syncWith(event.getPlayer()));
+            data.trySyncWith(event.getPlayer()));
     }
 
 }

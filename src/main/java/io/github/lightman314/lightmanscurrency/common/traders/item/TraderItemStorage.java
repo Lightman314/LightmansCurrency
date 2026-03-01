@@ -249,7 +249,7 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 			ItemStack stack = this.storage.get(i);
 			if(InventoryUtil.ItemMatches(item, stack))
 			{
-				int amountToRemove = Math.min(item.getCount(), item.getMaxStackSize());
+				int amountToRemove = Math.min(item.getCount(),item.getMaxStackSize());
 				ItemStack output = stack.split(amountToRemove);
 				if(stack.isEmpty())
 					this.storage.remove(i);
@@ -258,6 +258,26 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 		}
 		return ItemStack.EMPTY;
 	}
+
+    /**
+     * Removes the requested item from storage. Does not limit the amount removed by item stack size
+     * @return The item that was removed successfully.
+     */
+    public ItemStack removeItemUnlimited(ItemStack item) {
+        for(int i = 0; i < this.storage.size(); ++i)
+        {
+            ItemStack stack = this.storage.get(i);
+            if(InventoryUtil.ItemMatches(item,stack))
+            {
+                ItemStack output = stack.split(item.getCount());
+                if(stack.isEmpty())
+                    this.storage.remove(i);
+                return output;
+            }
+
+        }
+        return ItemStack.EMPTY;
+    }
 	
 	/**
 	 * Removes the requested amount of items with the given item tag from storage.
@@ -385,7 +405,7 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
 			removedStack = ItemStack.EMPTY;
 		if(!simulate && amountToRemove > 0)
 		{
-			this.removeItem(removedStack);
+			this.removeItemUnlimited(removedStack);
 		}
 		return removedStack;
 	}
