@@ -3,19 +3,15 @@ package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_
 import com.google.gson.JsonElement;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.api.events.client.RegisterVariantPropertiesEvent;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.fml.ModLoader;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class VariantProperty<T> {
 
     private static Map<ResourceLocation,VariantProperty<?>> registry = null;

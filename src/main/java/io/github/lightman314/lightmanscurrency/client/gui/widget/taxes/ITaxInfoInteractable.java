@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.taxes;
 
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 
 import javax.annotation.Nullable;
 

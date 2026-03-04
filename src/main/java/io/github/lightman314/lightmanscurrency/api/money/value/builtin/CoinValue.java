@@ -9,15 +9,19 @@ import com.google.common.collect.Lists;
 import com.google.gson.*;
 import com.mojang.datafixers.util.Pair;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEntry;
+import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.types.builtin.CoinCurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.value.IItemBasedValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
+import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
@@ -25,24 +29,33 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Range;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public final class CoinValue extends MoneyValue implements IItemBasedValue
 {
 
+    public static final MapCodec<CoinValue> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+            Codec.STRING.fieldOf("chain").forGetter(CoinValue::getChain),
+            CoinValuePair.CODEC.listOf().fieldOf("value").forGetter(v -> v.coinValues)
+            ).apply(builder,CoinValue::new));
+    public static final StreamCodec<RegistryFriendlyByteBuf,CoinValue> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8,CoinValue::getChain,
+            CoinValuePair.STREAM_CODEC.apply(ByteBufCodecs.list()),v -> v.coinValues,
+            CoinValue::new);
+
 	public final ImmutableList<CoinValuePair> coinValues;
 
 	private final String chain;
 	private CompoundTag backup = null;
-	@Nonnull
 	public String getChain() { return this.chain; }
 
 	@Override
@@ -52,30 +65,29 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 
 	public boolean isValid() { return this.isFree() || !this.coinValues.isEmpty(); }
 
-	@Nonnull
+	
 	@Override
 	protected String generateUniqueName() { return this.generateCustomUniqueName(this.chain); }
 
-	@Nonnull
+	
 	@Override
-	protected ResourceLocation getType() { return CoinCurrencyType.TYPE; }
+	public CurrencyType<?> getType() { return CoinCurrencyType.INSTANCE; }
 
-	private CoinValue(@Nonnull String chain, @Nonnull CompoundTag backup)
+	private CoinValue(String chain, CompoundTag backup)
 	{
 		this.chain = chain;
 		this.coinValues = ImmutableList.of();
 		this.backup = backup;
 	}
-	private CoinValue(@Nonnull String chain, @Nonnull List<CoinValuePair> values) {
+	private CoinValue(String chain, List<CoinValuePair> values) {
 		this.chain = chain;
 		this.coinValues = ImmutableList.copyOf(roundValue(this.chain, values));
 	}
 
+	public static MoneyValue create(String chain, List<CoinValuePair> coinValues) { return coinValues.isEmpty() ? MoneyValue.empty() : new CoinValue(chain, coinValues); }
 
-	public static MoneyValue create(@Nonnull String chain, @Nonnull List<CoinValuePair> coinValues) { return coinValues.isEmpty() ? MoneyValue.empty() : new CoinValue(chain, coinValues); }
 
-
-	public void saveAdditional(@Nonnull CompoundTag tag)
+	public void saveAdditional(CompoundTag tag)
 	{
 		if(this.backup != null)
 		{
@@ -89,8 +101,8 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 		tag.put("Value", valueList);
 	}
 
-	@Nonnull
-	public static MoneyValue loadCoinValue(@Nonnull CompoundTag tag)
+	@Deprecated
+	public static MoneyValue loadOldCoinValue(CompoundTag tag)
 	{
 		if(tag.contains("Chain", Tag.TAG_STRING))
 		{
@@ -123,7 +135,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 	 * Use {@link MoneyValue#load(CompoundTag)} instead.
 	 */
 	@Nullable
-	public static MoneyValue loadDeprecated(@Nonnull CompoundTag tag)
+	public static MoneyValue loadDeprecated(CompoundTag tag)
 	{
 		if(tag.contains("Free", Tag.TAG_BYTE))
 			return MoneyValue.free();
@@ -155,7 +167,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 	 * Use {@link MoneyValue#safeLoad(CompoundTag, String)} instead.
 	 */
 	@Nullable
-	public static MoneyValue loadDeprecated(@Nonnull CompoundTag parentTag, @Nonnull String key)
+	public static MoneyValue loadDeprecated(CompoundTag parentTag, String key)
 	{
 		if(parentTag.contains(key, Tag.TAG_INT))
 			return fromNumber("main", parentTag.getInt(key));
@@ -185,7 +197,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 		return MoneyValue.empty();
 	}
 
-	public static MoneyValue fromNumber(@Nonnull String chain, long valueNumber) { return fromNumber(CoinAPI.getApi().ChainData(chain), valueNumber); }
+	public static MoneyValue fromNumber(String chain, long valueNumber) { return fromNumber(CoinAPI.getApi().ChainData(chain), valueNumber); }
 	public static MoneyValue fromNumber(ChainData chainData, long valueNumber)
 	{
 		//LightmansCurrency.LogDebug("Generating Coin Value from '" + chain + "' with a value of " + valueNumber);
@@ -233,10 +245,10 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 	 * Gets a non-empty coin value from either the value of the item,
 	 * or if the item is not a registered coin it falls back onto the given number value.
 	 */
-	@Nonnull
+	
 	public static MoneyValue fromItemOrValue(Item coin, long value) { return fromItemOrValue(coin, 1, value); }
 
-	@Nonnull
+	
 	public static MoneyValue fromItemOrValue(Item coin, int itemCount, long value)
 	{
 		ChainData chainData = CoinAPI.getApi().ChainDataOfCoin(coin);
@@ -246,27 +258,28 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 	}
 
 	@Override
-	public MoneyValue addValue(@Nonnull MoneyValue addedValue) {
+    @Nullable
+	public MoneyValue addValue(MoneyValue addedValue) {
 		if(this.sameType(addedValue))
 			return fromNumber(this.chain, this.getCoreValue() + addedValue.getCoreValue());
 		return null;
 	}
 
 	@Override
-	public boolean containsValue(@Nonnull MoneyValue queryValue) {
+	public boolean containsValue(MoneyValue queryValue) {
 		if(this.sameType(queryValue))
 			return this.getCoreValue() >= queryValue.getCoreValue();
 		return false;
 	}
 
 	@Override
-	public MoneyValue subtractValue(@Nonnull MoneyValue removedValue) {
+	public MoneyValue subtractValue(MoneyValue removedValue) {
 		if(this.sameType(removedValue) && this.containsValue(removedValue))
 			return fromNumber(this.chain, this.getCoreValue() - removedValue.getCoreValue());
 		return null;
 	}
 
-	@Nonnull
+	
 	@Override
 	public MoneyValue multiplyValue(double multiplier) {
 		BigDecimal value = BigDecimal.valueOf(this.getCoreValue());
@@ -306,20 +319,20 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 		return fromNumber(this.chain, newValue);
 	}
 
-	@Nonnull
+	
 	@Override
 	public MoneyValue getSmallestValue() { return fromNumber(this.chain, 1); }
 
-	@Nonnull
+	
 	@Override
 	public MoneyValue fromCoreValue(long value) { return fromNumber(this.chain,value); }
 
-	@Nonnull
+	
 	@Override
-	public List<ItemStack> onBlockBroken(@Nonnull OwnerData owner) { return this.getAsSeperatedItemList(); }
+	public List<ItemStack> onBlockBroken(OwnerData owner) { return this.getAsSeperatedItemList(); }
 
 	//Rounding and Sorting functions. Now static and only used on a coin values init stage as they are now immutable.
-	private static List<CoinValuePair> roundValue(@Nonnull String chain, @Nonnull List<CoinValuePair> list)
+	private static List<CoinValuePair> roundValue(String chain, List<CoinValuePair> list)
 	{
 		ChainData chainData = CoinAPI.getApi().ChainData(chain);
 		if(chainData == null)
@@ -368,7 +381,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 		return sortValue(chainData, list);
 	}
 	
-	private static List<CoinValuePair> sortValue(@Nonnull ChainData chainData, List<CoinValuePair> list)
+	private static List<CoinValuePair> sortValue(ChainData chainData, List<CoinValuePair> list)
 	{
 		List<CoinValuePair> newList = new ArrayList<>();
 		while(!list.isEmpty())
@@ -391,7 +404,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 		return newList;
 	}
 	
-	private static boolean needsRounding(@Nonnull ChainData chainData, @Nonnull List<CoinValuePair> list)
+	private static boolean needsRounding(ChainData chainData, List<CoinValuePair> list)
 	{
 		for(int i = 0; i < list.size(); i++)
 		{
@@ -401,7 +414,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 		return false;
 	}
 	
-	private static boolean needsRounding(@Nonnull ChainData chainData, @Nonnull List<CoinValuePair> list, int index)
+	private static boolean needsRounding(ChainData chainData, List<CoinValuePair> list, int index)
 	{
 		CoinValuePair pair = list.get(index);
 		Pair<CoinEntry,Integer> exchange = chainData.getUpperExchange(pair.coin);
@@ -412,7 +425,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 	
 	public List<CoinValuePair> getEntries() { return this.coinValues; }
 
-	@Nonnull
+	
 	public List<ItemStack> getAsItemList() {
 		List<ItemStack> items = new ArrayList<>();
 		for(CoinValuePair entry : this.coinValues)
@@ -430,9 +443,9 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 		return 0;
 	}
 
-	@Nonnull
+	
 	@Override
-	public MutableComponent getText(@Nonnull MutableComponent emptyText)
+	public Component getText(Component emptyText)
 	{
 		ChainData chainData = CoinAPI.getApi().ChainData(this.chain);
 		if(chainData == null)
@@ -455,16 +468,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 		return Math.max(0,value);
 	}
 
-	@Override
-	protected void writeAdditionalToJson(@Nonnull JsonObject json) {
-		JsonArray array = new JsonArray();
-		for (CoinValuePair pair : this.coinValues)
-			array.add(pair.toJson());
-		json.add("Value", array);
-		json.addProperty("Chain", this.chain);
-	}
-
-	public static MoneyValue loadCoinValue(@Nonnull JsonObject json) throws JsonSyntaxException, ResourceLocationException {
+	public static MoneyValue loadCoinValue(JsonObject json) throws JsonSyntaxException, ResourceLocationException {
 		String chain = GsonHelper.getAsString(json, "Chain");
 		ChainData data = CoinAPI.getApi().ChainData(chain);
 		if(data == null)

@@ -12,13 +12,25 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.builtin.ConfigSelectionScreen;
 import io.github.lightman314.lightmanscurrency.api.events.client.RegisterVariantPropertiesEvent;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.client.IconRenderer;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.client.builtin.*;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.types.*;
 import io.github.lightman314.lightmanscurrency.api.money.client.ClientMoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.client.builtin.ClientCoinType;
 import io.github.lightman314.lightmanscurrency.api.money.client.builtin.ClientNullType;
-import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.renderer.ATMIconRenderer;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin.ATMItemIcon;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin.SimpleArrowIcon;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin.SpriteIcon;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.client.ATMIconRenderer;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.client.builtin.BuiltInIconRenderer;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.*;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.client.ClientTraderNode;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.client.builtin.*;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.config.MasterCoinListConfigOption;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.trade_rules.TradeRulesClientTab;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.client.TradeRulesClientTab;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.client.builtin.*;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ItemEditWidget;
 import io.github.lightman314.lightmanscurrency.client.renderer.LCItemRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.*;
@@ -40,12 +52,21 @@ import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
 import io.github.lightman314.lightmanscurrency.api.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
+import io.github.lightman314.lightmanscurrency.common.traders.commands.client.ClientCommandTradeNode;
+import io.github.lightman314.lightmanscurrency.common.traders.commands.nodes.CommandTradeNode;
+import io.github.lightman314.lightmanscurrency.common.traders.item.client.ClientItemTradeNode;
+import io.github.lightman314.lightmanscurrency.common.traders.item.nodes.ItemTradeNode;
+import io.github.lightman314.lightmanscurrency.common.traders.paygate.client.ClientPaygateTradeNode;
+import io.github.lightman314.lightmanscurrency.common.traders.paygate.client.ClientTicketStubNode;
+import io.github.lightman314.lightmanscurrency.common.traders.paygate.nodes.PaygateTradeNode;
+import io.github.lightman314.lightmanscurrency.common.traders.paygate.nodes.TicketStubNode;
+import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.client.ClientSlotMachineNode;
+import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.nodes.SlotMachineNode;
 import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.integration.curios.client.LCCuriosClient;
 import io.github.lightman314.lightmanscurrency.integration.impactor.LCImpactorClient;
 import io.github.lightman314.lightmanscurrency.integration.patchouli.LCPatchouli;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
@@ -136,8 +157,6 @@ public class ClientProxy extends CommonProxy{
         RotationHandler.setup();
 
         //Collect Trade Rule Tab Constructors
-        TradeRulesClientTab.initialize();
-        ATMIconRenderer.initialize();
         TradeRenderManager.initialize();
 
         //Register Client Money Types
@@ -146,16 +165,67 @@ public class ClientProxy extends CommonProxy{
         ClientMoneyAPI.getApi().RegisterClientType(ClientAncientType.INSTANCE);
         IntegrationUtil.SafeRunIfLoaded("impactor", LCImpactorClient::setupClient, "Error setting up Impactor Compat!");
 
+        //Register Client ATM Icons
+        ATMIconRenderer.REGISTRY.registerBatch(BuiltInIconRenderer.INSTANCE, ATMItemIcon.TYPE,SimpleArrowIcon.TYPE,SpriteIcon.TYPE);
+
+        //Register Icon Renderers
+        IconRenderer.register(IconIcon.TYPE,new IconIconRenderer());
+        IconRenderer.register(ImageIcon.TYPE,new ImageIconRenderer());
+        IconRenderer.register(ItemIcon.TYPE,new ItemIconRenderer());
+        IconRenderer.register(MultiIcon.TYPE,new MultiIconRenderer());
+        IconRenderer.register(NumberIcon.TYPE,new NumberIconRenderer());
+        IconRenderer.register(TextIcon.TYPE,new TextIconRenderer());
+
+        //Register Client Trader Nodes
+        ClientTraderNode.registerClientNode(AdminNode.TYPE,ClientAdminNode::new);
+        ClientTraderNode.registerClientNode(AlliesNode.TYPE,ClientAlliesNode::new);
+        ClientTraderNode.registerClientNode(BankNode.TYPE,ClientBankNode::new);
+        ClientTraderNode.registerClientNode(DisplayNode.TYPE,ClientDisplayNode::new);
+        ClientTraderNode.registerClientNode(InputNode.TYPE,ClientInputNode::new);
+        ClientTraderNode.registerClientNode(InterfaceSupportNode.TYPE,ClientInterfaceSupportNode::new);
+        ClientTraderNode.registerClientNode(LoggerNode.TYPE,ClientLoggerNode::new);
+        ClientTraderNode.registerClientNode(MachineAccessNode.TYPE,ClientMachineAccessNode::new);
+        ClientTraderNode.registerClientNode(MoneyStorageNode.TYPE,ClientMoneyStorageNode::new);
+        ClientTraderNode.registerClientNode(NormalTraderNode.TYPE,ClientNormalNode::new);
+        ClientTraderNode.registerClientNode(OwnerNode.TYPE,ClientOwnerNode::new);
+        ClientTraderNode.registerClientNode(PersistentDataNode.TYPE,ClientPersistentDataNode::new);
+        ClientTraderNode.registerClientNode(TaxesNode.TYPE,ClientTaxesNode::new);
+        ClientTraderNode.registerClientNode(TraderRulesNode.TYPE,ClientTraderRulesNode::new);
+        ClientTraderNode.registerClientNode(WorldStateNode.TYPE,ClientWorldStateNode::new);
+
+        //Item Client Nodes
+        ClientTraderNode.registerClientNode(ItemTradeNode.TYPE,ClientItemTradeNode::new);
+        //Paygate Client Nodes
+        ClientTraderNode.registerClientNode(TicketStubNode.TYPE,ClientTicketStubNode::new);
+        ClientTraderNode.registerClientNode(PaygateTradeNode.TYPE, ClientPaygateTradeNode::new);
+        //Command Client Nodes
+        ClientTraderNode.registerClientNode(CommandTradeNode.TYPE,ClientCommandTradeNode::new);
+        //Slot Machine Client Nodes
+        ClientTraderNode.registerClientNode(SlotMachineNode.TYPE,ClientSlotMachineNode::new);
+
+        //Trade Rule Builder
+        TradeRulesClientTab.REGISTRY.register(DailyTrades.TYPE, DailyTradesTab::new);
+        TradeRulesClientTab.REGISTRY.register(DemandPricing.TYPE, DemandPricingTab::new);
+        TradeRulesClientTab.REGISTRY.register(DiscountCodes.TYPE, DiscountCodesTab::new);
+        TradeRulesClientTab.REGISTRY.register(FreeSample.TYPE, FreeSampleTab::new);
+        TradeRulesClientTab.REGISTRY.register(PlayerDiscounts.TYPE, PlayerDiscountTab::new);
+        TradeRulesClientTab.REGISTRY.register(PlayerListing.TYPE,PlayerListingTab::new);
+        TradeRulesClientTab.REGISTRY.register(PlayerTradeLimit.TYPE,PlayerTradeLimitTab::new);
+        TradeRulesClientTab.REGISTRY.register(PriceFluctuation.TYPE,PriceFluctuationTab::new);
+        TradeRulesClientTab.REGISTRY.register(TimedSale.TYPE,TimedSaleTab::new);
+        TradeRulesClientTab.REGISTRY.register(TradeLimit.TYPE,TradeLimitTab::new);
+
+
 	}
 
 	private void registerVariantProperties(RegisterVariantPropertiesEvent event) {
 		//Register Variant Properties
-		event.register(VersionUtil.lcResource("item_position_data"),VariantProperties.ITEM_POSITION_DATA);
-		event.register(VersionUtil.lcResource("freezer_door"),VariantProperties.FREEZER_DOOR_DATA);
-		event.register(VersionUtil.lcResource("input_display_offset"),VariantProperties.INPUT_DISPLAY_OFFSET);
-		event.register(VersionUtil.lcResource("tooltip_info"),VariantProperties.TOOLTIP_INFO);
-		event.register(VersionUtil.lcResource("show_in_creative"),VariantProperties.SHOW_IN_CREATIVE);
-		event.register(VersionUtil.lcResource("hidden"),VariantProperties.HIDDEN);
+		event.register(LightmansCurrency.id("item_position_data"),VariantProperties.ITEM_POSITION_DATA);
+		event.register(LightmansCurrency.id("freezer_door"),VariantProperties.FREEZER_DOOR_DATA);
+		event.register(LightmansCurrency.id("input_display_offset"),VariantProperties.INPUT_DISPLAY_OFFSET);
+		event.register(LightmansCurrency.id("tooltip_info"),VariantProperties.TOOLTIP_INFO);
+		event.register(LightmansCurrency.id("show_in_creative"),VariantProperties.SHOW_IN_CREATIVE);
+		event.register(LightmansCurrency.id("hidden"),VariantProperties.HIDDEN);
 	}
 
 	private BlockEntity checkForCoinChest(Block block)

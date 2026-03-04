@@ -2,28 +2,26 @@ package io.github.lightman314.lightmanscurrency.common.items.ancient_coins;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplayData;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public enum AncientCoinType {
 
     COPPER("copper"), IRON("iron"), GOLD("gold"), EMERALD("emerald"), DIAMOND("diamond"),
@@ -61,7 +59,8 @@ public enum AncientCoinType {
     AncientCoinType(String tag) { this(tag,false,0); }
     AncientCoinType(String tag, boolean fireResistant, int ignoreChars) { this.tag = tag; this.fireResistant = fireResistant; this.ignoreChars = ignoreChars; }
 
-    public static final Codec<AncientCoinType> CODEC = EnumUtil.buildCodec(AncientCoinType.class,"CoinType");
+    public static final Codec<AncientCoinType> CODEC = EnumUtil.buildCodec(AncientCoinType.class,"Ancient Coin Type");
+    public static final StreamCodec<ByteBuf,AncientCoinType> STREAM_CODEC = EnumUtil.streamCodec(AncientCoinType.class,"Ancient Coin Type");
 
     public ItemStack asItem() {
         ItemStack stack = new ItemStack(ModItems.COIN_ANCIENT.get());
@@ -77,7 +76,7 @@ public enum AncientCoinType {
         return item;
     }
     
-    public ResourceLocation texture() { return VersionUtil.lcResource("item/ancient_coin/" + this.resourceSafeName()); }
+    public ResourceLocation texture() { return LightmansCurrency.id("item/ancient_coin/" + this.resourceSafeName()); }
 
     public String translationTag() {
         if(this.ignoreChars <= 0)

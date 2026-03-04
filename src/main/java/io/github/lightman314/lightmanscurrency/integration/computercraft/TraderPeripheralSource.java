@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.integration.computercraft;
 
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 
 import javax.annotation.Nullable;

@@ -7,34 +7,28 @@ import java.util.function.Function;
 
 import com.google.common.collect.ImmutableList;
 
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FlexibleWidthSprite;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.HorizontalSliceSprite;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.FlexibleWidthSprite;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteSource;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.HorizontalSliceSprite;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IMouseListener;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntryBundle;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class DropdownWidget extends EasyWidgetWithChildren implements IMouseListener {
 	
 	public static final int HEIGHT = 12;
 
-    public static final FlexibleWidthSprite DROPDOWN_SPRITE = new HorizontalSliceSprite(SpriteSource.createTop(VersionUtil.lcResource("common/widgets/dropdown_main"),128,12),12);
-    public static final FlexibleWidthSprite DROPDOWN_HIGHLIGHTED_SPRITE = new HorizontalSliceSprite(SpriteSource.createBottom(VersionUtil.lcResource("common/widgets/dropdown_main"),128,12),12);
+    public static final FlexibleWidthSprite DROPDOWN_SPRITE = new HorizontalSliceSprite(SpriteSource.createTop(LightmansCurrency.id("common/widgets/dropdown_main"),128,12),12);
+    public static final FlexibleWidthSprite DROPDOWN_HIGHLIGHTED_SPRITE = new HorizontalSliceSprite(SpriteSource.createBottom(LightmansCurrency.id("common/widgets/dropdown_main"),128,12),12);
 
 	boolean open = false;
 	
@@ -161,7 +155,6 @@ public class DropdownWidget extends EasyWidgetWithChildren implements IMouseList
 
 	public static Builder builder() { return new Builder(); }
 
-	@FieldsAreNonnullByDefault
 	public static class Builder extends EasyBuilder<Builder>
 	{
 

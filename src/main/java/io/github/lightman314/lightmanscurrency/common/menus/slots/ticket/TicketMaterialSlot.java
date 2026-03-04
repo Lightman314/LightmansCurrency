@@ -1,23 +1,21 @@
 package io.github.lightman314.lightmanscurrency.common.menus.slots.ticket;
 
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
-import net.minecraft.world.Container;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
-import javax.annotation.Nonnull;
-
-public class TicketMaterialSlot extends Slot{
+public class TicketMaterialSlot extends EasySlot {
 
 	private final TicketStationMenu menu;
 
-	public TicketMaterialSlot(TicketStationMenu menu, Container inventory, int index, int x, int y)
+	public TicketMaterialSlot(TicketStationMenu menu,IItemHandlerModifiable inventory,int x,int y)
 	{
-		super(inventory, index, x, y);
+		super(inventory,1,x,y);
 		this.menu = menu;
 	}
 	
 	@Override
-	public boolean mayPlace(@Nonnull ItemStack stack) { return this.menu.getRecipeList().stream().anyMatch(r -> r.validIngredient(stack)); }
+	public boolean mayPlace(ItemStack stack) { return this.menu.getRecipeList().stream().anyMatch(r -> r.validIngredient(stack)); }
 
 }

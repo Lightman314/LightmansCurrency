@@ -1,7 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.trader;
 
+import com.mojang.datafixers.util.Either;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.codecs.StreamHelper;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.notifications.CommonData;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
@@ -9,38 +15,50 @@ import io.github.lightman314.lightmanscurrency.api.taxes.notifications.SingleLin
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
+import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class SlotMachineTradeNotification extends SingleLineTaxableNotification {
 
-    public static final NotificationType<SlotMachineTradeNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("slot_machine_trade"),SlotMachineTradeNotification::new);
+    public static final NotificationType<SlotMachineTradeNotification> TYPE = new Type();
 
-    TraderCategory traderData;
+    TraderCategory traderData = TraderCategory.NULL;
 
-    List<ItemData> items;
-    MoneyValue cost = MoneyValue.empty();
+    List<ItemData> items = new ArrayList<>();
     MoneyValue money = MoneyValue.empty();
 
-    String customer;
+    private Either<List<ItemData>,MoneyValue> getRewardData() {
+        if(this.money.isEmpty())
+            return Either.left(this.items);
+        return Either.right(this.money);
+    }
+
+    MoneyValue cost = MoneyValue.empty();
+
+    String customer = "";
 
     private SlotMachineTradeNotification() {}
-
+    private SlotMachineTradeNotification(TraderCategory trader, Either<List<ItemData>,MoneyValue> reward, MoneyValue cost, String customer, MoneyValue taxes, CommonData data) {
+        super(taxes,data);
+        this.traderData = trader;
+        reward.ifLeft(items -> this.items = items)
+                .ifRight(money -> this.money = money);
+        this.cost = cost;
+        this.customer = customer;
+    }
     protected SlotMachineTradeNotification(SlotMachineEntry entry, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid)
     {
         super(taxesPaid);
@@ -64,7 +82,7 @@ public class SlotMachineTradeNotification extends SingleLineTaxableNotification 
 
 
     @Override
-    protected NotificationType<SlotMachineTradeNotification> getType() { return TYPE; }
+    public NotificationType<SlotMachineTradeNotification> getType() { return TYPE; }
 
     @Override
     public NotificationCategory getCategory() { return this.traderData; }
@@ -80,20 +98,6 @@ public class SlotMachineTradeNotification extends SingleLineTaxableNotification 
             rewardText = LCText.NOTIFICATION_TRADE_SLOT_MACHINE_FAIL.get();
 
         return LCText.NOTIFICATION_TRADE_SLOT_MACHINE.get(this.customer, this.cost.getText(), rewardText);
-    }
-
-    @Override
-    protected void saveNormal(CompoundTag compound, HolderLookup.Provider lookup) {
-
-        compound.put("TraderInfo", this.traderData.save(lookup));
-        ListTag itemList = new ListTag();
-        for(ItemData item : this.items)
-            itemList.add(item.save(lookup));
-        compound.put("Items", itemList);
-        compound.put("Money", this.money.save());
-        compound.put("Price", this.cost.save());
-        compound.putString("Customer", this.customer);
-
     }
 
     @Override
@@ -134,4 +138,30 @@ public class SlotMachineTradeNotification extends SingleLineTaxableNotification 
         }
         return false;
     }
+
+    private static class Type extends NotificationType<SlotMachineTradeNotification>
+    {
+        private static final MapCodec<SlotMachineTradeNotification> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+                TraderCategory.TYPE.codec().codec().fieldOf("trader").forGetter(n -> n.traderData),
+                Codec.either(ItemData.LIST_CODEC,MoneyValue.CODEC).fieldOf("reward").forGetter(SlotMachineTradeNotification::getRewardData),
+                MoneyValue.CODEC.fieldOf("cost").forGetter(n -> n.cost),
+                Codec.STRING.fieldOf("customer").forGetter(n -> n.customer)
+        ).and(taxableFields(builder)).apply(builder,SlotMachineTradeNotification::new));
+
+        private static final StreamCodec<RegistryFriendlyByteBuf,SlotMachineTradeNotification> STREAM_CODEC = StreamHelper.combine(taxableStreamFields(),
+                TraderCategory.TYPE.streamCodec(),n -> n.traderData,
+                ByteBufCodecs.either(ItemData.STREAM_CODEC_LIST,MoneyValue.STREAM_CODEC),SlotMachineTradeNotification::getRewardData,
+                MoneyValue.STREAM_CODEC,n -> n.cost,
+                ByteBufCodecs.STRING_UTF8,n -> n.customer,
+                SlotMachineTradeNotification::new);
+
+        @Override
+        protected SlotMachineTradeNotification createNew() { return new SlotMachineTradeNotification(); }
+        @Override
+        public MapCodec<SlotMachineTradeNotification> codec() { return MAP_CODEC; }
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, SlotMachineTradeNotification> streamCodec() { return STREAM_CODEC; }
+    }
+
+
 }

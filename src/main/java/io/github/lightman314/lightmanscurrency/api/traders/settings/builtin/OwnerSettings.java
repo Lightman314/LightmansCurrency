@@ -1,24 +1,23 @@
 package io.github.lightman314.lightmanscurrency.api.traders.settings.builtin;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
+import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.settings.data.LoadContext;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.api.traders.settings.EasyTraderSettingsNode;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNode;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.OwnerNode;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.interfaces.IOwnerListener;
+import io.github.lightman314.lightmanscurrency.api.traders.settings.EasyTraderNodeSettings;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Consumer;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-public class OwnerSettings extends EasyTraderSettingsNode<TraderData> {
+public class OwnerSettings extends EasyTraderNodeSettings<TraderData,OwnerNode> {
 
-    public OwnerSettings(TraderData trader) {super("ownership", trader, 1000); }
+    public OwnerSettings(TraderData trader,OwnerNode node) {super("ownership", trader,node, 1000); }
 
     @Override
     public MutableComponent getName() { return LCText.DATA_CATEGORY_OWNERSHIP.get(); }
@@ -28,17 +27,23 @@ public class OwnerSettings extends EasyTraderSettingsNode<TraderData> {
 
     @Override
     public void saveSettings(SavedSettingData.MutableNodeAccess data) {
-        data.setCompoundValue("owner",this.trader.getOwner().save(this.registryAccess()));
+        data.setCustom("owner",this.node.getOwner(),OwnerData.CODEC);
     }
 
     @Override
     public void loadSettings(SavedSettingData.NodeAccess data, LoadContext context) {
         if(data.hasCompoundValue("owner"))
         {
-            this.trader.getOwner().load(data.getCompoundValue("owner"),this.registryAccess());
-            this.trader.getOwner().setChanged();
-            this.trader.setLinkedToBank(false);
-            context.updateOwner(this.trader.getOwner());
+            this.node.getOwner().copyFrom(data.getCustomValue("owner",OwnerData.CODEC));
+            //Flag the owner as changed
+            this.node.setOwnerChanged();
+            //Inform relevant parties that the owner has changed
+            for(TraderNode node : this.trader.getNodeIterable())
+            {
+                if(node instanceof IOwnerListener listener)
+                    listener.onOwnerChanged();
+            }
+            context.updateOwner(this.node.getOwner());
         }
     }
 
@@ -46,8 +51,10 @@ public class OwnerSettings extends EasyTraderSettingsNode<TraderData> {
     protected void writeLines(SavedSettingData.NodeAccess data, Consumer<Component> lineWriter) {
         if(data.hasCompoundValue("owner"))
         {
-            OwnerData owner = new OwnerData(this.host);
-            owner.load(data.getCompoundValue("owner"),this.registryAccess());
+            OwnerData owner = data.getCustomValue("owner",OwnerData.CODEC);
+            if(owner == null)
+                return;
+            owner.withParent(this.host);
             lineWriter.accept(formatEntry(LCText.DATA_ENTRY_OWNER.get(),owner.getName()));
         }
     }

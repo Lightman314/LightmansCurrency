@@ -4,14 +4,12 @@ import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.common.impl.CoinAPIImpl;
 import io.github.lightman314.lightmanscurrency.network.message.data.SPacketSyncCoinData;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.function.BiPredicate;
 
@@ -19,8 +17,6 @@ import java.util.function.BiPredicate;
  * Utility class with Coin-Related data and functions.
  * Use {@link MoneyAPI} for more generic Money-Related functions that aren't coin-specific.
  */
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class CoinAPI {
 
     private static CoinAPI instance;
@@ -100,24 +96,24 @@ public abstract class CoinAPI {
     /**
      * Exchanges all coins in the container to the largest value coin possible
      */
-    public abstract void CoinExchangeAllUp(Container container);
+    public abstract void CoinExchangeAllUp(IItemHandler container);
 
     /**
      * Exchanges as many of the small coin that it can for its next largest coin
      */
-    public abstract void CoinExchangeUp(Container container, Item smallCoin);
+    public abstract void CoinExchangeUp(IItemHandler container, Item smallCoin);
 
     /**
      * Exchanges the coins in the container into the smallest value possible that will fit in the containers space.
      */
-    public abstract void CoinExchangeAllDown(Container container);
+    public abstract void CoinExchangeAllDown(IItemHandler container);
 
     /**
      * Exchanges as many of the large coin into as many of the next smaller coin as it can
      */
-    public abstract void CoinExchangeDown(Container container, Item largeCoin);
+    public abstract void CoinExchangeDown(IItemHandler container, Item largeCoin);
 
-    public abstract void SortCoinsByValue(Container container);
+    public abstract void SortCoinsByValue(IItemHandler container);
 
     
     public abstract SPacketSyncCoinData getSyncPacket();

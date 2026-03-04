@@ -7,16 +7,15 @@ import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
-import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.item.ticket.TicketItemTrade.TicketSaleData;
+import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketModifierSlot;
+import io.github.lightman314.lightmanscurrency.common.traders.item.storage.TraderItemStorage;
+import io.github.lightman314.lightmanscurrency.common.traders.item.trade.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketSlot;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.common.traders.item.trade.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.Item;
@@ -56,36 +55,34 @@ public class TicketKioskRestriction extends ItemTradeRestriction {
 	}
 
 	@Override
-	public boolean allowSellItem(ItemStack itemStack)
+	public boolean allowSellItem(ItemStack stack)
 	{
-		if(TicketItem.isMasterTicket(itemStack))
+		if(TicketItem.isMasterTicket(stack))
 			return true;
-		return InventoryUtil.ItemHasTag(itemStack, LCTags.Items.TICKET_MATERIAL) && !TicketItem.isTicketOrPass(itemStack);
+		return stack.is(LCTags.Items.TICKET_MATERIAL) && !TicketItem.isTicketOrPass(stack);
 	}
 	
 	@Override
-	public ItemStack filterSellItem(ItemStack itemStack)
+	public ItemStack filterSellItem(ItemStack stack)
 	{
-		if(TicketItem.isMasterTicket(itemStack))
-			return itemStack;
-		else if(InventoryUtil.ItemHasTag(itemStack, LCTags.Items.TICKET_MATERIAL) && !TicketItem.isTicketOrPass(itemStack))
-			return itemStack;
+		if(TicketItem.isMasterTicket(stack))
+			return stack;
+		else if(stack.is(LCTags.Items.TICKET_MATERIAL) && !TicketItem.isTicketOrPass(stack))
+			return stack;
 		return ItemStack.EMPTY;
 	}
 	
 	@Override
-	public boolean allowItemSelectItem(ItemStack itemStack)
+	public boolean allowItemSelectItem(ItemStack stack)
 	{
-		return InventoryUtil.ItemHasTag(itemStack, LCTags.Items.TICKET_MATERIAL) && !InventoryUtil.ItemHasTag(itemStack, LCTags.Items.TICKETS);
+		return stack.is(LCTags.Items.TICKET_MATERIAL) && !stack.is(LCTags.Items.TICKETS);
 	}
 
     @Override
     public boolean allowFilters() { return false; }
 
     @Override
-	public boolean allowExtraItemInStorage(ItemStack itemStack) {
-		return InventoryUtil.ItemHasTag(itemStack, LCTags.Items.TICKET_MATERIAL);
-	}
+	public boolean allowExtraItemInStorage(ItemStack stack) { return stack.is(LCTags.Items.TICKET_MATERIAL); }
 
 	@Override
 	public int getSaleStock(TraderItemStorage traderStorage, ItemTradeData trade) {
@@ -136,7 +133,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction {
 	}
 
     @Override
-    public List<ItemStack> getRandomSellItems(ItemTraderData trader, ItemTradeData trade) {
+    public List<ItemStack> getRandomSellItems(TraderData trader, ItemTradeData trade) {
         if(trade != this.trade)
             return null;
         List<ItemStack> results = new ArrayList<>();
@@ -171,7 +168,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction {
 		{
 			ItemStack sellItem = this.trade.getSellItem(i);
             ItemStack actualItem = this.trade.getActualItem(i);
-			TicketItemTrade.TicketSaleData data = this.trade.getTicketData(i);
+			TicketSaleData data = this.trade.getTicketData(i);
 			if(data.isRecipeMode())
 			{
 				TicketStationRecipe recipe = data.tryGetRecipe();
@@ -188,7 +185,8 @@ public class TicketKioskRestriction extends ItemTradeRestriction {
 		}
 		//Attempt to remove the tickets from storage "normally".
 		//Keep track of how many need to be printed.
-		List<Item> masterTickets = InventoryUtil.GetItemsWithTag(LCTags.Items.TICKETS_MASTER);
+		List<Item> masterTickets = new ArrayList<>();
+        BuiltInRegistries.ITEM.getTagOrEmpty(LCTags.Items.TICKETS_MASTER).forEach(h -> masterTickets.add(h.value()));
 		for(ItemRequirement entry : ingredients)
 		{
 			traderStorage.removeItemCount(entry,entry.getCount(),ignoreIfPossible,s -> masterTickets.stream().anyMatch(e -> e == s.getItem()));
@@ -202,7 +200,7 @@ public class TicketKioskRestriction extends ItemTradeRestriction {
 	@OnlyIn(Dist.CLIENT)
 	public Pair<ResourceLocation,ResourceLocation> getEmptySlotBG()
 	{
-		return Pair.of(InventoryMenu.BLOCK_ATLAS, TicketSlot.EMPTY_TICKET_SLOT);
+		return Pair.of(InventoryMenu.BLOCK_ATLAS,TicketModifierSlot.EMPTY_TICKET_SLOT);
 	}
 	
 }

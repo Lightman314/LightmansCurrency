@@ -1,24 +1,20 @@
 package io.github.lightman314.lightmanscurrency.api.traders;
 
-import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITradeSearchFilter;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.SortTypeKey;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.TerminalSortType;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.common.impl.TraderAPIImpl;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.core.RegistryAccess;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class TraderAPI {
 
     private static TraderAPI instance;
@@ -29,36 +25,6 @@ public abstract class TraderAPI {
     }
 
     protected TraderAPI() { if(instance != null)  throw new IllegalCallerException("Cannot create a new TraderAPI instance as one is already present!"); }
-
-    /**
-     * Registers the given {@link TraderType}, allowing {@link TraderData} of that type to be saved &amp; loaded from the Trader Save Data.
-     */
-    public abstract void RegisterTrader(TraderType<?> type);
-
-    /**
-     * Accesses the {@link TraderType} registry and gets the {@link TraderType} for the given id.
-     * @see #RegisterTrader(TraderType)
-     */
-    @Nullable
-    public abstract TraderType<?> GetTraderType(ResourceLocation type);
-
-    /**
-     * Registers the given {@link TradeRuleType} allowing {@link io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule Trade Rule}'s of that type to be added, saved, and loaded from any relevant trades/traders.
-     */
-    public abstract void RegisterTradeRule(TradeRuleType<?> type);
-
-    /**
-     * Accesses the {@link TradeRuleType} registry and gets the {@link TradeRuleType} for the given id.
-     * @see #RegisterTradeRule(TradeRuleType)
-     */
-    @Nullable
-    public abstract TradeRuleType<?> GetTradeRuleType(ResourceLocation type);
-
-    /**
-     * Returns an Immutable list of all registered {@link TradeRuleType}'s<br>
-     * @see #RegisterTradeRule(TradeRuleType)
-     */
-    public abstract List<TradeRuleType<?>> GetAllTradeRuleTypes();
 
     /**
      * Registers the given {@link ITraderSearchFilter}, allowing the ability to search traders via {@link #FilterTrader(TraderData, String)} &amp; {@link #FilterTraders(List, String)}
@@ -78,19 +44,19 @@ public abstract class TraderAPI {
     public abstract List<TraderData> FilterTraders(List<TraderData> data, String searchText);
 
     /**
-     * Registers the given {@link ITradeSearchFilter}, allowing the ability to search traders via {@link #FilterTrade(TradeData,String,RegistryAccess)} &amp; {@link #FilterTrades(List,String,RegistryAccess)}
+     * Registers the given {@link ITradeSearchFilter}, allowing the ability to search traders via {@link #FilterTrade(TradeData,String,HolderLookup.Provider)} &amp; {@link #FilterTrades(List,String,HolderLookup.Provider)}
      */
     public abstract void RegisterTradeSearchFilter(ITradeSearchFilter filter);
     /**
      * Whether the given trade matches the given search text, and should be listed in the search results
      * @see #RegisterTradeSearchFilter(ITradeSearchFilter)
      */
-    public abstract boolean FilterTrade(TradeData trade, String searchText, RegistryAccess registryAccess);
+    public abstract boolean FilterTrade(TradeData trade, String searchText, HolderLookup.Provider registryAccess);
     /**
-     * Filters the given list via {@link #FilterTrade(TradeData, String,RegistryAccess)} and returns the list of trades that have passed
+     * Filters the given list via {@link #FilterTrade(TradeData, String,HolderLookup.Provider)} and returns the list of trades that have passed
      */
     
-    public abstract List<TradeData> FilterTrades(List<TradeData> trades, String searchText, RegistryAccess registryAccess);
+    public abstract List<TradeData> FilterTrades(List<TradeData> trades, String searchText, HolderLookup.Provider registryAccess);
 
     /**
      *  Registers the given {@link ITraderSearchFilter} &amp; {@link ITradeSearchFilter} so that the trader &amp; its trades can be filtered.

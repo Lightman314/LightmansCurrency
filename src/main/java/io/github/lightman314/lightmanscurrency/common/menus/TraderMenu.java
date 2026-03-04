@@ -1,92 +1,75 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 
-import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.misc.menus.MoneySlot;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.misc.item_handlers.MoneyInventory;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.MoneySlot;
 import io.github.lightman314.lightmanscurrency.api.traders.*;
-import io.github.lightman314.lightmanscurrency.api.traders.discount_codes.TypedInputSource;
-import io.github.lightman314.lightmanscurrency.api.traders.menu.IMoneyCollectionMenu;
-import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.AbstractTraderMenu;
+
+import io.github.lightman314.lightmanscurrency.api.traders.tracking.PlayerTraderTrackingHolder;
+import io.github.lightman314.lightmanscurrency.api.traders.tracking.TrackingLevel;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeResult;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.InteractionSlot;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.InteractionSlot;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-public class TraderMenu extends LazyMessageMenu implements IValidatedMenu, ITraderMenu, IMoneyCollectionMenu {
+public class TraderMenu extends AbstractTraderMenu {
 
 	private final Supplier<ITraderSource> traderSource;
 	@Nullable
 	@Override
 	public ITraderSource getTraderSource() { return this.traderSource.get(); }
-
-	@Override
-	public Player getPlayer() { return this.player; }
-
-	@Override
-	public List<Slot> getSlots() { return ImmutableList.copyOf(this.slots); }
-
-	@Override
-	public ItemStack getHeldItem() { return this.getCarried(); }
-	@Override
-	public void setHeldItem(ItemStack stack) { this.setCarried(stack); }
 	
 	public static final int SLOT_OFFSET = 15;
 	
 	InteractionSlot interactionSlot;
 	public InteractionSlot getInteractionSlot() { return this.interactionSlot; }
 
-	private final Container coins;
-
-    private final TypedInputSource discountCodes = new TypedInputSource();
-    @Override
-    public Set<String> getTypedDiscountCodes() { return this.discountCodes.getCodes(); }
+	private final MoneyInventory coins;
 	
 	List<Slot> coinSlots = new ArrayList<>();
 	public List<Slot> getCoinSlots() { return this.coinSlots; }
 
-	private final MenuValidator validator;
-	
-	@Override
-	public MenuValidator getValidator() { return this.validator; }
+    private final PlayerTraderTrackingHolder trackingHolder = new PlayerTraderTrackingHolder(this,TrackingLevel.CUSTOMER);
+    private Set<Long> trackingCache = new HashSet<>();
 
 	public TraderMenu(int windowID, Inventory inventory, long traderID, MenuValidator validator) {
 		this(ModMenus.TRADER.get(), windowID, inventory, () -> TraderAPI.getApi().GetTrader(IClientTracker.entityWrapper(inventory.player), traderID), validator);
 	}
 	
 	protected TraderMenu(MenuType<?> type, int windowID, Inventory inventory, Supplier<ITraderSource> traderSource, MenuValidator validator) {
-		super(type, windowID, inventory);
-		this.validator = validator;
+		super(type,windowID,inventory,validator);
 		this.traderSource = traderSource;
-		this.coins = new SimpleContainer(5);
+		this.coins = new MoneyInventory(this.player,5);
 
 		this.addValidator(this::traderSourceValid);
-		this.addValidator(this.validator);
 
 		this.init(inventory);
 		for(TraderData trader : this.traderSource.get().getTraders()) {
-			if(trader != null) trader.userOpen(this.player);
+			trader.userOpen(this.player);
+            this.trackingHolder.requestTracking(trader,this.player);
+            this.trackingCache.add(trader.getID());
 		}
+
+        NeoForge.EVENT_BUS.register(this);
 	}
 
 	public TradeContext getContext(@Nullable TraderData trader) {
@@ -111,9 +94,9 @@ public class TraderMenu extends LazyMessageMenu implements IValidatedMenu, ITrad
 		}
 		
 		//Coin Slots
-		for(int x = 0; x < this.coins.getContainerSize(); x++)
+		for(int x = 0; x < this.coins.getSlots(); x++)
 		{
-			this.coinSlots.add(this.addSlot(new MoneySlot(this.coins, x, SLOT_OFFSET + 8 + (x + 4) * 18, 122, this.player)));
+			this.coinSlots.add(this.addSlot(new MoneySlot(this.coins, x, SLOT_OFFSET + 8 + (x + 4) * 18, 122)));
 		}
 		
 		//Interaction Slots
@@ -127,59 +110,70 @@ public class TraderMenu extends LazyMessageMenu implements IValidatedMenu, ITrad
 
 	private boolean traderSourceValid() {  return this.traderSource != null && this.traderSource.get() != null && this.traderSource.get().getTraders() != null && !this.traderSource.get().getTraders().isEmpty(); }
 
+    //Subscribe after the trader packet is sent so that the client will also be informed of any network-related changes that may have resulting in the source giving different results
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    private void onServerTick(ServerTickEvent.Post event)
+    {
+        ITraderSource source = this.traderSource.get();
+        Set<Long> found = new HashSet<>();
+        if(source != null)
+        {
+            for(TraderData trader : source.getTraders())
+            {
+                if(this.trackingCache.contains(trader.getID()))
+                    found.add(trader.getID());
+                else //Start tracking traders that are now included in the trader source
+                    this.trackingHolder.requestTracking(trader,this.player);
+            }
+        }
+        for(long traderID : this.trackingCache)
+        {
+            //Stop tracking traders that are no longer in the trader source
+            if(!found.contains(traderID))
+                this.trackingHolder.endTracking(traderID,this.player);
+        }
+        this.trackingCache = found;
+    }
+
 	@Override
 	public void removed(Player player) {
 		super.removed(player);
-		this.clearContainer(player, this.coins);
-		this.clearContainer(player, this.interactionSlot.container);
+		this.clearContainer(player,this.coins);
+		this.clearContainer(player,this.interactionSlot.itemHandler);
 		if(this.traderSource.get() != null)
 		{
-			for(TraderData trader : this.traderSource.get().getTraders()) {
-				if(trader != null) trader.userClose(this.player);
-			}
+			for(TraderData trader : this.traderSource.get().getTraders())
+				trader.userClose(this.player);
 		}
+        this.trackingHolder.clear(player);
+        NeoForge.EVENT_BUS.unregister(this);
 	}
-	
-	public void ExecuteTrade(int traderIndex, int tradeIndex) {
-		//LightmansCurrency.LogInfo("Executing trade " + traderIndex + "/" + tradeIndex);
-		ITraderSource traderSource = this.traderSource.get();
-		if(traderSource == null)
-		{
-			this.player.closeContainer();
-			return;
-		}
-		List<TraderData> traderList = traderSource.getTraders();
-		if(traderIndex >= 0 && traderIndex < traderList.size())
-		{
-			TraderData trader = traderSource.getTraders().get(traderIndex);
-			if(trader == null)
-			{
-				LightmansCurrency.LogWarning("Trader at index " + traderIndex + " is null.");
-				return;
-			}
-			TradeResult result = trader.TryExecuteTrade(this.getContext(trader), tradeIndex);
-			if(result.hasMessage())
-				LightmansCurrency.LogDebug(result.getMessage().getString());
-		}
-		else
-			LightmansCurrency.LogWarning("Trader " + traderIndex + " is not a valid trader index.");
-	}
-	
-	public boolean isSingleTrader() {
-		ITraderSource tradeSource = this.traderSource.get();
-		if(tradeSource == null)
-		{
-			this.player.closeContainer();
-			return false;
-		}
-		return tradeSource.isSingleTrader() && tradeSource.getTraders().size() == 1;
-	}
-	
-	public TraderData getSingleTrader() {
-		if(this.isSingleTrader())
-			return this.traderSource.get().getSingleTrader();
-		return null;
-	}
+
+    @Override
+    protected void executeTrade(int traderIndex, int tradeIndex) {
+        //LightmansCurrency.LogInfo("Executing trade " + traderIndex + "/" + tradeIndex);
+        ITraderSource traderSource = this.traderSource.get();
+        if(traderSource == null)
+        {
+            this.player.closeContainer();
+            return;
+        }
+        List<TraderData> traderList = traderSource.getTraders();
+        if(traderIndex >= 0 && traderIndex < traderList.size())
+        {
+            TraderData trader = traderSource.getTraders().get(traderIndex);
+            if(trader == null)
+            {
+                LightmansCurrency.LogWarning("Trader at index " + traderIndex + " is null.");
+                return;
+            }
+            TradeResult result = trader.TryExecuteTrade(this.getContext(trader), tradeIndex);
+            if(result.hasMessage())
+                LightmansCurrency.LogDebug(result.getMessage().getString());
+        }
+        else
+            LightmansCurrency.LogWarning("Trader " + traderIndex + " is not a valid trader index.");
+    }
 	
 	@Override
 	public ItemStack quickMoveStack(Player playerEntity, int index)
@@ -223,44 +217,6 @@ public class TraderMenu extends LazyMessageMenu implements IValidatedMenu, ITrad
 		return clickedStack;
 		
 	}
-
-	@Override
-	public void CollectStoredMoney() {
-		if(this.isSingleTrader())
-		{
-			LightmansCurrency.LogInfo("Attempting to collect coins from trader.");
-			TraderData trader = this.getSingleTrader();
-			trader.CollectStoredMoney(this.player);
-		}
-	}
-
-    @Override
-    public void submitDiscountCode(String code)
-    {
-        if(code.isEmpty())
-            return;
-        this.discountCodes.addCode(code);
-        if(this.isClient())
-            this.SendMessage(this.builder().setString("AddCode",code));
-    }
-
-    @Override
-    public void removeDiscountCode(String code)
-    {
-        if(code.isEmpty())
-            return;
-        this.discountCodes.removeCode(code);
-        if(this.isClient())
-            this.SendMessage(this.builder().setString("RemoveCode",code));
-    }
-
-    @Override
-    public void clearDiscountCodes()
-    {
-        this.discountCodes.clearCodes();
-        if(this.isClient())
-            this.SendMessage(this.builder().setFlag("ClearCodes"));
-    }
 	
 	public static class TraderMenuBlockSource extends TraderMenu
 	{
@@ -279,17 +235,6 @@ public class TraderMenu extends LazyMessageMenu implements IValidatedMenu, ITrad
 			super(ModMenus.TRADER_NETWORK_ALL.get(), windowID, inventory, ITraderSource.NetworkTraderSource(inventory.player.level().isClientSide), validator);
 		}
 	}
-
-    @Override
-    public void HandleMessage(LazyPacketData message)
-    {
-        if(message.contains("AddCode"))
-            this.submitDiscountCode(message.getString("AddCode"));
-        if(message.contains("RemoveCode"))
-            this.removeDiscountCode(message.getString("RemoveCode"));
-        if(message.contains("ClearCodes"))
-            this.clearDiscountCodes();
-    }
 	
 	
 }

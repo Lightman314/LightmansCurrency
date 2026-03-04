@@ -56,10 +56,10 @@ public class GachaBallItem extends Item {
     public static ItemStack createWithItemAndColor(ItemStack contents,Color color) { return createWithItemAndColor(contents,color.hexColor); }
     public static ItemStack createWithItemAndColor(ItemStack contents,int color) {
         //Don't create a new gacha ball if we are already several gacha balls deep
-        if(InventoryUtil.ItemHasTag(contents, LCTags.Items.GACHA_BLACKLIST) || inceptionLevel(contents) >= MAX_INCEPTION_LEVEL)
+        if(InventoryUtil.ItemHasTag(contents,LCTags.Items.GACHA_BLACKLIST) || inceptionLevel(contents) >= MAX_INCEPTION_LEVEL)
             return contents.copy();
         ItemStack stack = new ItemStack(ModItems.GACHA_BALL.get());
-        stack.set(ModDataComponents.GACHA_ITEM,new ItemStackData(contents.copy()));
+        stack.set(ModDataComponents.GACHA_ITEM,ItemStackData.of(contents));
         stack.set(DataComponents.DYED_COLOR,new DyedItemColor(color,true));
         return stack;
     }

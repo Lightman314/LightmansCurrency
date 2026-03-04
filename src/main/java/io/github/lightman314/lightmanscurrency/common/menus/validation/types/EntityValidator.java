@@ -46,7 +46,7 @@ public class EntityValidator extends MenuValidator {
 
     private static class Type extends MenuValidatorType
     {
-        protected Type() { super(VersionUtil.lcResource("entity")); }
+        protected Type() { super(LightmansCurrency.id("entity")); }
         @Nonnull
         @Override
         public MenuValidator decode(@Nonnull FriendlyByteBuf buffer) { return new EntityValidator(buffer.readInt()); }

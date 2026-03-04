@@ -1,30 +1,22 @@
 package io.github.lightman314.lightmanscurrency.api.traders.menu.storage;
 
+import io.github.lightman314.lightmanscurrency.api.traders.data.interfaces.IPersistentTrader;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNode;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.common.menus.tabbed.EasyMenuTab;
-
-import javax.annotation.Nonnull;
+import net.minecraft.resources.ResourceLocation;
 
 public abstract class TraderStorageTab extends EasyMenuTab<ITraderStorageMenu,TraderStorageTab> {
 
-	//0-9 "Basic Tabs"
-	public static final int TAB_TRADE_BASIC = 0;
-	public static final int TAB_TRADE_STORAGE = 1;
-	public static final int TAB_TRADE_ADVANCED = 2;
-	public static final int TAB_TRADE_MISC = 3;
-	public static final int TAB_MONEY_STORAGE = 4;
-	public static final int TAB_TRADE_MULTI_PRICE = 9;
+	protected TraderStorageTab(ITraderStorageMenu menu) { super(menu); }
 
-	//10-49 "Settings and Logs"
-	public static final int TAB_TRADER_INFO = 10;
-	public static final int TAB_TRADER_SETTINGS = 11;
+    public final <T extends TraderNode> T getNode(TraderNodeType<T> type) { return this.menu.getTraderNode(type); }
 
-	//50 "Settings Clipboard"
-	public static final int TAB_SETTINGS_CLIPBOARD = 50;
+    public final boolean isPersistent() { return this.menu.getTrader() instanceof IPersistentTrader pt && pt.isPersistent(); }
 
-	//100 & 101 "Trade Rules"
-	public static final int TAB_RULES_TRADER = 100;
-	public static final int TAB_RULES_TRADE = 101;
+    protected boolean isDefaultTab() { return false; }
+    public abstract ResourceLocation tabKey();
+    public final int getSortPriority() { return this.isDefaultTab() ? Integer.MIN_VALUE : 0; }
+    public final int getTabSlot() { return this.isDefaultTab() ? 0 : this.tabKey().hashCode(); }
 
-	protected TraderStorageTab(@Nonnull ITraderStorageMenu menu) { super(menu); }
-	
 }

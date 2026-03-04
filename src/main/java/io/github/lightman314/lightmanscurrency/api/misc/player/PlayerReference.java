@@ -6,22 +6,27 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.UUID;
 
-import javax.annotation.Nonnull;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.authlib.GameProfile;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.client.data.ClientPlayerNameCache;
 import io.github.lightman314.lightmanscurrency.util.ItemStackHelper;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -31,15 +36,41 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 public class PlayerReference {
 
-	public static final PlayerReference NULL;
+    public static final Codec<PlayerReference> CODEC = Codec.withAlternative(
+            //Intended Codec
+            RecordCodecBuilder.create(builder -> builder.group(
+                UUIDUtil.CODEC.fieldOf("id").forGetter(pr -> pr.id),
+                Codec.STRING.fieldOf("name").forGetter(pr -> pr.getName(false)),
+                Codec.BOOL.fieldOf("forcedname").forGetter(pr -> pr.forceName)
+                ).apply(builder,PlayerReference::new)),
+            //Fallback Codec for old data
+            CodecHelper.oldValueLoader(PlayerReference::load,"Player Reference"));
 
-	static {
-		NULL = new PlayerReference(new UUID(0,0),"NULL");
-		NULL.forceName = true;
-	}
+    public static final Codec<List<PlayerReference>> LIST_CODEC = CODEC.listOf().validate(list -> {
+        list = new ArrayList<>(list);
+        //Remove Duplicate Values
+        for(int i = 0; i < list.size(); ++i)
+        {
+            PlayerReference pr = list.get(i);
+            for(int a = i + 1; a < list.size(); ++a)
+            {
+                if(pr.equals(list.get(a)))
+                {
+                    list.remove(a);
+                    a--;
+                }
+            }
+        }
+        return DataResult.success(list);
+    });
+
+    public static final StreamCodec<FriendlyByteBuf,PlayerReference> STREAM_CODEC = StreamCodec.of((buf,pr) -> { buf.writeUUID(pr.id); buf.writeUtf(pr.name); buf.writeBoolean(pr.forceName); },buf -> new PlayerReference(buf.readUUID(),buf.readUtf(),buf.readBoolean()));
+    public static final StreamCodec<FriendlyByteBuf,List<PlayerReference>> LIST_STREAM_CODEC = STREAM_CODEC.apply(ByteBufCodecs.list());
+
+	public static final PlayerReference NULL = new PlayerReference(new UUID(0,0),"NULL",true);
 
 	public final UUID id;
-	private boolean forceName = false;
+	private boolean forceName;
 	private final String name;
 	public String getName(boolean isClient)
 	{
@@ -58,14 +89,11 @@ public class PlayerReference {
 			return n;
 		}
 	}
-	public MutableComponent getNameComponent(boolean isClient) { return Component.literal(this.getName(isClient)); }
+	public Component getNameComponent(boolean isClient) { return EasyText.literal(this.getName(isClient)); }
 	public ItemStack getSkull(boolean isClient) { return ItemStackHelper.skullForPlayer(this.getName(isClient)); }
 
-	private PlayerReference(UUID playerID, String name)
-	{
-		this.id = playerID;
-		this.name = name;
-	}
+    private PlayerReference(UUID playerID, String name, boolean forceName) { this.id = playerID; this.name = name; this.forceName = forceName; }
+	private PlayerReference(UUID playerID, String name) { this(playerID,name,false); }
 	
 	/**
 	 * Used to run an action/interaction under a team's name.
@@ -201,7 +229,7 @@ public class PlayerReference {
 		return playerList;
 	}
 	
-	public static PlayerReference of(@Nonnull UUID playerID, String name)
+	public static PlayerReference of(UUID playerID, String name)
 	{
 		if(playerID == null)
 			throw new RuntimeException("Cannot make a PlayerReference from a null player ID!");
@@ -294,7 +322,11 @@ public class PlayerReference {
 	}
 	
 	@Override
-	public int hashCode() { return this.id.hashCode(); }
+	public int hashCode() {
+        if(this.forceName)
+            return Objects.hash(this.id,this.name);
+        return this.id.hashCode();
+    }
 	
 	/**
 	 * Only run on server.

@@ -4,9 +4,9 @@ import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.ICapabilityBlock;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blockentity.CapabilityInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CashRegisterBlockEntity;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
@@ -14,8 +14,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,6 @@ public class CashRegisterPeripheral extends MultiTraderPeripheral {
     @Override
     public String getType() { return "lc_cash_register"; }
 
-    @Nonnull
     @Override
     protected List<TraderData> getAccessibleTraders() { return this.be.getTraders(); }
 
@@ -38,14 +37,14 @@ public class CashRegisterPeripheral extends MultiTraderPeripheral {
     @Override
     protected void registerMethods(LCPeripheralMethod.Registration registration) {
         super.registerMethods(registration);
-        registration.register(LCPeripheralMethod.builder("getTraderPositions").simpleArray(this::getTraderPositions));
+        registration.register(LCPeripheralMethod.builder("getTraderPositions").simple(this::getTraderPositions));
         registration.register(LCPeripheralMethod.builder("addTraderPosition").withArgs(this::addTraderPosition));
         registration.register(LCPeripheralMethod.builder("removeTraderPosition").withArgs(this::removeTraderPosition));
         registration.register(LCPeripheralMethod.builder("getCustomTitle").simple(this::getCustomTitle));
         registration.register(LCPeripheralMethod.builder("setCustomTitle").withArgs(this::setCustomTitle));
     }
 
-    public LCLuaTable[] getTraderPositions()
+    public LCLuaTable getTraderPositions()
     {
         List<LCLuaTable> list = new ArrayList<>();
         Level level = this.be.getLevel();
@@ -57,30 +56,32 @@ public class CashRegisterPeripheral extends MultiTraderPeripheral {
             entry.put("z",pos.getZ());
             list.add(entry);
         }
-        return list.toArray(LCLuaTable[]::new);
+        return LCLuaTable.fromList(list);
     }
 
-    public void addTraderPosition(IArguments args) throws LuaException
+    public boolean addTraderPosition(IArguments args) throws LuaException
     {
         int x = args.getInt(0);
         int y = args.getInt(1);
         int z = args.getInt(2);
         List<BlockPos> pos = this.be.traderPositions();
         BlockPos newPos = new BlockPos(x,y,z);
+        BlockState state = this.be.getLevel().getBlockState(newPos);
+        if(state instanceof ICapabilityBlock capBlock)
+            newPos = capBlock.getCapabilityBlockPos(state,this.be.getLevel(),newPos);
         BlockEntity newBE = this.be.getLevel().getBlockEntity(newPos);
-        if(newBE instanceof CapabilityInterfaceBlockEntity cbe)
-            newBE = cbe.tryGetCoreBlockEntity();
         if(newBE instanceof TraderBlockEntity<?> tbe)
             newPos = tbe.getBlockPos();
         else
-            throw new LuaException("Cannot find a trader at " + x + " " + y + " " + z);
+            return false;
         if(pos.contains(newPos))
-            throw new LuaException("Cannot add " + x + " " + y + " " + z + " as it's already in the list of positions!");
+            return false;
         pos.add(newPos);
         this.be.setPositions(pos);
+        return true;
     }
 
-    public void removeTraderPosition(IArguments args) throws LuaException
+    public boolean removeTraderPosition(IArguments args) throws LuaException
     {
         int x = args.getInt(0);
         int y = args.getInt(1);
@@ -91,9 +92,10 @@ public class CashRegisterPeripheral extends MultiTraderPeripheral {
         {
             pos.remove(deletePos);
             this.be.setPositions(pos);
+            return true;
         }
         else
-            throw new LuaException("Cannot remove " + x + " " + y + " " + z + " as it's not on the list of positions!");
+            return false;
     }
 
     public String getCustomTitle()

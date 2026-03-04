@@ -1,32 +1,39 @@
 package io.github.lightman314.lightmanscurrency.api.stats;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
-
-import javax.annotation.Nonnull;
-import java.util.HashMap;
-import java.util.Map;
 
 public abstract class StatType<A,B>
 {
 
-    @Nonnull
-    public static String getTranslationKey(@Nonnull String statKey) { return "statistic.lightmanscurrency." + statKey; }
+    public static final Codec<Instance<?,?>> CODEC = LCRegistries.STAT_TYPES.byNameCodec().dispatch(Instance::getType,StatType::mapCodec);
+    public static final StreamCodec<RegistryFriendlyByteBuf,StatType.Instance<?,?>> STREAM_CODEC = ByteBufCodecs.registry(LCRegistries.STAT_TYPE_KEY)
+            .dispatch(Instance::getType,StatType::streamCodec);
 
-    private static final Map<ResourceLocation,StatType<?,?>> REGISTRY = new HashMap<>();
-    public static void register(@Nonnull StatType<?,?> type) { REGISTRY.put(type.getID(),type); }
-    public static StatType<?,?> getID(@Nonnull ResourceLocation type) { return REGISTRY.get(type); }
+    public static String getTranslationKey(String statKey) { return "statistic.lightmanscurrency." + statKey; }
 
-    @Nonnull
-    public abstract ResourceLocation getID();
-    @Nonnull
     public abstract Instance<A,B> create();
-    @Nonnull
-    public final StatKey<A,B> createKey(@Nonnull String statKey) { return StatKey.create(statKey,this); }
+    
+    public final StatKey<A,B> createKey(String statKey) { return StatKey.create(statKey,this); }
+
+    public abstract MapCodec<? extends Instance<A,B>> mapCodec();
+    public abstract StreamCodec<? super RegistryFriendlyByteBuf,? extends Instance<A,B>> streamCodec();
+
+    @Override
+    public int hashCode() { return LCRegistries.STAT_TYPES.getKey(this).hashCode(); }
+
+    @Override
+    public String toString() { return "StatType[" + LCRegistries.STAT_TYPES.getKey(this) + "]"; }
 
     public abstract static class Instance<A,B> implements IClientTracker {
 
@@ -36,36 +43,27 @@ public abstract class StatType<A,B>
 
         @Override
         public final boolean isClient() { return this.parent.isClient(); }
-        @Nonnull
+        
         protected abstract StatType<A,B> getType();
-        @Nonnull
-        protected final ResourceLocation getID() { return this.getType().getID(); }
-        @Nonnull
-        public final CompoundTag save(@Nonnull HolderLookup.Provider lookup)
-        {
-            CompoundTag tag = new CompoundTag();
-            this.saveAdditional(tag, lookup);
-            tag.putString("Type", this.getType().getID().toString());
-            return tag;
-        }
-        protected abstract void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup);
-        public abstract void load(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup);
+        
+        protected final ResourceLocation getID() { return LCRegistries.STAT_TYPES.getKey(this.getType()); }
+
+        public void loadOldData(CompoundTag tag, HolderLookup.Provider lookup) {}
 
         public abstract A get();
-        public final void add(@Nonnull B addAmount) {
+        public final void add(B addAmount) {
             this.addInternal(addAmount);
             if(this.parent != null)
                 this.parent.setChanged();
         }
-        protected abstract void addInternal(@Nonnull B addAmount);
+        protected abstract void addInternal(B addAmount);
         public abstract void clear();
 
-        public void setParent(@Nonnull StatTracker parent) { this.parent = parent; }
+        public void setParent(StatTracker parent) { this.parent = parent; }
 
         public abstract Object getDisplay();
 
-        @Nonnull
-        public MutableComponent getInfoText(@Nonnull String statKey) { return EasyText.translatable(getTranslationKey(statKey),this.getDisplay()); }
+        public Component getInfoText(String statKey) { return EasyText.translatable(getTranslationKey(statKey),this.getDisplay()); }
 
     }
 }

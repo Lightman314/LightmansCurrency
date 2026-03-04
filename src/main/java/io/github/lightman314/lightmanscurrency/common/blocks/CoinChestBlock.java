@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
+import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -47,23 +48,22 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
     public CoinChestBlock(Properties properties) { super(properties, SHAPE); this.registerDefaultState(this.getStateDefinition().any().setValue(WATERLOGGED, false)); }
 
     @Override
-    protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(WATERLOGGED);
     }
 
-    @Nonnull
     @Override
-    public RenderShape getRenderShape(@Nonnull BlockState state) { return RenderShape.ENTITYBLOCK_ANIMATED; }
+    public RenderShape getRenderShape(BlockState state) { return RenderShape.ENTITYBLOCK_ANIMATED; }
 
     @Override
-    public BlockState getStateForPlacement(@Nonnull BlockPlaceContext context) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         FluidState fluidstate = context.getLevel().getFluidState(context.getClickedPos());
         return super.getStateForPlacement(context).setValue(WATERLOGGED, fluidstate.getType() == Fluids.WATER);
     }
 
     @Override
-    public void setPlacedBy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity player, @Nonnull ItemStack stack) {
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity player, ItemStack stack) {
         if(level.getBlockEntity(pos) instanceof CoinChestBlockEntity be)
         {
             if(stack.has(DataComponents.CUSTOM_NAME))
@@ -72,9 +72,9 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
         super.setPlacedBy(level, pos, state, player, stack);
     }
 
-    @Nonnull
+    
     @Override
-    protected InteractionResult useWithoutItem(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull BlockHitResult hit) {
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if(!level.isClientSide && level.getBlockEntity(pos) instanceof CoinChestBlockEntity be)
         {
             if(be.allowAccess(player))
@@ -88,9 +88,9 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
         return InteractionResult.CONSUME;
     }
 
-    @Nonnull
+    
     @Override
-    public BlockState playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player) {
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         if (level.getBlockEntity(pos) instanceof CoinChestBlockEntity be)
         {
             if(be.allowAccess(player))
@@ -102,33 +102,33 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
     }
 
     @Override
-    public void onRemove(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean flag) {
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean flag) {
         if(level.getBlockEntity(pos) instanceof CoinChestBlockEntity be)
         {
             be.onBlockRemoval();
-            Containers.dropContents(level, pos, be.getStorage());
-            Containers.dropContents(level, pos, be.getUpgrades());
+            Containers.dropContents(level,pos,be.getStorage());
+            InventoryUtil.dropContents(level,pos,be.getUpgrades());
         }
         super.onRemove(state, level, pos, newState, flag);
     }
 
-    @Nonnull
+    
     @Override
     public Collection<BlockEntityType<?>> getAllowedTypes() { return Collections.singleton(ModBlockEntities.COIN_CHEST.get()); }
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new CoinChestBlockEntity(pos, state); }
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new CoinChestBlockEntity(pos, state); }
 
     @Override
-    public void tick(@Nonnull BlockState state, @Nonnull ServerLevel level, @Nonnull BlockPos pos, @Nonnull RandomSource random) {
+    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         super.tick(state, level, pos, random);
         if(level.getBlockEntity(pos) instanceof CoinChestBlockEntity be)
             be.recheckOpen();
     }
 
     @Override
-    public boolean triggerEvent(@Nonnull BlockState p_49226_, @Nonnull Level p_49227_, @Nonnull BlockPos p_49228_, int p_49229_, int p_49230_) {
+    public boolean triggerEvent(BlockState p_49226_, Level p_49227_, BlockPos p_49228_, int p_49229_, int p_49230_) {
         super.triggerEvent(p_49226_, p_49227_, p_49228_, p_49229_, p_49230_);
         BlockEntity blockentity = p_49227_.getBlockEntity(p_49228_);
         return blockentity != null && blockentity.triggerEvent(p_49229_, p_49230_);
@@ -136,14 +136,14 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
 
 
     @Override
-    public boolean canBreak(@Nonnull Player player, @Nonnull LevelAccessor level, @Nonnull BlockPos pos, @Nonnull BlockState state) {
+    public boolean canBreak(Player player, LevelAccessor level, BlockPos pos, BlockState state) {
         if(level.getBlockEntity(pos) instanceof CoinChestBlockEntity blockEntity)
             return blockEntity.allowAccess(player);
         return true;
     }
 
     @Override
-    public boolean canUseUpgradeItem(@Nonnull IUpgradeable upgradeable, @Nonnull ItemStack stack, @Nullable Player player) {
+    public boolean canUseUpgradeItem(IUpgradeable upgradeable, ItemStack stack, @Nullable Player player) {
         if(upgradeable instanceof CoinChestBlockEntity be)
             return be.allowAccess(player);
         return false;

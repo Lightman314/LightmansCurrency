@@ -1,53 +1,57 @@
 package io.github.lightman314.lightmanscurrency.common.data.types;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.api.ejection.SafeEjectionAPI;
 import io.github.lightman314.lightmanscurrency.api.events.TraderEvent;
-import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
-import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
+import io.github.lightman314.lightmanscurrency.api.misc.ticker.ICommonTicker;
+import io.github.lightman314.lightmanscurrency.api.misc.ticker.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomData;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomDataType;
+import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderType;
+import io.github.lightman314.lightmanscurrency.api.traders.data.interfaces.IPersistentTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.PersistentAuctionData;
-import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.nodes.AuctionTradesNode;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.trade.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.File;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-@FieldsAreNonnullByDefault
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class TraderDataCache extends CustomData implements IServerTicker {
 
     public static final CustomDataType<TraderDataCache> TYPE = new CustomDataType<>("lightmanscurrency_trader_data",TraderDataCache::new);
@@ -56,6 +60,8 @@ public class TraderDataCache extends CustomData implements IServerTicker {
 
     public static final String PERSISTENT_TRADER_SECTION = "Traders";
     public static final String PERSISTENT_AUCTION_SECTION = "Auctions";
+
+    private Set<Long> changedTraders = new HashSet<>();
 
     private int cleanTick = 0;
     private long nextID = 0;
@@ -71,7 +77,7 @@ public class TraderDataCache extends CustomData implements IServerTicker {
     private final Map<String,PersistentData> persistentTraderData = new HashMap<>();
     private final List<PersistentAuctionData> persistentAuctionData = new ArrayList<>();
 
-    private final List<IEasyTickable> tickers = new ArrayList<>();
+    private final List<ICommonTicker> tickers = new ArrayList<>();
 
     private JsonObject persistentTraderJson = new JsonObject();
 
@@ -87,7 +93,6 @@ public class TraderDataCache extends CustomData implements IServerTicker {
         {
             //Create the auction house manually
             AuctionHouseTrader ah = AuctionHouseTrader.TYPE.create();
-            ah.setCreative(true);
 
             //Generate a trader ID
             long traderID = this.getNextID();
@@ -96,7 +101,7 @@ public class TraderDataCache extends CustomData implements IServerTicker {
             ah.setID(traderID);
 
             LightmansCurrency.LogInfo("Successfully created an auction house trader with id '" + traderID + "'!");
-            this.addTraderInternal(traderID, ah, LookupHelper.getRegistryAccess());
+            this.addTraderInternal(traderID, ah);
         }
     }
 
@@ -104,21 +109,21 @@ public class TraderDataCache extends CustomData implements IServerTicker {
     public CustomDataType<?> getType() { return TYPE; }
 
     @Override
-    public void save(CompoundTag tag, HolderLookup.Provider lookup) {
+    public void save(CompoundTag tag, DataContext<Tag> context) {
         tag.putLong("NextID", this.nextID);
 
         ListTag traderData = new ListTag();
         this.traderData.forEach((id,trader) -> {
-            if(trader.isPersistent())
+            if(trader instanceof IPersistentTrader pt && pt.isPersistent())
             {
                 try {
-                    this.putPersistentTag(trader.getPersistentID(), trader.savePersistentData(lookup));
+                    this.putPersistentTag(pt.getPersistentID(), pt.savePersistentData(context));
                 } catch(Throwable t) { LightmansCurrency.LogError("Error saving persistent trader data:", t); }
             }
             else
             {
                 try {
-                    traderData.add(trader.save(lookup));
+                    traderData.add(trader.save(context));
                 } catch(Throwable t) { LightmansCurrency.LogError("Error saving trader data:", t); }
             }
         });
@@ -138,7 +143,7 @@ public class TraderDataCache extends CustomData implements IServerTicker {
     }
 
     @Override
-    protected void load(CompoundTag tag, HolderLookup.Provider lookup) {
+    protected void load(CompoundTag tag, DataContext<Tag> context) {
         this.nextID = tag.getLong("NextID");
         LightmansCurrency.LogInfo("Loaded NextID (" + this.nextID + ") from tag.");
 
@@ -147,9 +152,9 @@ public class TraderDataCache extends CustomData implements IServerTicker {
         {
             try {
                 CompoundTag traderTag = traderData.getCompound(i);
-                TraderData trader = TraderData.Deserialize(false, traderTag, lookup);
+                TraderData trader = TraderData.load(traderTag, context);
                 if(trader != null)
-                    this.addTraderInternal(trader.getID(), trader, lookup);
+                    this.addTraderInternal(trader.getID(), trader);
                 else
                     LightmansCurrency.LogError("Error loading TraderData entry at index " + i);
             } catch(Throwable t) { LightmansCurrency.LogError("Error loading TraderData", t); }
@@ -219,13 +224,13 @@ public class TraderDataCache extends CustomData implements IServerTicker {
         return null;
     }
 
-    public void setPersistentTraderJson(JsonObject newData, HolderLookup.Provider lookup)
+    public void setPersistentTraderJson(JsonObject newData,DataContext<JsonElement> context)
     {
         if(this.isClient())
             return;
         File ptf = new File(PERSISTENT_TRADER_FILENAME);
         try {
-            this.loadPersistentTrader(newData, lookup);
+            this.loadPersistentTrader(newData,context);
         } catch(Exception e) {
             LightmansCurrency.LogError("Error loading modified Persistent Trader Data. Ignoring request.", e);
             return;
@@ -236,12 +241,12 @@ public class TraderDataCache extends CustomData implements IServerTicker {
         this.resendTraderData();
     }
 
-    public void setPersistentTraderSection(String section, JsonArray newData, HolderLookup.Provider lookup)
+    public void setPersistentTraderSection(String section,JsonArray newData,DataContext<JsonElement> context)
     {
         if(this.isClient())
             return;
         this.persistentTraderJson.add(section,newData);
-        this.setPersistentTraderJson(this.persistentTraderJson,lookup);
+        this.setPersistentTraderJson(this.persistentTraderJson,context);
     }
 
     public void reloadPersistentTraders()
@@ -263,7 +268,7 @@ public class TraderDataCache extends CustomData implements IServerTicker {
         try {
             this.persistentTraderJson = GsonHelper.parse(Files.readString(ptf.toPath()));
             LightmansCurrency.LogDebug("Loading PersistentTraders.json\n" +  FileUtil.GSON.toJson(this.persistentTraderJson));
-            this.loadPersistentTrader(this.persistentTraderJson, LookupHelper.getRegistryAccess());
+            this.loadPersistentTrader(this.persistentTraderJson,DataContext.createJson(LookupHelper.getRegistryAccess()));
         } catch(Throwable e) {
             LightmansCurrency.LogError("Error loading Persistent Traders.", e);
             //If an error occurs while loading, set the data to default.
@@ -300,27 +305,28 @@ public class TraderDataCache extends CustomData implements IServerTicker {
         return fileData;
     }
 
-    private void loadPersistentTrader(JsonObject fileData, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
+    private void loadPersistentTrader(JsonObject fileData,DataContext<JsonElement> context) throws JsonSyntaxException, ResourceLocationException {
         boolean hadNone = true;
+        DataContext<Tag> nbtContext = context.changeType(NbtOps.INSTANCE);
         if(fileData.has(PERSISTENT_TRADER_SECTION))
         {
             hadNone = false;
 
             //Remove persistent traders
-            List<Long> removeTraderList = new ArrayList<>();
+            Map<Long,TraderData> removedTraders = new HashMap<>();
             this.traderData.forEach((id,trader) -> {
-                if(trader.isPersistent())
+                if(trader instanceof IPersistentTrader pt && pt.isPersistent())
                 {
-                    if(trader instanceof IEasyTickable t)
+                    if(trader instanceof ICommonTicker t)
                         this.tickers.remove(t);
                     //Save persistent tag
-                    this.putPersistentTag(trader.getPersistentID(), trader.savePersistentData(lookup));
-                    removeTraderList.add(id);
+                    this.putPersistentTag(pt.getPersistentID(),pt.savePersistentData(nbtContext));
+                    removedTraders.put(id,trader);
                 }
             });
 
             //Don't need to remove from tickers as this is done in the forEach call
-            for(long id : removeTraderList)
+            for(long id : removedTraders.keySet())
                 this.traderData.remove(id);
 
             List<String> loadedIDs = new ArrayList<>();
@@ -336,10 +342,18 @@ public class TraderDataCache extends CustomData implements IServerTicker {
                         throw new JsonSyntaxException("Trader with id '" + traderID + "' already exists. Cannot have duplicate ids.");
                     if(traderID.isBlank())
                         throw new JsonSyntaxException("Trader cannot have a blank id!");
-                    TraderData data = TraderData.Deserialize(traderTag, lookup);
+
+                    ResourceLocation typeID = ResourceLocation.parse(GsonHelper.getAsString(traderTag,"Type"));
+                    TraderType<?> type = LCRegistries.TRADER_TYPES.get(typeID);
+                    if(type == null)
+                        throw new JsonSyntaxException("Unknown Trader Type: " + typeID);
+                    TraderData trader = type.create();
+                    if(!(trader instanceof IPersistentTrader pt))
+                        throw new JsonSyntaxException("Trader of Type '" + typeID + "' does not support persistent traders!");
+                    pt.readPersistentJson(traderTag,context);
 
                     //Load the persistent data
-                    data.loadPersistentData(this.getPersistentTag(traderID), lookup);
+                    pt.loadPersistentData(this.getPersistentTag(traderID),nbtContext);
 
                     //Match the persistent data with traders id
                     long id = this.getPersistentID(traderID);
@@ -350,14 +364,20 @@ public class TraderDataCache extends CustomData implements IServerTicker {
                         this.setChanged();
                         LightmansCurrency.LogInfo("Generated new ID for persistent trader '" + traderID + "' (" + id + ")");
                     }
+                    else
+                    {
+                        //Check if we have an old trader to copy tracking data from
+                        if(removedTraders.containsKey(id))
+                            trader.copyTrackingData(removedTraders.get(id));
+                    }
                     //Initialize the persistence (forces creative & terminal access)
-                    data.makePersistent(id, traderID);
+                    pt.makePersistent(id, traderID);
 
-                    this.addTraderInternal(id, data, lookup);
+                    this.addTraderInternal(id,trader);
                     loadedIDs.add(traderID);
                     LightmansCurrency.LogInfo("Successfully loaded persistent trader '" + traderID + "' with ID " + id + ".");
 
-                } catch(JsonSyntaxException | ResourceLocationException e) { LightmansCurrency.LogError("Error loading Persistent Trader at index " + i, e); }
+                } catch(JsonSyntaxException | ResourceLocationException | IllegalStateException e) { LightmansCurrency.LogError("Error loading Persistent Trader at index " + i, e); }
             }
         }
         if(fileData.has(PERSISTENT_AUCTION_SECTION))
@@ -372,7 +392,7 @@ public class TraderDataCache extends CustomData implements IServerTicker {
 
                     //Load the auction
                     JsonObject auctionTag = auctionList.get(i).getAsJsonObject();
-                    PersistentAuctionData data = PersistentAuctionData.load(auctionTag,lookup);
+                    PersistentAuctionData data = PersistentAuctionData.load(auctionTag,context);
                     if(loadedIDs.contains(data.id))
                         throw new JsonSyntaxException("Auction with id '" + data.id + "' already exists. Cannot have duplicate ids.");
                     else
@@ -396,37 +416,70 @@ public class TraderDataCache extends CustomData implements IServerTicker {
         if(this.isClient())
             return -1;
         long newID = this.getNextID();
-        this.addTraderInternal(newID, newTrader, LookupHelper.getRegistryAccess());
-        if(newTrader.shouldAlwaysShowOnTerminal() && player != null)
-            NeoForge.EVENT_BUS.post(new TraderEvent.CreateNetworkTraderEvent(newID, player));
+        this.addTraderInternal(newID, newTrader);
+        NeoForge.EVENT_BUS.post(new TraderEvent.CreateNewTraderEvent(newID, player));
         return newID;
     }
 
-    private void addTraderInternal(long traderID, TraderData trader, HolderLookup.Provider lookup)
+    private void addTraderInternal(long traderID, TraderData trader)
     {
         //Set Trader ID
         trader.setID(traderID);
         //Add to storage
-        this.traderData.put(traderID, trader.allowMarkingDirty());
+        this.traderData.put(traderID,trader.flagAsClient(this));
+        trader.initialize();
         this.setChanged();
         //Trigger OnRegisteration listener
         try{ trader.OnRegisteredToOffice();
         } catch(Throwable t) { LightmansCurrency.LogError("Error handling Trader-OnRegistration function!", t); }
         //Send update packet to all relevant clients
-        this.sendSyncPacket(this.updatePacket(trader.save(lookup)));
+        this.sendCreateTraderPacket(trader);
         //Register tick listeners (if applicable)
-        if(trader instanceof IEasyTickable t)
+        if(trader instanceof ICommonTicker t)
             this.tickers.add(t);
     }
 
-    public void markTraderDirty(@Nullable CompoundTag updateData)
+    public void markTraderDirty(TraderData trader)
     {
         this.setChanged();
-        if(updateData != null)
-            this.sendSyncPacket(this.updatePacket(updateData));
+        this.changedTraders.add(trader.getID());
     }
 
-    private LazyPacketData.Builder updatePacket(CompoundTag updateData) { return this.builder().setCompound("UpdateTrader",updateData); }
+    public void sendUpdatePacket(TraderData trader) {
+        this.forEachPlayer(player ->  this.sendUpdatePacket(player,trader,trader.getChangedData(player)) );
+        //Clean the trader so that we don't keep sending more and more data
+        trader.clean();
+    }
+
+    public void sendUpdatePacket(Player player,TraderData trader,LazyPacketData.Builder packet) { this.sendUpdatePacket(player,trader,packet.build()); }
+    public void sendUpdatePacket(Player player,TraderData trader,LazyPacketData packet)
+    {
+        if(player instanceof ServerPlayer sp)
+            this.sendSyncPacket(this.asUpdatePacket(trader,packet),sp);
+    }
+
+    private LazyPacketData.Builder asUpdatePacket(TraderData trader,LazyPacketData packet) {
+        return this.builder().setLong("UpdateTrader",trader.getID())
+                .setMap("Data",packet);
+    }
+
+    private LazyPacketData.Builder updateTraderPacket(TraderData trader,Player player)
+    {
+        return this.asUpdatePacket(trader,trader.getChangedData(player));
+    }
+
+    private void sendCreateTraderPacket(TraderData trader)
+    {
+        this.forEachPlayer(player -> this.sendCreateTraderPacket(trader,player));
+    }
+
+    private void sendCreateTraderPacket(TraderData trader,ServerPlayer player)
+    {
+        LazyPacketData.Builder builder = this.asUpdatePacket(trader,trader.fullSyncPacket(player).build());
+        builder.setResourceLocation("CreateTrader",LCRegistries.TRADER_TYPES.getKey(trader.getType()))
+                .setLong("ID",trader.getID());
+        this.sendSyncPacket(builder,player);
+    }
 
     public void deleteTrader(long traderID)
     {
@@ -439,12 +492,11 @@ public class TraderDataCache extends CustomData implements IServerTicker {
             TaxDataCache.TYPE.get(false).getAllEntries().forEach(e -> e.TaxableWasRemoved(trader));
             //Remove from the Trader List
             this.traderData.remove(traderID);
-            if(trader instanceof IEasyTickable t)
+            if(trader instanceof ICommonTicker t)
                 this.tickers.remove(t);
             this.setChanged();
             this.sendSyncPacket(this.builder().setLong("DeleteTrader",traderID));
-            if(trader.shouldAlwaysShowOnTerminal())
-                NeoForge.EVENT_BUS.post(new TraderEvent.RemoveNetworkTraderEvent(traderID, trader));
+            NeoForge.EVENT_BUS.post(new TraderEvent.TraderDeletedEvent(traderID, trader));
         }
     }
 
@@ -454,27 +506,30 @@ public class TraderDataCache extends CustomData implements IServerTicker {
             this.traderData.clear();
         if(data.contains("DeleteTrader"))
             this.traderData.remove(data.getLong("DeleteTrader"));
+        if(data.contains("CreateTrader"))
+        {
+            ResourceLocation id = data.getResourceLocation("CreateTrader");
+            TraderType<?> type = LCRegistries.TRADER_TYPES.get(id);
+            if(type != null)
+            {
+                TraderData trader = type.create();
+                this.addTraderInternal(data.getLong("ID"),trader);
+            }
+        }
         if(data.contains("UpdateTrader"))
         {
-            CompoundTag updateTag = data.getNBT("UpdateTrader");
-            long id = updateTag.getLong("ID");
+            long id = data.getLong("UpdateTrader");
+            LazyPacketData packet = data.getMap("Data");
             if(this.traderData.containsKey(id))
-                this.traderData.get(id).load(updateTag,lookup);
+                this.traderData.get(id).handleSyncPacket(packet);
             else
-            {
-                TraderData trader = TraderData.Deserialize(true, updateTag, LookupHelper.getRegistryAccess());
-                if(trader != null)
-                {
-                    this.traderData.put(id,trader.flagAsClient(this));
-                    trader.OnRegisteredToOffice();
-                }
-            }
+                LightmansCurrency.LogWarning("Received a trader update packet for a trader that doesn't yet exist on the server!");
         }
     }
 
     public List<TraderData> getAllTraders() { return new ArrayList<>(this.traderData.values()); }
 
-    public List<TraderData> getAllTerminalTraders() { return new ArrayList<>(this.getAllTraders().stream().filter(TraderData::showOnTerminal).toList()); }
+    public List<TraderData> getAllTerminalTraders() { return new ArrayList<>(this.getAllTraders().stream().filter(TraderData::isNetworkAccessible).toList()); }
 
     @Nullable
     public TraderData getTrader(long traderID) { return this.traderData.get(traderID); }
@@ -485,7 +540,7 @@ public class TraderDataCache extends CustomData implements IServerTicker {
         if(this.isClient())
         {
             //Lookup manually as persistent trader ids aren't synced with the clients
-            List<TraderData> validTraders = this.getAllTraders().stream().filter(t -> t.getPersistentID().equals(persistentTraderID)).toList();
+            List<TraderData> validTraders = this.getAllTraders().stream().filter(t -> t instanceof IPersistentTrader pt && pt.getPersistentID().equals(persistentTraderID)).toList();
             if(!validTraders.isEmpty())
                 return validTraders.getFirst();
             return null;
@@ -521,12 +576,13 @@ public class TraderDataCache extends CustomData implements IServerTicker {
             }
             for(TraderData traderData : remove)
             {
-                if(traderData instanceof IEasyTickable t)
+                if(traderData instanceof ICommonTicker t)
                     this.tickers.remove(t);
                 this.traderData.remove(traderData.getID());
                 try {
-                    Level level = server.getLevel(traderData.getLevel());
-                    BlockPos pos = traderData.getPos();
+                    WorldPosition worldPosition = traderData.getWorldPosition();
+                    Level level = worldPosition.isVoid() ? null : server.getLevel(worldPosition.getDimension());
+                    BlockPos pos = worldPosition.getPos();
                     EjectionData e = traderData.buildEjectionData(level,pos,null);
                     SafeEjectionAPI.getApi().handleEjection(level,pos,e);
                 } catch(NullPointerException e) { LightmansCurrency.LogError("Error deleting missing trader.",e); }
@@ -546,23 +602,29 @@ public class TraderDataCache extends CustomData implements IServerTicker {
             }
             if(ah != null)
             {
-                for(PersistentAuctionData pad : this.persistentAuctionData)
+                AuctionTradesNode node = ah.getNode(AuctionTradesNode.TYPE);
+                if(node != null)
                 {
-                    if(!ah.hasPersistentAuction(pad.id))
+                    for(PersistentAuctionData pad : this.persistentAuctionData)
                     {
-                        AuctionTradeData trade = pad.createAuction();
-                        if(trade != null)
+                        if(!node.hasPersistentAuction(pad.id))
                         {
-                            ah.addTrade(trade, null, true);
-                            LightmansCurrency.LogInfo("Successfully added Persistent Auction '" + pad.id + "' into the auction house.");
+                            AuctionTradeData trade = pad.createAuction();
+                            if(trade != null)
+                            {
+                                node.addTrade(trade, null, true);
+                                LightmansCurrency.LogInfo("Successfully added Persistent Auction '" + pad.id + "' into the auction house.");
+                            }
                         }
                     }
                 }
+                else
+                    LightmansCurrency.LogError("Auction House is missing the Auction Trades Node!");
             }
             filler.pop();
         }
         filler.push("Trader Ticks");
-        for(IEasyTickable tickable : this.tickers)
+        for(ICommonTicker tickable : this.tickers)
             tickable.tick();
         filler.pop();
     }
@@ -573,6 +635,7 @@ public class TraderDataCache extends CustomData implements IServerTicker {
             return;
         this.validateAuctionHouse();
         this.loadPersistentTraders();
+        NeoForge.EVENT_BUS.register(this);
     }
 
     @Override
@@ -581,12 +644,44 @@ public class TraderDataCache extends CustomData implements IServerTicker {
         if(this.getAuctionHouse() instanceof AuctionHouseTrader ah)
             ah.onPlayerJoin(player);
         this.sendSyncPacket(this.builder().setFlag("ClearTraders"),player);
-        this.traderData.forEach((id,trader) -> this.sendSyncPacket(this.updatePacket(trader.save(player.registryAccess())),player));
+        for(TraderData trader : new ArrayList<>(this.traderData.values()))
+        {
+            //Send Create Trader Packet
+            this.sendCreateTraderPacket(trader,player);
+        }
     }
 
     private void resendTraderData() {
         this.sendSyncPacket(this.builder().setFlag("ClearTraders"));
-        this.traderData.forEach((id,trader) -> this.sendSyncPacket(this.updatePacket(trader.save(LookupHelper.getRegistryAccess()))));
+        for(TraderData trader : new ArrayList<>(this.traderData.values()))
+            this.sendCreateTraderPacket(trader);
+    }
+
+    @SubscribeEvent
+    private void onServerTick(ServerTickEvent.Post event)
+    {
+        Set<Long> changed = this.changedTraders;
+        this.changedTraders = new HashSet<>();
+        for(long id : changed)
+        {
+            TraderData trader = this.traderData.get(id);
+            if(trader != null)
+                this.sendUpdatePacket(trader);
+        }
+    }
+
+    @SubscribeEvent
+    private void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent event)
+    {
+        //Clear the tracking cache
+        for(TraderData trader : new ArrayList<>(this.traderData.values()))
+            trader.onPlayerLeave(event.getEntity());
+    }
+
+    @SubscribeEvent
+    private void onServerShutdown(ServerStoppingEvent event)
+    {
+        NeoForge.EVENT_BUS.unregister(this);
     }
 
     private static class PersistentData

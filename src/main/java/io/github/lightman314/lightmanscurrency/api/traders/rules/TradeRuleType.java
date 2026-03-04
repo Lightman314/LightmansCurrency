@@ -1,53 +1,30 @@
 package io.github.lightman314.lightmanscurrency.api.traders.rules;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import net.minecraft.ResourceLocationException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
-import java.util.Objects;
-import java.util.function.Supplier;
+public abstract class TradeRuleType<T extends TradeRule> {
 
-public final class TradeRuleType<T extends TradeRule> {
+    public static final Codec<TradeRuleType<?>> CODEC = LCRegistries.TRADE_RULE.byNameCodec();
 
-    public final ResourceLocation type;
-    private final Supplier<T> generator;
+    public abstract T create();
 
-    public TradeRuleType(@Nonnull ResourceLocation type, @Nonnull Supplier<T> generator)
+    public abstract MapCodec<T> mapCodec();
+
+    @Deprecated
+    public T loadOldData(CompoundTag tag, HolderLookup.Provider lookup)
     {
-        this.type = type;
-        this.generator = generator;
-    }
-
-    @Nonnull
-    public T createNew() { return this.generator.get(); }
-
-    public T load(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
-    {
-        try {
-            T rule = this.createNew();
-            rule.load(tag, lookup);
-            return rule;
-        } catch (Throwable t) { LightmansCurrency.LogError("Error loading Trade Rule!", t); return null; }
-    }
-
-    public T loadFromJson(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException
-    {
-        T rule = this.createNew();
-        rule.loadFromJson(json, lookup);
-        rule.setActive(true);
+        T rule = this.create();
+        rule.load(tag,lookup);
         return rule;
     }
 
     @Override
-    public int hashCode() {return this.type.hashCode(); }
-
+    public final int hashCode() { return LCRegistries.TRADE_RULE.getKey(this).hashCode(); }
     @Override
-    public String toString() { return this.type.toString(); }
+    public final String toString() { return "TradeRuleType[" + LCRegistries.TRADE_RULE.getKey(this) + "]"; }
 
 }

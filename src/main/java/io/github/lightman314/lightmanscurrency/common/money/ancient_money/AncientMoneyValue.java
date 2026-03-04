@@ -3,21 +3,28 @@ package io.github.lightman314.lightmanscurrency.common.money.ancient_money;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
+import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
+import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.money.value.IItemBasedValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.DecoderException;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Range;
 
-import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -26,23 +33,38 @@ public class AncientMoneyValue extends MoneyValue implements IItemBasedValue {
     public final AncientCoinType type;
     public final long count;
 
-    private AncientMoneyValue(@Nonnull AncientCoinType type, long count) {
+    public static final MapCodec<AncientMoneyValue> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+            EnumUtil.buildCodec(AncientCoinType.class,"Ancient Coin Type").fieldOf("coin").forGetter(v -> v.type),
+            Codec.LONG.validate(l -> l > 0 ? DataResult.success(l) : DataResult.error(() -> "Count cannot be less than 1")).fieldOf("count").forGetter(v -> v.count)
+    ).apply(builder,AncientMoneyValue::new));
+    public static final StreamCodec<ByteBuf,AncientMoneyValue> STREAM_CODEC = StreamCodec.composite(
+            EnumUtil.streamCodec(AncientCoinType.class,"Ancient Coin Type"),v -> v.type,
+            ByteBufCodecs.VAR_LONG,v -> v.count,
+            AncientMoneyValue::parseOrThrow);
+
+
+    private AncientMoneyValue(AncientCoinType type, long count) {
         this.type = type;
         this.count = count;
     }
 
-    @Nonnull
+    private static AncientMoneyValue parseOrThrow(AncientCoinType type,long count) {
+        if(type == null)
+            throw new DecoderException("Cannot parse a null Ancient Coin Type!");
+        if(count <= 0)
+            throw new DecoderException("Count cannot be less than 1");
+        return new AncientMoneyValue(type,count);
+    }
+
     public static MoneyValue of(AncientCoinType type, long count) {
         if(type == null || count <= 0)
             return empty();
         return new AncientMoneyValue(type,count);
     }
 
-    @Nonnull
     @Override
-    protected ResourceLocation getType() { return AncientMoneyType.TYPE; }
-
-    @Nonnull
+    public CurrencyType<?> getType() { return AncientMoneyType.INSTANCE; }
+    
     @Override
     protected String generateUniqueName() { return this.generateCustomUniqueName(this.type.resourceSafeName()); }
 
@@ -54,14 +76,14 @@ public class AncientMoneyValue extends MoneyValue implements IItemBasedValue {
     public long getCoreValue() { return Math.max(0,this.count); }
 
     @Override
-    public MutableComponent getText(@Nonnull MutableComponent emptyText) {
+    public Component getText(Component emptyText) {
         if(this.isEmpty())
             return emptyText;
         return LCText.ANCIENT_COIN_VALUE_DISPLAY.get(this.getCoreValue(),this.type.initial(),this.type.icon());
     }
 
     @Override
-    public MoneyValue addValue(@Nonnull MoneyValue addedValue) {
+    public MoneyValue addValue(MoneyValue addedValue) {
         if(addedValue instanceof AncientMoneyValue other && other.type == this.type)
             return of(this.type,this.count + other.count);
         //Return this if the other value is empty
@@ -71,14 +93,14 @@ public class AncientMoneyValue extends MoneyValue implements IItemBasedValue {
     }
 
     @Override
-    public boolean containsValue(@Nonnull MoneyValue queryValue) {
+    public boolean containsValue(MoneyValue queryValue) {
         if(queryValue instanceof AncientMoneyValue value && value.type == this.type)
             return value.count <= this.count;
         return queryValue.isEmpty();
     }
 
     @Override
-    public MoneyValue subtractValue(@Nonnull MoneyValue removedValue) {
+    public MoneyValue subtractValue(MoneyValue removedValue) {
         if(removedValue instanceof AncientMoneyValue other && other.type == this.type)
             return of(this.type, this.count - other.count);
         //Return this if the other value is empty
@@ -110,7 +132,7 @@ public class AncientMoneyValue extends MoneyValue implements IItemBasedValue {
         return this.fromCoreValue(newValue);
     }
 
-    @Nonnull
+    
     @Override
     public MoneyValue multiplyValue(double multiplier) {
         BigDecimal value = BigDecimal.valueOf(this.getCoreValue());
@@ -129,47 +151,34 @@ public class AncientMoneyValue extends MoneyValue implements IItemBasedValue {
         return of(this.type, result.longValue() + rounding);
     }
 
-    @Nonnull
+    
     @Override
     public List<ItemStack> getAsItemList() {
         return Lists.newArrayList(this.type.asItem(this.count));
     }
 
-    @Nonnull
+    
     @Override
-    public List<ItemStack> onBlockBroken(@Nonnull OwnerData owner) { return this.getAsSeperatedItemList(); }
+    public List<ItemStack> onBlockBroken(OwnerData owner) { return this.getAsSeperatedItemList(); }
 
-    @Nonnull
+    
     @Override
     public MoneyValue getSmallestValue() { return of(this.type,1); }
 
     @Override
     public boolean allowInterest() { return false; }
 
-    @Nonnull
     @Override
     public MoneyValue fromCoreValue(long value) { return of(this.type,value); }
 
-    @Override
-    protected void saveAdditional(@Nonnull CompoundTag tag) {
-        tag.putString("Coin",this.type.toString());
-        tag.putLong("Count",this.count);
-    }
-
-    public static MoneyValue load(@Nonnull CompoundTag tag)
+    public static MoneyValue load(CompoundTag tag)
     {
         AncientCoinType type = EnumUtil.enumFromString(tag.getString("Coin"), AncientCoinType.values(),null);
         long count = tag.getLong("Count");
         return of(type,count);
     }
 
-    @Override
-    protected void writeAdditionalToJson(@Nonnull JsonObject json) {
-        json.addProperty("Coin",this.type.toString());
-        json.addProperty("Count",this.count);
-    }
-
-    public static MoneyValue loadFromJson(@Nonnull JsonObject json) throws JsonSyntaxException
+    public static MoneyValue loadFromJson(JsonObject json) throws JsonSyntaxException
     {
         String typeString = GsonHelper.getAsString(json,"Coin");
         AncientCoinType type = EnumUtil.enumFromString(typeString, AncientCoinType.values(),null);

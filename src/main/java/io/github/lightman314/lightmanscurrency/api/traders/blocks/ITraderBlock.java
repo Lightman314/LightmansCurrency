@@ -11,18 +11,17 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public interface ITraderBlock extends IOwnableBlock, ICapabilityBlock {
 
 	@Nullable
-	default BlockEntity getBlockEntity(@Nonnull BlockState state, @Nonnull LevelAccessor level, @Nonnull BlockPos pos)
+	default BlockEntity getBlockEntity(BlockState state, LevelAccessor level, BlockPos pos)
 	{
 		return level.getBlockEntity(this.getCapabilityBlockPos(state,level,pos));
 	}
 	
-	default boolean canBreak(@Nonnull Player player, @Nonnull LevelAccessor level, @Nonnull BlockPos pos, @Nonnull BlockState state)
+	default boolean canBreak(Player player, LevelAccessor level, BlockPos pos, BlockState state)
 	{
 		BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
 		if(blockEntity instanceof IOwnableBlockEntity ownableBlockEntity)
@@ -30,6 +29,6 @@ public interface ITraderBlock extends IOwnableBlock, ICapabilityBlock {
 		return true;
 	}
 
-	default ItemStack getDropBlockItem(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state) { return new ItemStack(state.getBlock()); }
+	default ItemStack getDropBlockItem(Level level, BlockPos pos, BlockState state) { return new ItemStack(state.getBlock()); }
 	
 }

@@ -1,15 +1,11 @@
 package io.github.lightman314.lightmanscurrency.api.misc.settings.directional;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public interface IDirectionalSettingsObject extends IDirectionalSettingsHolder {
 
     @Nullable

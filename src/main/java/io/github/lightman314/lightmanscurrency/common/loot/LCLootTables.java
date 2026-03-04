@@ -46,7 +46,7 @@ public class LCLootTables {
 
     public static final ResourceLocation ARCHAEOLOGY_ANCIENT_RUINS = register("archaeology/ancient_city/ancient_ruins");
 
-    private static ResourceLocation register(String id) { return register(VersionUtil.lcResource( id)); }
+    private static ResourceLocation register(String id) { return register(LightmansCurrency.id( id)); }
 
     private static ResourceLocation register(ResourceLocation id) {
         if (LOCATIONS.add(ResourceKey.create(Registries.LOOT_TABLE,id))) {

@@ -3,14 +3,13 @@ package io.github.lightman314.lightmanscurrency.integration.ftbteams.ownership;
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import dev.ftb.mods.ftbteams.api.Team;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.PotentialOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.builtin.PotentialTeamOwner;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
@@ -18,7 +17,7 @@ import java.util.UUID;
 public class PotentialFTBTeamOwner extends PotentialOwner {
 
     private final UUID teamID;
-    protected PotentialFTBTeamOwner(@Nonnull UUID teamID) {
+    protected PotentialFTBTeamOwner(UUID teamID) {
         super(new FTBTeamOwner(teamID), PotentialTeamOwner.TEAM_PRIORITY);
         this.teamID = teamID;
     }
@@ -33,7 +32,6 @@ public class PotentialFTBTeamOwner extends PotentialOwner {
         return null;
     }
 
-    @Nonnull
     @Override
     public IconData getIcon() {
         int count = 0;
@@ -44,7 +42,7 @@ public class PotentialFTBTeamOwner extends PotentialOwner {
     }
 
     @Override
-    public void appendTooltip(@Nonnull List<Component> tooltip) {
+    public void appendTooltip(List<Component> tooltip) {
         Team team = this.getTeam();
         if(team != null)
             tooltip.addAll(LCText.TOOLTIP_OWNER_TEAM_FTB.get(team.getName().getString(),team.getMembers().size()));

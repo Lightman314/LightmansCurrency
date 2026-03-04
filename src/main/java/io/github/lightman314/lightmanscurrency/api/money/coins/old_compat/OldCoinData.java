@@ -8,8 +8,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 
-import javax.annotation.Nonnull;
-
 /**
  * Placeholder class to temporarily hold old coin data values to update into the new system
  */
@@ -42,7 +40,7 @@ public class OldCoinData {
         this.isHidden = hidden;
     }
 
-    public static OldCoinData parse(@Nonnull JsonObject json) throws JsonSyntaxException, ResourceLocationException
+    public static OldCoinData parse(JsonObject json) throws JsonSyntaxException, ResourceLocationException
     {
         //Coin Item
         Item coinItem = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(GsonHelper.getAsString(json, "coinitem")));

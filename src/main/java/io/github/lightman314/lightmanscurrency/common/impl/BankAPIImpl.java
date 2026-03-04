@@ -4,14 +4,12 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
-import io.github.lightman314.lightmanscurrency.api.money.bank.menu.IBankAccountAdvancedMenu;
 import io.github.lightman314.lightmanscurrency.api.money.bank.menu.IBankAccountMenu;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
-import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReferenceType;
 import io.github.lightman314.lightmanscurrency.api.money.bank.source.BankAccountSource;
 import io.github.lightman314.lightmanscurrency.api.money.bank.source.builtin.PlayerBankAccountSource;
 import io.github.lightman314.lightmanscurrency.api.money.bank.source.builtin.TeamBankAccountSource;
@@ -21,19 +19,15 @@ import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.data.types.BankDataCache;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.DepositWithdrawNotification;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.items.IItemHandler;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class BankAPIImpl extends BankAPI {
 
@@ -43,28 +37,11 @@ public class BankAPIImpl extends BankAPI {
         this.RegisterBankAccountSource(PlayerBankAccountSource.INSTANCE);
         this.RegisterBankAccountSource(TeamBankAccountSource.INSTANCE);
     }
-
-    private final Map<ResourceLocation, BankReferenceType> referenceTypes = new HashMap<>();
+    
     private final List<BankAccountSource> accountSources = new ArrayList<>();
-
+    
     @Override
-    public void RegisterReferenceType(@Nonnull BankReferenceType type) {
-        ResourceLocation id = type.id;
-        if(this.referenceTypes.containsKey(id))
-            LightmansCurrency.LogWarning("Attempted to register the AccountReferenceType '" + id + "' twice!");
-        else
-        {
-            this.referenceTypes.put(id, type);
-            LightmansCurrency.LogDebug("Registered BankReferenceType '" + id + "'!");
-        }
-    }
-
-    @Nullable
-    @Override
-    public BankReferenceType GetReferenceType(@Nonnull ResourceLocation type) { return this.referenceTypes.get(type); }
-
-    @Override
-    public void RegisterBankAccountSource(@Nonnull BankAccountSource source) {
+    public void RegisterBankAccountSource(BankAccountSource source) {
         if(this.accountSources.contains(source))
         {
             LightmansCurrency.LogWarning("Bank Account Source of type " + source.getClass().getSimpleName() + " was already registered!");
@@ -74,7 +51,6 @@ public class BankAPIImpl extends BankAPI {
     }
 
     @Override
-    @Nonnull
     public List<BankReference> GetAllBankReferences(boolean isClient) {
         List<BankReference> references = new ArrayList<>();
         for(BankAccountSource source : this.accountSources)
@@ -82,7 +58,6 @@ public class BankAPIImpl extends BankAPI {
         return references;
     }
 
-    @Nonnull
     @Override
     public List<IBankAccount> GetAllBankAccounts(boolean isClient) {
         List<IBankAccount> accounts = new ArrayList<>();
@@ -92,10 +67,10 @@ public class BankAPIImpl extends BankAPI {
     }
 
     @Override
-    public void BankDeposit(@Nonnull IBankAccountMenu menu, @Nonnull MoneyValue requestedAmount) { this.BankDeposit(menu.getPlayer(),menu.getCoinInput(),menu.getBankAccountReference(),requestedAmount); }
+    public void BankDeposit(IBankAccountMenu menu, MoneyValue requestedAmount) { this.BankDeposit(menu.getPlayer(),menu.getCoinInput(),menu.getBankAccountReference(),requestedAmount); }
 
     @Override
-    public void BankDeposit(@Nonnull Player player, @Nonnull Container container, @Nonnull BankReference reference, @Nonnull MoneyValue requestedAmount) {
+    public void BankDeposit(Player player, IItemHandler container, BankReference reference, MoneyValue requestedAmount) {
         if(reference == null || !reference.allowedAccess(player))
             return;
         IBankAccount account = reference.get();
@@ -131,10 +106,10 @@ public class BankAPIImpl extends BankAPI {
     }
 
     @Override
-    public void BankWithdraw(@Nonnull IBankAccountMenu menu, @Nonnull MoneyValue amount) { this.BankWithdraw(menu.getPlayer(), menu.getCoinInput(), menu.getBankAccountReference(), amount); }
+    public void BankWithdraw(IBankAccountMenu menu, MoneyValue amount) { this.BankWithdraw(menu.getPlayer(), menu.getCoinInput(), menu.getBankAccountReference(), amount); }
 
     @Override
-    public void BankWithdraw(@Nonnull Player player, @Nonnull Container container, @Nonnull BankReference reference, @Nonnull MoneyValue amount) {
+    public void BankWithdraw(Player player, IItemHandler container, BankReference reference, MoneyValue amount) {
         if(reference == null || !reference.allowedAccess(player) || amount.isEmpty())
             return;
         IBankAccount account = reference.get();
@@ -156,13 +131,13 @@ public class BankAPIImpl extends BankAPI {
             ba.LogInteraction(player, withdrawnAmount, false);
     }
 
-    @Nonnull
+    
     @Override
-    public MutableComponent BankTransfer(@Nonnull IBankAccountAdvancedMenu menu, @Nonnull MoneyValue amount, @Nonnull IBankAccount destination) { return this.BankTransfer(menu.getPlayer(), menu.getBankAccountReference(), amount, destination); }
+    public MutableComponent BankTransfer(IBankAccountMenu menu, MoneyValue amount, @Nullable IBankAccount destination) { return this.BankTransfer(menu.getPlayer(), menu.getBankAccountReference(), amount, destination); }
 
-    @Nonnull
+    
     @Override
-    public MutableComponent BankTransfer(@Nonnull Player player, BankReference fromReference, @Nonnull MoneyValue amount, IBankAccount destination) {
+    public MutableComponent BankTransfer(Player player, BankReference fromReference, MoneyValue amount, @Nullable IBankAccount destination) {
         if(fromReference == null)
             return LCText.GUI_BANK_TRANSFER_ERROR_NULL_FROM.get();
         if(!fromReference.allowedAccess(player))
@@ -193,7 +168,7 @@ public class BankAPIImpl extends BankAPI {
     }
 
     @Override
-    public boolean BankDepositFromServer(@Nonnull IBankAccount account, @Nonnull MoneyValue amount, boolean notifyPlayers) {
+    public boolean BankDepositFromServer(IBankAccount account, MoneyValue amount, boolean notifyPlayers) {
         if(account == null || amount.isEmpty())
             return false;
 
@@ -203,9 +178,9 @@ public class BankAPIImpl extends BankAPI {
         return true;
     }
 
-    @Nonnull
+    
     @Override
-    public Pair<Boolean, MoneyValue> BankWithdrawFromServer(@Nonnull IBankAccount account, @Nonnull MoneyValue amount, boolean notifyPlayers) {
+    public Pair<Boolean, MoneyValue> BankWithdrawFromServer(IBankAccount account, MoneyValue amount, boolean notifyPlayers) {
         if(account == null || amount.isEmpty())
             return Pair.of(false, MoneyValue.empty());
 
@@ -215,7 +190,7 @@ public class BankAPIImpl extends BankAPI {
     }
 
     @SubscribeEvent
-    public void ServerTick(@Nonnull ServerTickEvent.Pre event)
+    private void ServerTick(ServerTickEvent.Pre event)
     {
         double interestRate = LCConfig.SERVER.bankAccountInterestRate.get();
         if(interestRate > 0)

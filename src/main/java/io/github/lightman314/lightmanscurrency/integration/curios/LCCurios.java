@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.integration.curios;
 
 import io.github.lightman314.lightmanscurrency.common.items.PortableATMItem;
 import io.github.lightman314.lightmanscurrency.common.items.PortableTerminalItem;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -11,11 +10,8 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Predicate;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class LCCurios {
 
     public static final String WALLET_SLOT = "wallet";

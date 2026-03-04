@@ -1,19 +1,13 @@
 package io.github.lightman314.lightmanscurrency.client.util;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IEasyScreen;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import javax.annotation.concurrent.Immutable;
 import java.util.Objects;
 import java.util.Optional;
 
-@MethodsReturnNonnullByDefault
-@FieldsAreNonnullByDefault
-@ParametersAreNonnullByDefault
 @Immutable
 public final class ScreenPosition {
 
@@ -35,9 +29,8 @@ public final class ScreenPosition {
     public boolean isMouseInArea(int mouseX, int mouseY, int width, int height) { return ScreenArea.of(this, width, height).isMouseInArea(mouseX, mouseY); }
     public boolean isMouseInArea(double mouseX, double mouseY, int width, int height) { return ScreenArea.of(this, width, height).isMouseInArea(mouseX, mouseY); }
 
+    public ScreenPosition inverted() { return of(this.x * -1,this.y * -1); }
     public ScreenArea asArea(int width, int height) { return ScreenArea.of(this, width, height); }
-
-
 
     public static ScreenPosition of(int x, int y) { return new ScreenPosition(x,y); }
     public static ScreenPosition of(double x, double y) { return of((int)x,(int)y); }

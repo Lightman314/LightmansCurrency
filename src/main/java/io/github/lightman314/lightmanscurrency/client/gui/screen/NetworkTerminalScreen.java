@@ -6,56 +6,50 @@ import java.util.Objects;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FlexibleSizeSprite;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.NineSliceSprite;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.WidgetStateSprite;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.FlexibleSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteSource;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.NineSliceSprite;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.WidgetStateSprite;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.SortTypeKey;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.TerminalSortType;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.gui.EasyMenuScreen;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown.DropdownWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.NetworkTraderButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextBoxWrapper;
-import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
-import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs.TextBoxWrapper;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.common.menus.TerminalMenu;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.TerminalSorter;
-import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenTrades;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.Items;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implements IScrollable {
 
-	private static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/network_terminal.png");
+	private static final ResourceLocation GUI_TEXTURE = LightmansCurrency.id("textures/gui/container/network_terminal.png");
 
     public static final FlexibleSizeSprite BACKGROUND_SPRITE = new NineSliceSprite(new SpriteSource(GUI_TEXTURE,0,0,100,100),25);
     public static final FlexibleSizeSprite BUTTON_BACKGROUND_SPRITE = new NineSliceSprite(new SpriteSource(GUI_TEXTURE,0,100,100,100),25);
 
-    public static final FixedSizeSprite BUTTON_SAVE = WidgetStateSprite.lazyHoverable(VersionUtil.lcResource("common/widgets/button_save"),12,12);
+    public static final FixedSizeSprite BUTTON_SAVE = WidgetStateSprite.lazyHoverable(LightmansCurrency.id("common/widgets/button_save"),12,12);
 
 	private TextBoxWrapper<String> searchField;
 	private int searchWidth = 118;
@@ -165,7 +159,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 		this.addChild(IconButton.builder()
 				.position(screenArea.pos.offset(screenArea.width - 24,4))
 				.pressAction(this::OpenAllTraders)
-				.icon(ItemIcon.ofItem(ModBlocks.ITEM_NETWORK_TRADER_4))
+				.icon(ItemIcon.ofItem(Items.ENDER_PEARL))
 				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_NETWORK_TERMINAL_OPEN_ALL))
 				.build());
 
@@ -249,7 +243,7 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 	{
 		int index = getTraderIndex(button);
 		if(index >= 0 && index < this.filteredTraderList.size())
-			new CPacketOpenTrades(this.filteredTraderList.get(index).getID()).send();
+            this.menu.openTrader(this.filteredTraderList.get(index).getID());
 	}
 	
 	private int getTraderIndex(EasyButton button)
@@ -320,6 +314,6 @@ public class NetworkTerminalScreen extends EasyMenuScreen<TerminalMenu> implemen
 
     private void saveSortType() { LCConfig.CLIENT.terminalDefaultSorting.set(getLatestSorter().getKey().toString()); }
 
-	private void OpenAllTraders(EasyButton button) { new CPacketOpenTrades(-1).send(); }
+	private void OpenAllTraders() { this.menu.openAllTraders(); }
 
 }

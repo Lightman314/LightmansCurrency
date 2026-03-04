@@ -1,9 +1,8 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab;
 
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.WidgetStateSprite;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.WidgetStateSprite;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.WidgetRotation;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
@@ -24,7 +23,7 @@ public class TabSpriteSource implements Function<WidgetRotation, FixedSizeSprite
     }
 
     public static TabSpriteSource create(Function<String,ResourceLocation> fileBuilder,int size) { return new TabSpriteSource(rot -> fileBuilder.apply(rot.name().toLowerCase(Locale.ENGLISH)),size); }
-    public static TabSpriteSource createBuiltin(String name,int size) { return create(rot -> VersionUtil.lcResource(name + "_" + rot),size); }
+    public static TabSpriteSource createBuiltin(String name,int size) { return create(rot -> LightmansCurrency.id(name + "_" + rot),size); }
 
     @Override
     public FixedSizeSprite apply(WidgetRotation rotation) {

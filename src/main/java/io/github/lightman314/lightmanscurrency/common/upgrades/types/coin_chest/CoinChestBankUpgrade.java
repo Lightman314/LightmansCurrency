@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest
 
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
@@ -23,7 +23,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,7 @@ import java.util.function.UnaryOperator;
 public class CoinChestBankUpgrade extends TickableCoinChestUpgrade {
 
     @Override
-    public void HandleMenuMessage(@Nonnull CoinChestMenu menu, @Nonnull CoinChestUpgradeData data, @Nonnull LazyPacketData message) {
+    public void HandleMenuMessage(CoinChestMenu menu, CoinChestUpgradeData data, LazyPacketData message) {
         if(message.contains("SetDepositMode"))
         {
             this.setDepositMode(data,message.getBoolean("SetDepositMode"));
@@ -44,7 +43,7 @@ public class CoinChestBankUpgrade extends TickableCoinChestUpgrade {
         }
         if(message.contains("SetBankAccount"))
         {
-            this.setSelectedBankAccount(data, menu.player, BankReference.load(message.getNBT("SetBankAccount")));
+            this.setSelectedBankAccount(data, menu.player, BankReference.load(message.getTag("SetBankAccount")));
         }
         if(message.contains("CollectOverflowItems"))
         {
@@ -52,25 +51,24 @@ public class CoinChestBankUpgrade extends TickableCoinChestUpgrade {
         }
     }
 
-    private BankUpgradeData getData(@Nonnull CoinChestUpgradeData data) { return data.getData(ModDataComponents.BANK_UPGRADE_DATA,BankUpgradeData.DEFAULT); }
-    private void editData(@Nonnull CoinChestUpgradeData data, @Nonnull UnaryOperator<BankUpgradeData> edit) { data.editData(ModDataComponents.BANK_UPGRADE_DATA,BankUpgradeData.DEFAULT,edit); }
+    private BankUpgradeData getData(CoinChestUpgradeData data) { return data.getData(ModDataComponents.BANK_UPGRADE_DATA,BankUpgradeData.DEFAULT); }
+    private void editData(CoinChestUpgradeData data, UnaryOperator<BankUpgradeData> edit) { data.editData(ModDataComponents.BANK_UPGRADE_DATA,BankUpgradeData.DEFAULT,edit); }
 
-    public boolean isDepositMode(@Nonnull CoinChestUpgradeData data) { return this.getData(data).depositMode; }
-    public void setDepositMode(@Nonnull CoinChestUpgradeData data, boolean depositMode) { this.editData(data, d -> d.setDepositMode(depositMode));}
+    public boolean isDepositMode(CoinChestUpgradeData data) { return this.getData(data).depositMode; }
+    public void setDepositMode(CoinChestUpgradeData data, boolean depositMode) { this.editData(data, d -> d.setDepositMode(depositMode));}
 
-    @Nonnull
-    public MoneyValue getMoneyLimit(@Nonnull CoinChestUpgradeData data) { return this.getData(data).moneyLimit; }
-    public void setMoneyLimit(@Nonnull CoinChestUpgradeData data, @Nonnull MoneyValue moneyLimit) { this.editData(data,d -> d.setMoneyLimit(moneyLimit)); }
+    public MoneyValue getMoneyLimit(CoinChestUpgradeData data) { return this.getData(data).moneyLimit; }
+    public void setMoneyLimit(CoinChestUpgradeData data, MoneyValue moneyLimit) { this.editData(data,d -> d.setMoneyLimit(moneyLimit)); }
 
     @Nullable
-    public BankReference getTargetAccount(CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) {
+    public BankReference getTargetAccount(CoinChestBlockEntity be, CoinChestUpgradeData data) {
         BankReference br = this.getData(data).targetAccount;
         if(br != null)
             br.flagAsClient(be);
         return br;
     }
     @Nullable
-    public IBankAccount getSelectedBankAccount(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data)
+    public IBankAccount getSelectedBankAccount(CoinChestBlockEntity be, CoinChestUpgradeData data)
     {
         BankUpgradeData d = this.getData(data);
         BankReference br = this.getTargetAccount(be,data);
@@ -79,14 +77,14 @@ public class CoinChestBankUpgrade extends TickableCoinChestUpgrade {
         return null;
     }
 
-    public void setSelectedBankAccount(@Nonnull CoinChestUpgradeData data, @Nonnull Player player, @Nonnull BankReference bankAccount)
+    public void setSelectedBankAccount(CoinChestUpgradeData data, Player player, BankReference bankAccount)
     {
         this.editData(data, d -> d.setBankAccount(PlayerReference.of(player),bankAccount));
     }
 
-    @Nonnull
-    public List<ItemStack> getOverflowItems(@Nonnull CoinChestUpgradeData data) { return this.getData(data).getOverflowItems(); }
-    public void clearOverflowItems(@Nonnull CoinChestMenu menu, @Nonnull CoinChestUpgradeData data)
+    
+    public List<ItemStack> getOverflowItems(CoinChestUpgradeData data) { return this.getData(data).getOverflowItems(); }
+    public void clearOverflowItems(CoinChestMenu menu, CoinChestUpgradeData data)
     {
         BankUpgradeData d = this.getData(data);
         for(ItemStack item : d.getOverflowItems())
@@ -98,7 +96,7 @@ public class CoinChestBankUpgrade extends TickableCoinChestUpgrade {
     public int getTickFrequency() { return 100; }
 
     @Override
-    public void OnServerTick(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) {
+    public void OnServerTick(CoinChestBlockEntity be, CoinChestUpgradeData data) {
         if(QuarantineAPI.IsDimensionQuarantined(be))
             return;
         BankUpgradeData d = data.getData(ModDataComponents.BANK_UPGRADE_DATA,BankUpgradeData.DEFAULT);
@@ -106,7 +104,7 @@ public class CoinChestBankUpgrade extends TickableCoinChestUpgrade {
             this.TryInteract(be,data);
     }
 
-    private void TryInteract(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) {
+    private void TryInteract(CoinChestBlockEntity be, CoinChestUpgradeData data) {
         BankUpgradeData d = data.getData(ModDataComponents.BANK_UPGRADE_DATA,BankUpgradeData.DEFAULT);
         if(d.targetAccount != null && d.player != null && d.getOverflowItems().isEmpty())
         {
@@ -160,16 +158,16 @@ public class CoinChestBankUpgrade extends TickableCoinChestUpgrade {
     }
 
     @Override
-    public void addClientTabs(@Nonnull CoinChestUpgradeData data, @Nonnull Object screen, @Nonnull Consumer<Object> consumer) {
+    public void addClientTabs(CoinChestUpgradeData data, Object screen, Consumer<Object> consumer) {
         consumer.accept(new BankUpgradeSelectTab(data,screen));
         consumer.accept(new BankUpgradeSettingsTab(data,screen));
     }
 
-    @Nonnull
+    
     @Override
-    public List<Component> getTooltip(@Nonnull UpgradeData data) { return Lists.newArrayList(LCText.TOOLTIP_UPGRADE_BANK.get()); }
+    public List<Component> getTooltip(UpgradeData data) { return Lists.newArrayList(LCText.TOOLTIP_UPGRADE_BANK.get()); }
 
     @Override
-    public boolean clearDataFromStack(@Nonnull ItemStack stack) { return this.clearData(stack,ModDataComponents.BANK_UPGRADE_DATA); }
+    public boolean clearDataFromStack(ItemStack stack) { return this.clearData(stack,ModDataComponents.BANK_UPGRADE_DATA); }
 
 }

@@ -85,7 +85,7 @@ public class TaxDataCache extends CustomData {
             return;
         this.setChanged();
         this.sendSyncPacket(this.builder()
-                .setCompound("UpdateEntry",syncData)
+                .setTag("UpdateEntry",syncData)
                 .setLong("ID",id));
     }
 
@@ -119,7 +119,7 @@ public class TaxDataCache extends CustomData {
         if(message.contains("UpdateEntry"))
         {
             long id = message.getLong("ID");
-            CompoundTag data = message.getNBT("UpdateEntry");
+            CompoundTag data = message.getTag("UpdateEntry");
             if(this.entries.containsKey(id))
                 this.entries.get(id).load(data,LookupHelper.getRegistryAccess());
             else
@@ -137,7 +137,7 @@ public class TaxDataCache extends CustomData {
         for(TaxEntry entry : this.entries.values())
         {
             this.sendSyncPacket(this.builder()
-                    .setCompound("UpdateEntry",entry.save(LookupHelper.getRegistryAccess()))
+                    .setTag("UpdateEntry",entry.save(LookupHelper.getRegistryAccess()))
                     .setLong("ID",entry.getID()),player);
         }
     }

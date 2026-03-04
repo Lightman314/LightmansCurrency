@@ -7,7 +7,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
-import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -45,7 +44,7 @@ public final class UpgradeData
             }
     );
 
-    private static <T> void encodeMap(@Nonnull FriendlyByteBuf buffer, @Nonnull Map<String,T> map, @Nonnull BiConsumer<FriendlyByteBuf,T> encoder)
+    private static <T> void encodeMap(FriendlyByteBuf buffer, Map<String,T> map, BiConsumer<FriendlyByteBuf,T> encoder)
     {
         buffer.writeInt(map.size());
         map.forEach((key,val) -> {
@@ -54,7 +53,7 @@ public final class UpgradeData
         });
     }
 
-    private static <T> Map<String,T> decodeMap(@Nonnull FriendlyByteBuf buffer, @Nonnull Function<FriendlyByteBuf,T> decoder)
+    private static <T> Map<String,T> decodeMap(FriendlyByteBuf buffer, Function<FriendlyByteBuf,T> decoder)
     {
         Map<String,T> map = new HashMap<>();
         int count = buffer.readInt();
@@ -82,7 +81,7 @@ public final class UpgradeData
         this.stringData = ImmutableMap.of();
         this.tagData = ImmutableMap.of();
     }
-    private UpgradeData(@Nonnull Map<String,Boolean> boolData, @Nonnull Map<String,Long> intData,@Nonnull Map<String,Double> floatData, @Nonnull Map<String,String> stringData, @Nonnull Map<String,CompoundTag> tagData)
+    private UpgradeData(Map<String,Boolean> boolData, Map<String,Long> intData,Map<String,Double> floatData, Map<String,String> stringData, Map<String,CompoundTag> tagData)
     {
         this.boolData = ImmutableMap.copyOf(boolData);
         this.intData = ImmutableMap.copyOf(intData);
@@ -93,25 +92,25 @@ public final class UpgradeData
 
     public boolean isEmpty() { return this.boolData.isEmpty() && this.intData.isEmpty() && this.floatData.isEmpty() && this.stringData.isEmpty() && this.tagData.isEmpty(); }
 
-    public boolean hasBoolValue(@Nonnull String tag) { return this.boolData.containsKey(tag); }
-    public boolean hasIntValue(@Nonnull String tag) { return this.intData.containsKey(tag); }
-    public boolean hasLongValue(@Nonnull String tag) { return this.intData.containsKey(tag); }
-    public boolean hasFloatValue(@Nonnull String tag) { return this.floatData.containsKey(tag); }
-    public boolean hasDoubleValue(@Nonnull String tag) { return this.floatData.containsKey(tag); }
-    public boolean hasStringValue(@Nonnull String tag) { return this.stringData.containsKey(tag); }
-    public boolean hasCompoundValue(@Nonnull String tag) { return this.tagData.containsKey(tag); }
+    public boolean hasBoolValue(String tag) { return this.boolData.containsKey(tag); }
+    public boolean hasIntValue(String tag) { return this.intData.containsKey(tag); }
+    public boolean hasLongValue(String tag) { return this.intData.containsKey(tag); }
+    public boolean hasFloatValue(String tag) { return this.floatData.containsKey(tag); }
+    public boolean hasDoubleValue(String tag) { return this.floatData.containsKey(tag); }
+    public boolean hasStringValue(String tag) { return this.stringData.containsKey(tag); }
+    public boolean hasCompoundValue(String tag) { return this.tagData.containsKey(tag); }
 
-    public boolean getBooleanValue(@Nonnull String tag) { return this.boolData.getOrDefault(tag,false); }
-    public int getIntValue(@Nonnull String tag) { return this.intData.getOrDefault(tag,0L).intValue(); }
-    public long getLongValue(@Nonnull String tag) { return this.intData.getOrDefault(tag,0L); }
-    public float getFloatValue(@Nonnull String tag) { return this.floatData.getOrDefault(tag,0d).floatValue(); }
-    public double getDoubleValue(@Nonnull String tag) { return this.floatData.getOrDefault(tag,0d); }
-    @Nonnull
-    public String getStringValue(@Nonnull String tag)  { return this.stringData.getOrDefault(tag,""); }
-    @Nonnull
-    public CompoundTag getCompoundValue(@Nonnull String tag) { return this.tagData.getOrDefault(tag,new CompoundTag()); }
+    public boolean getBooleanValue(String tag) { return this.boolData.getOrDefault(tag,false); }
+    public int getIntValue(String tag) { return this.intData.getOrDefault(tag,0L).intValue(); }
+    public long getLongValue(String tag) { return this.intData.getOrDefault(tag,0L); }
+    public float getFloatValue(String tag) { return this.floatData.getOrDefault(tag,0d).floatValue(); }
+    public double getDoubleValue(String tag) { return this.floatData.getOrDefault(tag,0d); }
+    
+    public String getStringValue(String tag)  { return this.stringData.getOrDefault(tag,""); }
+    
+    public CompoundTag getCompoundValue(String tag) { return this.tagData.getOrDefault(tag,new CompoundTag()); }
 
-    @Nonnull
+    
     public Mutable makeMutable() { return new Mutable(this.boolData,this.intData,this.floatData,this.stringData,copyTags(this.tagData)); }
 
     @Override
@@ -133,7 +132,7 @@ public final class UpgradeData
         private final Map<String,String> stringData;
         private final Map<String,CompoundTag> tagData;
 
-        private Mutable(@Nonnull Map<String,Boolean> boolData, @Nonnull Map<String,Long> intData,@Nonnull Map<String,Double> floatData, @Nonnull Map<String,String> stringData, @Nonnull Map<String,CompoundTag> tagData)
+        private Mutable(Map<String,Boolean> boolData, Map<String,Long> intData,Map<String,Double> floatData, Map<String,String> stringData, Map<String,CompoundTag> tagData)
         {
             this.boolData = new HashMap<>(boolData);
             this.intData = new HashMap<>(intData);
@@ -142,33 +141,33 @@ public final class UpgradeData
             this.tagData = new HashMap<>(tagData);
         }
 
-        public boolean hasBoolValue(@Nonnull String tag) { return this.boolData.containsKey(tag); }
-        public boolean hasIntValue(@Nonnull String tag) { return this.intData.containsKey(tag); }
-        public boolean hasLongValue(@Nonnull String tag) { return this.intData.containsKey(tag); }
-        public boolean hasFloatValue(@Nonnull String tag) { return this.floatData.containsKey(tag); }
-        public boolean hasDoubleValue(@Nonnull String tag) { return this.floatData.containsKey(tag); }
-        public boolean hasStringValue(@Nonnull String tag) { return this.stringData.containsKey(tag); }
-        public boolean hasCompoundValue(@Nonnull String tag) { return this.tagData.containsKey(tag); }
+        public boolean hasBoolValue(String tag) { return this.boolData.containsKey(tag); }
+        public boolean hasIntValue(String tag) { return this.intData.containsKey(tag); }
+        public boolean hasLongValue(String tag) { return this.intData.containsKey(tag); }
+        public boolean hasFloatValue(String tag) { return this.floatData.containsKey(tag); }
+        public boolean hasDoubleValue(String tag) { return this.floatData.containsKey(tag); }
+        public boolean hasStringValue(String tag) { return this.stringData.containsKey(tag); }
+        public boolean hasCompoundValue(String tag) { return this.tagData.containsKey(tag); }
 
-        public boolean getBooleanValue(@Nonnull String tag) { return this.boolData.getOrDefault(tag,false); }
-        public int getIntValue(@Nonnull String tag) { return this.intData.getOrDefault(tag,0L).intValue(); }
-        public long getLongValue(@Nonnull String tag) { return this.intData.getOrDefault(tag,0L); }
-        public float getFloatValue(@Nonnull String tag) { return this.floatData.getOrDefault(tag,0d).floatValue(); }
-        public double getDoubleValue(@Nonnull String tag) { return this.floatData.getOrDefault(tag,0d); }
-        @Nonnull
-        public String getStringValue(@Nonnull String tag)  { return this.stringData.getOrDefault(tag,""); }
-        @Nonnull
-        public CompoundTag getCompoundValue(@Nonnull String tag) { return this.tagData.getOrDefault(tag,new CompoundTag()); }
+        public boolean getBooleanValue(String tag) { return this.boolData.getOrDefault(tag,false); }
+        public int getIntValue(String tag) { return this.intData.getOrDefault(tag,0L).intValue(); }
+        public long getLongValue(String tag) { return this.intData.getOrDefault(tag,0L); }
+        public float getFloatValue(String tag) { return this.floatData.getOrDefault(tag,0d).floatValue(); }
+        public double getDoubleValue(String tag) { return this.floatData.getOrDefault(tag,0d); }
+        
+        public String getStringValue(String tag)  { return this.stringData.getOrDefault(tag,""); }
+        
+        public CompoundTag getCompoundValue(String tag) { return this.tagData.getOrDefault(tag,new CompoundTag()); }
 
-        public void setBooleanValue(@Nonnull String tag, boolean value) { this.boolData.put(tag,value); }
-        public void setIntValue(@Nonnull String tag, int value) { this.intData.put(tag,(long)value); }
-        public void setLongValue(@Nonnull String tag, long value) { this.intData.put(tag,value); }
-        public void setFloatValue(@Nonnull String tag, float value) { this.floatData.put(tag,(double)value); }
-        public void setDoubleValue(@Nonnull String tag, double value) { this.floatData.put(tag,value); }
-        public void setStringValue(@Nonnull String tag, @Nonnull String value) { this.stringData.put(tag,value); }
-        public void setCompoundValue(@Nonnull String tag, @Nonnull CompoundTag value) { this.tagData.put(tag, value.copy()); }
+        public void setBooleanValue(String tag, boolean value) { this.boolData.put(tag,value); }
+        public void setIntValue(String tag, int value) { this.intData.put(tag,(long)value); }
+        public void setLongValue(String tag, long value) { this.intData.put(tag,value); }
+        public void setFloatValue(String tag, float value) { this.floatData.put(tag,(double)value); }
+        public void setDoubleValue(String tag, double value) { this.floatData.put(tag,value); }
+        public void setStringValue(String tag, String value) { this.stringData.put(tag,value); }
+        public void setCompoundValue(String tag, CompoundTag value) { this.tagData.put(tag, value.copy()); }
 
-        public void merge(@Nonnull UpgradeData data)
+        public void merge(UpgradeData data)
         {
             data.boolData.forEach(this::setBooleanValue);
             data.intData.forEach(this::setLongValue);
@@ -177,7 +176,6 @@ public final class UpgradeData
             data.tagData.forEach(this::setCompoundValue);
         }
 
-        @Nonnull
         public UpgradeData makeImmutable() { return new UpgradeData(this.boolData,this.intData,this.floatData,this.stringData,copyTags(this.tagData)); }
 
     }

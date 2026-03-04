@@ -9,7 +9,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.event.ConfigEvent;
 import io.github.lightman314.lightmanscurrency.api.config.options.builtin.ItemListOption;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderOwner;
 import net.minecraft.core.Registry;
@@ -28,12 +27,9 @@ import net.neoforged.neoforge.registries.holdersets.HolderSetType;
 import net.neoforged.neoforge.registries.holdersets.ICustomHolderSet;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.stream.Stream;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 @EventBusSubscriber
 public class ItemListOptionSet implements ICustomHolderSet<Item> {
 
@@ -135,7 +131,7 @@ public class ItemListOptionSet implements ICustomHolderSet<Item> {
     @Override
     public SerializationType serializationType() { return SerializationType.UNKNOWN; }
 
-    //Event Listeners to invalidate and recollect the wallet list when the config is reloaded
+    //Event Listeners to invalidate and recollect the item list when the config is reloaded
     @SubscribeEvent
     public static void configReloaded(ConfigEvent.ConfigReloadedEvent.Post event)
     {

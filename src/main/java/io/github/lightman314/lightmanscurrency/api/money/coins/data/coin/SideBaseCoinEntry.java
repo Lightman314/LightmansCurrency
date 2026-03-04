@@ -9,25 +9,24 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class SideBaseCoinEntry extends MainCoinEntry {
 
     public final CoinEntry parentCoin;
 
-    public SideBaseCoinEntry(@Nonnull Item coin, @Nonnull CoinEntry parentCoin, int exchangeRate) {
+    public SideBaseCoinEntry(Item coin, CoinEntry parentCoin, int exchangeRate) {
         super(coin, exchangeRate, true);
         this.parentCoin = parentCoin;
     }
 
     @Override
-    protected void writeAdditional(@Nonnull JsonObject json) {
+    protected void writeAdditional(JsonObject json) {
         super.writeAdditional(json);
         json.addProperty("ParentCoin", BuiltInRegistries.ITEM.getKey(this.parentCoin.getCoin()).toString());
     }
 
-    public static CoinEntry parseSub(@Nonnull JsonObject json, @Nonnull List<CoinEntry> coreChain)
+    public static CoinEntry parseSub(JsonObject json, List<CoinEntry> coreChain)
     {
         Item coin = parseBase(json);
         int exchangeRate = GsonHelper.getAsInt(json, "exchangeRate");

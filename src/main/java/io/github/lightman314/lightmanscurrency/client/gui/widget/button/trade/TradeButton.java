@@ -13,26 +13,26 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FlexibleSizeSprite;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.NormalSprite;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.FlexibleSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteSource;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.NormalSprite;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.AlertData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.GhostSlot;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IGhostSlotProvider;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.api.client.gui.GhostSlot;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IGhostSlotProvider;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.ITooltipSource;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
@@ -44,7 +44,7 @@ import net.minecraft.network.chat.Component;
 @ParametersAreNonnullByDefault
 public class TradeButton extends EasyButton implements ITooltipSource, IGhostSlotProvider {
 
-    public static final FixedSizeSprite ALERT_SPRITE = new NormalSprite(SpriteSource.create(VersionUtil.lcResource("common/widgets/trade_alert"),22,18));
+    public static final FixedSizeSprite ALERT_SPRITE = new NormalSprite(SpriteSource.create(LightmansCurrency.id("common/widgets/trade_alert"),22,18));
 
 	public static final int BUTTON_HEIGHT = 18;
 	
@@ -170,7 +170,14 @@ public class TradeButton extends EasyButton implements ITooltipSource, IGhostSlo
 			return;
 		alerts.sort(AlertData::compare);
 
-		alerts.getFirst().setShaderColor(gui, this.active ? 1f : 0.5f, isHovered);
+        AlertData alert = alerts.getFirst();
+        int color = alert.getColor(isHovered);
+        float red = (float)(color >> 16 & 255) / 255.0f;
+        float green = (float)(color >> 8 & 255) / 255.0f;
+        float blue = (float)(color & 255) / 255.0f;
+        float mult = this.active ? 1f : 0.5f;
+        gui.setColor(red * mult, green * mult, blue * mult,alert.type.alpha);
+
         ALERT_SPRITE.render(gui,position);
 		
 	}

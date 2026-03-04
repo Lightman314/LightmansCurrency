@@ -3,47 +3,40 @@ package io.github.lightman314.lightmanscurrency.common.blockentity;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.misc.IClientTicker;
-import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.misc.ticker.IClientTicker;
+import io.github.lightman314.lightmanscurrency.api.misc.ticker.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
-import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
+import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.containers.CoinContainer;
-import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedContainer;
-import io.github.lightman314.lightmanscurrency.common.menus.containers.UpgradeContainer;
+import io.github.lightman314.lightmanscurrency.api.misc.item_handlers.CoinInventory;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeStackHandler;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestUpgrade;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestUpgradeData;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.ChestLidController;
 import net.minecraft.world.level.block.entity.ContainerOpenersCounter;
 import net.minecraft.world.level.block.entity.LidBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.wrapper.InvWrapper;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,13 +46,13 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
 
     private final ChestLidController chestLidController = new ChestLidController();
     private final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
-        protected void onOpen(Level level, BlockPos pos, @Nonnull BlockState state) {
+        protected void onOpen(Level level, BlockPos pos, BlockState state) {
             level.playSound(null, (double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D, SoundEvents.CHEST_OPEN, SoundSource.BLOCKS, 0.5F, level.random.nextFloat() * 0.1F + 0.9F);
         }
-        protected void onClose(Level level, BlockPos pos, @Nonnull BlockState state) {
+        protected void onClose(Level level, BlockPos pos, BlockState state) {
             level.playSound(null, (double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D, SoundEvents.CHEST_CLOSE, SoundSource.BLOCKS, 0.5F, level.random.nextFloat() * 0.1F + 0.9F);
         }
-        protected void openerCountChanged(Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, int oldCount, int newCount) {
+        protected void openerCountChanged(Level level, BlockPos pos, BlockState state, int oldCount, int newCount) {
             level.blockEvent(CoinChestBlockEntity.this.worldPosition, ModBlocks.COIN_CHEST.get(), 1, newCount);
         }
         protected boolean isOwnContainer(Player player) { return player.containerMenu instanceof CoinChestMenu ccm && ccm.be == CoinChestBlockEntity.this; }
@@ -71,18 +64,15 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
     public static final int STORAGE_SIZE = 9 * STORAGE_ROWS;
     public static final int UPGRADE_SIZE = 3;
 
-    private final ItemHandler handler = new ItemHandler(this);
-    public IItemHandler getItemHandler() { return this.handler; }
-
     private Component customName = null;
     public void setCustomName(Component name) { this.customName = name; this.markCustomNameDirty(); }
     public Component getDisplayName() { return this.customName != null ? this.customName : LCText.BLOCK_MONEY_CHEST.get(); }
 
-    private CoinContainer storage;
-    public final CoinContainer getStorage() { return this.storage; }
-    private final UpgradeContainer upgrades;
-    @Nonnull
-    public final UpgradeContainer getUpgrades() { return this.upgrades; }
+    private CoinInventory storage;
+    public final CoinInventory getStorage() { return this.storage; }
+    private final UpgradeStackHandler upgrades;
+    
+    public final UpgradeStackHandler getUpgrades() { return this.upgrades; }
 
     public final IMoneyViewer moneyViewer = MoneyAPI.getApi().GetContainersMoneyHandler(this.storage,s -> {},this);
 
@@ -111,7 +101,7 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
         this.unfilteredUpgradeDataCache = new ArrayList<>();
         for(int i = 0; i < UPGRADE_SIZE; ++i)
         {
-            this.unfilteredUpgradeDataCache.add(CoinChestUpgradeData.forItem(this.upgrades.getItem(i), i, this::markUpgradesChanged));
+            this.unfilteredUpgradeDataCache.add(CoinChestUpgradeData.forItem(this.upgrades.getStackInSlot(i), i, this::markUpgradesChanged));
             //Copy over old tick timers etc. if the upgrade type is the same as the one previously in that slot
             if(i < oldList.size())
                 this.unfilteredUpgradeDataCache.get(i).copyRelevantData(oldList.get(i));
@@ -119,7 +109,7 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
         this.upgradeDataCache = this.unfilteredUpgradeDataCache.stream().filter(CoinChestUpgradeData::notNull).toList();
     }
 
-    @Nonnull
+    
     public final CoinChestUpgradeData getChestUpgradeForSlot(int slot)
     {
         this.checkUpgradeCache();
@@ -143,25 +133,23 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
     public CoinChestBlockEntity(BlockPos pos, BlockState state)
     {
         super(ModBlockEntities.COIN_CHEST.get(), pos, state);
-        this.storage = new CoinContainer(STORAGE_SIZE);
-        this.storage.addListener(i -> this.markStorageDirty());
-        this.upgrades = new UpgradeContainer(UPGRADE_SIZE,this);
-        this.upgrades.addListener(i -> this.markUpgradesDirty());
+        this.storage = new CoinInventory(STORAGE_SIZE);
+        this.storage.withListener(this::markStorageDirty);
+        this.upgrades = new UpgradeStackHandler(UPGRADE_SIZE)
+                .setParent(this)
+                .withListener(this::markUpgradesDirty);
     }
 
     @Override
-    public void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
-        super.loadAdditional(compound,lookup);
+    public void loadAdditional(CompoundTag compound,DataContext<Tag> context) {
+        super.loadAdditional(compound,context);
         if(compound.contains("Name"))
-            this.customName = Component.Serializer.fromJson(compound.getString("Name"),lookup);
+            this.customName = context.readComponent(compound.getString("Name"));
         if(compound.contains("Storage"))
-        {
-            this.storage = new CoinContainer(InventoryUtil.loadAllItems("Storage", compound, STORAGE_SIZE,lookup));
-            this.storage.addListener(i -> this.markStorageDirty());
-        }
+            this.storage.safeLoad(compound,"Storage",context);
         if(compound.contains("Upgrades"))
         {
-            this.upgrades.load("Upgrades", compound, lookup);
+            this.upgrades.safeLoad(compound,"Upgrades",context);
             this.refreshUpgradeCache();
         }
     }
@@ -169,35 +157,34 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
     public static MenuProvider getMenuProvider(CoinChestBlockEntity be) { return new CoinChestMenuProvider(be); }
 
     private record CoinChestMenuProvider(CoinChestBlockEntity be) implements MenuProvider {
-        @Nonnull
+        
         @Override
         public Component getDisplayName() { return this.be.getDisplayName(); }
         @Nullable
         @Override
-        public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) { return new CoinChestMenu(id, inventory, this.be); }
+        public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) { return new CoinChestMenu(id, inventory, this.be); }
     }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
-        super.saveAdditional(compound,lookup);
-        this.saveCustomName(compound,lookup);
-        this.saveStorage(compound,lookup);
-        this.saveUpgrades(compound,lookup);
+    protected void saveAdditional(CompoundTag compound,DataContext<Tag> context) {
+        this.saveCustomName(compound,context);
+        this.saveStorage(compound,context);
+        this.saveUpgrades(compound,context);
     }
 
-    protected CompoundTag saveCustomName(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
+    protected CompoundTag saveCustomName(CompoundTag compound,DataContext<Tag> context) {
         if(this.customName != null)
-            compound.putString("Name", Component.Serializer.toJson(this.customName,lookup));
+            compound.putString("Name",context.writeComponent(this.customName));
         return compound;
     }
 
-    protected CompoundTag saveStorage(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
-        InventoryUtil.saveAllItems("Storage", compound, this.storage,lookup);
+    protected CompoundTag saveStorage(CompoundTag compound,DataContext<Tag> context) {
+        compound.put("Storage",context.write(this.storage::serializeNBT));
         return compound;
     }
 
-    protected CompoundTag saveUpgrades(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
-        this.upgrades.save("Upgrades",compound,lookup);
+    protected CompoundTag saveUpgrades(CompoundTag compound,DataContext<Tag> context) {
+        compound.put("Upgrades",context.write(this.upgrades::serializeNBT));
         return compound;
     }
 
@@ -205,7 +192,7 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
     {
         this.setChanged();
         if(this.isServer())
-            BlockEntityUtil.sendUpdatePacket(this, this.saveCustomName(new CompoundTag(),this.level.registryAccess()));
+            BlockEntityUtil.sendUpdatePacket(this, this.saveCustomName(new CompoundTag(),this.dataContext()));
     }
 
     public final void markStorageDirty()
@@ -224,7 +211,7 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
                 }
                 this.allowEvents = true;
                 //Don't send update packet until any additional event processing or
-                BlockEntityUtil.sendUpdatePacket(this, this.saveStorage(new CompoundTag(),this.level.registryAccess()));
+                BlockEntityUtil.sendUpdatePacket(this, this.saveStorage(new CompoundTag(),this.dataContext()));
             }
         }
     }
@@ -245,7 +232,7 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
     {
         this.setChanged();
         if(this.isServer())
-            BlockEntityUtil.sendUpdatePacket(this, this.saveUpgrades(new CompoundTag(),this.level.registryAccess()));
+            BlockEntityUtil.sendUpdatePacket(this, this.saveUpgrades(new CompoundTag(),this.dataContext()));
     }
 
     public final void checkUpgradeEquipped(int slot)
@@ -284,7 +271,7 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
     }
 
     @Override
-    public boolean allowUpgrade(@Nonnull UpgradeType type) { return type instanceof CoinChestUpgrade upgrade; }
+    public boolean allowUpgrade(UpgradeType type) { return type instanceof CoinChestUpgrade upgrade; }
 
     public boolean allowAccess(@Nullable Player player)
     {
@@ -312,17 +299,6 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
 
     @Override
     public float getOpenNess(float partial) { return this.chestLidController.getOpenness(partial); }
-
-    private static class ItemHandler extends InvWrapper
-    {
-        private final CoinChestBlockEntity blockEntity;
-        public ItemHandler(CoinChestBlockEntity blockEntity) { super(blockEntity.storage); this.blockEntity = blockEntity; }
-        @Override
-        public boolean isItemValid(int slot, @Nonnull ItemStack stack) { return CoinAPI.getApi().IsCoin(stack, false); }
-        @Nonnull
-        @Override
-        public Container getInv() { return this.blockEntity.storage; }
-    }
 
     @Override
     public boolean triggerEvent(int event, int value) {

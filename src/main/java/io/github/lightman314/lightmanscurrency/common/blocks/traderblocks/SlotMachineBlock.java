@@ -23,7 +23,7 @@ import java.util.function.Supplier;
 
 public class SlotMachineBlock extends TraderBlockTallRotatable implements IVariantBlock {
 
-    public static final ResourceLocation LIGHT_MODEL_LOCATION = VersionUtil.lcResource( "block/slot_machine/lights");
+    public static final ResourceLocation LIGHT_MODEL_LOCATION = LightmansCurrency.id( "block/slot_machine/lights");
 
     public static final VoxelShape SHAPE_SOUTH = Shapes.or(box(0d,14d,-1d, 16d, 16d, 16d), box(0d, 0d, 3d, 16d, 32d, 16d));
     public static final VoxelShape SHAPE_NORTH = Shapes.or(box(0d,14d,0d, 16d, 16d, 17d), box(0d,0d,0d,16d,32d,13d));
@@ -31,7 +31,7 @@ public class SlotMachineBlock extends TraderBlockTallRotatable implements IVaria
     public static final VoxelShape SHAPE_WEST = Shapes.or(box(0d,14d,0d, 17d, 16d, 16d), box(0d,0d,0d,13d,32d,16d));
 
 
-    public SlotMachineBlock(Properties properties) { super(properties, LazyShapes.lazyTallDirectionalShape(SHAPE_NORTH, SHAPE_EAST, SHAPE_SOUTH, SHAPE_WEST)); }
+    public SlotMachineBlock(Properties properties) { super(properties,LazyShapes.lazyTallDirectionalShape(SHAPE_NORTH,SHAPE_EAST,SHAPE_SOUTH,SHAPE_WEST)); }
 
     @Override
     public int getRotationY(Direction facing) { return this.getRotationYInv(facing); }

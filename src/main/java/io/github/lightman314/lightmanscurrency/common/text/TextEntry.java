@@ -2,13 +2,14 @@ package io.github.lightman314.lightmanscurrency.common.text;
 
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.TextIcon;
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.types.TextIcon;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
 import io.github.lightman314.lightmanscurrency.api.stats.StatType;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
-import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRule;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -68,11 +69,11 @@ public final class TextEntry {
     public static TextEntry description(TextEntry parent) { return extend(parent,"desc"); }
     public static TextEntry plural(TextEntry parent) { return extend(parent,"plural"); }
     public static TextEntry initial(TextEntry parent) { return extend(parent,"initial"); }
-    public static TextEntry tradeRule(TradeRuleType<?> type) { return new TextEntry(TradeRule.translationKeyOfType(type.type)); }
-    public static TextEntry tradeRuleMessage(TradeRuleType<?> type, String message) { return new TextEntry(TradeRule.translationKeyOfType(type.type) + "." + message); }
-    public static TextEntry notification(NotificationType<?> type) { return notification(type.type); }
+    public static TextEntry tradeRule(TradeRuleType<?> type) { return new TextEntry(TradeRule.translationKeyOfType(type)); }
+    public static TextEntry tradeRuleMessage(TradeRuleType<?> type, String message) { return new TextEntry(TradeRule.translationKeyOfType(type) + "." + message); }
+    public static TextEntry notification(NotificationType<?> type) { return notification(LCRegistries.NOTIFICATION_TYPES.getKey(type)); }
     public static TextEntry notification(ResourceLocation type) { return new TextEntry("notification." + type.getNamespace() + "." + type.getPath()); }
-    public static TextEntry notification(NotificationType<?> type, String extra) { return notification(type.type,extra); }
+    public static TextEntry notification(NotificationType<?> type, String extra) { return notification(LCRegistries.NOTIFICATION_TYPES.getKey(type),extra); }
     public static TextEntry notification(ResourceLocation type, String extra) { return new TextEntry("notification." + type.getNamespace() + "." + type.getPath() + "." + extra); }
     public static TextEntry terminalSortType(String modid, String id) { return new TextEntry("gui." + modid + ".terminal.sort_type." + id); }
 

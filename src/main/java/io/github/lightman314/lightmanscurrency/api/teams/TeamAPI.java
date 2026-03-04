@@ -1,17 +1,13 @@
 package io.github.lightman314.lightmanscurrency.api.teams;
 
 import io.github.lightman314.lightmanscurrency.common.impl.TeamAPIImpl;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Comparator;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class TeamAPI {
 
     private static TeamAPI instance;

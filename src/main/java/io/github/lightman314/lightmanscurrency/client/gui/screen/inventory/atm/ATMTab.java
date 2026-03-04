@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.EasyClientTab;
+import io.github.lightman314.lightmanscurrency.api.client.gui.tabbed.EasyClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.common.menus.ATMMenu;
 

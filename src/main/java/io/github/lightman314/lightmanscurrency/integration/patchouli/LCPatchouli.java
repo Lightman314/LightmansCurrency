@@ -67,7 +67,7 @@ public class LCPatchouli {
     {
         ResourceLocation id;
         if(!walletID.contains("-")) //Use LC namespace by default as it's assumed wallets will have that namespace
-            id = VersionUtil.lcResource(walletID);
+            id = LightmansCurrency.id(walletID);
         else
             id = VersionUtil.parseResource(walletID.replace("-",":"));
         if(BuiltInRegistries.ITEM.get(id) instanceof WalletItem wallet)

@@ -4,7 +4,7 @@ import com.mojang.datafixers.util.Either;
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.widgets.builtin.list.ListEditBoxOption;
 import io.github.lightman314.lightmanscurrency.client.config.ItemTest;
 import io.github.lightman314.lightmanscurrency.client.config.ItemTestListOption;
-import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs.TextInputUtil;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.world.item.Items;
 

@@ -1,12 +1,11 @@
 package io.github.lightman314.lightmanscurrency.api.ownership.listing;
 
 import com.google.common.collect.ImmutableList;
-import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
+import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnershipAPI;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -23,7 +22,7 @@ public class PotentialOwnerList {
     private List<PotentialOwner> allOwners = null;
     private List<PotentialOwner> cache = new ArrayList<>();
 
-    public PotentialOwnerList(@Nonnull Player player, @Nonnull Supplier<OwnerData> currentOwner, @Nonnull Predicate<PotentialOwner> filter)
+    public PotentialOwnerList(Player player, Supplier<OwnerData> currentOwner, Predicate<PotentialOwner> filter)
     {
         this.player = player;
         this.currentOwner = currentOwner;
@@ -40,7 +39,7 @@ public class PotentialOwnerList {
             this.updateCache(this.lastSearch);
     }
 
-    public void updateCache(@Nonnull String searchFilter)
+    public void updateCache(String searchFilter)
     {
         if(this.allOwners == null)
             this.allOwners = ImmutableList.copyOf(OwnershipAPI.getApi().getPotentialOwners(this.player).stream().filter(this.filter).toList());
@@ -62,7 +61,6 @@ public class PotentialOwnerList {
         this.cache = ImmutableList.copyOf(temp);
     }
 
-    @Nonnull
     public List<PotentialOwner> getOwners() { return this.cache; }
 
 }

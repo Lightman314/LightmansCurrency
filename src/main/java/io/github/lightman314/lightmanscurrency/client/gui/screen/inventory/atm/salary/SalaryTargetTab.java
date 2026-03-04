@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.salary;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
@@ -129,7 +129,7 @@ public class SalaryTargetTab extends SalarySubTab.EditTab {
 
     private void toggleTarget(BankReference account)
     {
-        this.SendEditMessage(this.builder().setCompound("DirectTarget",account.save())
+        this.SendEditMessage(this.builder().setTag("DirectTarget",account.save())
                 .setBoolean("NewState",!this.accountSelected(account)));
     }
 

@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.core.ModProfessions;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 
@@ -35,8 +36,8 @@ import net.neoforged.neoforge.event.village.WandererTradesEvent;
 @EventBusSubscriber
 public class VillagerTradeManager {
 
-	public static final ResourceLocation BANKER_ID = VersionUtil.lcResource("banker");
-	public static final ResourceLocation CASHIER_ID = VersionUtil.lcResource("cashier");
+	public static final ResourceLocation BANKER_ID = LightmansCurrency.id("banker");
+	public static final ResourceLocation CASHIER_ID = LightmansCurrency.id("cashier");
 
 	public static final String WANDERING_TRADER_ID = "minecraft:wandering_trader";
 
@@ -300,7 +301,7 @@ public class VillagerTradeManager {
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public static void OnVillagerTradeSetup(VillagerTradesEvent event)
 	{
-		if(event.getType() == CustomProfessions.BANKER.get())
+		if(event.getType() == ModProfessions.BANKER.get())
 		{
 			
 			if(!LCConfig.COMMON.addBankerVillager.get())
@@ -320,7 +321,7 @@ public class VillagerTradeManager {
 			}
 			
 		}
-		else if(event.getType() == CustomProfessions.CASHIER.get())
+		else if(event.getType() == ModProfessions.CASHIER.get())
 		{
 			
 			if(!LCConfig.COMMON.addCashierVillager.get())

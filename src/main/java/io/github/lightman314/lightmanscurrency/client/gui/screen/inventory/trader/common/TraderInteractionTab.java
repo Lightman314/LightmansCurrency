@@ -2,26 +2,20 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trad
 
 import java.util.List;
 
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.TraderClientTab;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.client.TraderClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TradeButtonArea;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.traders.ITraderSource;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
-import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketExecuteTrade;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.inventory.Slot;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class TraderInteractionTab extends TraderClientTab {
 
 	public TraderInteractionTab(TraderScreen screen) { super(screen); }
@@ -102,8 +96,8 @@ public class TraderInteractionTab extends TraderClientTab {
 		int tradeIndex = t.getTradeData().indexOf(trade);
 		if(tradeIndex < 0)
 			return;
-		
-		new CPacketExecuteTrade(ti, tradeIndex).send();
+
+        this.menu.ExecuteTrade(ti,tradeIndex);
 		
 	}
 	

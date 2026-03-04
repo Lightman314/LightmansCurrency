@@ -3,10 +3,11 @@ package io.github.lightman314.lightmanscurrency.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.GachaMachineBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.GachaMachineBlock;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaStorage;
-import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.nodes.GachaStorageNode;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -23,11 +24,9 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Quaternionf;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Objects;
 
-@ParametersAreNonnullByDefault
 public class GachaMachineBlockEntityRenderer implements BlockEntityRenderer<GachaMachineBlockEntity> {
 
     public static final int HEIGHT = 3;
@@ -44,11 +43,15 @@ public class GachaMachineBlockEntityRenderer implements BlockEntityRenderer<Gach
     @Override
     public void render(GachaMachineBlockEntity be, float partialTick, PoseStack pose, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
 
-        GachaTrader trader = be.getTraderData();
+        TraderData trader = be.getTraderData();
         if(trader == null)
             return;
 
-        GachaStorage storage = trader.getStorage();
+        GachaStorageNode node = trader.getNode(GachaStorageNode.TYPE);
+        if(node == null)
+            return;
+
+        GachaStorage storage = node.getStorage();
         //Render Full Contents
         if(LCConfig.CLIENT.gachaMachineFancyGraphics.get())
         {
@@ -131,7 +134,5 @@ public class GachaMachineBlockEntityRenderer implements BlockEntityRenderer<Gach
 
 
     }
-
-    //Rotate Basic
 
 }

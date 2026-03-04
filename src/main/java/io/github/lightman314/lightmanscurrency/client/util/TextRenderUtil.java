@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.function.UnaryOperator;
 
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;

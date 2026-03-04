@@ -1,39 +1,52 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.categories;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategoryType;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
+import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.Nullable;
+import java.util.Optional;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class TraderCategory extends NotificationCategory {
 
-	public static final NotificationCategoryType<TraderCategory> TYPE = new NotificationCategoryType<>(VersionUtil.lcResource("trader"),TraderCategory::new);
+    public static final TraderCategory NULL = new TraderCategory(ModBlocks.DISPLAY_CASE.get(Color.WHITE),EasyText.empty(),-1,Optional.empty());
+
+	public static final NotificationCategoryType<TraderCategory> TYPE = new Type();
 	
 	private final Item trader;
 	private final long traderID;
 	private final Component traderName;
-    private final IconData traderIcon;
+    private final Optional<IconData> traderIcon;
 
     @Deprecated(since = "2.3.0.0")
-	public TraderCategory(ItemLike trader, Component traderName, long traderID) { this(trader,traderName,traderID,IconData.Null()); }
-	public TraderCategory(ItemLike trader, Component traderName, long traderID, IconData icon) {
+	public TraderCategory(ItemLike trader, Component traderName, long traderID) { this(trader,traderName,traderID,Optional.empty()); }
+	public TraderCategory(ItemLike trader, Component traderName, long traderID, @Nullable IconData icon) { this(trader,traderName,traderID,Optional.ofNullable(icon)); }
+	public TraderCategory(ItemLike trader, Component traderName, long traderID, Optional<IconData> icon) {
 		this.trader = trader.asItem();
 		this.traderName = traderName;
 		this.traderID = traderID;
-        this.traderIcon = icon == null ? IconData.Null() : icon;
+        this.traderIcon = icon;
 	}
 	
 	public TraderCategory(CompoundTag compound, HolderLookup.Provider lookup) {
@@ -46,7 +59,7 @@ public class TraderCategory extends NotificationCategory {
 		if(compound.contains("TraderName"))
 			this.traderName = Component.Serializer.fromJson(compound.getString("TraderName"),lookup);
 		else
-			this.traderName = Component.translatable("gui.lightmanscurrency.universaltrader.default");
+			this.traderName = LCText.GUI_TRADER_DEFAULT_NAME.get();
 		
 		if(compound.contains("TraderID"))
 			this.traderID = compound.getLong("TraderID");
@@ -54,16 +67,16 @@ public class TraderCategory extends NotificationCategory {
 			this.traderID = -1;
 
         if(compound.contains("CustomIcon"))
-            this.traderIcon = IconData.load(compound.getCompound("CustomIcon"),lookup);
+            this.traderIcon = Optional.ofNullable(IconData.loadOldData(compound.getCompound("CustomIcon"),lookup));
         else
-            this.traderIcon = IconData.Null();
+            this.traderIcon = Optional.empty();
 		
 	}
 
 	@Override
 	public IconData getIcon() {
-        if(!this.traderIcon.isNull())
-            return this.traderIcon;
+        if(this.traderIcon.isPresent())
+            return this.traderIcon.get();
         return ItemIcon.ofItem(this.trader);
     }
 	@Override
@@ -90,14 +103,30 @@ public class TraderCategory extends NotificationCategory {
 		}
 		return false;
 	}
-	
-	public void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
-		compound.putString("Icon", BuiltInRegistries.ITEM.getKey(this.trader).toString());
-		compound.putString("TraderName", Component.Serializer.toJson(this.traderName,lookup));
-		compound.putLong("TraderID", this.traderID);
-        if(!this.traderIcon.isNull())
-            compound.put("CustomIcon",this.traderIcon.save(lookup));
-	}
-	
+
+    private static class Type extends NotificationCategoryType<TraderCategory>
+    {
+        private static final MapCodec<TraderCategory> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+                BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter(c -> c.trader),
+                ComponentSerialization.CODEC.fieldOf("name").forGetter(c -> c.traderName),
+                Codec.LONG.fieldOf("id").forGetter(c -> c.traderID),
+                IconData.CODEC.optionalFieldOf("icon").forGetter(c -> c.traderIcon)
+        ).apply(builder,TraderCategory::new));
+
+        private static final StreamCodec<RegistryFriendlyByteBuf,TraderCategory> STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.registry(Registries.ITEM),c -> c.trader,
+                ComponentSerialization.STREAM_CODEC,c -> c.traderName,
+                ByteBufCodecs.VAR_LONG,c -> c.traderID,
+                ByteBufCodecs.optional(IconData.STREAM_CODEC),c -> c.traderIcon,
+                TraderCategory::new);
+
+        @Override
+        public MapCodec<TraderCategory> codec() { return CODEC; }
+        @Override
+        public StreamCodec<? super RegistryFriendlyByteBuf, TraderCategory> streamCodec() { return STREAM_CODEC; }
+
+        @Override
+        public TraderCategory loadOldData(CompoundTag tag, HolderLookup.Provider lookup) { return new TraderCategory(tag,lookup); }
+    }
 	
 }

@@ -1,45 +1,45 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
-import io.github.lightman314.lightmanscurrency.api.notifications.SingleLineNotification;
+import io.github.lightman314.lightmanscurrency.api.codecs.StreamHelper;
+import io.github.lightman314.lightmanscurrency.api.notifications.*;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.TeamOwner;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.codec.StreamCodec;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class ChangeOwnerNotification extends SingleLineNotification {
 
-	public static final NotificationType<ChangeOwnerNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("change_ownership"),ChangeOwnerNotification::new);
+	public static final NotificationType<ChangeOwnerNotification> TYPE = new Type();
 	
-	PlayerReference player;
-	Owner newOwner;
-	Owner oldOwner;
+	PlayerReference player = PlayerReference.NULL;
+	Owner newOwner = Owner.getNull(this);
+	Owner oldOwner = Owner.getNull(this);
 	
 	private ChangeOwnerNotification() { }
-
+    private ChangeOwnerNotification(PlayerReference player,Owner newOwner,Owner oldOwner,CommonData data)
+    {
+        super(data);
+        this.player = player;
+        this.newOwner = newOwner.copyWithParent(this);
+        this.oldOwner = oldOwner.copyWithParent(this);
+    }
 	public ChangeOwnerNotification(PlayerReference player, Owner newOwner, Owner oldOwner) {
 		this.player = player;
-		this.newOwner = newOwner.copy();
-		this.newOwner.setParent(this);
-		this.oldOwner = oldOwner.copy();
-		this.oldOwner.setParent(this);
+		this.newOwner = newOwner.copyWithParent(this);
+		this.oldOwner = oldOwner.copyWithParent(this);
 	}
 
     @Override
-	protected NotificationType<ChangeOwnerNotification> getType() { return TYPE; }
+	public NotificationType<ChangeOwnerNotification> getType() { return TYPE; }
 
 	@Override
 	public NotificationCategory getCategory() { return NullCategory.INSTANCE; }
@@ -52,13 +52,6 @@ public class ChangeOwnerNotification extends SingleLineNotification {
 			return LCText.NOTIFICATION_SETTINGS_CHANGE_OWNER_PASSED.get(this.oldOwner.getName(), this.newOwner.getName());
 		else
 			return LCText.NOTIFICATION_SETTINGS_CHANGE_OWNER_TRANSFERRED.get(this.player.getName(true), this.oldOwner.getName(), this.newOwner.getName());
-	}
-
-	@Override
-	protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
-		compound.put("Player", this.player.save());
-		compound.put("NewOwner", this.newOwner.save(lookup));
-		compound.put("OldOwner", this.oldOwner.save(lookup));
 	}
 
 	@Override
@@ -100,5 +93,28 @@ public class ChangeOwnerNotification extends SingleLineNotification {
 		}
 		return false;
 	}
+
+    private static class Type extends NotificationType<ChangeOwnerNotification>
+    {
+        private static final MapCodec<ChangeOwnerNotification> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+                PlayerReference.CODEC.fieldOf("player").forGetter(n -> n.player),
+                Owner.CODEC.fieldOf("new").forGetter(n -> n.newOwner),
+                Owner.CODEC.fieldOf("old").forGetter(n -> n.oldOwner),
+                baseFields()
+        ).apply(builder,ChangeOwnerNotification::new));
+
+        private static final StreamCodec<RegistryFriendlyByteBuf,ChangeOwnerNotification> STREAM_CODEC = StreamHelper.combine(baseStreamFields(),
+                PlayerReference.STREAM_CODEC,n -> n.player,
+                Owner.STREAM_CODEC,n -> n.newOwner,
+                Owner.STREAM_CODEC,n -> n.oldOwner,
+                ChangeOwnerNotification::new);
+
+        @Override
+        protected ChangeOwnerNotification createNew() { return new ChangeOwnerNotification(); }
+        @Override
+        public MapCodec<ChangeOwnerNotification> codec() { return MAP_CODEC; }
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, ChangeOwnerNotification> streamCodec() { return STREAM_CODEC; }
+    }
 
 }

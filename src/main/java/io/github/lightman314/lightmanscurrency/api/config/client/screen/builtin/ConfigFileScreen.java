@@ -9,14 +9,12 @@ import io.github.lightman314.lightmanscurrency.api.config.client.screen.widgets.
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.widgets.builtin.OptionWidget;
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.widgets.builtin.SectionLabel;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;

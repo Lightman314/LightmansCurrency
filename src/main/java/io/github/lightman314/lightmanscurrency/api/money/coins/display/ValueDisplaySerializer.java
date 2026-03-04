@@ -6,16 +6,13 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEnt
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
-
 public abstract class ValueDisplaySerializer {
-    @Nonnull
+    
     public abstract ResourceLocation getType();
     public abstract void resetBuilder();
-    public void parseAdditionalFromCoin(@Nonnull CoinEntry coin, @Nonnull JsonObject coinEntry) throws JsonSyntaxException, ResourceLocationException {}
-    public abstract void parseAdditional(@Nonnull JsonObject chainJson) throws JsonSyntaxException, ResourceLocationException;
-    public void writeAdditionalToCoin(@Nonnull ValueDisplayData data, @Nonnull CoinEntry coin, @Nonnull JsonObject coinEntry) {}
-    public abstract void writeAdditional(@Nonnull ValueDisplayData data, @Nonnull JsonObject chainJson);
-    @Nonnull
+    public void parseAdditionalFromCoin(CoinEntry coin, JsonObject coinEntry) throws JsonSyntaxException, ResourceLocationException {}
+    public abstract void parseAdditional(JsonObject chainJson) throws JsonSyntaxException, ResourceLocationException;
+    public void writeAdditionalToCoin(ValueDisplayData data, CoinEntry coin, JsonObject coinEntry) {}
+    public abstract void writeAdditional(ValueDisplayData data, JsonObject chainJson);
     public abstract ValueDisplayData build() throws JsonSyntaxException;
 }

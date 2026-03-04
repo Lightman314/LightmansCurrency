@@ -4,19 +4,19 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.events.client.RegisterTradeRenderManagersEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.GhostSlot;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
+import io.github.lightman314.lightmanscurrency.api.client.gui.GhostSlot;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
@@ -45,14 +45,12 @@ public abstract class TradeRenderManager<T extends TradeData> {
         renderManagers = ModLoader.postEventWithReturn(new RegisterTradeRenderManagersEvent()).getResults();
     }
 
-    @SuppressWarnings("deprecation")
     public static TradeRenderManager<?> getTradeRenderer(TradeData trade)
     {
         Function<TradeData,TradeRenderManager<?>> builder = renderManagers.get(trade.getClass());
         if(builder != null)
             return builder.apply(trade);
-        //Use deprecated method
-        return trade.getButtonRenderer();
+        throw new IllegalStateException("Trade " + trade.getClass().getName() + " did not properly register a Trade Render Manager!");
     }
 
     public final T trade;
@@ -141,8 +139,6 @@ public abstract class TradeRenderManager<T extends TradeData> {
             return null;
         List<AlertData> alerts = new ArrayList<>();
         this.addTradeRuleAlertData(alerts, context);
-        if(context.hasTrader() && context.getTrader().exceedsAcceptableTaxRate(context.getTaxContext()))
-            alerts.add(AlertData.error(LCText.TOOLTIP_TAX_LIMIT.get()));
         this.getAdditionalAlertData(context, alerts);
         return alerts;
     }

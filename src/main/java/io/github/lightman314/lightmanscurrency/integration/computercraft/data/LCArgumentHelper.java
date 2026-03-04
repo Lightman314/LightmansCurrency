@@ -2,6 +2,8 @@ package io.github.lightman314.lightmanscurrency.integration.computercraft.data;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DynamicOps;
 import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaValues;
@@ -13,7 +15,9 @@ import io.github.lightman314.lightmanscurrency.integration.computercraft.LCCompu
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -54,11 +58,7 @@ public class LCArgumentHelper {
             if(table.get("data") instanceof Map<?,?> other)
                 table = other;
             //Try to parse from map
-            CompoundTag tag = LCLuaTable.toTag(table);
-            MoneyValue result = MoneyValue.load(tag);
-            if(result == null)
-                throw LuaValues.badArgumentOf(args,index,"money_value");
-            return result;
+            return parseCustom(args,index,MoneyValue.LENIENT_CODEC,"money_value");
         }
     }
 
@@ -68,6 +68,14 @@ public class LCArgumentHelper {
     {
         try { return VersionUtil.parseResource(args.getString(index));
         } catch (ResourceLocationException e) { throw LuaValues.badArgumentOf(args,index,"id"); }
+    }
+
+    public static Component parseText(IArguments args, int index) throws LuaException
+    {
+        if(args.getType(index).equals("string"))
+            return Component.Serializer.fromJsonLenient(args.getString(0),LookupHelper.getRegistryAccess());
+        else
+            return parseCustom(args,index,ComponentSerialization.CODEC,"text");
     }
 
     public static ItemStack parseItem(IArguments args, int index) throws LuaException
@@ -85,11 +93,7 @@ public class LCArgumentHelper {
             if(isBasicItemTable(table))
                 return parseBasicItem(args,index,table);
             //Try to parse from map
-            CompoundTag tag = LCLuaTable.toTag(args.getTable(index));
-            Optional<ItemStack> item = ItemStack.parse(LookupHelper.getRegistryAccess(),tag);
-            if(item.isEmpty())
-                throw LuaValues.badArgumentOf(args,index,"item");
-            return item.get();
+            return parseCustom(args,index,ItemStack.OPTIONAL_CODEC,"item");
         }
     }
 
@@ -103,14 +107,14 @@ public class LCArgumentHelper {
             throw LuaValues.badArgumentOf(args,index,"fluid");
         }
         else
-        {
-            //Try to parse from map
-            CompoundTag tag = LCLuaTable.toTag(args.getTable(index));
-            Optional<FluidStack> fluid = FluidStack.parse(LookupHelper.getRegistryAccess(),tag);
-            if(fluid.isEmpty())
-                throw LuaValues.badArgumentOf(args,index,"fluid");
-            return fluid.get();
-        }
+            return parseCustom(args,index,FluidStack.OPTIONAL_CODEC,"fluid");
+    }
+
+    public static <T> T parseCustom(IArguments args,int index,Codec<T> codec,String name) throws LuaException
+    {
+        DynamicOps<Object> ops = RegistryOps.create(TableOps.INSTANCE,LookupHelper.getRegistryAccess());
+        try { return codec.decode(ops,new LCLuaTable(args.getTable(index))).getOrThrow().getFirst();
+        } catch (IllegalStateException ignores) { throw LuaValues.badArgumentOf(args,index,name); }
     }
 
     public static boolean isBasicItemTable(Map<?,?> table) { return table.containsKey("name") && table.containsKey("count"); }

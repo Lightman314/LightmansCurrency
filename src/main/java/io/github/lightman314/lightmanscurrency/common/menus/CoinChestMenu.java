@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.EasyItemHandlerSlot;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
-import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.CoinSlot;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.CoinChestUpgradeData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -14,7 +14,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -24,7 +23,7 @@ public class CoinChestMenu extends LazyMessageMenu {
     public final CoinChestBlockEntity be;
 
     private final List<CoinSlot> coinSlots;
-    private final List<UpgradeInputSlot> upgradeSlots;
+    private final List<EasySlot> upgradeSlots;
     private final List<EasySlot> inventorySlots;
 
     public CoinChestMenu(int id, Inventory inventory, CoinChestBlockEntity be) {
@@ -49,11 +48,11 @@ public class CoinChestMenu extends LazyMessageMenu {
         this.coinSlots = ImmutableList.copyOf(cSlots);
 
         //Upgrade Slots
-        List<UpgradeInputSlot> uSlots = new ArrayList<>();
+        List<EasySlot> uSlots = new ArrayList<>();
         for(int y = 0; y < CoinChestBlockEntity.UPGRADE_SIZE; ++y)
         {
             final int index = y;
-            UpgradeInputSlot s = new UpgradeInputSlot(this.be.getUpgrades(), y, 152, 21 + y * 18, this.be);
+            EasySlot s = new EasyItemHandlerSlot(this.be.getUpgrades(), y, 152, 21 + y * 18);
             s.setListener(() -> this.be.checkUpgradeEquipped(index));
             this.addSlot(s);
             uSlots.add(s);
@@ -87,10 +86,9 @@ public class CoinChestMenu extends LazyMessageMenu {
     public void SetCoinSlotVisibility(boolean visible)  { EasySlot.SetActive(this.coinSlots,visible); }
 
     public void SetInventoryVisibility(boolean visible) { EasySlot.SetActive(this.inventorySlots,visible); }
-
-    @Nonnull
+    
     @Override
-    public ItemStack quickMoveStack(@Nonnull Player player, int index)
+    public ItemStack quickMoveStack(Player player, int index)
     {
 
         ItemStack clickedStack = ItemStack.EMPTY;
@@ -126,13 +124,13 @@ public class CoinChestMenu extends LazyMessageMenu {
     }
 
     @Override
-    public void removed(@Nonnull Player player) { super.removed(player); this.be.stopOpen(player); }
+    public void removed(Player player) { super.removed(player); this.be.stopOpen(player); }
 
     private Consumer<LazyPacketData> extraHandler = d -> {};
-    public final void AddExtraHandler(@Nonnull Consumer<LazyPacketData> extraHandler) { this.extraHandler = extraHandler; }
+    public final void AddExtraHandler(Consumer<LazyPacketData> extraHandler) { this.extraHandler = extraHandler; }
 
     @Override
-    public void HandleMessage(@Nonnull LazyPacketData message) {
+    public void processMessage(LazyPacketData message) {
         this.extraHandler.accept(message);
         if(message.contains("SetUpgradeActive") && message.contains("Slot"))
         {

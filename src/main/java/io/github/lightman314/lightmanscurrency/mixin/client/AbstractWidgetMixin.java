@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.mixin.client;
 
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyWidget;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import org.spongepowered.asm.mixin.Mixin;

@@ -4,25 +4,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.traders.data.interfaces.IPersistentTrader;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.core.RegistryAccess;
-import net.minecraft.network.FriendlyByteBuf;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import javax.annotation.Nonnull;
-
 public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 
-	private static final Type<CPacketCreatePersistentTrader> TYPE = new Type<>(VersionUtil.lcResource("c_persistent_make_trader"));
+	private static final Type<CPacketCreatePersistentTrader> TYPE = cType("persistent_make_trader");
+    private static final StreamCodec<ByteBuf,CPacketCreatePersistentTrader> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_LONG,p -> p.traderID,
+            ByteBufCodecs.STRING_UTF8,p -> p.id,
+            ByteBufCodecs.STRING_UTF8,p -> p.owner,
+            CPacketCreatePersistentTrader::new);
 	public static final Handler<CPacketCreatePersistentTrader> HANDLER = new H();
 
 	private static final String GENERATE_ID_FORMAT = "trader_";
@@ -38,35 +43,27 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 		this.owner = owner.isBlank() ? "Minecraft" : owner;
 	}
 
-	private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull CPacketCreatePersistentTrader message) {
-		buffer.writeLong(message.traderID);
-		buffer.writeUtf(message.id);
-		buffer.writeUtf(message.owner);
-	}
-	private static CPacketCreatePersistentTrader decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketCreatePersistentTrader(buffer.readLong(), buffer.readUtf(),buffer.readUtf()); }
-
 	private static class H extends Handler<CPacketCreatePersistentTrader>
 	{
-		protected H() { super(TYPE, easyCodec(CPacketCreatePersistentTrader::encode,CPacketCreatePersistentTrader::decode)); }
+		protected H() { super(TYPE,STREAM_CODEC); }
 		@Override
-		protected void handle(@Nonnull CPacketCreatePersistentTrader message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+		protected void handle(CPacketCreatePersistentTrader message, IPayloadContext context, Player player) {
 			if(LCAdminMode.isAdminPlayer(player))
 			{
 				TraderDataCache data = TraderDataCache.TYPE.get(false);
 				if(data == null)
 					return;
-				TraderData trader = data.getTrader(message.traderID);
-				if(trader != null && trader.canMakePersistent())
+				if(data.getTrader(message.traderID) instanceof IPersistentTrader trader)
 				{
 
-					RegistryAccess lookup = player.registryAccess();
+                    DataContext<JsonElement> dataContext = DataContext.createJson(player.registryAccess());
 
 					boolean generateID = message.id.isBlank();
 
 					if(!generateID)
 					{
 						try {
-							JsonObject traderJson = trader.saveToJson(message.id, message.owner,lookup);
+							JsonObject traderJson = trader.writePersistentJson(message.id, message.owner,dataContext);
 
 							JsonArray persistentTraders = data.getPersistentTraderJson(TraderDataCache.PERSISTENT_TRADER_SECTION);
 							//Check for traders with the same id, and replace any entries that match
@@ -77,7 +74,7 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 								{
 									//Overwrite the existing entry with the same id.
 									persistentTraders.set(i, traderJson);
-									data.setPersistentTraderSection(TraderDataCache.PERSISTENT_TRADER_SECTION, persistentTraders,lookup);
+									data.setPersistentTraderSection(TraderDataCache.PERSISTENT_TRADER_SECTION, persistentTraders,dataContext);
 									player.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_OVERWRITE.get(message.id));
 									return;
 								}
@@ -85,7 +82,7 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 
 							//If no trader found with the id, add to list
 							persistentTraders.add(traderJson);
-							data.setPersistentTraderSection(TraderDataCache.PERSISTENT_TRADER_SECTION, persistentTraders,lookup);
+							data.setPersistentTraderSection(TraderDataCache.PERSISTENT_TRADER_SECTION, persistentTraders,dataContext);
 							player.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_ADD.get(message.id));
 						} catch (Throwable t) { LightmansCurrency.LogError("Error occurred while creating a persistent trader!", t); }
 					}
@@ -110,8 +107,8 @@ public class CPacketCreatePersistentTrader extends ClientToServerPacket {
 								String genID = GENERATE_ID_FORMAT + i;
 								if(knownIDs.stream().noneMatch(id -> id.equals(genID)))
 								{
-									persistentTraders.add(trader.saveToJson(genID, message.owner, lookup));
-									data.setPersistentTraderSection(TraderDataCache.PERSISTENT_TRADER_SECTION, persistentTraders, lookup);
+									persistentTraders.add(trader.writePersistentJson(genID, message.owner, dataContext));
+									data.setPersistentTraderSection(TraderDataCache.PERSISTENT_TRADER_SECTION, persistentTraders, dataContext);
 									player.sendSystemMessage(LCText.MESSAGE_PERSISTENT_TRADER_ADD.get(genID));
 									return;
 								}

@@ -2,18 +2,14 @@ package io.github.lightman314.lightmanscurrency.util;
 
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.Event;
 import net.neoforged.neoforge.common.NeoForge;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 /**
  * Utility class to make it easier to code certain vanilla constructors that have changed across minecraft versions
  */
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
+@Deprecated(forRemoval = true)
 public class VersionUtil {
 
     

@@ -23,7 +23,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class FreezerBlock extends TraderBlockTallRotatable implements IItemTraderBlock, IVariantBlock {
@@ -37,7 +36,7 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 
 	private final ResourceLocation doorModel;
 
-	public FreezerBlock(Properties properties, @Nonnull ResourceLocation doorModel)
+	public FreezerBlock(Properties properties, ResourceLocation doorModel)
 	{
 		super(properties, LazyShapes.lazyTallDirectionalShape(SHAPE_NORTH, SHAPE_EAST, SHAPE_SOUTH, SHAPE_WEST));
 		this.doorModel = doorModel;
@@ -51,13 +50,11 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 	public ResourceLocation getCustomDefaultModel(int index) { return this.getDoorModel(); }
 
 	@OnlyIn(Dist.CLIENT)
-	@Nonnull
+	
 	public ResourceLocation getDoorModel() { return this.doorModel; }
 
-	@Nonnull
 	public static ResourceLocation GenerateDoorModel(Color color) { return GenerateDoorModel(LightmansCurrency.MODID, color); }
 
-	@Nonnull
 	public static ResourceLocation GenerateDoorModel(String namespace, Color color) {
 		return VersionUtil.modResource(namespace, "block/freezer/doors/" + color.getResourceSafeName());
 	}

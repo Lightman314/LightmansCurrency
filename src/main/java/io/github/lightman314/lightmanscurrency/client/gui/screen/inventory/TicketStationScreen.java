@@ -1,20 +1,20 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.WidgetStateSprite;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.NormalSprite;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteSource;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.WidgetStateSprite;
+import io.github.lightman314.lightmanscurrency.api.client.gui.EasyMenuScreen;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.NormalSprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextBoxWrapper;
-import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs.TextBoxWrapper;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 
@@ -22,7 +22,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainBut
 import io.github.lightman314.lightmanscurrency.common.crafting.durability.DurabilityData;
 import io.github.lightman314.lightmanscurrency.common.crafting.input.TicketStationRecipeInput;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -38,7 +37,7 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
     public static final int WIDTH = 176;
     public static final int HEIGHT = 158;
 
-	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/ticket_machine.png");
+	public static final ResourceLocation GUI_TEXTURE = LightmansCurrency.id("textures/gui/container/ticket_machine.png");
 
 	private static final NormalSprite SPRITE_ARROW_NORMAL = new NormalSprite(new SpriteSource(GUI_TEXTURE, 176, 0, 24, 16));
     private static final NormalSprite SPRITE_ARROW_HOVERED = new NormalSprite(new SpriteSource(GUI_TEXTURE, 176, 16, 24, 16));

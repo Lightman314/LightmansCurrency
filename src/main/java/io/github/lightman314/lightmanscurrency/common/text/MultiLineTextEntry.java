@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.text;
 
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
@@ -51,7 +52,7 @@ public final class MultiLineTextEntry {
     
     public static MultiLineTextEntry message(String modid, String key) { return new MultiLineTextEntry("message." + modid + "." + key); }
 
-    public static MultiLineTextEntry notification(NotificationType<?> type) { return notification(type.type); }
+    public static MultiLineTextEntry notification(NotificationType<?> type) { return notification(LCRegistries.NOTIFICATION_TYPES.getKey(type)); }
     public static MultiLineTextEntry notification(ResourceLocation type) { return new MultiLineTextEntry("notification." + type.getNamespace() + "." + type.getPath()); }
 
 }

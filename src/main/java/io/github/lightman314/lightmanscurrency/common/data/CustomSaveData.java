@@ -1,13 +1,12 @@
 package io.github.lightman314.lightmanscurrency.common.data;
 
-import io.github.lightman314.lightmanscurrency.LCRegistries;
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
-import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.misc.ticker.ICommonTicker;
+import io.github.lightman314.lightmanscurrency.api.misc.ticker.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomData;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomDataType;
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -23,14 +22,10 @@ import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-@FieldsAreNonnullByDefault
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 @EventBusSubscriber
 public class CustomSaveData extends SavedData {
 
@@ -84,14 +79,14 @@ public class CustomSaveData extends SavedData {
             (t,l) -> {
                 CustomData data = type.create();
                 //LightmansCurrency.LogDebug("Loading '" + type.fileName + "' from file!\n" + t.getAsString());
-                data.loadData(t,l);
+                data.loadData(t,DataContext.createNBT(l));
                 return new CustomSaveData(data);
             });
     }
 
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider lookup) {
-        this.data.save(tag,lookup);
+        this.data.save(tag,DataContext.createNBT(lookup));
         //LightmansCurrency.LogDebug("Saving '" + this.data.getType().fileName + "' to file!\n" + tag.getAsString());
         return tag;
     }
@@ -108,7 +103,7 @@ public class CustomSaveData extends SavedData {
     {
         for(CustomData data : serverDataCache.values())
         {
-            if(data instanceof IEasyTickable ticker)
+            if(data instanceof ICommonTicker ticker)
                 ticker.tick();
             if(data instanceof IServerTicker ticker)
                 ticker.serverTick();

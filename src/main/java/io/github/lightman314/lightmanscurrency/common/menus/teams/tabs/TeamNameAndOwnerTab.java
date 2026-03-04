@@ -36,7 +36,7 @@ public class TeamNameAndOwnerTab extends TeamManagementTab.Management {
     public void SetOwner(@Nonnull PlayerReference owner)
     {
         if(this.isClient())
-            this.menu.SendMessage(this.builder().setCompound("SetOwner",owner.save()));
+            this.menu.SendMessage(this.builder().setTag("SetOwner",owner.save()));
         else if(this.menu.selectedTeam() instanceof Team team)
             team.changeOwner(this.menu.player,owner);
     }
@@ -63,7 +63,7 @@ public class TeamNameAndOwnerTab extends TeamManagementTab.Management {
         if(message.contains("ChangeName"))
             this.ChangeName(message.getString("ChangeName"));
         if(message.contains("SetOwner"))
-            this.SetOwner(PlayerReference.load(message.getNBT("SetOwner")));
+            this.SetOwner(PlayerReference.load(message.getTag("SetOwner")));
         if(message.contains("DisbandTeam"))
             this.DisbandTeam();
     }

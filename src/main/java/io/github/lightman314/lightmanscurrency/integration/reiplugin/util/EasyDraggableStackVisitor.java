@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.integration.reiplugin.util;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.GhostSlot;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
+import io.github.lightman314.lightmanscurrency.api.client.gui.GhostSlot;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import me.shedaniel.math.Rectangle;
 import me.shedaniel.rei.api.client.gui.drag.DraggableStack;

@@ -5,23 +5,18 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
 import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class TradeEvent extends Event {
 
 	public final boolean hasPlayerReference() { return this.context.hasPlayerReference(); }
@@ -69,24 +64,24 @@ public abstract class TradeEvent extends Event {
 		 * Adds an alert to the trade with default helpful formatting (Green).
 		 * Does not cancel the trade.
 		 */
-		public void addHelpful(MutableComponent message) {
+		public void addHelpful(Component message) {
 			this.addAlert(AlertData.helpful(message), false);
 		}
 
-		public void addNeutral(MutableComponent message) { this.addAlert(AlertData.neutral(message), false);}
+		public void addNeutral(Component message) { this.addAlert(AlertData.neutral(message), false);}
 
 		/**
 		 * Adds an alert to the trade with default warning formatting (Orange).
 		 * Does not cancel the trade.
 		 */
-		public void addWarning(MutableComponent message) { this.addAlert(AlertData.warn(message), false); }
+		public void addWarning(Component message) { this.addAlert(AlertData.warn(message), false); }
 		
 		/**
 		 * Adds an alert to the trade with default error formatting (Red).
 		 * Does not cancel the trade.
 		 * Use addDenial if you wish to cancel the trade.
 		 */
-		public void addError(MutableComponent message) {
+		public void addError(Component message) {
 			this.addAlert(AlertData.error(message), false);
 		}
 		
@@ -95,9 +90,8 @@ public abstract class TradeEvent extends Event {
 		 * Also cancels the trade.
 		 * Use addError if you do not wish to cancel the trade.
 		 */
-		public void addDenial(MutableComponent message) { this.addAlert(AlertData.error(message), true); }
+		public void addDenial(Component message) { this.addAlert(AlertData.error(message), true); }
 
-		
 		public List<AlertData> getAlertInfo() { return this.alerts; }
 		
 	}
@@ -122,8 +116,6 @@ public abstract class TradeEvent extends Event {
 		
 		public MoneyValue getCostResult() { return this.getCostResultIsFree() ? MoneyValue.free() : this.baseCost.percentageOfValue(this.pricePercentage); }
 
-		@Deprecated(since = "2.2.2.5")
-		public TradeCostEvent(TradeData trade, TradeContext context) { this(trade,context,TradeRule.getBaseCost(trade,context)); }
 		public TradeCostEvent(TradeData trade, TradeContext context, MoneyValue baseCost)
 		{
 			super(trade, context);
@@ -139,8 +131,7 @@ public abstract class TradeEvent extends Event {
 	
 	public static class PostTradeEvent extends TradeEvent
 	{
-		
-		private boolean isDirty = false;
+
 		private final MoneyValue pricePaid;
 		public MoneyValue getPricePaid() { return this.pricePaid; }
 		private final MoneyValue taxesPaid;
@@ -157,12 +148,6 @@ public abstract class TradeEvent extends Event {
 			this.taxesPaid = taxesPaid;
             this.product = product;
 		}
-		
-		public boolean isDirty() { return this.isDirty; }
-		
-		public void markDirty() { this.isDirty = true; }
-	 		
-		public void clean() { this.isDirty = false; }
 		
 	}
 	

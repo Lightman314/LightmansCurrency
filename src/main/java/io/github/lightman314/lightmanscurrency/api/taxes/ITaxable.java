@@ -3,8 +3,8 @@ package io.github.lightman314.lightmanscurrency.api.taxes;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableReference;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import net.minecraft.network.chat.MutableComponent;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
+import net.minecraft.network.chat.Component;
 
 import java.util.Set;
 import java.util.function.Supplier;
@@ -17,7 +17,7 @@ public interface ITaxable extends IClientTracker {
     /**
      * The name of the taxable machine.
      */
-    MutableComponent getName();
+    Component getName();
 
     /**
      * A {@link TaxableReference} that will point to this machine.<br>

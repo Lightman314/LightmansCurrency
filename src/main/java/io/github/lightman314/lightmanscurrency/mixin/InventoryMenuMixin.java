@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.mixin;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
-import io.github.lightman314.lightmanscurrency.common.attachments.wallet.WalletHelpers;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.WalletSlot;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
@@ -37,7 +36,7 @@ public abstract class InventoryMenuMixin {
         if(LCCurios.isLoaded())
             return;
         if(this.lightmanscurrency$self() instanceof AbstractContainerMenuAccessor accessor)
-            this.lightmanscurrency$walletSlot = accessor.addCustomSlot(new WalletSlot(player, WalletHelpers.getWalletContainer(player), 0, LCConfig.CLIENT.walletSlot.get().x + 1, LCConfig.CLIENT.walletSlot.get().y + 1));
+            this.lightmanscurrency$walletSlot = accessor.addCustomSlot(new WalletSlot(player,LCConfig.CLIENT.walletSlot.get().x + 1, LCConfig.CLIENT.walletSlot.get().y + 1));
     }
 
     @Inject(at = @At("HEAD"), method = "quickMoveStack", cancellable = true)

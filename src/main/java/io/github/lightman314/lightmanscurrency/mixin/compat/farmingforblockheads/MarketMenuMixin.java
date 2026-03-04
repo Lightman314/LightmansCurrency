@@ -7,9 +7,8 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
+import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
-import io.github.lightman314.lightmanscurrency.common.attachments.wallet.WalletHelpers;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.blay09.mods.balm.api.container.DefaultContainer;
@@ -19,7 +18,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,6 +30,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(MarketMenu.class)
 public abstract class MarketMenuMixin {
+
+    @Shadow
+    @Final
+    private Player player;
 
     @Accessor(value = "player",remap = false)
     protected abstract Player getPlayer();
@@ -82,7 +87,7 @@ public abstract class MarketMenuMixin {
                     return;
 
                 //Attempt to collect money from wallet
-                MoneyView availableFunds = WalletHelpers.getWalletMoney(this.getPlayer());
+                MoneyView availableFunds = WalletHandler.get(this.player).getStoredMoney();
 
                 ChainData chain = CoinAPI.getApi().ChainDataOfCoin(costItem);
 

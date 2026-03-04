@@ -7,13 +7,13 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import com.mojang.datafixers.util.Pair;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IPreRender;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IEasyScreen;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IPreRender;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.IRotatableWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyWidget;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.IRotatableWidget;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.WidgetRotation;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 

@@ -2,27 +2,28 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.api.misc.item_handlers.SuppliedInventory;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.EasyDisplaySlot;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.EasyItemHandlerSlot;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.playertrading.IPlayerTrade;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
-import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedContainer;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.DisplaySlot;
+import io.github.lightman314.lightmanscurrency.common.playertrading.PlayerTrade;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.annotation.Nonnull;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -41,7 +42,7 @@ public class PlayerTradeMenu extends LazyMessageMenu {
     public final int otherState() { return this.isHost() ? this.trade.getGuestState() : this.trade.getHostState(); }
 
     private Consumer<Component> chatReceiver = c -> {};
-    public final void setChatReceiver(@Nonnull Consumer<Component> chatReceiver) { this.chatReceiver = chatReceiver; }
+    public final void setChatReceiver(Consumer<Component> chatReceiver) { this.chatReceiver = chatReceiver; }
 
     public void hideSlots() { EasySlot.SetInactive(this); }
     public void showSlots() { EasySlot.SetActive(this); }
@@ -53,18 +54,18 @@ public class PlayerTradeMenu extends LazyMessageMenu {
 
         this.trade = trade;
 
-        Container hostItems = new SuppliedContainer(() -> this.getTradeData().getHostItems());
-        Container guestItems = new SuppliedContainer(() -> this.getTradeData().getGuestItems());
+        IItemHandlerModifiable hostItems = new SuppliedInventory(() -> this.getTradeData().getHostItems());
+        IItemHandlerModifiable guestItems = new SuppliedInventory(() -> this.getTradeData().getGuestItems());
 
-        Container leftSideContainer = this.isHost() ? hostItems : guestItems;
-        Container rightSideContainer = this.isHost() ? guestItems : hostItems;
+        IItemHandlerModifiable leftSideContainer = this.isHost() ? hostItems : guestItems;
+        IItemHandlerModifiable rightSideContainer = this.isHost() ? guestItems : hostItems;
 
         //Add Left-Side Slots (Interactable by this player)
         for(int y = 0; y < 4; ++y)
         {
             for(int x = 0; x < 3; ++x)
             {
-                this.addSlot(new EasySlot(leftSideContainer, x + y * 3, 8 + x * 18, 30 + y * 18));
+                this.addSlot(new EasyItemHandlerSlot(leftSideContainer, x + y * 3, 8 + x * 18, 30 + y * 18));
             }
         }
 
@@ -73,7 +74,7 @@ public class PlayerTradeMenu extends LazyMessageMenu {
         {
             for(int x = 0; x < 3; ++x)
             {
-                this.addSlot(new DisplaySlot(rightSideContainer, x + y * 3, 116 + x * 18, 30 + y * 18));
+                this.addSlot(new EasyDisplaySlot(rightSideContainer, x + y * 3, 116 + x * 18, 30 + y * 18));
             }
         }
 
@@ -92,8 +93,7 @@ public class PlayerTradeMenu extends LazyMessageMenu {
     }
 
     @Override
-    @Nonnull
-    public ItemStack quickMoveStack(@Nonnull Player player, int index) {
+    public ItemStack quickMoveStack(Player player, int index) {
         ItemStack clickedStack = ItemStack.EMPTY;
 
         Slot slot = this.slots.get(index);
@@ -119,7 +119,7 @@ public class PlayerTradeMenu extends LazyMessageMenu {
     }
 
     @Override
-    public void removed(@Nonnull Player player) {
+    public void removed(Player player) {
         super.removed(player);
         if(this.isClient() || this.trade.isCompleted())
             return;
@@ -141,10 +141,10 @@ public class PlayerTradeMenu extends LazyMessageMenu {
             LightmansCurrency.LogWarning("Attempted to reload the trade on the server-side menu.");
     }
 
-    public void SendChatToServer(@Nonnull String message) { this.SendMessageToServer(this.builder().setString("AddChat", message)); }
+    public void SendChatToServer(String message) { this.SendMessageToServer(this.builder().setString("AddChat", message)); }
 
     @Override
-    public void HandleMessage(@Nonnull LazyPacketData message) {
+    public void processMessage(LazyPacketData message) {
         if(message.contains("AddChat") && this.isServer())
         {
             //Send chat message to both players
@@ -155,15 +155,17 @@ public class PlayerTradeMenu extends LazyMessageMenu {
                 Component m = EasyText.literal("<").append(this.player.getName()).append("> ").append(message.getString("AddChat"));
                 //Log chat message so that admins can catch innapropriate correspondense
                 LOGGER.info("Private Chat: " + m.getString());
-                this.SendChatTo(trade.getHostID(), m);
-                this.SendChatTo(trade.getGuestID(), m);
+                this.SendChatTo(trade.getHostID(),m);
+                this.SendChatTo(trade.getGuestID(),m);
             }
         }
         if(message.contains("ReceiveChat") && this.chatReceiver != null)
             this.chatReceiver.accept(message.getText("ReceiveChat"));
+        if(message.contains("Interaction") && this.trade instanceof PlayerTrade t)
+            t.handleInteraction(this.player,message.getMap("Interaction"));
     }
 
-    private void SendChatTo(@Nonnull UUID id, @Nonnull Component message)
+    private void SendChatTo(UUID id, Component message)
     {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if(server == null)
@@ -172,7 +174,7 @@ public class PlayerTradeMenu extends LazyMessageMenu {
         if(player == null)
             return;
         if(player.containerMenu instanceof PlayerTradeMenu menu)
-            menu.SendMessage(this.builder().setText("ReceiveChat", message));
+            menu.SendMessage(this.builder().setText("ReceiveChat",message));
     }
 
 }

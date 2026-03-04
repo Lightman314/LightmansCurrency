@@ -2,7 +2,11 @@ package io.github.lightman314.lightmanscurrency.api.money.bank.salary;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
+import io.github.lightman314.lightmanscurrency.api.codecs.StreamHelper;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
@@ -12,16 +16,21 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
+import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.DepositWithdrawNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.SalaryPaymentNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
+import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -29,27 +38,95 @@ import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class SalaryData {
+public class SalaryData implements LazyPacketData.IBuilderProvider{
 
     public static final int PERM_VIEW = 1;
     public static final int PERM_EDIT = 2;
 
-    private final IBankAccount account;
-    private final Function<SalaryData,Integer> index;
-    public SalaryData(IBankAccount account, Function<SalaryData,Integer> index) { this.account = account; this.index = index; }
+    public static final Codec<SalaryData> CODEC = RecordCodecBuilder.create(builder -> builder.group(
+            UUIDUtil.CODEC_SET.fieldOf("onlinePlayers").forGetter(d -> d.onlineDuringSalary),
+            Codec.BOOL.fieldOf("requireLogin").forGetter(SalaryData::getLoginRequiredForSalary),
+            Codec.LONG.fieldOf("lastSalary").forGetter(SalaryData::getLastSalaryTime),
+            Codec.BOOL.fieldOf("notification").forGetter(SalaryData::getSalaryNotification),
+            Codec.LONG.fieldOf("delay").forGetter(SalaryData::getSalaryDelay),
+            Codec.BOOL.fieldOf("creative").forGetter(SalaryData::isSalaryCreative),
+            MoneyValue.CODEC.fieldOf("salary").forGetter(SalaryData::getSalary),
+            Codec.STRING.fieldOf("name").forGetter(SalaryData::getInternalName),
+            BankReference.CODEC.listOf().fieldOf("directTargets").forGetter(SalaryData::getDirectTargets),
+            CodecHelper.setCodec(Codec.STRING).fieldOf("customTargets").forGetter(SalaryData::getCustomTargetSelections),
+            Codec.BOOL.fieldOf("failedLast").forGetter(SalaryData::failedLastSalaryAttempt)
+    ).apply(builder,SalaryData::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf,SalaryData> STREAM_CODEC = StreamHelper.composite(
+            UUIDUtil.STREAM_CODEC.apply(ByteBufCodecs.collection(HashSet::new)),d -> d.onlineDuringSalary,
+            ByteBufCodecs.BOOL,SalaryData::getLoginRequiredForSalary,
+            ByteBufCodecs.VAR_LONG,SalaryData::getLastSalaryTime,
+            ByteBufCodecs.BOOL,SalaryData::getSalaryNotification,
+            ByteBufCodecs.VAR_LONG,SalaryData::getSalaryDelay,
+            ByteBufCodecs.BOOL,SalaryData::isSalaryCreative,
+            MoneyValue.STREAM_CODEC,SalaryData::getSalary,
+            ByteBufCodecs.STRING_UTF8,SalaryData::getInternalName,
+            BankReference.STREAM_CODEC.apply(ByteBufCodecs.list()),SalaryData::getDirectTargets,
+            ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.collection(HashSet::new)),SalaryData::getCustomTargetSelections,
+            ByteBufCodecs.BOOL,SalaryData::failedLastSalaryAttempt,
+            SalaryData::new);
+
+    private IBankAccount account;
+    private Function<SalaryData,Integer> index = s -> -1;
+    public SalaryData() {}
+
+    private SalaryData(Set<UUID> onlineDuringSalary,boolean requireLoginForSalary,long lastSalaryTime,boolean salaryNotification,
+                       long salaryDelay,boolean creativeSalaryMode,MoneyValue salary,String name,List<BankReference> directTargets,
+                       Set<String> customTargets,boolean failedLastSalary) {
+        this.onlineDuringSalary.addAll(onlineDuringSalary);
+        this.requireLoginForSalary = requireLoginForSalary;
+        this.lastSalaryTime = lastSalaryTime;
+        this.salaryNotification = salaryNotification;
+        this.salaryDelay = salaryDelay;
+        this.creativeSalaryMode = creativeSalaryMode;
+        this.salary = salary;
+        this.name = name;
+        this.directTargets.addAll(directTargets);
+        this.customTargets.addAll(customTargets);
+        this.failedLastSalary = failedLastSalary;
+    }
+
+    public SalaryData init(IBankAccount account,Function<SalaryData,Integer> index)
+    {
+        this.account = account;
+        this.index = index;
+        for(BankReference br : this.directTargets)
+            br.flagAsClient(this.account);
+        return this;
+    }
+
+    public static void init(List<SalaryData> salaryData,IBankAccount account)
+    {
+        for(SalaryData s : salaryData)
+            s.init(account,salaryData::indexOf);
+    }
 
     //Old Team Salary Settings
     public boolean isAutoSalaryEnabled() { return this.lastSalaryTime > 0; }
 
-    private final List<UUID> onlineDuringSalary = new ArrayList<>();
-    public void forceOnlinePlayerList(List<UUID> onlineDuringSalary)
+    private final Set<UUID> onlineDuringSalary = new HashSet<>();
+    public void forceOnlinePlayerList(Collection<UUID> onlineDuringSalary)
     {
+        //If the set is identical, then don't bother flagging the data as changed
+        if(this.onlineDuringSalary.equals(onlineDuringSalary))
+            return;
         this.onlineDuringSalary.clear();
         this.onlineDuringSalary.addAll(onlineDuringSalary);
-        this.markDirty();
+        this.onOnlinePlayersChanged();
     }
+    private void onOnlinePlayersChanged()
+    {
+        this.setChanged(builder -> builder.setList("OnlinePlayers",this.onlineDuringSalary,LazyPacketData.UUID_FACTORY));
+    }
+
     private boolean requireLoginForSalary = false;
     public boolean getLoginRequiredForSalary() { return this.requireLoginForSalary; }
     public void setLoginRequiredForSalary(boolean requireLoginForSalary)
@@ -59,7 +136,7 @@ public class SalaryData {
         this.requireLoginForSalary = requireLoginForSalary;
         this.checkForOnlinePlayers(false);
         this.validateSalaryCache();
-        this.markDirty();
+        this.setChanged(builder -> builder.setBoolean("RequireLogin",this.requireLoginForSalary));
     }
     long lastSalaryTime = 0;
     public long getLastSalaryTime() { return this.lastSalaryTime; }
@@ -71,7 +148,7 @@ public class SalaryData {
         if(this.lastSalaryTime > 0)
             this.checkForOnlinePlayers(false);
         this.validateSalaryCache();
-        this.markDirty();
+        this.setChanged(builder -> builder.setLong("LastSalary",this.lastSalaryTime));
     }
     public void setAutoSalaryEnabled(boolean enabled)
     {
@@ -79,14 +156,12 @@ public class SalaryData {
             return;
         if(enabled)
         {
-            this.lastSalaryTime = TimeUtil.getCurrentTime();
-            this.onlineDuringSalary.clear();
+            this.forceLastSalaryTime(TimeUtil.getCurrentTime());
+            this.forceOnlinePlayerList(new HashSet<>());
             this.checkForOnlinePlayers(false);
         }
         else
-            this.lastSalaryTime = 0;
-        this.validateSalaryCache();
-        this.markDirty();
+            this.forceLastSalaryTime(0);
     }
     boolean salaryNotification = true;
     public boolean getSalaryNotification() { return this.salaryNotification; }
@@ -94,7 +169,7 @@ public class SalaryData {
         if(this.salaryNotification == salaryNotification)
             return;
         this.salaryNotification = salaryNotification;
-        this.markDirty();
+        this.setChanged(builder -> builder.setBoolean("Notification",this.salaryNotification));
     }
     long salaryDelay = 0;
     public long getSalaryDelay() { return this.salaryDelay; }
@@ -102,30 +177,42 @@ public class SalaryData {
         if(this.salaryDelay == salaryDelay)
             return;
         this.salaryDelay = salaryDelay;
-        this.markDirty();
+        this.setChanged(builder -> builder.setLong("Delay",this.salaryDelay));
     }
     boolean creativeSalaryMode = false;
     public boolean isSalaryCreative() { return this.creativeSalaryMode; }
-    public void setSalaryCreative(@Nullable Player player, boolean creative)  { if(player != null && creative && !LCAdminMode.isAdminPlayer(player)) return; this.creativeSalaryMode = creative; this.markDirty(); }
+    public void setSalaryCreative(@Nullable Player player, boolean creative) {
+        if(player != null && creative && !LCAdminMode.isAdminPlayer(player))
+            return;
+        this.creativeSalaryMode = creative;
+        this.setChanged(builder -> builder.setBoolean("Creative",this.creativeSalaryMode));
+    }
 
     private MoneyValue salary = MoneyValue.empty();
     public MoneyValue getSalary() { return this.salary; }
     public void setSalary(MoneyValue salary) {
+        if(this.salary.equals(salary))
+            return;
         this.salary = salary;
         this.validateSalaryCache();
-        this.markDirty();
+        this.setChanged(builder -> builder.setMoneyValue("Salary",this.salary));
     }
 
-    private boolean cacheInvalid = false;
+    private boolean cacheInvalid = true;
     private MoneyValue quickSalaryCache = MoneyValue.empty();
     private MoneyValue totalSalaryCache = MoneyValue.empty();
 
     //Custom Bank Salary Settings
     String name = "";
     public String getInternalName() { return this.name; }
-    public void setName(String name) { this.name = name; this.markDirty(); }
+    public void setName(String name) {
+        if(this.name.equals(name))
+            return;
+        this.name = name;
+        this.setChanged(builder -> builder.setString("Name",this.name));
+    }
     public Component getName() {
-        if(this.name.isBlank())
+        if(this.name.isBlank() && this.account != null)
             return LCText.GUI_BANK_SALARY_NAME.get(this.account.getOwnerName(),this.index.apply(this) + 1);
         return EasyText.literal(this.name);
     }
@@ -144,13 +231,19 @@ public class SalaryData {
         if(this.requireLoginForSalary)
             this.checkForOnlinePlayers(false);
         this.validateSalaryCache();
-        this.markDirty();
+        this.setChanged(builder -> builder.addToList("DirectTargets",this.builder()
+                .setBoolean("Add",true)
+                .setCustom("Target",target,ModLazyPackets.BANK_REFERENCE),
+                LazyPacketData.BUILDER_FACTORY));
     }
     public void removeTarget(BankReference target) {
         if(this.directTargets.remove(target))
         {
             this.validateSalaryCache();
-            this.markDirty();
+            this.setChanged(builder -> builder.addToList("DirectTargets",this.builder()
+                    .setBoolean("Add",false)
+                    .setCustom("Target",target,ModLazyPackets.BANK_REFERENCE),
+                    LazyPacketData.BUILDER_FACTORY));
         }
     }
 
@@ -159,7 +252,7 @@ public class SalaryData {
     public List<CustomTarget> getCustomTargets()
     {
         List<CustomTarget> options = new ArrayList<>();
-        Map<String,CustomTarget> data = this.account.extraSalaryTargets();
+        Map<String,CustomTarget> data = this.account != null ? this.account.extraSalaryTargets() : new HashMap<>();
         for(String key : this.customTargets)
         {
             CustomTarget entry = data.get(key);
@@ -179,11 +272,16 @@ public class SalaryData {
         return list;
     }
     public void addCustomTarget(String key) {
+        if(this.account == null)
+            return;
         if(this.account.extraSalaryTargets().containsKey(key) && !this.customTargets.contains(key))
         {
             this.customTargets.add(key);
             this.validateSalaryCache();
-            this.markDirty();
+            this.setChanged(builder -> builder.addToList("CustomTargets",this.builder()
+                    .setBoolean("Add",true)
+                    .setString("Target",key),
+                    LazyPacketData.BUILDER_FACTORY));
         }
     }
     public void removeCustomTarget(String key)
@@ -192,7 +290,10 @@ public class SalaryData {
         {
             this.customTargets.remove(key);
             this.validateSalaryCache();
-            this.markDirty();
+            this.setChanged(builder -> builder.addToList("CustomTargets",this.builder()
+                            .setBoolean("Add",false)
+                            .setString("Target",key),
+                    LazyPacketData.BUILDER_FACTORY));
         }
     }
 
@@ -203,7 +304,7 @@ public class SalaryData {
         if(this.failedLastSalary == failedLast)
             return;
         this.failedLastSalary = failedLast;
-        this.markDirty();
+        this.setChanged(builder ->  builder.setBoolean("FailedLastSalary",this.failedLastSalary));
     }
 
     public void HandleEditMessage(Player player,LazyPacketData message)
@@ -232,9 +333,9 @@ public class SalaryData {
             else
                 this.removeCustomTarget(target);
         }
-        if(message.contains("DirectTarget"))
+        if(message.contains("DirectTarget") && this.account != null)
         {
-            BankReference target = BankReference.load(message.getNBT("DirectTarget")).flagAsClient(this.account);
+            BankReference target = message.getCustom("DirectTarget",ModLazyPackets.BANK_REFERENCE).flagAsClient(this.account);
             if(target != null)
             {
                 if(message.getBoolean("NewState"))
@@ -243,8 +344,56 @@ public class SalaryData {
                     this.removeTarget(target);
             }
         }
-        if(message.contains("DeleteSalary"))
+        if(message.contains("DeleteSalary") && this.account != null)
             this.account.deleteSalary(this);
+    }
+
+    public void handlePacket(LazyPacketData message)
+    {
+        if(this.account == null || this.account.isServer())
+            return;
+        if(message.contains("OnlinePlayers"))
+        {
+            this.onlineDuringSalary.clear();
+            this.onlineDuringSalary.addAll(message.getList("OnlinePlayers",UUID.class));
+        }
+        if(message.contains("RequireLogin"))
+            this.requireLoginForSalary = message.getBoolean("RequireLogin");
+        if(message.contains("LastSalary"))
+            this.lastSalaryTime = message.getLong("LastSalary");
+        if(message.contains("Notification"))
+            this.salaryNotification = message.getBoolean("Notification");
+        if(message.contains("Delay"))
+            this.salaryDelay = message.getLong("Delay");
+        if(message.contains("Creative"))
+            this.creativeSalaryMode = message.getBoolean("Creative");
+        if(message.contains("Salary"))
+            this.salary = message.getMoneyValue("Salary");
+        if(message.contains("Name"))
+            this.name = message.getString("Name");
+        //Add/remove targets in a single list to avoid order complications
+        if(message.contains("DirectTargets"))
+        {
+            for(LazyPacketData entry : message.getList("DirectTargets",LazyPacketData.class))
+            {
+                if(entry.getBoolean("Add"))
+                    this.addTarget(entry.getCustom("Target",ModLazyPackets.BANK_REFERENCE));
+                else
+                    this.removeTarget(entry.getCustom("Target",ModLazyPackets.BANK_REFERENCE));
+            }
+        }
+        if(message.contains("CustomTargets"))
+        {
+            for(LazyPacketData entry : message.getList("CustomTargets",LazyPacketData.class))
+            {
+                if(entry.getBoolean("Add"))
+                    this.addCustomTarget(entry.getString("Target"));
+                else
+                    this.removeCustomTarget(entry.getString("Target"));
+            }
+        }
+        if(message.contains("FailedLastSalary"))
+            this.failedLastSalary = message.getBoolean("FailedLastSalary");
     }
 
     public List<BankReference> getAllTargets()
@@ -259,31 +408,44 @@ public class SalaryData {
     }
     private void validateTargetsExist()
     {
+        if(this.account == null)
+            return;
         boolean changed = false;
         for(BankReference target : new ArrayList<>(this.directTargets))
         {
             if(!target.isValid())
             {
                 this.directTargets.remove(target);
+                this.setChanged(builder -> builder.addToList("DirectTargets",this.builder()
+                        .setBoolean("Add",false)
+                        .setCustom("Target",target,ModLazyPackets.BANK_REFERENCE),
+                        LazyPacketData.BUILDER_FACTORY));
+                changed = true;
+            }
+        }
+        Set<String> keySet = this.account.extraSalaryTargets().keySet();
+        for(String customTarget : new ArrayList<>(this.customTargets))
+        {
+            if(!keySet.contains(customTarget))
+            {
+                this.customTargets.remove(customTarget);
+                this.setChanged(builder -> builder.addToList("CustomTargets",this.builder()
+                        .setBoolean("Add",false)
+                        .setString("Target",customTarget),
+                        LazyPacketData.BUILDER_FACTORY));
                 changed = true;
             }
         }
         if(changed)
-        {
             this.validateSalaryCache();
-            this.markDirty();
-        }
     }
     private void addToBankList(List<BankReference> list, BankReference toAdd)
     {
-        if(list.stream().anyMatch(br -> br.equals(toAdd)))
+        if(list.stream().anyMatch(br -> br.equals(toAdd)) || this.account == null)
             return;
         list.add(toAdd.flagAsClient(this.account));
     }
     public boolean isTarget(Player player) { return this.getAllTargets().stream().anyMatch(br -> br.isSalaryTarget(player)); }
-
-    @Deprecated(since = "2.3.0.2")
-    public MoneyValue getTotalSalaryCost(boolean validateOnlinePlayers) { return this.getTotalSalaryCost(validateOnlinePlayers,true); }
 
     public MoneyValue getTotalSalaryCost(boolean validateOnlinePlayers, boolean performCalculation)
     {
@@ -301,10 +463,7 @@ public class SalaryData {
         else
         {
             if(this.cacheInvalid)
-            {
                 this.validateSalaryCache();
-                this.markDirty();
-            }
             if(validateOnlinePlayers && this.requireLoginForSalary)
                 return this.totalSalaryCache;
             return this.quickSalaryCache;
@@ -321,10 +480,8 @@ public class SalaryData {
         return false;
     }
 
-    @Deprecated(since = "2.3.0.2",forRemoval = true)
-    public boolean canAffordNextSalary(boolean validateOnlinePlayers) { return this.canAffordNextSalary(validateOnlinePlayers,true); }
     public boolean canAffordNextSalary(boolean validateOnlinePlayers, boolean performCalculation) {
-        if(this.creativeSalaryMode)
+        if(this.creativeSalaryMode || this.account == null)
             return true;
         if(this.salary.isEmpty())
             return false;
@@ -352,13 +509,14 @@ public class SalaryData {
     }
     
     public void forcePaySalaries(boolean validateOnlinePlayers) {
+        if(this.account == null)
+            return;
         //Confirm that all current targets still actually exist
         this.validateTargetsExist();
         //Comfirm that we can afford to pay everyone
         if(!this.canAffordNextSalary(validateOnlinePlayers,true))
         {
-            this.failedLastSalary = true;
-            this.markDirty();
+            this.forceFailedLastSalary(true);
             return;
         }
         this.failedLastSalary = false;
@@ -380,22 +538,20 @@ public class SalaryData {
         }
         if(validateOnlinePlayers)
         {
-            this.onlineDuringSalary.clear();
+            this.forceOnlinePlayerList(new HashSet<>());
             this.checkForOnlinePlayers(false);
             this.validateSalaryCache();
         }
-        this.markDirty();
     }
 
     private <T> void incrementStat(StatKey<?,T> key,T value)
     {
+        if(this.account == null)
+            return;
         StatTracker stats = this.account.getStatTracker();
         if(stats != null)
             stats.incrementStat(key,value);
     }
-
-    @Deprecated(since = "2.3.0.2",forRemoval = true)
-    public void checkForOnlinePlayers() { this.checkForOnlinePlayers(true); }
 
     public void checkForOnlinePlayers(boolean updateCache)
     {
@@ -424,9 +580,9 @@ public class SalaryData {
         if(!this.onlineDuringSalary.contains(playerID))
         {
             this.onlineDuringSalary.add(playerID);
+            this.onOnlinePlayersChanged();
             if(updateCache)
                 this.validateSalaryCache();
-            this.markDirty();
         }
     }
 
@@ -440,72 +596,31 @@ public class SalaryData {
         }
     }
 
-    public CompoundTag save()
+    @Deprecated
+    public static SalaryData loadOldData(CompoundTag tag)
     {
-        //Online List
-        CompoundTag tag = new CompoundTag();
-        tag.put("OnlinePlayers",TagUtil.writeUUIDList(this.onlineDuringSalary));
-        tag.putBoolean("LoginRequired",this.requireLoginForSalary);
-        tag.putLong("LastSalaryTime",this.lastSalaryTime);
-        tag.putBoolean("SalaryNotification",this.salaryNotification);
-        tag.putLong("SalaryDelay",this.salaryDelay);
-        tag.putBoolean("CreativeSalary",this.creativeSalaryMode);
-        tag.put("Salary",this.salary.save());
-        tag.putString("Name",this.name);
-        ListTag targets = new ListTag();
-        for(BankReference br : this.directTargets)
-            targets.add(br.save());
-        tag.put("Targets",targets);
-        ListTag customTargets = new ListTag();
-        for(String ct : this.customTargets)
-            customTargets.add(StringTag.valueOf(ct));
-        tag.put("CustomTargets",customTargets);
-        tag.putBoolean("FailedLast",this.failedLastSalary);
-        //Salary Cache
-        CompoundTag cache = new CompoundTag();
-        cache.put("QuickTotal",this.quickSalaryCache.save());
-        if(this.requireLoginForSalary)
-            cache.put("FullTotal",this.totalSalaryCache.save());
-        tag.put("Cache",cache);
-        return tag;
-    }
-
-    public void load(CompoundTag tag)
-    {
-        this.onlineDuringSalary.clear();
-        this.onlineDuringSalary.addAll(TagUtil.readUUIDList(tag.getList("OnlinePlayers",Tag.TAG_INT_ARRAY)));
-        this.requireLoginForSalary = tag.getBoolean("LoginRequired");
-        this.lastSalaryTime = tag.getLong("LastSalaryTime");
-        this.salaryNotification = tag.getBoolean("SalaryNotification");
-        this.salaryDelay = tag.getLong("SalaryDelay");
-        this.creativeSalaryMode = tag.getBoolean("CreativeSalary");
-        this.salary = MoneyValue.load(tag.getCompound("Salary"));
-        this.name = tag.getString("Name");
+        SalaryData data = new SalaryData();
+        data.onlineDuringSalary.addAll(TagUtil.readUUIDList(tag.getList("OnlinePlayers",Tag.TAG_INT_ARRAY)));
+        data.requireLoginForSalary = tag.getBoolean("LoginRequired");
+        data.lastSalaryTime = tag.getLong("LastSalaryTime");
+        data.salaryNotification = tag.getBoolean("SalaryNotification");
+        data.salaryDelay = tag.getLong("SalaryDelay");
+        data.creativeSalaryMode = tag.getBoolean("CreativeSalary");
+        data.salary = MoneyValue.load(tag.getCompound("Salary"));
+        data.name = tag.getString("Name");
         ListTag targets = tag.getList("Targets",Tag.TAG_COMPOUND);
-        this.directTargets.clear();
         for(int i = 0; i < targets.size(); ++i)
         {
             BankReference br = BankReference.load(targets.getCompound(i));
             if(br != null)
-                this.directTargets.add(br.flagAsClient(this.account));
+                data.directTargets.add(br);
         }
         ListTag customTargets = tag.getList("CustomTargets",Tag.TAG_STRING);
-        this.customTargets.clear();
+        data.customTargets.clear();
         for(int i = 0; i < customTargets.size(); ++i)
-            this.customTargets.add(customTargets.getString(i));
-        this.failedLastSalary = tag.getBoolean("FailedLast");
-        //Load or invalidate cache
-        if(tag.contains("Cache"))
-        {
-            CompoundTag cache = tag.getCompound("Cache");
-            this.quickSalaryCache = MoneyValue.load(cache.getCompound("QuickSalary"));
-            if(tag.contains("TotalSalary"))
-                this.totalSalaryCache = MoneyValue.load(cache.getCompound("TotalSalary"));
-            else
-                this.quickSalaryCache = MoneyValue.empty();
-        }
-        else
-            this.cacheInvalid = true;
+            data.customTargets.add(customTargets.getString(i));
+        data.failedLastSalary = tag.getBoolean("FailedLast");
+        return data;
     }
 
     protected final void validateSalaryCache()
@@ -523,6 +638,15 @@ public class SalaryData {
         this.cacheInvalid = false;
     }
 
-    protected final void markDirty() { this.account.markDirty(); }
+    protected final void setChanged(Consumer<LazyPacketData.Builder> dataWriter) {
+        if(this.account != null)
+            this.account.setSalaryChanged(this,dataWriter);
+    }
 
+    @Override
+    public LazyPacketData.Builder builder() {
+        if(this.account != null)
+            return this.account.builder();
+        return LazyPacketData.builder(LookupHelper.getRegistryAccess());
+    }
 }

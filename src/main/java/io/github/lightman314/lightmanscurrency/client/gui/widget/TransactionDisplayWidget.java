@@ -2,11 +2,11 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.value.FlexibleMoneyValue;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipWidget;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.ITooltipWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TransactionRegisterScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.items.data.register.TransactionData;
 import io.github.lightman314.lightmanscurrency.common.items.data.register.TransactionHelpfulness;

@@ -10,20 +10,15 @@ import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
-
 public class SpeedUpgrade extends UpgradeType {
 
 	public static String DELAY_AMOUNT = "delay";
 
 	@Override
 	public boolean isUnique() { return true; }
-
-	@Nonnull
 	@Override
-	public List<Component> getTooltip(@Nonnull UpgradeData data) { return Lists.newArrayList(LCText.TOOLTIP_UPGRADE_SPEED.get(data.getIntValue(DELAY_AMOUNT))); }
+	public List<Component> getTooltip(UpgradeData data) { return Lists.newArrayList(LCText.TOOLTIP_UPGRADE_SPEED.get(data.getIntValue(DELAY_AMOUNT))); }
 
-	@Nonnull
 	@Override
 	protected List<Component> getBuiltInTargets() { return ImmutableList.of(LCText.TOOLTIP_UPGRADE_TARGET_TRADER_INTERFACE.get()); }
 

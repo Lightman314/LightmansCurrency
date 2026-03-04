@@ -90,7 +90,7 @@ public class VariantProvider<T,V> {
     public static void registerVariantBlock(Function<Block,IVariantBlock> provider) { BLOCK_PROVIDER.addProvider(Objects.requireNonNull(provider)); }
 
     @SafeVarargs
-    public static void registerBasicVariantItem(Supplier<Item>... items)
+    public static void registerBasicVariantItem(Supplier<? extends Item>... items)
     {
         for(var sup : items)
             registerVariantItem(VariantItemWrapper.simple(sup));

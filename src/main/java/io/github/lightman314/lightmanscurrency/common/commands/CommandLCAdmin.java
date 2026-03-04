@@ -16,12 +16,16 @@ import com.mojang.brigadier.exceptions.CommandExceptionType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderState;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderState;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.ITraderBlock;
+import io.github.lightman314.lightmanscurrency.api.traders.data.interfaces.IPersistentTrader;
 import io.github.lightman314.lightmanscurrency.common.attachments.EventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.common.commands.arguments.ColorArgument;
@@ -36,14 +40,14 @@ import io.github.lightman314.lightmanscurrency.common.data.types.TaxDataCache;
 import io.github.lightman314.lightmanscurrency.common.items.GachaBallItem;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.items.data.TraderItemData;
-import io.github.lightman314.lightmanscurrency.common.items.data.WalletDataWrapper;
+import io.github.lightman314.lightmanscurrency.common.items.data.WalletInventory;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
-import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import io.github.lightman314.lightmanscurrency.common.traders.rules.types.PlayerListing;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.builtin.PlayerListing;
 import io.github.lightman314.lightmanscurrency.network.message.command.SPacketDebugTrader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandBuildContext;
@@ -60,7 +64,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -283,11 +286,11 @@ public class CommandLCAdmin {
 		String traderID = String.valueOf(thisTrader.getID());
 		EasyText.sendCommandSucess(source, LCText.COMMAND_ADMIN_TRADERDATA_LIST_TRADER_ID.get(EasyText.literal(traderID).withStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, traderID)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, LCText.COMMAND_ADMIN_TRADERDATA_LIST_TRADER_ID_TOOLTIP.get())))), false);
 		//Persistent ID
-		if(thisTrader.isPersistent())
-			EasyText.sendCommandSucess(source, LCText.COMMAND_ADMIN_TRADERDATA_LIST_PERSISTENT_ID.get(thisTrader.getPersistentID()), false);
+		if(thisTrader instanceof IPersistentTrader pt && pt.isPersistent())
+			EasyText.sendCommandSucess(source, LCText.COMMAND_ADMIN_TRADERDATA_LIST_PERSISTENT_ID.get(pt.getPersistentID()), false);
 
 		//Type
-		EasyText.sendCommandSucess(source, LCText.COMMAND_ADMIN_TRADERDATA_LIST_TYPE.get(thisTrader.type), false);
+		EasyText.sendCommandSucess(source, LCText.COMMAND_ADMIN_TRADERDATA_LIST_TYPE.get(LCRegistries.TRADER_TYPES.getKey(thisTrader.getType())), false);
 
 		//Ignore everything else for auction houses
 		if(thisTrader instanceof AuctionHouseTrader)
@@ -303,10 +306,11 @@ public class CommandLCAdmin {
 		if(thisTrader.hasWorldPosition())
 		{
 			//Dimension
-			String dimension = thisTrader.getLevel().location().toString();
+            WorldPosition worldPosition = thisTrader.getWorldPosition();
+			String dimension = worldPosition.getDimension().location().toString();
 			EasyText.sendCommandSucess(source, LCText.COMMAND_ADMIN_TRADERDATA_LIST_DIMENSION.get(dimension), false);
 			//Position
-			BlockPos pos = thisTrader.getPos();
+			BlockPos pos = worldPosition.getPos();
 			String position = pos.getX() + " " + pos.getY() + " " + pos.getZ();
 			String teleportPosition = pos.getX() + " " + (pos.getY() + 1) + " " + pos.getZ();
 			EasyText.sendCommandSucess(source, LCText.COMMAND_ADMIN_TRADERDATA_LIST_POSITION.get(EasyText.literal(position).withStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/execute in " + dimension + " run tp @s " + teleportPosition)).withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, LCText.COMMAND_ADMIN_TRADERDATA_LIST_POSITION_TOOLTIP.get())))), true);
@@ -336,7 +340,7 @@ public class CommandLCAdmin {
 		CommandSourceStack source = commandContext.getSource();
 
 		TraderData trader = TraderArgument.getTrader(commandContext, "traderID");
-		EasyText.sendCommandSucess(source, EasyText.literal(trader.save(source.registryAccess()).getAsString()), false);
+		EasyText.sendCommandSucess(source, EasyText.literal(trader.save(DataContext.createNBT(source.registryAccess())).getAsString()), false);
 		if(commandContext.getSource().isPlayer())
 			new SPacketDebugTrader(trader.getID()).sendTo(commandContext.getSource().getPlayerOrException());
 		return 1;
@@ -374,7 +378,7 @@ public class CommandLCAdmin {
 
 		TraderData trader = TraderArgument.getTrader(commandContext, "traderID");
 
-		TradeRule rule = TradeRule.getRule(PlayerListing.TYPE.type, trader.getRules());
+		TradeRule rule = trader.getRuleOfType(PlayerListing.TYPE);
 		if(rule instanceof PlayerListing whitelist)
 		{
 			Collection<ServerPlayer> players = EntityArgument.getPlayers(commandContext, "player");
@@ -387,7 +391,7 @@ public class CommandLCAdmin {
 			EasyText.sendCommandSucess(source, LCText.COMMAND_ADMIN_TRADERDATA_ADD_TO_WHITELIST_SUCCESS.get(count, trader.getName()), true);
 
 			if(count > 0)
-				trader.markTradeRulesDirty();
+				trader.setRuleChanged(whitelist.getType());
 
 			return count;
 		}
@@ -462,10 +466,11 @@ public class CommandLCAdmin {
 				ItemStack currentWallet = walletHandler.getWallet();
 				if(WalletItem.isWallet(currentWallet))
 				{
-					WalletDataWrapper wrapper = WalletItem.getDataWrapper(currentWallet);
-					if(!wrapper.getContents().isEmpty())
+                    WalletInventory contents = WalletItem.getWalletInventory(currentWallet);
+					if(!contents.isEmpty())
 					{
-						wrapper.setContents(new SimpleContainer(wrapper.getContainerSize()),entity);
+                        contents.clear();
+                        WalletItem.putWalletInventory(currentWallet,contents);
 						count++;
 						walletHandler.setWallet(currentWallet);
 					}

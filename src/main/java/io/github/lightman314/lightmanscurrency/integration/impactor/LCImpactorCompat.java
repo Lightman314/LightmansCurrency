@@ -1,10 +1,12 @@
 package io.github.lightman314.lightmanscurrency.integration.impactor;
 
 
+import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.common.core.custom.ModCurrencyTypes;
 import io.github.lightman314.lightmanscurrency.integration.impactor.money.ImpactorCurrencyType;
+import io.netty.buffer.ByteBuf;
 import net.impactdev.impactor.api.configuration.key.ConfigKey;
 import net.impactdev.impactor.api.economy.EconomyService;
 import net.impactdev.impactor.api.economy.accounts.Account;
@@ -12,22 +14,23 @@ import net.impactdev.impactor.api.economy.currency.Currency;
 import net.impactdev.impactor.core.economy.ImpactorEconomyService;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Optional;
 import java.util.UUID;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class LCImpactorCompat {
+
+    public static final Codec<Key> KEY_CODEC = Codec.STRING.xmap(string -> Key.key(string,':'), Key::asString);
+    public static final StreamCodec<ByteBuf,Key> KEY_STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(string -> Key.key(string,':'),Key::asString);
 
     public static void setup() {
         if(LCConfig.COMMON.compatImpactor.get())
-            MoneyAPI.getApi().RegisterCurrencyType(ImpactorCurrencyType.INSTANCE);
+            ModCurrencyTypes.register("impactor_compat",ImpactorCurrencyType.INSTANCE);
     }
 
     @Nullable

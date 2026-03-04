@@ -14,24 +14,21 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
 import java.util.List;
 
 public class NumberDisplay extends ValueDisplayData {
 
-    public static final ResourceLocation TYPE = VersionUtil.lcResource("number");
+    public static final ResourceLocation TYPE = LightmansCurrency.id("number");
     public static final ValueDisplaySerializer SERIALIZER = new Serializer();
 
     private final Pair<String,Boolean> format;
@@ -52,25 +49,23 @@ public class NumberDisplay extends ValueDisplayData {
         return this.baseEntry;
     }
 
-    public NumberDisplay(@Nonnull TextEntry format, @Nonnull Item baseItem) { this(Pair.of(format.getKey(),true),baseItem); }
-    public NumberDisplay(@Nonnull String literalFormat, @Nonnull Item baseItem) { this(Pair.of(literalFormat,false),baseItem); }
-    public NumberDisplay(@Nonnull Pair<String,Boolean> format, @Nonnull Item baseItem) {
+    public NumberDisplay(TextEntry format, Item baseItem) { this(Pair.of(format.getKey(),true),baseItem); }
+    public NumberDisplay(String literalFormat, Item baseItem) { this(Pair.of(literalFormat,false),baseItem); }
+    public NumberDisplay(Pair<String,Boolean> format, Item baseItem) {
 
         this.format = format;
         this.wordyFormat = format;
         this.baseItem = baseItem;
     }
-    public NumberDisplay(@Nonnull TextEntry format, @Nullable TextEntry wordyFormat, @Nonnull Item baseItem) { this(Pair.of(format.getKey(),true),Pair.of(wordyFormat.getKey(),true),baseItem);}
-    public NumberDisplay(@Nonnull String literalFormat, @Nullable String literalWordyFormat, @Nonnull Item baseItem) { this(Pair.of(literalFormat,false),literalWordyFormat == null ? null : Pair.of(literalWordyFormat,false),baseItem); }
-    public NumberDisplay(@Nonnull Pair<String,Boolean> format, @Nullable Pair<String,Boolean> wordyFormat, @Nonnull Item baseItem)
+    public NumberDisplay(TextEntry format, @Nullable TextEntry wordyFormat, Item baseItem) { this(Pair.of(format.getKey(),true),Pair.of(wordyFormat.getKey(),true),baseItem);}
+    public NumberDisplay(String literalFormat, @Nullable String literalWordyFormat, Item baseItem) { this(Pair.of(literalFormat,false),literalWordyFormat == null ? null : Pair.of(literalWordyFormat,false),baseItem); }
+    public NumberDisplay(Pair<String,Boolean> format, @Nullable Pair<String,Boolean> wordyFormat, Item baseItem)
     {
         this.format = format;
         this.wordyFormat = wordyFormat;
         this.baseItem = baseItem;
     }
 
-
-    @Nonnull
     @Override
     public ValueDisplaySerializer getSerializer() { return SERIALIZER; }
 
@@ -81,7 +76,7 @@ public class NumberDisplay extends ValueDisplayData {
             return 0d;
         return (double)coreValue/(double)baseUnit.getCoreValue();
     }
-    private double getDisplayValue(@Nonnull Item item)
+    private double getDisplayValue(Item item)
     {
         ChainData parent = this.getParent();
         if(parent == null)
@@ -89,8 +84,8 @@ public class NumberDisplay extends ValueDisplayData {
         return getDisplayValue(parent.getCoreValue(item));
     }
 
-    private MutableComponent formatDisplay(double value) { return this.format(this.format,LCText.TOOLTIP_COIN_DISPLAY_NUMBER,this.formatDisplayNumber(value)); }
-    private MutableComponent formatWordyDisplay(double value) {
+    private Component formatDisplay(double value) { return this.format(this.format,LCText.TOOLTIP_COIN_DISPLAY_NUMBER,this.formatDisplayNumber(value)); }
+    private Component formatWordyDisplay(double value) {
         TextEntry format = LCText.TOOLTIP_COIN_DISPLAY_NUMBER;
         if(this.wordyFormat != null)
             format = LCText.TOOLTIP_COIN_DISPLAY_NUMBER_WORDY;
@@ -99,7 +94,7 @@ public class NumberDisplay extends ValueDisplayData {
 
     protected Component getIcon() { return getIcon(this.getChain()); }
 
-    private MutableComponent format(@Nonnull Pair<String,Boolean> format, @Nonnull TextEntry iconFormat, @Nonnull String value)
+    private Component format(Pair<String,Boolean> format, TextEntry iconFormat, String value)
     {
         if(format.getSecond())
             return EasyText.translatable(format.getFirst(),iconFormat.get(value,this.getIcon()));
@@ -107,7 +102,7 @@ public class NumberDisplay extends ValueDisplayData {
             return EasyText.literal(String.format(format.getFirst().replace("{value}",value)));
     }
 
-    @Nonnull
+    
     private String formatDisplayNumber(double value)
     {
         DecimalFormat df = new DecimalFormat();
@@ -127,21 +122,21 @@ public class NumberDisplay extends ValueDisplayData {
             return 0;
     }
 
-    @Nonnull
+    
     @Override
-    public MutableComponent formatValue(@Nonnull CoinValue value, @Nonnull MutableComponent emptyText) {
+    public Component formatValue(CoinValue value, Component emptyText) {
         return this.formatDisplay(this.getDisplayValue(value.getCoreValue()));
     }
 
     @Override
-    public void formatCoinTooltip(@Nonnull ItemStack stack, @Nonnull List<Component> tooltip) {
+    public void formatCoinTooltip(ItemStack stack, List<Component> tooltip) {
         double value = this.getDisplayValue(stack.getItem());
         tooltip.add(LCText.TOOLTIP_COIN_WORTH_VALUE.get(this.formatWordyDisplay(value)).withStyle(ChatFormatting.YELLOW));
         if (stack.getCount() > 1)
             tooltip.add(LCText.TOOLTIP_COIN_WORTH_VALUE_STACK.get(this.formatWordyDisplay(value * stack.getCount())).withStyle(ChatFormatting.YELLOW));
     }
 
-    @Nonnull
+    
     @Override
     public MoneyValue parseDisplayInput(double displayInput) {
         CoinEntry baseUnit = this.getBaseEntry();
@@ -155,17 +150,17 @@ public class NumberDisplay extends ValueDisplayData {
         return CoinValue.fromNumber(this.getChain(), value);
     }
 
-    @Nonnull
+    
     public Pair<String,String> getSplitFormat() { return this.splitFormat(this.format,LCText.TOOLTIP_COIN_DISPLAY_NUMBER); }
-    @Nonnull
+    
     public Pair<String,String> getSplitWordyFormat() {
         TextEntry format = LCText.TOOLTIP_COIN_DISPLAY_NUMBER;
         if(this.wordyFormat != null)
             format = LCText.TOOLTIP_COIN_DISPLAY_NUMBER_WORDY;
         return this.splitFormat(this.getWordyFormat(),format);
     }
-    @Nonnull
-    private Pair<String,String> splitFormat(@Nonnull Pair<String,Boolean> format, @Nonnull TextEntry iconFormat)
+    
+    private Pair<String,String> splitFormat(Pair<String,Boolean> format, TextEntry iconFormat)
     {
         //Have to replace the {value} with a non-illegal character in order to split the string
         String formatString = this.format(format,iconFormat,"`").getString();
@@ -189,20 +184,20 @@ public class NumberDisplay extends ValueDisplayData {
         private Item baseUnit = null;
         private Item firstCoin = null;
 
-        @Nonnull
+        
         @Override
         public ResourceLocation getType() { return TYPE; }
         @Override
         public void resetBuilder() { this.format = this.wordyFormat = null; this.baseUnit = this.firstCoin = null; }
         @Override
-        public void parseAdditional(@Nonnull JsonObject chainJson) throws JsonSyntaxException, ResourceLocationException {
+        public void parseAdditional(JsonObject chainJson) throws JsonSyntaxException, ResourceLocationException {
             this.format = parseFormat(chainJson,"displayFormat");
             if(chainJson.has("displayFormatWordy"))
                 this.wordyFormat = parseFormat(chainJson,"displayFormatWordy");
         }
 
         @Override
-        public void parseAdditionalFromCoin(@Nonnull CoinEntry coin, @Nonnull JsonObject coinEntry) throws JsonSyntaxException, ResourceLocationException {
+        public void parseAdditionalFromCoin(CoinEntry coin, JsonObject coinEntry) throws JsonSyntaxException, ResourceLocationException {
             if(GsonHelper.getAsBoolean(coinEntry, "baseUnit", false))
             {
                 if(this.baseUnit != null)
@@ -214,7 +209,7 @@ public class NumberDisplay extends ValueDisplayData {
         }
 
         @Override
-        public void writeAdditional(@Nonnull ValueDisplayData data, @Nonnull JsonObject chainJson) {
+        public void writeAdditional(ValueDisplayData data, JsonObject chainJson) {
             if(data instanceof NumberDisplay display)
             {
                 saveFormat(chainJson,"displayFormat", display.format);
@@ -224,12 +219,12 @@ public class NumberDisplay extends ValueDisplayData {
         }
 
         @Override
-        public void writeAdditionalToCoin(@Nonnull ValueDisplayData data, @Nonnull CoinEntry coin, @Nonnull JsonObject coinEntry) {
+        public void writeAdditionalToCoin(ValueDisplayData data, CoinEntry coin, JsonObject coinEntry) {
             if(data instanceof NumberDisplay display && coin.matches(display.baseItem))
                 coinEntry.addProperty("baseUnit", true);
         }
 
-        @Nonnull
+        
         @Override
         public NumberDisplay build() throws JsonSyntaxException {
             if(this.format == null)
@@ -239,8 +234,8 @@ public class NumberDisplay extends ValueDisplayData {
             return new NumberDisplay(this.format, this.wordyFormat, this.baseUnit == null ? this.firstCoin : this.baseUnit);
         }
 
-        @Nonnull
-        private static Pair<String,Boolean> parseFormat(@Nonnull JsonObject json, @Nonnull String key) throws JsonSyntaxException
+        
+        private static Pair<String,Boolean> parseFormat(JsonObject json, String key) throws JsonSyntaxException
         {
             JsonElement element = json.get(key);
             if(element == null)
@@ -259,7 +254,7 @@ public class NumberDisplay extends ValueDisplayData {
             }
         }
 
-        private static void saveFormat(@Nonnull JsonObject json, @Nonnull String key, @Nonnull Pair<String,Boolean> format)
+        private static void saveFormat(JsonObject json, String key, Pair<String,Boolean> format)
         {
             if(format.getSecond())
             {

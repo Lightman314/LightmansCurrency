@@ -1,14 +1,14 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.config.master_coin_list;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.config.master_coin_list.data.MutableChainData;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 
 public class MCLChainEditScreen extends MCLChainSubscreen {

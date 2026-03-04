@@ -1,12 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.playertrading;
 
+import io.github.lightman314.lightmanscurrency.api.misc.item_handlers.LCItemStackHandler;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
 import java.util.UUID;
 
 public interface IPlayerTrade {
@@ -16,28 +15,20 @@ public interface IPlayerTrade {
 
     boolean isCompleted();
 
-    default boolean isHost(@Nonnull Player player) { return player.getUUID().equals(this.getHostID()); }
-    default boolean isGuest(@Nonnull Player player) { return player.getUUID().equals(this.getGuestID()); }
+    default boolean isHost(Player player) { return player.getUUID().equals(this.getHostID()); }
+    default boolean isGuest(Player player) { return player.getUUID().equals(this.getGuestID()); }
 
-    @Nonnull
     UUID getHostID();
-    @Nonnull
     UUID getGuestID();
 
-    @Nonnull
     Component getHostName();
-    @Nonnull
     Component getGuestName();
 
-    @Nonnull
     MoneyValue getHostMoney();
-    @Nonnull
     MoneyValue getGuestMoney();
 
-    @Nonnull
-    Container getHostItems();
-    @Nonnull
-    Container getGuestItems();
+    LCItemStackHandler getHostItems();
+    LCItemStackHandler getGuestItems();
 
     int getHostState();
     int getGuestState();

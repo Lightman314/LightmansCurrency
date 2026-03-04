@@ -7,8 +7,9 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.data.CoinInputTyp
 import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesCollectedNotification;
 import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesPaidNotification;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
-import io.github.lightman314.lightmanscurrency.api.traders.attachments.builtin.ExternalAuthorizationAttachment;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.builtin.*;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeResult;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.MachineAccessNode;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.types.*;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
@@ -17,7 +18,6 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.ModStats;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
-import io.github.lightman314.lightmanscurrency.common.items.data.register.TransactionData;
 import io.github.lightman314.lightmanscurrency.common.items.data.register.TransactionType;
 import io.github.lightman314.lightmanscurrency.common.seasonal_events.chocolate.ChocolateEventCoins;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
@@ -28,10 +28,8 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.settin
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.*;
 import io.github.lightman314.lightmanscurrency.common.text.*;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.OutputConflictHandling;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.common.traders.rules.types.*;
-import io.github.lightman314.lightmanscurrency.common.villager_merchant.CustomProfessions;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.common.core.ModProfessions;
 import net.minecraft.core.Direction;
 
 import java.util.List;
@@ -254,8 +252,8 @@ public class LCText {
     public static final TextEntry GAMERULE_COIN_DROP_PERCENT= TextEntry.gamerule("coinDropPercent");
 
     //Villager Professions
-    public static final TextEntry PROFESSION_BANKER = TextEntry.profession(CustomProfessions.BANKER);
-    public static final TextEntry PROFESSION_CASHIER = TextEntry.profession(CustomProfessions.CASHIER);
+    public static final TextEntry PROFESSION_BANKER = TextEntry.profession(ModProfessions.BANKER);
+    public static final TextEntry PROFESSION_CASHIER = TextEntry.profession(ModProfessions.CASHIER);
 
     //Key Binds
     public static final TextEntry KEY_WALLET = TextEntry.keyBind(MODID,"open_wallet");
@@ -613,7 +611,7 @@ public class LCText {
     public static final TextEntry TOOLTIP_INTERFACE_STATS = TextEntry.tooltip(MODID,"interface.stats");
 
     //Trade Result
-    public static final TextEntryBundle<TradeResult> GUI_TRADE_RESULT = TextEntryBundle.of(TradeResult.ALL_WITH_MESSAGES,"gui.lightmanscurrency.trade_result");
+    public static final TextEntryBundle<TradeResult> GUI_TRADE_RESULT = TextEntryBundle.of(TradeResult.ALL_WITH_MESSAGES,"gui.lightmanscurrency.trade_result",TradeResult::getKey);
 
     //Trade Comparison
     public static final TextEntry GUI_TRADE_DIFFERENCE_MISSING = TextEntry.gui(MODID,"interface.difference.missing");
@@ -704,7 +702,7 @@ public class LCText {
     public static final TextEntry BUTTON_TRADER_SETTINGS_PASTE = TextEntry.tooltip(MODID,"trader.settings_clipboard.paste");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_EXTERNAL_AUTH = TextEntry.tooltip(MODID,"trader.settings.external_auth");
     public static final TextEntry TOOLTIP_TRADER_SETTINGS_EXTERNAL_AUTH_SELECT = TextEntry.tooltip(MODID,"trader.settings.external_auth.select");
-    public static final TextEntryBundle<ExternalAuthorizationAttachment.AccessLevel> GUI_TRADER_SETTINGS_EXTERNAL_AUTH_ACCESS_LEVEL = TextEntryBundle.of(ExternalAuthorizationAttachment.AccessLevel.values(),"gui.lightmanscurrency.trader.settings.external_auth.access_level");
+    public static final TextEntryBundle<MachineAccessNode.AccessLevel> GUI_TRADER_SETTINGS_EXTERNAL_AUTH_ACCESS_LEVEL = TextEntryBundle.of(MachineAccessNode.AccessLevel.values(),"gui.lightmanscurrency.trader.settings.external_auth.access_level");
 
     //General Trade Tooltips
     public static final TextEntry TOOLTIP_TRADE_EDIT_PRICE = TextEntry.tooltip(MODID,"trade.edit_price");
@@ -902,7 +900,7 @@ public class LCText {
     public static final DualTextEntry PERMISSION_INTERACTION_LINK = DualTextEntry.permission(Permissions.INTERACTION_LINK);
     public static final DualTextEntry PERMISSION_TRANSFER_OWNERSHIP = DualTextEntry.permission(Permissions.TRANSFER_OWNERSHIP);
     public static final DualTextEntry PERMISSION_EDIT_INPUTS = DualTextEntry.permission(Permissions.InputTrader.EXTERNAL_INPUTS);
-    public static final DualTextEntry PERMISSION_EXTERNAL_AUTHORIZATION = DualTextEntry.permission(ExternalAuthorizationAttachment.EDIT_AUTHORIZATION_PERMISSION);
+    public static final DualTextEntry PERMISSION_EXTERNAL_AUTHORIZATION = DualTextEntry.permission(MachineAccessNode.EDIT_AUTHORIZATION_PERMISSION);
 
     //Inventory Buttons
     public static final TextEntry TOOLTIP_NOTIFICATION_BUTTON = TextEntry.tooltip(MODID,"button.notification");
@@ -1026,10 +1024,10 @@ public class LCText {
     //Bank Notifications
     public static final TextEntry NOTIFICATION_BANK_INTEREST = TextEntry.notification(BankInterestNotification.TYPE);
     public static final TextEntry NOTIFICATION_BANK_TRANSFER = TextEntry.notification(BankTransferNotification.TYPE);
-    public static final TextEntry NOTIFICATION_BANK_DEPOSIT_WITHDRAW = TextEntry.notification(VersionUtil.lcResource("bank_deposit_or_withdraw"));
-    public static final TextEntry NOTIFICATION_BANK_DEPOSIT = TextEntry.notification(VersionUtil.lcResource("bank_deposit"));
-    public static final TextEntry NOTIFICATION_BANK_WITHDRAW = TextEntry.notification(VersionUtil.lcResource("bank_withdraw"));
-    public static final TextEntry NOTIFICATION_BANK_DEPOSIT_WITHDRAW_SERVER = TextEntry.notification(VersionUtil.lcResource("bank_deposit_or_withdraw"),"server");
+    public static final TextEntry NOTIFICATION_BANK_DEPOSIT_WITHDRAW = TextEntry.notification(LightmansCurrency.id("bank_deposit_or_withdraw"));
+    public static final TextEntry NOTIFICATION_BANK_DEPOSIT = TextEntry.notification(LightmansCurrency.id("bank_deposit"));
+    public static final TextEntry NOTIFICATION_BANK_WITHDRAW = TextEntry.notification(LightmansCurrency.id("bank_withdraw"));
+    public static final TextEntry NOTIFICATION_BANK_DEPOSIT_WITHDRAW_SERVER = TextEntry.notification(LightmansCurrency.id("bank_deposit_or_withdraw"),"server");
     public static final TextEntry NOTIFICATION_BANK_LOW_BALANCE = TextEntry.notification(LowBalanceNotification.TYPE);
     public static final MultiLineTextEntry NOTIFICATION_BANK_SALARY_PAYMENT = MultiLineTextEntry.notification(SalaryPaymentNotification.TYPE);
     //Ejection Notifications
@@ -1038,7 +1036,6 @@ public class LCText {
     public static final TextEntry NOTIFICATION_EJECTION_DROPPED = TextEntry.notification(OwnableBlockEjectedNotification.TYPE,"dropped");
     //Settings Notification
     public static final TextEntry NOTIFICATION_SETTINGS_ADD_REMOVE_ALLY = TextEntry.notification(AddRemoveAllyNotification.TYPE);
-    public static final TextEntry NOTIFICATION_SETTINGS_ADD_REMOVE_TRADE = TextEntry.notification(AddRemoveTradeNotification.TYPE);
     public static final TextEntry NOTIFICATION_SETTINGS_CHANGE_ALLY_PERMISSIONS = TextEntry.notification(ChangeAllyPermissionNotification.TYPE);
     public static final TextEntry NOTIFICATION_SETTINGS_CHANGE_ALLY_PERMISSIONS_SIMPLE = TextEntry.notification(ChangeAllyPermissionNotification.TYPE,"simple");
     public static final TextEntry NOTIFICATION_SETTINGS_CHANGE_CREATIVE = TextEntry.notification(ChangeCreativeNotification.TYPE);
@@ -1069,7 +1066,7 @@ public class LCText {
     public static final TextEntry NOTIFICATION_TRADE_COMMAND = TextEntry.notification(CommandTradeNotification.TYPE);
     public static final TextEntry NOTIFICATION_TRADE_GACHA = TextEntry.notification(GachaTradeNotification.TYPE);
     //Item Notification Parts
-    public static final TextEntry NOTIFICATION_ITEM_FORMAT = TextEntry.notification(VersionUtil.lcResource("items"),"format");
+    public static final TextEntry NOTIFICATION_ITEM_FORMAT = TextEntry.notification(LightmansCurrency.id("items"),"format");
 
     //Transaction Register
     public static final TextEntryBundle<TransactionType> GUI_TRANSACTION_REGISTER_TYPE_NAME = TextEntryBundle.of(TransactionType.values(),"gui.lightmanscurrency.transaction_register.transaction_type.name");
@@ -1159,6 +1156,7 @@ public class LCText {
     public static final TextEntry DATA_CATEGORY_TRADER_TAXES = TextEntry.dataCategory(MODID,"trader.taxes");
     public static final TextEntry DATA_CATEGORY_TRADER_TRADES = TextEntry.dataCategory(MODID,"trader.trades");
     public static final TextEntry DATA_CATEGORY_OWNERSHIP = TextEntry.dataCategory(MODID,"ownership");
+    public static final TextEntry DATA_CATEGORY_LOGGER = TextEntry.dataCategory(MODID,"notifications");
     public static final TextEntry DATA_CATEGORY_MISC = TextEntry.dataCategory(MODID,"misc");
     public static final TextEntry DATA_CATEGORY_INPUT_SETTINGS = TextEntry.dataCategory(MODID,"input_settings");
     public static final TextEntry DATA_CATEGORY_MISC_SETTINGS = TextEntry.dataCategory(MODID,"misc_settings");

@@ -5,14 +5,10 @@ import io.github.lightman314.lightmanscurrency.api.config.options.basic.IntOptio
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import net.minecraft.MethodsReturnNonnullByDefault;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class ScreenPositionOption extends ConfigOption<ScreenPosition> {
 
     public static final ConfigParser<ScreenPosition> PARSER = new Parser();

@@ -15,14 +15,14 @@ import java.util.function.Supplier;
 @ParametersAreNonnullByDefault
 public class VariantItemWrapper implements IVariantItem {
 
-    private final Supplier<Item> item;
-    protected VariantItemWrapper(Supplier<Item> item) { this.item = item; }
+    private final Supplier<? extends Item> item;
+    protected VariantItemWrapper(Supplier<? extends Item> item) { this.item = item; }
 
     public static VariantItemWrapper simple(Item item) { return new VariantItemWrapper(() -> item); }
-    public static VariantItemWrapper simple(Supplier<Item> item) { return new VariantItemWrapper(item); }
+    public static VariantItemWrapper simple(Supplier<? extends Item> item) { return new VariantItemWrapper(item); }
 
     public static VariantItemWrapper withModels(Item item, int modelCount, Function<Integer,ResourceLocation> defaultModelSource) { return withModels(() -> item,modelCount,defaultModelSource); }
-    public static VariantItemWrapper withModels(Supplier<Item> item, int modelCount, Function<Integer,ResourceLocation> defaultModelSource) { return new WithModels(item,modelCount,defaultModelSource); }
+    public static VariantItemWrapper withModels(Supplier<? extends Item> item, int modelCount, Function<Integer,ResourceLocation> defaultModelSource) { return new WithModels(item,modelCount,defaultModelSource); }
 
     public Item getItem() { return this.item.get(); }
     @Override
@@ -33,7 +33,7 @@ public class VariantItemWrapper implements IVariantItem {
     {
         private final int modelCount;
         private final Function<Integer,ResourceLocation> defaultModelSource;
-        protected WithModels(Supplier<Item> item, int modelCount, Function<Integer,ResourceLocation> defaultModelSource) {
+        protected WithModels(Supplier<? extends Item> item, int modelCount, Function<Integer,ResourceLocation> defaultModelSource) {
             super(item);
             this.modelCount = modelCount;
             if(this.modelCount <= 0)

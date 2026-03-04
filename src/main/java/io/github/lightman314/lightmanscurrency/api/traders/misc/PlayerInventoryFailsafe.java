@@ -4,13 +4,11 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.value.IItemBasedValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
+import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyHolder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
-
-import javax.annotation.Nonnull;
 
 public class PlayerInventoryFailsafe implements IMoneyHolder {
 
@@ -19,9 +17,8 @@ public class PlayerInventoryFailsafe implements IMoneyHolder {
     private final Player player;
     public PlayerInventoryFailsafe(Player player) { this.player = player; }
 
-    @Nonnull
     @Override
-    public MoneyValue insertMoney(@Nonnull MoneyValue insertAmount, boolean simulation) {
+    public MoneyValue insertMoney(MoneyValue insertAmount, boolean simulation) {
         if(insertAmount instanceof IItemBasedValue value)
         {
             //Give all money items to the player
@@ -35,14 +32,10 @@ public class PlayerInventoryFailsafe implements IMoneyHolder {
         return insertAmount;
     }
 
-    @Nonnull
     @Override
-    public MoneyValue extractMoney(@Nonnull MoneyValue extractAmount, boolean simulation) { return extractAmount; }
-
+    public MoneyValue extractMoney(MoneyValue extractAmount, boolean simulation) { return extractAmount; }
     @Override
-    public boolean isMoneyTypeValid(@Nonnull MoneyValue value) { return value instanceof IItemBasedValue; }
-
-    @Nonnull
+    public boolean isMoneyTypeValid(MoneyValue value) { return value instanceof IItemBasedValue; }
     @Override
     public MoneyView getStoredMoney() { return MoneyView.empty(); }
 

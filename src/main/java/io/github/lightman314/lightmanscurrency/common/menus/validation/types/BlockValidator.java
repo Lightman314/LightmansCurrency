@@ -44,7 +44,7 @@ public class BlockValidator extends MenuValidator {
 
     private static final class Type extends MenuValidatorType
     {
-        private Type() { super(VersionUtil.lcResource("block")); }
+        private Type() { super(LightmansCurrency.id("block")); }
         @Nonnull
         @Override
         public MenuValidator decode(@Nonnull FriendlyByteBuf buffer) { return of(buffer.readBlockPos(), BuiltInRegistries.BLOCK.get(VersionUtil.parseResource(buffer.readUtf()))); }

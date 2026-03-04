@@ -77,14 +77,14 @@ public abstract class ConfigFileOption {
         @Override
         public void onSelectionScreenOpened(Minecraft minecraft) {
             if(this.requiresServerTracking(minecraft))
-                new CPacketTrackServerFile(this.file.getFileID(),true).send();
+                new CPacketTrackServerFile(this.file.getFileID(),true).sendToServer();
         }
 
         @Override
         public void onSelectionScreenClosed(Minecraft minecraft) {
             if(this.requiresServerTracking(minecraft))
             {
-                new CPacketTrackServerFile(this.file.getFileID(),false).send();
+                new CPacketTrackServerFile(this.file.getFileID(),false).sendToServer();
                 //Clear the synced data
                 this.file.clearSyncedData();
             }
@@ -104,7 +104,7 @@ public abstract class ConfigFileOption {
                     //Send sync packet
                     String parsedNewValue = option.writeUnsafe(newValue);
                     if(parsedNewValue != null)
-                        new CPacketEditConfig(this.file.getFileID(),option.getFullName(),parsedNewValue).send();
+                        new CPacketEditConfig(this.file.getFileID(),option.getFullName(),parsedNewValue).sendToServer();
                     else
                         LightmansCurrency.LogWarning("Unable to send config change packet to the server!");
                 }

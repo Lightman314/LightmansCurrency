@@ -11,7 +11,7 @@ import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.text.DualTextEntry;
-import io.github.lightman314.lightmanscurrency.common.villager_merchant.CustomProfessions;
+import io.github.lightman314.lightmanscurrency.common.core.ModProfessions;
 import io.github.lightman314.lightmanscurrency.datagen.util.EmptyHolder;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
@@ -24,7 +24,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.item.Item;
@@ -95,7 +94,7 @@ public class LCCurrencyAdvancements implements AdvancementProvider.AdvancementGe
         AdvancementHolder bankerVillager = save(consumer,Builder.advancement()
                         .parent(atm)
                         .display(ezDisplay(ModBlocks.COINBLOCK_NETHERITE,LCText.ADVANCEMENT_BANKER_TRADE,AdvancementType.GOAL,true,true,false))
-                        .addCriterion("banker_trade",ezVillagerTrigger(CustomProfessions.BANKER))
+                        .addCriterion("banker_trade",ezVillagerTrigger(ModProfessions.BANKER))
                 ,"currency/banker_trade");
         //Coin Mint
         AdvancementHolder coinMint = save(consumer,Builder.advancement()
@@ -140,7 +139,7 @@ public class LCCurrencyAdvancements implements AdvancementProvider.AdvancementGe
         AdvancementHolder cashierVilager = save(consumer,Builder.advancement()
                         .parent(cashRegister)
                         .display(ezDisplay(Items.ENCHANTED_BOOK,LCText.ADVANCEMENT_CASHIER_TRADE,AdvancementType.GOAL,true,true,false))
-                        .addCriterion("cashier_trade",ezVillagerTrigger(CustomProfessions.CASHIER))
+                        .addCriterion("cashier_trade",ezVillagerTrigger(ModProfessions.CASHIER))
                 ,"currency/cashier_trade");
         //Sus Jar
         AdvancementHolder susJar = save(consumer,Builder.advancement()
@@ -155,7 +154,7 @@ public class LCCurrencyAdvancements implements AdvancementProvider.AdvancementGe
                 .parent(mfp)
                 .display(ezDisplay(AncientCoinType.GOLD.asItem(),LCText.ADVANCEMENT_ANCIENT_COIN, AdvancementType.GOAL, true, true, true))
                 .addCriterion("ancient_coin", ezItemTrigger(ModItems.COIN_ANCIENT.get()))
-                .rewards(AdvancementRewards.Builder.function(VersionUtil.lcResource("unlock_ancient_coins"))),
+                .rewards(AdvancementRewards.Builder.function(LightmansCurrency.id("unlock_ancient_coins"))),
                 "currency/ancient_coin");
 
         //Events
@@ -163,7 +162,7 @@ public class LCCurrencyAdvancements implements AdvancementProvider.AdvancementGe
                         .parent(mfp)
                         .display(ezDisplay(ModItems.COIN_CHOCOLATE_COPPER,LCText.ADVANCEMENT_EVENT_CHOCOLATE, AdvancementType.CHALLENGE,true,false,true))
                         .addCriterion("has_coins",ezItemTrigger(LCTags.Items.EVENT_COIN_CHOCOLATE))
-                        .rewards(AdvancementRewards.Builder.function(VersionUtil.lcResource("unlock_chocolate")))
+                        .rewards(AdvancementRewards.Builder.function(LightmansCurrency.id("unlock_chocolate")))
                 ,"currency/events/chocolate_coins");
         AdvancementHolder christmas = save(consumer,Builder.advancement()
                         .parent(chocolateCoins)
@@ -229,7 +228,7 @@ public class LCCurrencyAdvancements implements AdvancementProvider.AdvancementGe
     }
 
     private AdvancementHolder save(@Nonnull Consumer<AdvancementHolder> consumer, @Nonnull Advancement.Builder builder, @Nonnull String id) {
-        AdvancementHolder a = builder.build(VersionUtil.lcResource(id));
+        AdvancementHolder a = builder.build(LightmansCurrency.id(id));
         consumer.accept(a);
         return a;
     }

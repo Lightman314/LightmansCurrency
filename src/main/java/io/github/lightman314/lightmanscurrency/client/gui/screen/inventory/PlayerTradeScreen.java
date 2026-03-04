@@ -2,42 +2,40 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
-import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.money.client.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.client.gui.EasyMenuScreen;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
-import io.github.lightman314.lightmanscurrency.network.message.playertrading.CPacketPlayerTradeInteraction;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Items;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> implements IScrollable {
 
-    public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/player_trading.png");
-    public static final ResourceLocation GUI_CHAT_TEXTURE = VersionUtil.lcResource("textures/gui/container/player_trading_chat.png");
-    public static final ResourceLocation GUI_MONEY_TEXTURE = VersionUtil.lcResource("textures/gui/container/player_trading_money.png");
+    public static final ResourceLocation GUI_TEXTURE = LightmansCurrency.id("textures/gui/container/player_trading.png");
+    public static final ResourceLocation GUI_CHAT_TEXTURE = LightmansCurrency.id("textures/gui/container/player_trading_chat.png");
+    public static final ResourceLocation GUI_MONEY_TEXTURE = LightmansCurrency.id("textures/gui/container/player_trading_money.png");
 
     private int scroll = 0;
     private static final int CHAT_ROWS = 11;
@@ -59,7 +57,7 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> implement
 
     private final List<FormattedCharSequence> chatHistory = new ArrayList<>();
 
-    private void setShaderColorForState(@Nonnull EasyGuiGraphics gui, int state) {
+    private void setShaderColorForState(EasyGuiGraphics gui, int state) {
         switch (state) {
             case 1 -> gui.setColor(0f, 1f, 1f);
             case 2 -> gui.setColor(0f, 1f, 0f);
@@ -74,7 +72,7 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> implement
     }
 
     @Override
-    protected void renderBG(@Nonnull EasyGuiGraphics gui)
+    protected void renderBG(EasyGuiGraphics gui)
     {
         gui.resetColor();
 
@@ -224,27 +222,29 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> implement
     }
 
     private void onValueChanged(MoneyValue newValue) {
-        CompoundTag message = new CompoundTag();
         MoneyView availableFunds = this.menu.getAvailableFunds();
         if(!availableFunds.containsValue(newValue))
         {
             newValue = availableFunds.valueOf(newValue.getUniqueName());
             this.valueInput.changeValue(newValue);
         }
-        message.put("ChangeMoney", newValue.save());
-        new CPacketPlayerTradeInteraction(this.menu.tradeID, message).send();
+        this.sendInteraction(this.builder()
+                .setMoneyValue("ChangeMoney",newValue));
     }
 
     private void OnPropose(EasyButton button) {
-        CompoundTag message = new CompoundTag();
-        message.putBoolean("TogglePropose", true);
-        new CPacketPlayerTradeInteraction(this.menu.tradeID, message).send();
+        this.sendInteraction(this.builder()
+                .setBoolean("TogglePropose",true));
     }
 
     private void OnAccept(EasyButton button) {
-        CompoundTag message = new CompoundTag();
-        message.putBoolean("ToggleActive", true);
-        new CPacketPlayerTradeInteraction(this.menu.tradeID, message).send();
+        this.sendInteraction(this.builder()
+                .setBoolean("ToggleActive",true));
+    }
+
+    private void sendInteraction(LazyPacketData.Builder builder)
+    {
+        this.menu.SendMessage(this.builder().setMap("Interaction",builder));
     }
 
     private void ToggleMoneyMode(EasyButton button) {
@@ -277,7 +277,7 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> implement
             this.menu.showSlots();
     }
 
-    private void receiveChat(@Nonnull Component chat)
+    private void receiveChat(Component chat)
     {
         //Split the message into multiple lines so that scrolling doesn't have to factor in message size
         List<FormattedCharSequence> newLines = this.font.split(chat, this.getXSize() - 14);

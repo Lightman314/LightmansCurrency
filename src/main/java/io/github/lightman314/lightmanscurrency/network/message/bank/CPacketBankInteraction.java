@@ -4,16 +4,19 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.bank.menu.IBankAccountMenu;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import javax.annotation.Nonnull;
-
 public class CPacketBankInteraction extends ClientToServerPacket {
 
-	private static final Type<CPacketBankInteraction> TYPE = new Type<>(VersionUtil.lcResource("c_bank_interaction"));
+	private static final Type<CPacketBankInteraction> TYPE = cType("bank_interaction");
+    private static final StreamCodec<RegistryFriendlyByteBuf,CPacketBankInteraction> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.BOOL,p -> p.isDeposit,
+            MoneyValue.STREAM_CODEC,p -> p.amount,
+            CPacketBankInteraction::new);
 	public static final Handler<CPacketBankInteraction> HANDLER = new H();
 
 	boolean isDeposit;
@@ -24,24 +27,18 @@ public class CPacketBankInteraction extends ClientToServerPacket {
 		this.isDeposit = isDeposit;
 		this.amount = amount;
 	}
-	
-	private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull CPacketBankInteraction message) {
-		buffer.writeBoolean(message.isDeposit);
-		message.amount.encode(buffer);
-	}
-	private static CPacketBankInteraction decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketBankInteraction(buffer.readBoolean(), MoneyValue.decode(buffer)); }
 
 	private static final class H extends Handler<CPacketBankInteraction>
 	{
-		private H() { super(TYPE, easyCodec(CPacketBankInteraction::encode,CPacketBankInteraction::decode)); }
+		private H() { super(TYPE,STREAM_CODEC); }
 		@Override
-		protected void handle(@Nonnull CPacketBankInteraction message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+		protected void handle(CPacketBankInteraction message, IPayloadContext context, Player player) {
 			if(player.containerMenu instanceof IBankAccountMenu menu)
 			{
 				if(message.isDeposit)
-					BankAPI.getApi().BankDeposit(menu, message.amount);
+					BankAPI.getApi().BankDeposit(menu,message.amount);
 				else
-					BankAPI.getApi().BankWithdraw(menu, message.amount);
+					BankAPI.getApi().BankWithdraw(menu,message.amount);
 				menu.onDepositOrWithdraw();
 			}
 		}

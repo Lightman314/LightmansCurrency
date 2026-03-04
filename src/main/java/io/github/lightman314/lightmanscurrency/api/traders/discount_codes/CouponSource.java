@@ -5,20 +5,15 @@ import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.items.CouponItem;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.function.Consumer;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class CouponSource implements IDiscountCodeSource {
 
     private final IItemHandler container;
@@ -43,7 +38,7 @@ public class CouponSource implements IDiscountCodeSource {
         for(int i = 0; i < this.container.getSlots(); ++i)
         {
             ItemStack item = container.getStackInSlot(i);
-            if(InventoryUtil.ItemHasTag(item, LCTags.Items.COUPONS))
+            if(item.is(LCTags.Items.COUPONS))
             {
                 //Check coupon code (leaving seperate for 1.20 rewrite)
                 temp.add(CouponItem.GetCouponCode(item));
@@ -56,7 +51,7 @@ public class CouponSource implements IDiscountCodeSource {
     {
         if(item.isEmpty())
             return false;
-        if(InventoryUtil.ItemHasTag(item, LCTags.Items.COUPONS))
+        if(item.is(LCTags.Items.COUPONS))
         {
             //Check coupon code (leaving seperate for 1.20 rewrite)
             return code == CouponItem.GetCouponCode(item);
@@ -71,7 +66,7 @@ public class CouponSource implements IDiscountCodeSource {
         for(int i = 0; i < this.container.getSlots(); ++i)
         {
             ItemStack item = this.container.getStackInSlot(i).copy();
-            if(InventoryUtil.ItemHasTag(item, LCTags.Items.COUPONS))
+            if(item.is(LCTags.Items.COUPONS))
             {
                 int c = CouponItem.GetCouponCode(item);
                 if(hash == c)

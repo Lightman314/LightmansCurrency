@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.traders.terminal;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.TerminalSortType;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.types.SortByID;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;

@@ -7,27 +7,23 @@ import java.util.function.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.ATMIconData;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin.ATMItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin.SimpleArrowIcon;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.builtin.SimpleArrowIcon.ArrowType;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.level.ItemLike;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class ATMExchangeButtonData {
 
 	public final ScreenPosition position;
@@ -37,9 +33,9 @@ public class ATMExchangeButtonData {
 	private final List<ATMIconData> icons;
 	public ImmutableList<ATMIconData> getIcons() { return ImmutableList.copyOf(this.icons); }
 	
-	public static ATMExchangeButtonData parse(JsonObject data, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException { return new ATMExchangeButtonData(data,lookup); }
+	public static ATMExchangeButtonData parse(JsonObject data,DataContext<JsonElement> context) throws JsonSyntaxException, ResourceLocationException { return new ATMExchangeButtonData(data,context); }
 	
-	private ATMExchangeButtonData(JsonObject data, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
+	private ATMExchangeButtonData(JsonObject data,DataContext<JsonElement> context) throws JsonSyntaxException, ResourceLocationException {
 		this.position = ScreenPosition.of(GsonHelper.getAsInt(data, "x"), GsonHelper.getAsInt(data,"y"));
 		this.width = GsonHelper.getAsInt(data,"width");
 		this.height = GsonHelper.getAsInt(data,"height",18);
@@ -55,7 +51,7 @@ public class ATMExchangeButtonData {
 			{
 				try {
 					JsonObject iconData = iconListData.get(i).getAsJsonObject();
-					this.icons.add(ATMAPI.parseIcon(iconData,lookup));
+					this.icons.add(ATMAPI.parseIcon(iconData,context));
 				} catch(JsonSyntaxException | ResourceLocationException e) { LightmansCurrency.LogError("Error parsing ATM Icon #" + (i + 1) + ".", e);}
 			}
 		}
@@ -74,7 +70,7 @@ public class ATMExchangeButtonData {
 		this.icons = icons;
 	}
 
-	public JsonObject save(HolderLookup.Provider lookup) {
+	public JsonObject save(DataContext<JsonElement> context) {
 		JsonObject data = new JsonObject();
 		
 		data.addProperty("x", this.position.x);
@@ -85,7 +81,7 @@ public class ATMExchangeButtonData {
 		
 		JsonArray iconListData = new JsonArray();
 		for (ATMIconData icon : this.icons)
-			iconListData.add(icon.save(lookup));
+			iconListData.add(icon.save(context));
 		data.add("icons", iconListData);
 		
 		return data;
@@ -135,17 +131,17 @@ public class ATMExchangeButtonData {
 	private static ATMExchangeButtonData exchangeAllUpDefault() {
 		return new ATMExchangeButtonData(5, 34, 82, "exchangeAllUp",
 			Lists.newArrayList(
-				new ItemIcon(-2,1,ModItems.COIN_COPPER.get()),
+				new ATMItemIcon(-2,1,ModItems.COIN_COPPER.get()),
 				new SimpleArrowIcon(10,6,ArrowType.RIGHT),
-				new ItemIcon(12,1,ModItems.COIN_IRON.get()),
+				new ATMItemIcon(12,1,ModItems.COIN_IRON.get()),
 				new SimpleArrowIcon(24,6,ArrowType.RIGHT),
-				new ItemIcon(26,1,ModItems.COIN_GOLD.get()),
+				new ATMItemIcon(26,1,ModItems.COIN_GOLD.get()),
 				new SimpleArrowIcon(38,6,ArrowType.RIGHT),
-				new ItemIcon(40,1,ModItems.COIN_EMERALD.get()),
+				new ATMItemIcon(40,1,ModItems.COIN_EMERALD.get()),
 				new SimpleArrowIcon(52,6,ArrowType.RIGHT),
-				new ItemIcon(54,1,ModItems.COIN_DIAMOND.get()),
+				new ATMItemIcon(54,1,ModItems.COIN_DIAMOND.get()),
 				new SimpleArrowIcon(66,6,ArrowType.RIGHT),
-				new ItemIcon(68,1,ModItems.COIN_NETHERITE.get())
+				new ATMItemIcon(68,1,ModItems.COIN_NETHERITE.get())
 			)
 		);
 	}
@@ -153,17 +149,17 @@ public class ATMExchangeButtonData {
 	private static ATMExchangeButtonData exchangeAllUpChocolate() {
 		return new ATMExchangeButtonData(5, 34, 82, "exchangeAllUp",
 				Lists.newArrayList(
-						new ItemIcon(-2,1,ModItems.COIN_CHOCOLATE_COPPER.get()),
+						new ATMItemIcon(-2,1,ModItems.COIN_CHOCOLATE_COPPER.get()),
 						new SimpleArrowIcon(10,6,ArrowType.RIGHT),
-						new ItemIcon(12,1,ModItems.COIN_CHOCOLATE_IRON.get()),
+						new ATMItemIcon(12,1,ModItems.COIN_CHOCOLATE_IRON.get()),
 						new SimpleArrowIcon(24,6,ArrowType.RIGHT),
-						new ItemIcon(26,1,ModItems.COIN_CHOCOLATE_GOLD.get()),
+						new ATMItemIcon(26,1,ModItems.COIN_CHOCOLATE_GOLD.get()),
 						new SimpleArrowIcon(38,6,ArrowType.RIGHT),
-						new ItemIcon(40,1,ModItems.COIN_CHOCOLATE_EMERALD.get()),
+						new ATMItemIcon(40,1,ModItems.COIN_CHOCOLATE_EMERALD.get()),
 						new SimpleArrowIcon(52,6,ArrowType.RIGHT),
-						new ItemIcon(54,1,ModItems.COIN_CHOCOLATE_DIAMOND.get()),
+						new ATMItemIcon(54,1,ModItems.COIN_CHOCOLATE_DIAMOND.get()),
 						new SimpleArrowIcon(66,6,ArrowType.RIGHT),
-						new ItemIcon(68,1,ModItems.COIN_CHOCOLATE_NETHERITE.get())
+						new ATMItemIcon(68,1,ModItems.COIN_CHOCOLATE_NETHERITE.get())
 				)
 		);
 	}
@@ -171,17 +167,17 @@ public class ATMExchangeButtonData {
 	private static ATMExchangeButtonData exchangeAllDownDefault() {
 		return new ATMExchangeButtonData(89, 34, 82, "exchangeAllDown",
 			Lists.newArrayList(
-				new ItemIcon(-2,1,ModItems.COIN_NETHERITE.get()),
+				new ATMItemIcon(-2,1,ModItems.COIN_NETHERITE.get()),
 				new SimpleArrowIcon(10,6,ArrowType.RIGHT),
-				new ItemIcon(12,1,ModItems.COIN_DIAMOND.get()),
+				new ATMItemIcon(12,1,ModItems.COIN_DIAMOND.get()),
 				new SimpleArrowIcon(24,6,ArrowType.RIGHT),
-				new ItemIcon(26,1,ModItems.COIN_EMERALD.get()),
+				new ATMItemIcon(26,1,ModItems.COIN_EMERALD.get()),
 				new SimpleArrowIcon(38,6,ArrowType.RIGHT),
-				new ItemIcon(40,1,ModItems.COIN_GOLD.get()),
+				new ATMItemIcon(40,1,ModItems.COIN_GOLD.get()),
 				new SimpleArrowIcon(52,6,ArrowType.RIGHT),
-				new ItemIcon(54,1,ModItems.COIN_IRON.get()),
+				new ATMItemIcon(54,1,ModItems.COIN_IRON.get()),
 				new SimpleArrowIcon(66,6,ArrowType.RIGHT),
-				new ItemIcon(68,1,ModItems.COIN_COPPER.get())
+				new ATMItemIcon(68,1,ModItems.COIN_COPPER.get())
 			)
 		);
 	}
@@ -189,17 +185,17 @@ public class ATMExchangeButtonData {
 	private static ATMExchangeButtonData exchangeAllDownChocolate() {
 		return new ATMExchangeButtonData(89, 34, 82, "exchangeAllDown",
 				Lists.newArrayList(
-						new ItemIcon(-2,1,ModItems.COIN_CHOCOLATE_NETHERITE.get()),
+						new ATMItemIcon(-2,1,ModItems.COIN_CHOCOLATE_NETHERITE.get()),
 						new SimpleArrowIcon(10,6,ArrowType.RIGHT),
-						new ItemIcon(12,1,ModItems.COIN_CHOCOLATE_DIAMOND.get()),
+						new ATMItemIcon(12,1,ModItems.COIN_CHOCOLATE_DIAMOND.get()),
 						new SimpleArrowIcon(24,6,ArrowType.RIGHT),
-						new ItemIcon(26,1,ModItems.COIN_CHOCOLATE_EMERALD.get()),
+						new ATMItemIcon(26,1,ModItems.COIN_CHOCOLATE_EMERALD.get()),
 						new SimpleArrowIcon(38,6,ArrowType.RIGHT),
-						new ItemIcon(40,1,ModItems.COIN_CHOCOLATE_GOLD.get()),
+						new ATMItemIcon(40,1,ModItems.COIN_CHOCOLATE_GOLD.get()),
 						new SimpleArrowIcon(52,6,ArrowType.RIGHT),
-						new ItemIcon(54,1,ModItems.COIN_CHOCOLATE_IRON.get()),
+						new ATMItemIcon(54,1,ModItems.COIN_CHOCOLATE_IRON.get()),
 						new SimpleArrowIcon(66,6,ArrowType.RIGHT),
-						new ItemIcon(68,1,ModItems.COIN_CHOCOLATE_COPPER.get())
+						new ATMItemIcon(68,1,ModItems.COIN_CHOCOLATE_COPPER.get())
 				)
 		);
 	}
@@ -207,9 +203,9 @@ public class ATMExchangeButtonData {
 	private static ATMExchangeButtonData exchangeSingle(int x, int y, Supplier<? extends ItemLike> from, Supplier<? extends ItemLike> to, String command) {
 		return new ATMExchangeButtonData(x, y, 26, command,
 			Lists.newArrayList(
-				new ItemIcon(-2,1,from.get()),
+				new ATMItemIcon(-2,1,from.get()),
 				new SimpleArrowIcon(10,6,ArrowType.RIGHT),
-				new ItemIcon(12,1,to.get())
+				new ATMItemIcon(12,1,to.get())
 			)
 		);
 	}

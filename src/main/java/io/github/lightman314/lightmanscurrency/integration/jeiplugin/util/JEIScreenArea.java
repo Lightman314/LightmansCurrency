@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.integration.jeiplugin.util;
 
 import com.mojang.datafixers.util.Pair;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
+import io.github.lightman314.lightmanscurrency.api.client.gui.EasyMenuScreen;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import mezz.jei.api.gui.handlers.IGuiContainerHandler;

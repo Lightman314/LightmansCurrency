@@ -1,26 +1,21 @@
 package io.github.lightman314.lightmanscurrency.api.ownership;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
-import javax.annotation.Nonnull;
-import java.util.function.BiFunction;
+public abstract class OwnerType<T extends Owner> {
 
-public final class OwnerType {
+    public static final Codec<OwnerType<?>> CODEC = LCRegistries.OWNER_TYPES.byNameCodec();
+    public static final StreamCodec<RegistryFriendlyByteBuf,OwnerType<?>> STREAM_CODEC = ByteBufCodecs.registry(LCRegistries.OWNER_TYPE_KEY);
 
-    private final ResourceLocation type;
-    private final BiFunction<CompoundTag,HolderLookup.Provider,Owner> deserializer;
-    private OwnerType(@Nonnull ResourceLocation type, @Nonnull BiFunction<CompoundTag,HolderLookup.Provider,Owner> deserializer)
-    {
-        this.type = type;
-        this.deserializer = deserializer;
-    }
-    public static OwnerType create(@Nonnull ResourceLocation type, @Nonnull BiFunction<CompoundTag,HolderLookup.Provider,Owner> deserializer) { return new OwnerType(type,deserializer); }
-
-    @Nonnull
-    public ResourceLocation getID() { return this.type; }
-    @Nonnull
-    public Owner load(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) { return this.deserializer.apply(tag,lookup); }
+    public abstract Owner loadOldData(CompoundTag tag, HolderLookup.Provider lookup);
+    public abstract MapCodec<T> codec();
+    public abstract StreamCodec<? super RegistryFriendlyByteBuf,T> streamCodec();
 
 }

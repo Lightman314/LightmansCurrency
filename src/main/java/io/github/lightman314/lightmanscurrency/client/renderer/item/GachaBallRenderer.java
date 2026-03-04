@@ -2,10 +2,11 @@ package io.github.lightman314.lightmanscurrency.client.renderer.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.client.renderer.ItemRenderHelper;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.ItemTraderBlockEntityRenderer;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.items.data.ItemStackData;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -17,7 +18,7 @@ import net.minecraft.world.item.ItemStack;
 
 public class GachaBallRenderer {
 
-    public static final ModelResourceLocation MODEL = ModelResourceLocation.standalone(VersionUtil.lcResource("item/gacha_ball_model"));
+    public static final ModelResourceLocation MODEL = ModelResourceLocation.standalone(LightmansCurrency.id("item/gacha_ball_model"));
 
     public static void renderGachaBall(ItemStack ball, PoseStack pose, MultiBufferSource buffer, int lightLevel, int id)
     {
@@ -37,7 +38,7 @@ public class GachaBallRenderer {
             return;
 
         //Render the balls contents
-        ItemStack contents = ball.getOrDefault(ModDataComponents.GACHA_ITEM, ItemStackData.EMPTY).stack();
+        ItemStack contents = ball.getOrDefault(ModDataComponents.GACHA_ITEM,ItemStackData.EMPTY).stack();
         if(contents.isEmpty())
             return;
 
@@ -49,9 +50,7 @@ public class GachaBallRenderer {
         //Rotate
         pose.mulPose(ItemTraderBlockEntityRenderer.getRotation(0f));
 
-        float scale = LCConfig.CLIENT.itemScaleOverrides.get().getCustomScale(contents);
-        pose.scale(scale,scale,scale);
-        itemRenderer.renderStatic(contents,ItemDisplayContext.FIXED,lightLevel,OverlayTexture.NO_OVERLAY,pose,buffer,null,id);
+        ItemRenderHelper.renderItem(null,itemRenderer,contents,lightLevel,pose,buffer,id);
 
         pose.popPose();
 

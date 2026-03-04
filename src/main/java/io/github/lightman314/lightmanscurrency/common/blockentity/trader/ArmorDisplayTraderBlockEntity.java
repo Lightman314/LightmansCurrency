@@ -4,9 +4,12 @@ import java.util.List;
 import java.util.UUID;
 
 import io.github.lightman314.lightmanscurrency.api.filter.FilterAPI;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.api.filter.IItemTradeFilter;
+import io.github.lightman314.lightmanscurrency.common.traders.item.nodes.ItemStorageNode;
+import io.github.lightman314.lightmanscurrency.common.traders.item.nodes.ItemTradeNode;
+import io.github.lightman314.lightmanscurrency.common.traders.item.storage.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,9 +24,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDataArmor;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.EquipmentRestriction;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
+import io.github.lightman314.lightmanscurrency.common.traders.item.trade.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.trade.restrictions.EquipmentRestriction;
+import io.github.lightman314.lightmanscurrency.common.traders.item.trade.restrictions.ItemTradeRestriction;
 
 import javax.annotation.Nonnull;
 
@@ -112,9 +115,10 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 		if(armorStand != null)
 		{
 			TraderData data = this.getRawTraderData();
-			if(data instanceof ItemTraderData trader)
+            ItemTradeNode node = data.getNode(ItemTradeNode.TYPE);
+			if(node != null && data instanceof ItemTraderData trader)
 			{
-				List<ItemTradeData> trades = trader.getTradeData();
+				List<ItemTradeData> trades = node.getAllTrades();
 				for(int i = 0; i < 4 && i < trades.size(); i++)
 				{
 					ItemTradeData thisTrade = trades.get(i);
@@ -127,7 +131,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 					}
 					if(slot != null)
 					{
-						if(thisTrade.hasStock(trader) || trader.isCreative())
+						if(thisTrade.hasStock(trader) || trader.hasInfiniteStock())
 						{
 							ItemStack item = getDisplayItem(thisTrade,trader,0);
 							if(item.isEmpty())
@@ -151,7 +155,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
         {
             List<ItemStack> displayItems;
             if(trade.isSale() || trade.isBarter())
-                displayItems = filter.getDisplayableItems(internalItem,trader.getStorage());
+                displayItems = filter.getDisplayableItems(internalItem,trader.findNodeValue(ItemStorageNode.TYPE,ItemStorageNode::getStorage,new TraderItemStorage()));
             else
                 displayItems = filter.getDisplayableItems(internalItem,null);
             return ListUtil.randomItemFromList(displayItems,ItemStack.EMPTY);

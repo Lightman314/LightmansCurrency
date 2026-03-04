@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers.NormalBookRenderer;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.BookRestriction;
+import io.github.lightman314.lightmanscurrency.common.traders.item.trade.restrictions.BookRestriction;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -13,7 +13,6 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,9 +23,9 @@ public abstract class BookRenderer {
 
     private static final List<BookRendererGenerator> GENERATORS = new ArrayList<>();
 
-    public static void register(@Nonnull BookRendererGenerator generator) { GENERATORS.add(generator); }
+    public static void register(BookRendererGenerator generator) { GENERATORS.add(generator); }
 
-    public static BookRenderer GetRenderer(@Nonnull ItemStack bookStack) {
+    public static BookRenderer GetRenderer(ItemStack bookStack) {
         for(BookRendererGenerator generator : GENERATORS)
         {
             BookRenderer renderer = generator.createRendererForItem(bookStack);
@@ -39,7 +38,7 @@ public abstract class BookRenderer {
         return null;
     }
 
-    public abstract void render(BlockEntity blockEntity, float partialTicks, @Nonnull PoseStack pose, @Nonnull MultiBufferSource buffer, int lightLevel, int id);
+    public abstract void render(BlockEntity blockEntity, float partialTicks, PoseStack pose, MultiBufferSource buffer, int lightLevel, int id);
 
     protected final void renderModel(ModelResourceLocation modelResource, PoseStack pose, MultiBufferSource buffer, int lightLevel) {
         Minecraft mc = Minecraft.getInstance();

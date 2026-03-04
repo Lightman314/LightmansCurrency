@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.datagen.common.tags;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.villager_merchant.CustomPointsOfInterest;
+import io.github.lightman314.lightmanscurrency.common.core.ModPointsOfInterest;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.PoiTypeTagsProvider;
@@ -22,8 +22,8 @@ public class LCPoiTagProvider extends PoiTypeTagsProvider {
     protected void addTags(@Nonnull HolderLookup.Provider lookup) {
 
         this.tag(PoiTypeTags.ACQUIRABLE_JOB_SITE)
-                .add(CustomPointsOfInterest.BANKER_KEY)
-                .add(CustomPointsOfInterest.CASHIER_KEY);
+                .add(ModPointsOfInterest.BANKER_KEY)
+                .add(ModPointsOfInterest.CASHIER_KEY);
 
     }
 }

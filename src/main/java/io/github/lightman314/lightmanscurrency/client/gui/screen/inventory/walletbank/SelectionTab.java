@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.walletbank;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletBankScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountSelectionWidget;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
@@ -55,13 +55,13 @@ public class SelectionTab extends WalletBankTab {
 	
 	private void selectAccount(@Nonnull BankReference reference)
 	{
-		new CPacketSelectBankAccount(reference).send();
+		new CPacketSelectBankAccount(reference).sendToServer();
 	}
 	
 	private void PressPersonalAccount(EasyButton button)
 	{
 		BankReference account = PlayerBankReference.of(this.screen.getMenu().getPlayer());
-		new CPacketSelectBankAccount(account).send();
+		new CPacketSelectBankAccount(account).sendToServer();
 	}
 	
 	@Override

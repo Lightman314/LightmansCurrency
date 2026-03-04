@@ -1,0 +1,67 @@
+package io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs;
+
+import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.NumberUtil;
+
+import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+
+public final class FloatParser implements Function<String,Float>, Predicate<String> {
+
+    public static final FloatParser DEFAULT = builder().build();
+
+    private final Supplier<Float> minValue;
+    private final Supplier<Float> maxValue;
+    private final Supplier<Float> emptyValue;
+    private FloatParser(Builder builder)
+    {
+        this.minValue = builder.minValue;
+        this.maxValue = builder.maxValue;
+        this.emptyValue = builder.emptyValue;
+    }
+
+    @Override
+    public Float apply(String text) {
+        Float val = NumberUtil.GetFloatValue(text,this.emptyValue.get());
+        return val == null ? null : MathUtil.clamp(val,this.minValue.get(),this.maxValue.get());
+    }
+
+    @Override
+    public boolean test(String s) {
+        if(NumberUtil.IsFloat(s))
+        {
+            float value = this.apply(s);
+            return value >= this.minValue.get() && value <= this.maxValue.get();
+        }
+        return s.isEmpty();
+    }
+
+    public static Builder builder() { return new Builder(); }
+
+    public static class Builder
+    {
+        private Supplier<Float> minValue = () -> Float.MAX_VALUE * -1f;
+        private Supplier<Float> maxValue = () -> Float.MAX_VALUE;
+        private Supplier<Float> emptyValue = () -> null;
+        private Builder() {}
+
+        public Builder min(float minValue) { this.minValue = () -> minValue; return this; }
+        public Builder min(Supplier<Float> minValue) { this.minValue = Objects.requireNonNull(minValue); return this; }
+        public Builder max(float maxValue) { this.maxValue = () -> maxValue; return this; }
+        public Builder max(Supplier<Float> maxValue) { this.maxValue = Objects.requireNonNull(maxValue); return this; }
+        public Builder empty(float emptyValue) { this.emptyValue = () -> emptyValue; return this; }
+        public Builder empty(Supplier<Float> emptyValue) { this.emptyValue = Objects.requireNonNull(emptyValue); return this; }
+
+        private FloatParser build() { return new FloatParser(this); }
+        public Consumer<TextInputUtil.Builder<Float>> consumer() {
+            return b -> {
+                FloatParser result = this.build();
+                b.parser(result).filter(result);
+            };
+        }
+    }
+
+}

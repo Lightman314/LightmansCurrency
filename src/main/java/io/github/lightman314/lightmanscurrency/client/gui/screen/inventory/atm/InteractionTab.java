@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
-import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
+import io.github.lightman314.lightmanscurrency.api.money.client.input.MoneyValueWidget;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.bank.BankInteractionWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.bank.IBankInteractionHandler;

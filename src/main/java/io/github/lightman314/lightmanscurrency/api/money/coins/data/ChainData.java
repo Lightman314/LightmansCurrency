@@ -3,11 +3,13 @@ package io.github.lightman314.lightmanscurrency.api.money.coins.data;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.events.BuildDefaultMoneyDataEvent;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEntry;
@@ -27,7 +29,6 @@ import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -40,7 +41,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.ItemLike;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -62,15 +62,14 @@ public class ChainData {
     private final ValueDisplayData displayData;
     public ValueDisplayData getDisplayData() { return this.displayData; }
 
-    public boolean isVisibleTo(@Nonnull Player player) { return !this.isEvent || EventUnlocks.isUnlocked(player, this.chain) || LCAdminMode.isAdminPlayer(player); }
+    public boolean isVisibleTo(Player player) { return !this.isEvent || EventUnlocks.isUnlocked(player, this.chain) || LCAdminMode.isAdminPlayer(player); }
 
     private final ATMData atmData;
     public boolean hasATMData() { return this.atmData != null && !this.atmData.getExchangeButtons().isEmpty(); }
-    @Nonnull
     public ATMData getAtmData() { return this.atmData; }
-    @Nonnull
-    public MutableComponent formatValue(@Nonnull CoinValue value, @Nonnull MutableComponent empty) { return this.displayData.formatValue(value, empty); }
-    public void formatCoinTooltip(@Nonnull ItemStack stack, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag) {
+    
+    public Component formatValue(CoinValue value, Component empty) { return this.displayData.formatValue(value, empty); }
+    public void formatCoinTooltip(ItemStack stack, List<Component> tooltip, TooltipFlag flag) {
         this.displayData.formatCoinTooltip(stack, tooltip);
         if(flag.isAdvanced())
         {
@@ -92,7 +91,7 @@ public class ChainData {
     private final Map<ResourceLocation,CoinEntry> itemIdToEntryMap;
     private final List<CoinEntry> allEntryList;
 
-    protected ChainData(@Nonnull Builder builder)
+    protected ChainData(Builder builder)
     {
         this.chain = builder.chain;
         this.displayName = builder.displayName;
@@ -119,7 +118,7 @@ public class ChainData {
         this.cacheCoinExchanges();
     }
 
-    protected ChainData(@Nonnull List<CoinEntry> existingEntries, @Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException
+    protected ChainData(List<CoinEntry> existingEntries,JsonObject json,DataContext<JsonElement> context) throws JsonSyntaxException, ResourceLocationException
     {
         this.chain = GsonHelper.getAsString(json, "chain");
         if(this.chain.equalsIgnoreCase("null"))
@@ -204,7 +203,7 @@ public class ChainData {
 
         //Load ATM Data
         if(json.has("ATMData"))
-            this.atmData = ATMData.parse(GsonHelper.getAsJsonObject(json, "ATMData"), this, lookup);
+            this.atmData = ATMData.parse(GsonHelper.getAsJsonObject(json, "ATMData"),this,context);
         else
             this.atmData = ATMData.builder(null).build(this);
 
@@ -255,7 +254,7 @@ public class ChainData {
         }
     }
 
-    public JsonObject getAsJson(@Nonnull HolderLookup.Provider lookup)
+    public JsonObject getAsJson(DataContext<JsonElement> context)
     {
         JsonObject json = new JsonObject();
         //Write base data
@@ -290,16 +289,16 @@ public class ChainData {
 
         //Write ATM Data
         if(!this.atmData.getExchangeButtons().isEmpty())
-            json.add("ATMData", this.atmData.save(lookup));
+            json.add("ATMData", this.atmData.save(context));
 
         return json;
     }
 
-    public boolean containsEntry(@Nonnull ItemStack item)  { return findEntry(item) != null; }
-    public boolean containsEntry(@Nonnull Item item)  { return findEntry(item) != null; }
+    public boolean containsEntry(ItemStack item)  { return findEntry(item) != null; }
+    public boolean containsEntry(Item item)  { return findEntry(item) != null; }
 
     @Nullable
-    public CoinEntry findMatchingEntry(@Nonnull CoinEntry entry)
+    public CoinEntry findMatchingEntry(CoinEntry entry)
     {
         for(CoinEntry e : this.getAllEntries(true))
         {
@@ -310,9 +309,9 @@ public class ChainData {
     }
 
     @Nullable
-    public CoinEntry findEntry(@Nonnull ItemStack item) { return this.findEntry(item.getItem()); }
+    public CoinEntry findEntry(ItemStack item) { return this.findEntry(item.getItem()); }
     @Nullable
-    public CoinEntry findEntry(@Nonnull Item item) { return this.itemIdToEntryMap.get(BuiltInRegistries.ITEM.getKey(item)); }
+    public CoinEntry findEntry(Item item) { return this.itemIdToEntryMap.get(BuiltInRegistries.ITEM.getKey(item)); }
 
     /**
      * Returns a list of all entries.
@@ -320,8 +319,8 @@ public class ChainData {
      * @param sorter How you'd like the list to be sorted.
      * @return Array List copy of the coin entry list. Not immutable so that it can be sorted again later.
      */
-    @Nonnull
-    public List<CoinEntry> getAllEntries(boolean includeSideChains, @Nonnull Comparator<CoinEntry> sorter)
+    
+    public List<CoinEntry> getAllEntries(boolean includeSideChains, Comparator<CoinEntry> sorter)
     {
         List<CoinEntry> list = this.getAllEntries(includeSideChains);
         list.sort(sorter);
@@ -333,7 +332,7 @@ public class ChainData {
      * @param includeSideChains Whether coins from side-chains should be included in the list.
      * @return Array List copy of the coin entry list. Not immutable so that it can be sorted later.
      */
-    @Nonnull
+    
     public List<CoinEntry> getAllEntries(boolean includeSideChains)
     {
         if(includeSideChains)
@@ -345,24 +344,24 @@ public class ChainData {
      * Used by {@link io.github.lightman314.lightmanscurrency.client.gui.screen.config.master_coin_list.data.MutableChainData MutableChainData} to copy the core chains data into an editable format.<br>
      * Result is Immutable and cannot be edited or sorted.
      */
-    @Nonnull
+    
     public List<CoinEntry> getCoreChain() { return this.coreChain; }
     /**
      * Used by {@link io.github.lightman314.lightmanscurrency.client.gui.screen.config.master_coin_list.data.MutableChainData MutableChainData} to copy the side chains data into an editable format.<br>
      * Result is Immutable and cannot be edited or sorted.
      */
-    @Nonnull
+    
     public List<List<CoinEntry>> getSideChains() { return this.sideChains; }
 
     /**
      * Returns the internal value of the given item stack
      * Ignores the items count when doing this calculation.
      */
-    public long getCoreValue(@Nonnull ItemStack item) { return this.getCoreValue(item.getItem()); }
+    public long getCoreValue(ItemStack item) { return this.getCoreValue(item.getItem()); }
     /**
      * Returns the internal value of the given item
      */
-    public long getCoreValue(@Nonnull Item item)
+    public long getCoreValue(Item item)
     {
         CoinEntry entry = this.findEntry(item);
         if(entry == null)
@@ -412,7 +411,7 @@ public class ChainData {
     }
 
     @Nullable
-    public Pair<CoinEntry,Integer> getLowerExchange(@Nonnull Item item)
+    public Pair<CoinEntry,Integer> getLowerExchange(Item item)
     {
         CoinEntry entry = this.findEntry(item);
         if(entry == null)
@@ -425,10 +424,10 @@ public class ChainData {
      */
     @Nullable
     @Deprecated(since = "2.2.0.4")
-    public Pair<CoinEntry,Integer> getLowerExchange(@Nonnull CoinEntry entry) { return entry.getLowerExchange(); }
+    public Pair<CoinEntry,Integer> getLowerExchange(CoinEntry entry) { return entry.getLowerExchange(); }
 
     @Nullable
-    public Pair<CoinEntry,Integer> getUpperExchange(@Nonnull Item item)
+    public Pair<CoinEntry,Integer> getUpperExchange(Item item)
     {
         CoinEntry entry = this.findEntry(item);
         if(entry == null)
@@ -441,9 +440,9 @@ public class ChainData {
      */
     @Nullable
     @Deprecated(since = "2.2.0.4")
-    public Pair<CoinEntry,Integer> getUpperExchange(@Nonnull CoinEntry entry) { return entry.getUpperExchange(); }
+    public Pair<CoinEntry,Integer> getUpperExchange(CoinEntry entry) { return entry.getUpperExchange(); }
 
-    private static void validateNoDuplicateCoins(@Nonnull CoinEntry newEntry, @Nonnull List<CoinEntry> existingEntries)
+    private static void validateNoDuplicateCoins(CoinEntry newEntry, List<CoinEntry> existingEntries)
     {
         for(CoinEntry entry : existingEntries)
         {
@@ -453,11 +452,11 @@ public class ChainData {
         existingEntries.add(newEntry);
     }
 
-    public static Builder builder(@Nonnull String chain) { return new Builder(BuildDefaultMoneyDataEvent.getExistingEntries(), chain, Component.translatable("lightmanscurrency.money.chain." + chain)); }
-    public static Builder builder(@Nonnull String chain, @Nonnull MutableComponent displayName) { return new Builder(BuildDefaultMoneyDataEvent.getExistingEntries(), chain, displayName); }
-    public static Builder builder(@Nonnull String chain, @Nonnull TextEntry displayName) { return new Builder(BuildDefaultMoneyDataEvent.getExistingEntries(), chain, displayName.get()); }
+    public static Builder builder(String chain) { return new Builder(BuildDefaultMoneyDataEvent.getExistingEntries(), chain, Component.translatable("lightmanscurrency.money.chain." + chain)); }
+    public static Builder builder(String chain, MutableComponent displayName) { return new Builder(BuildDefaultMoneyDataEvent.getExistingEntries(), chain, displayName); }
+    public static Builder builder(String chain, TextEntry displayName) { return new Builder(BuildDefaultMoneyDataEvent.getExistingEntries(), chain, displayName.get()); }
 
-    public static ChainData fromJson(@Nonnull List<CoinEntry> existingEntries, @Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException { return new ChainData(existingEntries, Objects.requireNonNull(json), lookup); }
+    public static ChainData fromJson(List<CoinEntry> existingEntries,JsonObject json,DataContext<JsonElement> context) throws JsonSyntaxException, ResourceLocationException { return new ChainData(existingEntries,Objects.requireNonNull(json),context); }
 
     public static class Builder
     {
@@ -477,17 +476,17 @@ public class ChainData {
 
         private final ATMData.Builder atmDataBuilder = ATMData.builder(this);
 
-        private void validateNoDuplicateEntries(@Nonnull CoinEntry newEntry) { validateNoDuplicateCoins(newEntry, this.existingEntries); }
+        private void validateNoDuplicateEntries(CoinEntry newEntry) { validateNoDuplicateCoins(newEntry, this.existingEntries); }
 
-        private Builder(@Nonnull List<CoinEntry> existingEntries, @Nonnull String chain, @Nonnull MutableComponent displayName) { this.chain = chain; this.displayName = displayName; this.existingEntries = existingEntries; latest = this; }
+        private Builder(List<CoinEntry> existingEntries, String chain, MutableComponent displayName) { this.chain = chain; this.displayName = displayName; this.existingEntries = existingEntries; latest = this; }
 
-        public Builder withDisplay(@Nonnull ValueDisplayData display) { this.displayData = display; return this; }
-        public Builder withInputType(@Nonnull CoinInputType inputType) { this.inputType = inputType; return this; }
+        public Builder withDisplay(ValueDisplayData display) { this.displayData = display; return this; }
+        public Builder withInputType(CoinInputType inputType) { this.inputType = inputType; return this; }
 
         public Builder asEvent() { this.isEvent = true; return this; }
 
-        public ChainBuilder withCoreChain(@Nonnull Supplier<? extends ItemLike> baseCoin) { return this.withCoreChain(baseCoin.get()); }
-        public ChainBuilder withCoreChain(@Nonnull ItemLike baseCoin)
+        public ChainBuilder withCoreChain(Supplier<? extends ItemLike> baseCoin) { return this.withCoreChain(baseCoin.get()); }
+        public ChainBuilder withCoreChain(ItemLike baseCoin)
         {
             if(this.coreChain != null)
                 throw new IllegalArgumentException("Core Chain has already been built!");
@@ -497,8 +496,8 @@ public class ChainData {
 
         public ChainBuilder getCoreChain() { if(this.coreChain == null) throw new IllegalArgumentException("Core Chain has not yet been built!"); return this.coreChain; }
 
-        public ChainBuilder withSideChain(@Nonnull Supplier<? extends ItemLike> baseCoin, int exchangeRate, @Nonnull Supplier<? extends ItemLike> parentCoin) { return this.withSideChain(baseCoin.get(), exchangeRate, parentCoin.get()); }
-        public ChainBuilder withSideChain(@Nonnull ItemLike baseCoin, int exchangeRate, @Nonnull ItemLike parentCoin) {
+        public ChainBuilder withSideChain(Supplier<? extends ItemLike> baseCoin, int exchangeRate, Supplier<? extends ItemLike> parentCoin) { return this.withSideChain(baseCoin.get(), exchangeRate, parentCoin.get()); }
+        public ChainBuilder withSideChain(ItemLike baseCoin, int exchangeRate, ItemLike parentCoin) {
             if(this.coreChain == null)
                 throw new IllegalArgumentException("Cannot build a side chain until the core chain has been built!");
 
@@ -522,10 +521,10 @@ public class ChainData {
 
         public ATMData.Builder atmBuilder() { return this.atmDataBuilder; }
 
-        public void apply(@Nonnull BuildDefaultMoneyDataEvent event) { event.addDefault(this);}
-        public void apply(@Nonnull BuildDefaultMoneyDataEvent event, boolean allowOverride) { event.addDefault(this, allowOverride);}
+        public void apply(BuildDefaultMoneyDataEvent event) { event.addDefault(this);}
+        public void apply(BuildDefaultMoneyDataEvent event, boolean allowOverride) { event.addDefault(this, allowOverride);}
 
-        @Nonnull
+        
         public ChainData build() { return new ChainData(this); }
 
         public static final class ChainBuilder
@@ -533,14 +532,14 @@ public class ChainData {
             private final Builder parent;
             private final List<CoinEntry> entries = new ArrayList<>();
 
-            private ChainBuilder(@Nonnull Builder parent, @Nonnull CoinEntry baseCoin)
+            private ChainBuilder(Builder parent, CoinEntry baseCoin)
             {
                 this.parent = parent;
                 this.parent.validateNoDuplicateEntries(baseCoin);
                 this.entries.add(baseCoin);
             }
-            public ChainBuilder withCoin(@Nonnull Supplier<? extends ItemLike> coin, int exchangeRate) { return this.withCoin(coin.get(), exchangeRate); }
-            public ChainBuilder withCoin(@Nonnull ItemLike coin, int exchangeRate) {
+            public ChainBuilder withCoin(Supplier<? extends ItemLike> coin, int exchangeRate) { return this.withCoin(coin.get(), exchangeRate); }
+            public ChainBuilder withCoin(ItemLike coin, int exchangeRate) {
                 CoinEntry newEntry = new MainCoinEntry(coin.asItem(), exchangeRate);
                 this.parent.validateNoDuplicateEntries(newEntry);
                 this.entries.add(newEntry);
@@ -553,7 +552,7 @@ public class ChainData {
 
     }
 
-    public static void addCoinTooltips(@Nonnull ItemStack stack, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag, @Nullable Player player)
+    public static void addCoinTooltips(ItemStack stack, List<Component> tooltip, TooltipFlag flag, @Nullable Player player)
     {
         ChainData chain = CoinAPI.getApi().ChainDataOfCoin(stack);
         if(chain != null)

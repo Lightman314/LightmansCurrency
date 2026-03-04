@@ -2,13 +2,13 @@ package io.github.lightman314.lightmanscurrency.util;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
-
-import javax.annotation.Nonnull;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
 public class EnumUtil {
-
-	@Nonnull
-	public static <T extends Enum<?>> Codec<T> buildCodec(@Nonnull Class<T> clazz, @Nonnull String name)
+    
+	public static <T extends Enum<?>> Codec<T> buildCodec(Class<T> clazz, String name)
 	{
 		return Codec.STRING.comapFlatMap(string -> {
 			T result = enumFromString(string,clazz.getEnumConstants(),null);
@@ -17,6 +17,16 @@ public class EnumUtil {
 			return DataResult.success(result);
 		},Enum::toString);
 	}
+
+    public static <T extends Enum<?>> StreamCodec<ByteBuf,T> streamCodec(Class<T> clazz,String name)
+    {
+        return ByteBufCodecs.INT.map(ordinal -> {
+            T result = enumFromOrdinal(ordinal,clazz.getEnumConstants(),null);
+            if(result == null)
+                throw new IllegalArgumentException(ordinal + " is not a valid " + name + " ordinal");
+            return result;
+        },Enum::ordinal);
+    }
 
     public static <T extends Enum<?>> T nextEnum(T value)
     {

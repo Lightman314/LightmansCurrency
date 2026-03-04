@@ -8,21 +8,27 @@ import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.ListLikeOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import javax.annotation.Nonnull;
 import java.util.Map;
 
 public class SPacketEditListConfig extends ServerToClientPacket {
 
-    private static final Type<SPacketEditListConfig> TYPE = new Type<>(VersionUtil.lcResource("s_config_edit_list"));
+    private static final Type<SPacketEditListConfig> TYPE = sType("config_edit_list");
+    private static final StreamCodec<ByteBuf,SPacketEditListConfig> STREAM_CODEC = StreamCodec.composite(
+            ResourceLocation.STREAM_CODEC,p -> p.fileID,
+            ByteBufCodecs.STRING_UTF8,p -> p.option,
+            ByteBufCodecs.STRING_UTF8,p -> p.input,
+            ByteBufCodecs.INT,p -> p.listIndex,
+            ByteBufCodecs.BOOL,p -> p.isEdit,
+            SPacketEditListConfig::new);
     public static final Handler<SPacketEditListConfig> HANDLER = new H();
-
 
     private final ResourceLocation fileID;
     private final String option;
@@ -30,7 +36,7 @@ public class SPacketEditListConfig extends ServerToClientPacket {
     private final int listIndex;
     private final boolean isEdit;
 
-    public SPacketEditListConfig(@Nonnull ResourceLocation fileID, @Nonnull String option, @Nonnull String input, int listIndex, boolean isEdit)
+    public SPacketEditListConfig(ResourceLocation fileID, String option, String input, int listIndex, boolean isEdit)
     {
         super(TYPE);
         this.fileID = fileID;
@@ -40,22 +46,11 @@ public class SPacketEditListConfig extends ServerToClientPacket {
         this.isEdit = isEdit;
     }
 
-    private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull SPacketEditListConfig message) {
-        buffer.writeResourceLocation(message.fileID);
-        buffer.writeUtf(message.option);
-        buffer.writeUtf(message.input);
-        buffer.writeInt(message.listIndex);
-        buffer.writeBoolean(message.isEdit);
-    }
-    private static SPacketEditListConfig decode(@Nonnull FriendlyByteBuf buffer) {
-        return new SPacketEditListConfig(buffer.readResourceLocation(),buffer.readUtf(), buffer.readUtf(), buffer.readInt(), buffer.readBoolean());
-    }
-
     private static class H extends Handler<SPacketEditListConfig>
     {
-        protected H() { super(TYPE, easyCodec(SPacketEditListConfig::encode,SPacketEditListConfig::decode)); }
+        protected H() { super(TYPE,STREAM_CODEC); }
         @Override
-        protected void handle(@Nonnull SPacketEditListConfig message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+        protected void handle(SPacketEditListConfig message, IPayloadContext context, Player player) {
             ConfigFile file = ConfigFile.lookupFile(message.fileID);
             if(file != null && file.isClientOnly())
             {

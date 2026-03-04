@@ -5,14 +5,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.IIndependentProperty;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperty;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.util.GsonHelper;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public record FreezerDoorData(float rotation, float hingeX, float hingeZ) implements IIndependentProperty {
 
     public static final VariantProperty<FreezerDoorData> PROPERTY = new Property();

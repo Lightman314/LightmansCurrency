@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.util;
 
-import com.mojang.datafixers.types.Func;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;

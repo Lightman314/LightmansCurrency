@@ -3,9 +3,10 @@ package io.github.lightman314.lightmanscurrency.api.traders.settings.builtin;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.settings.data.LoadContext;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.api.traders.settings.EasyTraderSettingsNode;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.AlliesNode;
+import io.github.lightman314.lightmanscurrency.api.traders.settings.EasyTraderNodeSettings;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -20,9 +21,9 @@ import java.util.function.Consumer;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class PermissionSettings extends EasyTraderSettingsNode<TraderData> {
+public class PermissionSettings extends EasyTraderNodeSettings<TraderData,AlliesNode> {
 
-    public PermissionSettings(TraderData trader) { super("permissions", trader, 500); }
+    public PermissionSettings(TraderData trader,AlliesNode node) { super("permissions", trader, node,500); }
 
     @Override
     public MutableComponent getName() { return LCText.DATA_CATEGORY_TRADER_ALLY_PERMS.get(); }
@@ -34,7 +35,7 @@ public class PermissionSettings extends EasyTraderSettingsNode<TraderData> {
     public void saveSettings(SavedSettingData.MutableNodeAccess data) {
         CompoundTag tag = new CompoundTag();
         ListTag permList = new ListTag();
-        this.trader.getAllyPermissionMap().forEach((key,level) -> {
+        this.node.getAllyPermissionsMap().forEach((key,level) -> {
             CompoundTag entry = new CompoundTag();
             entry.putString("perm",key);
             entry.putInt("level",level);
@@ -58,7 +59,7 @@ public class PermissionSettings extends EasyTraderSettingsNode<TraderData> {
                 int level = entry.getInt("level");
                 temp.put(key,level);
             }
-            this.trader.overwriteAllyPermissions(temp);
+            this.node.setAllyPermissions(temp);
         }
     }
 

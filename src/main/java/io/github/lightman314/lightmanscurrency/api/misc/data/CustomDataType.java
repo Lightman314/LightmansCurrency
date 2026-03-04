@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.api.misc.data;
 
 import io.github.lightman314.lightmanscurrency.common.data.ClientCustomDataCache;
 import io.github.lightman314.lightmanscurrency.common.data.CustomSaveData;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import net.minecraft.core.HolderLookup;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nullable;
@@ -20,7 +20,7 @@ public final class CustomDataType<T extends CustomData> {
     /**
      * Used to create a new instance of the data<br>
      * Called on both the logical server & the logical client<br>
-     * On the logical server {@link CustomData#load(CompoundTag, HolderLookup.Provider)} will be called to load the data if the data file already exists
+     * On the logical server {@link CustomData#load(CompoundTag,DataContext)} will be called to load the data if the data file already exists
      */
     public T create() { return this.constructor.get(); }
 

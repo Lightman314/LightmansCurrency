@@ -119,14 +119,14 @@ public class NotificationDataCache extends CustomData {
 
     private void syncNotifications(ServerPlayer player)
     {
-        this.sendSyncPacket(this.builder().setCompound("UpdateNotifications",this.getNotifications(player).save(LookupHelper.getRegistryAccess())).setUUID("Player",player.getUUID()),player);
+        this.sendSyncPacket(this.builder().setTag("UpdateNotifications",this.getNotifications(player).save(LookupHelper.getRegistryAccess())).setUUID("Player",player.getUUID()),player);
     }
 
     @Override
     protected void parseSyncPacket(LazyPacketData message, HolderLookup.Provider lookup) {
         if(message.contains("UpdateNotifications"))
         {
-            NotificationData data = NotificationData.loadFrom(message.getNBT("UpdateNotifications"),lookup).flagAsClient(this);
+            NotificationData data = NotificationData.loadFrom(message.getTag("UpdateNotifications"),lookup).flagAsClient(this);
             UUID player = message.getUUID("Player");
             this.playerNotifications.put(player,data);
         }

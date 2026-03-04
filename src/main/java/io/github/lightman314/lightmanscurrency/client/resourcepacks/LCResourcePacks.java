@@ -15,7 +15,6 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 
-import javax.annotation.Nonnull;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,11 +35,11 @@ public class LCResourcePacks {
         registerPack(LightmansCurrency.MODID, "FancyIcons",LCText.RESOURCE_PACK_FANCY_ICONS);
     }
 
-    public static void registerPack(@Nonnull String modid, @Nonnull String path, @Nonnull DualTextEntry text) { registerPack(new CustomResourcePack(modid,path,text.first.get())); }
+    public static void registerPack(String modid,String path,DualTextEntry text) { registerPack(new CustomResourcePack(modid,path,text.first.get())); }
 
-    public static void registerPack(@Nonnull String modid, @Nonnull String path, @Nonnull Component name) { registerPack(new CustomResourcePack(modid,path,name)); }
+    public static void registerPack(String modid,String path,Component name) { registerPack(new CustomResourcePack(modid,path,name)); }
 
-    public static void registerPack(@Nonnull CustomResourcePack pack) {
+    public static void registerPack(CustomResourcePack pack) {
         if(packList.contains(pack))
             return;
         packList.add(pack);
@@ -61,14 +60,14 @@ public class LCResourcePacks {
         private final String modid;
         private final String path;
         private final Component name;
-        public CustomResourcePack(@Nonnull String modid, @Nonnull String path, @Nonnull Component name)
+        public CustomResourcePack(String modid, String path, Component name)
         {
             this.modid = modid;
             this.path = path;
             this.name = name;
         }
 
-        public void addToRepository(@Nonnull Consumer<Pack> consumer)
+        public void addToRepository(Consumer<Pack> consumer)
         {
             Path resourcePath = ModList.get().getModFileById(this.modid).getFile().findResource(this.path);
             PackLocationInfo info = new PackLocationInfo("builtin/" + this.path, this.name, PackSource.BUILT_IN, Optional.empty());

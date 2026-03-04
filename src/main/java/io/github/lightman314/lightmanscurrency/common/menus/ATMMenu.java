@@ -3,9 +3,11 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
+import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
+import io.github.lightman314.lightmanscurrency.api.misc.item_handlers.LCItemStackHandler;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.salary.SalaryData;
@@ -16,20 +18,20 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 
+import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets;
 import io.github.lightman314.lightmanscurrency.common.data.types.BankDataCache;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,9 +40,9 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 
 	public Player getPlayer() { return this.player; }
 	
-	private final SimpleContainer coinInput = new SimpleContainer(9);
-	private final IMoneyHandler moneyHandler = MoneyAPI.getApi().GetATMMoneyHandler(this.player, this.coinInput);
-	public SimpleContainer getCoinInput() { return this.coinInput; }
+	private final LCItemStackHandler coinInput = new LCItemStackHandler(9);
+	private final IMoneyHandler moneyHandler = MoneyAPI.getApi().GetATMMoneyHandler(this.player,this.coinInput);
+	public IItemHandler getCoinInput() { return this.coinInput; }
 	public IMoneyHandler getMoneyHandler() { return this.moneyHandler; }
 	private final List<CoinSlot> coinSlots;
 	public List<CoinSlot> getCoinSlots() { return this.coinSlots; }
@@ -54,7 +56,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 
 		List<CoinSlot> temp = new ArrayList<>();
 		//Coin Slots
-		for(int x = 0; x < coinInput.getContainerSize(); x++)
+		for(int x = 0; x < this.coinInput.getSlots(); x++)
 		{
 			CoinSlot slot = new CoinSlot(this.coinInput, x, 8 + x * 18, 129, false);
 			this.addSlot(slot);
@@ -87,7 +89,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 	public void removed(Player player)
 	{
 		super.removed(player);
-		this.clearContainer(player,  this.coinInput);
+		this.clearContainer(player, this.coinInput);
 		if(!this.isClient())
 		{
 			BankReference account = this.getBankAccountReference();
@@ -114,15 +116,15 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 			ItemStack slotStack = slot.getItem();
 			clickedStack = slotStack.copy();
 			//Move items from the coin slots into the inventory
-			if(index < this.coinInput.getContainerSize())
+			if(index < this.coinInput.getSlots())
 			{
-				if(!this.moveItemStackTo(slotStack,  this.coinInput.getContainerSize(), this.slots.size(), true))
+				if(!this.moveItemStackTo(slotStack,  this.coinInput.getSlots(), this.slots.size(), true))
 				{
 					return ItemStack.EMPTY;
 				}
 			}
 			//Move items from the inventory into the coin slots
-			else if(!this.moveItemStackTo(slotStack, 0, this.coinInput.getContainerSize(), false))
+			else if(!this.moveItemStackTo(slotStack, 0, this.coinInput.getSlots(), false))
 			{
 				return ItemStack.EMPTY;
 			}
@@ -151,7 +153,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 	}
 
 	
-	public MutableComponent SetPlayerAccount(String playerName) {
+	public Component SetPlayerAccount(String playerName) {
 		
 		if(LCAdminMode.isAdminPlayer(this.player))
 		{
@@ -188,9 +190,33 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 	}
 
 	@Override
-	public void HandleMessage(LazyPacketData message) {
+	public void processMessage(LazyPacketData message) {
 		if(message.contains("ExchangeCoinCommand"))
 			this.ExchangeCoins(message.getString("ExchangeCoinCommand"));
+        if(message.contains("SetPlayerAccount"))
+        {
+            Component result = this.SetPlayerAccount(message.getString("SetPlayerAccount"));
+            if(result != null)
+                this.SendMessage(this.builder().setText("PlayerAccountResults",result));
+        }
+        if(message.contains("TransferToAccount") && message.contains("TransferAmount"))
+        {
+            BankReference target = message.getCustom("TransferToAccount", ModLazyPackets.BANK_REFERENCE);
+            MoneyValue amount = message.getMoneyValue("TransferAmount");
+            this.transferMessage = BankAPI.getApi().BankTransfer(this,amount,target.get());
+            if(this.transferMessage != null)
+                this.SendMessage(this.builder().setText("TransferResult",this.transferMessage));
+        }
+        if(message.contains("TransferToPlayer") && message.contains("TransferAmount"))
+        {
+            BankReference target = PlayerBankReference.of(PlayerReference.of(false, message.getString("TransferToPlayer")));
+            MoneyValue amount = message.getMoneyValue("TransferAmount");
+            this.transferMessage = BankAPI.getApi().BankTransfer(this,amount,target.get());
+            if(this.transferMessage != null)
+                this.SendMessage(this.builder().setText("TransferResult",this.transferMessage));
+        }
+        if(message.contains("TransferResult"))
+            this.transferMessage = message.getText("TransferResult");
 		if(message.contains("NotificationValueChange"))
 		{
 			IBankAccount ba = this.getBankAccount();

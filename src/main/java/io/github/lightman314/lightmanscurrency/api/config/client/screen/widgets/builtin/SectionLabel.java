@@ -1,20 +1,16 @@
 package io.github.lightman314.lightmanscurrency.api.config.client.screen.widgets.builtin;
 
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.ITooltipWidget;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class SectionLabel extends EasyWidget implements ITooltipWidget {
 
     private final ResourceLocation file;

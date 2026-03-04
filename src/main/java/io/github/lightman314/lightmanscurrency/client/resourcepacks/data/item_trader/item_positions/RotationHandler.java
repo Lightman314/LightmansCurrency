@@ -48,9 +48,9 @@ public abstract class RotationHandler
     {
         if(setup)
             return;
-        registerRotationType(VersionUtil.lcResource("spinning"),SpinningRotation.TYPE);
-        registerRotationType(VersionUtil.lcResource("facing"), FacingRotation.TYPE);
-        registerRotationType(VersionUtil.lcResource("facing_up"), FacingUpRotation.TYPE);
+        registerRotationType(LightmansCurrency.id("spinning"),SpinningRotation.TYPE);
+        registerRotationType(LightmansCurrency.id("facing"), FacingRotation.TYPE);
+        registerRotationType(LightmansCurrency.id("facing_up"), FacingUpRotation.TYPE);
         setup = true;
     }
 

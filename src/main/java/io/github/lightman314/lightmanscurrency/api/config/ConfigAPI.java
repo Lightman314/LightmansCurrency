@@ -1,13 +1,9 @@
 package io.github.lightman314.lightmanscurrency.api.config;
 
 import io.github.lightman314.lightmanscurrency.common.impl.ConfigAPIImpl;
-import net.minecraft.MethodsReturnNonnullByDefault;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class ConfigAPI {
 
     private static ConfigAPI instance;

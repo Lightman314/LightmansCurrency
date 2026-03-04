@@ -3,11 +3,10 @@ package io.github.lightman314.lightmanscurrency.common.items.data.register;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.lightman314.lightmanscurrency.api.codecs.LCCodecs;
 import io.github.lightman314.lightmanscurrency.api.money.value.FlexibleMoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.util.EnumUtil;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
 import java.util.Objects;
@@ -17,34 +16,20 @@ import java.util.concurrent.atomic.AtomicReference;
 public class TransactionData {
 
     public static final Codec<TransactionData> CODEC = RecordCodecBuilder.create(builder -> builder.group(
-            LCCodecs.MONEY_VALUE.optionalFieldOf("amount").forGetter(TransactionData::optionalMoneyAmount),
+            MoneyValue.CODEC.optionalFieldOf("amount").forGetter(TransactionData::optionalMoneyAmount),
             Codec.DOUBLE.optionalFieldOf("mult").forGetter(TransactionData::optionalMultiplier),
             TransactionType.CODEC.fieldOf("type").forGetter(d -> d.type),
             Codec.STRING.fieldOf("comment").forGetter(d -> d.comment),
-            LCCodecs.FLEXIBLE_MONEY_VALUE.fieldOf("resultValue").forGetter(d -> d.resultValue)
+            FlexibleMoneyValue.CODEC.fieldOf("resultValue").forGetter(d -> d.resultValue)
     ).apply(builder,TransactionData::new));
 
-    public static final StreamCodec<FriendlyByteBuf,TransactionData> STREAM_CODEC = StreamCodec.of((buffer,data) -> {
-        Optional<MoneyValue> moneyArgument = data.optionalMoneyAmount();
-        Optional<Double> multArgument = data.optionalMultiplier();
-        buffer.writeBoolean(moneyArgument.isPresent());
-        if(moneyArgument.isPresent())
-            moneyArgument.get().encode(buffer);
-        else if(multArgument.isPresent())
-            buffer.writeDouble(multArgument.get());
-        else
-            throw new IllegalStateException("Somehow neither the Money Value OR Multiplier arguments are present!");
-        buffer.writeInt(data.type.ordinal());
-        buffer.writeUtf(data.comment);
-        data.resultValue.encode(buffer);
-    },buffer -> {
-        Either<MoneyValue,Double> arg;
-        if(buffer.readBoolean())
-            arg = Either.left(MoneyValue.decode(buffer));
-        else
-            arg = Either.right(buffer.readDouble());
-        return new TransactionData(arg,EnumUtil.enumFromOrdinal(buffer.readInt(),TransactionType.values(),TransactionType.ADD),buffer.readUtf(), FlexibleMoneyValue.decode(buffer));
-    });
+    public static final StreamCodec<RegistryFriendlyByteBuf,TransactionData> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.optional(MoneyValue.STREAM_CODEC),TransactionData::optionalMoneyAmount,
+            ByteBufCodecs.optional(ByteBufCodecs.DOUBLE),TransactionData::optionalMultiplier,
+            TransactionType.STREAM_CODEC,data -> data.type,
+            ByteBufCodecs.STRING_UTF8,data -> data.comment,
+            FlexibleMoneyValue.STREAM_CODEC,data -> data.resultValue,
+            TransactionData::new);
 
     public static final TransactionData EMPTY = new TransactionData(Either.left(MoneyValue.empty()),TransactionType.ADD,"", FlexibleMoneyValue.EMPTY);
 

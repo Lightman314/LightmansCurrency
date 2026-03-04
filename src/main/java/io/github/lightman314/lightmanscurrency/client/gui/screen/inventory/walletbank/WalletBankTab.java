@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.walletbank;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.EasyClientTab;
+import io.github.lightman314.lightmanscurrency.api.client.gui.tabbed.EasyClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.WalletBankScreen;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletBankMenu;
 

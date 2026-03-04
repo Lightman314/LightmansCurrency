@@ -11,17 +11,15 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.menus.CoinChestMenu;
-import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
+import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest.data.SecurityUpgradeData;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +34,7 @@ public class CoinChestSecurityUpgrade extends CoinChestUpgrade {
     public boolean alwayActive() { return true; }
 
     @Override
-    public void HandleMenuMessage(@Nonnull CoinChestMenu menu, @Nonnull CoinChestUpgradeData data, @Nonnull LazyPacketData message) {
+    public void HandleMenuMessage(CoinChestMenu menu, CoinChestUpgradeData data, LazyPacketData message) {
         if(message.contains("SetOwner"))
         {
             Owner owner = message.getOwner("SetOwner");
@@ -79,47 +77,45 @@ public class CoinChestSecurityUpgrade extends CoinChestUpgrade {
         return true;
     }
 
-    @Nonnull
     public OwnerData parseOwnerData(CoinChestBlockEntity be, CoinChestUpgradeData data)
     {
         return data.getData(ModDataComponents.SECURITY_UPGRADE_DATA,SecurityUpgradeData.DEFAULT).owner.withParent(be);
     }
 
-    public void saveOwnerData(@Nonnull CoinChestBlockEntity be, CoinChestUpgradeData data, OwnerData newOwner)
+    public void saveOwnerData(CoinChestBlockEntity be, CoinChestUpgradeData data, OwnerData newOwner)
     {
         data.editData(ModDataComponents.SECURITY_UPGRADE_DATA,SecurityUpgradeData.DEFAULT,d -> d.withOwner(newOwner));
     }
 
     @Override
-    public boolean BlockAccess(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data, @Nullable Player player) { return player == null || !this.isMember(be, data, player); }
+    public boolean BlockAccess(CoinChestBlockEntity be, CoinChestUpgradeData data, @Nullable Player player) { return player == null || !this.isMember(be, data, player); }
 
     @Override
-    public void OnEquip(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) { data.editData(ModDataComponents.SECURITY_UPGRADE_DATA, SecurityUpgradeData.DEFAULT,d -> d.withBreakIsValid(false)); }
+    public void OnEquip(CoinChestBlockEntity be, CoinChestUpgradeData data) { data.editData(ModDataComponents.SECURITY_UPGRADE_DATA, SecurityUpgradeData.DEFAULT,d -> d.withBreakIsValid(false)); }
 
     @Override
-    public void OnValidBlockRemoval(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) {
+    public void OnValidBlockRemoval(CoinChestBlockEntity be, CoinChestUpgradeData data) {
         data.editData(ModDataComponents.SECURITY_UPGRADE_DATA,SecurityUpgradeData.DEFAULT,d -> d.withBreakIsValid(true));
     }
 
     @Override
-    public void OnBlockRemoval(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) {
+    public void OnBlockRemoval(CoinChestBlockEntity be, CoinChestUpgradeData data) {
         if(data.getData(ModDataComponents.SECURITY_UPGRADE_DATA,SecurityUpgradeData.DEFAULT).breakIsValid)
             return;
         OwnerData owner = this.parseOwnerData(be, data);
         if(owner.hasOwner())
         {
-            List<ItemStack> items = new ArrayList<>(be.getStorage().removeAllItems());
-            items.addAll(be.getUpgrades().removeAllItems());
-            SafeEjectionAPI.getApi().handleEjection(be.getLevel(),be.getBlockPos(),new BasicEjectionData(owner,InventoryUtil.buildInventory(items),be.getDisplayName()));
+            List<ItemStack> items = new ArrayList<>(be.getStorage().getStacksAndClear());
+            items.addAll(be.getUpgrades().getStacksAndClear());
+            SafeEjectionAPI.getApi().handleEjection(be.getLevel(),be.getBlockPos(),new BasicEjectionData(owner,items,be.getDisplayName()));
         }
     }
 
     @Override
-    public void addClientTabs(@Nonnull CoinChestUpgradeData data, @Nonnull Object screen, @Nonnull Consumer<Object> consumer) { consumer.accept(new SecurityUpgradeTab(data,screen)); }
-
-    @Nonnull
+    public void addClientTabs(CoinChestUpgradeData data, Object screen, Consumer<Object> consumer) { consumer.accept(new SecurityUpgradeTab(data,screen)); }
+    
     @Override
-    public List<Component> getTooltip(@Nonnull UpgradeData data) {
+    public List<Component> getTooltip(UpgradeData data) {
         List<Component> tooltip = LCText.TOOLTIP_UPGRADE_SECURITY.get();
         if(LCConfig.SERVER.isLoaded() && LCConfig.SERVER.anarchyMode.get())
             tooltip.add(LCText.TOOLTIP_ANARCHY_WARNING.get().withStyle(ChatFormatting.BOLD).withStyle(ChatFormatting.RED));
@@ -127,6 +123,6 @@ public class CoinChestSecurityUpgrade extends CoinChestUpgrade {
     }
 
     @Override
-    public boolean clearDataFromStack(@Nonnull ItemStack stack) { return this.clearData(stack, ModDataComponents.SECURITY_UPGRADE_DATA); }
+    public boolean clearDataFromStack(ItemStack stack) { return this.clearData(stack, ModDataComponents.SECURITY_UPGRADE_DATA); }
 
 }

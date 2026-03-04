@@ -7,36 +7,43 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.api.peripheral.PeripheralCapability;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.events.TraderEvent;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.api.traders.attachments.builtin.ExternalAuthorizationAttachment;
+import io.github.lightman314.lightmanscurrency.api.stats.StatType;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CapabilityInterfaceBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blockentity.trader.GachaMachineBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blockentity.trader.SlotMachineTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.common.traders.input.InputTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
-import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
-import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.nodes.GachaNode;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.nodes.GachaStorageNode;
+import io.github.lightman314.lightmanscurrency.common.traders.item.nodes.ItemStorageNode;
+import io.github.lightman314.lightmanscurrency.common.traders.item.nodes.ItemTradeNode;
+import io.github.lightman314.lightmanscurrency.common.traders.paygate.nodes.PaygateTradeNode;
+import io.github.lightman314.lightmanscurrency.common.traders.paygate.nodes.TicketStubNode;
+import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.nodes.SlotMachineNode;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.apis.LuaMoneyAPI;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.BasicItemParser;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.builtin.AncientCoinParser;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.detail_providers.AncientCoinDetailProvider;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.MoneyChestPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.atm.ATMPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.CashRegisterPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.TerminalPeripheral;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.InputTraderPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.auction.AuctionHousePeripheral;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.gacha_machine.GachaMachinePeripheral;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.item.ItemTraderPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.TraderPeripheral;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.paygate.PaygatePeripheral;
-import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.slot_machine.SlotMachinePeripheral;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.gacha.GachaNodeMethods;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.gacha.GachaStorageNodeMethods;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.item.ItemStorageNodeMethods;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.item.ItemTradeNodeMethods;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.nodes.TraderNodeMethods;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.nodes.builtin.*;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.paygate.PaygateTradeNodeMethods;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.paygate.TicketStubNodeMethods;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.slot_machine.SlotMachineNodeMethods;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.pocket_upgrades.LCPocketUpgrades;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.stats.StatReaders;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
@@ -46,6 +53,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 
@@ -53,6 +61,8 @@ public class LCComputerHelper {
 
     private static final List<BasicItemParser> itemParsers = new ArrayList<>();
     private static final List<TraderPeripheralSource> peripheralSources = new ArrayList<>();
+    private static final List<TraderNodeMethods.Source> nodeSources = new ArrayList<>();
+    private static final List<Function<StatType.Instance<?,?>,Object>> statReaders = new ArrayList<>();
 
     public static void setup(IEventBus modBus)
     {
@@ -73,45 +83,29 @@ public class LCComputerHelper {
                 return AuctionHousePeripheral.INSTANCE;
             return null;
         }));
-        //Item Trader
-        registerTraderPeripheralSource(TraderPeripheralSource.simple((be) -> {
-            if(be instanceof ItemTraderBlockEntity itbe)
-                return new ItemTraderPeripheral(itbe);
-            return null;
-        },(trader) -> {
-            if(trader instanceof ItemTraderData itd)
-                return new ItemTraderPeripheral(itd);
-            return null;
-        }));
-        //Paygate
-        registerTraderPeripheralSource(TraderPeripheralSource.blockOnly((be) -> {
-            if(be instanceof PaygateBlockEntity paygate)
-                return new PaygatePeripheral(paygate);
-            return null;
-        }));
-        //Gacha Machine
-        registerTraderPeripheralSource(TraderPeripheralSource.simple((be) -> {
-            if(be instanceof GachaMachineBlockEntity gacha)
-                return new GachaMachinePeripheral(gacha);
-            return null;
-        },(trader) -> {
-            if(trader instanceof GachaTrader gacha)
-                return new GachaMachinePeripheral(gacha);
-            return null;
-        }));
-        //Slot Machine
-        registerTraderPeripheralSource(TraderPeripheralSource.simple(be -> {
-            if(be instanceof SlotMachineTraderBlockEntity slotMachine)
-                return new SlotMachinePeripheral(slotMachine);
-            return null;
-        },trader -> {
-            if(trader instanceof SlotMachineTraderData slotMachine)
-                return new SlotMachinePeripheral(slotMachine);
-            return null;
-        }));
+        //Register Nodes
+        registerTraderNodeMethod(TraderNodeMethods.easySource(AlliesNode.TYPE,AllyNodeMethods::new));
+        registerTraderNodeMethod(TraderNodeMethods.easySource(BankNode.TYPE,BankNodeMethods::new));
+        registerTraderNodeMethod(TraderNodeMethods.easySource(DisplayNode.TYPE,DisplayNodeMethods::new));
+        registerTraderNodeMethod(TraderNodeMethods.easySource(InputNode.TYPE,InputNodeMethods::new));
+        registerTraderNodeMethod(TraderNodeMethods.easySource(LoggerNode.TYPE,LoggerNodeMethods::new));
+        registerTraderNodeMethod(TraderNodeMethods.easySource(TaxesNode.TYPE,TaxesNodeMethods::new));
+
+        registerTraderNodeMethod(TraderNodeMethods.easySource(GachaNode.TYPE,GachaNodeMethods::new));
+        registerTraderNodeMethod(TraderNodeMethods.easySource(GachaStorageNode.TYPE,GachaStorageNodeMethods::new));
+
+        registerTraderNodeMethod(TraderNodeMethods.easySource(ItemStorageNode.TYPE,ItemStorageNodeMethods::new));
+        registerTraderNodeMethod(TraderNodeMethods.easySource(ItemTradeNode.TYPE,ItemTradeNodeMethods::new));
+
+        registerTraderNodeMethod(TraderNodeMethods.easySource(PaygateTradeNode.TYPE,PaygateTradeNodeMethods::new));
+        registerTraderNodeMethod(TraderNodeMethods.easySource(TicketStubNode.TYPE,TicketStubNodeMethods::new));
+
+        registerTraderNodeMethod(TraderNodeMethods.easySource(SlotMachineNode.TYPE,SlotMachineNodeMethods::new));
+
+        //Register Custom Stat Displays
+        registerStatDisplay(StatReaders::parseStat);
+
     }
-
-
 
     public static void registerTraderPeripheralSource(TraderPeripheralSource source)
     {
@@ -126,9 +120,10 @@ public class LCComputerHelper {
             if(result != null)
                 return result;
         }
-        if(be.getTraderData() instanceof InputTraderData)
-            return InputTraderPeripheral.createSimpleInput((TraderBlockEntity<InputTraderData>)be);
-        return TraderPeripheral.createSimple((TraderBlockEntity<TraderData>)be);
+        TraderData trader = be.getTraderData();
+        if(trader != null)
+            return new TraderPeripheral(trader);
+        return null;
     }
 
     public static AccessTrackingPeripheral getPeripheral(TraderData trader) {
@@ -138,9 +133,37 @@ public class LCComputerHelper {
             if(result != null)
                 return result;
         }
-        if(trader instanceof InputTraderData it)
-            return InputTraderPeripheral.createSimpleInput(it);
-        return TraderPeripheral.createSimple(trader);
+        return new TraderPeripheral(trader);
+    }
+
+    public static void registerTraderNodeMethod(TraderNodeMethods.Source source) { nodeSources.add(source); }
+
+    public static List<TraderNodeMethods<?>> getTraderNodeMethods(TraderPeripheral peripheral)
+    {
+        List<TraderNodeMethods<?>> results = new ArrayList<>();
+        for(TraderNodeMethods.Source s : nodeSources)
+            s.addTraderNodeMethods(peripheral,results::add);
+        return results;
+    }
+
+    public static void registerStatDisplay(Function<StatType.Instance<?,?>,Object> parser) {
+        statReaders.add(parser);
+    }
+
+    public static Object getStatDisplay(StatType.Instance<?,?> entry) {
+        for(var parser : statReaders)
+        {
+            Object result = parser.apply(entry);
+            if(result != null)
+                return result;
+        }
+        Object display = entry.getDisplay();
+        Object result = entry.toString();
+        if(display instanceof Component text)
+            result = text.getString();
+        if(display instanceof Number || display instanceof Boolean)
+            result = display;
+        return result;
     }
 
     private static void registerCapabilities(RegisterCapabilitiesEvent event)
@@ -168,23 +191,20 @@ public class LCComputerHelper {
         event.registerBlockEntity(PeripheralCapability.get(),ModBlockEntities.CASH_REGISTER.get(),(be,side) -> new CashRegisterPeripheral(be));
         //Register ATM Peripheral
         event.registerBlock(PeripheralCapability.get(),(level,pos,state,be,side) -> ATMPeripheral.INSTANCE,ModBlocks.ATM.get());
+        //Register Money Chest Peripheral
+        event.registerBlockEntity(PeripheralCapability.get(),ModBlockEntities.COIN_CHEST.get(),(be,side) -> new MoneyChestPeripheral(be));
     }
 
-    private static void addTraderAttachments(TraderEvent.RegisterAttachmentEvent event)
+    private static void addTraderAttachments(TraderEvent.RegisterNodesEvent event)
     {
         if(event.getTrader() instanceof AuctionHouseTrader)
             return;
-        event.addAttachment(ExternalAuthorizationAttachment.TYPE);
+        event.addNode(MachineAccessNode.TYPE);
     }
 
     public static <T extends TraderBlockEntity<?>> void registerTraderCapability(RegisterCapabilitiesEvent event, Supplier<BlockEntityType<T>> type) { registerTraderCapability(event,type.get()); }
-    public static void registerTraderCapability(RegisterCapabilitiesEvent event, BlockEntityType<? extends TraderBlockEntity<?>> type)
-    {
-        event.registerBlockEntity(PeripheralCapability.get(),type,(be,side) -> {
-            if(be instanceof TraderBlockEntity<?> tbe)
-                return getPeripheral(tbe);
-            return null;
-        });
+    public static void registerTraderCapability(RegisterCapabilitiesEvent event, BlockEntityType<? extends TraderBlockEntity<?>> type) {
+        event.registerBlockEntity(PeripheralCapability.get(),type,(be,side) -> getPeripheral(be));
     }
 
     public static void registerItemParser(BasicItemParser parser) { itemParsers.add(parser); }

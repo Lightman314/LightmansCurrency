@@ -1,20 +1,21 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.auction;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
+import io.github.lightman314.lightmanscurrency.api.money.client.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.TraderClientTab;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.client.TraderClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
-import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.nodes.AuctionTradesNode;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.trade.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.network.message.auction.CPacketSubmitBid;
 
@@ -25,17 +26,18 @@ public class AuctionBidTab extends TraderClientTab {
 	private final long auctionHouseID;
 	private final int tradeIndex;
 	
-	private AuctionHouseTrader getAuctionHouse() {
+	private TraderData getAuctionHouse() {
 		TraderData data = TraderAPI.getApi().GetTrader(true, this.auctionHouseID);
 		if(data instanceof AuctionHouseTrader)
-			return (AuctionHouseTrader)data;
+			return data;
 		return null;
 	}
 	
 	private AuctionTradeData getTrade() {
-		AuctionHouseTrader trader = this.getAuctionHouse();
-		if(trader != null)
-			return trader.getTrade(this.tradeIndex);
+		TraderData trader = this.getAuctionHouse();
+        AuctionTradesNode node = trader == null ? null : trader.getNode(AuctionTradesNode.TYPE);
+		if(node != null)
+			return node.getTrade(this.tradeIndex);
 		return null;
 	}
 	
@@ -112,7 +114,7 @@ public class AuctionBidTab extends TraderClientTab {
 	}
 	
 	private void SubmitBid(EasyButton button) {
-		new CPacketSubmitBid(this.auctionHouseID, this.tradeIndex, this.bidAmount.getCurrentValue()).send();
+		new CPacketSubmitBid(this.auctionHouseID, this.tradeIndex, this.bidAmount.getCurrentValue()).sendToServer();
 		this.screen.closeTab();
 	}
 	

@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.api.config.options.basic.StringOp
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -18,7 +17,7 @@ public class CustomItemScaleConfigOption extends ListLikeOption<CustomItemScaleD
 
     public static final ConfigParser<CustomItemScaleData> PARSER = ListOption.makeParser(StringOption.PARSER).map(CustomItemScaleConfigOption::read,CustomItemScaleConfigOption::write);
 
-    protected CustomItemScaleConfigOption(@Nonnull Supplier<CustomItemScaleData> defaultValue) {
+    protected CustomItemScaleConfigOption(Supplier<CustomItemScaleData> defaultValue) {
         super(defaultValue);
     }
 
@@ -26,7 +25,6 @@ public class CustomItemScaleConfigOption extends ListLikeOption<CustomItemScaleD
     public static CustomItemScaleConfigOption create(CustomItemScaleData defaultValue) { return create(() -> defaultValue); }
     public static CustomItemScaleConfigOption create(Supplier<CustomItemScaleData> defaultValue) { return new CustomItemScaleConfigOption(defaultValue); }
 
-    @Nonnull
     @Override
     protected List<String> bonusComments() {
         return Lists.newArrayList(
@@ -35,7 +33,6 @@ public class CustomItemScaleConfigOption extends ListLikeOption<CustomItemScaleD
                 "Can define an item tag instead of an item by formatting as \"#namespace:item_tag;SCALE\" instead");
     }
 
-    @Nonnull
     @Override
     public Pair<Boolean, ConfigParsingException> editList(String value, int index, boolean isEdit) {
         if(index < 0 && isEdit)
@@ -78,7 +75,7 @@ public class CustomItemScaleConfigOption extends ListLikeOption<CustomItemScaleD
     @Override
     public int getSize() { return this.getCurrentValue().getRawData().size(); }
 
-    @Nonnull
+    
     @Override
     protected ConfigParser<CustomItemScaleData> getParser() { return PARSER; }
 

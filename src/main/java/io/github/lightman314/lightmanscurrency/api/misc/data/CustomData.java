@@ -1,21 +1,20 @@
 package io.github.lightman314.lightmanscurrency.api.misc.data;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.network.message.data.SPacketSyncCustomData;
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.function.Consumer;
 
-@ParametersAreNonnullByDefault
-@FieldsAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public abstract class CustomData implements IClientTracker, LazyPacketData.IBuilderProvider {
 
     public abstract CustomDataType<?> getType();
@@ -48,24 +47,24 @@ public abstract class CustomData implements IClientTracker, LazyPacketData.IBuil
     /**
      * Called in {@link net.minecraft.world.level.saveddata.SavedData#save(CompoundTag, HolderLookup.Provider)} to save the data to disk
      * @param tag The NBT tag to write the data too
-     * @param lookup The holder lookup provider for context
+     * @param context The data context lookup provider for context
      */
-    public abstract void save(CompoundTag tag, HolderLookup.Provider lookup);
+    public abstract void save(CompoundTag tag,DataContext<Tag> context);
 
-    public final void loadData(CompoundTag tag, HolderLookup.Provider lookup)
+    public final void loadData(CompoundTag tag,DataContext<Tag> context)
     {
         if(this.isClient || this.loaded)
             return;
         this.loaded = true;
-        this.load(tag,lookup);
+        this.load(tag,context);
     }
 
     /**
      * Called in save data deserilizer to load the data from the existing data.<br>
-     * @param tag The NBT tag the data was written to in {@link #save(CompoundTag, HolderLookup.Provider)}
-     * @param lookup The holder lookup provider for context
+     * @param tag The NBT tag the data was written to in {@link #save(CompoundTag, DataContext)}
+     * @param context The holder lookup provider for context
      */
-    protected abstract void load(CompoundTag tag, HolderLookup.Provider lookup);
+    protected abstract void load(CompoundTag tag, DataContext<Tag> context);
 
     /**
      * Public method used to call {@link #parseSyncPacket(LazyPacketData, HolderLookup.Provider)}<br>
@@ -88,7 +87,7 @@ public abstract class CustomData implements IClientTracker, LazyPacketData.IBuil
 
     /**
      * Called on the logical server when the data is first created/loaded from file<br>
-     * Called <b>AFTER</b> {@link #load(CompoundTag, HolderLookup.Provider)} is called, so all data should be up-to-date
+     * Called <b>AFTER</b> {@link #load(CompoundTag, DataContext)} is called, so all data should be up-to-date
      */
     protected void serverInit() {}
 
@@ -109,6 +108,19 @@ public abstract class CustomData implements IClientTracker, LazyPacketData.IBuil
             return;
         new SPacketSyncCustomData(this.getType(),builder.build()).sendToAll();
     }
+
+    public final void forEachPlayer(Consumer<ServerPlayer> consumer)
+    {
+        if(this.isClient)
+            return;
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if(server != null)
+        {
+            for(ServerPlayer sp : server.getPlayerList().getPlayers())
+                consumer.accept(sp);
+        }
+    }
+
     /**
      * Use to send sync packets from this data to it's client-side counter-parts.<br>
      * Will not send a packet if run from the logical client.<br>

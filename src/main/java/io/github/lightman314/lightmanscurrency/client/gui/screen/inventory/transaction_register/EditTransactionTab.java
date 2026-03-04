@@ -1,17 +1,17 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.transaction_register;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
-import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
+import io.github.lightman314.lightmanscurrency.api.money.client.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TransactionRegisterScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown.DropdownWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.common.items.data.register.TransactionData;
 import io.github.lightman314.lightmanscurrency.common.items.data.register.TransactionType;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;

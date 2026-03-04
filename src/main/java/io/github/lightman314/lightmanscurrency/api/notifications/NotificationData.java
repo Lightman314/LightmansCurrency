@@ -4,24 +4,41 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
+import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.RegistryOps;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class NotificationData implements ISidedObject {
+
+    public static final Codec<NotificationData> CODEC = Notification.CODEC.listOf().xmap(NotificationData::new,NotificationData::getNotifications);
+    public static final StreamCodec<RegistryFriendlyByteBuf,NotificationData> STREAM_CODEC = Notification.STREAM_CODEC
+            .apply(ByteBufCodecs.list())
+            .map(NotificationData::new,NotificationData::getNotifications);
 
 	private boolean isClient = false;
 	@Override
 	public boolean isClient() { return this.isClient; }
+
+    public NotificationData() {}
+    public NotificationData(List<Notification> notifications) {
+        this.notifications.addAll(notifications);
+    }
+
+    public void copyFrom(NotificationData data)
+    {
+        this.notifications.addAll(data.notifications);
+        for(Notification n : this.notifications)
+            n.flagAsClient(this);
+    }
 
 	List<Notification> notifications = new ArrayList<>();
 	public List<Notification> getNotifications() { return this.notifications; }
@@ -50,7 +67,6 @@ public class NotificationData implements ISidedObject {
 		}
 		return false;
 	}
-
 	
 	public List<NotificationCategory> getCategories() {
 		List<NotificationCategory> result = new ArrayList<>();
@@ -118,12 +134,9 @@ public class NotificationData implements ISidedObject {
 
 	
 	public CompoundTag save(HolderLookup.Provider lookup) {
-		CompoundTag compound = new CompoundTag();
-		ListTag notificationList = new ListTag();
-		for (Notification notification : new ArrayList<>(this.notifications))
-			notificationList.add(notification.save(lookup));
-		compound.put("Notifications", notificationList);
-		return compound;
+		CompoundTag tag = new CompoundTag();
+        tag.put("Notifications",Notification.LIST_CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE,lookup),this.notifications).getOrThrow());
+		return tag;
 	}
 
 	
@@ -134,19 +147,11 @@ public class NotificationData implements ISidedObject {
 	}
 	
 	public void load(CompoundTag compound, HolderLookup.Provider lookup) {
-		if(compound.contains("Notifications", Tag.TAG_LIST))
+		if(compound.contains("Notifications",Tag.TAG_LIST))
 		{
-			this.notifications = new ArrayList<>();
-			ListTag notificationList = compound.getList("Notifications", Tag.TAG_COMPOUND);
-			for(int i = 0; i < notificationList.size(); ++i)
-			{
-				CompoundTag notTag = notificationList.getCompound(i);
-				Notification not = NotificationAPI.getApi().LoadNotification(notTag, lookup);
-				if(not != null)
-					this.notifications.add(not);
-			}
+			this.notifications = new ArrayList<>(Notification.LIST_CODEC.decode(RegistryOps.create(NbtOps.INSTANCE,lookup),compound.get("Notifications")).getOrThrow().getFirst());
 			this.validateListSize();
-			if(this.isClient)
+			if(this.isClient())
 				this.flagAsClient();
 		}
 	}

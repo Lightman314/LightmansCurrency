@@ -11,7 +11,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class NotificationMenu extends LazyMessageMenu {
@@ -21,10 +20,10 @@ public class NotificationMenu extends LazyMessageMenu {
     public NotificationMenu(int id, Inventory inventory) { super(ModMenus.NOTIFICATIONS.get(), id, inventory); }
 
     @Override
-    public void HandleMessage(@Nonnull LazyPacketData message) {
+    public void processMessage(LazyPacketData message) {
         if(message.contains("MarkAsRead"))
         {
-            NotificationCategory category = NotificationAPI.getApi().LoadCategory(message.getNBT("MarkAsRead"),message.lookup);
+            NotificationCategory category = message.decodeObject("MarkAsRead",NotificationCategory.CODEC);
             if(category == null)
                 return;
             NotificationDataCache d = NotificationDataCache.TYPE.get(false);
@@ -43,7 +42,7 @@ public class NotificationMenu extends LazyMessageMenu {
         }
         if(message.contains("DeleteNotification"))
         {
-            NotificationCategory category = NotificationAPI.getApi().LoadCategory(message.getNBT("Category"),message.lookup);
+            NotificationCategory category = message.decodeObject("Category",NotificationCategory.CODEC);
             if(category == null)
                 return;
             NotificationDataCache d = NotificationDataCache.TYPE.get(false);
@@ -58,14 +57,13 @@ public class NotificationMenu extends LazyMessageMenu {
         }
     }
 
-    @Nonnull
     @Override
-    public ItemStack quickMoveStack(@Nonnull Player player, int slot) { return ItemStack.EMPTY; }
+    public ItemStack quickMoveStack(Player player, int slot) { return ItemStack.EMPTY; }
 
     private static class Provider implements EasyMenuProvider {
         @Nullable
         @Override
-        public AbstractContainerMenu createMenu(int menuID, @Nonnull Inventory inventory, @Nonnull Player player) { return new NotificationMenu(menuID,inventory); }
+        public AbstractContainerMenu createMenu(int menuID, Inventory inventory, Player player) { return new NotificationMenu(menuID,inventory); }
     }
 
 }

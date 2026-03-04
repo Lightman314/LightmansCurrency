@@ -21,7 +21,7 @@ public class LCCloserItemPositionProvider extends ItemPositionProvider {
     @Override
     protected void addEntries() {
         //Card Display
-        this.addData(VersionUtil.lcResource("card_display"),ItemPositionBuilder.builder()
+        this.addData(LightmansCurrency.id("card_display"),ItemPositionBuilder.builder()
                 .withGlobalScale(0.4f)
                 .withGlobalRotationType(FacingUpRotation.createDefault())
                 .withGlobalExtraCount(2)
@@ -32,7 +32,7 @@ public class LCCloserItemPositionProvider extends ItemPositionProvider {
                 .withSimpleEntry(new Vector3f(11f/16f, 12f/16f,12f/16f))
         );
         //Card Display Inner Corner
-        this.addData(VersionUtil.lcResource("variants/card_display/inner_corner"),ItemPositionBuilder.builder()
+        this.addData(LightmansCurrency.id("variants/card_display/inner_corner"),ItemPositionBuilder.builder()
                 .withGlobalScale(0.4f)
                 .withGlobalRotationType(FacingUpRotation.createDefault())
                 .withGlobalExtraCount(2)
@@ -49,7 +49,7 @@ public class LCCloserItemPositionProvider extends ItemPositionProvider {
                 .withSimpleEntry(new Vector3f(11f/16f, 12f/16f,12f/16f))
         );
         //Card Display Outer Corner
-        this.addData(VersionUtil.lcResource("variants/card_display/outer_corner"),ItemPositionBuilder.builder()
+        this.addData(LightmansCurrency.id("variants/card_display/outer_corner"),ItemPositionBuilder.builder()
                 .withGlobalScale(0.4f)
                 .withGlobalRotationType(FacingUpRotation.createDefault())
                 .withGlobalExtraCount(2)
@@ -68,7 +68,7 @@ public class LCCloserItemPositionProvider extends ItemPositionProvider {
         //Display Case
         //No change needed for this as it only draws 1 item regardless
         //Freezer
-        this.addData(VersionUtil.lcResource("freezer"), ItemPositionBuilder.builder()
+        this.addData(LightmansCurrency.id("freezer"), ItemPositionBuilder.builder()
                 .withGlobalScale(0.4f)
                 .withGlobalRotationType(FacingRotation.getInstance())
                 .withGlobalExtraCount(5)
@@ -83,7 +83,7 @@ public class LCCloserItemPositionProvider extends ItemPositionProvider {
                 .withSimpleEntry(new Vector3f(11f/16f,7f/16f,6f/16f))
         );
         //Shelf
-        this.addData(VersionUtil.lcResource("shelf"), ItemPositionBuilder.builder()
+        this.addData(LightmansCurrency.id("shelf"), ItemPositionBuilder.builder()
                 .withGlobalScale(14f/16f)
                 .withGlobalRotationType(FacingRotation.getInstance())
                 .withGlobalExtraCount(1)
@@ -91,7 +91,7 @@ public class LCCloserItemPositionProvider extends ItemPositionProvider {
                 .withSimpleEntry(new Vector3f(0.5f, 9f/16f,14.5f/16f))
         );
         //Shelf 2x2
-        this.addData(VersionUtil.lcResource("shelf_2x2"), ItemPositionBuilder.builder()
+        this.addData(LightmansCurrency.id("shelf_2x2"), ItemPositionBuilder.builder()
                 .withGlobalScale(5.5f/16f)
                 .withGlobalRotationType(FacingRotation.getInstance())
                 .withGlobalExtraCount(1)
@@ -102,7 +102,7 @@ public class LCCloserItemPositionProvider extends ItemPositionProvider {
                 .withSimpleEntry(new Vector3f(0.75f, 5f/16f,14.5f/16f))
         );
         //Vending Machine
-        this.addData(VersionUtil.lcResource("vending_machine"), ItemPositionBuilder.builder()
+        this.addData(LightmansCurrency.id("vending_machine"), ItemPositionBuilder.builder()
                 .withGlobalScale(0.3f)
                 .withGlobalRotationType(FacingRotation.getInstance())
                 .withGlobalExtraCount(5)
@@ -116,7 +116,7 @@ public class LCCloserItemPositionProvider extends ItemPositionProvider {
                 .withSimpleEntry(new Vector3f(9.5f/16f,13f/16f,6/16f))
         );
         //Large Vending Machine
-        this.addData(VersionUtil.lcResource("large_vending_machine"), ItemPositionBuilder.builder()
+        this.addData(LightmansCurrency.id("large_vending_machine"), ItemPositionBuilder.builder()
                 .withGlobalScale(0.3f)
                 .withGlobalRotationType(FacingRotation.getInstance())
                 .withGlobalExtraCount(5)

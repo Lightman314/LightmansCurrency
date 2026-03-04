@@ -44,7 +44,7 @@ public abstract class VariantSelectMenu extends LazyMessageMenu {
     public abstract ResourceLocation getSelectedVariant();
 
     @Override
-    public final void HandleMessage(LazyPacketData message) {
+    public final void processMessage(LazyPacketData message) {
         if(message.contains("SetVariant"))
             this.SetVariant(message.getResourceLocation("SetVariant"));
         if(message.contains("ClearVariant"))

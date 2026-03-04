@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.items;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
@@ -22,7 +21,7 @@ public class CoinJarItem extends BlockItem {
 	public CoinJarItem(Block block, Properties properties) { super(block, properties); }
 
 	@Override
-	public void appendHoverText(@Nonnull ItemStack stack, @Nullable TooltipContext level, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag)
+	public void appendHoverText(ItemStack stack, @Nullable TooltipContext level, List<Component> tooltip, TooltipFlag flag)
 	{
 		TooltipItem.addTooltip(tooltip, LCText.TOOLTIP_COIN_JAR);
 
@@ -50,14 +49,14 @@ public class CoinJarItem extends BlockItem {
 
 	}
 
-	public boolean canDye(@Nonnull ItemStack stack) { return InventoryUtil.ItemHasTag(stack, ItemTags.DYEABLE); }
+	public boolean canDye(ItemStack stack) { return InventoryUtil.ItemHasTag(stack, ItemTags.DYEABLE); }
 
 	/**
 	 * Gets the contents of the Coin Jar<br>
 	 * Note: List returned is immutable and cannot be edited as Coin Jars cannot be interacted with in item form<br>
 	 * Returns an empty list of the given item stack is not for a Coin Jar item, even if it does contain the relevant data component.
 	 */
-	public static List<ItemStack> getJarContents(@Nonnull ItemStack stack)
+	public static List<ItemStack> getJarContents(ItemStack stack)
 	{
 		if(!(stack.getItem() instanceof CoinJarItem))
 			return ImmutableList.of();
@@ -66,7 +65,7 @@ public class CoinJarItem extends BlockItem {
 		return ImmutableList.of();
 	}
 
-	public static void setJarContents(@Nonnull ItemStack stack, @Nonnull List<ItemStack> jarContents)
+	public static void setJarContents(ItemStack stack, List<ItemStack> jarContents)
 	{
 		if(!(stack.getItem() instanceof CoinJarItem))
 			return;
@@ -76,7 +75,7 @@ public class CoinJarItem extends BlockItem {
 		stack.set(ModDataComponents.COIN_JAR_CONTENTS,ImmutableList.copyOf(InventoryUtil.copyList(jarContents)));
 	}
 
-	public static int getJarColor(@Nonnull ItemStack stack)
+	public static int getJarColor(ItemStack stack)
 	{
 		if(!(stack.getItem() instanceof CoinJarItem jar) || !jar.canDye(stack))
 			return 0xFFFFFF;
@@ -84,7 +83,7 @@ public class CoinJarItem extends BlockItem {
 		return c == null ? 0xFFFFFF : c.rgb();
 	}
 
-	public static void setJarColor(@Nonnull ItemStack stack, int color)
+	public static void setJarColor(ItemStack stack, int color)
 	{
 		if(!(stack.getItem() instanceof CoinJarItem jar) || !InventoryUtil.ItemHasTag(stack, ItemTags.DYEABLE))
 			return;

@@ -1,17 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinMintBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.OutputSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.mint.MintSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-
-import javax.annotation.Nonnull;
 
 public class MintMenu extends EasyMenu {
 
@@ -25,8 +22,8 @@ public class MintMenu extends EasyMenu {
 		this.addValidator(BlockEntityValidator.of(this.blockEntity));
 		
 		//Slots
-		this.addSlot(new MintSlot(this.blockEntity.getStorage(), 0, 56, 21, this.blockEntity));
-		this.addSlot(new OutputSlot(this.blockEntity.getStorage(), 1, 116, 21));
+		this.addSlot(new EasySlot(this.blockEntity.getStorage(),0,56,21));
+		this.addSlot(new EasySlot(this.blockEntity.getStorage(),1,116,21));
 		
 		//Player inventory
 		for(int y = 0; y < 3; y++)
@@ -44,14 +41,13 @@ public class MintMenu extends EasyMenu {
 	}
 	
 	@Override
-	public void removed(@Nonnull Player playerIn)
+	public void removed(Player playerIn)
 	{
 		super.removed(playerIn);
 	}
-	
-	@Nonnull
+
 	@Override
-	public ItemStack quickMoveStack(@Nonnull Player playerEntity, int index)
+	public ItemStack quickMoveStack(Player playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
@@ -62,14 +58,14 @@ public class MintMenu extends EasyMenu {
 		{
 			ItemStack slotStack = slot.getItem();
 			clickedStack = slotStack.copy();
-			if(index < this.blockEntity.getStorage().getContainerSize())
+			if(index < this.blockEntity.getStorage().getSlots())
 			{
-				if(!this.moveItemStackTo(slotStack, this.blockEntity.getStorage().getContainerSize(), this.slots.size(), true))
+				if(!this.moveItemStackTo(slotStack, this.blockEntity.getStorage().getSlots(), this.slots.size(), true))
 				{
 					return ItemStack.EMPTY;
 				}
 			}
-			else if(!this.moveItemStackTo(slotStack, 0, this.blockEntity.getStorage().getContainerSize() - 1, false))
+			else if(!this.moveItemStackTo(slotStack, 0, this.blockEntity.getStorage().getSlots() - 1, false))
 			{
 				return ItemStack.EMPTY;
 			}

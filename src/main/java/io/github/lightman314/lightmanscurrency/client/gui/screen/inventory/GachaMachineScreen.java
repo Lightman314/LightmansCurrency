@@ -2,33 +2,32 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.WidgetStateSprite;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteSource;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.WidgetStateSprite;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.NormalSprite;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.client.gui.EasyMenuScreen;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.NormalSprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.AlertData;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.util.ButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.menus.gacha_machine.GachaMachineMenu;
-import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
-import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketCollectCoins;
-import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
-import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenStorage;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.nodes.GachaNode;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.nodes.GachaStorageNode;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.nodes.TraderColorNode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
@@ -38,16 +37,13 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
 
-    public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/gacha_machine.png");
-    public static final ResourceLocation OVERLAY_TEXTURE = VersionUtil.lcResource("textures/gui/container/gacha_machine_overlay.png");
+    public static final ResourceLocation GUI_TEXTURE = LightmansCurrency.id("textures/gui/container/gacha_machine.png");
+    public static final ResourceLocation OVERLAY_TEXTURE = LightmansCurrency.id("textures/gui/container/gacha_machine_overlay.png");
 
     public static final int WIDTH = 176;
     public static final int HEIGHT = 222;
@@ -74,8 +70,8 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
     private int tradeMultiplier = 1;
 
     public int getMachineColor() {
-        GachaTrader trader = this.menu.getTrader();
-        return trader == null ? 0xFFFFFF : trader.getColor();
+        TraderColorNode node = this.menu.getNode(TraderColorNode.TYPE);
+        return node == null ? 0xFFFFFF : node.getColor();
     }
 
     EasyButton buttonInteract;
@@ -164,14 +160,14 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
         gui.drawString(valueText, 170 - gui.font.width(valueText) - 10, this.getYSize() - 94, 0x404040);
 
         //Render Gacha Balls in the machine itself
-        GachaTrader trader = this.menu.getTrader();
-        if(trader != null)
+        GachaStorageNode node = this.menu.getNode(GachaStorageNode.TYPE);
+        if(node != null)
         {
             //Create random source from the blocks position and the traders id
             //This way the randomization will be consistent whenever the player opens/closes the same traders menu
             //But will be different for different machines
 
-            List<ItemStack> contents = trader.getStorage().getRandomizedContents();
+            List<ItemStack> contents = node.getStorage().getRandomizedContents();
 
             gui.enableScissor(50,9,76,63);
 
@@ -307,18 +303,20 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
     }
 
     private boolean allowInteraction() {
-        GachaTrader trader = this.menu.getTrader();
-        if(trader != null)
+        TraderData trader = this.menu.getTrader();
+        GachaNode node = this.menu.getNode(GachaNode.TYPE);
+        GachaStorageNode storageNode = this.menu.getNode(GachaStorageNode.TYPE);
+        if(trader != null && node != null && storageNode != null)
         {
             TradeEvent.PreTradeEvent event = trader.runPreTradeEvent(trader.getTrade(0),this.menu.getContext());
-            return !this.menu.hasPendingReward() && !trader.getStorage().isEmpty() && trader.getPrice().isValidPrice() && !event.isCanceled();
+            return !this.menu.hasPendingReward() && !storageNode.getStorage().isEmpty() && node.getPrice().isValidPrice() && !event.isCanceled();
         }
         return false;
     }
 
     private boolean showTerminalButton() {
         if(this.menu.getTrader() != null)
-            return this.menu.getTrader().showOnTerminal();
+            return this.menu.getValidator().isThroughNetwork;
         return false;
     }
 
@@ -327,26 +325,24 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
     }
 
     private void OpenStorage(EasyButton button) {
-        if(this.menu.getTrader() != null)
-            new CPacketOpenStorage(this.menu.getTrader().getID()).send();
+        this.menu.openStorage();
     }
 
     private void CollectCoins(EasyButton button) {
-        if(this.menu.getTrader() != null)
-            CPacketCollectCoins.sendToServer();
+        this.menu.openStorage();
     }
 
     private void OpenTerminal(EasyButton button) {
-        if(this.showTerminalButton())
-            new CPacketOpenNetworkTerminal().send();
+        this.menu.openTerminal();
     }
 
     private List<Component> getInteractionTooltip() {
-        GachaTrader trader = this.menu.getTrader();
-        if(trader != null)
+        TraderData trader = this.menu.getTrader();
+        GachaNode node = this.menu.getNode(GachaNode.TYPE);
+        if(node != null)
         {
-            MoneyValue normalCost = trader.getPrice();
-            MoneyValue currentCost = trader.runTradeCostEvent(trader.getTrade(0), this.menu.getContext()).getCostResult();
+            MoneyValue normalCost = node.getPrice();
+            MoneyValue currentCost = trader.runTradeCostEvent(trader.getTrade(0),this.menu.getContext()).getCostResult();
             Component costText = currentCost.isFree() ? LCText.TOOLTIP_SLOT_MACHINE_COST_FREE.get() : currentCost.getText();
             List<Component> result;
             if(this.tradeMultiplier == 1)
@@ -367,19 +363,20 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
 
     private List<Component> getGachaInfoTooltip() {
         List<Component> list = new ArrayList<>();
-        GachaTrader trader = this.menu.getTrader();
-        if(trader == null || !trader.getPrice().isValidPrice())
+        GachaNode node = this.menu.getNode(GachaNode.TYPE);
+        if(node == null || !node.getPrice().isValidPrice())
         {
             list.add(LCText.TOOLTIP_GACHA_MACHINE_UNDEFINED.get());
             return list;
         }
-        if(trader.getStorage().isEmpty())
+        GachaStorageNode storageNode = this.menu.getNode(GachaStorageNode.TYPE);
+        if(storageNode == null || storageNode.getStorage().isEmpty())
         {
             list.add(LCText.TOOLTIP_GACHA_MACHINE_EMPTY.get());
             return list;
         }
         list.add(LCText.TOOLTIP_TRADER_GACHA_CONTENTS_LABEL.get());
-        for(ItemStack item : trader.getStorage().getContents())
+        for(ItemStack item : storageNode.getStorage().getContents())
             list.add(LCText.TOOLTIP_TRADER_GACHA_CONTENTS.get(item.getCount(),item.getHoverName()));
         return list;
     }

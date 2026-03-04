@@ -2,14 +2,20 @@ package io.github.lightman314.lightmanscurrency.integration.computercraft.data;
 
 import java.util.*;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DynamicOps;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.FlexibleMoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
+import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyViewer;
+import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.*;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +35,13 @@ public class LCLuaTable implements LuaTable<Object, Object> {
     public LCLuaTable() { this.map = new HashMap<>(); }
     public LCLuaTable(Map<?, ?> map) { this.map = new HashMap<>(map); }
 
+    public boolean isList() { return this.length() > 0; }
+
     public LCLuaTable copy() { return new LCLuaTable(this.map); }
+
+    public static <T> Object fromCustom(T value, Codec<T> codec, DataContext<Object> context) throws LuaException {
+        return codec.encodeStart(context.ops(),value).getOrThrow(LuaException::new);
+    }
 
     //Unique to LC
     public static LCLuaTable fromTag(CompoundTag compound)
@@ -41,6 +53,12 @@ public class LCLuaTable implements LuaTable<Object, Object> {
             table.put(key,parseTag(compound.get(key)));
         }
         return table;
+    }
+
+    public static <T> Object fromValue(T value,Codec<T> codec) throws LuaException
+    {
+        DynamicOps<Object> ops = RegistryOps.create(TableOps.INSTANCE,LookupHelper.getRegistryAccess());
+        return codec.encodeStart(ops,value).getOrThrow(LuaException::new);
     }
 
     public static CompoundTag toTag(Map<?,?> table)
@@ -130,6 +148,8 @@ public class LCLuaTable implements LuaTable<Object, Object> {
     public static LCLuaTable fromList(List<?> list)
     {
         LCLuaTable table = new LCLuaTable();
+        for(Object o : list)
+            table.add(o);
         for(int i = 0; i < list.size(); ++i)
             table.put(i + 1,list.get(i));
         return table;
@@ -280,13 +300,15 @@ public class LCLuaTable implements LuaTable<Object, Object> {
         return table;
     }
 
-    public static LCLuaTable fromMoney(IMoneyViewer values)
+    public static LCLuaTable fromMoney(MoneyView values)
     {
         LCLuaTable table = new LCLuaTable();
-        for(MoneyValue value : values.getStoredMoney().allValues())
+        for(MoneyValue value : values.allValues())
             table.put(value.getUniqueName(),fromMoney(value));
         return table;
     }
+
+    public static LCLuaTable fromMoney(IMoneyViewer values) { return fromMoney(values.getStoredMoney()); }
 
     public static LCLuaTable fromPlayer(Player player) { return fromPlayer(PlayerReference.of(player)); }
     public static LCLuaTable fromPlayer(PlayerReference player) {
@@ -369,49 +391,21 @@ public class LCLuaTable implements LuaTable<Object, Object> {
 
     @Nullable
     @Override
-    public Object put(Object key, Object value) {
-        return map.put(key, value);
-    }
+    public Object put(Object key, Object value) { return this.map.put(key, value); }
 
-    public void putBoolean(String key, boolean value) {
-        map.put(key, value);
-    }
-
-    public void putDouble(String key, double value) {
-        map.put(key, value);
-    }
-
-    public void putString(String key, String value) {
-        map.put(key, value);
-    }
-
-    public void putTable(String key, LCLuaTable value) {
-        map.put(key, value);
-    }
-
-    public void putTable(int i, LCLuaTable value) {
-        map.put(i, value);
-    }
+    public void add(Object object) { this.put(this.length() + 1,object); }
 
     @Override
-    public int size() {
-        return map.size();
-    }
+    public int size() { return map.size(); }
 
     @Override
-    public boolean isEmpty() {
-        return map.isEmpty();
-    }
+    public boolean isEmpty() { return map.isEmpty(); }
 
     @Override
-    public boolean containsKey(Object o) {
-        return map.containsKey(o);
-    }
+    public boolean containsKey(Object o) { return map.containsKey(o); }
 
     @Override
-    public boolean containsValue(Object o) {
-        return map.containsValue(o);
-    }
+    public boolean containsValue(Object o) { return map.containsValue(o); }
 
     @Override
     public Object get(Object o) {

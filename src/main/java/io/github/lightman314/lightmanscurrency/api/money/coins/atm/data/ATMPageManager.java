@@ -11,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,7 +36,7 @@ public final class ATMPageManager {
 
     private final Predicate<ATMExchangeButton> selected;
 
-    private ATMPageManager(@Nonnull Player player, @Nonnull Consumer<Object> addChild, @Nonnull Consumer<Object> removeChild, @Nonnull Consumer<String> commandProcessor, @Nonnull Predicate<ATMExchangeButton> selected)
+    private ATMPageManager(Player player, Consumer<Object> addChild, Consumer<Object> removeChild, Consumer<String> commandProcessor, Predicate<ATMExchangeButton> selected)
     {
         this.addChild = addChild;
         this.removeChild = removeChild;
@@ -60,7 +59,7 @@ public final class ATMPageManager {
 
     }
 
-    public void initialize(@Nonnull ScreenArea screen)
+    public void initialize(ScreenArea screen)
     {
         this.corner = screen.pos;
         //Create dropdown widget if more than one valid option
@@ -83,7 +82,7 @@ public final class ATMPageManager {
         }
     }
 
-    private void addButton(@Nonnull ATMExchangeButtonData data)
+    private void addButton(ATMExchangeButtonData data)
     {
         ATMExchangeButton button = ATMExchangeButton.builder(data)
                 .screenCorner(this.corner)
@@ -121,7 +120,7 @@ public final class ATMPageManager {
     }
 
 
-    public static ATMPageManager create(@Nonnull Player player, @Nonnull Consumer<Object> addChild, @Nonnull Consumer<Object> removeChild, @Nonnull Consumer<String> commandProcessor) { return new ATMPageManager(player, addChild, removeChild, commandProcessor, Predicates.alwaysFalse()); }
-    public static ATMPageManager create(@Nonnull Player player, @Nonnull Consumer<Object> addChild, @Nonnull Consumer<Object> removeChild, @Nonnull Consumer<String> commandProcessor, @Nonnull Predicate<ATMExchangeButton> selected) { return new ATMPageManager(player,addChild,removeChild,commandProcessor,selected); }
+    public static ATMPageManager create(Player player, Consumer<Object> addChild, Consumer<Object> removeChild, Consumer<String> commandProcessor) { return new ATMPageManager(player, addChild, removeChild, commandProcessor, Predicates.alwaysFalse()); }
+    public static ATMPageManager create(Player player, Consumer<Object> addChild, Consumer<Object> removeChild, Consumer<String> commandProcessor, Predicate<ATMExchangeButton> selected) { return new ATMPageManager(player,addChild,removeChild,commandProcessor,selected); }
 
 }

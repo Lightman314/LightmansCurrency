@@ -1,31 +1,30 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.transaction_register;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FlexibleHeightSprite;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.NormalSprite;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.VerticalSliceSprite;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.FlexibleHeightSprite;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteSource;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.NormalSprite;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.VerticalSliceSprite;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.value.FlexibleMoneyValue;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TransactionRegisterScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TransactionDisplayWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.items.data.register.TransactionData;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 
 public class DefaultTab extends TransactionRegisterTab implements IScrollable {
 
-    public static final FlexibleHeightSprite PAPER_SCROLL_BG = new VerticalSliceSprite(SpriteSource.create(VersionUtil.lcResource("common/widgets/scrollbar_vert_background_paper"),8,128),8);
-    public static final FixedSizeSprite PAPER_SCROLL_KNOB = new NormalSprite(SpriteSource.create(VersionUtil.lcResource("common/widgets/scrollbar_vert_knob_paper"),8,29));
+    public static final FlexibleHeightSprite PAPER_SCROLL_BG = new VerticalSliceSprite(SpriteSource.create(LightmansCurrency.id("common/widgets/scrollbar_vert_background_paper"),8,128),8);
+    public static final FixedSizeSprite PAPER_SCROLL_KNOB = new NormalSprite(SpriteSource.create(LightmansCurrency.id("common/widgets/scrollbar_vert_knob_paper"),8,29));
 
     private final StartingBalanceTab startingBalanceTab;
 

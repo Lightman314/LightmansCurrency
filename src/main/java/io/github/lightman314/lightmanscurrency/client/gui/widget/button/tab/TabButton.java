@@ -3,12 +3,12 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab;
 import com.google.common.collect.ImmutableList;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.IRotatableWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.ITooltipSource;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.IRotatableWidget;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.WidgetRotation;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;

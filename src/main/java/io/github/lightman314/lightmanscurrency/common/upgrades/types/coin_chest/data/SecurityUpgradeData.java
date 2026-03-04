@@ -2,16 +2,13 @@ package io.github.lightman314.lightmanscurrency.common.upgrades.types.coin_chest
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Objects;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public final class SecurityUpgradeData {
 
     public static final SecurityUpgradeData DEFAULT = new SecurityUpgradeData(false,new OwnerData());
@@ -21,10 +18,10 @@ public final class SecurityUpgradeData {
                     OwnerData.CODEC.fieldOf("Owner").forGetter(d -> d.owner)
             ).apply(builder,SecurityUpgradeData::new)
     );
-    public static final StreamCodec<RegistryFriendlyByteBuf,SecurityUpgradeData> STREAM_CODEC = StreamCodec.of((b, d) -> {
-        b.writeBoolean(d.breakIsValid);
-        b.writeNbt(d.owner.save(b.registryAccess()));
-    }, b -> new SecurityUpgradeData(b.readBoolean(),OwnerData.parseUnsided(b.readNbt(),b.registryAccess())));
+    public static final StreamCodec<RegistryFriendlyByteBuf,SecurityUpgradeData> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.BOOL,d -> d.breakIsValid,
+            OwnerData.STREAM_CODEC,d -> d.owner,
+            SecurityUpgradeData::new);
 
     public final boolean breakIsValid;
     public final OwnerData owner;

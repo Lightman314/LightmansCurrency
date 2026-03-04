@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.common;
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCTags;
-import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
 import io.github.lightman314.lightmanscurrency.api.misc.BlockProtectionHelper;
@@ -16,25 +16,22 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.advancements.date.DateTrigger;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
-import io.github.lightman314.lightmanscurrency.common.attachments.EventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.api.events.WalletDropEvent;
 import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
+import io.github.lightman314.lightmanscurrency.common.commands.*;
 import io.github.lightman314.lightmanscurrency.common.core.ModAttachmentTypes;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.variant.ItemVariantSelectMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
-import io.github.lightman314.lightmanscurrency.network.message.event.SPacketSyncEventUnlocks;
-import io.github.lightman314.lightmanscurrency.network.message.walletslot.SPacketSyncWallet;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
@@ -55,6 +52,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.TriState;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -178,51 +176,8 @@ public class EventHandler {
 	{
 		if(event.getEntity().level().isClientSide)
 			return;
-		sendWalletUpdatePacket(event.getEntity());
-		sendEventUpdatePacket(event.getEntity());
 		if(event.getEntity() instanceof ServerPlayer player)
 			SyncedConfigFile.playerJoined(player);
-	}
-	
-	//Sync wallet contents for newly loaded entities
-	@SubscribeEvent
-	public static void playerStartTracking(PlayerEvent.StartTracking event)
-	{
-		if(event.getTarget() instanceof LivingEntity target && target.hasData(ModAttachmentTypes.WALLET_HANDLER))
-		{
-			Player player = event.getEntity();
-			sendWalletUpdatePacket(target, player);
-		}
-	}
-
-	@SubscribeEvent
-	public static void playerChangedDimensions(PlayerEvent.PlayerChangedDimensionEvent event) {
-		Player player = event.getEntity();
-		if(player.level().isClientSide)
-			return;
-		//sendWalletUpdatePacket(player);
-		sendEventUpdatePacket(player);
-	}//*/
-
-	private static void sendWalletUpdatePacket(LivingEntity entity, Player target) {
-		if(entity.level().isClientSide && entity.hasData(ModAttachmentTypes.WALLET_HANDLER))
-			return;
-		WalletHandler walletHandler = WalletHandler.get(entity);
-		new SPacketSyncWallet(entity.getId(), walletHandler.getWallet(), walletHandler.visible()).sendTo(target);
-	}
-
-	private static void sendWalletUpdatePacket(Player player)
-	{
-		sendWalletUpdatePacket(player, player);
-	}
-
-	private static void sendEventUpdatePacket(Player player)
-	{
-		if(player.level().isClientSide)
-			return;
-		EventUnlocks eventUnlocks = player.getData(ModAttachmentTypes.EVENT_UNLOCKS);
-		if(eventUnlocks != null)
-			new SPacketSyncEventUnlocks(eventUnlocks.getUnlockedList()).sendTo(player);
 	}
 	
 	//Drop the wallet if keep inventory isn't on.
@@ -437,7 +392,7 @@ public class EventHandler {
         if(player.level().isClientSide)
             return;
 		ItemStack heldItem = player.getItemInHand(event.getHand());
-		if(InventoryUtil.ItemHasTag(heldItem, LCTags.Items.VARIANT_WANDS))
+		if(heldItem.is(LCTags.Items.VARIANT_WANDS))
 		{
 			if(IVariantBlock.tryUseWand(player,event.getPos()))
 				event.setCanceled(true);
@@ -451,8 +406,20 @@ public class EventHandler {
         if(player.level().isClientSide)
             return;
         ItemStack heldItem = player.getItemInHand(event.getHand());
-        if(InventoryUtil.ItemHasTag(heldItem,LCTags.Items.VARIANT_WANDS))
+        if(heldItem.is(LCTags.Items.VARIANT_WANDS))
             player.openMenu(ItemVariantSelectMenu.providerFor());
+    }
+
+    @SubscribeEvent
+    public static void onCommandLoading(RegisterCommandsEvent event)
+    {
+        CommandLCAdmin.register(event.getDispatcher(), event.getBuildContext());
+        CommandBalTop.register(event.getDispatcher());
+        CommandPlayerTrading.register(event.getDispatcher());
+        CommandTicket.register(event.getDispatcher());
+        CommandBank.register(event.getDispatcher(), event.getBuildContext());
+        CommandConfig.register(event.getDispatcher());
+        CommandTerminal.register(event.getDispatcher());
     }
 	
 }

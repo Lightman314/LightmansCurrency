@@ -1,16 +1,20 @@
 package io.github.lightman314.lightmanscurrency.api.money.bank.reference;
 
+import com.mojang.serialization.MapCodec;
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 
-public abstract class BankReferenceType {
+public abstract class BankReferenceType<T extends BankReference> {
 
-    public final ResourceLocation id;
-    protected BankReferenceType(ResourceLocation id) { this.id = id; }
+    public abstract MapCodec<T> codec();
+    public abstract StreamCodec<? super RegistryFriendlyByteBuf,T> streamCodec();
 
-    public abstract BankReference load(CompoundTag tag);
-    public abstract BankReference decode(FriendlyByteBuf buffer);
+    public abstract BankReference loadOldData(CompoundTag tag);
 
-
+    @Override
+    public int hashCode() { return LCRegistries.BANK_REFERENCE.getKey(this).hashCode(); }
+    @Override
+    public String toString() { return "BankReference[" + LCRegistries.BANK_REFERENCE.getKey(this) + "]"; }
 }

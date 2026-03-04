@@ -1,18 +1,14 @@
 package io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import com.google.gson.JsonSyntaxException;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import net.minecraft.ResourceLocationException;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class ATMIconData {
 	
 	public final int xPos;
@@ -28,17 +24,18 @@ public abstract class ATMIconData {
 		this.yPos = yPos;
 	}
 
-	public final JsonObject save(HolderLookup.Provider lookup) {
+	public final JsonObject save(DataContext<JsonElement> context) {
 		JsonObject data = new JsonObject();
-		data.addProperty("type", this.getType().toString());
 		data.addProperty("x", this.xPos);
 		data.addProperty("y", this.yPos);
-		this.saveAdditional(data,lookup);
+		this.saveAdditional(data,context);
+        //Define the type last so that it can't be overridden
+        data.addProperty("type",LCRegistries.ATM_ICON_TYPE.getKey(this.getType()).toString());
 		return data;
 	}
 
-	public abstract ResourceLocation getType();
+	public abstract ATMIconType getType();
 	
-	protected abstract void saveAdditional(JsonObject data, HolderLookup.Provider lookup);
+	protected abstract void saveAdditional(JsonObject data,DataContext<JsonElement> context);
 	
 }

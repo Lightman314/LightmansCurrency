@@ -1,21 +1,17 @@
 package io.github.lightman314.lightmanscurrency.api.traders.menu.customer;
 
 import io.github.lightman314.lightmanscurrency.api.traders.ITraderSource;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Set;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public interface ITraderMenu extends IClientTracker {
 
     @Nullable
@@ -29,5 +25,7 @@ public interface ITraderMenu extends IClientTracker {
     void submitDiscountCode(String code);
     void removeDiscountCode(String code);
     void clearDiscountCodes();
+
+    void ExecuteTrade(int traderIndex,int tradeIndex);
 
 }

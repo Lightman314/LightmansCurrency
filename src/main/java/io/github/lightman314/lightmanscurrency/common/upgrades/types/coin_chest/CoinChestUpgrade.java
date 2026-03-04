@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Consumer;
@@ -19,20 +18,19 @@ public abstract class CoinChestUpgrade extends UpgradeType {
 
     public boolean alwayActive() { return false; }
 
-    public abstract void HandleMenuMessage(@Nonnull CoinChestMenu menu, @Nonnull CoinChestUpgradeData data, @Nonnull LazyPacketData message);
+    public abstract void HandleMenuMessage(CoinChestMenu menu, CoinChestUpgradeData data, LazyPacketData message);
 
-    public void OnStorageChanged(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) {}
-    public void OnEquip(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) {}
-    public boolean BlockAccess(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data, @Nullable Player player) { return false; }
-    public void OnValidBlockRemoval(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) { }
-    public void OnBlockRemoval(@Nonnull CoinChestBlockEntity be, @Nonnull CoinChestUpgradeData data) { }
+    public void OnStorageChanged(CoinChestBlockEntity be, CoinChestUpgradeData data) {}
+    public void OnEquip(CoinChestBlockEntity be, CoinChestUpgradeData data) {}
+    public boolean BlockAccess(CoinChestBlockEntity be, CoinChestUpgradeData data, @Nullable Player player) { return false; }
+    public void OnValidBlockRemoval(CoinChestBlockEntity be, CoinChestUpgradeData data) { }
+    public void OnBlockRemoval(CoinChestBlockEntity be, CoinChestUpgradeData data) { }
     
-    public abstract void addClientTabs(@Nonnull CoinChestUpgradeData data, @Nonnull Object screen, @Nonnull Consumer<Object> consumer);
+    public abstract void addClientTabs(CoinChestUpgradeData data, Object screen, Consumer<Object> consumer);
 
-    public boolean isActive(@Nonnull CoinChestUpgradeData data) { return this.alwayActive() || data.getData(ModDataComponents.UPGRADE_ACTIVE,true); }
-    public void setActive(@Nonnull CoinChestUpgradeData data, boolean active) { data.setData(ModDataComponents.UPGRADE_ACTIVE,active); }
+    public boolean isActive(CoinChestUpgradeData data) { return this.alwayActive() || data.getData(ModDataComponents.UPGRADE_ACTIVE,true); }
+    public void setActive(CoinChestUpgradeData data, boolean active) { data.setData(ModDataComponents.UPGRADE_ACTIVE,active); }
 
-    @Nonnull
     @Override
     protected List<Component> getBuiltInTargets() { return ImmutableList.of(formatTarget(ModBlocks.COIN_CHEST)); }
 

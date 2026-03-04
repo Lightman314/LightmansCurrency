@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 @ParametersAreNonnullByDefault
 public abstract class ModelVariantProvider implements DataProvider {
 
-    //protected static final ResourceLocation EMPTY_MODEL = VersionUtil.lcResource("block/empty");
+    //protected static final ResourceLocation EMPTY_MODEL = LightmansCurrency.id("block/empty");
 
     protected final String modid;
     private final PackOutput.PathProvider provider;

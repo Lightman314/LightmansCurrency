@@ -2,17 +2,13 @@ package io.github.lightman314.lightmanscurrency.common.items;
 
 import java.util.List;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.items.data.TicketData;
 import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
@@ -20,10 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.DyedItemColor;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class TicketItem extends Item implements IVariantItem {
-
 
 	public TicketItem(Properties properties) { super(properties); }
 
@@ -58,14 +51,14 @@ public class TicketItem extends Item implements IVariantItem {
 	{
 		if(ticket.isEmpty() || !ticket.has(ModDataComponents.TICKET_ID))
 			return false;
-		return ticket.getItem() instanceof TicketItem && InventoryUtil.ItemHasTag(ticket, LCTags.Items.TICKETS_TICKET);
+		return ticket.getItem() instanceof TicketItem && ticket.is(LCTags.Items.TICKETS_TICKET);
 	}
 
 	public static boolean isPass(ItemStack ticket)
 	{
 		if(ticket.isEmpty() || !ticket.has(ModDataComponents.TICKET_ID))
 			return false;
-		return ticket.getItem() instanceof TicketItem && InventoryUtil.ItemHasTag(ticket, LCTags.Items.TICKETS_PASS);
+		return ticket.getItem() instanceof TicketItem && ticket.is(LCTags.Items.TICKETS_PASS);
 	}
 
     public static boolean isInfinitePass(ItemStack ticket)
@@ -79,7 +72,7 @@ public class TicketItem extends Item implements IVariantItem {
 	{
 		if(ticket.isEmpty() || !ticket.has(ModDataComponents.TICKET_ID))
 			return false;
-		return ticket.getItem() instanceof TicketItem && InventoryUtil.ItemHasTag(ticket, LCTags.Items.TICKETS_MASTER);
+		return ticket.getItem() instanceof TicketItem && ticket.is(LCTags.Items.TICKETS_MASTER);
 	}
 
 	public static long GetTicketID(ItemStack ticket)

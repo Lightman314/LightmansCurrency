@@ -2,21 +2,20 @@ package io.github.lightman314.lightmanscurrency.network.message.config;
 
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.network.FriendlyByteBuf;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class CPacketTrackServerFile extends ClientToServerPacket {
 
-    public static final Type<CPacketTrackServerFile> TYPE = new Type<>(VersionUtil.lcResource("c_config_track"));
+    private static final Type<CPacketTrackServerFile> TYPE = cType("config_track");
+    private static final StreamCodec<ByteBuf,CPacketTrackServerFile> STREAM_CODEC = StreamCodec.composite(
+            ResourceLocation.STREAM_CODEC,p -> p.fileID,
+            ByteBufCodecs.BOOL,p -> p.tracking,
+            CPacketTrackServerFile::new);
     public static final Handler<CPacketTrackServerFile> HANDLER = new H();
 
     private final ResourceLocation fileID;
@@ -27,12 +26,9 @@ public class CPacketTrackServerFile extends ClientToServerPacket {
         this.tracking = tracking;
     }
 
-    private static void encode(FriendlyByteBuf buffer, CPacketTrackServerFile message) { buffer.writeResourceLocation(message.fileID).writeBoolean(message.tracking); }
-    private static CPacketTrackServerFile decode(FriendlyByteBuf buffer) { return new CPacketTrackServerFile(buffer.readResourceLocation(),buffer.readBoolean()); }
-
     private static class H extends Handler<CPacketTrackServerFile>
     {
-        private H() { super(TYPE, StreamCodec.of(CPacketTrackServerFile::encode,CPacketTrackServerFile::decode)); }
+        private H() { super(TYPE,STREAM_CODEC); }
         @Override
         protected void handle(CPacketTrackServerFile message, IPayloadContext context, Player player) {
             ConfigFile file = ConfigFile.lookupFile(message.fileID);

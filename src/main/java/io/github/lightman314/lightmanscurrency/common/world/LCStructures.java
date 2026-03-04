@@ -57,13 +57,13 @@ public class LCStructures {
     static {
         structureProcessors = new HashMap<>();
         //Villages
-        structureProcessors.put(VersionUtil.lcResource("village/houses/desert_banker"),easyGetter(PROCESSOR_DESERT_BANKER_ARCHAEOLOGY));
-        structureProcessors.put(VersionUtil.lcResource("village/houses/plains_shop"),easyGetter(PROCESSOR_PLAINS_SHOP_ARCHAEOLOGY));
-        structureProcessors.put(VersionUtil.lcResource("village/houses/taiga_shop"),easyGetter(PROCESSOR_TAIGA_SHOP_ARCHAEOLOGY));
-        structureProcessors.put(VersionUtil.lcResource("village/houses/desert_shop"),easyGetter(PROCESSOR_DESERT_SHOP_ARCHAEOLOGY));
-        structureProcessors.put(VersionUtil.lcResource("village/houses/idas_plains_large_bank"),easyGetter(PROCESSOR_DESERT_SHOP_ARCHAEOLOGY));
+        structureProcessors.put(LightmansCurrency.id("village/houses/desert_banker"),easyGetter(PROCESSOR_DESERT_BANKER_ARCHAEOLOGY));
+        structureProcessors.put(LightmansCurrency.id("village/houses/plains_shop"),easyGetter(PROCESSOR_PLAINS_SHOP_ARCHAEOLOGY));
+        structureProcessors.put(LightmansCurrency.id("village/houses/taiga_shop"),easyGetter(PROCESSOR_TAIGA_SHOP_ARCHAEOLOGY));
+        structureProcessors.put(LightmansCurrency.id("village/houses/desert_shop"),easyGetter(PROCESSOR_DESERT_SHOP_ARCHAEOLOGY));
+        structureProcessors.put(LightmansCurrency.id("village/houses/idas_plains_large_bank"),easyGetter(PROCESSOR_DESERT_SHOP_ARCHAEOLOGY));
         //Ancient City
-        structureProcessors.put(VersionUtil.lcResource("ancient_city/ancient_ruins"),easyGetter(PROCESSOR_ANCIENT_RUINS));
+        structureProcessors.put(LightmansCurrency.id("ancient_city/ancient_ruins"),easyGetter(PROCESSOR_ANCIENT_RUINS));
     }
 
     @SubscribeEvent
@@ -82,7 +82,7 @@ public class LCStructures {
                 {
                     addToPool(
                             housePool,
-                            VersionUtil.lcResource("village/houses/" + biome + "_" + type),
+                            LightmansCurrency.id("village/houses/" + biome + "_" + type),
                             registryAccess,
                             3
                     );
@@ -93,12 +93,12 @@ public class LCStructures {
             if(spawnIDAS)
             {
                 addToPool(VersionUtil.vanillaResource("village/taiga/houses"),
-                        VersionUtil.lcResource("village/houses/idas_taiga_large_bank"),
+                        LightmansCurrency.id("village/houses/idas_taiga_large_bank"),
                         registryAccess,
                         1
                 );
                 addToPool(VersionUtil.vanillaResource("village/plains/houses"),
-                        VersionUtil.lcResource("village/houses/idas_plains_gundam"),
+                        LightmansCurrency.id("village/houses/idas_plains_gundam"),
                         registryAccess,
                         1
                 );
@@ -108,7 +108,7 @@ public class LCStructures {
         if(LCConfig.COMMON.structureAncientCity.get())
         {
             addToPool(VersionUtil.vanillaResource("ancient_city/structures"),
-                    VersionUtil.lcResource("ancient_city/ancient_ruins"),
+                    LightmansCurrency.id("ancient_city/ancient_ruins"),
                     registryAccess,
                     2);
         }
@@ -145,7 +145,7 @@ public class LCStructures {
         return getter == null ? null : getter.apply(registryAccess);
     }
 
-    private static Function<RegistryAccess,Holder<StructureProcessorList>> easyGetter(@Nonnull String processorID) { return easyGetter(VersionUtil.lcResource(processorID)); }
+    private static Function<RegistryAccess,Holder<StructureProcessorList>> easyGetter(@Nonnull String processorID) { return easyGetter(LightmansCurrency.id(processorID)); }
     private static Function<RegistryAccess,Holder<StructureProcessorList>> easyGetter(@Nonnull ResourceLocation processorID) { return easyGetter(ResourceKey.create(Registries.PROCESSOR_LIST,processorID)); }
     private static Function<RegistryAccess,Holder<StructureProcessorList>> easyGetter(@Nonnull ResourceKey<StructureProcessorList> key)
     {
@@ -155,8 +155,8 @@ public class LCStructures {
         };
     }
 
-    private static ResourceKey<StructureProcessorList> processorList(String id) { return ResourceKey.create(Registries.PROCESSOR_LIST,VersionUtil.lcResource(id)); }
-    private static ResourceKey<StructureSet> structureSet(String id) { return ResourceKey.create(Registries.STRUCTURE_SET,VersionUtil.lcResource(id)); }
+    private static ResourceKey<StructureProcessorList> processorList(String id) { return ResourceKey.create(Registries.PROCESSOR_LIST,LightmansCurrency.id(id)); }
+    private static ResourceKey<StructureSet> structureSet(String id) { return ResourceKey.create(Registries.STRUCTURE_SET,LightmansCurrency.id(id)); }
 
     private static void debugPool(@Nonnull ResourceLocation poolID, @Nonnull RegistryAccess registryAccess)
     {

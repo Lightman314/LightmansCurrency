@@ -6,17 +6,12 @@ import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
-import io.github.lightman314.lightmanscurrency.api.events.client.RegisterClientTraderAttachmentsEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.api.traders.attachments.builtin.ExternalAuthorizationAttachment;
-import io.github.lightman314.lightmanscurrency.api.traders.client.builtin.ClientExternalAuthorizationAttachment;
-import io.github.lightman314.lightmanscurrency.api.traders.client.builtin.ClientInputTraderAttachment;
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.ChestCoinCollectButton;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
@@ -31,21 +26,10 @@ import io.github.lightman314.lightmanscurrency.common.items.PortableATMItem;
 import io.github.lightman314.lightmanscurrency.common.items.PortableTerminalItem;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
-import io.github.lightman314.lightmanscurrency.common.menus.validation.types.ItemValidator;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
-import io.github.lightman314.lightmanscurrency.common.traders.commands.CommandTrader;
-import io.github.lightman314.lightmanscurrency.common.traders.commands.client.ClientCommandAttachment;
-import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
-import io.github.lightman314.lightmanscurrency.common.traders.input.InputTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.input.client.ClientInputSubtraderAttachment;
-import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.paygate.client.ClientPaygateAttachment;
-import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketOpenATM;
 import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -89,7 +73,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -116,8 +99,7 @@ public class ClientEvents {
 			LocalPlayer player = minecraft.player;
 			if(KEY_WALLET.isDown())
 			{
-				
-				new CPacketOpenWallet(-1).send();
+				CPacketOpenWallet.send();
 				ItemStack wallet = CoinAPI.getApi().getEquippedWallet(player);
 				if(!wallet.isEmpty())
 				{
@@ -136,7 +118,7 @@ public class ClientEvents {
                     Item terminal = LCCurios.lookupPortableTerminal(minecraft.player);
                     if(terminal != null)
                     {
-                        new CPacketOpenNetworkTerminal(new ItemValidator(terminal)).send();
+                        new CPacketOpenNetworkTerminal(terminal).sendToServer();
                         fail = false;
                     }
 
@@ -146,7 +128,7 @@ public class ClientEvents {
                     Item atm = LCCurios.lookupPortableATM(minecraft.player);
                     if(atm != null)
                     {
-                        new CPacketOpenATM(atm).send();
+                        new CPacketOpenATM(atm).sendToServer();
                         //fail = false; Placeholder if I ever add a new button here
                     }
                 }
@@ -186,7 +168,7 @@ public class ClientEvents {
 				return;
 
 			//Add Wallet-Related buttons if Curios doesn't exist
-			event.addListener(new WalletButton(gui,CPacketOpenWallet::sendEquippedPacket));
+			event.addListener(new WalletButton(gui,CPacketOpenWallet::send));
 
 			event.addListener(new VisibilityToggleButton(gui, ClientEvents::toggleVisibility));
 
@@ -205,7 +187,7 @@ public class ClientEvents {
 		WalletHandler handler = WalletHandler.get(player);
 		boolean nowVisible = !handler.visible();
 		handler.setVisible(nowVisible);
-		new CPacketSetVisible(nowVisible).send();
+		new CPacketSetVisible(nowVisible).sendToServer();
 	}
 	
 	//Renders empty gui slot
@@ -313,7 +295,7 @@ public class ClientEvents {
             appendVariantTooltip(event,stack,vi,event.getFlags());
 
 		//Variant Wand tooltip
-		if(InventoryUtil.ItemHasTag(stack,LCTags.Items.VARIANT_WANDS))
+		if(stack.is(LCTags.Items.VARIANT_WANDS))
 			TooltipItem.insertTooltip(event.getToolTip(), LCText.TOOLTIP_VARIANT_WAND);
 
 	}
@@ -361,7 +343,7 @@ public class ClientEvents {
         return tooltip::add;
     }
 
-	private static void appendKeyBindTooltip(@Nonnull ItemTooltipEvent event, @Nonnull TextEntry tooltip, @Nonnull KeyMapping key)
+	private static void appendKeyBindTooltip(ItemTooltipEvent event, TextEntry tooltip, KeyMapping key)
 	{
 		event.getToolTip().add(1,tooltip.get(EasyText.makeMutable(key.getTranslatedKeyMessage()).withStyle(ChatFormatting.YELLOW)));
 	}
@@ -373,24 +355,6 @@ public class ClientEvents {
         TooltipInjector(List<Component> tooltips,int injectIndex) { this.tooltips = tooltips; this.injectIndex = injectIndex; }
         @Override
         public void accept(Component component) { this.tooltips.add(this.injectIndex++,component); }
-    }
-
-    @SubscribeEvent
-    public static void setupClientTraderAttachments(RegisterClientTraderAttachmentsEvent event)
-    {
-        TraderData trader = event.getTrader();
-        //Trader-specific attachments
-        if(trader instanceof InputTraderData)
-            event.register(ClientInputTraderAttachment.INSTANCE);
-        if(trader instanceof ItemTraderData || trader instanceof GachaTrader || trader instanceof SlotMachineTraderData)
-            event.register(ClientInputSubtraderAttachment.ITEM_TRADER);
-        if(trader instanceof PaygateTraderData)
-            event.register(ClientPaygateAttachment.INSTANCE);
-        if(trader instanceof CommandTrader)
-            event.register(ClientCommandAttachment.INSTANCE);
-        //Add client attachment if the common attachment is present
-        if(trader.hasAttachment(ExternalAuthorizationAttachment.TYPE))
-            event.register(ClientExternalAuthorizationAttachment.INSTANCE);
     }
 
 }

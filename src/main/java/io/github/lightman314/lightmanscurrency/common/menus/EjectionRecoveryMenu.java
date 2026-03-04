@@ -5,21 +5,21 @@ import java.util.List;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.api.ejection.SafeEjectionAPI;
+import io.github.lightman314.lightmanscurrency.api.misc.item_handlers.LCItemStackHandler;
+import io.github.lightman314.lightmanscurrency.api.misc.item_handlers.SuppliedInventory;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.OutputSlot;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
-import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedContainer;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.OutputSlot;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
 public class EjectionRecoveryMenu extends LazyMessageMenu {
 
@@ -40,9 +40,9 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 		return null;
 	}
 
-	private final Container dummyContainer = new SimpleContainer(54);
+	private final IItemHandlerModifiable dummyContainer = new LCItemStackHandler(54);
 	
-	private Container getSelectedContainer() { 
+	private IItemHandlerModifiable getSelectedContainer() {
 		//Get valid data
 		List<EjectionData> data = this.getValidEjectionData();
 		//Check if selection is no longer valid
@@ -63,7 +63,7 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 	protected EjectionRecoveryMenu(MenuType<?> type, int menuID, Inventory inventory) {
 		super(type, menuID, inventory);
 		
-		Container ejectionContainer = new SuppliedContainer(this::getSelectedContainer);
+		IItemHandlerModifiable ejectionContainer = new SuppliedInventory(this::getSelectedContainer);
 		
 		//Menu slots
 		for(int y = 0; y < 6; ++y)
@@ -91,7 +91,7 @@ public class EjectionRecoveryMenu extends LazyMessageMenu {
 	}
 
 	@Override
-	public void HandleMessage(LazyPacketData message) {
+	public void processMessage(LazyPacketData message) {
 		if(message.contains("ChangeSelection", LazyPacketData.TYPE_INT))
 			this.changeSelection(message.getInt("ChangeSelection"));
 		if(message.contains("SelectionChanged"))

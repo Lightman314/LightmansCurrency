@@ -1,17 +1,16 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.scroll;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FlexibleWidthSprite;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.HorizontalSliceSprite;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.NormalSprite;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IPreRender;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.FlexibleWidthSprite;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteSource;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.HorizontalSliceSprite;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.NormalSprite;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IMouseListener;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IPreRender;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 
@@ -21,10 +20,10 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class HorizScrollBarWidget extends EasyWidget implements IMouseListener, IPreRender {
 
-    public static final FlexibleWidthSprite BACKGROUND_SPRITE = new HorizontalSliceSprite(SpriteSource.create(VersionUtil.lcResource("common/widgets/scrollbar_horiz_background"),128,8),8);
-    public static final FixedSizeSprite KNOB_SPRITE = new NormalSprite(SpriteSource.create(VersionUtil.lcResource("common/widgets/scrollbar_horiz_knob"),29,8));
-    public static final FixedSizeSprite SMALL_KNOB_SPRITE = new NormalSprite(SpriteSource.create(VersionUtil.lcResource("common/widgets/scrollbar_horiz_smallknob"),9,8));
-    public static final FixedSizeSprite SLIDER_SPRITE = new NormalSprite(SpriteSource.create(VersionUtil.lcResource("common/widgets/scrollbar_horiz_slider"),5,12));
+    public static final FlexibleWidthSprite BACKGROUND_SPRITE = new HorizontalSliceSprite(SpriteSource.create(LightmansCurrency.id("common/widgets/scrollbar_horiz_background"),128,8),8);
+    public static final FixedSizeSprite KNOB_SPRITE = new NormalSprite(SpriteSource.create(LightmansCurrency.id("common/widgets/scrollbar_horiz_knob"),29,8));
+    public static final FixedSizeSprite SMALL_KNOB_SPRITE = new NormalSprite(SpriteSource.create(LightmansCurrency.id("common/widgets/scrollbar_horiz_smallknob"),9,8));
+    public static final FixedSizeSprite SLIDER_SPRITE = new NormalSprite(SpriteSource.create(LightmansCurrency.id("common/widgets/scrollbar_horiz_slider"),5,12));
 
 	public static final int HEIGHT = 8;
 

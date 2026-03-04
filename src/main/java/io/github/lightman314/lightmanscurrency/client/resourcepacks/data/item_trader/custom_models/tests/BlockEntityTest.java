@@ -2,9 +2,9 @@ package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_t
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.custom_models.CustomModelTest;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -13,13 +13,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class BlockEntityTest extends CustomModelTest {
 
-    public static final ResourceLocation TYPE = VersionUtil.lcResource("block_entity_type");
+    public static final ResourceLocation TYPE = LightmansCurrency.id("block_entity_type");
 
     private final ResourceLocation type;
     public BlockEntityTest(ResourceLocation type) { super(TYPE); this.type = type; }

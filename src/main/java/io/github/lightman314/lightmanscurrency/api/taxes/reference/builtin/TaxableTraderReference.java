@@ -1,14 +1,17 @@
 package io.github.lightman314.lightmanscurrency.api.taxes.reference.builtin;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxReferenceType;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableReference;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.Nullable;
-
-import javax.annotation.Nonnull;
 
 public class TaxableTraderReference extends TaxableReference {
 
@@ -23,17 +26,24 @@ public class TaxableTraderReference extends TaxableReference {
     public ITaxable getTaxable(boolean isClient) { return TraderAPI.getApi().GetTrader(isClient, this.traderID); }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag tag) { tag.putLong("TraderID", this.traderID); }
-
-    @Override
-    protected boolean matches(@Nonnull TaxableReference otherReference) { return otherReference instanceof TaxableTraderReference ttr && ttr.traderID == this.traderID; }
+    protected boolean matches(TaxableReference otherReference) { return otherReference instanceof TaxableTraderReference ttr && ttr.traderID == this.traderID; }
 
     private static class TraderType extends TaxReferenceType
     {
-        private TraderType() { super(VersionUtil.lcResource( "trader")); }
+
+        private static final MapCodec<TaxableTraderReference> CODEC = Codec.LONG.xmap(TaxableTraderReference::new,t -> t.traderID).fieldOf("trader");
+        private static final StreamCodec<ByteBuf,TaxableTraderReference> STREAM_CODEC = ByteBufCodecs.VAR_LONG.map(TaxableTraderReference::new, t -> t.traderID);
+
+        private TraderType() { super(LightmansCurrency.id( "trader")); }
 
         @Override
         public TaxableReference load(CompoundTag tag) { return new TaxableTraderReference(tag.getLong("TraderID")); }
+
+        @Override
+        public MapCodec<TaxableTraderReference> codec() { return CODEC; }
+        @Override
+        public StreamCodec<ByteBuf,TaxableTraderReference> streamCodec() { return STREAM_CODEC; }
+
     }
 
 }

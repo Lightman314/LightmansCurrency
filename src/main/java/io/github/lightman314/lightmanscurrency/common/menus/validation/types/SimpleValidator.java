@@ -36,7 +36,7 @@ public final class SimpleValidator extends MenuValidator {
 
     private static class Type extends MenuValidatorType
     {
-        protected Type() { super(VersionUtil.lcResource("null")); }
+        protected Type() { super(LightmansCurrency.id("null")); }
         @Nonnull
         @Override
         public MenuValidator decode(@Nonnull FriendlyByteBuf buffer) { return NULL; }

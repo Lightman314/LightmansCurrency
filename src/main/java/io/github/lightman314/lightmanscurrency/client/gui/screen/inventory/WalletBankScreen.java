@@ -1,14 +1,15 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.EasyClientTabbedMenuScreen;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.client.gui.tabbed.EasyClientTabbedMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.WidgetRotation;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
@@ -17,19 +18,15 @@ import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.walle
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletBankMenu;
-import io.github.lightman314.lightmanscurrency.network.message.wallet.CPacketOpenWallet;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
-
 public class WalletBankScreen extends EasyClientTabbedMenuScreen<WalletBankMenu,WalletBankScreen,WalletBankTab> {
 
-	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/wallet_bank.png");
+	public static final ResourceLocation GUI_TEXTURE = LightmansCurrency.id("textures/gui/container/wallet_bank.png");
 	
 	EasyButton buttonOpenWallet;
 	
@@ -44,7 +41,6 @@ public class WalletBankScreen extends EasyClientTabbedMenuScreen<WalletBankMenu,
 		this.addTab(new InteractionTab(this));
 	}
 
-	@Nonnull
 	@Override
 	protected IWidgetPositioner getTabButtonPositioner() {
 		return LazyWidgetPositioner.create(this,LazyWidgetPositioner.createTopdown(WidgetRotation.LEFT),ScreenPosition.of(TabButton.NEGATIVE_SIZE,0), TabButton.SIZE);
@@ -58,7 +54,7 @@ public class WalletBankScreen extends EasyClientTabbedMenuScreen<WalletBankMenu,
 		
 		this.buttonOpenWallet = this.addChild(IconButton.builder()
 				.position(screenArea.pos.offset(screenArea.width,0))
-				.pressAction(this::PressOpenWalletButton)
+				.pressAction(this.menu::openWallet)
 				.icon(ItemIcon.ofItem(this.menu.getWallet()))
 				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_WALLET_OPEN_WALLET))
 				.build());
@@ -68,7 +64,7 @@ public class WalletBankScreen extends EasyClientTabbedMenuScreen<WalletBankMenu,
 	}
 	
 	@Override
-	protected void renderBackground(@Nonnull EasyGuiGraphics gui) {
+	protected void renderBackground(EasyGuiGraphics gui) {
 
 		gui.resetColor();
 		//Draw the top
@@ -86,8 +82,5 @@ public class WalletBankScreen extends EasyClientTabbedMenuScreen<WalletBankMenu,
 		ItemStack wallet = this.menu.getWallet();
 		return wallet.isEmpty() ? EasyText.empty() : wallet.getHoverName();
 	}
-	
-	private void PressOpenWalletButton(EasyButton button) { new CPacketOpenWallet(this.menu.getWalletStackIndex()).send(); }
-	
 	
 }

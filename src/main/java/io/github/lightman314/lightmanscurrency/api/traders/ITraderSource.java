@@ -1,29 +1,27 @@
 package io.github.lightman314.lightmanscurrency.api.traders;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
 import java.util.function.Supplier;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public interface ITraderSource {
 
 	ITraderSource CLIENT_TRADER_SOURCE = new NetworkTraderSource(true);
 	ITraderSource SERVER_TRADER_SOURCE = new NetworkTraderSource(false);
-	
-	@Nonnull
+
 	List<TraderData> getTraders();
 	boolean isSingleTrader();
-	@Nonnull
 	default TraderData getSingleTrader() { return this.getTraders().getFirst(); }
 
-	@Nonnull
-	RegistryAccess registryAccess();
+	HolderLookup.Provider registryAccess();
 
 	default boolean showSearchBox() { return false; }
 	@Nullable
@@ -42,13 +40,13 @@ public interface ITraderSource {
 		public Component getCustomTitle() { return LCText.GUI_TRADER_ALL_NETWORK_TRADERS.get(); }
 		@Override
 		public boolean showSearchBox() { return true; }
-		@Nonnull
+		
 		@Override
 		public List<TraderData> getTraders() { return TraderAPI.getApi().GetAllNetworkTraders(this.isClient); }
 		@Override
 		public boolean isSingleTrader() { return false; }
 
-		@Nonnull
+		
 		@Override
 		public RegistryAccess registryAccess() { return LookupHelper.getRegistryAccess(); }
 

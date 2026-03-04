@@ -2,15 +2,12 @@ package io.github.lightman314.lightmanscurrency.common.data.types;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
-import io.github.lightman314.lightmanscurrency.api.ejection.SafeEjectionAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomData;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomDataType;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -19,12 +16,8 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-@FieldsAreNonnullByDefault
 public class EjectionDataCache extends CustomData {
 
     public static final CustomDataType<EjectionDataCache> TYPE = new CustomDataType<>("lightmanscurrency_ejection_data",EjectionDataCache::new);
@@ -43,11 +36,11 @@ public class EjectionDataCache extends CustomData {
     public CustomDataType<?> getType() { return TYPE; }
 
     @Override
-    public void save(CompoundTag tag, HolderLookup.Provider lookup) {
+    public void save(CompoundTag tag, DataContext<Tag> context) {
         tag.putLong("NextID",this.nextID);
         ListTag list = new ListTag();
         this.data.forEach((id,e) -> {
-            CompoundTag entry = e.save(lookup);
+            CompoundTag entry = e.save(context);
             entry.putLong("ID",id);
             list.add(entry);
         });
@@ -55,15 +48,16 @@ public class EjectionDataCache extends CustomData {
     }
 
     @Override
-    protected void load(CompoundTag tag, HolderLookup.Provider lookup) {
+    protected void load(CompoundTag tag, DataContext<Tag> context) {
         if(tag.contains("NextID"))
             this.nextID = tag.getLong("NextID");
         ListTag ejectionData = tag.getList("EmergencyEjectionData", Tag.TAG_COMPOUND);
+
         for(int i = 0; i < ejectionData.size(); ++i)
         {
             try {
                 CompoundTag data = ejectionData.getCompound(i);
-                EjectionData e = SafeEjectionAPI.getApi().parseData(data,lookup);
+                EjectionData e = EjectionData.load(data,context);
                 if(e != null && !e.isEmpty())
                 {
                     if(e.id() < 0)
@@ -118,7 +112,7 @@ public class EjectionDataCache extends CustomData {
             else
             {
                 //Otherwise send an update packet
-                this.sendSyncPacket(this.builder().setCompound("UpdateData",data.save(LookupHelper.getRegistryAccess())));
+                this.sendSyncPacket(this.builder().setCustom("UpdateData",data,EjectionData.STREAM_CODEC));
             }
         }
         else
@@ -134,7 +128,7 @@ public class EjectionDataCache extends CustomData {
             this.data.remove(message.getLong("RemoveData"));
         if(message.contains("UpdateData"))
         {
-            EjectionData d = SafeEjectionAPI.getApi().parseData(message.getNBT("UpdateData"),lookup).flagAsClient(this);
+            EjectionData d = message.getCustom("UpdateData",EjectionData.STREAM_CODEC).flagAsClient(this);
             if(d != null)
                 this.data.put(d.id(),d);
         }
@@ -145,7 +139,7 @@ public class EjectionDataCache extends CustomData {
 
         HolderLookup.Provider lookup = player.registryAccess();
         for(EjectionData d : this.data.values())
-            this.sendSyncPacket(this.builder().setCompound("UpdateData",d.save(lookup)),player);
+            this.sendSyncPacket(this.builder().setCustom("UpdateData",d,EjectionData.STREAM_CODEC),player);
 
     }
 

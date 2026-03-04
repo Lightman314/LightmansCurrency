@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
@@ -14,6 +15,8 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 public abstract class MenuValidator {
+
+    public static final StreamCodec<FriendlyByteBuf,MenuValidator> STREAM_CODEC = StreamCodec.of((b,v) -> v.encode(b),MenuValidator::decode);
 
     public final MenuValidatorType type;
     public boolean isThroughNetwork = false;

@@ -8,22 +8,25 @@ import io.github.lightman314.lightmanscurrency.api.config.options.basic.BooleanO
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.network.FriendlyByteBuf;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
 public class SPacketTaxInfo extends ServerToClientPacket {
 
-    public static final Type<SPacketTaxInfo> TYPE = new Type<>(VersionUtil.lcResource("s_trader_tax_warning"));
+    private static final Type<SPacketTaxInfo> TYPE = sType("trader_tax_warning");
+    private static final StreamCodec<ByteBuf,SPacketTaxInfo> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.BOOL,p -> p.serverTax,
+            ByteBufCodecs.BOOL,p -> p.playerTax,
+            SPacketTaxInfo::new);
     public static final Handler<SPacketTaxInfo> HANDLER = new H();
 
     private final boolean serverTax;
@@ -46,18 +49,13 @@ public class SPacketTaxInfo extends ServerToClientPacket {
         new SPacketTaxInfo(serverTax,playerTax).sendTo(player);
     }
 
-    private static void encode(FriendlyByteBuf buffer,SPacketTaxInfo message) { buffer.writeBoolean(message.serverTax); buffer.writeBoolean(message.playerTax); }
-
-    private static SPacketTaxInfo decode(FriendlyByteBuf buffer) { return new SPacketTaxInfo(buffer.readBoolean(),buffer.readBoolean()); }
-
     private static class H extends Handler<SPacketTaxInfo>
     {
 
-        private H() { super(TYPE, StreamCodec.of(SPacketTaxInfo::encode,SPacketTaxInfo::decode)); }
+        private H() { super(TYPE,STREAM_CODEC); }
 
         @Override
-        protected void handle(@Nonnull SPacketTaxInfo message, @Nonnull IPayloadContext context, @Nonnull Player player) {
-
+        protected void handle(SPacketTaxInfo message, IPayloadContext context, Player player) {
 
             TextEntry firstMessage;
             BooleanOption config;

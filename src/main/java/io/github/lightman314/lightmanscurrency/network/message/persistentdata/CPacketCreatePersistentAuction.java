@@ -4,60 +4,56 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.trade.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import javax.annotation.Nonnull;
-
 public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 
-	private static final Type<CPacketCreatePersistentAuction> TYPE = new Type<>(VersionUtil.lcResource("c_persistent_create_auction"));
-	public static final Handler<CPacketCreatePersistentAuction> HANDLER = new H();
+	private static final Type<CPacketCreatePersistentAuction> TYPE = cType("persistent_create_auction");
+	private static final StreamCodec<RegistryFriendlyByteBuf,CPacketCreatePersistentAuction> STREAM_CODEC = StreamCodec.composite(
+            AuctionTradeData.STREAM_CODEC,p -> p.auction,
+            ByteBufCodecs.STRING_UTF8,p -> p.id,
+            CPacketCreatePersistentAuction::new);
+    public static final Handler<CPacketCreatePersistentAuction> HANDLER = new H();
 
 	private static final String GENERATE_ID_FORMAT = "auction_";
 	
-	final CompoundTag auctionData;
+	final AuctionTradeData auction;
 	final String id;
 	
-	public CPacketCreatePersistentAuction(CompoundTag auctionData, String id) {
+	public CPacketCreatePersistentAuction(AuctionTradeData auction, String id) {
 		super(TYPE);
-		this.auctionData = auctionData;
+		this.auction = auction;
 		this.id = id;
 	}
-
-	@Nonnull
-	private JsonObject getAuctionJson(@Nonnull String id, @Nonnull HolderLookup.Provider lookup) {
-		AuctionTradeData auction = new AuctionTradeData(this.auctionData,lookup);
+    
+	private JsonObject getAuctionJson(String id, HolderLookup.Provider lookup) {
 		JsonObject json = new JsonObject();
 		json.addProperty("id", id);
-		json = auction.saveToJson(json,lookup);
+		json = this.auction.saveToJson(json,lookup);
 		return json;
 	}
 
-	private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull CPacketCreatePersistentAuction message) {
-		buffer.writeNbt(message.auctionData);
-		buffer.writeUtf(message.id);
-	}
-	private static CPacketCreatePersistentAuction decode(@Nonnull FriendlyByteBuf buffer) { return new CPacketCreatePersistentAuction(readNBT(buffer), buffer.readUtf()); }
-
 	private static class H extends Handler<CPacketCreatePersistentAuction>
 	{
-		protected H() { super(TYPE, easyCodec(CPacketCreatePersistentAuction::encode,CPacketCreatePersistentAuction::decode)); }
+		protected H() { super(TYPE,STREAM_CODEC); }
 		@Override
-		protected void handle(@Nonnull CPacketCreatePersistentAuction message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+		protected void handle(CPacketCreatePersistentAuction message, IPayloadContext context, Player player) {
 			if(LCAdminMode.isAdminPlayer(player))
 			{
 
@@ -66,6 +62,7 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 					return;
 
 				RegistryAccess lookup = player.registryAccess();
+                DataContext<JsonElement> dataContext = DataContext.createJson(lookup);
 				boolean generateID = message.id.isBlank();
 
 				if(!generateID) {
@@ -81,7 +78,7 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 						{
 							//Overwrite the existing entry with the same id.
 							persistentAuctions.set(i, auctionJson);
-							data.setPersistentTraderSection(TraderDataCache.PERSISTENT_AUCTION_SECTION, persistentAuctions, lookup);
+							data.setPersistentTraderSection(TraderDataCache.PERSISTENT_AUCTION_SECTION, persistentAuctions,dataContext);
 							player.sendSystemMessage(LCText.MESSAGE_PERSISTENT_AUCTION_OVERWRITE.get(message.id));
 							return;
 						}
@@ -89,7 +86,7 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 
 					//If no trader found with the id, add to list
 					persistentAuctions.add(auctionJson);
-					data.setPersistentTraderSection(TraderDataCache.PERSISTENT_AUCTION_SECTION, persistentAuctions, lookup);
+					data.setPersistentTraderSection(TraderDataCache.PERSISTENT_AUCTION_SECTION,persistentAuctions,dataContext);
 					player.sendSystemMessage(LCText.MESSAGE_PERSISTENT_AUCTION_ADD.get(message.id));
 				}
 				else
@@ -111,7 +108,7 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 						if(knownIDs.stream().noneMatch(id -> id.equals(genID)))
 						{
 							persistentAuctions.add(message.getAuctionJson(genID,lookup));
-							data.setPersistentTraderSection(TraderDataCache.PERSISTENT_AUCTION_SECTION, persistentAuctions, lookup);
+							data.setPersistentTraderSection(TraderDataCache.PERSISTENT_AUCTION_SECTION,persistentAuctions,dataContext);
 							player.sendSystemMessage(LCText.MESSAGE_PERSISTENT_AUCTION_ADD.get(genID));
 							return;
 						}

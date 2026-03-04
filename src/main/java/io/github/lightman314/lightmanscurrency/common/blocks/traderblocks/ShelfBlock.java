@@ -28,10 +28,10 @@ public class ShelfBlock extends TraderBlockRotatable implements IItemTraderBlock
 	private static final VoxelShape SHAPE_WEST = box(0d,0d,0d,5d,16d,16d);
 	
 	public ShelfBlock(Properties properties) { this(properties, 1); }
-	public ShelfBlock(Properties properties, int tradeCount) { super(properties, LazyShapes.lazyDirectionalShape(SHAPE_NORTH, SHAPE_EAST, SHAPE_SOUTH, SHAPE_WEST)); this.tradeCount = tradeCount; }
+	public ShelfBlock(Properties properties,int tradeCount) { super(properties, LazyShapes.lazyDirectionalShape(SHAPE_NORTH, SHAPE_EAST, SHAPE_SOUTH, SHAPE_WEST)); this.tradeCount = tradeCount; }
 
 	@Override
-	public BlockEntity makeTrader(BlockPos pos, BlockState state) { return new ItemTraderBlockEntity(pos, state, this.tradeCount); }
+	public BlockEntity makeTrader(BlockPos pos, BlockState state) { return new ItemTraderBlockEntity(pos,state,this.tradeCount); }
 	
 	@Override
 	public BlockEntityType<?> traderType() { return ModBlockEntities.ITEM_TRADER.get(); }

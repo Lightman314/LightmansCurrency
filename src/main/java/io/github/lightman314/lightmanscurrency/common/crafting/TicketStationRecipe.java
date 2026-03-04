@@ -1,17 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.crafting;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
+import io.github.lightman314.lightmanscurrency.common.core.ModRecipeTypes;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.crafting.durability.DurabilityData;
 import io.github.lightman314.lightmanscurrency.common.crafting.input.TicketStationRecipeInput;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
-import io.netty.buffer.ByteBuf;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
@@ -21,15 +18,13 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.items.IItemHandler;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public interface TicketStationRecipe extends Recipe<TicketStationRecipeInput> {
 
     Predicate<String> CODE_PREDICATE = s -> {
@@ -50,7 +45,7 @@ public interface TicketStationRecipe extends Recipe<TicketStationRecipeInput> {
     static boolean validCodeChar(char codeChar) { return codeChar >= 'a' && codeChar <= 'z' || codeChar >= 'A' && codeChar <= 'Z' || codeChar >= '0' && codeChar <= '9'; }
 
     @Override
-    default RecipeType<TicketStationRecipe> getType() { return RecipeTypes.TICKET.get(); }
+    default RecipeType<TicketStationRecipe> getType() { return ModRecipeTypes.TICKET.get(); }
 
     @Override
     default ItemStack getToastSymbol() { return new ItemStack(ModBlocks.TICKET_STATION.get()); }
@@ -92,8 +87,7 @@ public interface TicketStationRecipe extends Recipe<TicketStationRecipeInput> {
     
     Ingredient getIngredient();
 
-    
-    ItemStack peekAtResult(Container container, ExtraData data);
+    ItemStack peekAtResult(TicketStationRecipeInput input);
     
     ItemStack exampleResult();
 
@@ -133,7 +127,5 @@ public interface TicketStationRecipe extends Recipe<TicketStationRecipeInput> {
     default ItemRequirement getKioskStorageRequirement(ItemStack sellItem) { return ItemRequirement.of(this.getIngredient(),sellItem.getCount()); }
 
     record ExtraData(String code, int durability) { public static final ExtraData EMPTY = new ExtraData("",0); }
-
-    static StreamCodec<ByteBuf,Item> itemStreamCodec() { return ResourceLocation.STREAM_CODEC.map(BuiltInRegistries.ITEM::get, BuiltInRegistries.ITEM::getKey); }
 
 }

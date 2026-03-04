@@ -29,7 +29,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collection;
 
 public class CoinJarBlock extends RotatableBlock implements IEasyEntityBlock {
@@ -54,24 +54,22 @@ public class CoinJarBlock extends RotatableBlock implements IEasyEntityBlock {
 			return super.getRotationY(facing);
 	}
 
-	@Nonnull
 	@Override
 	public Collection<BlockEntityType<?>> getAllowedTypes() { return ImmutableList.of(ModBlockEntities.COIN_JAR.get()); }
 
 	@Override
-	public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new CoinJarBlockEntity(pos, state); }
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new CoinJarBlockEntity(pos, state); }
 	
 	@Override
-	public void setPlacedBy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
+	public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity player, ItemStack stack)
 	{
 		BlockEntity blockEntity = level.getBlockEntity(pos);
 		if(blockEntity instanceof CoinJarBlockEntity jar)
 			jar.readItemData(stack);
 	}
 
-	@Nonnull
 	@Override
-	protected ItemInteractionResult useItemOn(@Nonnull ItemStack item, @Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult hit)
+	protected ItemInteractionResult useItemOn(ItemStack item, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit)
 	{
 		if(!level.isClientSide)
 		{
@@ -88,14 +86,12 @@ public class CoinJarBlock extends RotatableBlock implements IEasyEntityBlock {
 		return ItemInteractionResult.SUCCESS;
 	}
 	
-	@Nonnull
+	
 	@Override
-	public BlockState playerWillDestroy(Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player)
+	public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
 	{
-		
-		//Prevent client-side multi-block destruction & breaking animations if they aren't allowed to break this trader
-		BlockEntity tileEntity = level.getBlockEntity(pos);
-		if(tileEntity instanceof CoinJarBlockEntity jarEntity)
+		//Drop the jar item with its contents if silk-touch was used
+		if(level.getBlockEntity(pos) instanceof CoinJarBlockEntity jarEntity)
 		{
 			Holder<Enchantment> silkTouch = LookupHelper.lookupEnchantment(player.registryAccess(),Enchantments.SILK_TOUCH);
 			if(silkTouch != null && EnchantmentHelper.getEnchantmentLevel(silkTouch, player) > 0)
@@ -104,16 +100,15 @@ public class CoinJarBlock extends RotatableBlock implements IEasyEntityBlock {
 				ItemStack dropStack = new ItemStack(this, 1);
 				jarEntity.addFullData(dropStack);
 				jarEntity.clearStorage();
-				Block.popResource(level, pos, dropStack);
+				Block.popResource(level,pos,dropStack);
 			}
 		}
-		
 		return super.playerWillDestroy(level, pos, state, player);
 		
 	}
 
 	@Override
-	public void onRemove(BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, BlockState newState, boolean flag) {
+	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean flag) {
 		if(state.is(newState.getBlock()))
 		{
 			super.onRemove(state, level, pos, newState, flag);
@@ -126,11 +121,9 @@ public class CoinJarBlock extends RotatableBlock implements IEasyEntityBlock {
 			jarEntity.clearStorage();
 		}
 	}
-
-
-	@Nonnull
+	
 	@Override
-	public ItemStack getCloneItemStack(@Nonnull BlockState state, @Nonnull HitResult target, @Nonnull LevelReader level, @Nonnull BlockPos pos, @Nonnull Player player) {
+	public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
 		ItemStack stack = super.getCloneItemStack(state, target, level, pos, player);
 		if(level.getBlockEntity(pos) instanceof CoinJarBlockEntity jarBlock)
 		{

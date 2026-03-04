@@ -3,19 +3,12 @@ package io.github.lightman314.lightmanscurrency.api.config;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.text.MultiLineTextEntry;
-import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.network.chat.Component;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class ConfigComments {
 
 

@@ -3,17 +3,20 @@ package io.github.lightman314.lightmanscurrency.network.message.auction;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.auction.AuctionBidTab;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import javax.annotation.Nonnull;
-
 public class SPacketStartBid extends ServerToClientPacket {
 
-	private static final Type<SPacketStartBid> TYPE = new Type<>(VersionUtil.lcResource("s_auction_start_bid"));
+	private static final Type<SPacketStartBid> TYPE = sType("auction_start_bid");
+    private static final StreamCodec<RegistryFriendlyByteBuf,SPacketStartBid> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_LONG,p -> p.auctionHouseID,
+            ByteBufCodecs.INT,p -> p.tradeIndex,
+            SPacketStartBid::new);
 	public static final Handler<SPacketStartBid> HANDLER = new H();
 
 	final long auctionHouseID;
@@ -25,17 +28,11 @@ public class SPacketStartBid extends ServerToClientPacket {
 		this.tradeIndex = tradeIndex;
 	}
 
-	private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull SPacketStartBid message) {
-		buffer.writeLong(message.auctionHouseID);
-		buffer.writeInt(message.tradeIndex);
-	}
-	private static SPacketStartBid decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketStartBid(buffer.readLong(),buffer.readInt()); }
-
 	private static class H extends Handler<SPacketStartBid>
 	{
-		protected H() { super(TYPE, easyCodec(SPacketStartBid::encode,SPacketStartBid::decode)); }
+		protected H() { super(TYPE,STREAM_CODEC); }
 		@Override
-		protected void handle(@Nonnull SPacketStartBid message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+		protected void handle(SPacketStartBid message, IPayloadContext context, Player player) {
 			Minecraft mc = Minecraft.getInstance();
 			if(mc.screen instanceof TraderScreen screen)
 				screen.setTab(new AuctionBidTab(screen, message.auctionHouseID, message.tradeIndex));

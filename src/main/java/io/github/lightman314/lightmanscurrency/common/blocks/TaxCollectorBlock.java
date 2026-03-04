@@ -32,7 +32,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
@@ -42,15 +41,14 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
     public TaxCollectorBlock(Properties properties) { super(properties.pushReaction(PushReaction.BLOCK)); }
 
     @Override
-    public void setPlacedBy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nullable LivingEntity entity, @Nonnull ItemStack stack) {
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack stack) {
         if(!level.isClientSide && level.getBlockEntity(pos) instanceof TaxBlockEntity taxBlock && entity instanceof Player player)
             taxBlock.initialize(player);
         this.tryCopyVariant(level,pos,stack);
     }
 
-    @Nonnull
     @Override
-    public BlockState playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player) {
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         if(level.getBlockEntity(pos) instanceof TaxBlockEntity be)
         {
             TaxEntry entry = be.getTaxEntry();
@@ -69,15 +67,15 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
     }
 
     @Override
-    public void onRemove(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean flag) {
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean flag) {
         if(level.getBlockEntity(pos) instanceof TaxBlockEntity taxBlock)
             taxBlock.onRemove();
         super.onRemove(state, level, pos, newState, flag);
     }
 
-    @Nonnull
+    
     @Override
-    public InteractionResult useWithoutItem(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull BlockHitResult hit) {
+    public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if(!level.isClientSide && level.getBlockEntity(pos) instanceof TaxBlockEntity taxBlock)
         {
             TaxEntry entry = taxBlock.getTaxEntry();
@@ -100,7 +98,7 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
     }
 
     @Override
-    public boolean canBreak(@Nonnull Player player, @Nonnull LevelAccessor level, @Nonnull BlockPos pos, @Nonnull BlockState state) {
+    public boolean canBreak(Player player, LevelAccessor level, BlockPos pos, BlockState state) {
         if(level.getBlockEntity(pos) instanceof TaxBlockEntity taxBlock)
         {
             TaxEntry entry = taxBlock.getTaxEntry();
@@ -110,16 +108,16 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
         return true;
     }
 
-    @Nonnull
+    
     @Override
     public Collection<BlockEntityType<?>> getAllowedTypes() { return ImmutableList.of(ModBlockEntities.TAX_BLOCK.get()); }
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new TaxBlockEntity(pos, state); }
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new TaxBlockEntity(pos, state); }
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, @Nonnull Item.TooltipContext context, @Nonnull List<Component> tooltips, @Nonnull TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltips, TooltipFlag flag) {
         TooltipItem.addTooltip(tooltips, LCText.TOOLTIP_TAX_COLLECTOR.asTooltip());
         if(LCConfig.SERVER.taxCollectorAdminOnly.get())
             tooltips.add(LCText.TOOLTIP_TAX_COLLECTOR_ADMIN.get().withStyle(ChatFormatting.RED).withStyle(ChatFormatting.BOLD));

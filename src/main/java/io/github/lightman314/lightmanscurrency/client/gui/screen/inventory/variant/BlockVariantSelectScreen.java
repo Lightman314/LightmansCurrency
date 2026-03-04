@@ -18,7 +18,7 @@ import java.util.List;
 @ParametersAreNonnullByDefault
 public class BlockVariantSelectScreen extends VariantSelectScreen<BlockVariantSelectMenu> {
 
-    public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/block_variant.png");
+    public static final ResourceLocation GUI_TEXTURE = LightmansCurrency.id("textures/gui/container/block_variant.png");
 
     public BlockVariantSelectScreen(BlockVariantSelectMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);

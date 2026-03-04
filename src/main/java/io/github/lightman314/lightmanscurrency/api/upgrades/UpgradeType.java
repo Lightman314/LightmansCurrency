@@ -5,18 +5,13 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import com.google.common.collect.ImmutableList;
 
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.text.MultiLineTextEntry;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -27,14 +22,12 @@ public abstract class UpgradeType {
 
 	public boolean isUnique() { return false; }
 
-	@Nonnull
-	public List<Component> getTooltip(@Nonnull UpgradeData data) { return new ArrayList<>(); }
+	public List<Component> getTooltip(UpgradeData data) { return new ArrayList<>(); }
 
-	@Nonnull
-	public List<Component> getTooltipWithContext(@Nonnull UpgradeData data, @Nonnull Item.TooltipContext context) { return new ArrayList<>(); }
+	public List<Component> getTooltipWithContext(UpgradeData data, Item.TooltipContext context) { return new ArrayList<>(); }
 
-	public boolean clearDataFromStack(@Nonnull ItemStack stack) { return false; }
-    protected final boolean clearData(@Nonnull ItemStack stack, @Nonnull Supplier<? extends DataComponentType<?>> type)
+	public boolean clearDataFromStack(ItemStack stack) { return false; }
+    protected final boolean clearData(ItemStack stack, Supplier<? extends DataComponentType<?>> type)
 	{
 		if(stack.has(type))
 		{
@@ -44,10 +37,10 @@ public abstract class UpgradeType {
 		return false;
 	}
 	
-	public static boolean hasUpgrade(@Nonnull UpgradeType type, @Nonnull Container upgradeContainer) {
-		for(int i = 0; i < upgradeContainer.getContainerSize(); ++i)
+	public static boolean hasUpgrade(UpgradeType type, UpgradeStackHandler container) {
+		for(int i = 0; i < container.getSlots(); ++i)
 		{
-			ItemStack stack = upgradeContainer.getItem(i);
+			ItemStack stack = container.getStackInSlot(i);
 			if(stack.getItem() instanceof UpgradeItem upgradeItem)
 			{
 				if(upgradeItem.getUpgradeType() == type)
@@ -57,14 +50,14 @@ public abstract class UpgradeType {
 		return false;
 	}
 
-	public final void addTarget(@Nonnull Component target) { this.possibleTargets.add(target); }
-	public final void addTarget(@Nonnull ItemLike target) { this.addTarget(formatTarget(target)); }
-	public final void addTarget(@Nonnull Supplier<? extends ItemLike> target) { this.addTarget(formatTarget(target)); }
+	public final void addTarget(Component target) { this.possibleTargets.add(target); }
+	public final void addTarget(ItemLike target) { this.addTarget(formatTarget(target)); }
+	public final void addTarget(Supplier<? extends ItemLike> target) { this.addTarget(formatTarget(target)); }
 
-	protected static Component formatTarget(@Nonnull ItemLike target) { return new ItemStack(target).getHoverName(); }
-	protected static Component formatTarget(@Nonnull Supplier<? extends ItemLike> target) { return formatTarget(target.get()); }
+	protected static Component formatTarget(ItemLike target) { return new ItemStack(target).getHoverName(); }
+	protected static Component formatTarget(Supplier<? extends ItemLike> target) { return formatTarget(target.get()); }
 
-	@Nonnull
+	
 	public final List<Component> getPossibleTargets() {
 		List<Component> temp = new ArrayList<>();
 		temp.addAll(this.getBuiltInTargets());
@@ -72,7 +65,7 @@ public abstract class UpgradeType {
 		return ImmutableList.copyOf(temp);
 	}
 
-	@Nonnull
+	
 	protected List<Component> getBuiltInTargets() { return new ArrayList<>(); }
 	
 	public static class Simple extends UpgradeType {
@@ -86,15 +79,15 @@ public abstract class UpgradeType {
 		public boolean isUnique() { return this.unique; }
 
 		@Deprecated
-		public Simple(@Nonnull Component... tooltips) { this(false,tooltips); }
+		public Simple(Component... tooltips) { this(false,tooltips); }
 		@Deprecated
-		public Simple(boolean unique, @Nonnull Component... tooltips) {
+		public Simple(boolean unique, Component... tooltips) {
 			this.unique = unique;
 			this.tooltips = () -> ImmutableList.copyOf(tooltips);
 			this.targets = new ArrayList<>();
 			this.optionalTooltips = ImmutableList.of();
 		}
-		private Simple(@Nonnull Builder builder)
+		private Simple(Builder builder)
 		{
 			this.unique = builder.unique;
 			this.tooltips = builder.buildSupplier();
@@ -102,13 +95,13 @@ public abstract class UpgradeType {
 			this.optionalTooltips = ImmutableList.copyOf(builder.optionalTooltips);
 		}
 
-		@Nonnull
+		
 		@Override
-		public List<Component> getTooltip(@Nonnull UpgradeData data) { return this.tooltips.get(); }
+		public List<Component> getTooltip(UpgradeData data) { return this.tooltips.get(); }
 
-		@Nonnull
+		
 		@Override
-		public List<Component> getTooltipWithContext(@Nonnull UpgradeData data, @Nonnull Item.TooltipContext context) {
+		public List<Component> getTooltipWithContext(UpgradeData data, Item.TooltipContext context) {
 			List<Component> tooltips = new ArrayList<>();
 			for(OptionalTooltip ot : this.optionalTooltips)
 			{
@@ -118,22 +111,20 @@ public abstract class UpgradeType {
 			return tooltips;
 		}
 
-		@Nonnull
+		
 		@Override
 		protected List<Component> getBuiltInTargets() { return this.targets; }
 
 		@Deprecated
-		public final Simple withTarget(@Nonnull Component target) { this.targets.add(target); return this; }
+		public final Simple withTarget(Component target) { this.targets.add(target); return this; }
 		@Deprecated
-		public final Simple withTarget(@Nonnull ItemLike target) { this.targets.add(formatTarget(target)); return this; }
+		public final Simple withTarget(ItemLike target) { this.targets.add(formatTarget(target)); return this; }
 		@Deprecated
-		public final Simple withTarget(@Nonnull Supplier<? extends ItemLike> target) { this.targets.add(formatTarget(target)); return this; }
+		public final Simple withTarget(Supplier<? extends ItemLike> target) { this.targets.add(formatTarget(target)); return this; }
 
-		@Nonnull
+		
 		public static Builder builder() { return new Builder(); }
 
-		@MethodsReturnNonnullByDefault
-		@ParametersAreNonnullByDefault
 		public static class Builder
 		{
 
@@ -177,7 +168,7 @@ public abstract class UpgradeType {
 
 		}
 
-		private record OptionalTooltip(@Nonnull Predicate<Item.TooltipContext> shouldShow, @Nonnull List<Component> tooltip) { }
+		private record OptionalTooltip(Predicate<Item.TooltipContext> shouldShow, List<Component> tooltip) { }
 
 	}
 

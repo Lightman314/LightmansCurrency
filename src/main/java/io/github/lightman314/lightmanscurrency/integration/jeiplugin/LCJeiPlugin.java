@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.integration.jeiplugin;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
+import io.github.lightman314.lightmanscurrency.api.client.gui.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
@@ -19,7 +19,6 @@ import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.Ancien
 import io.github.lightman314.lightmanscurrency.common.menus.MintMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
 import io.github.lightman314.lightmanscurrency.integration.jeiplugin.util.*;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.VanillaTypes;
@@ -51,7 +50,7 @@ public class LCJeiPlugin implements IModPlugin{
 	public static final RecipeType<TicketStationRecipe> TICKET_TYPE = RecipeType.create(LightmansCurrency.MODID, "ticket_station", TicketStationRecipe.class);
 
 	@Override
-	public ResourceLocation getPluginUid() { return VersionUtil.lcResource(LightmansCurrency.MODID); }
+	public ResourceLocation getPluginUid() { return LightmansCurrency.id(LightmansCurrency.MODID); }
 
 	@Override
 	public void registerCategories(IRecipeCategoryRegistration registry)

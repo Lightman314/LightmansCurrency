@@ -22,7 +22,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class ATMCardItem extends Item implements IVariantItem {
@@ -30,7 +29,7 @@ public class ATMCardItem extends Item implements IVariantItem {
     public ATMCardItem(Properties properties) { super(properties); }
 
     @Override
-    public void appendHoverText(@Nonnull ItemStack stack, @Nonnull TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
 
         ATMCardData data = stack.getOrDefault(ModDataComponents.ATM_CARD_DATA, ATMCardData.EMPTY);
         if(data.bankReference().isEmpty())
@@ -62,14 +61,13 @@ public class ATMCardItem extends Item implements IVariantItem {
     }
 
     @Override
-    public void verifyComponentsAfterLoad(@Nonnull ItemStack stack) {
+    public void verifyComponentsAfterLoad(ItemStack stack) {
         if(!stack.has(ModDataComponents.ATM_CARD_DATA))
             stack.set(ModDataComponents.ATM_CARD_DATA, ATMCardData.EMPTY);
     }
 
-    @Nonnull
     @Override
-    public InteractionResultHolder<ItemStack> use(@Nonnull Level level, @Nonnull Player player, @Nonnull InteractionHand hand) {
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack card = player.getItemInHand(hand);
         if(!level.isClientSide)
         {

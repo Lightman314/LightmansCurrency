@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.menus.tabbed;
 
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import net.minecraft.core.RegistryAccess;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -20,7 +20,7 @@ public abstract class EasyMenuTab<M extends IEasyTabbedMenu<T>,T extends EasyMen
 
     @Override
     public final LazyPacketData.Builder builder() { return this.menu.builder(); }
-    public final RegistryAccess registryAccess() { return this.menu.registryAccess(); }
+    public final HolderLookup.Provider registryAccess() { return this.menu.registryAccess(); }
 
     public abstract Object createClientTab(Object screen);
 

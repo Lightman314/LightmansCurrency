@@ -1,22 +1,21 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity.handler;
 
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.InputNode;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaStorage;
-import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.nodes.GachaStorageNode;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class GachaItemHandler {
 
-    private final GachaTrader trader;
-    public GachaItemHandler(GachaTrader trader) { this.trader = trader; }
+    private final TraderData trader;
+    public GachaItemHandler(TraderData trader) { this.trader = trader; }
 
     private final Map<Direction, IItemHandler> handlers = new HashMap<>();
     private IItemHandler fullHandler = null;
@@ -33,23 +32,39 @@ public class GachaItemHandler {
         return this.fullHandler;
     }
 
+    public static IItemHandler getFullyAuthorizedHandler(GachaStorageNode node) {
+        return new AuthorizedGachaHandler(node.getTrader());
+    }
+
     private static class GachaHandler implements IItemHandler
     {
-        private final GachaTrader trader;
+        private final TraderData trader;
+        private final Supplier<GachaStorageNode> source;
         private final Direction side;
-        private GachaHandler(GachaTrader trader, Direction side) { this.trader = trader; this.side = side; }
+        private GachaHandler(TraderData trader, Direction side) { this(trader,() -> trader.getNode(GachaStorageNode.TYPE),side); }
+        private GachaHandler(TraderData trader, Supplier<GachaStorageNode> source, Direction side) { this.trader = trader; this.source = source; this.side = side; }
 
-        protected boolean allowsInputs() { return this.trader.allowInputSide(this.side); }
-        protected boolean allowsOutputs() { return this.trader.allowOutputSide(this.side); }
+        protected boolean allowsInputs() { return this.trader.findNodeValue(InputNode.TYPE, n -> n.allowInputSide(this.side),false); }
+        protected boolean allowsOutputs() { return this.trader.findNodeValue(InputNode.TYPE,n -> n.allowOutputSide(this.side),false); }
+
+        protected GachaStorage getStorage() {
+            GachaStorageNode node = this.source.get();
+            return node == null ? new GachaStorage(() -> 0) : node.getStorage();
+        }
 
         @Override
-        public int getSlots() { return this.trader.getStorage().getContents().size() + 1; }
+        public int getSlots() { return this.getStorage().getContents().size() + 1; }
 
         @Override
-        public ItemStack getStackInSlot(int slot) { return this.trader.getStorage().getStackInSlot(slot); }
+        public ItemStack getStackInSlot(int slot) { return this.getStorage().getStackInSlot(slot); }
 
         @Override
-        public int getSlotLimit(int slot) { return this.trader.getMaxItems(); }
+        public int getSlotLimit(int slot) {
+            GachaStorage storage = this.getStorage();
+            ItemStack contents = storage.getStackInSlot(slot);
+            int space = storage.getSpace();
+            return contents.getCount() + space;
+        }
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) { return this.allowsInputs(); }
@@ -61,13 +76,12 @@ public class GachaItemHandler {
             {
                 if(simulate)
                 {
-                    int inputAmount = Math.min(copyStack.getCount(),this.trader.getStorage().getSpace());
+                    int inputAmount = Math.min(copyStack.getCount(),this.getStorage().getSpace());
                     copyStack.shrink(inputAmount);
                 }
                 else
                 {
-                    if(this.trader.getStorage().insertItem(copyStack))
-                        this.trader.markStorageDirty();
+                    this.getStorage().insertItem(copyStack);
                 }
             }
             return copyStack;
@@ -77,7 +91,7 @@ public class GachaItemHandler {
         public ItemStack extractItem(int slot, int amount, boolean simulate) {
             if(this.allowsOutputs())
             {
-                GachaStorage storage = this.trader.getStorage();
+                GachaStorage storage = this.getStorage();
                 if(simulate)
                 {
                     ItemStack stack = storage.getStackInSlot(slot);
@@ -85,10 +99,7 @@ public class GachaItemHandler {
                 }
                 else
                 {
-                    ItemStack result = storage.removeItem(slot,amount);
-                    if(!result.isEmpty())
-                        this.trader.markStorageDirty();
-                    return result;
+                    return storage.removeItem(slot,amount);
                 }
             }
             return ItemStack.EMPTY;
@@ -99,7 +110,8 @@ public class GachaItemHandler {
     private static class AuthorizedGachaHandler extends GachaHandler
     {
 
-        private AuthorizedGachaHandler(GachaTrader trader) { super(trader, null); }
+        private AuthorizedGachaHandler(TraderData trader) { super(trader, null); }
+        private AuthorizedGachaHandler(GachaStorageNode node) { super(null,() -> node, null); }
         @Override
         protected boolean allowsInputs() { return true; }
         @Override

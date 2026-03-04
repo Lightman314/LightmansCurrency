@@ -3,10 +3,10 @@ package io.github.lightman314.lightmanscurrency.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.CoinChestBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -20,13 +20,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.Nonnull;
 import java.util.Calendar;
 
 public class CoinChestRenderer implements BlockEntityRenderer<CoinChestBlockEntity> {
 
-    public static final Material COIN_CHEST_MATERIAL = new Material(Sheets.CHEST_SHEET, VersionUtil.lcResource("entity/chest/coin_chest"));
-    public static final Material COIN_CHEST_MATERIAL_XMAS = new Material(Sheets.CHEST_SHEET, VersionUtil.lcResource("entity/chest/coin_chest_christmas"));
+    public static final Material COIN_CHEST_MATERIAL = new Material(Sheets.CHEST_SHEET, LightmansCurrency.id("entity/chest/coin_chest"));
+    public static final Material COIN_CHEST_MATERIAL_XMAS = new Material(Sheets.CHEST_SHEET, LightmansCurrency.id("entity/chest/coin_chest_christmas"));
 
     private final ModelPart lid;
     private final ModelPart bottom;
@@ -46,7 +45,7 @@ public class CoinChestRenderer implements BlockEntityRenderer<CoinChestBlockEnti
     }
 
     @Override
-    public void render(@Nonnull CoinChestBlockEntity blockEntity, float partialTicks, @Nonnull PoseStack pose, @Nonnull MultiBufferSource buffer, int lightLevel, int id) {
+    public void render(CoinChestBlockEntity blockEntity, float partialTicks, PoseStack pose, MultiBufferSource buffer, int lightLevel, int id) {
         Level level = blockEntity.getLevel();
         boolean flag = level != null;
         BlockState blockstate = flag ? blockEntity.getBlockState() : ModBlocks.COIN_CHEST.get().defaultBlockState().setValue(ChestBlock.FACING, Direction.NORTH);

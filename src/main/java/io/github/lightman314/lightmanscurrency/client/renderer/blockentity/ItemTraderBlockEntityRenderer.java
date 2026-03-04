@@ -16,10 +16,12 @@ import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_v
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.ItemTraderBlockEntity;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.filter.IItemTradeFilter;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.nodes.ItemStorageNode;
+import io.github.lightman314.lightmanscurrency.common.traders.item.nodes.ItemTradeNode;
+import io.github.lightman314.lightmanscurrency.common.traders.item.storage.TraderItemStorage;
+import io.github.lightman314.lightmanscurrency.common.traders.item.trade.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
@@ -40,8 +42,6 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import javax.annotation.Nonnull;
-
 @EventBusSubscriber(Dist.CLIENT)
 public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTraderBlockEntity> {
 
@@ -50,12 +50,12 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 	public static ItemTraderBlockEntityRenderer create(BlockEntityRendererProvider.Context context) { return new ItemTraderBlockEntityRenderer(); }
 	
 	@Override
-	public void render(@Nonnull ItemTraderBlockEntity blockEntity, float partialTicks, @Nonnull PoseStack pose, @Nonnull MultiBufferSource buffer, int lightLevel, int id)
+	public void render(ItemTraderBlockEntity blockEntity, float partialTicks, PoseStack pose, MultiBufferSource buffer, int lightLevel, int id)
 	{
 		renderItems(blockEntity, partialTicks, pose, buffer, lightLevel, id);
 	}
 	
-	public static List<ItemStack> GetRenderItems(ItemTradeData trade,ItemTraderData trader) {
+	public static List<ItemStack> GetRenderItems(ItemTradeData trade,TraderItemStorage storage,boolean infiniteStock) {
 		List<ItemStack> result = new ArrayList<>();
 		for(int i = 0; i < 2; ++i)
 		{
@@ -66,8 +66,8 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
                 List<ItemStack> displayItems;
                 if(trade.isSale() || trade.isBarter())
                 {
-                    displayItems = filter.getDisplayableItems(internalItem,trader.getStorage());
-                    if(displayItems.isEmpty() && trader.isCreative())
+                    displayItems = filter.getDisplayableItems(internalItem,storage);
+                    if(displayItems.isEmpty() && infiniteStock)
                         displayItems = filter.getDisplayableItems(internalItem,null);
                 }
                 else
@@ -87,9 +87,17 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 	public static void renderItems(ItemTraderBlockEntity blockEntity, float partialTicks, PoseStack pose, MultiBufferSource buffer, int lightLevel, int overlay)
 	{
 		try{
-			TraderData rawTrader = blockEntity.getRawTraderData();
-			if(!(rawTrader instanceof ItemTraderData trader))
-				return;
+            final int renderLimit = LCConfig.CLIENT.itemRenderLimit.get();
+            if(renderLimit <= 0)
+                return;
+            TraderData trader = blockEntity.getTraderData();
+            ItemTradeNode tradeNode = trader.getNode(ItemTradeNode.TYPE);
+            ItemStorageNode storageNode = trader.getNode(ItemStorageNode.TYPE);
+            if(tradeNode == null || storageNode == null)
+                return;
+            TraderItemStorage storage = storageNode.getStorage();
+            boolean infiniteStock = trader.hasInfiniteStock();
+
 			ItemPositionData positionData = blockEntity.GetRenderData();
 			//Get custom position data from the Model Variant
 			ModelVariant variant = ModelVariantDataManager.getVariant(blockEntity.getCurrentVariant());
@@ -98,7 +106,6 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 			if(positionData.isEmpty())
 				return;
 			final int maxIndex = positionData.getEntryCount();
-			final int renderLimit = LCConfig.CLIENT.itemRenderLimit.get();
 			BlockState state = blockEntity.getBlockState();
 			ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
 			Level level = blockEntity.getLevel();
@@ -107,17 +114,14 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 			for(int tradeSlot = 0; tradeSlot < trader.getTradeCount() && tradeSlot < maxIndex; tradeSlot++)
 			{
 
-				ItemTradeData trade = trader.getTrade(tradeSlot);
-				List<ItemStack> renderItems = GetRenderItems(trade,trader);
+				ItemTradeData trade = tradeNode.getTrade(tradeSlot);
+				List<ItemStack> renderItems = GetRenderItems(trade,storage,infiniteStock);
 				if(!renderItems.isEmpty())
 				{
-
 					//Get positions
 					List<Vector3f> positions = positionData.getPositions(state, tradeSlot);
-
 					//Get rotation
 					List<Quaternionf> rotation = positionData.getRotation(state, tradeSlot, partialTicks);
-
 					int minLight = positionData.getMinLight(tradeSlot);
 					int itemLight = lightLevel;
 					if(level.getBrightness(LightLayer.BLOCK,blockPos) < minLight)
@@ -125,7 +129,7 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 
 					//Get scale
 					float scale = positionData.getScale(tradeSlot);
-
+                    final int stock = trader.getTradeStock(tradeSlot);
 					for(int pos = 0; pos < renderLimit && pos < positions.size() && pos < trader.getTradeStock(tradeSlot); pos++)
 					{
 
@@ -186,9 +190,8 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
 	@SubscribeEvent
 	public static void onClientTick(ClientTickEvent.Pre event) { rotationTime++; }
 
-	@Nonnull
 	@Override
-	public AABB getRenderBoundingBox(@Nonnull ItemTraderBlockEntity blockEntity) {
+	public AABB getRenderBoundingBox(ItemTraderBlockEntity blockEntity) {
 		AABB result = TraderBlockEntity.getRenderBoundingBox(blockEntity);
 		return result != null ? result : BlockEntityRenderer.super.getRenderBoundingBox(blockEntity);
 	}

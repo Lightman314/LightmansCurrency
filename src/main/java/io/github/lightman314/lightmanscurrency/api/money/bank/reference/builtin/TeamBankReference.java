@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
@@ -8,33 +10,37 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.api.teams.TeamAPI;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class TeamBankReference extends BankReference {
 
-    public static final BankReferenceType TYPE = new Type();
+    public static final BankReferenceType<TeamBankReference> TYPE = new Type();
+
+    private static final MapCodec<TeamBankReference> MAP_CODEC = Codec.LONG.xmap(TeamBankReference::new, br -> br.teamID).fieldOf("team");
+    private static final StreamCodec<ByteBuf,TeamBankReference> STREAM_CODEC = ByteBufCodecs.VAR_LONG.map(TeamBankReference::new, br -> br.teamID);
 
     public final long teamID;
-    protected TeamBankReference(long teamID) { super(TYPE); this.teamID = teamID; }
+    protected TeamBankReference(long teamID) { this.teamID = teamID; }
 
     public static BankReference of(long teamID) { return new TeamBankReference(teamID); }
     public static BankReference of(ITeam team) {
         BankReference br = of(team.getID());
         br.flagAsClient(team.isClient());
-        return br; }
+        return br;
+    }
 
     @Nullable
     @Override
     public IconData getIcon() { return IconUtil.ICON_ALEX_HEAD; }
+
+    @Override
+    public BankReferenceType<?> getType() { return TYPE; }
 
     @Nullable
     @Override
@@ -77,20 +83,13 @@ public class TeamBankReference extends BankReference {
         return 0;
     }
 
-    @Override
-    protected void saveAdditional(CompoundTag tag) { tag.putLong("TeamID", this.teamID); }
-
-    @Override
-    protected void encodeAdditional(FriendlyByteBuf buffer) { buffer.writeLong(this.teamID); }
-
-    private static class Type extends BankReferenceType
+    private static class Type extends BankReferenceType<TeamBankReference>
     {
-        protected Type() { super(VersionUtil.lcResource( "team_account")); }
-
         @Override
-        public BankReference load(CompoundTag tag) { return of(tag.getLong("TeamID")); }
-
+        public MapCodec<TeamBankReference> codec() { return MAP_CODEC; }
         @Override
-        public BankReference decode(FriendlyByteBuf buffer) { return of(buffer.readLong()); }
+        public StreamCodec<ByteBuf,TeamBankReference> streamCodec() { return STREAM_CODEC; }
+        @Override
+        public BankReference loadOldData(CompoundTag tag) { return of(tag.getLong("TeamID")); }
     }
 }

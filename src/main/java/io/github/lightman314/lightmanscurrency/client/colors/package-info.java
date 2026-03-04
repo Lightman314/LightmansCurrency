@@ -1,0 +1,4 @@
+@ParametersAreNonnullByDefault
+package io.github.lightman314.lightmanscurrency.client.colors;
+
+import javax.annotation.ParametersAreNonnullByDefault;

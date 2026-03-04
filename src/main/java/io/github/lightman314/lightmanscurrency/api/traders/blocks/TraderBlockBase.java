@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
@@ -15,21 +14,20 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.api.ejection.SafeEjectionAPI;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderState;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderState;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlock;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.blockentity.CapabilityInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import io.github.lightman314.lightmanscurrency.common.blocks.EasyBlock;
 import io.github.lightman314.lightmanscurrency.common.emergency_ejection.TraderEjectionData;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -63,29 +61,28 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 		this.shape = shape != null ? shape : LazyShapes.BOX;
 	}
 
-	@Nonnull
 	@Override
-	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) { return this.shape; }
+	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) { return this.shape; }
 	
 	protected boolean shouldMakeTrader(BlockState state) { return true; }
 	protected abstract BlockEntity makeTrader(BlockPos pos, BlockState state);
-	protected BlockEntity makeDummy(BlockPos pos, BlockState state) { return new CapabilityInterfaceBlockEntity(pos, state); }
+	@Nullable
+    protected BlockEntity makeDummy(BlockPos pos, BlockState state) { return null; }
 	protected abstract BlockEntityType<?> traderType();
 	protected List<BlockEntityType<?>> validTraderTypes() { return ImmutableList.of(this.traderType()); }
 
-	@Nonnull
 	@Override
 	public Collection<BlockEntityType<?>> getAllowedTypes() { return this.validTraderTypes(); }
 
 	@Override
-	public final BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) {
+	public final BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
 		if(this.shouldMakeTrader(state))
 			return this.makeTrader(pos, state);
 		return this.makeDummy(pos, state);
 	}
 
-	@Nonnull
-	public InteractionResult useWithoutItem(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull BlockHitResult result)
+	
+	public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{
@@ -114,10 +111,7 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 								d.delete();
 						}
 					}
-					if(trader.shouldAlwaysShowOnTerminal() && trader.hasPermission(player,Permissions.OPEN_STORAGE))
-						trader.openStorageMenu(player, BlockEntityValidator.of(traderSource));
-					else
-						trader.openTraderMenu(player, BlockEntityValidator.of(traderSource));
+                    trader.openTraderMenu(player, BlockEntityValidator.of(traderSource));
 				}
 
 			}
@@ -126,7 +120,7 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 	}
 	
 	@Override
-	public void setPlacedBy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
+	public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity player, ItemStack stack)
 	{
 		this.setPlacedByBase(level, pos, state, player, stack);
 	}
@@ -148,9 +142,9 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 		this.tryCopyVariant(level,pos,stack);
 	}
 	
-	@Nonnull
+	
 	@Override
-	public BlockState playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player)
+	public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
 	{
 		this.playerWillDestroyBase(level, pos, state, player);
 		return state;
@@ -168,7 +162,7 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 				traderSource.flagAsLegitBreak();
 				TraderData trader = traderSource.getTraderData();
 				if(trader != null)
-					InventoryUtil.dumpContents(level, pos, trader.getContents(level, pos, state, !player.isCreative()));
+					ItemHandlerUtil.dumpContents(level, pos, trader.getContents(level, pos, state, !player.isCreative()));
 			}
 		}
 		else
@@ -180,7 +174,7 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 	
 	
 	@Override
-	public void onRemove(BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, BlockState newState, boolean flag) {
+	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean flag) {
 		
 		//Ignore if the block is the same.
 		if(state.is(newState.getBlock()))
@@ -194,6 +188,7 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 			BlockEntity blockEntity = this.getBlockEntity(state, level, pos);
 			if(blockEntity instanceof TraderBlockEntity<?> traderSource)
 			{
+                traderSource.clearAllTracking();
 				if(traderSource.isSelfPickup())
 				{
 					super.onRemove(state,level,pos,newState,flag);
@@ -234,22 +229,22 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 		super.onRemove(state, level, pos, newState, flag);
 	}
 
-	public final void removeAllBlocks(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockPos pos)
+	public final void removeAllBlocks(Level level, BlockState state, BlockPos pos)
 	{
 		this.setAir(level,pos,null);
 		this.removeOtherBlocks(level,state,pos);
 	}
 
-	public void removeOtherBlocks(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockPos pos) {}
+	public void removeOtherBlocks(Level level, BlockState state, BlockPos pos) {}
 	
 	protected void onInvalidRemoval(BlockState state, Level level, BlockPos pos, TraderData trader) {}
 	
-	public boolean canEntityDestroy(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull Entity entity) { return false; }
+	public boolean canEntityDestroy(BlockState state, BlockGetter level, BlockPos pos, Entity entity) { return false; }
 
 	protected Supplier<List<Component>> getItemTooltips() { return ArrayList::new; }
 
 	@Override
-	public void appendHoverText(@Nonnull ItemStack stack, @Nonnull Item.TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
 		TooltipItem.addTooltip(tooltip, this.getItemTooltips());
 		super.appendHoverText(stack, context, tooltip, flag);
 	}
@@ -269,14 +264,14 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 
 	@Nullable
 	@Override
-	public IUpgradeable getUpgradeable(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state) {
+	public IUpgradeable getUpgradeable(Level level, BlockPos pos, BlockState state) {
 		if(this.getBlockEntity(state,level,pos) instanceof IUpgradeableBlockEntity be)
 			return be.getUpgradeable();
 		return null;
 	}
 
 	@Override
-	public boolean canUseUpgradeItem(@Nonnull IUpgradeable upgradeable, @Nonnull ItemStack stack, @Nullable Player player) {
+	public boolean canUseUpgradeItem(IUpgradeable upgradeable, ItemStack stack, @Nullable Player player) {
 		if(upgradeable instanceof TraderData trader)
 			return player != null && trader.hasPermission(player,Permissions.OPEN_STORAGE);
 		return false;

@@ -1,35 +1,39 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
+import com.mojang.datafixers.Products;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.codecs.StreamHelper;
+import io.github.lightman314.lightmanscurrency.api.codecs.partial.SPart3;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
-import io.github.lightman314.lightmanscurrency.api.notifications.SingleLineNotification;
+import io.github.lightman314.lightmanscurrency.api.notifications.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.codec.StreamCodec;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class ChangeSettingNotification extends SingleLineNotification {
 
-	public static final NotificationType<Advanced> ADVANCED_TYPE = new NotificationType<>(VersionUtil.lcResource("change_settings_advanced"),ChangeSettingNotification::createAdvanced);
-	public static final NotificationType<Simple> SIMPLE_TYPE = new NotificationType<>(VersionUtil.lcResource("change_settings_simple"),ChangeSettingNotification::createSimple);
-	public static final NotificationType<Dumb> DUMB_TYPE = new NotificationType<>(VersionUtil.lcResource("change_settings_dumb"),ChangeSettingNotification::createDumb);
+    public static final NotificationType<Dumb> DUMB_TYPE = new DumbType();
+    public static final NotificationType<Simple> SIMPLE_TYPE = new SimpleType();
+	public static final NotificationType<Advanced> ADVANCED_TYPE = new AdvancedType();
 
-	protected PlayerReference player;
-	protected Component setting;
-	
+	protected PlayerReference player = PlayerReference.NULL;
+	protected Component setting = EasyText.empty();
+
+    protected ChangeSettingNotification() {}
+    protected ChangeSettingNotification(PlayerReference player,Component setting,CommonData data) {
+        super(data);
+        this.player = player;
+        this.setting = setting;
+    }
 	protected ChangeSettingNotification(PlayerReference player, Component setting) { this.player = player; this.setting = setting; }
-	protected ChangeSettingNotification() {}
 
 	@Nullable
 	public static ChangeSettingNotification dumb(@Nullable PlayerReference player, Component setting) { return player == null ? null : new Dumb(player,setting); }
@@ -49,12 +53,6 @@ public abstract class ChangeSettingNotification extends SingleLineNotification {
 
 	@Override
 	public NotificationCategory getCategory() { return NullCategory.INSTANCE; }
-
-	@Override
-	protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
-		compound.put("Player", this.player.save());
-		compound.putString("Setting", Component.Serializer.toJson(this.setting,lookup));
-	}
 	
 	@Override
 	protected void loadAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
@@ -69,25 +67,22 @@ public abstract class ChangeSettingNotification extends SingleLineNotification {
 	public static class Advanced extends ChangeSettingNotification
 	{
 
-		Component newValue;
-		Component oldValue;
+		Component newValue = EasyText.empty();
+		Component oldValue = EasyText.empty();
 
 		private Advanced() { }
+        private Advanced(Component newValue,Component oldValue,PlayerReference player,Component setting,CommonData data) {
+            super(player,setting,data);
+            this.newValue = newValue;
+            this.oldValue = oldValue;
+        }
 		private Advanced(PlayerReference player, Component setting, Component newValue, Component oldValue) { super(player, setting); this.newValue = newValue; this.oldValue = oldValue; }
 		
         @Override
-		protected NotificationType<Advanced> getType() { return ADVANCED_TYPE; }
+		public NotificationType<Advanced> getType() { return ADVANCED_TYPE; }
 
-		
 		@Override
 		public Component getMessage() { return LCText.NOTIFICATION_SETTINGS_CHANGE_ADVANCED.get(this.player.getName(this.isClient()), this.setting, this.oldValue, this.newValue); }
-
-		@Override
-		protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
-			super.saveAdditional(compound,lookup);
-			compound.putString("NewValue", Component.Serializer.toJson(this.newValue,lookup));
-			compound.putString("OldValue", Component.Serializer.toJson(this.oldValue,lookup));
-		}
 		
 		@Override
 		protected void loadAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
@@ -110,24 +105,22 @@ public abstract class ChangeSettingNotification extends SingleLineNotification {
 	public static class Simple extends ChangeSettingNotification
 	{
 
-		Component newValue;
+		Component newValue = EasyText.empty();
 
 		private Simple() {}
+        private Simple(Component newValue,PlayerReference player,Component setting,CommonData data) {
+            super(player,setting,data);
+            this.newValue = newValue;
+        }
 		private Simple(PlayerReference player, Component setting, Component newValue) { super(player, setting); this.newValue = newValue; }
 		
         @Override
-		protected NotificationType<Simple> getType() { return SIMPLE_TYPE; }
+		public NotificationType<Simple> getType() { return SIMPLE_TYPE; }
 
 		
 		@Override
 		public Component getMessage() {
 			return LCText.NOTIFICATION_SETTINGS_CHANGE_SIMPLE.get(this.player.getName(this.isClient()), this.setting, this.newValue);
-		}
-		
-		@Override
-		protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
-			super.saveAdditional(compound,lookup);
-			compound.putString("NewValue",Component.Serializer.toJson(this.newValue,lookup));
 		}
 		
 		@Override
@@ -152,13 +145,14 @@ public abstract class ChangeSettingNotification extends SingleLineNotification {
 	{
 
 		private Dumb() {}
+        private Dumb(PlayerReference player, Component setting, CommonData data) { super(player,setting,data); }
 		private Dumb(PlayerReference player, Component setting) { super(player,setting); }
 
 		@Override
 		protected Component getMessage() { return LCText.NOTIFICATION_SETTINGS_CHANGE_DUMB.get(this.player.getName(this.isClient()),this.setting); }
 
 		@Override
-		protected NotificationType<?> getType() { return DUMB_TYPE; }
+		public NotificationType<?> getType() { return DUMB_TYPE; }
 
 		@Override
 		protected boolean canMerge(Notification other) {
@@ -167,5 +161,74 @@ public abstract class ChangeSettingNotification extends SingleLineNotification {
 			return false;
 		}
 	}
+
+    protected static <T extends ChangeSettingNotification> Products.P3<RecordCodecBuilder.Mu<T>,PlayerReference,Component,CommonData> settingFields(RecordCodecBuilder.Instance<T> builder) {
+        return builder.group(PlayerReference.CODEC.fieldOf("player").forGetter(n -> n.player),
+                ComponentSerialization.CODEC.fieldOf("setting").forGetter(n -> n.setting),
+                baseFields());
+    }
+
+    protected static <T extends ChangeSettingNotification> SPart3<RegistryFriendlyByteBuf,T,PlayerReference,Component,CommonData> settingStreamFields(Class<T> clazz) { return settingStreamFields(); }
+    protected static <T extends ChangeSettingNotification> SPart3<RegistryFriendlyByteBuf,T,PlayerReference,Component,CommonData> settingStreamFields()
+    {
+        return SPart3.of(baseStreamFields(),
+                PlayerReference.STREAM_CODEC,n -> n.player,
+                ComponentSerialization.STREAM_CODEC,n -> n.setting);
+    }
+
+    private static class DumbType extends NotificationType<Dumb>
+    {
+        private static final MapCodec<Dumb> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> settingFields(builder)
+                        .apply(builder,Dumb::new));
+
+        private static final StreamCodec<RegistryFriendlyByteBuf,Dumb> STREAM_CODEC = settingStreamFields(Dumb.class)
+                .assemble(Dumb::new);
+
+        @Override
+        protected Dumb createNew() { return new Dumb(); }
+        @Override
+        public MapCodec<Dumb> codec() { return MAP_CODEC; }
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, Dumb> streamCodec() { return STREAM_CODEC; }
+
+    }
+
+    private static class SimpleType extends NotificationType<Simple>
+    {
+        private static final MapCodec<Simple> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+                ComponentSerialization.CODEC.fieldOf("value").forGetter(n -> n.newValue)
+        ).and(settingFields(builder)).apply(builder,Simple::new));
+
+        private static final StreamCodec<RegistryFriendlyByteBuf,Simple> STREAM_CODEC = StreamHelper.combine(settingStreamFields(),
+                ComponentSerialization.STREAM_CODEC,n -> n.newValue,
+                Simple::new);
+
+        @Override
+        protected Simple createNew() { return new Simple(); }
+        @Override
+        public MapCodec<Simple> codec() { return MAP_CODEC; }
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, Simple> streamCodec() { return STREAM_CODEC; }
+    }
+
+    private static class AdvancedType extends NotificationType<Advanced>
+    {
+        private static final MapCodec<Advanced> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+                ComponentSerialization.CODEC.fieldOf("value").forGetter(n -> n.newValue),
+                ComponentSerialization.CODEC.fieldOf("old").forGetter(n -> n.oldValue)
+        ).and(settingFields(builder)).apply(builder,Advanced::new));
+
+        private static final StreamCodec<RegistryFriendlyByteBuf,Advanced> STREAM_CODEC = StreamHelper.combine(settingStreamFields(),
+                ComponentSerialization.STREAM_CODEC,n -> n.newValue,
+                ComponentSerialization.STREAM_CODEC,n -> n.oldValue,
+                Advanced::new);
+
+        @Override
+        protected Advanced createNew() { return new Advanced(); }
+        @Override
+        public MapCodec<Advanced> codec() { return MAP_CODEC; }
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, Advanced> streamCodec() { return STREAM_CODEC; }
+    }
 	
 }

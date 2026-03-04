@@ -32,7 +32,7 @@ import java.util.List;
 public class EnchantedItemForCoinsTrade implements ItemListing
 {
 
-    public static final ResourceLocation TYPE = VersionUtil.lcResource("enchanted_item_for_coins");
+    public static final ResourceLocation TYPE = LightmansCurrency.id("enchanted_item_for_coins");
     public static final Serializer SERIALIZER = new Serializer();
 
     protected final Item baseCoin;

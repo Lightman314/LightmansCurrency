@@ -1,41 +1,66 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.trader;
 
+import com.mojang.datafixers.util.Either;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.codecs.StreamHelper;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.notifications.CommonData;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.api.taxes.notifications.SingleLineTaxableNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.common.traders.paygate.trade.PaygateTradeData;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class PaygateNotification extends SingleLineTaxableNotification {
 
-	public static final NotificationType<PaygateNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("paygate_trade"),PaygateNotification::new);
+	public static final NotificationType<PaygateNotification> TYPE = new Type();
 	
-	TraderCategory traderData;
-	
+	TraderCategory traderData = TraderCategory.NULL;
+
+    MoneyValue cost = MoneyValue.empty();
+
 	long ticketID = Long.MIN_VALUE;
 	boolean usedPass = false;
-	MoneyValue cost = MoneyValue.empty();
+
+    private Either<MoneyValue,Pair<Long,Boolean>> getCostData()
+    {
+        if(this.ticketID > Long.MIN_VALUE)
+            return Either.right(Pair.of(this.ticketID,this.usedPass));
+        else
+            return Either.left(this.cost);
+    }
 	
 	int duration = 0;
 	
-	String customer;
+	String customer = "";
 
 	private PaygateNotification() {}
-
+    private PaygateNotification(TraderCategory trader, Either<MoneyValue, Pair<Long,Boolean>> cost, int duration, String customer, MoneyValue taxes, CommonData data)
+    {
+        super(taxes,data);
+        this.traderData = trader;
+        cost.ifLeft(c -> this.cost = c)
+                .ifRight(p -> {
+                    this.ticketID = p.getFirst();
+                    this.usedPass = p.getSecond();
+                });
+        this.duration = duration;
+        this.customer = customer;
+    }
 	protected PaygateNotification(PaygateTradeData trade, MoneyValue cost, boolean usedPass, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) {
 		super(taxesPaid);
 
@@ -58,7 +83,7 @@ public class PaygateNotification extends SingleLineTaxableNotification {
 	public static Supplier<Notification> createMoney(PaygateTradeData trade, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) { return () -> new PaygateNotification(trade, cost, false, customer, traderData, taxesPaid); }
 
     @Override
-	protected NotificationType<PaygateNotification> getType() { return TYPE; }
+	public NotificationType<PaygateNotification> getType() { return TYPE; }
 
 	@Override
 	public NotificationCategory getCategory() { return this.traderData; }
@@ -75,22 +100,6 @@ public class PaygateNotification extends SingleLineTaxableNotification {
 		}
 		else
 			return LCText.NOTIFICATION_TRADE_PAYGATE_MONEY.get(this.customer, this.cost.getText(), PaygateTradeData.formatDurationShort(this.duration));
-		
-	}
-
-	@Override
-	protected void saveNormal(CompoundTag compound, HolderLookup.Provider lookup) {
-
-		compound.put("TraderInfo", this.traderData.save(lookup));
-		compound.putInt("Duration", this.duration);
-		if(this.ticketID >= -1)
-		{
-			compound.putLong("TicketID", this.ticketID);
-			compound.putBoolean("UsedPass", this.usedPass);
-		}
-		else
-			compound.put("Price", this.cost.save());
-		compound.putString("Customer", this.customer);
 		
 	}
 
@@ -130,5 +139,29 @@ public class PaygateNotification extends SingleLineTaxableNotification {
 		}
 		return false;
 	}
+
+    private static class Type extends NotificationType<PaygateNotification>
+    {
+        private static final MapCodec<PaygateNotification> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+                TraderCategory.TYPE.codec().codec().fieldOf("trader").forGetter(n -> n.traderData),
+                Codec.either(MoneyValue.CODEC,Codec.pair(Codec.LONG,Codec.BOOL)).fieldOf("cost").forGetter(PaygateNotification::getCostData),
+                Codec.INT.fieldOf("duration").forGetter(n -> n.duration),
+                Codec.STRING.fieldOf("customer").forGetter(n -> n.customer)
+        ).and(taxableFields(builder)).apply(builder,PaygateNotification::new));
+
+        private static final StreamCodec<RegistryFriendlyByteBuf,PaygateNotification> STREAM_CODEC = StreamHelper.combine(taxableStreamFields(),
+                TraderCategory.TYPE.streamCodec(),n -> n.traderData,
+                ByteBufCodecs.either(MoneyValue.STREAM_CODEC, StreamHelper.pair(ByteBufCodecs.VAR_LONG,ByteBufCodecs.BOOL)),PaygateNotification::getCostData,
+                ByteBufCodecs.INT,n -> n.duration,
+                ByteBufCodecs.STRING_UTF8,n -> n.customer,
+                PaygateNotification::new);
+
+        @Override
+        protected PaygateNotification createNew() { return new PaygateNotification(); }
+        @Override
+        public MapCodec<PaygateNotification> codec() { return MAP_CODEC; }
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, PaygateNotification> streamCodec() { return STREAM_CODEC; }
+    }
 	
 }

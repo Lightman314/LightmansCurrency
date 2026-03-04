@@ -1,35 +1,39 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.settings;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
-import io.github.lightman314.lightmanscurrency.api.notifications.SingleLineNotification;
+import io.github.lightman314.lightmanscurrency.api.codecs.StreamHelper;
+import io.github.lightman314.lightmanscurrency.api.notifications.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class ChangeNameNotification extends SingleLineNotification {
 
-	public static final NotificationType<ChangeNameNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("changed_name"),ChangeNameNotification::new);
+	public static final NotificationType<ChangeNameNotification> TYPE = new Type();
 
-	private PlayerReference player;
-	private String oldName;
-	private String newName;
+	private PlayerReference player = PlayerReference.NULL;
+	private String oldName = "";
+	private String newName = "";
 
 	private ChangeNameNotification() {}
+	private ChangeNameNotification(PlayerReference player, String newName, String oldName, CommonData data) {
+        super(data);
+        this.player = player;
+        this.newName = newName;
+        this.oldName = oldName;
+    }
 	public ChangeNameNotification(PlayerReference player, String newName, String oldName) { this.player = player; this.newName = newName; this.oldName = oldName; }
 
     @Override
-	protected NotificationType<ChangeNameNotification> getType() { return TYPE; }
+	public NotificationType<ChangeNameNotification> getType() { return TYPE; }
 
 	@Override
 	public NotificationCategory getCategory() { return NullCategory.INSTANCE; }
@@ -42,13 +46,6 @@ public class ChangeNameNotification extends SingleLineNotification {
 			return LCText.NOTIFICATION_SETTINGS_CHANGE_NAME_RESET.get(this.player.getName(true), this.oldName);
 		else
 			return LCText.NOTIFICATION_SETTINGS_CHANGE_NAME.get(this.player.getName(true), this.oldName, this.newName);
-	}
-
-	@Override
-	protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
-		compound.put("Player", this.player.save());
-		compound.putString("OldName", this.oldName);
-		compound.putString("NewName", this.newName);
 	}
 
 	@Override
@@ -66,5 +63,28 @@ public class ChangeNameNotification extends SingleLineNotification {
 		}
 		return false;
 	}
+
+    private static class Type extends NotificationType<ChangeNameNotification>
+    {
+        private static final MapCodec<ChangeNameNotification> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+                PlayerReference.CODEC.fieldOf("player").forGetter(n -> n.player),
+                Codec.STRING.fieldOf("new").forGetter(n -> n.newName),
+                Codec.STRING.fieldOf("old").forGetter(n -> n.oldName),
+                baseFields()
+        ).apply(builder,ChangeNameNotification::new));
+
+        private static final StreamCodec<RegistryFriendlyByteBuf,ChangeNameNotification> STREAM_CODEC = StreamHelper.combine(baseStreamFields(),
+                PlayerReference.STREAM_CODEC,n -> n.player,
+                ByteBufCodecs.STRING_UTF8,n -> n.newName,
+                ByteBufCodecs.STRING_UTF8,n -> n.oldName,
+                ChangeNameNotification::new);
+
+        @Override
+        protected ChangeNameNotification createNew() { return new ChangeNameNotification(); }
+        @Override
+        public MapCodec<ChangeNameNotification> codec() { return MAP_CODEC; }
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, ChangeNameNotification> streamCodec() { return STREAM_CODEC; }
+    }
 	
 }

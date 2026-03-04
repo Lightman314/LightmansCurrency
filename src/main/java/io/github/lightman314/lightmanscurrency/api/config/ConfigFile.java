@@ -32,8 +32,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class ConfigFile implements ConfigReloadable {
 
     private static final Map<ResourceLocation,ConfigFile> loadableFiles = new HashMap<>();

@@ -49,18 +49,22 @@ public final class LCPeripheralMethod {
         private Builder noReturn(LuaBiConsumer<IComputerAccess,IArguments> method) { this.method = (comp,args) -> { method.accept(comp,args); return null; }; return this; }
         private Builder singleReturn(LuaBiFunction<IComputerAccess,IArguments,Object> method) { this.method = (comp,args) -> new Object[] {method.apply(comp,args)}; return this; }
 
+        @Deprecated
         public Builder withContextArray(LuaBiFunction<IComputerAccess,IArguments,Object[]> method) { this.method = method; return this; }
         public Builder withContext(LuaBiFunction<IComputerAccess,IArguments,Object> method) { return singleReturn(method); }
         public Builder withContext(LuaBiConsumer<IComputerAccess,IArguments> method) { return noReturn(method); }
 
+        @Deprecated
         public Builder withContextOnlyArray(LuaFunction<IComputerAccess,Object[]> method) { this.method = (comp,args) -> method.apply(comp); return this; }
         public Builder withContextOnly(LuaFunction<IComputerAccess,Object> method) { return singleReturn((comp,args) -> method.apply(comp)); }
         public Builder withContextOnly(LuaConsumer<IComputerAccess> method) { return noReturn((comp,args) -> method.accept(comp)); }
 
+        @Deprecated
         public Builder withArgsArray(LuaFunction<IArguments,Object[]> method) { this.method = (comp,args) -> method.apply(args); return this; }
         public Builder withArgs(LuaFunction<IArguments,Object> method) { return singleReturn((comp,args) -> method.apply(args)); }
         public Builder withArgs(LuaConsumer<IArguments> method) { return noReturn((comp,args) -> method.accept(args)); }
 
+        @Deprecated
         public Builder simpleArray(LuaSupplier<Object[]> method) { this.method = (comp,args) -> method.get(); return this; }
         public Builder simple(LuaSupplier<Object> method) { return singleReturn((comp,args) -> method.get()); }
         public Builder simple(LuaRunnable method) { return noReturn((comp,args) -> method.run()); }

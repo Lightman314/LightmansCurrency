@@ -1,16 +1,17 @@
 package io.github.lightman314.lightmanscurrency.api.misc.settings.directional;
 
+import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.codec.StreamCodec;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public enum DirectionalSettingsState {
     NONE, INPUT, INPUT_AND_OUTPUT, OUTPUT;
+
+    public static final Codec<DirectionalSettingsState> CODEC = EnumUtil.buildCodec(DirectionalSettingsState.class,"Directional Settings State");
+    public static final StreamCodec<ByteBuf,DirectionalSettingsState> STREAM_CODEC = EnumUtil.streamCodec(DirectionalSettingsState.class,"Directional Settings State");
 
     public boolean allowsInputs() { return this == INPUT || this == INPUT_AND_OUTPUT; }
     public boolean allowsOutputs() { return this == OUTPUT || this == INPUT_AND_OUTPUT; }

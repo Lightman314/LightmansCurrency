@@ -1,13 +1,16 @@
 package io.github.lightman314.lightmanscurrency.api.ejection;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 
-import javax.annotation.Nonnull;
+public abstract class EjectionDataType<T extends EjectionData> {
 
-public abstract class EjectionDataType {
+    public abstract MapCodec<T> mapCodec();
+    public abstract StreamCodec<? super RegistryFriendlyByteBuf,T> streamCodec();
 
-    @Nonnull
-    public abstract EjectionData load(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup);
+    public EjectionData loadOldData(CompoundTag tag, HolderLookup.Provider lookup, long id) { return null; }
 
 }

@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.blocks;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
@@ -40,7 +39,7 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock, SimpleW
 	}
 
 	@Override
-	protected CoinBlock build(@Nonnull Properties p) { return new CoinpileBlock(p,this.shape); }
+	protected CoinBlock build(Properties p) { return new CoinpileBlock(p,this.shape); }
 
 	@Override
 	protected boolean isFullBlock() { return false; }
@@ -53,19 +52,18 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock, SimpleW
 	}
 
 	@Override
-	@Nonnull
 	public BlockState rotate(BlockState state, Rotation rotation) { return state.setValue(FACING, rotation.rotate(state.getValue(FACING))); }
 	
 	@Override
-    protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
     {
 		super.createBlockStateDefinition(builder);
         builder.add(FACING);
         builder.add(WATERLOGGED);
     }
 	
-	@Nonnull
-	public BlockState updateShape(BlockState p_56381_, @Nonnull Direction p_56382_, @Nonnull BlockState p_56383_, @Nonnull LevelAccessor p_56384_, @Nonnull BlockPos p_56385_, @Nonnull BlockPos p_56386_) {
+	
+	public BlockState updateShape(BlockState p_56381_, Direction p_56382_, BlockState p_56383_, LevelAccessor p_56384_, BlockPos p_56385_, BlockPos p_56386_) {
 		if (p_56381_.getValue(WATERLOGGED)) {
 			p_56384_.scheduleTick(p_56385_, Fluids.WATER, Fluids.WATER.getTickDelay(p_56384_));
 		}
@@ -74,17 +72,17 @@ public class CoinpileBlock extends CoinBlock implements IRotatableBlock, SimpleW
 	}
 	
 	@Override
-	@Nonnull
-	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext contect) { return this.shape; }
+	
+	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext contect) { return this.shape; }
 
 	@Override
-	@Nonnull
+	
 	public FluidState getFluidState(BlockState state) {
 		return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
 	}
 
 	@Override
-	protected boolean isPathfindable(@Nonnull BlockState state, @Nonnull PathComputationType type) {
+	protected boolean isPathfindable(BlockState state, PathComputationType type) {
 		if(type == PathComputationType.WATER)
 			return state.getValue(WATERLOGGED);
 		return super.isPathfindable(state, type);

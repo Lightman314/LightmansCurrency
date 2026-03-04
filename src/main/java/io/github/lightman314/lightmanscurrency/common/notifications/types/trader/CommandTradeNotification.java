@@ -1,36 +1,46 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.trader;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.codecs.StreamHelper;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.notifications.CommonData;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.taxes.notifications.SingleLineTaxableNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
-import io.github.lightman314.lightmanscurrency.common.traders.commands.tradedata.CommandTrade;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.common.traders.commands.trade.CommandTrade;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class CommandTradeNotification extends SingleLineTaxableNotification {
 
-    public static final NotificationType<CommandTradeNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("command_trade"),CommandTradeNotification::new);
+    public static final NotificationType<CommandTradeNotification> TYPE = new Type();
 
-    TraderCategory traderData;
-    String command;
+    TraderCategory traderData = TraderCategory.NULL;
+    String command = "";
     MoneyValue cost = MoneyValue.empty();
 
-    String customer;
+    String customer = "";
 
     private CommandTradeNotification() {}
+    private CommandTradeNotification(TraderCategory trader, String command, MoneyValue cost, String customer, MoneyValue taxesPaid, CommonData data) {
+        super(taxesPaid,data);
+        this.traderData = trader;
+        this.command = command;
+        this.cost = cost;
+        this.customer = customer;
+    }
     private CommandTradeNotification(CommandTrade trade, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid)
     {
         super(taxesPaid);
@@ -43,21 +53,13 @@ public class CommandTradeNotification extends SingleLineTaxableNotification {
     public static Supplier<Notification> create(CommandTrade trade, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) { return () -> new CommandTradeNotification(trade,cost,customer,traderData,taxesPaid); }
 
     @Override
-    protected NotificationType<?> getType() { return TYPE; }
+    public NotificationType<?> getType() { return TYPE; }
 
     @Override
     public NotificationCategory getCategory() { return this.traderData; }
 
     @Override
     protected Component getNormalMessage() { return LCText.NOTIFICATION_TRADE_COMMAND.get(this.customer,this.cost.getText("NULL"),this.command); }
-
-    @Override
-    protected void saveNormal(CompoundTag compound, HolderLookup.Provider lookup) {
-        compound.put("TraderInfo", this.traderData.save(lookup));
-        compound.putString("Command",this.command);
-        compound.put("Price",this.cost.save());
-        compound.putString("Customer",this.customer);
-    }
 
     @Override
     protected void loadNormal(CompoundTag compound, HolderLookup.Provider lookup) {
@@ -86,4 +88,29 @@ public class CommandTradeNotification extends SingleLineTaxableNotification {
         }
         return false;
     }
+
+    private static class Type extends NotificationType<CommandTradeNotification>
+    {
+        private static final MapCodec<CommandTradeNotification> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+                TraderCategory.TYPE.codec().codec().fieldOf("trader").forGetter(n -> n.traderData),
+                Codec.STRING.fieldOf("command").forGetter(n -> n.command),
+                MoneyValue.CODEC.fieldOf("cost").forGetter(n -> n.cost),
+                Codec.STRING.fieldOf("customer").forGetter(n -> n.customer)
+        ).and(taxableFields(builder)).apply(builder,CommandTradeNotification::new));
+
+        private static final StreamCodec<RegistryFriendlyByteBuf,CommandTradeNotification> STREAM_CODEC = StreamHelper.combine(taxableStreamFields(),
+                TraderCategory.TYPE.streamCodec(),n -> n.traderData,
+                ByteBufCodecs.STRING_UTF8,n -> n.command,
+                MoneyValue.STREAM_CODEC,n -> n.cost,
+                ByteBufCodecs.STRING_UTF8,n -> n.customer,
+                CommandTradeNotification::new);
+
+        @Override
+        protected CommandTradeNotification createNew() { return new CommandTradeNotification(); }
+        @Override
+        public MapCodec<CommandTradeNotification> codec() { return MAP_CODEC; }
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, CommandTradeNotification> streamCodec() { return STREAM_CODEC; }
+    }
+
 }

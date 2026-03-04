@@ -3,20 +3,21 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.WidgetStateSprite;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteSource;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.WidgetStateSprite;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.NormalSprite;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.client.gui.EasyMenuScreen;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.NormalSprite;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.slot_machine.SlotMachineRenderer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.AlertData;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.AlertData;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.slot_machine.SlotMachineEntryDisplayWidget;
@@ -26,29 +27,21 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.menus.slot_machine.SlotMachineMenu;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
-import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.nodes.SlotMachineNode;
+import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
-import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketCollectCoins;
-import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
-import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenStorage;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implements IScrollable {
 
-    public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/slot_machine.png");
+    public static final ResourceLocation GUI_TEXTURE = LightmansCurrency.id("textures/gui/container/slot_machine.png");
 
     public static final int WIDTH = 176;
     public static final int HEIGHT = 222;
@@ -180,18 +173,19 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
 
     private boolean allowInteraction()
     {
-        SlotMachineTraderData trader = this.menu.getTrader();
-        if(trader != null)
+        TraderData trader = this.menu.getTrader();
+        SlotMachineNode node = this.menu.getNode(SlotMachineNode.TYPE);
+        if(trader != null && node != null)
         {
             TradeEvent.PreTradeEvent event = trader.runPreTradeEvent(trader.getTrade(0),this.menu.getContext());
-            return !this.menu.hasPendingReward() && trader.hasStock() && trader.hasValidTrade() && !event.isCanceled();
+            return !this.menu.hasPendingReward() && node.getTradeStock(0) > 0 && trader.hasValidTrade() && !event.isCanceled();
         }
         return false;
     }
 
     private boolean showTerminalButton() {
         if(this.menu.getTrader() != null)
-            return this.menu.getTrader().showOnTerminal();
+            return this.menu.getValidator().isThroughNetwork;
         return false;
     }
 
@@ -211,9 +205,9 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
             this.slotRenderer.render(gui);
         else
         {
-            SlotMachineTraderData trader = this.menu.getTrader();
-            if(trader != null)
-                TextRenderUtil.drawCenteredText(gui,LCText.GUI_TRADER_SLOT_MACHINE_FAIL_CHANCE.get(trader.getFailOddsText()),this.getXSize() / 2, 6,0x404040);
+            SlotMachineNode node = this.menu.getNode(SlotMachineNode.TYPE);
+            if(node != null)
+                TextRenderUtil.drawCenteredText(gui,LCText.GUI_TRADER_SLOT_MACHINE_FAIL_CHANCE.get(node.getFailOddsText()),this.getXSize() / 2, 6,0x404040);
         }
 
         //Labels
@@ -234,10 +228,10 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
     @Nullable
     private List<Component> getInfoTooltip()
     {
-        SlotMachineTraderData trader = this.menu.getTrader();
-        if(trader != null)
+        SlotMachineNode node = this.menu.getNode(SlotMachineNode.TYPE);
+        if(node != null)
         {
-            List<Component> info = trader.getSlotMachineInfo();
+            List<Component> info = node.getSlotMachineInfo();
             if(this.isInfoMode())
                 LCText.TOOLTIP_SLOT_MACHINE_TO_INTERACT.tooltip(info);
             else
@@ -248,10 +242,11 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
     }
 
     private List<Component> getInteractionTooltip(int count) {
-        SlotMachineTraderData trader = this.menu.getTrader();
-        if(trader != null)
+        TraderData trader = this.menu.getTrader();
+        SlotMachineNode node = this.menu.getNode(SlotMachineNode.TYPE);
+        if(trader != null && node != null)
         {
-            MoneyValue normalCost = trader.getPrice();
+            MoneyValue normalCost = node.getPrice();
             MoneyValue currentCost = trader.runTradeCostEvent(trader.getTrade(0), this.menu.getContext()).getCostResult();
             Component costText = currentCost.isFree() ? LCText.TOOLTIP_SLOT_MACHINE_COST_FREE.get() : currentCost.getText();
             List<Component> result;
@@ -273,19 +268,19 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
 
     private void ExecuteTrade(int count) { this.menu.SendMessageToServer(this.builder().setInt("ExecuteTrade", count)); }
 
-    private void OpenStorage(EasyButton button) {
+    private void OpenStorage() {
         if(this.menu.getTrader() != null)
-            new CPacketOpenStorage(this.menu.getTrader().getID()).send();
+            this.menu.openStorage();
     }
 
-    private void CollectCoins(EasyButton button) {
+    private void CollectCoins() {
         if(this.menu.getTrader() != null)
-            CPacketCollectCoins.sendToServer();
+            this.menu.collectMoney();
     }
 
-    private void OpenTerminal(EasyButton button) {
+    private void OpenTerminal() {
         if(this.showTerminalButton())
-            new CPacketOpenNetworkTerminal().send();
+            this.menu.openTerminal();
     }
 
     @Override
@@ -296,9 +291,9 @@ public class SlotMachineScreen extends EasyMenuScreen<SlotMachineMenu> implement
 
     private List<SlotMachineEntry> getEntries()
     {
-        SlotMachineTraderData trader = this.menu.getTrader();
-        if(trader != null)
-            return trader.getValidEntries();
+        SlotMachineNode node = this.menu.getNode(SlotMachineNode.TYPE);
+        if(node != null)
+            return node.getValidEntries();
         return new ArrayList<>();
     }
 

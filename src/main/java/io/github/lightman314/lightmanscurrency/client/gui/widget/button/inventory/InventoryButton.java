@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button.inventory;
 
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.FixedSizeSprite;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.MethodsReturnNonnullByDefault;

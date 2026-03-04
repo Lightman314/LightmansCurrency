@@ -2,6 +2,8 @@ package io.github.lightman314.lightmanscurrency.api.money.value.builtin;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEntry;
@@ -9,6 +11,9 @@ import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -19,6 +24,15 @@ import javax.annotation.Nullable;
 
 public final class CoinValuePair
 {
+
+    public static final Codec<CoinValuePair> CODEC = RecordCodecBuilder.create(builder -> builder.group(
+            BuiltInRegistries.ITEM.byNameCodec().fieldOf("coin").forGetter(p -> p.coin),
+            Codec.INT.fieldOf("amount").forGetter(p -> p.amount)
+            ).apply(builder,CoinValuePair::new));
+    public static final StreamCodec<RegistryFriendlyByteBuf,CoinValuePair> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.registry(BuiltInRegistries.ITEM.key()),p -> p.coin,
+            ByteBufCodecs.INT,p -> p.amount,
+            CoinValuePair::new);
 
     public final Item coin;
     public final int amount;

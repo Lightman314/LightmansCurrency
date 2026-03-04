@@ -12,11 +12,10 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
-import io.github.lightman314.lightmanscurrency.common.crafting.condition.LCCraftingConditions;
+import io.github.lightman314.lightmanscurrency.common.crafting.conditions.LCCraftingConditions;
 import io.github.lightman314.lightmanscurrency.datagen.common.crafting.builders.*;
 import io.github.lightman314.lightmanscurrency.datagen.util.ColorHelper;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.HolderLookup;
@@ -1041,7 +1040,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlockedBy("traders",TraderKnowledge())
                 .unlockedBy("filter",LazyTrigger(ModItems.ITEM_TRADE_FILTER))
                 .requires(ModItems.ITEM_TRADE_FILTER.get())
-                .save(consumer,VersionUtil.lcResource("item_trade_filter_reset"));
+                .save(consumer,LightmansCurrency.id("item_trade_filter_reset"));
 
         //2.3.0.4
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC,ModItems.TRANSACTION_REGISTER.get())
@@ -1059,12 +1058,12 @@ public class LCRecipeProvider extends RecipeProvider {
         //Patchouli guide book
         if(ModList.get().isLoaded("patchouli"))
         {
-            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ItemModBook.forBook(VersionUtil.lcResource("trader_guide")))
+            ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ItemModBook.forBook(LightmansCurrency.id("trader_guide")))
                     .requires(Items.BOOK)
                     .requires(ModItems.UPGRADE_SMITHING_TEMPLATE.get())
                     .unlockedBy("trader",TraderKnowledge())
                     .unlockedBy("money",MoneyKnowledge())
-                    .save(consumer.withConditions(new ModLoadedCondition("patchouli")),VersionUtil.lcResource("guide/trader_guide"));
+                    .save(consumer.withConditions(new ModLoadedCondition("patchouli")),LightmansCurrency.id("guide/trader_guide"));
         }
 
     }
@@ -1268,6 +1267,6 @@ public class LCRecipeProvider extends RecipeProvider {
     protected static ResourceLocation WoodID(String prefix, WoodType woodType) { return ID(woodType.generateResourceLocation(prefix)); }
     protected static ResourceLocation WoodID(String prefix, WoodType woodType, String postfix) { return ID(woodType.generateResourceLocation(prefix, postfix)); }
     protected static ResourceLocation ColoredWoodID(String prefix, WoodType woodType, Color color) { return WoodID(prefix, woodType, "/" + color.getResourceSafeName()); }
-    protected static ResourceLocation ID(String path) { return VersionUtil.lcResource(path); }
+    protected static ResourceLocation ID(String path) { return LightmansCurrency.id(path); }
 
 }

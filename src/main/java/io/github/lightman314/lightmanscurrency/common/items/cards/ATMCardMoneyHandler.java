@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.items.cards;
 
-import io.github.lightman314.lightmanscurrency.api.capability.money.MoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.money.capability.MoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
@@ -10,11 +10,10 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.items.data.ATMCardData;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.DepositWithdrawNotification;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ATMCardMoneyHandler extends MoneyHandler implements ISidedObject {
@@ -25,19 +24,18 @@ public class ATMCardMoneyHandler extends MoneyHandler implements ISidedObject {
 
     private final ItemStack card;
 
-    public ATMCardMoneyHandler(@Nonnull ItemStack card) { this.card = card; }
+    public ATMCardMoneyHandler(ItemStack card) { this.card = card; }
 
     private MutableComponent getCardName() { return EasyText.makeMutable(this.card.getHoverName()); }
 
-    @Nonnull
     @Override
     public ATMCardMoneyHandler flagAsClient() { this.isClient = true; return this; }
-    @Nonnull
+
     @Override
     public ATMCardMoneyHandler flagAsClient(boolean isClient) { this.isClient = isClient; return this; }
-    @Nonnull
+    
     @Override
-    public ATMCardMoneyHandler flagAsClient(@Nonnull IClientTracker tracker) { this.isClient = tracker.isClient(); return this; }
+    public ATMCardMoneyHandler flagAsClient(IClientTracker tracker) { this.isClient = tracker.isClient(); return this; }
 
     @Nullable
     protected IBankAccount getAccount()
@@ -53,9 +51,9 @@ public class ATMCardMoneyHandler extends MoneyHandler implements ISidedObject {
         return null;
     }
 
-    @Nonnull
+    
     @Override
-    public MoneyValue insertMoney(@Nonnull MoneyValue insertAmount, boolean simulation)
+    public MoneyValue insertMoney(MoneyValue insertAmount, boolean simulation)
     {
         IBankAccount account = this.getAccount();
         if(account != null)
@@ -70,9 +68,9 @@ public class ATMCardMoneyHandler extends MoneyHandler implements ISidedObject {
         return insertAmount;
     }
 
-    @Nonnull
+    
     @Override
-    public MoneyValue extractMoney(@Nonnull MoneyValue extractAmount, boolean simulation) {
+    public MoneyValue extractMoney(MoneyValue extractAmount, boolean simulation) {
         IBankAccount account = this.getAccount();
         if(account != null)
         {
@@ -86,10 +84,10 @@ public class ATMCardMoneyHandler extends MoneyHandler implements ISidedObject {
     }
 
     @Override
-    public boolean isMoneyTypeValid(@Nonnull MoneyValue value) { return true; }
+    public boolean isMoneyTypeValid(MoneyValue value) { return true; }
 
     @Override
-    protected void collectStoredMoney(@Nonnull MoneyView.Builder builder) {
+    protected void collectStoredMoney(MoneyView.Builder builder) {
         IBankAccount account = this.getAccount();
         if(account != null)
             builder.merge(account.getMoneyStorage());

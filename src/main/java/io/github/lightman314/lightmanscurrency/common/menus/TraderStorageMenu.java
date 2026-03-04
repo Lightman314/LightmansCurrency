@@ -2,34 +2,35 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import javax.annotation.Nonnull;
-
-import io.github.lightman314.lightmanscurrency.api.misc.menus.MoneySlot;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.tabbed.EasyTabbedMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.*;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.IItemHandler;
+
+import javax.annotation.Nullable;
 
 public class TraderStorageMenu extends EasyTabbedMenu<ITraderStorageMenu,TraderStorageTab> implements IValidatedMenu, ITraderStorageMenu {
 
-	@Nonnull
 	@Override
 	public Player getPlayer() { return this.player; }
 
@@ -41,14 +42,10 @@ public class TraderStorageMenu extends EasyTabbedMenu<ITraderStorageMenu,TraderS
 
 	public static final int SLOT_OFFSET = 15;
 
-	@Deprecated(since = "2.2.4.4")
-	public List<MoneySlot> getCoinSlots() { return new ArrayList<>(); }
-
 	private final List<Consumer<LazyPacketData>> listeners = new ArrayList<>();
 
 	private TradeContext context = null;
 
-	@Nonnull
 	@Override
 	public TradeContext getContext() {
 		TraderData trader = this.traderSource.get();
@@ -58,21 +55,20 @@ public class TraderStorageMenu extends EasyTabbedMenu<ITraderStorageMenu,TraderS
 	}
 
 	@Override
-	@Nonnull
 	public ItemStack getHeldItem() { return this.getCarried(); }
 	@Override
-	public void setHeldItem(@Nonnull ItemStack stack) { this.setCarried(stack); }
+	public void setHeldItem(ItemStack stack) { this.setCarried(stack); }
 
 	private final MenuValidator validator;
-	@Nonnull
+	
 	@Override
 	public MenuValidator getValidator() { return this.validator; }
 
-	public TraderStorageMenu(int windowID, Inventory inventory, long traderID, @Nonnull  MenuValidator validator) {
+	public TraderStorageMenu(int windowID, Inventory inventory, long traderID,  MenuValidator validator) {
 		this(ModMenus.TRADER_STORAGE.get(), windowID, inventory, () -> TraderAPI.getApi().GetTrader(inventory.player.level().isClientSide, traderID), validator);
 	}
 	
-	protected TraderStorageMenu(MenuType<?> type, int windowID, Inventory inventory, Supplier<TraderData> traderSource, @Nonnull MenuValidator validator) {
+	protected TraderStorageMenu(MenuType<?> type, int windowID, Inventory inventory, Supplier<TraderData> traderSource, MenuValidator validator) {
 		super(type, windowID, inventory);
 		this.validator = validator;
 		this.traderSource = traderSource;
@@ -101,23 +97,42 @@ public class TraderStorageMenu extends EasyTabbedMenu<ITraderStorageMenu,TraderS
 		
 	}
 
-	@Override
+    @Override
+    public void addTab(TraderStorageTab tab) { this.setTab(tab.getTabSlot(),tab); }
+    @Override
+    public void clearTab(ResourceLocation tabKey) { this.clearTab(this.getTabSlot(tabKey)); }
+
+    public final int getTabSlot(ResourceLocation tabKey) {
+        Map<Integer,TraderStorageTab> tabs = this.getAllTabs();
+        //If we have a tab with the hash of the key (the default slot id), then assume it's the correct key
+        int hash = tabKey.hashCode();
+        if(tabs.containsKey(hash))
+            return hash;
+        //Attempt to find the tab with the given key, and locate its slot
+        AtomicInteger result = new AtomicInteger(-1);
+        tabs.forEach((slot,tab) -> {
+            if(tab.tabKey().equals(tabKey))
+                result.set(slot);
+        });
+        return result.get();
+    }
+
+    @Override
+    public void ChangeTab(ResourceLocation tabKey) { this.ChangeTab(this.getTabSlot(tabKey)); }
+    @Override
+    public void ChangeTab(ResourceLocation tabKey, @Nullable LazyPacketData.Builder data) { this.ChangeTab(this.getTabSlot(tabKey),data); }
+    @Override
+    public void ChangeTab(ResourceLocation tabKey, @Nullable LazyPacketData data) { this.ChangeTab(this.getTabSlot(tabKey),data); }
+
+    @Override
 	protected void registerTabs() {
 		TraderData trader = this.traderSource.get();
-		this.setTab(TraderStorageTab.TAB_TRADE_BASIC, new BasicTradeEditTab(this));
-		this.setTab(TraderStorageTab.TAB_MONEY_STORAGE, new TraderMoneyStorageTab(this));
-		this.setTab(TraderStorageTab.TAB_TRADE_MULTI_PRICE, new MultiPriceTab(this));
-		this.setTab(TraderStorageTab.TAB_TRADER_INFO, new TraderInfoTab(this));
-		this.setTab(TraderStorageTab.TAB_TRADER_SETTINGS, new TraderSettingsTab(this));
-		this.setTab(TraderStorageTab.TAB_SETTINGS_CLIPBOARD, new SettingsClipboardTab(this));
-		this.setTab(TraderStorageTab.TAB_RULES_TRADER, new TradeRulesTab.Trader(this));
-		this.setTab(TraderStorageTab.TAB_RULES_TRADE, new TradeRulesTab.Trade(this));
 		if(trader != null)
 			trader.initStorageTabs(this);
 	}
 
 	@Override
-	public void removed(@Nonnull Player player) {
+	public void removed(Player player) {
 		super.removed(player);
 		TraderData trader = this.getTrader();
 		if(trader != null)
@@ -127,13 +142,14 @@ public class TraderStorageMenu extends EasyTabbedMenu<ITraderStorageMenu,TraderS
 	/**
 	 * Public access to the AbstractContainerMenu.clearContainer(Player,Container) function.
 	 */
-	public void clearContainer(@Nonnull Container container) {
-		this.clearContainer(this.player, container);
-	}
+    @Override
+	public void clearContainer(Container container) { this.clearContainer(this.player, container); }
+    @Override
+    public void clearContainer(IItemHandler container) { this.clearContainer(this.player,container); }
+
+    @Override
 	
-	@Override
-	@Nonnull
-	public ItemStack quickMoveStack(@Nonnull Player playerEntity, int index)
+	public ItemStack quickMoveStack(Player playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
@@ -180,14 +196,31 @@ public class TraderStorageMenu extends EasyTabbedMenu<ITraderStorageMenu,TraderS
 	}
 
 	@Override
-	public int getPermissionLevel(@Nonnull String permission) {
+	public int getPermissionLevel(String permission) {
 		TraderData trader = this.getTrader();
 		if(trader != null)
 			return trader.getPermissionLevel(this.player, permission);
 		return 0;
 	}
 
-	@Deprecated(since = "2.2.4.4")
-	public void SetCoinSlotsActive(boolean nowActive) { }
-	
+    public final void openTrades()
+    {
+        if(this.isClient())
+        {
+            this.SendMessage(this.builder().setFlag("OpenTrades"));
+            return;
+        }
+        TraderData trader = this.getTrader();
+        if(trader != null)
+            trader.openTraderMenu(player,this.validator);
+        else
+            this.player.closeContainer();
+    }
+
+    @Override
+    protected void HandleMessages(LazyPacketData message) {
+        super.HandleMessages(message);
+        if(message.contains("OpenTrades"))
+            this.openTrades();
+    }
 }

@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.variant;
 
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.DefaultModelVariant;
 import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
@@ -22,7 +22,7 @@ import java.util.List;
 @ParametersAreNonnullByDefault
 public class ItemVariantSelectScreen extends VariantSelectScreen<ItemVariantSelectMenu> {
 
-    public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/item_variant.png");
+    public static final ResourceLocation GUI_TEXTURE = LightmansCurrency.id("textures/gui/container/item_variant.png");
 
     private Item lastItem = Items.AIR;
     private IVariantItem lastVariant = null;

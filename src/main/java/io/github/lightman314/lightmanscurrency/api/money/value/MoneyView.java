@@ -6,18 +6,13 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
+import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public final class MoneyView {
 
     private static final MoneyView EMPTY = new MoneyView();
@@ -31,7 +26,7 @@ public final class MoneyView {
             if(!list.isEmpty())
             {
                 MoneyValue firstVal = list.getFirst();
-                MoneyValue sum = firstVal.getCurrency().sumValues(list);
+                MoneyValue sum = firstVal.getType().sumValues(list);
                 if(sum != null && !sum.isEmpty() && !sum.isFree() && !sum.isInvalid())
                     results.put(name, sum);
             }
@@ -52,7 +47,7 @@ public final class MoneyView {
     /**
      * Returns the stored value with the name requested.
      */
-    public MoneyValue valueOf(String uniqueName) { return this.values.getOrDefault(uniqueName, MoneyValue.empty()); }
+    public MoneyValue valueOf(String uniqueName) { return this.values.getOrDefault(uniqueName,MoneyValue.empty()); }
 
     /**
      * Whether the given amount of money (or more) is currently stored in the value holder.
@@ -82,8 +77,8 @@ public final class MoneyView {
     public List<Component> getAllText(ChatFormatting... style)
     {
         List<Component> text = new ArrayList<>();
-        for(CurrencyType type : MoneyAPI.getApi().AllCurrencyTypes())
-            type.getGroupTooltip(this,line -> text.add(EasyText.makeMutable(line).withStyle(style)));
+        for(CurrencyType<?> type : MoneyAPI.getApi().AllCurrencyTypes())
+            type.getGroupTooltip(this,line -> text.add(line.copy().withStyle(style)));
         return text;
     }
 
@@ -94,11 +89,11 @@ public final class MoneyView {
     }
 
     
-    public MutableComponent getRandomValueText() { return this.getRandomValueText(LCText.GUI_MONEY_STORAGE_EMPTY.get()); }
+    public Component getRandomValueText() { return this.getRandomValueText(LCText.GUI_MONEY_STORAGE_EMPTY.get()); }
     
-    public MutableComponent getRandomValueText(String emptyText) { return this.getRandomValueText(EasyText.literal(emptyText)); }
+    public Component getRandomValueText(String emptyText) { return this.getRandomValueText(EasyText.literal(emptyText)); }
     
-    public MutableComponent getRandomValueText(MutableComponent emptyText)
+    public Component getRandomValueText(Component emptyText)
     {
         if(this.values.isEmpty())
             return emptyText;
@@ -107,7 +102,7 @@ public final class MoneyView {
 
     public Component getRandomValueLine() { return this.getRandomValueLine(LCText.GUI_MONEY_STORAGE_EMPTY.get()); }
     public Component getRandomValueLine(String emptyText) { return this.getRandomValueLine(EasyText.literal(emptyText)); }
-    public Component getRandomValueLine(MutableComponent emptyText) {
+    public Component getRandomValueLine(Component emptyText) {
         if(this.values.isEmpty())
             return emptyText;
         return ListUtil.randomItemFromList(this.getAllText(),EasyText.empty());

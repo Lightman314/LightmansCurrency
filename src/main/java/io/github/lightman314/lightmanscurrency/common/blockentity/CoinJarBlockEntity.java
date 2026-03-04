@@ -3,26 +3,24 @@ package io.github.lightman314.lightmanscurrency.common.blockentity;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
-import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.capability.implementations.MoneyViewWrapper;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
+import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.common.items.CoinJarItem;
-import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedContainer;
-import net.minecraft.core.HolderLookup;
 
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
+import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
-
-import javax.annotation.Nonnull;
 
 public class CoinJarBlockEntity extends EasyBlockEntity
 {
@@ -37,7 +35,7 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 	public void clearStorage() { this.storage.clear(); }
 	
 	private final ItemViewer viewer = new ItemViewer(this);
-    private final IMoneyViewer moneyViewer = MoneyAPI.getApi().GetContainersMoneyHandler(new SuppliedContainer(() -> InventoryUtil.buildInventory(this.storage)),s -> {},this);
+    private final IMoneyViewer moneyViewer = MoneyViewWrapper.forInventory(this.viewer,this);
 	public IItemHandler getViewer() { return this.viewer; }
     public IMoneyViewer getMoneyViewer() { return this.moneyViewer; }
 	
@@ -56,7 +54,7 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 		boolean foundStack = false;
 		for(int i = 0; i < storage.size() && !foundStack; i++)
 		{
-			if(InventoryUtil.ItemMatches(coin, this.storage.get(i)))
+			if(ItemStack.isSameItemSameComponents(coin,this.storage.get(i)))
 			{
 				if(this.storage.get(i).getCount() < this.storage.get(i).getMaxStackSize())
 				{
@@ -67,15 +65,12 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 		}
 		if(!foundStack)
 		{
-			ItemStack newCoin = coin.copy();
-			newCoin.setCount(1);
+			ItemStack newCoin = coin.copyWithCount(1);
 			this.storage.add(newCoin);
 		}
 		
 		if(!this.level.isClientSide)
-		{
-			BlockEntityUtil.sendUpdatePacket(this, this.writeStorage(new CompoundTag(),this.level.registryAccess()));
-		}
+			BlockEntityUtil.sendUpdatePacket(this,this.writeStorage(new CompoundTag(),DataContext.createNBT(this.registryAccess())));
 		return true;
 	}
 	
@@ -88,45 +83,35 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 	}
 	
 	@Override
-	public void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
+	public void saveAdditional(CompoundTag compound,DataContext<Tag> context)
 	{
-		this.writeStorage(compound, lookup);
+		this.writeStorage(compound,context);
 
 		if(this.color >= 0)
 			compound.putInt("Color", this.color);
 		
-		super.saveAdditional(compound, lookup);
+		super.saveAdditional(compound,context);
 	}
 	
-	protected CompoundTag writeStorage(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
+	protected CompoundTag writeStorage(CompoundTag compound,DataContext<Tag> context)
 	{
-		ListTag storageList = new ListTag();
-		for (ItemStack stack : this.storage)
-			storageList.add(InventoryUtil.saveItemNoLimits(stack,lookup));
-		compound.put("Coins", storageList);
-		
+		compound.put("Coins",context.write(this.storage,CodecHelper.UNLIMITED_ITEM_LIST));
 		return compound;
 	}
 
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	protected void loadAdditional(CompoundTag compound,DataContext<Tag> context) {
 
 		if(compound.contains("Coins"))
 		{
-			storage = new ArrayList<>();
-			ListTag storageList = compound.getList("Coins", Tag.TAG_COMPOUND);
-			for(int i = 0; i < storageList.size(); i++)
-			{
-				ItemStack result = InventoryUtil.loadItemNoLimits(storageList.getCompound(i),lookup);
-				if(!result.isEmpty())
-					storage.add(result);
-			}
+			this.storage = new ArrayList<>();
+            this.storage.addAll(context.readOrDefault(compound.get("Coins"),CodecHelper.UNLIMITED_ITEM_LIST,new ArrayList<>()));
 		}
 
 		if(compound.contains("Color"))
 			this.color = compound.getInt("Color");
 
-		super.loadAdditional(compound, lookup);
+		super.loadAdditional(compound,context);
 	}
 	
 	//For reading/writing the storage when silk touched.
@@ -146,41 +131,28 @@ public class CoinJarBlockEntity extends EasyBlockEntity
 	
 	public void readItemData(ItemStack item)
 	{
-		this.storage = InventoryUtil.copyList(CoinJarItem.getJarContents(item));
+		this.storage = ItemHandlerUtil.copyList(CoinJarItem.getJarContents(item));
 		if(item.getItem() instanceof CoinJarItem jar && jar.canDye(item))
 			this.color = CoinJarItem.getJarColor(item);
 	}
 
 	private record ItemViewer(CoinJarBlockEntity be) implements IItemHandler {
-
 		@Override
 		public int getSlots() { return this.be.storage.size(); }
-
 		@Override
-		@Nonnull
 		public ItemStack getStackInSlot(int slot) {
 			if (slot >= 0 && slot < this.be.storage.size())
 				return this.be.storage.get(slot).copy();
 			return ItemStack.EMPTY;
 		}
-
 		@Override
-		@Nonnull
-		public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
-			return stack.copy();
-		}
-
+		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) { return stack.copy(); }
 		@Override
-		@Nonnull
-		public ItemStack extractItem(int slot, int amount, boolean simulate) {
-			return ItemStack.EMPTY;
-		}
-
+		public ItemStack extractItem(int slot, int amount, boolean simulate) { return ItemStack.EMPTY; }
 		@Override
 		public int getSlotLimit(int slot) { return 64; }
-
 		@Override
-		public boolean isItemValid(int slot, @Nonnull ItemStack stack) { return false; }
+		public boolean isItemValid(int slot, ItemStack stack) { return false; }
 	}
 	
 }

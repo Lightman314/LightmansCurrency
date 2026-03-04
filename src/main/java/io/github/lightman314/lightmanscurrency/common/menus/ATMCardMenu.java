@@ -72,7 +72,7 @@ public class ATMCardMenu extends LazyMessageMenu {
             if(reference == null)
                 this.SendMessage(this.builder().setFlag("SelectEmptyAccount"));
             else
-                this.SendMessage(this.builder().setCompound("SelectAccount",reference.save()));
+                this.SendMessage(this.builder().setTag("SelectAccount",reference.save()));
         }
     }
     public int getAccountValidation() { return this.getCardData().validation(); }
@@ -108,11 +108,11 @@ public class ATMCardMenu extends LazyMessageMenu {
     public ItemStack quickMoveStack(@Nonnull Player player, int slot) { return ItemStack.EMPTY; }
 
     @Override
-    public void HandleMessage(@Nonnull LazyPacketData message) {
+    public void processMessage(@Nonnull LazyPacketData message) {
         if(message.contains("SelectEmptyAccount"))
             this.setSelectedAccount(null);
         if(message.contains("SelectAccount"))
-            this.setSelectedAccount(BankReference.load(message.getNBT("SelectAccount")));
+            this.setSelectedAccount(BankReference.load(message.getTag("SelectAccount")));
         if(message.contains("SetLocked"))
             this.setAccountLocked(message.getBoolean("SetLocked"));
     }

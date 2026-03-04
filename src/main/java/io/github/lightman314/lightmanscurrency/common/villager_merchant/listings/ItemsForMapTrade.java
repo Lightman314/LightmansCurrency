@@ -30,7 +30,7 @@ import javax.annotation.Nonnull;
 public class ItemsForMapTrade extends ItemsForXTradeTemplate
 {
 
-    public static final ResourceLocation TYPE = VersionUtil.lcResource( "items_for_map");
+    public static final ResourceLocation TYPE = LightmansCurrency.id( "items_for_map");
     public static final Serializer SERIALIZER = new Serializer();
 
 

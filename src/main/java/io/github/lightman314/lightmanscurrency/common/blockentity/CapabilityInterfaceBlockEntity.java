@@ -5,15 +5,14 @@ import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.api.variants.block.block_entity.IVariantDataStorage;
 import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.common.core.util.BlockEntityBlockHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -25,18 +24,21 @@ public class CapabilityInterfaceBlockEntity extends BlockEntity implements IVari
 		super(ModBlockEntities.CAPABILITY_INTERFACE.get(), pos, state);
 	}
 
-	public static <T,C> void easyRegisterCapProvider(@Nonnull RegisterCapabilitiesEvent event, @Nonnull BlockCapability<T,C> capability)
+	public static <T,C> void easyRegisterCapProvider(RegisterCapabilitiesEvent event, BlockCapability<T,C> capability)
 	{
-		event.registerBlock(capability, (level,pos,state,be,context) -> {
-			if(state.getBlock() instanceof ICapabilityBlock handlerBlock)
+		event.registerBlockEntity(capability,ModBlockEntities.CAPABILITY_INTERFACE.get(),(be,context) -> {
+			BlockState state = be.getBlockState();
+            BlockPos pos = be.getBlockPos();
+            if(state.getBlock() instanceof ICapabilityBlock capabilityBlock)
 			{
-				BlockPos newPos = handlerBlock.getCapabilityBlockPos(state, level, pos);
+                Level level = be.getLevel();
+				BlockPos newPos = capabilityBlock.getCapabilityBlockPos(state,pos);
 				if(newPos.equals(pos) || level.getBlockEntity(newPos) instanceof CapabilityInterfaceBlockEntity)
 					return null;
 				return level.getCapability(capability,newPos,context);
 			}
 			return null;
-		}, BlockEntityBlockHelper.getBlocksForBlockEntities(BlockEntityBlockHelper.CAPABILITY_INTERFACE_TYPE));
+		});
 	}
 
 	@Nullable
@@ -44,8 +46,9 @@ public class CapabilityInterfaceBlockEntity extends BlockEntity implements IVari
 	public ResourceLocation getCurrentVariant() {
 		AtomicReference<ResourceLocation> result = new AtomicReference<>(null);
 		this.tryRunOnCoreBlockEntity(be -> {
-            if(be instanceof IVariantDataStorage data)
-                result.set(data.getCurrentVariant());
+            IVariantDataStorage storage = getVariantData(be);
+            if(storage != null)
+                result.set(storage.getCurrentVariant());
 		});
 		return result.get();
 	}
@@ -53,16 +56,18 @@ public class CapabilityInterfaceBlockEntity extends BlockEntity implements IVari
 	@Override
 	public void setVariant(@Nullable ResourceLocation variant) {
 		this.tryRunOnCoreBlockEntity(be -> {
-            if(be instanceof IVariantDataStorage data)
-                data.setVariant(variant);
+            IVariantDataStorage storage = getVariantData(be);
+            if(storage != null)
+                storage.setVariant(variant);
 		});
 	}
 
 	@Override
 	public void setVariant(@Nullable ResourceLocation variant, boolean locked) {
 		this.tryRunOnCoreBlockEntity(be -> {
-            if(be instanceof IVariantDataStorage data)
-                data.setVariant(variant,locked);
+            IVariantDataStorage storage = getVariantData(be);
+            if(storage != null)
+                storage.setVariant(variant,locked);
 		});
 	}
 
@@ -70,12 +75,20 @@ public class CapabilityInterfaceBlockEntity extends BlockEntity implements IVari
 	public boolean isVariantLocked() {
 		AtomicBoolean result = new AtomicBoolean(false);
 		this.tryRunOnCoreBlockEntity(be -> {
-            IVariantDataStorage data = IVariantDataStorage.get(be);
-            if(data != null)
-                result.set(data.isVariantLocked());
+            IVariantDataStorage storage = getVariantData(be);
+            if(storage != null)
+                result.set(storage.isVariantLocked());
 		});
 		return result.get();
 	}
+
+    @Nullable
+    private static IVariantDataStorage getVariantData(BlockEntity be)
+    {
+        if(be instanceof IVariantDataStorage storage)
+            return storage;
+        return IVariantDataStorage.get(be.getLevel(),be.getBlockPos());
+    }
 
 	@Nullable
 	public final BlockEntity tryGetCoreBlockEntity()
@@ -83,7 +96,7 @@ public class CapabilityInterfaceBlockEntity extends BlockEntity implements IVari
 		BlockState state = this.getBlockState();
 		if(state.getBlock() instanceof ICapabilityBlock block)
 		{
-			BlockPos newPos = block.getCapabilityBlockPos(state,this.level,this.worldPosition);
+			BlockPos newPos = block.getCapabilityBlockPos(state,this.worldPosition);
 			if(newPos.equals(this.worldPosition))
 				return null;
 			BlockEntity be = this.level.getBlockEntity(newPos);

@@ -3,11 +3,9 @@ package io.github.lightman314.lightmanscurrency.common.items;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.coins.ICoinLike;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.DamageTypeTags;
@@ -22,14 +20,11 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class AncientCoinItem extends Item implements ICoinLike {
 
-    public static final ResourceLocation PROPERTY = VersionUtil.lcResource("ancient_coin_type");
+    public static final ResourceLocation PROPERTY = LightmansCurrency.id("ancient_coin_type");
 
     public AncientCoinItem(Properties properties) { super(properties); }
 

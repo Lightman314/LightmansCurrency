@@ -1,18 +1,18 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity;
 
 import com.google.common.collect.ImmutableList;
-import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
+import io.github.lightman314.lightmanscurrency.api.misc.ticker.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
+import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.MoneyBagItemViewer;
 import io.github.lightman314.lightmanscurrency.common.blocks.MoneyBagBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
-import io.github.lightman314.lightmanscurrency.common.data.types.LootTableEntry;
+import io.github.lightman314.lightmanscurrency.common.items.data.LootTableEntry;
 import io.github.lightman314.lightmanscurrency.common.items.data.MoneyBagData;
-import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedContainer;
+import io.github.lightman314.lightmanscurrency.common.menus.item_handlers.SuppliedContainer;
 import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;

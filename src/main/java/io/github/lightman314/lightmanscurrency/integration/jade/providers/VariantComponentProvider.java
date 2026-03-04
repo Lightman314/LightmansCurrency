@@ -23,8 +23,8 @@ import snownee.jade.impl.ui.ItemStackElement;
 
 public class VariantComponentProvider implements IBlockComponentProvider {
 
-    public static final ResourceLocation ID = VersionUtil.lcResource("model_variant");
-    public static final ResourceLocation LOCKED_CONFIG = VersionUtil.lcResource("model_variant.locked");
+    public static final ResourceLocation ID = LightmansCurrency.id("model_variant");
+    public static final ResourceLocation LOCKED_CONFIG = LightmansCurrency.id("model_variant.locked");
     public static final VariantComponentProvider INSTANCE = new VariantComponentProvider();
 
     private VariantComponentProvider() { }

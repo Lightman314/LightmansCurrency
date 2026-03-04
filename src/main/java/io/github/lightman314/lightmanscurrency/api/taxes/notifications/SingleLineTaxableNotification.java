@@ -2,18 +2,16 @@ package io.github.lightman314.lightmanscurrency.api.taxes.notifications;
 
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.notifications.CommonData;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class SingleLineTaxableNotification extends TaxableNotification {
 
     protected SingleLineTaxableNotification(MoneyValue taxesPaid) { super(taxesPaid); }
     protected SingleLineTaxableNotification() { }
+    protected SingleLineTaxableNotification(MoneyValue taxesPaid, CommonData data) { super(taxesPaid,data); }
 
     @Override
     protected final List<Component> getNormalMessageLines() { return Lists.newArrayList(this.getNormalMessage()); }

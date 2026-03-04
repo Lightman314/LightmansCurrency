@@ -11,24 +11,25 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionHandler;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.templates.TradeOfferSourceNode;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.ITooltipSource;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.TradeButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
+import io.github.lightman314.lightmanscurrency.api.misc.ticker.ICommonTicker;
 import io.github.lightman314.lightmanscurrency.api.traders.ITraderSource;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
@@ -43,7 +44,7 @@ import net.minecraft.network.chat.MutableComponent;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollable, ITooltipSource, IEasyTickable {
+public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollable, ITooltipSource, ICommonTicker {
 
 	@Deprecated
 	public static final Function<TradeData,Boolean> FILTER_VALID = TradeData::isValid;
@@ -534,7 +535,11 @@ public class TradeButtonArea extends EasyWidgetWithChildren implements IScrollab
 		public Builder tradeFilter(Predicate<TradeData> tradeFilter) { this.tradeFilter = tradeFilter; return this; }
 		public Builder tradeFilter(@Nullable TraderData trader, ITraderStorageMenu menu) {
 			if(trader != null)
-				return this.tradeFilter(trader.getStorageTradeFilter(menu));
+            {
+                TradeOfferSourceNode<?> node = trader.getTradeOfferNode();
+                if(node != null)
+                    return this.tradeFilter(node.getTradeStorageFilter(menu));
+            }
 			return this;
 		}
 		public Builder title(ScreenPosition titlePosition, int titleWidth, boolean renderNameOnly) { this.titlePosition = titlePosition; this.titleWidth = titleWidth; this.titleNameOnly = renderNameOnly; return this; }

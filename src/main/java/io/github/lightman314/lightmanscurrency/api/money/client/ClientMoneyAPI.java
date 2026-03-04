@@ -1,13 +1,11 @@
 package io.github.lightman314.lightmanscurrency.api.money.client;
 
-import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
-import io.github.lightman314.lightmanscurrency.api.money.input.MoneyInputHandler;
+import io.github.lightman314.lightmanscurrency.api.money.client.input.MoneyInputHandler;
 import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.impl.ClientMoneyAPIImpl;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
@@ -27,7 +25,7 @@ public abstract class ClientMoneyAPI {
 
     /**
      * Registers the given {@link ClientCurrencyType} to the system.
-     * Required on the physical client for any {@link CurrencyType} registered via {@link MoneyAPI#RegisterCurrencyType(CurrencyType)}
+     * Required on the physical client for any {@link CurrencyType} registered to the {@link io.github.lightman314.lightmanscurrency.api.LCRegistries#CURRENCY_TYPE LCRegistries#CURRENCY_TYPE)} registry
      * I recommend registering these during the {@link net.neoforged.fml.event.lifecycle.FMLClientSetupEvent FMLClientSetupEvent}
      */
     public abstract void RegisterClientType(ClientCurrencyType type);
@@ -35,18 +33,12 @@ public abstract class ClientMoneyAPI {
     /**
      * Returns the {@link ClientCurrencyType} registered for the given {@link CurrencyType}
      */
-    public abstract ClientCurrencyType GetClientType(CurrencyType type);
-    /**
-     * Returns the {@link ClientCurrencyType} registered with the given id.
-     * Will return <code>null</code> if no type was registered with that id.
-     */
-    @Nullable
-    public abstract ClientCurrencyType GetClientType(ResourceLocation type);
+    public abstract ClientCurrencyType GetClientType(CurrencyType<?> type);
 
     /**
      * Returns a list of all registered {@link ClientCurrencyType}s
      */
-    public abstract List<ClientCurrencyType> AllClientTypes();
+    public abstract Iterable<ClientCurrencyType> AllClientTypes();
 
     /**
      * Returns a list of all {@link MoneyInputHandler}s that are visible to the given player

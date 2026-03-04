@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.coin_chest;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountSelectionWidget;
@@ -55,7 +55,7 @@ public class BankUpgradeSelectTab extends CoinChestTab.Upgrade {
 
     private void selectAccount(@Nonnull BankReference reference)
     {
-        this.menu.SendMessageToServer(this.builder().setCompound("SetBankAccount",reference.save()));
+        this.menu.SendMessageToServer(this.builder().setTag("SetBankAccount",reference.save()));
     }
 
     @Nonnull

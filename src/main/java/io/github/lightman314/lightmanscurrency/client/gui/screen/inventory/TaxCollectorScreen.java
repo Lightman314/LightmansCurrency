@@ -1,13 +1,14 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
-import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.EasyTabbedMenuScreen;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.builtin.MoneyStorage;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.gui.tabbed.EasyTabbedMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.WidgetRotation;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.util.ButtonUtil;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -15,16 +16,13 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.menus.TaxCollectorMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.tax_collector.TaxCollectorTab;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-import javax.annotation.Nonnull;
-
 public class TaxCollectorScreen extends EasyTabbedMenuScreen<TaxCollectorMenu,TaxCollectorTab,TaxCollectorScreen> {
 
-    public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/tax_collector.png");
+    public static final ResourceLocation GUI_TEXTURE = LightmansCurrency.id("textures/gui/container/tax_collector.png");
 
     public TaxCollectorScreen(TaxCollectorMenu menu, Inventory inventory, Component title)
     {
@@ -34,7 +32,6 @@ public class TaxCollectorScreen extends EasyTabbedMenuScreen<TaxCollectorMenu,Ta
 
     public TaxEntry getEntry() { return this.menu.getEntry(); }
 
-    @Nonnull
     @Override
     protected IWidgetPositioner getTabButtonPositioner() { return LazyWidgetPositioner.create(this,LazyWidgetPositioner.createTopdown(WidgetRotation.LEFT),ScreenPosition.of(TabButton.NEGATIVE_SIZE,0),TabButton.SIZE); }
 
@@ -58,7 +55,7 @@ public class TaxCollectorScreen extends EasyTabbedMenuScreen<TaxCollectorMenu,Ta
     }
 
     @Override
-    protected void renderBackground(@Nonnull EasyGuiGraphics gui) {
+    protected void renderBackground(EasyGuiGraphics gui) {
 
         gui.renderNormalBackground(GUI_TEXTURE, this);
 

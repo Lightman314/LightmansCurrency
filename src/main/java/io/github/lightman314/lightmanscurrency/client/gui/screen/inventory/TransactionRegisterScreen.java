@@ -1,12 +1,11 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.EasyClientUnenforcedTabbedMenuScreen;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.gui.tabbed.EasyClientUnenforcedTabbedMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.transaction_register.*;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.menus.TransactionRegisterMenu;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -15,8 +14,8 @@ public class TransactionRegisterScreen extends EasyClientUnenforcedTabbedMenuScr
 
     public static final int WIDTH = 200;
     public static final int HEIGHT = 200;
-    public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/transaction_register.png");
-    public static final ResourceLocation OVERLAY_TEXTURE = VersionUtil.lcResource("textures/gui/transaction_register_overlay.png");
+    public static final ResourceLocation GUI_TEXTURE = LightmansCurrency.id("textures/gui/transaction_register.png");
+    public static final ResourceLocation OVERLAY_TEXTURE = LightmansCurrency.id("textures/gui/transaction_register_overlay.png");
 
     public TransactionRegisterScreen(TransactionRegisterMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, DefaultTab::new);

@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
-import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.builtin.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.data.types.TaxDataCache;
 import io.github.lightman314.lightmanscurrency.common.menus.tabbed.EasyTabbedMenu;

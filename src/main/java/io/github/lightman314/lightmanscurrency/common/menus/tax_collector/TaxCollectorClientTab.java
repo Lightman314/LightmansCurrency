@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.menus.tax_collector;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.EasyMenuClientTab;
+import io.github.lightman314.lightmanscurrency.api.client.gui.tabbed.EasyMenuClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TaxCollectorScreen;
 import io.github.lightman314.lightmanscurrency.common.menus.TaxCollectorMenu;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;

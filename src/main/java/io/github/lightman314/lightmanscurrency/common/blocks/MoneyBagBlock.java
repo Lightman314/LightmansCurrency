@@ -12,11 +12,10 @@ import io.github.lightman314.lightmanscurrency.common.blockentity.MoneyBagBlockE
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
-import io.github.lightman314.lightmanscurrency.common.data.types.LootTableEntry;
+import io.github.lightman314.lightmanscurrency.common.items.data.LootTableEntry;
 import io.github.lightman314.lightmanscurrency.common.items.MoneyBagItem;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -61,15 +60,11 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.jetbrains.annotations.Range;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class MoneyBagBlock extends FallingBlock implements IRotatableBlock, IEasyEntityBlock {
 
     public static final IntegerProperty SIZE = IntegerProperty.create("size",0,3);
@@ -84,7 +79,6 @@ public class MoneyBagBlock extends FallingBlock implements IRotatableBlock, IEas
     @Override
     protected MapCodec<? extends FallingBlock> codec() { return simpleCodec(MoneyBagBlock::new); }
 
-    @Nonnull
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) { return state.setValue(FACING, rotation.rotate(state.getValue(FACING))); }
 
@@ -108,11 +102,9 @@ public class MoneyBagBlock extends FallingBlock implements IRotatableBlock, IEas
 
     protected VoxelShape shapeForSize(int size) { return SHAPES.get(size); }
 
-    @Nonnull
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) { return this.shapeForSize(state.getValue(SIZE)); }
 
-    @Nonnull
     @Override
     public Collection<BlockEntityType<?>> getAllowedTypes() { return Lists.newArrayList(ModBlockEntities.MONEY_BAG.get()); }
 

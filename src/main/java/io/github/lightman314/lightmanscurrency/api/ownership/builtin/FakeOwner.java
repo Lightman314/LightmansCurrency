@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.ownership.builtin;
 
+import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
@@ -7,35 +8,30 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerType;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.codec.StreamCodec;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
 public class FakeOwner extends Owner {
 
-    public static final OwnerType TYPE = OwnerType.create(VersionUtil.lcResource("fake"),
-            (tag,lookup) -> of(Component.Serializer.fromJson(tag.getString("Name"),lookup)));
+    public static final OwnerType<FakeOwner> TYPE = new Type();
 
-    private final MutableComponent name;
-    private FakeOwner(@Nonnull MutableComponent name) { this.name = name; }
-    @Nonnull
-    public static FakeOwner of(@Nonnull String name) { return of(EasyText.literal(name)); }
-    @Nonnull
-    public static FakeOwner of(@Nonnull MutableComponent name) { return new FakeOwner(name); }
+    private final Component name;
+    private FakeOwner(Component name) { this.name = name; }
+    
+    public static FakeOwner of(String name) { return of(EasyText.literal(name)); }
+    public static FakeOwner of(Component name) { return new FakeOwner(name); }
 
-    @Nonnull
     @Override
-    public MutableComponent getName() { return this.name.copy(); }
-
-    @Nonnull
+    public Component getName() { return this.name.copy(); }
     @Override
-    public MutableComponent getCommandLabel() { return LCText.COMMAND_LCADMIN_DATA_OWNER_CUSTOM.get(this.getName()); }
+    public Component getCommandLabel() { return LCText.COMMAND_LCADMIN_DATA_OWNER_CUSTOM.get(this.getName()); }
 
     @Override
     public boolean stillValid() { return true; }
@@ -46,11 +42,11 @@ public class FakeOwner extends Owner {
     public boolean isOnline() { return false; }
 
     @Override
-    public boolean isAdmin(@Nonnull PlayerReference player) { return false; }
+    public boolean isAdmin(PlayerReference player) { return false; }
     @Override
-    public boolean isMember(@Nonnull PlayerReference player) { return false; }
+    public boolean isMember(PlayerReference player) { return false; }
 
-    @Nonnull
+    
     @Override
     public PlayerReference asPlayerReference() { return PlayerReference.NULL; }
     @Nullable
@@ -58,20 +54,39 @@ public class FakeOwner extends Owner {
     public BankReference asBankReference() { return null; }
 
     @Override
-    public void pushNotification(@Nonnull Supplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) { }
-
-    @Nonnull
-    @Override
-    public OwnerType getType() { return TYPE; }
+    public void pushNotification(Supplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) { }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) { tag.putString("Name", Component.Serializer.toJson(this.name,lookup)); }
-
-    @Nonnull
+    public OwnerType<?> getType() { return TYPE; }
+    
     @Override
     public Owner copy() { return new FakeOwner(this.name); }
 
     @Override
-    public boolean matches(@Nonnull Owner other) { return other instanceof FakeOwner fo && fo.name.equals(this.name); }
+    public boolean matches(Owner other) { return other instanceof FakeOwner fo && fo.name.equals(this.name); }
+
+    @Override
+    public int hash() { return this.name.hashCode(); }
+
+    private static class Type extends OwnerType<FakeOwner>
+    {
+        private static final MapCodec<FakeOwner> MAP_CODEC = ComponentSerialization.CODEC
+                .fieldOf("name")
+                .xmap(FakeOwner::of,FakeOwner::getName);
+        private static final StreamCodec<RegistryFriendlyByteBuf,FakeOwner> STREAM_CODEC = ComponentSerialization.STREAM_CODEC
+                .map(FakeOwner::of,FakeOwner::getName);
+
+        @Override
+        public Owner loadOldData(CompoundTag tag, HolderLookup.Provider lookup) {
+            return new FakeOwner(Component.Serializer.fromJson(tag.getString("Name"),lookup));
+        }
+        @Override
+        public MapCodec<FakeOwner> codec() { return MAP_CODEC; }
+        @Override
+        public StreamCodec<? super RegistryFriendlyByteBuf, FakeOwner> streamCodec() { return STREAM_CODEC; }
+
+    }
+
+
 
 }

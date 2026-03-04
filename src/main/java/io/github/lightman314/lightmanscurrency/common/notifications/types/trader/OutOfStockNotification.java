@@ -1,32 +1,35 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.trader;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
-import io.github.lightman314.lightmanscurrency.api.notifications.SingleLineNotification;
+import io.github.lightman314.lightmanscurrency.api.codecs.StreamHelper;
+import io.github.lightman314.lightmanscurrency.api.notifications.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class OutOfStockNotification extends SingleLineNotification {
 
-	public static final NotificationType<OutOfStockNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("out_of_stock"),OutOfStockNotification::new);
+	public static final NotificationType<OutOfStockNotification> TYPE = new Type();
 	
-	TraderCategory traderData;
+	TraderCategory traderData = TraderCategory.NULL;
 	
 	int tradeSlot;
 
 	private OutOfStockNotification() { }
-
+    private OutOfStockNotification(TraderCategory trader, int tradeIndex, CommonData data) {
+        super(data);
+        this.traderData = trader;
+        this.tradeSlot = tradeIndex;
+    }
 	protected OutOfStockNotification(TraderCategory traderData, int tradeIndex) {
 		this.traderData = traderData;
 		this.tradeSlot = tradeIndex + 1;
@@ -35,19 +38,13 @@ public class OutOfStockNotification extends SingleLineNotification {
 	public static Supplier<Notification> create(TraderCategory trader, int tradeIndex) { return () -> new OutOfStockNotification(trader, tradeIndex); }
 
     @Override
-	protected NotificationType<OutOfStockNotification> getType() { return TYPE; }
+	public NotificationType<OutOfStockNotification> getType() { return TYPE; }
 
 	@Override
 	public NotificationCategory getCategory() { return this.traderData; }
 
 	@Override
 	public Component getMessage() { return this.tradeSlot > 0 ? LCText.NOTIFICATION_TRADER_OUT_OF_STOCK.get(this.traderData.getTooltip(), this.tradeSlot) : LCText.NOTIFICATION_TRADER_OUT_OF_STOCK_INDEXLESS.get(); }
-
-	@Override
-	protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
-		compound.put("TraderInfo", this.traderData.save(lookup));
-		compound.putInt("TradeSlot", this.tradeSlot);
-	}
 
 	@Override
 	protected void loadAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
@@ -57,5 +54,26 @@ public class OutOfStockNotification extends SingleLineNotification {
 
 	@Override
 	protected boolean canMerge(Notification other) { return false; }
+
+    private static class Type extends NotificationType<OutOfStockNotification>
+    {
+        private static final MapCodec<OutOfStockNotification> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+                TraderCategory.TYPE.codec().codec().fieldOf("trader").forGetter(n -> n.traderData),
+                Codec.INT.fieldOf("slot").forGetter(n -> n.tradeSlot),
+                baseFields()
+        ).apply(builder,OutOfStockNotification::new));
+
+        private static final StreamCodec<RegistryFriendlyByteBuf,OutOfStockNotification> STREAM_CODEC = StreamHelper.combine(baseStreamFields(),
+                TraderCategory.TYPE.streamCodec(),n -> n.traderData,
+                ByteBufCodecs.INT,n -> n.tradeSlot,
+                OutOfStockNotification::new);
+
+        @Override
+        protected OutOfStockNotification createNew() { return new OutOfStockNotification(); }
+        @Override
+        public MapCodec<OutOfStockNotification> codec() { return MAP_CODEC; }
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, OutOfStockNotification> streamCodec() { return STREAM_CODEC; }
+    }
 
 }

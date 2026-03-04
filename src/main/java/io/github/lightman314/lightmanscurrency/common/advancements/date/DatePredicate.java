@@ -8,7 +8,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.util.GsonHelper;
 
-import javax.annotation.Nonnull;
 import java.time.LocalDate;
 
 public final class DatePredicate {
@@ -39,12 +38,14 @@ public final class DatePredicate {
         return json;
     }
 
-    public static DatePredicate fromJson(@Nonnull JsonElement element) throws JsonSyntaxException, ResourceLocationException {
+    public static DatePredicate fromJson(JsonElement element) throws JsonSyntaxException, ResourceLocationException {
         JsonObject json = GsonHelper.convertToJsonObject(element, "date data");
-        return new DatePredicate(GsonHelper.getAsInt(json, "month"), GsonHelper.getAsInt(json, "day"));
+        try {
+            return new DatePredicate(GsonHelper.getAsInt(json, "month"), GsonHelper.getAsInt(json, "day"));
+        } catch (IllegalArgumentException e) { throw new JsonSyntaxException(e); }
     }
 
-    private boolean isAfter(@Nonnull DatePredicate start) {
+    private boolean isAfter(DatePredicate start) {
         if(this.month > start.month)
             return true;
         if(this.month == start.month)
@@ -52,7 +53,7 @@ public final class DatePredicate {
         return false;
     }
 
-    public boolean isAfter(@Nonnull LocalDate date) {
+    public boolean isAfter(LocalDate date) {
         if(this.month > date.getMonthValue())
             return true;
         if(this.month == date.getMonthValue())
@@ -60,7 +61,7 @@ public final class DatePredicate {
         return false;
     }
 
-    public boolean isBefore(@Nonnull LocalDate date) {
+    public boolean isBefore(LocalDate date) {
         if(this.month < date.getMonthValue())
             return true;
         if(this.month == date.getMonthValue())
@@ -68,8 +69,8 @@ public final class DatePredicate {
         return false;
     }
 
-    public static boolean isInRange(@Nonnull DatePredicate start, @Nonnull DatePredicate end) { return isInRange(LocalDate.now(), start, end); }
-    public static boolean isInRange(@Nonnull LocalDate date, @Nonnull DatePredicate start, @Nonnull DatePredicate end)
+    public static boolean isInRange(DatePredicate start, DatePredicate end) { return isInRange(LocalDate.now(), start, end); }
+    public static boolean isInRange(LocalDate date, DatePredicate start, DatePredicate end)
     {
         if(end.isAfter(start))
         {

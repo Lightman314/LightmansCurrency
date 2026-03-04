@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.settings.data.LoadContext;
 import io.github.lightman314.lightmanscurrency.api.settings.data.NodeSelections;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;

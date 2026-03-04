@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.ownership.builtin;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
@@ -12,12 +14,14 @@ import io.github.lightman314.lightmanscurrency.api.ownership.OwnerType;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
 import io.github.lightman314.lightmanscurrency.api.teams.TeamAPI;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,30 +29,25 @@ import java.util.function.Supplier;
 
 public class TeamOwner extends Owner {
 
-    public static final OwnerType TYPE = OwnerType.create(VersionUtil.lcResource("team"),
-            (tag,lookup) -> of(tag.getLong("Team")));
+    public static final OwnerType<TeamOwner> TYPE = new Type();
 
     public final long teamID;
     @Nullable
     public final ITeam getTeam() { return TeamAPI.getApi().GetTeam(this, this.teamID); }
     private TeamOwner(long teamID) { this.teamID = teamID; }
-    @Nonnull
-    public static TeamOwner of(@Nonnull ITeam team) { return of(team.getID()); }
-    @Nonnull
+    public static TeamOwner of(ITeam team) { return of(team.getID()); }
     public static TeamOwner of(long teamID) { return new TeamOwner(teamID); }
 
-    @Nonnull
     @Override
-    public MutableComponent getName() {
+    public Component getName() {
         ITeam team = this.getTeam();
         if(team != null)
             return EasyText.literal(team.getName());
         return EasyText.literal("NULL");
     }
-
-    @Nonnull
+    
     @Override
-    public MutableComponent getCommandLabel() { return LCText.COMMAND_LCADMIN_DATA_OWNER_TEAM.get(this.getName(), this.teamID); }
+    public Component getCommandLabel() { return LCText.COMMAND_LCADMIN_DATA_OWNER_TEAM.get(this.getName(), this.teamID); }
 
     @Override
     public boolean stillValid() { return TeamAPI.getApi().GetTeam(this, this.teamID) != null; }
@@ -70,7 +69,7 @@ public class TeamOwner extends Owner {
     }
 
     @Override
-    public boolean isAdmin(@Nonnull PlayerReference player) {
+    public boolean isAdmin(PlayerReference player) {
         ITeam team = this.getTeam();
         if(team != null)
             return team.isAdmin(player);
@@ -78,14 +77,14 @@ public class TeamOwner extends Owner {
     }
 
     @Override
-    public boolean isMember(@Nonnull PlayerReference player) {
+    public boolean isMember(PlayerReference player) {
         ITeam team = this.getTeam();
         if(team != null)
             return team.isMember(player);
         return false;
     }
 
-    @Nonnull
+    
     @Override
     public PlayerReference asPlayerReference() {
         ITeam team = this.getTeam();
@@ -107,7 +106,7 @@ public class TeamOwner extends Owner {
     public boolean hasNotificationLevels() { return true; }
 
     @Override
-    public void pushNotification(@Nonnull Supplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) {
+    public void pushNotification(Supplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) {
         ITeam team = this.getTeam();
         if(team == null)
             return;
@@ -125,23 +124,36 @@ public class TeamOwner extends Owner {
     }
 
     @Override
-    public <T> void incrementStat(@Nonnull StatKey<?, T> key, @Nonnull T addValue) {
+    public <T> void incrementStat(StatKey<?, T> key, T addValue) {
         ITeam team = this.getTeam();
         if(team != null)
             team.getStats().incrementStat(key,addValue);
     }
 
-    @Nonnull
     @Override
-    public OwnerType getType() { return TYPE; }
-    @Override
-    protected void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) { tag.putLong("Team", this.teamID); }
-
-    @Nonnull
+    public OwnerType<?> getType() { return TYPE; }
+    
     @Override
     public Owner copy() { return new TeamOwner(this.teamID); }
 
     @Override
-    public boolean matches(@Nonnull Owner other) { return other instanceof TeamOwner to && to.teamID == this.teamID; }
+    public boolean matches(Owner other) { return other instanceof TeamOwner to && to.teamID == this.teamID; }
+
+    @Override
+    public int hash() { return Long.hashCode(this.teamID); }
+
+    private static class Type extends OwnerType<TeamOwner>
+    {
+        private static final MapCodec<TeamOwner> MAP_CODEC = Codec.LONG.fieldOf("team")
+                .xmap(TeamOwner::new,o -> o.teamID);
+        private static final StreamCodec<ByteBuf,TeamOwner> STREAM_CODEC = ByteBufCodecs.VAR_LONG
+                .map(TeamOwner::new,o -> o.teamID);
+        @Override
+        public Owner loadOldData(CompoundTag tag, HolderLookup.Provider lookup) { return of(tag.getLong("Team")); }
+        @Override
+        public MapCodec<TeamOwner> codec() { return MAP_CODEC; }
+        @Override
+        public StreamCodec<? super RegistryFriendlyByteBuf, TeamOwner> streamCodec() { return STREAM_CODEC; }
+    }
 
 }

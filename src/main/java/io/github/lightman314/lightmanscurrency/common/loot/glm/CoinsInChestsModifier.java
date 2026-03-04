@@ -14,18 +14,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 
-import javax.annotation.Nonnull;
-
 public class CoinsInChestsModifier implements IGlobalLootModifier {
 	
-	private CoinsInChestsModifier() { LightmansCurrency.LogInfo("CoinsInChestModifier was deserialized!"); }
+	private CoinsInChestsModifier() { }
 	public static final CoinsInChestsModifier INSTANCE  = new CoinsInChestsModifier();
 
-	public static final MapCodec<CoinsInChestsModifier> SERIALIZER = MapCodec.unit(new CoinsInChestsModifier());
+	public static final MapCodec<CoinsInChestsModifier> CODEC = MapCodec.unit(new CoinsInChestsModifier());
 
 	@Override
-	@Nonnull
-	public ObjectArrayList<ItemStack> apply(@Nonnull ObjectArrayList<ItemStack> generatedLoot, @Nonnull LootContext context) {
+	public ObjectArrayList<ItemStack> apply(ObjectArrayList<ItemStack> generatedLoot, LootContext context) {
 		
 		//If chest loot is disabled, do nothing.
 		if(!LCConfig.COMMON.enableChestLoot.get())
@@ -48,7 +45,6 @@ public class CoinsInChestsModifier implements IGlobalLootModifier {
 		return generatedLoot;
 	}
 
-	@Nonnull
-	public MapCodec<? extends IGlobalLootModifier> codec() { return SERIALIZER; }
+	public MapCodec<? extends IGlobalLootModifier> codec() { return CODEC; }
 	
 }

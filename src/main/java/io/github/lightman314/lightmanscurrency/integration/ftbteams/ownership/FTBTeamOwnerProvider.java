@@ -9,14 +9,12 @@ import io.github.lightman314.lightmanscurrency.api.ownership.listing.IPotentialO
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.PotentialOwner;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 
 public class FTBTeamOwnerProvider implements IPotentialOwnerProvider {
 
-    @Nonnull
     @Override
-    public List<PotentialOwner> collectPotentialOwners(@Nonnull Player player) {
+    public List<PotentialOwner> collectPotentialOwners(Player player) {
         UUID playerID = player.getUUID();
         List<PotentialOwner> results = new ArrayList<>();
         for(Team team : this.allTeams(player.level().isClientSide))

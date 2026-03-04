@@ -37,7 +37,7 @@ import java.util.Optional;
 
 public class EnchantedBookForCoinsTrade implements ItemListing {
 
-    public static final ResourceLocation TYPE = VersionUtil.lcResource("enchanted_book_for_coins");
+    public static final ResourceLocation TYPE = LightmansCurrency.id("enchanted_book_for_coins");
     public static final Serializer SERIALIZER = new Serializer();
 
     protected final Item baseCoin;

@@ -1,52 +1,71 @@
 package io.github.lightman314.lightmanscurrency.common.traders.item.ticket;
 
-import com.google.common.collect.ImmutableList;
-import io.github.lightman314.lightmanscurrency.LCTags;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.lightman314.lightmanscurrency.api.codecs.StreamHelper;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
 import io.github.lightman314.lightmanscurrency.api.ticket.TicketGroupData;
-import io.github.lightman314.lightmanscurrency.common.crafting.TicketRecipe;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
-import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.common.traders.item.CodecData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.trade.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.trade.ItemTradeType;
+import io.github.lightman314.lightmanscurrency.common.traders.item.trade.restrictions.ItemTradeRestriction;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class TicketItemTrade extends ItemTradeData {
 
-    public static final ResourceLocation TYPE = VersionUtil.lcResource("ticket_kiosk");
+    public static final ItemTradeType<TicketItemTrade> TYPE = new Type();
+
+    private static final MapCodec<TicketItemTrade> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+            TicketSaleData.CODEC.fieldOf("sale_data_1").forGetter(t -> t.ticketData1),
+            TicketSaleData.CODEC.fieldOf("sale_data_2").forGetter(t -> t.ticketData2),
+            itemFields()
+    ).and(ruleFields(builder)).apply(builder,TicketItemTrade::new));
+
+    private static final StreamCodec<RegistryFriendlyByteBuf,TicketItemTrade> STREAM_CODEC = StreamHelper.combine(itemStreamFields(),
+            TicketSaleData.STREAM_CODEC,t -> t.ticketData1,
+            TicketSaleData.STREAM_CODEC,t -> t.ticketData2,
+            TicketItemTrade::new);
 
     private final TicketKioskRestriction restriction = new TicketKioskRestriction(this);
 
-    private final TicketSaleData ticketData1 = new TicketSaleData(0);
-    private final TicketSaleData ticketData2 = new TicketSaleData(1);
+    private final TicketSaleData ticketData1 = new TicketSaleData(this, 0);
+    private final TicketSaleData ticketData2 = new TicketSaleData(this, 1);
 
     public TicketItemTrade(boolean validateRules) {
-        super(TYPE,validateRules);
+        super(validateRules);
         super.setRestriction(this.restriction);
+    }
+    private TicketItemTrade(TicketSaleData data1, TicketSaleData data2, CodecData itemData, MoneyValue price) { this(data1,data2,itemData,price,new HashMap<>()); }
+    private TicketItemTrade(TicketSaleData data1, TicketSaleData data2, CodecData itemData, MoneyValue price, Map<TradeRuleType<?>,TradeRule> rules) {
+        super(itemData,price,rules);
+        this.ticketData1.copyFrom(data1);
+        this.ticketData2.copyFrom(data2);
     }
 
     @Override
+    public ItemTradeType<?> getType() { return TYPE; }
+
+    @Override
     public void setRestriction(ItemTradeRestriction restriction) { }
-    
     @Override
     public ItemTradeRestriction getRestriction() { return this.restriction; }
 
@@ -73,17 +92,34 @@ public class TicketItemTrade extends ItemTradeData {
     }
 
     @Override
-    public CompoundTag getAsNBT(HolderLookup.Provider lookup) {
-        CompoundTag tag = super.getAsNBT(lookup);
-        tag.put("TicketData1",this.ticketData1.save());
-        tag.put("TicketData2",this.ticketData2.save());
-        return tag;
+    public void saveAdditionalSettings(SavedSettingData.MutableNodeAccess node) {
+        this.ticketData1.saveSettings(node);
+        this.ticketData2.saveSettings(node);
     }
 
     @Override
-    public void saveAdditionalSetings(SavedSettingData.MutableNodeAccess node) {
-        this.ticketData1.saveSettings(node);
-        this.ticketData2.saveSettings(node);
+    public void saveAdditionalJsonData(JsonObject json, DataContext<JsonElement> context) {
+        if(this.getSellItem(0).isEmpty())
+        {
+            //If no item in the first slot, place the 2nd ticket recipe data in slot 1 as this is what is done by normal item trades
+            if(!this.getSellItem(1).isEmpty() && this.ticketData2.tryGetRecipe() != null)
+                json.add("TicketRecipe",TicketSaleData.CODEC.encodeStart(context.ops(),this.ticketData2).getOrThrow());
+        }
+        else
+        {
+            if(this.ticketData1.tryGetRecipe() != null)
+                json.add("TicketRecipe",TicketSaleData.CODEC.encodeStart(context.ops(),this.ticketData1).getOrThrow());
+            if(!this.getSellItem(1).isEmpty() && this.ticketData2.tryGetRecipe() != null)
+                json.add("TicketRecipe2",TicketSaleData.CODEC.encodeStart(context.ops(),this.ticketData2).getOrThrow());
+        }
+    }
+
+    @Override
+    public void loadAdditionalJsonData(JsonObject json, DataContext<JsonElement> context) throws JsonSyntaxException, ResourceLocationException {
+        if(json.has("TicketRecipe"))
+            this.ticketData1.copyFrom(TicketSaleData.CODEC.decode(context.ops(),json.get("TicketRecipe")).getOrThrow(JsonSyntaxException::new).getFirst());
+        if(json.has("TicketRecipe2"))
+            this.ticketData2.copyFrom(TicketSaleData.CODEC.decode(context.ops(),json.get("TicketRecipe2")).getOrThrow(JsonSyntaxException::new).getFirst());
     }
 
     @Override
@@ -124,7 +160,7 @@ public class TicketItemTrade extends ItemTradeData {
                 {
                     if(recipe.value().assembleWithKiosk(masterTicket,data.getData()).getItem() == sellItem.getItem())
                     {
-                        data.recipeID = recipe.id();
+                        data.recipe = recipe.id();
                         return;
                     }
                 }
@@ -132,164 +168,18 @@ public class TicketItemTrade extends ItemTradeData {
         }
     }
 
-    public class TicketSaleData
+    private static class Type extends ItemTradeType<TicketItemTrade>
     {
-        private final int index;
-        public TicketSaleData(int index) { this.index = index; }
-        @Nullable
-        ResourceLocation recipeID = null;
-        public ResourceLocation getRecipe() { return this.recipeID; }
-        public void setRecipe(ResourceLocation recipe) { this.recipeID = recipe; }
-        public void onSellItemChanged()
-        {
-            if(this.isPotentiallyRecipeMode() && this.tryGetRecipe() == null)
-            {
-                List<RecipeHolder<TicketStationRecipe>> allRecipes = this.getMatchingRecipes();
-                if(allRecipes.isEmpty())
-                    return;
-                this.recipeID = allRecipes.getFirst().id();
-            }
+        @Override
+        public ItemTradeData create(boolean validateTrades) { return new TicketItemTrade(validateTrades); }
+        @Override
+        public MapCodec<TicketItemTrade> codec() { return MAP_CODEC; }
+        @Override
+        public StreamCodec<? super RegistryFriendlyByteBuf, TicketItemTrade> streamCodec() { return STREAM_CODEC; }
+        @Override
+        public ItemTradeData changeType(ItemTradeData other) {
+            return new TicketItemTrade(new TicketSaleData(null,0),new TicketSaleData(null,0),other.getCodecData(),other.getCost(),other.getRuleMap());
         }
-        TicketStationRecipe.ExtraData getData() { return new TicketStationRecipe.ExtraData(this.code,this.durability); }
-        String code = "";
-        public String getCode() { return this.code; }
-        public boolean setCode(String couponCode) {
-
-            if(couponCode.length() > 16)
-                couponCode = couponCode.substring(0,16);
-            if(TicketRecipe.CODE_INPUT_PREDICATE.test(couponCode))
-            {
-                this.code = couponCode;
-                return true;
-            }
-            return false;
-        }
-        int durability = 0;
-        public int getDurability() { return this.durability; }
-        public void setDurability(int durability) { this.durability = durability; }
-        public List<RecipeHolder<TicketStationRecipe>> getMatchingRecipes() {
-            ItemStack sellItem = TicketItemTrade.this.getActualItem(this.index);
-            Level level = LightmansCurrency.getProxy().safeGetDummyLevel();
-            if(level != null)
-            {
-                List<RecipeHolder<TicketStationRecipe>> list = new ArrayList<>(TicketStationMenu.getAllRecipes(level).stream().filter(r ->
-                        r.value().matchesTicketKioskSellItem(sellItem)).toList());
-                //Figure out if we should add an empty recipe as the default value, as some recipes may conflict with normal material sales
-                for(RecipeHolder<TicketStationRecipe> recipe : list)
-                {
-                    if(recipe.value().allowIgnoreKioskRecipe())
-                    {
-                        list.addFirst(new RecipeHolder<>(null,null));
-                        return list;
-                    }
-                }
-                return list;
-            }
-            return ImmutableList.of();
-        }
-        @Nullable
-        public TicketStationRecipe tryGetRecipe()
-        {
-            if(this.recipeID == null || !this.isPotentiallyRecipeMode())
-                return null;
-            Level level = LightmansCurrency.getProxy().safeGetDummyLevel();
-            if(level != null)
-            {
-                for(RecipeHolder<TicketStationRecipe> holder : TicketStationMenu.getAllRecipes(level))
-                {
-                    if(holder.id().equals(this.recipeID))
-                    {
-                        //Don't return the trade if it doesn't match our required item
-                        if(!holder.value().matchesTicketKioskSellItem(TicketItemTrade.this.getActualItem(this.index)))
-                            return null;
-                        return holder.value();
-                    }
-                }
-            }
-            return null;
-        }
-        public boolean requestingCodeInput()
-        {
-            TicketStationRecipe recipe = this.tryGetRecipe();
-            return recipe != null && recipe.requiredCodeInput();
-        }
-        public boolean requestingDurabilityInput()
-        {
-            TicketStationRecipe recipe = this.tryGetRecipe();
-            return recipe != null && recipe.requiredDurabilityInput();
-        }
-        public ItemStack getCraftingResult(boolean replaceName)
-        {
-            ItemStack sellItem = TicketItemTrade.this.getActualItem(this.index);
-            if(!this.isRecipeMode())
-                return sellItem;
-            TicketStationRecipe recipe = this.tryGetRecipe();
-            if(recipe != null)
-            {
-                ItemStack result = recipe.assembleWithKiosk(sellItem,this.getData());
-                if(result.isEmpty())
-                    return result;
-                result.setCount(sellItem.getCount());
-                if(replaceName)
-                {
-                    String customName = TicketItemTrade.this.getCustomName(this.index);
-                    if(!customName.isBlank())
-                        result.set(DataComponents.CUSTOM_NAME, EasyText.literal(customName));
-                }
-                return result;
-            }
-            return sellItem;
-        }
-        public boolean isValid()
-        {
-            ItemStack sellItem = TicketItemTrade.this.getActualItem(this.index);
-            TicketStationRecipe recipe = this.tryGetRecipe();
-            if(recipe != null)
-                return recipe.matchesTicketKioskSellItem(sellItem) && (recipe.validData(this.getData()));
-            return sellItem.isEmpty() || InventoryUtil.ItemHasTag(sellItem,LCTags.Items.TICKET_MATERIAL);
-        }
-        public boolean isPotentiallyRecipeMode() { return !TicketItemTrade.this.isPurchase() && !this.getMatchingRecipes().isEmpty(); }
-        public boolean isRecipeMode() { return this.tryGetRecipe() != null; }
-
-        public CompoundTag save()
-        {
-            CompoundTag tag = new CompoundTag();
-            if(this.recipeID != null)
-                tag.putString("Recipe",this.recipeID.toString());
-            tag.putString("Code",this.code);
-            tag.putInt("Durability",this.durability);
-            return tag;
-        }
-
-        public void saveSettings(SavedSettingData.MutableNodeAccess node)
-        {
-            String prefix = "item_" + this.index + "_ticketdata_";
-            if(this.recipeID == null)
-                node.setBooleanValue(prefix + "no_recipe",true);
-            else
-                node.setStringValue(prefix + "recipe",this.recipeID.toString());
-            node.setStringValue(prefix + "code",this.code);
-            node.setIntValue(prefix + "durability",this.durability);
-        }
-
-        public void load(CompoundTag tag)
-        {
-            if(tag.contains("Recipe"))
-                this.recipeID = VersionUtil.parseResource(tag.getString("Recipe"));
-            this.code = tag.getString("Code");
-            this.durability = tag.getInt("Durability");
-        }
-
-        public void loadSettings(SavedSettingData.NodeAccess node)
-        {
-            String prefix = "item_" + this.index + "_ticketdata_";
-            if(node.getBooleanValue(prefix + "no_recipe"))
-                this.recipeID = null;
-            this.recipeID = VersionUtil.parseResource(node.getStringValue(prefix + "recipe"));
-            this.code = node.getStringValue(prefix + "code");
-            this.durability = node.getIntValue(prefix + "durability");
-        }
-
     }
 
 }

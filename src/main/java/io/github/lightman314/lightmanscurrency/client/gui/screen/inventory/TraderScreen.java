@@ -1,46 +1,38 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.traders.client.TraderClientHooks;
-import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.ITraderScreen;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.EasyClientUnenforcedTabbedMenuScreen;
+import io.github.lightman314.lightmanscurrency.api.traders.client.IClientScreenListener;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.client.ITraderScreen;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.gui.tabbed.EasyClientUnenforcedTabbedMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.common.DiscountCodeTab;
 import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenNetworkTerminal;
 
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.TraderClientTab;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.client.TraderClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.common.TraderInteractionTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.util.ButtonUtil;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu;
-import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketCollectCoins;
-import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketOpenStorage;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class TraderScreen extends EasyClientUnenforcedTabbedMenuScreen<TraderMenu,TraderScreen,TraderClientTab> implements ITraderScreen {
 
-	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/trader.png");
+	public static final ResourceLocation GUI_TEXTURE = LightmansCurrency.id("textures/gui/container/trader.png");
 	
 	public static final int WIDTH = 206;
 	public static final int HEIGHT = 236;
@@ -102,14 +94,14 @@ public class TraderScreen extends EasyClientUnenforcedTabbedMenuScreen<TraderMen
 		{
 			TraderData trader = this.menu.getSingleTrader();
 			if(trader != null)
-                TraderClientHooks.forEach(trader,attachment -> attachment.onScreenInit(trader,this,this::addChild));
+                TraderClientHooks.forEach(trader, IClientScreenListener.class,attachment -> attachment.onScreenInit(trader,this,this::addChild));
 		}
 
 		this.containerTick();
 		
 	}
 	
-	private boolean showTerminalButton() { return this.forceShowTerminalButton() || (this.menu.isSingleTrader() && this.menu.getSingleTrader().showOnTerminal()); }
+	private boolean showTerminalButton() { return this.forceShowTerminalButton() || this.menu.getValidator().isThroughNetwork; }
 
 	@Override
 	protected void renderBackground(EasyGuiGraphics gui) {
@@ -144,19 +136,19 @@ public class TraderScreen extends EasyClientUnenforcedTabbedMenuScreen<TraderMen
 
 	}
 	
-	private void OpenStorage(EasyButton button) {
+	private void OpenStorage() {
 		if(this.menu.isSingleTrader())
-			new CPacketOpenStorage(this.menu.getSingleTrader().getID()).send();
+            this.menu.openStorage();
 	}
 	
-	private void CollectCoins(EasyButton button) {
+	private void CollectCoins() {
 		if(this.menu.isSingleTrader())
-			CPacketCollectCoins.sendToServer();
+			this.menu.collectMoney();
 	}
 	
-	private void OpenTerminal(EasyButton button) {
+	private void OpenTerminal() {
 		if(this.showTerminalButton())
-			new CPacketOpenNetworkTerminal().send();
+            this.menu.openTerminal();
 	}
 
     private void OpenCodeSelection()

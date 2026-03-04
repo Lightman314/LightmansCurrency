@@ -1,43 +1,39 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity;
 
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.misc.item_handlers.LCItemStackHandler;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
 import io.github.lightman314.lightmanscurrency.common.crafting.input.TicketStationRecipeInput;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.state.BlockState;
-
-import javax.annotation.Nonnull;
 
 public class TicketStationBlockEntity extends EasyBlockEntity {
 
-	SimpleContainer storage = new SimpleContainer(2);
-	public Container getStorage() { return this.storage; }
+	private final LCItemStackHandler storage = new LCItemStackHandler(2);
+	public LCItemStackHandler getStorage() { return this.storage; }
 
 	public TicketStationRecipeInput getRecipeInput(TicketStationRecipe.ExtraData data) { return new TicketStationRecipeInput(this.storage,data); }
 	
 	public TicketStationBlockEntity(BlockPos pos, BlockState state)
 	{
 		super(ModBlockEntities.TICKET_MACHINE.get(), pos, state);
-		this.storage.addListener(c -> this.setChanged());
+		this.storage.withListener(this::setChanged);
 	}
 
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
-		InventoryUtil.saveAllItems("Items", tag, this.storage, lookup);
-		super.saveAdditional(tag, lookup);
+	protected void saveAdditional(CompoundTag tag,DataContext<Tag> context) {
+        tag.put("Items",context.write(this.storage::serializeNBT));
+		super.saveAdditional(tag,context);
 	}
 
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
-		this.storage = InventoryUtil.loadAllItems("Items", tag, 2,lookup);
-		this.storage.addListener(c -> this.setChanged());
-		super.loadAdditional(tag, lookup);
+	protected void loadAdditional(CompoundTag tag,DataContext<Tag> context) {
+        this.storage.safeLoad(tag,"Items",context);
+		super.loadAdditional(tag,context);
 	}
 	
 }

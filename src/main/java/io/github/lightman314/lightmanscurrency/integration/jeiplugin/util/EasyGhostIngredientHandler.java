@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.integration.jeiplugin.util;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.GhostSlot;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
+import io.github.lightman314.lightmanscurrency.api.client.gui.GhostSlot;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IEasyScreen;
 import mezz.jei.api.gui.handlers.IGhostIngredientHandler;
 import mezz.jei.api.ingredients.ITypedIngredient;
 import net.minecraft.MethodsReturnNonnullByDefault;

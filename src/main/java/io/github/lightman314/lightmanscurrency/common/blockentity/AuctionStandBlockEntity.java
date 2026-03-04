@@ -2,14 +2,15 @@ package io.github.lightman314.lightmanscurrency.common.blockentity;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
-import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.nodes.AuctionTradesNode;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.trade.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.network.message.auction.SPacketSyncAuctionStandDisplay;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -53,7 +54,10 @@ public class AuctionStandBlockEntity extends EasyBlockEntity {
         if(AuctionHouseTrader.isEnabled() && event.getServer().getTickCount() % 1200 == 0)
         {
             if(event.hasTime())
+            {
+                randomizeNextOpportunity = false;
                 RandomizeDisplayItems();
+            }
             else
                 randomizeNextOpportunity = true;
         }
@@ -74,9 +78,10 @@ public class AuctionStandBlockEntity extends EasyBlockEntity {
             return;
         }
         TraderData trader = data.getAuctionHouse();
-        if(trader instanceof AuctionHouseTrader ah && ah.getTradeCount() > 0)
+        AuctionTradesNode node = trader.getNode(AuctionTradesNode.TYPE);
+        if(node != null && node.getTradeCount() > 0)
         {
-            AuctionTradeData trade = ah.getTrade(new Random().nextInt(ah.getTradeCount()));
+            AuctionTradeData trade = node.getTrade(new Random().nextInt(node.getTradeCount()));
             if(trade != null)
             {
                 setDisplayItems(trade.getAuctionItems());
@@ -90,14 +95,12 @@ public class AuctionStandBlockEntity extends EasyBlockEntity {
 
     private static void setDefaultDisplayItem() { setDisplayItems(ImmutableList.of(new ItemStack(ModItems.TRADING_CORE.get()))); }
 
-
     private static void setDisplayItems(List<ItemStack> items)
     {
-        displayItems = ImmutableList.copyOf(InventoryUtil.copyList(items));
+        displayItems = ImmutableList.copyOf(ItemHandlerUtil.copyList(items));
         new SPacketSyncAuctionStandDisplay(displayItems).sendToAll();
     }
 
     public static void syncItemsFromServer(List<ItemStack> items) { displayItems = ImmutableList.copyOf(items); }
-
 
 }

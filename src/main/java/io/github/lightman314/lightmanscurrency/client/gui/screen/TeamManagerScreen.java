@@ -1,15 +1,14 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen;
 
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.EasyTabbedMenuScreen;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.gui.tabbed.EasyTabbedMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.WidgetRotation;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.menus.TeamManagementMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.teams.TeamManagementTab;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -21,7 +20,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class TeamManagerScreen extends EasyTabbedMenuScreen<TeamManagementMenu,TeamManagementTab,TeamManagerScreen>{
 
-    public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/teammanager.png");
+    public static final ResourceLocation GUI_TEXTURE = LightmansCurrency.id("textures/gui/teammanager.png");
 
     public TeamManagerScreen(TeamManagementMenu menu, Inventory inventory, Component title) { super(menu, inventory); this.resize(200,200); }
 

@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.money.ancient_money.client;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.common.money.ancient_money.Ancien
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +17,7 @@ public class AncientPriceEntry extends DisplayEntry {
 
     private final AncientMoneyValue price;
 
-    public AncientPriceEntry(@Nonnull AncientMoneyValue price, @Nullable List<Component> additionalTooltips, boolean tooltipOverride)
+    public AncientPriceEntry(AncientMoneyValue price, @Nullable List<Component> additionalTooltips, boolean tooltipOverride)
     {
         super(getTooltip(price,additionalTooltips,tooltipOverride));
         this.price = price;
@@ -26,7 +25,7 @@ public class AncientPriceEntry extends DisplayEntry {
 
     private int getTopLeft(int xOrY, int availableWidthOrHeight) { return xOrY + (availableWidthOrHeight / 2) - 8; }
 
-    private static List<Component> getTooltip(@Nonnull AncientMoneyValue price, @Nullable List<Component> additionalTooltips, boolean tooltipOverride) {
+    private static List<Component> getTooltip(AncientMoneyValue price, @Nullable List<Component> additionalTooltips, boolean tooltipOverride) {
         List<Component> tooltips = new ArrayList<>();
         //Put bonus tooltips first
         if(additionalTooltips != null)

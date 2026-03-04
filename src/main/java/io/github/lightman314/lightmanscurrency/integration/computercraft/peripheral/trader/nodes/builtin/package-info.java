@@ -1,0 +1,4 @@
+@ParametersAreNonnullByDefault
+package io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.nodes.builtin;
+
+import javax.annotation.ParametersAreNonnullByDefault;

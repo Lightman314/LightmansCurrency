@@ -5,50 +5,32 @@ import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigReloadable;
 import io.github.lightman314.lightmanscurrency.api.misc.BlockProtectionHelper;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
-import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
-import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
-import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.TeamBankReference;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
-import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
-import io.github.lightman314.lightmanscurrency.api.money.types.builtin.CoinCurrencyType;
-import io.github.lightman314.lightmanscurrency.api.money.types.builtin.NullCurrencyType;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
-import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnershipAPI;
-import io.github.lightman314.lightmanscurrency.api.ownership.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.builtin.PlayerOwnerProvider;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.builtin.TeamOwnerProvider;
 import io.github.lightman314.lightmanscurrency.api.settings.pretty.PrettyTextWriter;
 import io.github.lightman314.lightmanscurrency.api.settings.pretty.builtin.BookTextWriter;
-import io.github.lightman314.lightmanscurrency.api.stats.StatType;
-import io.github.lightman314.lightmanscurrency.api.stats.types.*;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.builtin.BasicSearchFilter;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.builtin.DescriptionSearchFilter;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.types.*;
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.common.blocks.MoneyBagBlock;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientCoinSorter;
-import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientMoneyType;
 import io.github.lightman314.lightmanscurrency.common.seasonal_events.SeasonalEventManager;
-import io.github.lightman314.lightmanscurrency.common.traders.commands.CommandTrader;
-import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
-import io.github.lightman314.lightmanscurrency.common.traders.item.ticket.TicketItemTrade;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.common.blocks.CoinBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidatorType;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.*;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.ejection.OwnableBlockEjectedNotification;
-import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesCollectedNotification;
-import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesPaidNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.builtin.TaxableTraderReference;
 import io.github.lightman314.lightmanscurrency.api.ticket.TicketGroupData;
-import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.search_filters.AuctionSearchFilter;
+import io.github.lightman314.lightmanscurrency.common.traders.search_filters.ItemTraderSearchFilter;
+import io.github.lightman314.lightmanscurrency.common.traders.search_filters.SlotMachineSearchFilter;
 import io.github.lightman314.lightmanscurrency.integration.IntegrationUtil;
 import io.github.lightman314.lightmanscurrency.integration.biomesoplenty.BOPCustomWoodTypes;
 import io.github.lightman314.lightmanscurrency.integration.claiming.flan.LCFlanIntegration;
@@ -59,15 +41,14 @@ import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.integration.ftb_filter.LCFTBFilterSystemLauncher;
 import io.github.lightman314.lightmanscurrency.integration.ftbteams.LCFTBTeams;
 import io.github.lightman314.lightmanscurrency.integration.immersiveengineering.LCImmersive;
-import io.github.lightman314.lightmanscurrency.integration.impactor.LCImpactorCompat;
+import io.github.lightman314.lightmanscurrency.integration.impactor.LCImpactorLauncher;
 import io.github.lightman314.lightmanscurrency.network.message.data.SPacketSyncCoinData;
 import io.github.lightman314.lightmanscurrency.proxy.*;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
+import io.github.lightman314.lightmanscurrency.common.traders.item.trade.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.VillagerTradeManager;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -83,36 +64,24 @@ import net.neoforged.neoforge.network.event.RegisterConfigurationTasksEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import io.github.lightman314.lightmanscurrency.common.notifications.categories.*;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.*;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.auction.*;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.*;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.settings.*;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.*;
-import io.github.lightman314.lightmanscurrency.common.traders.auction.*;
-import io.github.lightman314.lightmanscurrency.common.traders.item.*;
-import io.github.lightman314.lightmanscurrency.common.traders.paygate.*;
-import io.github.lightman314.lightmanscurrency.common.traders.rules.types.*;
-import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.*;
-import io.github.lightman314.lightmanscurrency.common.core.ModRegistries;
+import io.github.lightman314.lightmanscurrency.common.core.ModRegistrySetup;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.common.loot.LootManager;
 import io.github.lightman314.lightmanscurrency.network.message.time.SPacketSyncTime;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Objects;
 import java.util.function.Consumer;
 
 @Mod("lightmanscurrency")
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class LightmansCurrency {
 	
 	public static final String MODID = "lightmanscurrency";
 
 	private static CommonProxy PROXY;
 	public static CommonProxy getProxy() { return Objects.requireNonNull(PROXY,"Attempted to get the proxy before the mod was initialized!"); }
+
+    public static ResourceLocation id(String path) { return ResourceLocation.fromNamespaceAndPath(MODID,path); }
 
     private static final Logger LOGGER = LogManager.getLogger();
 	public LightmansCurrency(ModContainer modContainer, IEventBus eventBus, Dist side) {
@@ -137,7 +106,7 @@ public class LightmansCurrency {
 		//IntegrationUtil.SafeRunIfLoaded("quark", QuarkCustomWoodTypes::setupWoodTypes, "Error setting up Quark wood types! Quark has probably changed their API!");
 
         //Setup Deferred Registries
-        ModRegistries.register(eventBus);
+        ModRegistrySetup.register(eventBus);
         
         //Initialize the proxy
 		getProxy().init(eventBus,modContainer);
@@ -149,6 +118,10 @@ public class LightmansCurrency {
 		IntegrationUtil.SafeRunIfLoaded("create", () -> LCCreate.init(eventBus), "Error setting up Create Integration!");
 		IntegrationUtil.SafeRunIfLoaded("computercraft", () -> LCComputercraftLauncher.setup(eventBus),"Error setting up ComputerCraft Integration!");
         IntegrationUtil.SafeRunIfLoaded("ftbfiltersystem", LCFTBFilterSystemLauncher::launch,"Error setting up FTB Filter System Integration!");
+        //Setup here as it has to register an owner type
+        IntegrationUtil.SafeRunIfLoaded("ftbteams",LCFTBTeams::setup,"Error setting up FTB Teams compat!");
+        //Setup Impactor compatibility (moved to ctor since Currency Type is now a registry)
+        IntegrationUtil.SafeRunIfLoaded("impactor", LCImpactorLauncher::setup,"Error setting up Impactor Economy Compatibility");
 
         //Register item variant providers for basic items
         VariantProvider.registerBasicVariantItem(ModItems.TRADING_CORE,ModItems.VARIANT_WAND,ModItems.ITEM_TRADE_FILTER);
@@ -162,101 +135,18 @@ public class LightmansCurrency {
 		//Manually load common config for villager edit purposes
 		ConfigFile.loadServerFiles(ConfigFile.LoadPhase.SETUP);
 
-		//Setup Impactor compatibility
-		IntegrationUtil.SafeRunIfLoaded("impactor", LCImpactorCompat::setup,"Error setting up Impactor Economy Compatibility");
-
 		//Setup Cadmus Integration during common setup so that other mods will have already registered their claim providers
 		//IntegrationUtil.SafeRunIfLoaded("cadmus",LCCadmusIntegration::setup,null);
 
 		//Setup Money System
 		CoinAPI.getApi().Setup();
-		//Register built-in Currency Types
-		MoneyAPI.getApi().RegisterCurrencyType(CoinCurrencyType.INSTANCE);
-		MoneyAPI.getApi().RegisterCurrencyType(NullCurrencyType.INSTANCE);
-		//Ancient Money
-		MoneyAPI.getApi().RegisterCurrencyType(AncientMoneyType.INSTANCE);
 		CoinAPI.getApi().RegisterCustomSorter(AncientCoinSorter.INSTANCE);
-
-		//Ownership API data
-		OwnershipAPI.getApi().registerOwnerType(Owner.NULL_TYPE);
-		OwnershipAPI.getApi().registerOwnerType(FakeOwner.TYPE);
-		OwnershipAPI.getApi().registerOwnerType(PlayerOwner.TYPE);
-		OwnershipAPI.getApi().registerOwnerType(TeamOwner.TYPE);
 
 		OwnershipAPI.getApi().registerPotentialOwnerProvider(PlayerOwnerProvider.INSTANCE);
 		OwnershipAPI.getApi().registerPotentialOwnerProvider(TeamOwnerProvider.INSTANCE);
 
-		//Initialize the TraderData deserializers
-		TraderAPI.getApi().RegisterTrader(ItemTraderData.TYPE);
-		TraderAPI.getApi().RegisterTrader(ItemTraderDataArmor.TYPE);
-		TraderAPI.getApi().RegisterTrader(ItemTraderDataTicket.TYPE);
-		TraderAPI.getApi().RegisterTrader(ItemTraderDataBook.TYPE);
-		TraderAPI.getApi().RegisterTrader(SlotMachineTraderData.TYPE);
-		TraderAPI.getApi().RegisterTrader(PaygateTraderData.TYPE);
-		TraderAPI.getApi().RegisterTrader(AuctionHouseTrader.TYPE);
-		TraderAPI.getApi().RegisterTrader(CommandTrader.TYPE);
-		TraderAPI.getApi().RegisterTrader(GachaTrader.TYPE);
-
 		//Register the custom game rules
 		ModGameRules.registerRules();
-
-		//Initialize the Trade Rule deserializers
-		TraderAPI.getApi().RegisterTradeRule(PlayerListing.TYPE);
-		TraderAPI.getApi().RegisterTradeRule(PlayerTradeLimit.TYPE);
-		TraderAPI.getApi().RegisterTradeRule(PlayerDiscounts.TYPE);
-		TraderAPI.getApi().RegisterTradeRule(TimedSale.TYPE);
-		TraderAPI.getApi().RegisterTradeRule(TradeLimit.TYPE);
-		TraderAPI.getApi().RegisterTradeRule(FreeSample.TYPE);
-		TraderAPI.getApi().RegisterTradeRule(PriceFluctuation.TYPE);
-		TraderAPI.getApi().RegisterTradeRule(DemandPricing.TYPE);
-		TraderAPI.getApi().RegisterTradeRule(DailyTrades.TYPE);
-		TraderAPI.getApi().RegisterTradeRule(DiscountCodes.TYPE);
-
-		TradeRule.addLoadListener(PlayerListing.LISTENER);
-		TradeRule.addIgnoreMissing("lightmanscurrency:whitelist");
-		TradeRule.addIgnoreMissing("lightmanscurrency:blacklist");
-
-		//Initialize the Notification deserializers
-		NotificationAPI.getApi().RegisterNotification(ItemTradeNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(PaygateNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(SlotMachineTradeNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(OutOfStockNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(LowBalanceNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(AuctionHouseSellerNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(AuctionHouseBuyerNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(AuctionHouseSellerNobidNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(AuctionHouseBidNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(AuctionHouseCancelNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(TextNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(AddRemoveAllyNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(AddRemoveTradeNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(ChangeAllyPermissionNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(ChangeCreativeNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(ChangeNameNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(ChangeOwnerNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(ChangeSettingNotification.SIMPLE_TYPE);
-		NotificationAPI.getApi().RegisterNotification(ChangeSettingNotification.ADVANCED_TYPE);
-		NotificationAPI.getApi().RegisterNotification(ChangeSettingNotification.DUMB_TYPE);
-		NotificationAPI.getApi().RegisterNotification(DepositWithdrawNotification.PLAYER_TYPE);
-		NotificationAPI.getApi().RegisterNotification(DepositWithdrawNotification.CUSTOM_TYPE);
-		NotificationAPI.getApi().RegisterNotification(DepositWithdrawNotification.SERVER_TYPE);
-		NotificationAPI.getApi().RegisterNotification(BankTransferNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(BankInterestNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(TaxesCollectedNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(TaxesPaidNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(OwnableBlockEjectedNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(CommandTradeNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(GachaTradeNotification.TYPE);
-		NotificationAPI.getApi().RegisterNotification(SalaryPaymentNotification.TYPE);
-
-		//Initialize the Notification Category deserializers
-		NotificationAPI.getApi().RegisterCategory(NotificationCategory.GENERAL_TYPE);
-		NotificationAPI.getApi().RegisterCategory(NullCategory.TYPE);
-		NotificationAPI.getApi().RegisterCategory(EventCategory.TYPE);
-		NotificationAPI.getApi().RegisterCategory(TraderCategory.TYPE);
-		NotificationAPI.getApi().RegisterCategory(BankCategory.TYPE);
-		NotificationAPI.getApi().RegisterCategory(AuctionHouseCategory.TYPE);
-		NotificationAPI.getApi().RegisterCategory(TaxEntryCategory.TYPE);
 
 		//Register Trader Search Filters
 		TraderAPI.getApi().RegisterTraderSearchFilter(new BasicSearchFilter());
@@ -274,10 +164,6 @@ public class LightmansCurrency {
 
 		//Register Tax Reference Types (in case I add more taxable blocks in the future)
 		TaxAPI.getApi().RegisterReferenceType(TaxableTraderReference.TYPE);
-
-		//Register Bank Account Reference Types
-		BankAPI.getApi().RegisterReferenceType(PlayerBankReference.TYPE);
-		BankAPI.getApi().RegisterReferenceType(TeamBankReference.TYPE);
 
 		//Register Menu Validator Types
 		MenuValidatorType.register(SimpleValidator.TYPE);
@@ -297,13 +183,6 @@ public class LightmansCurrency {
 		ItemListingSerializer.registerDefaultSerializers();
 		VillagerTradeManager.registerDefaultTrades();
 
-		//Register Icon Data
-		IconData.registerDefaultIcons();
-
-		//Register Stat Types
-		StatType.register(IntegerStat.INSTANCE);
-		StatType.register(MultiMoneyStat.INSTANCE);
-
 		//Setup Block Protection
 		BlockProtectionHelper.ProtectBlock(b -> b instanceof IOwnableBlock);
 		BlockProtectionHelper.ProtectBlock(b -> b instanceof CoinBlock);
@@ -311,19 +190,13 @@ public class LightmansCurrency {
 
 		PrettyTextWriter.register(BookTextWriter.INSTANCE);
 
-		//Register Custom Item Trades
-		ItemTradeData.registerCustomItemTrade(TicketItemTrade.TYPE,TicketItemTrade::new);
-
         //Setup Config API Hooks
         //Delay of 100 so that it loads after common/client configs
-        ConfigAPI.getApi().registerCustomReloadable(ConfigReloadable.simpleReloader(VersionUtil.lcResource("master_coin_list"),ConfigReloadable.PRIORITY_MONEY_PHASE, stack -> CoinAPI.getApi().ReloadCoinDataFromFile()));
+        ConfigAPI.getApi().registerCustomReloadable(ConfigReloadable.simpleReloader(LightmansCurrency.id("master_coin_list"),ConfigReloadable.PRIORITY_MONEY_PHASE, stack -> CoinAPI.getApi().ReloadCoinDataFromFile()));
         //Delay of 1000 so that it loads after server/money configs
-        ConfigAPI.getApi().registerCustomReloadable(ConfigReloadable.simpleReloader(VersionUtil.lcResource("persistent_traders"),ConfigReloadable.PRIORITY_AFTER_ALL,stack -> TraderDataCache.TYPE.get(false).reloadPersistentTraders()));
+        ConfigAPI.getApi().registerCustomReloadable(ConfigReloadable.simpleReloader(LightmansCurrency.id("persistent_traders"),ConfigReloadable.PRIORITY_AFTER_ALL,stack -> TraderDataCache.TYPE.get(false).reloadPersistentTraders()));
         //Seasonal events don't care about money or other such nonsense, so default priority is fine :)
-        ConfigAPI.getApi().registerCustomReloadable(ConfigReloadable.simpleReloader(VersionUtil.lcResource("seasonal_events"),stack -> SeasonalEventManager.reload()));
-
-        //Setup Mod Compats
-		IntegrationUtil.SafeRunIfLoaded("ftbteams", LCFTBTeams::setup,"Error setting up FTB Teams compat!");
+        ConfigAPI.getApi().registerCustomReloadable(ConfigReloadable.simpleReloader(LightmansCurrency.id("seasonal_events"),stack -> SeasonalEventManager.reload()));
 
 	}
     

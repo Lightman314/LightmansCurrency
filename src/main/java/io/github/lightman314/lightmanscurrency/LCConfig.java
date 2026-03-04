@@ -29,7 +29,6 @@ import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.entity.npc.VillagerType;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.function.Supplier;
 
@@ -49,7 +48,7 @@ public final class LCConfig {
 
     public static final class Client extends ClientConfigFile
     {
-        private Client() { super(VersionUtil.lcResource("client"),"lightmanscurrency-client"); }
+        private Client() { super(LightmansCurrency.id("client"),"lightmanscurrency-client"); }
 
         public final IntOption itemRenderLimit = IntOption.create(Integer.MAX_VALUE, 0);
         public final CustomItemScaleConfigOption itemScaleOverrides = CustomItemScaleConfigOption.create(new CustomItemScaleData(Lists.newArrayList(Pair.of(ItemTest.create(LCTags.Items.DRAW_HALF_SIZE),0.5f))));
@@ -91,7 +90,7 @@ public final class LCConfig {
         public final BooleanOption debugScreens = BooleanOption.createFalse();
 
         @Override
-        protected void setup(@Nonnull ConfigBuilder builder) {
+        protected void setup(ConfigBuilder builder) {
 
             builder.comment("Quality Settings").push("quality");
 
@@ -252,7 +251,7 @@ public final class LCConfig {
 
     public static final class Common extends ConfigFile
     {
-        private Common() { super(VersionUtil.lcResource("common"),"lightmanscurrency-common", LoadPhase.SETUP); }
+        private Common() { super(LightmansCurrency.id("common"),"lightmanscurrency-common", LoadPhase.SETUP); }
 
         //Debug Level (in root)
         public final IntOption debugLevel = IntOption.create(0,0,3);
@@ -387,7 +386,7 @@ public final class LCConfig {
         public final BooleanOption compatImpactor = BooleanOption.createTrue();
 
         @Override
-        protected void setup(@Nonnull ConfigBuilder builder) {
+        protected void setup(ConfigBuilder builder) {
 
             builder.comment("Level of debug messages to be shown in the logs.","0-All debug messages. 1-Warnings/Errors only. 2-Errors only. 3-No debug messages.","Note: All debug messages will still be sent debug.log regardless of settings.")
                     .add("debugLevel", this.debugLevel);
@@ -670,14 +669,13 @@ public final class LCConfig {
 
         }
 
-        @Nonnull
-        public Supplier<VillagerTradeMod> getVillagerMod(@Nonnull String trader) { return () -> this.professionEmeraldReplacementOverrides.get().getModFor(trader); }
+        public Supplier<VillagerTradeMod> getVillagerMod(String trader) { return () -> this.professionEmeraldReplacementOverrides.get().getModFor(trader); }
 
     }
 
     public static final class Server extends SyncedConfigFile {
         private Server() {
-            super("lightmanscurrency-server", VersionUtil.lcResource("server"));
+            super("lightmanscurrency-server", LightmansCurrency.id("server"));
         }
         //Delay of 200 so that it gets reloaded **after** coins are reloaded
         @Override
@@ -795,7 +793,7 @@ public final class LCConfig {
         public final IntOption flanClaimingBlocksPerChunk = IntOption.create(256, 1, 256);
 
         @Override
-        protected void setup(@Nonnull ConfigBuilder builder) {
+        protected void setup(ConfigBuilder builder) {
 
             builder.comment("Notification Settings").push("notifications")
                     .comment("The maximum number of notifications each player and/or machine can have before old entries are deleted.",

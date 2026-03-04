@@ -7,34 +7,28 @@ import io.github.lightman314.lightmanscurrency.common.items.PortableATMItem;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.ItemValidator;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class CPacketOpenATM extends ClientToServerPacket {
 
-	private static final Type<CPacketOpenATM> TYPE = new Type<>(VersionUtil.lcResource("c_open_atm"));
+	private static final Type<CPacketOpenATM> TYPE = cType("open_atm");
+    private static final StreamCodec<RegistryFriendlyByteBuf,CPacketOpenATM> STREAM_CODEC = ByteBufCodecs.registry(Registries.ITEM)
+            .map(CPacketOpenATM::new,p -> p.portableATM);
 	public static Handler<CPacketOpenATM> HANDLER = new H();
 
     private final Item portableATM;
 	public CPacketOpenATM(Item portableATM) { super(TYPE); this.portableATM = portableATM; }
 
-    private static void encode(FriendlyByteBuf buffer,CPacketOpenATM message) { buffer.writeResourceLocation(BuiltInRegistries.ITEM.getKey(message.portableATM)); }
-    private static CPacketOpenATM decode(FriendlyByteBuf buffer) { return new CPacketOpenATM(BuiltInRegistries.ITEM.get(buffer.readResourceLocation())); }
-
 	private static class H extends Handler<CPacketOpenATM>
 	{
-		protected H() { super(TYPE, StreamCodec.of(CPacketOpenATM::encode,CPacketOpenATM::decode)); }
+		protected H() { super(TYPE,STREAM_CODEC); }
 		@Override
 		public void handle(CPacketOpenATM message, IPayloadContext context, Player player) {
 			if(QuarantineAPI.IsDimensionQuarantined(player))

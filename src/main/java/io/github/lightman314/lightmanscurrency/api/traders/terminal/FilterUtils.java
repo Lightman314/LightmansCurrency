@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.api.traders.terminal;
 
 import com.google.common.base.Predicates;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.BasicSearchFilter;
+import io.github.lightman314.lightmanscurrency.api.traders.terminal.builtin.BasicSearchFilter;
 import net.minecraft.MethodsReturnNonnullByDefault;
 
 import javax.annotation.ParametersAreNonnullByDefault;

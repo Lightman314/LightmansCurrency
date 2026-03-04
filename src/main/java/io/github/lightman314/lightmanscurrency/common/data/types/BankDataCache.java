@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.data.types;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomData;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomDataType;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
@@ -8,10 +9,8 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
-import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
+import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketSelectBankAccount;
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -19,15 +18,15 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
-@FieldsAreNonnullByDefault
-@ParametersAreNonnullByDefault
-@MethodsReturnNonnullByDefault
 public class BankDataCache extends CustomData {
 
     public static final CustomDataType<BankDataCache> TYPE = new CustomDataType<>("lightmanscurrency_bank_data",BankDataCache::new);
@@ -35,19 +34,21 @@ public class BankDataCache extends CustomData {
     private final Map<UUID,BankDataEntry> playerBankData = new HashMap<>();
     private int interestTick = 0;
 
+    private Set<UUID> changedAccounts = new HashSet<>();
+
     private BankDataCache() {}
 
     @Override
     public CustomDataType<?> getType() { return TYPE; }
 
     @Override
-    public void save(CompoundTag tag, HolderLookup.Provider lookup) {
+    public void save(CompoundTag tag,DataContext<Tag> context) {
         ListTag bankData = new ListTag();
         this.playerBankData.forEach((player,data) -> {
             CompoundTag entry = new CompoundTag();
-            entry.putUUID("Player", player);
-            entry.put("BankAccount", data.account.save(lookup));
-            entry.put("LastSelected", data.selected.save());
+            entry.putUUID("Player",player);
+            entry.put("BankAccount",context.write(data.account,BankAccount.CODEC));
+            entry.put("LastSelected",context.write(data.selected,BankReference.CODEC));
             bankData.add(entry);
         });
         tag.put("PlayerBankData", bankData);
@@ -56,13 +57,13 @@ public class BankDataCache extends CustomData {
     }
 
     @Override
-    protected void load(CompoundTag tag, HolderLookup.Provider lookup) {
+    protected void load(CompoundTag tag,DataContext<Tag> context) {
         ListTag bankData = tag.getList("PlayerBankData", Tag.TAG_COMPOUND);
         for(int i = 0; i < bankData.size(); ++i)
         {
             CompoundTag entry = bankData.getCompound(i);
             UUID player = entry.getUUID("Player");
-            BankAccount bankAccount = this.loadBankAccount(player, entry.getCompound("BankAccount"), lookup);
+            BankAccount bankAccount = this.loadBankAccount(player, entry.getCompound("BankAccount"),context);
             BankReference lastSelected = BankReference.load(entry.getCompound("LastSelected"));
             playerBankData.put(player, new BankDataEntry(bankAccount,lastSelected));
         }
@@ -70,22 +71,25 @@ public class BankDataCache extends CustomData {
             this.interestTick = tag.getInt("InterestTick");
     }
 
-    private BankAccount loadBankAccount(UUID player, CompoundTag compound, HolderLookup.Provider lookup) {
-        BankAccount bankAccount = new BankAccount(() -> this.markAccountDirty(player), compound, lookup);
-        try {
-            bankAccount.setNotificationConsumer(BankAccount.generateNotificationAcceptor(player));
-            bankAccount.updateOwnersName(PlayerReference.of(player, bankAccount.getOwnersName()).getName(false));
-        } catch(Throwable ignored) {  }
-        return bankAccount;
+    private BankAccount loadBankAccount(UUID player, Tag tag, DataContext<Tag> context) {
+        BankAccount bankAccount = context.read(tag,BankAccount.CODEC);
+        if(bankAccount == null)
+            bankAccount = new BankAccount();
+        return loadBankAccount(player,bankAccount);
+    }
+    private BankAccount loadBankAccount(UUID player, BankAccount bankAccount) {
+        bankAccount.setListener(() -> this.markAccountDirty(player));
+        bankAccount.setNotificationConsumer(BankAccount.generateNotificationAcceptor(player));
+        bankAccount.updateOwnersName(PlayerReference.of(player,bankAccount.getOwnersName()).getName(false));
+        return bankAccount.flagAsClient(this);
     }
 
     private BankAccount generateBankAccount(UUID player) {
-        BankAccount bankAccount = new BankAccount(() -> this.markAccountDirty(player));
-        try {
-            bankAccount.setNotificationConsumer(BankAccount.generateNotificationAcceptor(player));
-            bankAccount.updateOwnersName(PlayerReference.of(player, bankAccount.getOwnersName()).getName(this.isClient()));
-        } catch(Throwable ignored) { }
-        return bankAccount;
+        BankAccount bankAccount = new BankAccount();
+        bankAccount.setListener(() -> this.markAccountDirty(player));
+        bankAccount.setNotificationConsumer(BankAccount.generateNotificationAcceptor(player));
+        bankAccount.updateOwnersName(PlayerReference.of(player,bankAccount.getOwnersName()).getName(this.isClient()));
+        return bankAccount.flagAsClient(this);
     }
 
     public List<BankReference> getPlayerBankAccounts() {
@@ -104,7 +108,7 @@ public class BankDataCache extends CustomData {
             return this.playerBankData.get(player).account;
         //Create a new bank account for the player
         BankAccount newAccount = this.generateBankAccount(player);
-        this.playerBankData.put(player, new BankDataEntry(newAccount, PlayerBankReference.of(player).flagAsClient(this)));
+        this.playerBankData.put(player,new BankDataEntry(newAccount,PlayerBankReference.of(player).flagAsClient(this)));
         this.markAccountDirty(player);
         return newAccount;
     }
@@ -145,17 +149,19 @@ public class BankDataCache extends CustomData {
 
     public void markAccountDirty(UUID playerID)
     {
+        if(this.isClient())
+            return;
         this.setChanged();
         //Send update packet to all connected clients
-        this.syncBankAccount(playerID);
+        this.changedAccounts.add(playerID);
     }
 
-    private void syncBankAccount(UUID player) { this.syncBankAccount(player,null); }
+    private void sendInitialAccount(UUID player) { this.sendInitialAccount(player,null); }
 
-    private void syncBankAccount(UUID player, @Nullable ServerPlayer target)
+    private void sendInitialAccount(UUID player, @Nullable ServerPlayer target)
     {
         BankAccount account = this.getAccount(player);
-        LazyPacketData.Builder packet = this.builder().setUUID("UpdateAccount",player).setCompound("Account",account.save(LookupHelper.getRegistryAccess()));
+        LazyPacketData.Builder packet = this.builder().setUUID("CreateAccount",player).setCustom("Account",account,ModLazyPackets.BANK_ACCOUNT);
         if(target == null)
             this.sendSyncPacket(packet);
         else
@@ -188,7 +194,7 @@ public class BankDataCache extends CustomData {
         if(this.isClient()) {
             if(!LightmansCurrency.getProxy().isSelf(player))
                 return;
-            new CPacketSelectBankAccount(account).send();
+            new CPacketSelectBankAccount(account).sendToServer();
             return;
         }
         if(!account.allowedAccess(player))
@@ -200,7 +206,7 @@ public class BankDataCache extends CustomData {
         if(data == null)
         {
             data = new BankDataEntry(this.generateBankAccount(player.getUUID()),null);
-            this.syncBankAccount(player.getUUID());
+            this.sendInitialAccount(player.getUUID());
         }
         data.selected = account;
 
@@ -211,7 +217,7 @@ public class BankDataCache extends CustomData {
 
     private void syncSelectedAccount(ServerPlayer player)
     {
-        this.sendSyncPacket(this.builder().setUUID("UpdateSelected",player.getUUID()).setCompound("Selected",this.getSelectedAccount(player).save()),player);
+        this.sendSyncPacket(this.builder().setUUID("UpdateSelected",player.getUUID()).setCustom("Selected",this.getSelectedAccount(player),ModLazyPackets.BANK_REFERENCE),player);
     }
 
     @Override
@@ -220,18 +226,25 @@ public class BankDataCache extends CustomData {
             this.playerBankData.clear();
         if(message.contains("DeleteAccount"))
             this.playerBankData.remove(message.getUUID("DeleteAccount"));
-        if(message.contains("UpdateAccount"))
+        if(message.contains("CreateAccount"))
         {
-            UUID account = message.getUUID("UpdateAccount");
-            BankAccount ba = this.loadBankAccount(account,message.getNBT("Account"), LookupHelper.getRegistryAccess()).flagAsClient(this);
+            UUID account = message.getUUID("CreateAccount");
+            BankAccount ba = this.loadBankAccount(account,message.getCustom("Account",ModLazyPackets.BANK_ACCOUNT));
             BankDataEntry data = this.playerBankData.containsKey(account) ? this.playerBankData.get(account) : new BankDataEntry(null,PlayerBankReference.of(account).flagAsClient(this));
             data.account = ba;
             this.playerBankData.put(account,data);
         }
+        if(message.contains("SyncAccount"))
+        {
+            UUID account = message.getUUID("SyncAccount");
+            LazyPacketData data = message.getMap("SyncedData");
+            BankAccount ba = this.getAccount(account);
+            ba.handlePacket(data);
+        }
         if(message.contains("UpdateSelected"))
         {
             UUID account = message.getUUID("UpdateSelected");
-            BankReference selected = BankReference.load(message.getNBT("Selected")).flagAsClient(this);
+            BankReference selected = message.getCustom("Selected",ModLazyPackets.BANK_REFERENCE).flagAsClient(this);
             BankDataEntry data = this.playerBankData.containsKey(account) ? this.playerBankData.get(account) : new BankDataEntry(this.generateBankAccount(account),null);
             data.selected = selected;
             this.playerBankData.put(account,data);
@@ -242,7 +255,7 @@ public class BankDataCache extends CustomData {
     public void onPlayerJoin(ServerPlayer player) {
         //Sync all bank accounts
         for(UUID p : this.playerBankData.keySet())
-            this.syncBankAccount(p,player);
+            this.sendInitialAccount(p,player);
         //Force their personal account to exist after initial sync so that it's not sent twice
         this.getAccount(player);
         //Sync their selected bank account
@@ -260,6 +273,26 @@ public class BankDataCache extends CustomData {
         this.interestTick = 0;
         this.setChanged();
     }
+
+    @Override
+    protected void serverInit() { NeoForge.EVENT_BUS.register(this); }
+
+    @SubscribeEvent
+    private void serverTick(ServerTickEvent.Post event)
+    {
+        Set<UUID> changed = this.changedAccounts;
+        this.changedAccounts = new HashSet<>();
+        for(UUID playerID : changed)
+        {
+            BankAccount account = this.getAccount(playerID);
+            this.sendSyncPacket(this.builder()
+                    .setUUID("SyncAccount",playerID)
+                    .setMap("SyncedData",account.getAndCleanPacket()));
+        }
+    }
+
+    @SubscribeEvent
+    private void onServerShutdown(ServerStoppingEvent event) { NeoForge.EVENT_BUS.unregister(this); }
 
     private static class BankDataEntry
     {

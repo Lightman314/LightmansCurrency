@@ -1,131 +1,75 @@
 package io.github.lightman314.lightmanscurrency.common.traders.gacha;
 
-import com.google.common.collect.ImmutableList;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
-import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
-import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
-import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
-import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeResult;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderType;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.NodeCollector;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNode;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNodeType;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.MoneyStorageNode;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.UpgradesNode;
+import io.github.lightman314.lightmanscurrency.api.traders.data.templates.NetworkSupportingTraderData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.GachaItemHandler;
-import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.GachaMachineBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.items.GachaBallItem;
-import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.gacha_machine.GachaMachineMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.gacha.GachaPriceTab;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.gacha.GachaStorageTab;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.trader.GachaTradeNotification;
-import io.github.lightman314.lightmanscurrency.common.traders.input.InputTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.gacha.tradedata.GachaTradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
-import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.nodes.GachaNode;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.nodes.GachaStorageNode;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.nodes.TraderColorNode;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.trade.GachaDummyTrade;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-public class GachaTrader extends InputTraderData {
+public class GachaTrader extends NetworkSupportingTraderData {
 
-    public static final TraderType<GachaTrader> TYPE = new TraderType<>(VersionUtil.lcResource("gacha"), GachaTrader::new);
+    public static final TraderType<GachaTrader> TYPE = TraderType.simple(GachaTrader::new,GachaTrader::new);
 
-    protected GachaTrader() { super(TYPE); }
-    public GachaTrader(Level level, BlockPos pos, int color) { super(TYPE,level,pos); this.color = color; }
+    protected GachaTrader() { }
+    public GachaTrader(Level level, BlockPos pos, int color) { super(buildArgs(color),false,level,pos); }
+    private GachaTrader(long id, Map<TraderNodeType<?>, TraderNode> nodes) { super(id,nodes); }
 
-    private int color = -1;
-    public int getColor() {
-        if(this.color < 0)
-        {
-            //Try to get color from block
-            if(this.getTraderBlock() instanceof BlockItem bi && bi.getBlock() instanceof GachaMachineBlock block)
-                this.color = block.getColor();
-            else //Otherwise use a default color
-                this.color = 0xFFFFFF;
-            this.markDirty(this::saveColor);
-        }
-        return this.color;
+    protected static Map<TraderNodeType<?>,Object> buildArgs(int color) { return buildArgs(new HashMap<>(),color); }
+    protected static Map<TraderNodeType<?>,Object> buildArgs(Map<TraderNodeType<?>,Object> map, int color) {
+        map.put(TraderColorNode.TYPE,color);
+        return map;
     }
 
-    private MoneyValue price = MoneyValue.empty();
-    public MoneyValue getPrice() { return this.price; }
-    public void setPrice(@Nullable Player player, MoneyValue price)
-    {
-        if(this.hasPermission(player, Permissions.EDIT_TRADES))
-        {
-            this.price = price;
-            this.markDirty(this::savePrice);
-        }
+    @Override
+    public TraderType<?> getType() { return TYPE; }
+
+    @Override
+    protected void addCustomNodes(NodeCollector collector) {
+        collector.addNode(UpgradesNode.TYPE,5);
+        collector.addNode(TraderColorNode.TYPE);
+        collector.addNode(GachaStorageNode.TYPE);
+        collector.addNode(GachaNode.TYPE);
     }
 
     private final GachaItemHandler handler = new GachaItemHandler(this);
-    private final GachaStorage storage = new GachaStorage(this::getMaxItems);
-    public GachaStorage getStorage() { return this.storage; }
     public IItemHandler getStorageWrapper() { return this.handler.getFullyAuthorizedHandler(); }
 
     public IItemHandler getItemHandler(Direction side) { return this.handler.getHandler(side); }
 
-    private final List<GachaTradeData> trades = ImmutableList.of(new GachaTradeData(this));
-
-    public void markStorageDirty() { this.markDirty(this::saveStorage); }
-
     @Override
     public IconData getIcon() { return ItemIcon.ofItem(GachaBallItem.createWithItemAndColor(new ItemStack(ModItems.TRADING_CORE.get()),Color.YELLOW)); }
-
-    @Override
-    protected boolean allowAdditionalUpgradeType(UpgradeType type) { return type == Upgrades.ITEM_CAPACITY; }
-
-    public int getMaxItems() {
-        int limit = ItemTraderData.DEFAULT_STACK_LIMIT;
-        for(int i = 0; i < this.getUpgrades().getContainerSize(); ++i)
-        {
-            ItemStack stack = this.getUpgrades().getItem(i);
-            if(stack.getItem() instanceof UpgradeItem upgradeItem)
-            {
-                if(this.allowUpgrade(upgradeItem) && upgradeItem.getUpgradeType() == Upgrades.ITEM_CAPACITY)
-                    limit += UpgradeItem.getUpgradeData(stack).getIntValue(CapacityUpgrade.CAPACITY);
-            }
-        }
-        return limit;
-    }
-
-    @Override
-    public int getTradeCount() { return 1; }
-
-    @Override
-    public int getTradeStock(int tradeIndex) { return this.storage.getItemCount(); }
-
-    @Override
-    protected void saveTrades(CompoundTag compound, HolderLookup.Provider lookup) { }
 
     @Override
     protected MenuProvider getTraderMenuProvider(MenuValidator validator) { return new GachaMachineMenuProvider(this.getID(),validator); }
@@ -137,81 +81,18 @@ public class GachaTrader extends InputTraderData {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
-        super.saveAdditional(compound,lookup);
-        this.saveStorage(compound,lookup);
-        this.savePrice(compound,lookup);
-        this.saveColor(compound);
-    }
-
-    protected void saveStorage(CompoundTag tag, HolderLookup.Provider lookup) {
-        tag.put("Storage",this.storage.save(lookup));
-    }
-
-    protected void savePrice(CompoundTag tag, HolderLookup.Provider lookup) {
-        tag.put("Price",this.price.save());
-    }
-
-    protected void saveColor(CompoundTag tag) { tag.putInt("Color",this.color); }
-
-    @Override
-    protected void saveAdditionalToJson(JsonObject json, HolderLookup.Provider lookup) {
-        json.add("Items",this.storage.write(lookup));
-        json.add("Price",this.price.toJson());
-        json.addProperty("Color",this.getColor());
-    }
-
-    @Override
-    protected void loadAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
-        super.loadAdditional(compound,lookup);
-        if(compound.contains("Storage"))
-            this.storage.load(compound.getList("Storage",Tag.TAG_COMPOUND),lookup);
-        if(compound.contains("Price"))
-            this.price = MoneyValue.load(compound.getCompound("Price"));
-        if(compound.contains("Color"))
-            this.color = compound.getInt("Color");
-    }
-
-    @Override
-    protected void loadAdditionalFromJson(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
-        this.price = MoneyValue.loadFromJson(GsonHelper.getAsJsonObject(json,"Price"));
-        this.storage.read(GsonHelper.getAsJsonArray(json,"Storage"),lookup);
-        this.color = GsonHelper.getAsInt(json,"Color",0xFFFFFF);
-    }
-
-    @Override
-    protected void saveAdditionalPersistentData(CompoundTag compound, HolderLookup.Provider lookup) { }
-
-    @Override
-    protected void loadAdditionalPersistentData(CompoundTag compound, HolderLookup.Provider lookup) { }
-
-    @Override
-    protected void getAdditionalContents(List<ItemStack> results) {
-        results.addAll(this.storage.getSplitContents());
-    }
-
-    @Override
-    public List<GachaTradeData> getTradeData() { return this.trades; }
-
-    @Nullable
-    @Override
-    public TradeData getTrade(int tradeIndex) { return this.trades.getFirst(); }
-
-    @Override
-    public void addTrade(Player requestor) { }
-    @Override
-    public void removeTrade(Player requestor) { }
-
-    @Override
     protected TradeResult ExecuteTrade(TradeContext context, int tradeIndex) {
 
-        if(tradeIndex != 0 || !this.price.isValidPrice())
+        GachaStorageNode storageNode = this.assertNode(GachaStorageNode.TYPE);
+        MoneyStorageNode moneyNode = this.assertNode(MoneyStorageNode.TYPE);
+        GachaNode node = this.assertNode(GachaNode.TYPE);
+
+        GachaDummyTrade trade = node.getTrade(tradeIndex);
+        if(trade == null || !node.getPrice().isValidPrice())
             return TradeResult.FAIL_INVALID_TRADE;
 
-        if(this.storage.isEmpty())
+        if(storageNode.getStorage().isEmpty())
             return TradeResult.FAIL_OUT_OF_STOCK;
-
-        GachaTradeData trade = this.trades.getFirst();
 
         //Check if the player is allowed to do the trade
         if(this.runPreTradeEvent(trade, context).isCanceled())
@@ -222,59 +103,44 @@ public class GachaTrader extends InputTraderData {
             return TradeResult.FAIL_CANNOT_AFFORD;
 
         //Check if they can hold the item
-        ItemStack result = this.storage.findRandomItem(!this.isCreative());
+        ItemStack result = storageNode.getStorage().findRandomItem(!this.hasInfiniteStock());
         ItemStack gachaBall = GachaBallItem.createWithItem(result);
-        if(!context.canFitItem(gachaBall))
+        if(!context.canFitItem(gachaBall) || !context.getPayment(cost))
         {
             //Put the item back into storage (unless we're creative as we didn't actually remove it)
-            if(!this.isCreative())
-            {
-                this.storage.forceInsertItem(result);
-                this.markStorageDirty();
-            }
+            if(!this.hasInfiniteStock())
+                storageNode.getStorage().forceInsertItem(result);
             return TradeResult.FAIL_NO_OUTPUT_SPACE;
         }
 
         //Actually take the money
         if(!context.getPayment(cost))
+        {
+            //Put the item back into storage (unless we're creative as we didn't actually remove it)
+            if(!this.hasInfiniteStock())
+                storageNode.getStorage().forceInsertItem(result);
             return TradeResult.FAIL_CANNOT_AFFORD;
+        }
 
         //Give the player the item
         if(!context.putItem(gachaBall))
         {
             //Failed to give the customer the item, so give a refund and put the reward back into storage
             context.givePayment(cost);
-            if(!this.isCreative())
-            {
-                this.storage.forceInsertItem(result);
-                this.markStorageDirty();
-            }
+            if(!this.hasInfiniteStock())
+                storageNode.getStorage().forceInsertItem(result);
             return TradeResult.FAIL_NO_OUTPUT_SPACE;
         }
 
         MoneyValue taxesPaid = MoneyValue.empty();
-        if(this.canStoreMoney())
-            taxesPaid = this.addStoredMoney(cost,context.getTaxContext());
-        //Flag the trader storage as changed
-        if(!this.isCreative())
-            this.markStorageDirty();
+        if(this.shouldStoreMoney())
+            taxesPaid = moneyNode.addStoredMoney(cost,context.getTaxContext());
 
         //Push Notification
         this.pushNotification(GachaTradeNotification.create(result,cost,context.getPlayerReference(),this.getNotificationCategory(),taxesPaid));
 
         //Push the post-trade event
-        this.runPostTradeEvent(trade, context, price, taxesPaid, gachaBall);
-
-        return TradeResult.SUCCESS;
-    }
-
-    @Override
-    public boolean canMakePersistent() { return true; }
-
-    @Override
-    public void initStorageTabs(ITraderStorageMenu menu) {
-        menu.setTab(TraderStorageTab.TAB_TRADE_BASIC,new GachaStorageTab(menu));
-        menu.setTab(TraderStorageTab.TAB_TRADE_STORAGE,new GachaPriceTab(menu));
+        return this.runPostTradeEvent(trade, context, cost, taxesPaid, gachaBall);
     }
 
 }

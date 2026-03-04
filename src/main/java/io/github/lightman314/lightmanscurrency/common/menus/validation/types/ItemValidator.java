@@ -47,7 +47,7 @@ public class ItemValidator extends MenuValidator {
     private static class Type extends MenuValidatorType
     {
 
-        protected Type() { super(VersionUtil.lcResource("item")); }
+        protected Type() { super(LightmansCurrency.id("item")); }
 
         @Override
         public MenuValidator decode(FriendlyByteBuf buffer) { return new ItemValidator(BuiltInRegistries.ITEM.get(buffer.readResourceLocation())); }

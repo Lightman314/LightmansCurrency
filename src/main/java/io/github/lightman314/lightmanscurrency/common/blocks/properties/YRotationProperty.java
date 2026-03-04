@@ -1,15 +1,11 @@
 package io.github.lightman314.lightmanscurrency.common.blocks.properties;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.level.block.state.properties.Property;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collection;
 import java.util.Optional;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class YRotationProperty extends Property<Integer> {
 
     public static final Collection<Integer> POSSIBLE_VALUES = ImmutableList.of(0,90,180,270);

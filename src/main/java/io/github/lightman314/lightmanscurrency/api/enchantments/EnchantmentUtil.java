@@ -1,15 +1,14 @@
 package io.github.lightman314.lightmanscurrency.api.enchantments;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.capability.money.CapabilityMoneyHandler;
-import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.money.capability.CapabilityMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.common.enchantments.CoinMagnetEnchantment;
 import io.github.lightman314.lightmanscurrency.common.enchantments.MoneyMendingEnchantment;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.LivingEntity;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class EnchantmentUtil {
@@ -22,7 +21,7 @@ public class EnchantmentUtil {
      * @param entityMoney The entities money access, used to pay for Money Mending repairs.<br>
      *                    If <code>null</code> Money Mending cannot and will not be run for this entity unless it has a valid {@link IMoneyHandler} capability
      */
-    public static void tickAllEnchantments(@Nonnull LivingEntity entity, @Nullable IMoneyHandler entityMoney)
+    public static void tickAllEnchantments(LivingEntity entity,@Nullable IMoneyHandler entityMoney)
     {
         tickCoinMagnet(entity);
         if(entityMoney == null)
@@ -40,7 +39,7 @@ public class EnchantmentUtil {
      * Ticks the entitys Coin Magnet enchantments if they have an {@link IMoneyHandler equipped wallet capability} attached, and said wallet has the Coin Magnet enchantment.
      * @param entity The entity to run the enchantment tick on.
      */
-    public static void tickCoinMagnet(@Nonnull LivingEntity entity)
+    public static void tickCoinMagnet(LivingEntity entity)
     {
         ProfilerFiller filler = entity.level().getProfiler();
         filler.push("Coin Magnet Tick");
@@ -55,7 +54,7 @@ public class EnchantmentUtil {
      * @param entity The entity to run the enchantment tick on.
      * @param entityMoney The entities money access, used to pay for the Money Mending repairs.
      */
-    public static void tickMoneyMending(@Nonnull LivingEntity entity, @Nonnull IMoneyHandler entityMoney)
+    public static void tickMoneyMending(LivingEntity entity,IMoneyHandler entityMoney)
     {
         ProfilerFiller filler = entity.level().getProfiler();
         filler.push("Money Mending Tick");

@@ -1,45 +1,40 @@
 package io.github.lightman314.lightmanscurrency.api.traders.trade;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
+import com.mojang.datafixers.kinds.App;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.lightman314.lightmanscurrency.api.codecs.partial.SPart1;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxableContext;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
-import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
-import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
-import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.TaxesNode;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
-import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEvent;
-import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEvent;
-import io.github.lightman314.lightmanscurrency.common.menus.traderstorage.core.BasicTradeEditTab;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.builtin.BasicTradeEditTab;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.templates.TradeOfferSourceNode;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-public abstract class TradeData implements ITradeRuleHost {
+import javax.annotation.Nullable;
 
+public abstract class TradeData {
+
+    @Deprecated(forRemoval = true)
 	public static final String DEFAULT_KEY = "Trades";
 
-	
+    @Nullable
+    protected TradeOfferSourceNode<?> parent;
+
 	protected MoneyValue cost = MoneyValue.empty();
-	
-	List<TradeRule> rules = new ArrayList<>();
 	
 	public abstract TradeDirection getTradeDirection();
     public void setTradeDirection(TradeDirection direction) {}
@@ -48,7 +43,6 @@ public abstract class TradeData implements ITradeRuleHost {
 	
 	public boolean isValid() { return this.validCost(); }
 
-	
 	public MoneyValue getCost() { return this.cost; }
 
 	/**
@@ -56,7 +50,6 @@ public abstract class TradeData implements ITradeRuleHost {
 	 * Will run the {@link TradeCostEvent} to calculate any price changes,
 	 * and will cache the results to save framerate for client-side displays.
 	 */
-	
 	public final MoneyValue getCost(TradeContext context) {
 		if(!context.hasTrader() || !this.validCost())
 			return this.getCost();
@@ -73,7 +66,7 @@ public abstract class TradeData implements ITradeRuleHost {
 	{
 		MoneyValue cost = TradeRule.getBaseCost(this,TradeContext.createStorageMode(trader));
 		MoneyValue taxAmount = MoneyValue.empty();
-		for(ITaxCollector entry : trader.getApplicableTaxes(ITaxableContext.defaultContext(trader)))
+		for(ITaxCollector entry : trader.findNodeValue(TaxesNode.TYPE, n -> n.getApplicableTaxes(ITaxableContext.defaultContext(trader)),new ArrayList<ITaxCollector>()))
 			taxAmount = taxAmount.addValue(cost.percentageOfValue(entry.getTaxRate()));
 		return Objects.requireNonNullElseGet(cost.addValue(taxAmount),MoneyValue::empty);
 	}
@@ -84,14 +77,25 @@ public abstract class TradeData implements ITradeRuleHost {
 		{
 			TraderData trader = context.getTrader();
 			MoneyValue taxAmount = MoneyValue.empty();
-			for(ITaxCollector entry : trader.getApplicableTaxes(context.getTaxContext()))
+			for(ITaxCollector entry : trader.findNodeValue(TaxesNode.TYPE, n -> n.getApplicableTaxes(context.getTaxContext()),new ArrayList<ITaxCollector>()))
 				taxAmount = taxAmount.addValue(cost.percentageOfValue(entry.getTaxRate()));
 			return cost.addValue(taxAmount);
 		}
 		return cost;
 	}
 	
-	public void setCost(MoneyValue value) { this.cost = value; }
+	public void setCost(MoneyValue value) {
+        if(!this.cost.equals(value))
+        {
+            this.cost = value;
+            this.setChanged();
+        }
+    }
+
+    public final void setChanged() {
+        if(this.parent != null)
+            this.parent.setTradeChanged(this);
+    }
 
 	public boolean outOfStock(TradeContext context) { return !this.hasStock(context); }
 
@@ -129,23 +133,12 @@ public abstract class TradeData implements ITradeRuleHost {
 			return Integer.MAX_VALUE;
 		return (int)stock;
 	}
+	
+	public TradeData() {}
+    public TradeData(MoneyValue cost) { this.cost = cost;}
 
-	private final boolean validateRules;
-	
-	protected TradeData(boolean validateRules) {
-		this.validateRules = validateRules;
-		if(this.validateRules)
-			TradeRule.ValidateTradeRuleList(this.rules, this);
-	}
-	
-	public CompoundTag getAsNBT(HolderLookup.Provider lookup)
-	{
-		CompoundTag tradeNBT = new CompoundTag();
-		tradeNBT.put("Price", this.cost.save());
-		TradeRule.saveRules(tradeNBT, this.rules, "RuleData", lookup);
-		
-		return tradeNBT;
-	}
+    public static <T extends TradeData> App<RecordCodecBuilder.Mu<T>,MoneyValue> baseFields() { return MoneyValue.CODEC.fieldOf("price").forGetter(n -> n.cost); }
+    public static <T extends TradeData> SPart1<RegistryFriendlyByteBuf,T,MoneyValue> baseStreamFields() { return new SPart1<>(MoneyValue.STREAM_CODEC,n -> n.cost); }
 	
 	protected void loadFromNBT(CompoundTag nbt, HolderLookup.Provider lookup)
 	{
@@ -153,63 +146,7 @@ public abstract class TradeData implements ITradeRuleHost {
 		//Set whether it's free or not
 		if(nbt.contains("IsFree") && nbt.getBoolean("IsFree"))
 			this.cost = MoneyValue.free();
-		
-		this.rules.clear();
-		if(nbt.contains("TradeRules"))
-		{
-			this.rules = TradeRule.loadRules(nbt, "TradeRules", this, lookup);
-			for(TradeRule r : this.rules) r.setActive(true);
-		}
-		else
-			this.rules = TradeRule.loadRules(nbt, "RuleData", this, lookup);
-		
-		if(this.validateRules)
-			TradeRule.ValidateTradeRuleList(this.rules, this);
-		
 	}
-
-	@Override
-	public final boolean isTrader() { return false; }
-
-	@Override
-	public final boolean isTrade() { return true; }
-
-    public void beforeTrade(PreTradeEvent event) {
-		for(TradeRule rule : this.rules)
-		{
-			if(rule.isActive())
-				rule.beforeTrade(event);
-		}
-	}
-
-	public void tradeCost(TradeCostEvent event)
-	{
-		for(TradeRule rule : this.rules)
-		{
-			if(rule.isActive())
-				rule.tradeCost(event);
-		}
-	}
-	
-	public void afterTrade(PostTradeEvent event) {
-		for(TradeRule rule : this.rules)
-		{
-			if(rule.isActive())
-				rule.afterTrade(event);
-		}
-	}
-	
-	
-	@Override
-	public List<TradeRule> getRules() { return new ArrayList<>(this.rules); }
-
-	@Override
-	public void markTradeRulesDirty() { }
-
-	/**
-	 * Only to be used for persistent trader loading
-	 */
-	public void setRules(List<TradeRule> rules) { this.rules = rules; }
 
 	/**
 	 * Compares two trades to each other.<br>
@@ -230,13 +167,6 @@ public abstract class TradeData implements ITradeRuleHost {
 	 * Used to inform them about what changes have been made so that they can make an informed decision about whether they want to accept the changes or not.
 	 */
 	public abstract List<Component> GetDifferenceWarnings(TradeComparisonResult differences);
-
-    /**
-     * @deprecated Get via {@link TradeRenderManager#getTradeRenderer(TradeData)}<br>Register via {@link io.github.lightman314.lightmanscurrency.api.events.client.RegisterTradeRenderManagersEvent RegisterTradeRenderManagersEvent}
-     */
-	@OnlyIn(Dist.CLIENT)
-    @Deprecated(since = "2.3.0.4")
-	public TradeRenderManager<?> getButtonRenderer() { throw new IllegalStateException("Trade " + this.getClass().getName() + " did not properly register a Trade Render Manager!"); }
 
 	/**
 	 * Called when an input display is clicked on in display mode.
@@ -277,5 +207,13 @@ public abstract class TradeData implements ITradeRuleHost {
 	}
 
 	protected void collectRelevantInventorySlots(TradeContext context, List<Slot> slots, List<Integer> results) { }
+
+    public static void afterLoad(TradeData trade, TradeOfferSourceNode<?> parent) { trade.parent = parent; }
+
+    public static void afterLoad(List<? extends TradeData> trades, TradeOfferSourceNode<?> parent)
+    {
+        for(TradeData trade : new ArrayList<>(trades))
+            afterLoad(trade,parent);
+    }
 
 }

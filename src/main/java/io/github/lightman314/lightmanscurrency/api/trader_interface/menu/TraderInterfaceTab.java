@@ -4,8 +4,6 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.tabbed.EasyMenuTab;
 
-import javax.annotation.Nonnull;
-
 public abstract class TraderInterfaceTab extends EasyMenuTab<TraderInterfaceMenu,TraderInterfaceTab> {
 
 	public static final int TAB_INFO = 0;
@@ -17,7 +15,7 @@ public abstract class TraderInterfaceTab extends EasyMenuTab<TraderInterfaceMenu
 	
 	protected TraderInterfaceTab(TraderInterfaceMenu menu) { super(menu); }
 
-	public abstract void handleMessage(@Nonnull LazyPacketData message);
+	public abstract void handleMessage(LazyPacketData message);
 
 	@Override
 	public final void receiveMessage(LazyPacketData message) { this.handleMessage(message); }

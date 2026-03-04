@@ -5,6 +5,8 @@ import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.money.value.FlexibleMoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -30,6 +32,7 @@ public enum TransactionType {
     }, FlexibleMoneyValue::multiplyValue);
 
     public static final Codec<TransactionType> CODEC = EnumUtil.buildCodec(TransactionType.class,"Transaction Type");
+    public static final StreamCodec<ByteBuf,TransactionType> STREAM_CODEC = EnumUtil.streamCodec(TransactionType.class,"Transaction Type");
 
     public final boolean needsNumber;
     private final BiFunction<FlexibleMoneyValue,Either<MoneyValue,Double>,TransactionHelpfulness> helpfulness;

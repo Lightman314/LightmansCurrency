@@ -3,9 +3,9 @@ package io.github.lightman314.lightmanscurrency.common.text;
 import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.level.ItemLike;
 
-import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -17,21 +17,21 @@ public final class TextEntryBundle<T> {
 
     private final Map<T,TextEntry> entryMap;
 
-    public TextEntryBundle(@Nonnull Map<T,TextEntry> map) { this.entryMap = ImmutableMap.copyOf(map); }
+    public TextEntryBundle(Map<T,TextEntry> map) { this.entryMap = ImmutableMap.copyOf(map); }
 
-    public static <T> TextEntryBundle<T> of(@Nonnull RegistryObjectBundle<? extends ItemLike,T> bundle) {
+    public static <T> TextEntryBundle<T> of(RegistryObjectBundle<? extends ItemLike,T> bundle) {
         Map<T,TextEntry> temp = new HashMap<>();
         bundle.forEach((key,item) -> temp.put(key,TextEntry.item(item)));
         return new TextEntryBundle<>(temp);
     }
 
-    public static <T> TextEntryBundle<T> of(@Nonnull RegistryObjectBiBundle<? extends ItemLike,T,?> bundle) {
+    public static <T> TextEntryBundle<T> of(RegistryObjectBiBundle<? extends ItemLike,T,?> bundle) {
         Map<T,TextEntry> temp = new HashMap<>();
         bundle.forEach((key1,key2,item) -> temp.put(key1,TextEntry.item(item)));
         return new TextEntryBundle<>(temp);
     }
 
-    public static <T extends Enum<T>> TextEntryBundle<T> of(@Nonnull T[] values, @Nonnull String prefix)
+    public static <T extends Enum<T>> TextEntryBundle<T> of(T[] values, String prefix)
     {
         Map<T,TextEntry> temp = new HashMap<>();
         for(T key : values)
@@ -39,7 +39,7 @@ public final class TextEntryBundle<T> {
         return new TextEntryBundle<>(temp);
     }
 
-    public static <T> TextEntryBundle<T> of(@Nonnull List<T> values, @Nonnull String prefix, @Nonnull Function<T,String> getKeyName)
+    public static <T> TextEntryBundle<T> of(List<T> values, String prefix, Function<T,String> getKeyName)
     {
         Map<T,TextEntry> temp = new HashMap<>();
         for(T key : values)
@@ -47,8 +47,10 @@ public final class TextEntryBundle<T> {
         return new TextEntryBundle<>(temp);
     }
 
-    public TextEntry get(@Nonnull T key) { return this.entryMap.get(key); }
+    public TextEntry get(T key) { return this.entryMap.get(key); }
 
-    public void forEach(@Nonnull BiConsumer<T,TextEntry> consumer) { this.entryMap.forEach(consumer); }
+    public MutableComponent getComponent(T key) { return this.get(key).get(); }
+
+    public void forEach(BiConsumer<T,TextEntry> consumer) { this.entryMap.forEach(consumer); }
 
 }

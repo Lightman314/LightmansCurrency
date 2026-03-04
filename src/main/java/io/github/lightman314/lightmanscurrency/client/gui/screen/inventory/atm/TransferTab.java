@@ -3,23 +3,22 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
-import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
+import io.github.lightman314.lightmanscurrency.api.money.client.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.data.ClientPlayerNameCache;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountSelectionWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketBankTransferPlayer;
-import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketBankTransferAccount;
+import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.components.EditBox;
@@ -151,13 +150,17 @@ public class TransferTab extends ATMTab {
 		if(this.playerMode)
 		{
 			//Check for bank account for the player
-			new CPacketBankTransferPlayer(this.playerInput.getValue(), this.amountWidget.getCurrentValue()).send();
+            this.menu.SendMessage(this.builder()
+                    .setString("TransferToPlayer",this.playerInput.getValue())
+                    .setMoneyValue("TransferAmount",this.amountWidget.getCurrentValue()));
 			this.playerInput.setValue("");
 			this.amountWidget.changeValue(MoneyValue.empty());
 		}
 		else if(this.selectedAccount != null)
 		{
-			new CPacketBankTransferAccount(this.selectedAccount, this.amountWidget.getCurrentValue()).send();
+            this.menu.SendMessage(this.builder()
+                    .setCustom("TransferToAccount",this.selectedAccount,ModLazyPackets.BANK_REFERENCE)
+                    .setMoneyValue("TransferAmount",this.amountWidget.getCurrentValue()));
 			this.amountWidget.changeValue(MoneyValue.empty());
 		}
 	}

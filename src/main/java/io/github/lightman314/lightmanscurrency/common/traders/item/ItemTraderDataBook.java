@@ -1,20 +1,27 @@
 package io.github.lightman314.lightmanscurrency.common.traders.item;
 
-import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.BookRestriction;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderType;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.NodeCollector;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNode;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNodeType;
+import io.github.lightman314.lightmanscurrency.common.traders.item.nodes.BookRestrictionNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
+import java.util.Map;
+
 public class ItemTraderDataBook extends ItemTraderData {
 
-    public static final TraderType<ItemTraderDataBook> TYPE = new TraderType<>(VersionUtil.lcResource( "item_trader_book"),ItemTraderDataBook::new);
+    public static final TraderType<ItemTraderDataBook> TYPE = TraderType.simple(ItemTraderDataBook::new,ItemTraderDataBook::new);
 
-    private ItemTraderDataBook() { super(TYPE); }
-    public ItemTraderDataBook(int tradeCount, Level level, BlockPos pos) { super(TYPE, tradeCount, level, pos); }
+    private ItemTraderDataBook() { super(); }
+    public ItemTraderDataBook(int tradeCount, Level level, BlockPos pos) { super(tradeCount,false,level,pos); }
+    private ItemTraderDataBook(long id,Map<TraderNodeType<?>, TraderNode> nodes) { super(id,nodes); }
 
     @Override
-    protected ItemTradeRestriction getTradeRestriction(int tradeIndex) { return BookRestriction.INSTANCE; }
+    public void addCustomNodes(NodeCollector collector) {
+        super.addCustomNodes(collector);
+        collector.addNode(BookRestrictionNode.TYPE);
+    }
 
 }

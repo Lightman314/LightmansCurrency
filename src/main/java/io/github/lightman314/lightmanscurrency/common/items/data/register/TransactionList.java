@@ -3,10 +3,10 @@ package io.github.lightman314.lightmanscurrency.common.items.data.register;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.lightman314.lightmanscurrency.api.codecs.LCCodecs;
 import io.github.lightman314.lightmanscurrency.api.money.value.FlexibleMoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
 import java.util.ArrayList;
@@ -21,23 +21,14 @@ public class TransactionList {
     public static final TransactionList EMPTY = new TransactionList(MoneyValue.empty(),ImmutableList.of());
 
     public static final Codec<TransactionList> CODEC = RecordCodecBuilder.create(builder -> builder.group(
-                LCCodecs.MONEY_VALUE.optionalFieldOf("startingValue").forGetter(TransactionList::optionalStartingValue),
+                MoneyValue.CODEC.optionalFieldOf("startingValue").forGetter(TransactionList::optionalStartingValue),
                 TransactionData.CODEC.listOf().fieldOf("transactions").forGetter(l -> l.transactions))
             .apply(builder,TransactionList::new));
 
-    public static final StreamCodec<FriendlyByteBuf,TransactionList> STREAM_CODEC = StreamCodec.of((buffer,list) -> {
-        list.startingValue.encode(buffer);
-        buffer.writeInt(list.transactions.size());
-        for(TransactionData t : list.transactions)
-            TransactionData.STREAM_CODEC.encode(buffer,t);
-    },buffer -> {
-        MoneyValue startingValue = MoneyValue.decode(buffer);
-        List<TransactionData> transactions = new ArrayList<>();
-        int count = buffer.readInt();
-        while(count-- > 0)
-            transactions.add(TransactionData.STREAM_CODEC.decode(buffer));
-        return new TransactionList(startingValue,transactions);
-    });
+    public static final StreamCodec<RegistryFriendlyByteBuf,TransactionList> STREAM_CODEC = StreamCodec.composite(
+            MoneyValue.STREAM_CODEC,list -> list.startingValue,
+            TransactionData.STREAM_CODEC.apply(ByteBufCodecs.list()),list -> list.transactions,
+            TransactionList::new);
 
     public final MoneyValue startingValue;
     private Optional<MoneyValue> optionalStartingValue() { return this.startingValue.isEmpty() ? Optional.empty() : Optional.of(this.startingValue); }

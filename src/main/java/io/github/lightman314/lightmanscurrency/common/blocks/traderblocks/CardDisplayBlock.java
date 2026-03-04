@@ -21,15 +21,13 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.Nonnull;
-
 public class CardDisplayBlock extends TraderBlockRotatable implements IItemTraderBlock, IVariantBlock {
 	
 	public static final int TRADECOUNT = 4;
 	private final String name;
 	private final Color color;
 	
-	public CardDisplayBlock(@Nonnull Properties properties, @Nonnull String name, @Nonnull Color color) { super(properties); this.name = name; this.color = color; }
+	public CardDisplayBlock(Properties properties, String name, Color color) { super(properties); this.name = name; this.color = color; }
 
 	@Override
 	protected boolean isBlockOpaque() { return false; }
@@ -46,12 +44,11 @@ public class CardDisplayBlock extends TraderBlockRotatable implements IItemTrade
 	@Override
 	protected Supplier<List<Component>> getItemTooltips() { return LCText.TOOLTIP_ITEM_TRADER.asTooltip(TRADECOUNT); }
 
-	@Nonnull
 	@Override
 	public String getDescriptionId() { return this.name; }
 
 	@Override
-	public void appendHoverText(@Nonnull ItemStack stack, @Nonnull Item.TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
 		tooltip.add(LCText.TOOLTIP_COLORED_ITEM.get(this.color.getComponent()));
 		super.appendHoverText(stack, context, tooltip, flagIn);
 	}

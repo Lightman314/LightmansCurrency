@@ -1,11 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.impl;
 
-import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
-import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITradeSearchFilter;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.ITraderSearchFilter;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.PendingSearch;
@@ -13,62 +10,21 @@ import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.Sort
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.TerminalSortType;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class TraderAPIImpl extends TraderAPI {
-    
-    private final Map<String, TraderType<?>> traderRegistry = new HashMap<>();
-    private final Map<String, TradeRuleType<?>> tradeRuleRegistry = new HashMap<>();
-    private final Map<ResourceLocation, TerminalSortType> sortTypeRegistry = new HashMap<>();
+
+    private final Map<ResourceLocation,TerminalSortType> sortTypeRegistry = new HashMap<>();
 
     private final List<ITraderSearchFilter> traderSearchFilters = new ArrayList<>();
     private final List<ITradeSearchFilter> tradeSearchFilters = new ArrayList<>();
 
     public TraderAPIImpl() {}
-
-    @Override
-    public void RegisterTrader(TraderType<?> type) {
-        String t = type.type.toString();
-        if(this.traderRegistry.containsKey(t))
-        {
-            LightmansCurrency.LogWarning("Attempted to register duplicate TraderType '" + t + "'!");
-            return;
-        }
-        this.traderRegistry.put(t, type);
-        LightmansCurrency.LogInfo("Registered TraderType " + type);
-    }
-
-    @Nullable
-    @Override
-    public TraderType<?> GetTraderType(ResourceLocation type) { return this.traderRegistry.get(type.toString()); }
-
-    @Override
-    public void RegisterTradeRule(TradeRuleType<?> type) {
-        String t = type.type.toString();
-        if(this.tradeRuleRegistry.containsKey(t))
-        {
-            LightmansCurrency.LogWarning("Attempted to register duplicate TradeRuleType '" + type.type + "'!");
-            return;
-        }
-        this.tradeRuleRegistry.put(t, type);
-        LightmansCurrency.LogInfo("Registered TradeRuleType " + type);
-    }
-
-    @Nullable
-    @Override
-    public TradeRuleType<?> GetTradeRuleType(ResourceLocation type) { return this.tradeRuleRegistry.get(type.toString()); }
-
-    @Override
-    public List<TradeRuleType<?>> GetAllTradeRuleTypes() { return ImmutableList.copyOf(this.tradeRuleRegistry.values()); }
 
     @Override
     public void RegisterTraderSearchFilter(ITraderSearchFilter filter) {
@@ -121,13 +77,13 @@ public class TraderAPIImpl extends TraderAPI {
     }
 
     @Override
-    public boolean FilterTrade(TradeData trade, String search, RegistryAccess registryAccess) {
+    public boolean FilterTrade(TradeData trade, String search, HolderLookup.Provider registryAccess) {
         if(search.isBlank())
             return true;
         return this.FilterTrade(trade,PendingSearch.of(search),registryAccess);
     }
 
-    private boolean FilterTrade(TradeData trade, PendingSearch search, RegistryAccess registryAccess)
+    private boolean FilterTrade(TradeData trade, PendingSearch search, HolderLookup.Provider registryAccess)
     {
         PendingSearch results = search.copy();
         //Check for failed filters
@@ -138,7 +94,7 @@ public class TraderAPIImpl extends TraderAPI {
 
     
     @Override
-    public List<TradeData> FilterTrades(List<TradeData> trades, String search, RegistryAccess registryAccess) {
+    public List<TradeData> FilterTrades(List<TradeData> trades, String search, HolderLookup.Provider registryAccess) {
         if(search.isBlank())
             return trades;
         PendingSearch temp = PendingSearch.of(search);

@@ -1,26 +1,20 @@
 package io.github.lightman314.lightmanscurrency.common.money.ancient_money.client;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.money.input.MoneyInputHandler;
-import io.github.lightman314.lightmanscurrency.api.money.input.MoneyValueWidget;
+import io.github.lightman314.lightmanscurrency.api.money.client.input.MoneyInputHandler;
+import io.github.lightman314.lightmanscurrency.api.money.client.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientMoneyType;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.AncientMoneyValue;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class AncientCoinValueInput extends MoneyInputHandler {
 
     AncientCoinType selectedType = AncientCoinType.COPPER;
@@ -33,7 +27,7 @@ public class AncientCoinValueInput extends MoneyInputHandler {
 
     //Generate matching unique name for the money value with this ancient money type
     @Override
-    public String getUniqueName() { return MoneyValue.generateCustomUniqueName(AncientMoneyType.TYPE,selectedType.resourceSafeName()); }
+    public String getUniqueName() { return MoneyValue.generateCustomUniqueName(AncientMoneyType.INSTANCE,selectedType.resourceSafeName()); }
 
     @Override
     public boolean isForValue(MoneyValue value) { return value instanceof AncientMoneyValue; }

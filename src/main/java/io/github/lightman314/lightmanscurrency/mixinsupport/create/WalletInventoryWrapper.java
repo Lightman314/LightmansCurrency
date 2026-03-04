@@ -3,20 +3,18 @@ package io.github.lightman314.lightmanscurrency.mixinsupport.create;
 import com.mojang.datafixers.util.Pair;
 import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.logistics.packager.InventorySummary;
-import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
-import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.builtin.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.common.items.data.WalletDataWrapper;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.common.items.data.WalletInventory;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
@@ -45,9 +43,8 @@ public class WalletInventoryWrapper extends Inventory {
     private void setupPaymentItems(WalletHandler walletHandler, InventorySummary paymentItems)
     {
         ItemStack wallet = walletHandler.getWallet();
-        WalletDataWrapper wrapper = WalletItem.getDataWrapper(wallet);
-        Container walletContents = wrapper.getContents();
-        MoneyStorage cost = new MoneyStorage(() -> {});
+        WalletInventory walletContents = WalletItem.getWalletInventory(wallet);
+        MoneyStorage cost = new MoneyStorage();
         IMoneyHandler walletMoney = MoneyAPI.getApi().GetContainersMoneyHandler(walletContents,this.player);
         List<ItemStack> coinsToAdd = new ArrayList<>();
         for(BigItemStack stack : paymentItems.getStacks())
@@ -89,7 +86,7 @@ public class WalletInventoryWrapper extends Inventory {
                     return;
                 }
             }
-            wrapper.setContents(walletContents,this.player);
+            WalletItem.putWalletInventory(wallet,walletContents);
             walletHandler.setWallet(wallet);
             this.paymentItems.addAll(coinsToAdd);
         }
@@ -117,16 +114,16 @@ public class WalletInventoryWrapper extends Inventory {
         if(walletHandler != null)
         {
             ItemStack wallet = walletHandler.getWallet();
-            Container walletContents = WalletItem.getDataWrapper(wallet).getContents();
+            WalletInventory walletContents = WalletItem.getWalletInventory(wallet);
             for(ItemStack item : this.paymentItems)
             {
-                item = InventoryUtil.TryPutItemStack(walletContents,item);
+                item = ItemHandlerHelper.insertItemStacked(walletContents,item,false);
                 if(!item.isEmpty())
                     ItemHandlerHelper.giveItemToPlayer(this.player,item);
             }
             if(finished)
                 CoinAPI.getApi().CoinExchangeAllUp(walletContents);
-            WalletItem.getDataWrapper(wallet).setContents(walletContents,this.player);
+            WalletItem.putWalletInventory(wallet,walletContents);
             walletHandler.setWallet(wallet);
             return;
         }

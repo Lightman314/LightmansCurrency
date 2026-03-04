@@ -13,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.Item;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,14 +25,14 @@ public abstract class MoneyValueParser {
 
     public final String prefix;
 
-    protected MoneyValueParser(@Nonnull String prefix) { this.prefix = prefix; }
+    protected MoneyValueParser(String prefix) { this.prefix = prefix; }
 
     protected boolean tryParse(@Nullable String prefix) { return this.prefix.equals(prefix); }
 
-    protected abstract MoneyValue parseValueArgument(@Nonnull StringReader reader) throws CommandSyntaxException;
+    protected abstract MoneyValue parseValueArgument(StringReader reader) throws CommandSyntaxException;
 
     @Nullable
-    protected final String tryWrite(@Nonnull MoneyValue value)
+    protected final String tryWrite(MoneyValue value)
     {
         String sub = this.writeValueArgument(value);
         if(sub != null)
@@ -41,22 +40,21 @@ public abstract class MoneyValueParser {
         return null;
     }
 
-    protected abstract String writeValueArgument(@Nonnull MoneyValue value);
+    protected abstract String writeValueArgument(MoneyValue value);
 
-    @Nonnull
-    public <S> CompletableFuture<Suggestions> listSuggestions(final @Nonnull CommandContext<S> context, final @Nonnull SuggestionsBuilder builder, @Nonnull String trail, @Nonnull HolderLookup<Item> items) { return Suggestions.empty(); }
+    public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder, String trail, HolderLookup<Item> items) { return Suggestions.empty(); }
 
-    protected void suggest(@Nonnull SuggestionsBuilder builder, @Nonnull String value) {
+    protected void suggest(SuggestionsBuilder builder, String value) {
         builder.suggest(this.prefix + ";" + value);
     }
 
-    public void addExamples(@Nonnull List<String> examples) {}
+    public void addExamples(List<String> examples) {}
 
     /**
      * Safely parses a config value string as a MoneyValue
      * If an error occurs while parsing the value, it will return the default value instead.
      */
-    @Nonnull
+    
     public static MoneyValue ParseConfigString(String string, Supplier<MoneyValue> defaultValue) {
         try{
             return parse(new StringReader(string), true);
@@ -71,7 +69,7 @@ public abstract class MoneyValueParser {
      * Used by {@link io.github.lightman314.lightmanscurrency.common.commands.arguments.MoneyValueArgument} for command arguments,
      * and by {@link #ParseConfigString(String, Supplier)} for Config Values.
      */
-    @Nonnull
+    
     public static MoneyValue parse(StringReader reader, boolean allowEmpty) throws CommandSyntaxException {
         StringReader inputReader = new StringReader(readArgument(reader));
         String prefix;
@@ -98,8 +96,8 @@ public abstract class MoneyValueParser {
         throw NO_VALUE_EXCEPTION.createWithContext(reader);
     }
 
-    @Nonnull
-    public static String writeParsable(@Nonnull MoneyValue value) {
+    
+    public static String writeParsable(MoneyValue value) {
         for(CurrencyType type : MoneyAPI.getApi().AllCurrencyTypes())
         {
             MoneyValueParser parser = type.getValueParser();
@@ -114,7 +112,7 @@ public abstract class MoneyValueParser {
     }
 
     //Emulates StringReader#ReadUnquotedString, but without forcing certain allowed characters
-    private static String readArgument(@Nonnull StringReader reader)
+    private static String readArgument(StringReader reader)
     {
         final int start = reader.getCursor();
         while(reader.canRead() && !(reader.peek() == ' '))

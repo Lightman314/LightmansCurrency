@@ -1,34 +1,42 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.bank;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.codecs.StreamHelper;
+import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
-import io.github.lightman314.lightmanscurrency.api.notifications.SingleLineNotification;
+import io.github.lightman314.lightmanscurrency.api.notifications.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.BankCategory;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class BankTransferNotification extends SingleLineNotification {
 
-	public static final NotificationType<BankTransferNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("bank_transfer"),BankTransferNotification::new);
+	public static final NotificationType<BankTransferNotification> TYPE = new Type();
 	
-	PlayerReference player;
+	PlayerReference player = PlayerReference.NULL;
 	MoneyValue amount = MoneyValue.empty();
-    Component accountName;
-    Component otherAccount;
-	boolean wasReceived;
+    Component accountName = EasyText.empty();
+    Component otherAccount = EasyText.empty();
+	boolean wasReceived = false;
 	
 	private BankTransferNotification() { }
+	private BankTransferNotification(PlayerReference player, MoneyValue amount, Component account, Component otherAccount, boolean wasReceived, CommonData data) {
+        super(data);
+        this.player = player;
+        this.amount = amount;
+        this.accountName = account;
+        this.otherAccount = otherAccount;
+        this.wasReceived = wasReceived;
+    }
 	public BankTransferNotification(PlayerReference player, MoneyValue amount, Component accountName, Component otherAccount, boolean wasReceived) {
 		this.player = player;
 		this.amount = amount;
@@ -38,7 +46,7 @@ public class BankTransferNotification extends SingleLineNotification {
 	}
 
     @Override
-	protected NotificationType<BankTransferNotification> getType() { return TYPE; }
+	public NotificationType<BankTransferNotification> getType() { return TYPE; }
 
 	@Override
 	public NotificationCategory getCategory() { return new BankCategory(this.accountName); }
@@ -46,15 +54,6 @@ public class BankTransferNotification extends SingleLineNotification {
 	@Override
 	public Component getMessage() {
 		return LCText.NOTIFICATION_BANK_TRANSFER.get(this.player.getName(true), this.amount.getText(), this.wasReceived ? LCText.GUI_FROM.get() : LCText.GUI_TO.get(), this.otherAccount);
-	}
-
-	@Override
-	protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
-		compound.put("Player", this.player.save());
-		compound.put("Amount", this.amount.save());
-		compound.putString("Account", Component.Serializer.toJson(this.accountName,lookup));
-		compound.putString("Other", Component.Serializer.toJson(this.otherAccount,lookup));
-		compound.putBoolean("Received", this.wasReceived);
 	}
 
 	@Override
@@ -74,5 +73,32 @@ public class BankTransferNotification extends SingleLineNotification {
 		}
 		return false;
 	}
+
+    private static class Type extends NotificationType<BankTransferNotification>
+    {
+        private static final MapCodec<BankTransferNotification> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+                PlayerReference.CODEC.fieldOf("player").forGetter(n -> n.player),
+                MoneyValue.CODEC.fieldOf("amount").forGetter(n -> n.amount),
+                ComponentSerialization.CODEC.fieldOf("account").forGetter(n -> n.accountName),
+                ComponentSerialization.CODEC.fieldOf("otherAccount").forGetter(n -> n.otherAccount),
+                Codec.BOOL.fieldOf("received").forGetter(n -> n.wasReceived),
+                baseFields()
+        ).apply(builder,BankTransferNotification::new));
+
+        private static final StreamCodec<RegistryFriendlyByteBuf,BankTransferNotification> STREAM_CODEC = StreamHelper.combine(baseStreamFields(),
+                PlayerReference.STREAM_CODEC,n -> n.player,
+                MoneyValue.STREAM_CODEC,n -> n.amount,
+                ComponentSerialization.STREAM_CODEC,n -> n.accountName,
+                ComponentSerialization.STREAM_CODEC,n -> n.otherAccount,
+                ByteBufCodecs.BOOL, n -> n.wasReceived,
+                BankTransferNotification::new);
+
+        @Override
+        protected BankTransferNotification createNew() { return new BankTransferNotification(); }
+        @Override
+        public MapCodec<BankTransferNotification> codec() { return CODEC; }
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf,BankTransferNotification> streamCodec() { return null; }
+    }
 
 }

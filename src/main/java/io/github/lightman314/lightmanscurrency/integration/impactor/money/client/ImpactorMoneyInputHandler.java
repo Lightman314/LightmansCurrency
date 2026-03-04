@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.integration.impactor.money.client;
 
-import io.github.lightman314.lightmanscurrency.api.money.input.templates.SimpleDisplayInput;
+import io.github.lightman314.lightmanscurrency.api.money.client.input.templates.SimpleDisplayInput;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.integration.impactor.LCImpactorCompat;
 import io.github.lightman314.lightmanscurrency.integration.impactor.money.ImpactorCurrencyType;
@@ -8,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.integration.impactor.money.Impact
 import net.impactdev.impactor.api.economy.currency.Currency;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 
 public class ImpactorMoneyInputHandler extends SimpleDisplayInput {
@@ -29,12 +28,12 @@ public class ImpactorMoneyInputHandler extends SimpleDisplayInput {
         }
     }
 
-    @Nonnull
+    
     @Override
     protected MoneyValue getValueFromInput(double inputValue) { return ImpactorMoneyValue.of(this.currency, BigDecimal.valueOf(inputValue)); }
 
     @Override
-    protected double getTextFromDisplay(@Nonnull MoneyValue value) {
+    protected double getTextFromDisplay(MoneyValue value) {
         if(value instanceof ImpactorMoneyValue val)
             return val.getValue().doubleValue();
         return 0;
@@ -43,12 +42,10 @@ public class ImpactorMoneyInputHandler extends SimpleDisplayInput {
     @Override
     protected int getRelevantDecimals() { return this.currency.decimals(); }
 
-    @Nonnull
     @Override
     public Component inputName() { return LCImpactorCompat.convertComponent(this.currency.singular()); }
 
-    @Nonnull
     @Override
-    public String getUniqueName() { return MoneyValue.generateCustomUniqueName(ImpactorCurrencyType.TYPE,this.currency.key().toString()); }
+    public String getUniqueName() { return MoneyValue.generateCustomUniqueName(ImpactorCurrencyType.INSTANCE,this.currency.key().toString()); }
 
 }

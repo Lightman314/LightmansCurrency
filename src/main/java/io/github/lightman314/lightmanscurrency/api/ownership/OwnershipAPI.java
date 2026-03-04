@@ -4,10 +4,8 @@ import io.github.lightman314.lightmanscurrency.api.ownership.listing.PotentialOw
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.IPotentialOwnerProvider;
 import io.github.lightman314.lightmanscurrency.common.impl.OwnershipAPIImpl;
 import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
@@ -24,10 +22,6 @@ public abstract class OwnershipAPI {
     }
 
     protected OwnershipAPI() { if(instance != null)  throw new IllegalCallerException("Cannot create a new OwnershipAPI instance as one is already present!"); }
-
-    public abstract void registerOwnerType(OwnerType type);
-    @Nullable
-    public abstract OwnerType getOwnerType(ResourceLocation id);
 
     public abstract void registerPotentialOwnerProvider(IPotentialOwnerProvider provider);
 

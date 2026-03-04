@@ -2,13 +2,12 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.invento
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FixedSizeSprite;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.WidgetStateSprite;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.FixedSizeSprite;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.WidgetStateSprite;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.data.types.NotificationDataCache;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.CPacketOpenNotifications;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -25,11 +24,11 @@ public class NotificationButton extends InventoryButton {
 	
 	public static final ScreenPosition OFFSET = ScreenPosition.of(10,0);
 
-    public static final FixedSizeSprite SPRITE_NORMAL = WidgetStateSprite.lazyHoverable(VersionUtil.lcResource("common/widgets/button_notifications"),9,9);
-    public static final FixedSizeSprite SPRITE_UNSEEN = WidgetStateSprite.lazyHoverable(VersionUtil.lcResource("common/widgets/button_notifications_unseen"),9,9);
+    public static final FixedSizeSprite SPRITE_NORMAL = WidgetStateSprite.lazyHoverable(LightmansCurrency.id("common/widgets/button_notifications"),9,9);
+    public static final FixedSizeSprite SPRITE_UNSEEN = WidgetStateSprite.lazyHoverable(LightmansCurrency.id("common/widgets/button_notifications_unseen"),9,9);
 
 	public NotificationButton(AbstractContainerScreen<?> inventoryScreen) {
-		super(inventoryScreen, CPacketOpenNotifications::sendToServer, NotificationButton::getSprite);
+		super(inventoryScreen, CPacketOpenNotifications::send, NotificationButton::getSprite);
 		lastButton = this;
 	}
 

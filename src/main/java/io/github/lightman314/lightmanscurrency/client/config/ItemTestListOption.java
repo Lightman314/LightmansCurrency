@@ -22,6 +22,4 @@ public class ItemTestListOption extends ListOption<ItemTest> {
     @Override
     protected ConfigParser<ItemTest> getPartialParser() { return StringOption.PARSER.map(ItemTest::parse,ItemTest::toString); }
 
-
-
 }

@@ -2,32 +2,28 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.slot_machine;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
-import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
-import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.client.gui.EasyScreenHelper;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.ITooltipSource;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyWidget;
+import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.nodes.SlotMachineNode;
+import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade.SlotMachineEntry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class SlotMachineEntryDisplayWidget extends EasyWidget implements ITooltipSource {
 
     public static final int WIDTH = 160;
     public static final int HEIGHT = 46;
 
-    public final Supplier<SlotMachineTraderData> trader;
+    public final Supplier<TraderData> trader;
     public final Supplier<Integer> index;
 
     private static final int ITEM_POSY = 22;
@@ -41,13 +37,17 @@ public class SlotMachineEntryDisplayWidget extends EasyWidget implements IToolti
 
     @Nullable
     private SlotMachineEntry getEntry() {
-        SlotMachineTraderData trader = this.trader.get();
+        TraderData trader = this.trader.get();
         if(trader != null)
         {
-            int index = this.index.get();
-            List<SlotMachineEntry> entries = trader.getValidEntries();
-            if(index >= 0 && index < entries.size())
-                return entries.get(index);
+            SlotMachineNode node = trader.getNode(SlotMachineNode.TYPE);
+            if(node != null)
+            {
+                int index = this.index.get();
+                List<SlotMachineEntry> entries = node.getValidEntries();
+                if(index >= 0 && index < entries.size())
+                    return entries.get(index);
+            }
         }
         return null;
     }
@@ -56,7 +56,7 @@ public class SlotMachineEntryDisplayWidget extends EasyWidget implements IToolti
     public void renderWidget(EasyGuiGraphics gui) {
 
         SlotMachineEntry entry = this.getEntry();
-        SlotMachineTraderData trader = this.trader.get();
+        TraderData trader = this.trader.get();
         if(trader != null && entry != null)
         {
             //Draw label
@@ -126,19 +126,16 @@ public class SlotMachineEntryDisplayWidget extends EasyWidget implements IToolti
 
     public static Builder builder() { return new Builder(); }
 
-    @MethodsReturnNonnullByDefault
-    @FieldsAreNonnullByDefault
-    @ParametersAreNonnullByDefault
     public static class Builder extends EasyBuilder<Builder>
     {
         private Builder() { super(WIDTH,HEIGHT); }
         @Override
         protected Builder getSelf() { return this; }
 
-        private Supplier<SlotMachineTraderData> trader = () -> null;
+        private Supplier<TraderData> trader = () -> null;
         private Supplier<Integer> index = () -> 0;
 
-        public Builder trader(Supplier<SlotMachineTraderData> trader) { this.trader = trader; return this; }
+        public Builder trader(Supplier<TraderData> trader) { this.trader = trader; return this; }
         public Builder index(Supplier<Integer> index) { this.index = index; return this; }
 
         public SlotMachineEntryDisplayWidget build() { return new SlotMachineEntryDisplayWidget(this); }

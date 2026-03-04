@@ -4,17 +4,19 @@ import dan200.computercraft.api.lua.IArguments;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.api.traders.attachments.builtin.ExternalAuthorizationAttachment;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.AlliesNode;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.MachineAccessNode;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCArgumentHelper;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.AccessTrackingPeripheral;
 
+import java.util.HashMap;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -44,26 +46,20 @@ public abstract class TradeWrapper<T extends TradeData> extends AccessTrackingPe
         if(id == null)
             return 0;
         TraderData trader = this.trader.get();
-        if(trader == null || !trader.hasAttachment(ExternalAuthorizationAttachment.TYPE))
+        if(trader == null || !trader.hasNode(MachineAccessNode.TYPE))
             return 0;
         //Deny blocked permissions early
-        if(trader.getBlockedPermissions().contains(Permissions.EDIT_TRADES))
+        if(trader.isPermissionBlocked(Permissions.EDIT_TRADES))
             return 0;
-        ExternalAuthorizationAttachment.AccessLevel access = trader.getAttachment(ExternalAuthorizationAttachment.TYPE).getAccessLevel(id);
+        MachineAccessNode.AccessLevel access = trader.getNode(MachineAccessNode.TYPE).getAccessLevel(id);
         return switch (access) {
             case NONE -> 0;
-            case ALLY -> trader.getAllyPermissionMap().getOrDefault(Permissions.EDIT_TRADES, 0);
+            case ALLY -> trader.findNodeValue(AlliesNode.TYPE,AlliesNode::getAllyPermissionsMap,new HashMap<String,Integer>()).getOrDefault(Permissions.EDIT_TRADES,0);
             case ADMIN -> Integer.MAX_VALUE;
         };
     }
-    public boolean hasPermission(IComputerAccess computer) { return this.getPermissionLevel(computer) > 0; }
 
-    public final void markTradeDirty()
-    {
-        TraderData trader = this.trader.get();
-        if(trader != null)
-            trader.markTradesDirty();
-    }
+    public boolean hasPermission(IComputerAccess computer) { return this.getPermissionLevel(computer) > 0; }
 
     public boolean isValid() {
         try { return this.getTrade().isValid();
@@ -81,7 +77,6 @@ public abstract class TradeWrapper<T extends TradeData> extends AccessTrackingPe
         if(this.hasPermission(computer))
         {
             trade.setCost(newPrice);
-            this.markTradeDirty();
             return true;
         }
         return false;
@@ -117,7 +112,6 @@ public abstract class TradeWrapper<T extends TradeData> extends AccessTrackingPe
 
     private static final class Simple extends TradeWrapper<TradeData>
     {
-
         public Simple(Supplier<TradeData> tradeSource, Supplier<TraderData> trader) { super(tradeSource, trader); }
         @Override
         public String getType() { return BASE_TYPE; }

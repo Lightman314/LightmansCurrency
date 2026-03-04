@@ -1,26 +1,32 @@
 package io.github.lightman314.lightmanscurrency.api.notifications;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
-import java.util.function.Supplier;
+public abstract class NotificationType<T extends Notification> {
 
-public class NotificationType<T extends Notification> {
+    public static final Codec<NotificationType<?>> CODEC = LCRegistries.NOTIFICATION_TYPES.byNameCodec();
+    public static final StreamCodec<RegistryFriendlyByteBuf,NotificationType<?>> STREAM_CODEC = ByteBufCodecs.registry(LCRegistries.NOTIFICATION_TYPE_KEY);
 
-    public final ResourceLocation type;
-    private final Supplier<T> generator;
-
-    public NotificationType(ResourceLocation type, Supplier<T> generator) { this.type = type; this.generator = generator; }
-
-    public T load(CompoundTag tag, HolderLookup.Provider lookup)
+    protected abstract T createNew();
+    @Deprecated
+    public T loadOldData(CompoundTag tag, HolderLookup.Provider lookup)
     {
-        T notification = this.generator.get();
-        notification.load(tag, lookup);
+        T notification = this.createNew();
+        notification.loadOld(tag, lookup);
         return notification;
     }
 
+    public abstract MapCodec<T> codec();
+    public abstract StreamCodec<RegistryFriendlyByteBuf,T> streamCodec();
+
     @Override
-    public final String toString() { return this.type.toString(); }
+    public String toString() { return "NotificationType[" + LCRegistries.NOTIFICATION_TYPES.getKey(this) + "]"; }
 
 }

@@ -133,7 +133,7 @@ public class TransactionRegisterMenu extends LazyMessageMenu {
     }
 
     @Override
-    public void HandleMessage(LazyPacketData message) {
+    public void processMessage(LazyPacketData message) {
         if(message.contains("RedoCalculations"))
             this.RedoCalculations();
         if(message.contains("CreateTransaction"))

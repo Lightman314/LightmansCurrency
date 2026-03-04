@@ -2,8 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
@@ -32,8 +30,7 @@ public class TerminalBlock extends RotatableBlock implements IVariantBlock {
 	protected boolean isBlockOpaque() { return false; }
 
 	@Override
-	@Nonnull
-	public InteractionResult useWithoutItem(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull BlockHitResult result)
+	public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult result)
 	{
 		if(!level.isClientSide)
 			TerminalMenuProvider.OpenMenu(player, BlockValidator.of(pos, this));
@@ -41,7 +38,7 @@ public class TerminalBlock extends RotatableBlock implements IVariantBlock {
 	}
 	
 	@Override
-	public void appendHoverText(@Nonnull ItemStack stack, @Nonnull Item.TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
+	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, LCText.TOOLTIP_TERMINAL.asTooltip());
 		super.appendHoverText(stack, context, tooltip, flagIn);

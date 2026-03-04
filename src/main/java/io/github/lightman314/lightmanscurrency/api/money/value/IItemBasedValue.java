@@ -17,7 +17,6 @@ public interface IItemBasedValue {
      * which is useful for display purposes
      * @see #getAsSeperatedItemList()
      */
-    @Nonnull
     List<ItemStack> getAsItemList();
 
     /**
@@ -26,7 +25,6 @@ public interface IItemBasedValue {
      * which is useful if spawning the items into the world and/or placing them in a container
      * @see #getAsItemList()
      */
-    @Nonnull
     default List<ItemStack> getAsSeperatedItemList()
     {
         List<ItemStack> result = new ArrayList<>();

@@ -1,9 +1,12 @@
 package io.github.lightman314.lightmanscurrency.api.money.value;
 
-import net.minecraft.ChatFormatting;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.Range;
 
 /**
@@ -11,6 +14,15 @@ import org.jetbrains.annotations.Range;
  * Should properly perform calculations for any {@link MoneyValue} type that properly implements {@link MoneyValue#fromCoreValue(long)} and {@link MoneyValue#getCoreValue()}}
  */
 public final class FlexibleMoneyValue {
+
+    public static final Codec<FlexibleMoneyValue> CODEC = RecordCodecBuilder.create(builder -> builder.group(
+            Codec.BOOL.fieldOf("negative").forGetter(v -> v.negative),
+            MoneyValue.CODEC.fieldOf("value").forGetter(v -> v.value)
+            ).apply(builder,FlexibleMoneyValue::of));
+    public static final StreamCodec<RegistryFriendlyByteBuf,FlexibleMoneyValue> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.BOOL,v -> v.negative,
+            MoneyValue.STREAM_CODEC,v -> v.value,
+            FlexibleMoneyValue::of);
 
     public static final FlexibleMoneyValue EMPTY = new FlexibleMoneyValue(false,MoneyValue.empty());
 
@@ -150,14 +162,6 @@ public final class FlexibleMoneyValue {
             return positive(MoneyValue.load(tag));
         return EMPTY;
     }
-
-    public void encode(FriendlyByteBuf buffer)
-    {
-        buffer.writeBoolean(this.negative);
-        this.value.encode(buffer);
-    }
-
-    public static FlexibleMoneyValue decode(FriendlyByteBuf buffer) { return new FlexibleMoneyValue(buffer.readBoolean(),MoneyValue.decode(buffer)); }
 
     public Component getText() { return this.value.getText("0"); }
     public Component getText(int color, int negativeColor) { return this.value.getText("0").withColor(this.negative ? negativeColor : color); }

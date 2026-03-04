@@ -1,21 +1,18 @@
 package io.github.lightman314.lightmanscurrency.api.events;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
+import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.api.traders.attachments.TraderAttachment.TraderAttachmentType;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.NodeCollector;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNodeType;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.Event;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.HashSet;
-import java.util.Set;
+import javax.annotation.Nullable;
+import java.util.Map;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class TraderEvent extends Event {
 	
 	private final long traderID;
@@ -25,49 +22,59 @@ public abstract class TraderEvent extends Event {
 	
 	protected TraderEvent(long traderID) { this.traderID = traderID; }
 
-    public static class RegisterAttachmentEvent extends TraderEvent
+    public static class RegisterNodesEvent extends TraderEvent implements NodeCollector
     {
         private final TraderData trader;
-        private final Set<TraderAttachmentType<?>> attachments;
-        public Set<TraderAttachmentType<?>> getAttachments() { return ImmutableSet.copyOf(this.attachments); }
-        public RegisterAttachmentEvent(TraderData trader)
+        private final Map<TraderNodeType<?>,Object> nodes;
+        public Map<TraderNodeType<?>,Object> getNodes() { return ImmutableMap.copyOf(this.nodes); }
+        public RegisterNodesEvent(TraderData trader,Map<TraderNodeType<?>,Object> nodes)
         {
             super(trader.getID());
             this.trader = trader;
-            this.attachments = new HashSet<>();
+            this.nodes = nodes;
         }
         @Override
         public TraderData getTrader() { return this.trader; }
-        public void addAttachment(TraderAttachmentType<?> type) { this.attachments.add(type); LightmansCurrency.LogDebug("Added " + type + " as a trader attachment."); }
-        public void removeAttachment(TraderAttachmentType<?> type) { this.attachments.remove(type); }
-        public void clearAttachments() { this.attachments.clear(); }
+
+        @Override
+        public void addNode(TraderNodeType<?> type) { this.addNode(type,null);}
+        @Override
+        public void addNode(TraderNodeType<?> type,@Nullable Object argument) { this.nodes.put(type,argument); LightmansCurrency.LogDebug("Added " + type + " as a trader node."); }
+        @Override
+        public void removeNode(TraderNodeType<?> type) { this.nodes.remove(type); }
     }
 
-	public static class CreateNetworkTraderEvent extends TraderEvent
-	{
-		
-		private final Player player;
-		public Player getPlayer() { return this.player; }
-		
-		public CreateNetworkTraderEvent(long traderID, Player player)
-		{
-			super(traderID);
-			this.player = player;
-		}
-	}
-	
-	public static class RemoveNetworkTraderEvent extends TraderEvent
-	{
-		
-		private final TraderData data;
-		@Override
-		public TraderData getTrader() { return this.data; }
-		
-		public RemoveNetworkTraderEvent(long traderID, TraderData removedData)
-		{
-			super(traderID);
-			this.data = removedData;
-		}
-	}
+    public static class CreateNewTraderEvent extends TraderEvent
+    {
+        private final Player player;
+        @Nullable
+        public Player getPlayer() { return this.player; }
+
+        public CreateNewTraderEvent(long traderID, @Nullable Player player)
+        {
+            super(traderID);
+            this.player = player;
+        }
+    }
+
+    public static class TraderDeletedEvent extends TraderEvent
+    {
+        private final TraderData trader;
+        @Override
+        public TraderData getTrader() { return this.trader; }
+        public TraderDeletedEvent(long traderID, TraderData removedTrader) {
+            super(traderID);
+            this.trader = removedTrader;
+        }
+    }
+
+    public static class TraderNetworkStatusUpdated extends TraderEvent
+    {
+        public boolean isNetworkAccessible() {
+            TraderData trader = this.getTrader();
+            return trader != null && trader.isNetworkAccessible();
+        }
+        public TraderNetworkStatusUpdated(long traderID) { super(traderID); }
+    }
 	
 }

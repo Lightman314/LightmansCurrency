@@ -8,31 +8,19 @@ import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingDat
 import io.github.lightman314.lightmanscurrency.api.traders.settings.builtin.trades.TradeSettings;
 import io.github.lightman314.lightmanscurrency.api.traders.settings.builtin.trades.TradeSubNode;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
-import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.nodes.ItemTradeNode;
+import io.github.lightman314.lightmanscurrency.common.traders.item.trade.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Consumer;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-public class ItemTradeSettings extends TradeSettings<ItemTraderData> {
+public class ItemTradeSettings extends TradeSettings<ItemTradeData, ItemTradeNode> {
 
-    public ItemTradeSettings(ItemTraderData trader) { super("item_trades",trader); }
-
-    @Nullable
-    @Override
-    protected ItemTradeData getRuleHost(int tradeIndex) {
-        if(tradeIndex < 0 || tradeIndex >= this.trader.getTradeCount())
-            return null;
-        return this.trader.getTrade(tradeIndex);
-    }
+    public ItemTradeSettings(TraderData trader,ItemTradeNode node) { super("item_trades",trader,node); }
 
     @Override
     protected SettingsSubNode<?> createTradeNode(int tradeIndex) {
@@ -50,8 +38,8 @@ public class ItemTradeSettings extends TradeSettings<ItemTraderData> {
         if(context.isServerAdmin() && data.hasIntValue("trade_count"))
         {
             int newCount = data.getIntValue("trade_count");
-            if(this.trader.getTradeCount() < newCount)
-                this.trader.overrideTradeCount(newCount);
+            if(this.node.getTradeCount() < newCount)
+                this.node.forceTradeCount(newCount);
         }
     }
 
@@ -67,23 +55,23 @@ public class ItemTradeSettings extends TradeSettings<ItemTraderData> {
 
         @Nullable
         @Override
-        protected ItemTradeData getTrade() { return this.parent.getRuleHost(this.index); }
+        protected ItemTradeData getTrade() { return this.parent.node.getTrade(this.index); }
 
         @Override
         protected void saveTrade(SavedSettingData.MutableNodeAccess node, ItemTradeData trade) {
             node.setStringValue("type",trade.getTradeDirection().toString());
             if(!trade.isBarter())
-                node.setCompoundValue("price",trade.getCost().save());
+                node.setCustom("price",trade.getCost(),MoneyValue.CODEC);
             for(int i = 0; i < (trade.isBarter() ? 4 : 2); ++i)
             {
                 String prefix = "item_" + i;
-                node.setCompoundValue(prefix, InventoryUtil.saveItemNoLimits(trade.getActualItem(i),this.registryAccess()));
+                node.setCustom(prefix,trade.getActualItem(i),ItemStack.CODEC);
                 node.setBooleanValue(prefix + "_nbt",trade.getEnforceNBT(i));
                 if(i < 2)
                     node.setStringValue(prefix + "_name",trade.getCustomName(i));
             }
             //Save custom trade settings
-            trade.saveAdditionalSetings(node);
+            trade.saveAdditionalSettings(node);
         }
 
         @Override
@@ -95,11 +83,12 @@ public class ItemTradeSettings extends TradeSettings<ItemTraderData> {
             {
                 String prefix = "item_" + i;
                 if(node.hasCompoundValue(prefix))
-                    trade.setItem(InventoryUtil.loadItemNoLimits(node.getCompoundValue(prefix),this.registryAccess()),i);
+                    trade.setItem(node.getCustomValue(prefix,ItemStack.CODEC,ItemStack.EMPTY),i);
                 trade.setEnforceNBT(i,node.getBooleanValue(prefix + "_nbt"));
                 if(i < 2)
                     trade.setCustomName(i,node.getStringValue(prefix + "_name"));
             }
+            //Load custom trade settings
             trade.loadAdditionalSettings(node);
         }
 
@@ -115,7 +104,7 @@ public class ItemTradeSettings extends TradeSettings<ItemTraderData> {
             int count = 0;
             for(int i = 0; i < 2; ++i)
             {
-                ItemStack item = InventoryUtil.loadItemNoLimits(data.getCompoundValue("item_" + i),this.registryAccess());
+                ItemStack item = data.getCustomValue("item_" + i,ItemStack.CODEC,ItemStack.EMPTY);
                 count += item.getCount();
             }
             lineWriter.accept(type == TradeDirection.PURCHASE ? LCText.DATA_ENTRY_TRADER_TRADE_ITEM_PURCHASE_ITEMS.get(count) : LCText.DATA_ENTRY_TRADER_TRADE_ITEM_SELL_ITEMS.get(count));
@@ -125,7 +114,7 @@ public class ItemTradeSettings extends TradeSettings<ItemTraderData> {
                 count = 0;
                 for(int i = 2; i < 4; ++i)
                 {
-                    ItemStack item = InventoryUtil.loadItemNoLimits(data.getCompoundValue("item_" + i),this.registryAccess());
+                    ItemStack item = data.getCustomValue("item_" + i,ItemStack.CODEC,ItemStack.EMPTY);
                     count += item.getCount();
                 }
                 lineWriter.accept(LCText.DATA_ENTRY_TRADER_TRADE_ITEM_BARTER_ITEMS.get(count));

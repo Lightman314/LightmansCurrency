@@ -26,8 +26,6 @@ import net.minecraft.world.level.block.Block;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import javax.annotation.Nonnull;
-
 public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<FreezerTraderBlockEntity>{
 	
 	private FreezerTraderBlockEntityRenderer() { }
@@ -35,14 +33,13 @@ public class FreezerTraderBlockEntityRenderer implements BlockEntityRenderer<Fre
 	public static FreezerTraderBlockEntityRenderer create(BlockEntityRendererProvider.Context ignored) { return new FreezerTraderBlockEntityRenderer(); }
 	
 	@Override
-	public void render(@Nonnull FreezerTraderBlockEntity blockEntity, float partialTicks, @Nonnull PoseStack poseStack, @Nonnull MultiBufferSource bufferSource, int lightLevel, int id)
+	public void render(FreezerTraderBlockEntity blockEntity, float partialTicks, PoseStack poseStack, MultiBufferSource bufferSource, int lightLevel, int id)
 	{
 		
 		//Render the items using the default method
 		ItemTraderBlockEntityRenderer.renderItems(blockEntity, partialTicks, poseStack, bufferSource, lightLevel, id);
 		
 		//Render the door
-
 		if(blockEntity.getBlockState().getBlock() instanceof FreezerBlock freezerBlock)
 		{
 			poseStack.pushPose();

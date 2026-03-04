@@ -1,13 +1,9 @@
 package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.custom_models;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class NestedModelTest extends CustomModelTest {
 
     public NestedModelTest(ResourceLocation type) { super(type); }

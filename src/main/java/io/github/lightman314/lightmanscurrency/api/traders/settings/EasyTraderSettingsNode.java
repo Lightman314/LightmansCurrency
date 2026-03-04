@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.traders.settings;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.settings.data.LoadContext;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 
 import java.util.List;
 

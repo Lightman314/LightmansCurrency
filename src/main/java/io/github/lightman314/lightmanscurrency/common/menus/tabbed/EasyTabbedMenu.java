@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.menus.tabbed;
 import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.IEasyTabbedMenuScreen;
+import io.github.lightman314.lightmanscurrency.api.client.gui.tabbed.IEasyTabbedMenuScreen;
 import io.github.lightman314.lightmanscurrency.common.menus.LazyMessageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
@@ -63,7 +63,7 @@ public abstract class EasyTabbedMenu<M extends IEasyTabbedMenu<T>,T extends Easy
     /**
      * Simpler version of {@link #setTab(int, EasyMenuTab)} but for when the key is considered irrelevant and can be generated automatically
      */
-    public final void addTab(T tab)
+    public void addTab(T tab)
     {
         if(this.tabsLocked || this.menuTabs == null)
             this.setTab(this.currentAddIndex,tab);
@@ -150,7 +150,7 @@ public abstract class EasyTabbedMenu<M extends IEasyTabbedMenu<T>,T extends Easy
     protected void onTabChanged(T newTab) { }
 
     @Override
-    public final void HandleMessage(LazyPacketData message) {
+    public final void processMessage(LazyPacketData message) {
         if(message.contains("ChangeTab"))
         {
             LightmansCurrency.LogDebug("Handling Change Tab message on the " + DebugUtil.getSideText(this) + "\n" + message);

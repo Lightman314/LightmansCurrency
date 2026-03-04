@@ -2,12 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_
 
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.*;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.simple.*;
-import net.minecraft.MethodsReturnNonnullByDefault;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class VariantProperties {
 
     public static final VariantProperty<ItemPositionDataEntry> ITEM_POSITION_DATA = ItemPositionDataEntry.PROPERTY;

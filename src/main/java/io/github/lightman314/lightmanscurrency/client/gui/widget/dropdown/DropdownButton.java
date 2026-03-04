@@ -1,36 +1,29 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.dropdown;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.FlexibleWidthSprite;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.builtin.HorizontalSliceSprite;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ILateRender;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.FlexibleWidthSprite;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteSource;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.HorizontalSliceSprite;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.ILateRender;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IMouseListener;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.ITooltipSource;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@OnlyIn(Dist.CLIENT)
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class DropdownButton extends EasyWidget implements ILateRender, IMouseListener, ITooltipSource {
 	
 	private final Component optionText;
 	private final Runnable onPress;
 
-    public static final FlexibleWidthSprite ENTRY_SPRITE = new HorizontalSliceSprite(SpriteSource.createTop(VersionUtil.lcResource("common/widgets/dropdown_entry"),128,12),12);
-    public static final FlexibleWidthSprite ENTRY_HIGHLIGHTED_SPRITE = new HorizontalSliceSprite(SpriteSource.createBottom(VersionUtil.lcResource("common/widgets/dropdown_entry"),128,12),12);
+    public static final FlexibleWidthSprite ENTRY_SPRITE = new HorizontalSliceSprite(SpriteSource.createTop(LightmansCurrency.id("common/widgets/dropdown_entry"),128,12),12);
+    public static final FlexibleWidthSprite ENTRY_HIGHLIGHTED_SPRITE = new HorizontalSliceSprite(SpriteSource.createBottom(LightmansCurrency.id("common/widgets/dropdown_entry"),128,12),12);
 
 	private DropdownButton(Builder builder)
 	{

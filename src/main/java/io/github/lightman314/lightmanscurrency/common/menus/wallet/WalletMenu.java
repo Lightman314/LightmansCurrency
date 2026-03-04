@@ -1,13 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.menus.wallet;
 
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
+import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-
-import javax.annotation.Nonnull;
 
 public class WalletMenu extends WalletMenuBase {
 	
@@ -38,12 +38,11 @@ public class WalletMenu extends WalletMenuBase {
 		
 	}
 	
-	@Nonnull
 	@Override
-	public ItemStack quickMoveStack(@Nonnull Player playerEntity, int index)
+	public ItemStack quickMoveStack(Player playerEntity, int index)
 	{
 		
-		if(index + this.coinInput.getContainerSize() == this.walletStackIndex)
+		if(index + this.walletInventory.getSlots() == this.walletStackIndex)
 			return ItemStack.EMPTY;
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
@@ -79,19 +78,46 @@ public class WalletMenu extends WalletMenuBase {
 		return clickedStack;
 		
 	}
-	
-	public void QuickCollectCoins()
-	{
-		Inventory inv = this.player.getInventory();
-		for(int i = 0; i < inv.getContainerSize(); ++i)
-		{
-			ItemStack item = inv.getItem(i);
-			if(CoinAPI.getApi().IsAllowedInCoinContainer(item, false))
-			{
-				ItemStack result = this.PickupCoins(item);
-				inv.setItem(i, result);
-			}
-		}
-	}
-	
+
+    public void openBankMenu()
+    {
+        if(this.isClient())
+        {
+            this.SendMessage(this.builder().setFlag("OpenBankMenu"));
+            return;
+        }
+        if(WalletItem.HasBankAccess(this.walletItem) && this.hasWallet())
+            WalletMenuBase.SafeOpenWalletBankMenu(this.player,this.walletStackIndex);
+    }
+
+    public void quickCollect()
+    {
+        if(this.isClient())
+        {
+            this.SendMessage(this.builder().setFlag("QuickCollect"));
+            return;
+        }
+        if(this.hasWallet())
+        {
+            Inventory inv = this.player.getInventory();
+            for(int i = 0; i < inv.getContainerSize(); ++i)
+            {
+                ItemStack item = inv.getItem(i);
+                if(CoinAPI.getApi().IsAllowedInCoinContainer(item, false))
+                {
+                    ItemStack result = this.PickupCoins(item);
+                    inv.setItem(i, result);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void processMessage(LazyPacketData message) {
+        super.processMessage(message);
+        if(message.contains("OpenBankMenu"))
+            this.openBankMenu();
+        if(message.contains("QuickCollect"))
+            this.quickCollect();
+    }
 }

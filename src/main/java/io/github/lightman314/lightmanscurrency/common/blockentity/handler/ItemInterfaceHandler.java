@@ -3,10 +3,10 @@ package io.github.lightman314.lightmanscurrency.common.blockentity.handler;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.blockentity.ItemTraderInterfaceBlockEntity;
-import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.ConfigurableSidedHandler;
-import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.handlers.ConfigurableSidedHandler;
+import io.github.lightman314.lightmanscurrency.common.traders.item.storage.TraderItemStorage;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -16,7 +16,7 @@ import javax.annotation.Nonnull;
 
 public class ItemInterfaceHandler extends ConfigurableSidedHandler<IItemHandler> {
 
-	public static final ResourceLocation TYPE = VersionUtil.lcResource("item_interface");
+	public static final ResourceLocation TYPE = LightmansCurrency.id("item_interface");
 	
 	protected final ItemTraderInterfaceBlockEntity blockEntity;
 	
@@ -37,7 +37,7 @@ public class ItemInterfaceHandler extends ConfigurableSidedHandler<IItemHandler>
 	@Override
 	public IItemHandler getHandler(Direction side) {
 		if(!this.handlers.containsKey(side))
-			this.handlers.put(side, new Handler(this, side));
+			this.handlers.put(side,new Handler(this, side));
 		return this.handlers.get(side);
 	}
 	

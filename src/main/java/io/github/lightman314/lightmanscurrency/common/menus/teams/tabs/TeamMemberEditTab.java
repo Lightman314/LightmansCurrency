@@ -25,7 +25,7 @@ public class TeamMemberEditTab extends TeamManagementTab.Management {
         if(this.menu.selectedTeam() instanceof Team team)
             team.changePromoteMember(this.menu.player,player);
         if(this.isClient())
-            this.menu.SendMessage(this.builder().setCompound("PromotePlayer",player.save()));
+            this.menu.SendMessage(this.builder().setTag("PromotePlayer",player.save()));
     }
 
     public void DemotePlayer(@Nonnull PlayerReference player)
@@ -33,15 +33,15 @@ public class TeamMemberEditTab extends TeamManagementTab.Management {
         if(this.menu.selectedTeam() instanceof Team team)
             team.changeDemoteMember(this.menu.player,player);
         if(this.isClient())
-            this.menu.SendMessage(this.builder().setCompound("DemotePlayer",player.save()));
+            this.menu.SendMessage(this.builder().setTag("DemotePlayer",player.save()));
     }
 
     @Override
     public void receiveMessage(LazyPacketData message) {
         if(message.contains("PromotePlayer"))
-            this.PromotePlayer(PlayerReference.load(message.getNBT("PromotePlayer")));
+            this.PromotePlayer(PlayerReference.load(message.getTag("PromotePlayer")));
         if(message.contains("DemotePlayer"))
-            this.DemotePlayer(PlayerReference.load(message.getNBT("DemotePlayer")));
+            this.DemotePlayer(PlayerReference.load(message.getTag("DemotePlayer")));
     }
 
 }

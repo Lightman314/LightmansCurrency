@@ -6,13 +6,11 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.blockentity.MoneyBagBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
-import io.github.lightman314.lightmanscurrency.common.data.types.LootTableEntry;
+import io.github.lightman314.lightmanscurrency.common.items.data.LootTableEntry;
 import io.github.lightman314.lightmanscurrency.common.items.data.MoneyBagData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
@@ -30,15 +28,12 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class MoneyBagItem extends BlockItem {
 
-    public static final ResourceLocation PROPERTY = VersionUtil.lcResource("money_bag_size");
+    public static final ResourceLocation PROPERTY = LightmansCurrency.id("money_bag_size");
 
     public MoneyBagItem(Block block, Properties properties) { super(block,properties.stacksTo(1)); }
 
@@ -47,23 +42,8 @@ public class MoneyBagItem extends BlockItem {
 
         TooltipItem.addTooltip(tooltip, LCText.TOOLTIP_MONEY_BAG);
 
-        List<ItemStack> contents = getContents(stack);
-        if(!contents.isEmpty())
-        {
-            if(flag.hasControlDown())
-            {
-                for (ItemStack coin : contents) {
-                    if (coin.getCount() > 1)
-                        tooltip.add(LCText.TOOLTIP_COIN_JAR_CONTENTS_MULTIPLE.get(coin.getCount(), coin.getHoverName()));
-                    else
-                        tooltip.add(LCText.TOOLTIP_COIN_JAR_CONTENTS_SINGLE.get(coin.getHoverName()));
-                }
-            }
-            else
-                tooltip.add(LCText.TOOLTIP_COIN_JAR_HOLD_CTRL.get().withStyle(ChatFormatting.YELLOW));
-        }
-        if(flag.isAdvanced())
-            tooltip.add(LCText.TOOLTIP_MONEY_BAG_SIZE.get(getSize(stack)).withStyle(ChatFormatting.DARK_GRAY));
+        stack.addToTooltip(ModDataComponents.MONEY_BAG_CONTENTS,context,tooltip::add,flag);
+
         if(stack.has(ModDataComponents.LOOT_TABLE_ENTRY))
         {
             LootTableEntry entry = stack.get(ModDataComponents.LOOT_TABLE_ENTRY);

@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.api.events.BuildDefaultMoneyDataE
 import io.github.lightman314.lightmanscurrency.api.events.ChainDataReloadedEvent;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.ICoinLike;
-import io.github.lightman314.lightmanscurrency.api.money.coins.atm.ATMAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.data.ATMExchangeButtonData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.CoinInputType;
@@ -24,17 +23,14 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.network.message.data.SPacketSyncCoinData;
-import io.github.lightman314.lightmanscurrency.proxy.ClientProxy;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -43,9 +39,10 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -53,10 +50,9 @@ import java.util.*;
 import java.util.function.BiPredicate;
 
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public final class CoinAPIImpl extends CoinAPI {
 
+    @Nullable
     private static CoinAPIImpl instance;
 
     public CoinAPIImpl() { instance = this; }
@@ -84,7 +80,6 @@ public final class CoinAPIImpl extends CoinAPI {
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, this::onJoinServer);
         NeoForge.EVENT_BUS.addListener(EventPriority.HIGHEST, this::generateDefaultCoins);
         ValueDisplayAPI.Setup();
-        ATMAPI.Setup();
     }
 
     @Override
@@ -428,7 +423,7 @@ public final class CoinAPIImpl extends CoinAPI {
     public boolean IsAllowedInCoinContainer(Item coin, boolean allowSideChains) { return this.IsAllowedInCoinContainer(new ItemStack(coin),allowSideChains); }
 
     @Override
-    public void CoinExchangeAllUp(Container container) {
+    public void CoinExchangeAllUp(IItemHandler container) {
         if(this.NoDataAvailable())
             return;
         for(ChainData chain : this.AllChainData())
@@ -444,7 +439,7 @@ public final class CoinAPIImpl extends CoinAPI {
     }
 
     @Override
-    public void CoinExchangeUp(Container container, Item smallCoin) {
+    public void CoinExchangeUp(IItemHandler handler,Item smallCoin) {
         if(this.NoDataAvailable())
             return;
         ChainData chain = this.ChainDataOfCoin(smallCoin);
@@ -456,37 +451,45 @@ public final class CoinAPIImpl extends CoinAPI {
             return;
         Item largeCoin = upperExchange.getFirst().getCoin();
         int smallCoinCount = upperExchange.getSecond();
-        while(InventoryUtil.GetItemCount(container,smallCoin) >= smallCoinCount)
+        while(ItemHandlerUtil.getItemCount(handler,i -> i.is(smallCoin)) >= smallCoinCount)
         {
+            ItemStack stack = new ItemStack(smallCoin,smallCoinCount);
             //Remove the smaller coins
-            InventoryUtil.RemoveItemCount(container, smallCoin, smallCoinCount);
-            //Put the new coin into the inventory
-            ItemStack newCoinStack = new ItemStack(largeCoin,1);
-            if(!InventoryUtil.PutItemStack(container, newCoinStack))
+            List<ItemStack> result = ItemHandlerUtil.extractItem(handler,i -> i.is(smallCoin),smallCoinCount,false);
+            if(ItemHandlerUtil.getItemCount(result) != smallCoinCount)
             {
-                //Could not merge the inventory. Re-add the smaller coins & break the loop
-                InventoryUtil.TryPutItemStack(container, new ItemStack(smallCoin, smallCoinCount));
+                //If we didn't take the exact amount we wanted, put them back and abort
+                for(ItemStack s : result)
+                    ItemHandlerHelper.insertItemStacked(handler,s,false);
+                return;
+            }
+            //Put the new coin into the inventory
+            if(!ItemHandlerHelper.insertItem(handler,new ItemStack(largeCoin),false).isEmpty())
+            {
+                //If the new coin doesn't fit, put the small coins back in
+                for(ItemStack s : result)
+                    ItemHandlerHelper.insertItemStacked(handler,s,false);
                 return;
             }
         }
     }
 
     @Override
-    public void CoinExchangeAllDown(Container container) {
+    public void CoinExchangeAllDown(IItemHandler handler) {
         if(this.NoDataAvailable())
             return;
         for(ChainData chain : this.AllChainData())
         {
             List<CoinEntry> entryList = chain.getAllEntries(false, ChainData.SORT_HIGHEST_VALUE_FIRST);
             for(CoinEntry entry : entryList)
-                this.CoinExchangeDown(container, entry.getCoin());
+                this.CoinExchangeDown(handler, entry.getCoin());
             for(CoinEntry entry : entryList)
-                this.CoinExchangeDown(container, entry.getCoin());
+                this.CoinExchangeDown(handler, entry.getCoin());
         }
     }
 
     @Override
-    public void CoinExchangeDown(Container container, Item largeCoin) {
+    public void CoinExchangeDown(IItemHandler handler, Item largeCoin) {
         if(this.NoDataAvailable())
             return;
         ChainData chain = this.ChainDataOfCoin(largeCoin);
@@ -498,45 +501,57 @@ public final class CoinAPIImpl extends CoinAPI {
             return;
         Item smallCoin = lowerExchange.getFirst().getCoin();
         int smallCoinCount = lowerExchange.getSecond();
-        while(InventoryUtil.GetItemCount(container,largeCoin) > 0)
+        while(ItemHandlerUtil.getItemCount(handler,i -> i.is(largeCoin)) > 0)
         {
             //Remove the large coin
-            InventoryUtil.RemoveItemCount(container, largeCoin, 1);
-            //Merge the new coins into the container
-            ItemStack newCoinStack = new ItemStack(smallCoin, smallCoinCount);
-            if(!InventoryUtil.PutItemStack(container, newCoinStack))
+            List<ItemStack> result = ItemHandlerUtil.extractItem(handler,i -> i.is(largeCoin),1,false);
+            if(ItemHandlerUtil.getItemCount(result) != 1)
             {
-                //Could not merge the inventory. Re-add the large coin & break the loop;
-                InventoryUtil.TryPutItemStack(container, new ItemStack(largeCoin, 1));
+                //If we didn't take the exact amount we wanted, put them back and abort
+                for(ItemStack s : result)
+                    ItemHandlerHelper.insertItemStacked(handler,s,false);
                 return;
             }
+            //Merge the new coins into the container
+            ItemStack newCoinStack = new ItemStack(smallCoin, smallCoinCount);
+            ItemStack leftovers = ItemHandlerHelper.insertItemStacked(handler,newCoinStack,true);
+            if(!leftovers.isEmpty())
+            {
+                //Abort before actually taking the money, and put the coin we just took back
+                for(ItemStack s : result)
+                    ItemHandlerHelper.insertItemStacked(handler,s,false);
+                return;
+            }
+            else
+                ItemHandlerHelper.insertItemStacked(handler,newCoinStack,false);
         }
     }
 
     @Override
-    public void SortCoinsByValue(Container container) {
+    public void SortCoinsByValue(IItemHandler handler) {
 
-        //Merge like stacks
-        InventoryUtil.MergeStacks(container);
-
-        //Collect a list of all items in the container
-        List<ItemStack> oldInventory = new ArrayList<>();
-        for(int i = 0; i < container.getContainerSize(); ++i)
+        //Collect a list of all items in the item handler
+        List<ItemStack> oldItems = new ArrayList<>();
+        for(int i = 0; i < handler.getSlots(); ++i)
         {
-            if(!container.getItem(i).isEmpty())
-                oldInventory.add(container.getItem(i));
+            ItemStack s = handler.extractItem(i,Integer.MAX_VALUE,false);
+            if(!s.isEmpty())
+                oldItems.add(s);
         }
-        container.clearContent();
+        //Combine like-stacks
+        oldItems = ItemHandlerUtil.combineStacks(oldItems);
 
         //Sort the item list using a comparator
-        oldInventory.sort(COIN_SORTER);
+        oldItems.sort(COIN_SORTER);
 
         //Re-add the items to the container
         int index = 0;
-        while(!oldInventory.isEmpty())
+        while(!oldItems.isEmpty())
         {
-            container.setItem(index++, oldInventory.getFirst());
-            oldInventory.removeFirst();
+            ItemStack leftovers = ItemHandlerHelper.insertItemStacked(handler,oldItems.getFirst(),false);
+            if(!leftovers.isEmpty())
+                LightmansCurrency.LogError("Error re-inserting coins back into the item handler! Some coins may be lost!");
+            oldItems.removeFirst();
         }
     }
 

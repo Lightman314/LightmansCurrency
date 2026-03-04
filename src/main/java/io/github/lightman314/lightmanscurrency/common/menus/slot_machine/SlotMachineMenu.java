@@ -1,42 +1,45 @@
 package io.github.lightman314.lightmanscurrency.common.menus.slot_machine;
 
-import io.github.lightman314.lightmanscurrency.api.misc.menus.MoneySlot;
+import io.github.lightman314.lightmanscurrency.api.misc.item_handlers.MoneyInventory;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.MoneySlot;
+import io.github.lightman314.lightmanscurrency.api.traders.ITraderSource;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
-import io.github.lightman314.lightmanscurrency.api.traders.menu.IMoneyCollectionMenu;
+
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNode;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNodeType;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.AbstractTraderMenu;
+import io.github.lightman314.lightmanscurrency.api.traders.tracking.TrackingLevel;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
-import io.github.lightman314.lightmanscurrency.common.menus.LazyMessageMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
+import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, IMoneyCollectionMenu {
+public class SlotMachineMenu extends AbstractTraderMenu {
 
     private final long traderID;
+    private long trackingKey = -1;
 
     @Nullable
-    public final SlotMachineTraderData getTrader() { if(TraderAPI.getApi().GetTrader(this.isClient(), this.traderID) instanceof SlotMachineTraderData trader) return trader; return null; }
+    public final TraderData getTrader() { return TraderAPI.getApi().GetTrader(this.isClient(),this.traderID); }
+    @Nullable
+    public final <T extends TraderNode> T getNode(TraderNodeType<T> type) {
+        TraderData trader = this.getTrader();
+        if(trader != null)
+            return trader.getNode(type);
+        return null;
+    }
 
-    private final Container coins;
+    private final MoneyInventory coins;
 
     List<Slot> coinSlots = new ArrayList<>();
 
@@ -51,18 +54,11 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
         return this.rewards.removeFirst();
     }
 
-    private final MenuValidator validator;
-
-    @Override
-    public MenuValidator getValidator() { return this.validator; }
-
     public SlotMachineMenu(int windowID, Inventory inventory, long traderID, MenuValidator validator) {
-        super(ModMenus.SLOT_MACHINE.get(), windowID, inventory);
-        this.validator = validator;
+        super(ModMenus.SLOT_MACHINE.get(), windowID, inventory,validator);
         this.traderID = traderID;
-        this.coins = new SimpleContainer(5);
+        this.coins = new MoneyInventory(this.player,5);
 
-        this.addValidator(this.validator);
         this.addValidator(() -> this.getTrader() != null);
 
         //Player inventory
@@ -80,15 +76,17 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
         }
 
         //Coin Slots
-        for(int x = 0; x < coins.getContainerSize(); x++)
+        for(int x = 0; x < this.coins.getSlots(); x++)
         {
-            this.coinSlots.add(this.addSlot(new MoneySlot(this.coins, x, 8 + (x + 4) * 18, 108,this.player)));
+            this.coinSlots.add(this.addSlot(new MoneySlot(this.coins, x, 8 + (x + 4) * 18, 108)));
         }
 
-        SlotMachineTraderData trader = this.getTrader();
+        TraderData trader = this.getTrader();
         if(trader != null)
+        {
             trader.userOpen(this.player);
-
+            this.trackingKey = trader.requestTracking(this.player, TrackingLevel.CUSTOMER);
+        }
     }
 
     @Override
@@ -145,16 +143,24 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
         //Clear the coin slots
         this.clearContainer(player, this.coins);
         //Close the trader
-        SlotMachineTraderData trader = this.getTrader();
+        TraderData trader = this.getTrader();
         if(trader != null)
+        {
             trader.userClose(this.player);
+            trader.endTracking(this.player,this.trackingKey);
+        }
     }
 
-    public final void clearContainer(Container container) { this.clearContainer(this.player, container); }
+    @Nullable
+    @Override
+    public ITraderSource getTraderSource() { return TraderAPI.getApi().GetTrader(this,this.traderID); }
 
-    public final TradeContext getContext() { return this.getContext(null); }
+    @Override
+    public TradeContext getContext(@Nullable TraderData trader) { return this.getContext(); }
 
-    public final TradeContext getContext(@Nullable ResultHolder rewardHolder)
+    public final TradeContext getContext() { return this.getContextForHolder(null); }
+
+    public final TradeContext getContextForHolder(@Nullable ResultHolder rewardHolder)
     {
         TradeContext.Builder builder = TradeContext.create(this.getTrader(),this.player,this.validator.isThroughNetwork).withCoinSlots(this.coins);
         if(rewardHolder != null)
@@ -163,39 +169,26 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
     }
 
     @Override
-    public void CollectStoredMoney() {
-        if(this.getTrader() != null)
-        {
-            TraderData trader = this.getTrader();
-            trader.CollectStoredMoney(this.player);
-        }
-    }
+    protected void executeTrade(int traderIndex, int tradeIndex) { }
 
     private void ExecuteTrades(int count)
     {
         if(!this.rewards.isEmpty())
             return;
-        SlotMachineTraderData trader = this.getTrader();
+        TraderData trader = this.getTrader();
         if(trader != null)
         {
             boolean flag = true;
             for(int i = 0; flag && i < count; ++i)
             {
                 ResultHolder result = new ResultHolder();
-                if(trader.TryExecuteTrade(this.getContext(result), 0).isSuccess())
+                if(trader.TryExecuteTrade(this.getContextForHolder(result), 0).isSuccess())
                     this.rewards.add(result); //Always add the reward now, as "failing" is now a valid result
                 else
                     flag = false;
             }
             if(!this.rewards.isEmpty())
-            {
-                CompoundTag rewardData = new CompoundTag();
-                ListTag resultList = new ListTag();
-                for(ResultHolder result : this.rewards)
-                    resultList.add(result.save(this.registryAccess()));
-                rewardData.put("Rewards", resultList);
-                this.SendMessageToClient(this.builder().setCompound("SyncRewards", rewardData));
-            }
+                this.SendMessageToClient(this.builder().setList("SyncRewards",this.rewards,ModLazyPackets.SLOT_MACHINE_RESULT));
         }
 
     }
@@ -212,7 +205,8 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
     }
 
     @Override
-    public void HandleMessage(LazyPacketData message) {
+    public void processMessage(LazyPacketData message) {
+        super.processMessage(message);
         if(message.contains("ExecuteTrade"))
         {
             if(!this.rewards.isEmpty())
@@ -231,11 +225,14 @@ public class SlotMachineMenu extends LazyMessageMenu implements IValidatedMenu, 
         if(message.contains("SyncRewards") && this.isClient())
         {
             this.rewards.clear();
-            CompoundTag rewardData = message.getNBT("SyncRewards");
-            ListTag rewardList = rewardData.getList("Rewards", Tag.TAG_COMPOUND);
-            for(int i = 0; i < rewardList.size(); ++i)
-                this.rewards.add(ResultHolder.load(rewardList.getCompound(i),message.lookup));
+            this.rewards.addAll(message.getList("SyncRewards",ModLazyPackets.SLOT_MACHINE_RESULT));
         }
+        if(message.contains("OpenStorage"))
+            this.openStorage();
+        if(message.contains("CollectMoney"))
+            this.collectMoney();
+        if(message.contains("OpenTerminal"))
+            this.openTerminal();
     }
 
 }

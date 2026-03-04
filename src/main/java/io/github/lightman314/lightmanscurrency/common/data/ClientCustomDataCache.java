@@ -1,9 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.data;
 
-import io.github.lightman314.lightmanscurrency.LCRegistries;
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.misc.IClientTicker;
-import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
+import io.github.lightman314.lightmanscurrency.api.misc.ticker.IClientTicker;
+import io.github.lightman314.lightmanscurrency.api.misc.ticker.ICommonTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomData;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomDataType;
 import net.minecraft.resources.ResourceLocation;
@@ -44,7 +44,7 @@ public class ClientCustomDataCache {
     {
         for(CustomData data : clientDataCache.values())
         {
-            if(data instanceof IEasyTickable ticker)
+            if(data instanceof ICommonTicker ticker)
                 ticker.tick();
             if(data instanceof IClientTicker ticker)
                 ticker.clientTick();

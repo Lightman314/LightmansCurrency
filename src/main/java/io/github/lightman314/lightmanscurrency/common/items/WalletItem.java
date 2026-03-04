@@ -3,23 +3,21 @@ package io.github.lightman314.lightmanscurrency.common.items;
 import java.util.List;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
-import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.capability.CapabilityMoneyViewer;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
+import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyViewer;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.common.items.data.SoundEntry;
 import io.github.lightman314.lightmanscurrency.common.items.data.WalletData;
-import io.github.lightman314.lightmanscurrency.common.items.data.WalletDataWrapper;
 import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
+import io.github.lightman314.lightmanscurrency.common.items.data.WalletInventory;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.util.*;
@@ -28,7 +26,6 @@ import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
 import io.github.lightman314.lightmanscurrency.common.enchantments.WalletEnchantment;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -50,14 +47,15 @@ import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class WalletItem extends Item implements IVariantItem {
 	
 	private static final SoundEvent emptyOpenSound = SoundEvents.ARMOR_EQUIP_LEATHER.value();
@@ -70,9 +68,9 @@ public class WalletItem extends Item implements IVariantItem {
 	public static final int SLOTS_PER_UPGRADE = 6;
 	public static final int DEFAULT_UPGRADE_LIMIT = 24;
 
-	public static final ResourceLocation DEFAULT_COIN_COLLECT_SOUND = VersionUtil.lcResource("coins_clinking");
+	public static final ResourceLocation DEFAULT_COIN_COLLECT_SOUND = LightmansCurrency.id("coins_clinking");
 
-	public static ResourceLocation lazyModel(String itemID) { return lazyModel(VersionUtil.lcResource(itemID)); }
+	public static ResourceLocation lazyModel(String itemID) { return lazyModel(LightmansCurrency.id(itemID)); }
 	public static ResourceLocation lazyModel(ResourceLocation itemID) { return itemID.withPrefix("item/wallet_hip/"); }
 
     @Override
@@ -170,7 +168,7 @@ public class WalletItem extends Item implements IVariantItem {
 
 	@Override
 	public boolean overrideOtherStackedOnMe(ItemStack wallet, ItemStack item, Slot slot, ClickAction action, Player player, SlotAccess slotAccess) {
-		if(action == ClickAction.SECONDARY && LCConfig.SERVER.walletCapacityUpgradeable.get() && InventoryUtil.ItemHasTag(item, LCTags.Items.WALLET_UPGRADE_MATERIAL))
+		if(action == ClickAction.SECONDARY && LCConfig.SERVER.walletCapacityUpgradeable.get() && item.is(LCTags.Items.WALLET_UPGRADE_MATERIAL))
 		{
 			WalletData data = wallet.getOrDefault(ModDataComponents.WALLET_DATA,WalletData.createFor(wallet));
 			int upgradeLimit = wallet.getOrDefault(ModDataComponents.WALLET_UPGRADE_LIMIT,0);
@@ -264,27 +262,19 @@ public class WalletItem extends Item implements IVariantItem {
 		return 0;
 	}
 
-	
-	public static WalletDataWrapper getDataWrapper(ItemStack stack)
-	{
-		if(!isWallet(stack))
-			return WalletDataWrapper.EMPTY;
-		return new WalletDataWrapper(stack);
-	}
-
 	@Override
 	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn)
 	{
 		
 		super.appendHoverText(stack,context,tooltip,flagIn);
 
-		WalletDataWrapper data = getDataWrapper(stack);
+		tooltip.add(LCText.TOOLTIP_WALLET_CAPACITY.get(WalletItem.InventorySize(stack)).withStyle(ChatFormatting.YELLOW));
 
-		tooltip.add(LCText.TOOLTIP_WALLET_CAPACITY.get(data.getContainerSize()).withStyle(ChatFormatting.YELLOW));
-
-		if(data.getBonusSlots() < stack.getOrDefault(ModDataComponents.WALLET_UPGRADE_LIMIT,0))
+        int bonusSlots = BonusSlots(stack);
+		if(bonusSlots < stack.getOrDefault(ModDataComponents.WALLET_UPGRADE_LIMIT,0))
 		{
-			ItemStack exampleItem = ListUtil.randomItemFromList(InventoryUtil.GetItemStacksWithTag(LCTags.Items.WALLET_UPGRADE_MATERIAL),ItemStack.EMPTY);
+            List<Item> upgradeItems = ListUtil.mapList(ListUtil.createList(BuiltInRegistries.ITEM.getTagOrEmpty(LCTags.Items.WALLET_UPGRADE_MATERIAL)),Holder::value);
+			ItemStack exampleItem = new ItemStack(ListUtil.randomItemFromList(upgradeItems,Items.AIR));
 			if(!exampleItem.isEmpty())
 			{
 				tooltip.addAll(TooltipHelper.splitTooltips(LCText.TOOLTIP_WALLET_UPGRADEABLE_CAPACITY.get(
@@ -302,7 +292,7 @@ public class WalletItem extends Item implements IVariantItem {
 		{
 			if(CanPickup(this))
 			{
-				Component onOffText = data.getAutoExchange() ? LCText.TOOLTIP_WALLET_EXCHANGE_AUTO_ON.get().withStyle(ChatFormatting.GREEN) : LCText.TOOLTIP_WALLET_EXCHANGE_AUTO_OFF.get().withStyle(ChatFormatting.RED);
+				Component onOffText = getAutoExchange(stack) ? LCText.TOOLTIP_WALLET_EXCHANGE_AUTO_ON.get().withStyle(ChatFormatting.GREEN) : LCText.TOOLTIP_WALLET_EXCHANGE_AUTO_OFF.get().withStyle(ChatFormatting.RED);
 				tooltip.add(LCText.TOOLTIP_WALLET_EXCHANGE_AUTO.get(onOffText).withStyle(ChatFormatting.YELLOW));
 			}
 			else
@@ -320,15 +310,18 @@ public class WalletItem extends Item implements IVariantItem {
 		if(CoinAPI.getApi().NoDataAvailable())
 			return;
 
-		IMoneyHandler contentHandler = MoneyAPI.getApi().GetContainersMoneyHandler(data.getContents(),s -> {}, IClientTracker.forClient());
-		MoneyView contents = contentHandler.getStoredMoney();
-		if(!contents.isEmpty())
-		{
-			tooltip.add(LCText.TOOLTIP_WALLET_STORED_MONEY.get());
-			tooltip.addAll(contents.getAllText(ChatFormatting.DARK_GREEN));
-		}
+        IMoneyViewer handler = stack.getCapability(CapabilityMoneyViewer.MONEY_VIEWER_ITEM);
+        if(handler != null)
+        {
+            MoneyView contents = handler.getStoredMoney();
+            if(!contents.isEmpty())
+            {
+                tooltip.add(LCText.TOOLTIP_WALLET_STORED_MONEY.get());
+                tooltip.addAll(contents.getAllText(ChatFormatting.DARK_GREEN));
+            }
+        }
+
 	}
-	
 	
 	@Override
 	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand)
@@ -387,9 +380,7 @@ public class WalletItem extends Item implements IVariantItem {
 	 */
 	public static boolean isEmpty(ItemStack wallet)
 	{
-		if(!isWallet(wallet))
-			return true;
-		return getDataWrapper(wallet).getContents().isEmpty();
+        return getWalletInventory(wallet).isEmpty();
 	}
 	
 	private static int GetWalletSlot(Inventory inventory, ItemStack wallet)
@@ -414,19 +405,33 @@ public class WalletItem extends Item implements IVariantItem {
 		if(!isWallet(wallet))
 			return coins;
 
-		WalletDataWrapper data = getDataWrapper(wallet);
-		Container contents = data.getContents();
-		ItemStack returnValue = InventoryUtil.TryPutItemStack(contents, coins);
+        IItemHandler inventory = getWalletInventory(wallet);
+		ItemStack returnValue = ItemHandlerHelper.insertItem(inventory,coins,false);
 
 		if(WalletItem.getAutoExchange(wallet))
-			CoinAPI.getApi().CoinExchangeAllUp(contents);
-		CoinAPI.getApi().SortCoinsByValue(contents);
+			CoinAPI.getApi().CoinExchangeAllUp(inventory);
+		CoinAPI.getApi().SortCoinsByValue(inventory);
 
-		data.setContents(contents, null);
+        putWalletInventory(wallet,inventory);
 		
 		//Return the coins that could not be picked up
 		return returnValue;
 	}
+
+    public static WalletInventory getWalletInventory(ItemStack wallet)
+    {
+        if(!WalletItem.isWallet(wallet))
+            return new WalletInventory(0);
+
+        WalletData data = wallet.getOrDefault(ModDataComponents.WALLET_DATA,WalletData.createFor(wallet));
+        return data.inventory().copy();
+    }
+
+    public static void putWalletInventory(ItemStack wallet,IItemHandler inventory) {
+        if(!isWallet(wallet))
+            return;
+        wallet.update(ModDataComponents.WALLET_DATA,WalletData.EMPTY,data -> data.withItems(inventory));
+    }
 	
 	/**
 	 * Gets the auto-convert state of the given Wallet Stack.
@@ -440,8 +445,8 @@ public class WalletItem extends Item implements IVariantItem {
 		if(!WalletItem.CanExchange((WalletItem)wallet.getItem()) || !WalletItem.CanPickup((WalletItem)wallet.getItem()))
 			return false;
 
-		WalletDataWrapper data = getDataWrapper(wallet);
-		return data.getAutoExchange();
+		WalletData data = wallet.getOrDefault(ModDataComponents.WALLET_DATA,WalletData.EMPTY);
+		return data.autoExchange();
 		
 	}
 	
@@ -458,8 +463,7 @@ public class WalletItem extends Item implements IVariantItem {
 		if(!WalletItem.CanExchange((WalletItem)wallet.getItem()))
 			return;
 
-		WalletDataWrapper data = getDataWrapper(wallet);
-		data.setAutoExchange(!data.getAutoExchange());
+        wallet.update(ModDataComponents.WALLET_DATA,WalletData.EMPTY,d -> d.withAutoExchange(!d.autoExchange()));
 		
 	}
 

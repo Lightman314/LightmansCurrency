@@ -1,49 +1,50 @@
 package io.github.lightman314.lightmanscurrency.api.trader_interface.data;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeResult;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
+import java.util.Optional;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-public class TradeReference {
+public class TradeReference<T extends TradeData> {
 
-    private final TraderInterfaceTargets parent;
+    private final TraderInterfaceTargets<T> parent;
     private final int tradeIndex;
     public int getTradeIndex() { return this.tradeIndex; }
-    private TradeData tradeData;
+    private T tradeData;
     public boolean hasTrade() { return this.tradeIndex >= 0 && this.tradeData != null; }
-    public TradeData getLocalTrade() { return this.tradeData; }
-    private TradeResult lastResult = TradeResult.SUCCESS;
-    public TradeResult getLastResult() { return this.lastResult; }
-    public void setLastResult(TradeResult result) { this.lastResult = result; }
+    public T getLocalTrade() { return this.tradeData; }
+    private Optional<TradeResult> lastResult = Optional.empty();
+    public Optional<TradeResult> getLastResult() { return this.lastResult; }
+    public void setLastResult(TradeResult result) { this.lastResult = Optional.of(result); }
 
     @Nullable
-    public TradeData getTrueTrade() {
+    public T getTrueTrade() {
         if(this.tradeIndex < 0)
             return null;
         TraderData trader = this.parent.getTrader();
         if(trader != null)
-            return trader.getTrade(this.tradeIndex);
+        {
+            try { return (T)trader.getTrade(this.tradeIndex);
+            } catch (ClassCastException ignored) {}
+        }
         return null;
     }
 
-    private TradeReference(TraderInterfaceTargets parent, int tradeIndex, TradeData trade) {
+    private TradeReference(TraderInterfaceTargets<T> parent, int tradeIndex, T trade) {
         this.parent = parent;
         this.tradeIndex = tradeIndex;
         this.tradeData = trade;
     }
 
-    public static TradeReference of(TraderInterfaceTargets parent, int tradeIndex, TradeData trade) { return new TradeReference(parent,tradeIndex,trade); }
+    public static <T extends TradeData> TradeReference<T> of(TraderInterfaceTargets<T> parent, int tradeIndex, T trade) { return new TradeReference<>(parent,tradeIndex,trade); }
     @Nullable
-    public static TradeReference of(TraderInterfaceTargets parent, int tradeIndex) {
+    public static <T extends TradeData> TradeReference<T> of(TraderInterfaceTargets<T> parent, int tradeIndex) {
         if(tradeIndex < 0)
             return null;
         TraderData trader = parent.getTrader();
@@ -51,32 +52,37 @@ public class TradeReference {
         {
             TradeData trade = trader.getTrade(tradeIndex);
             if(trade != null)
-                return of(parent,tradeIndex,parent.copyTrade(trade));
+            {
+                try {return of(parent,tradeIndex,parent.copyTrade((T)trade));
+                } catch (ClassCastException ignored) {}
+            }
         }
         return null;
     }
 
-    public CompoundTag save(HolderLookup.Provider lookup) {
+    public CompoundTag save(DataContext<Tag> context) {
         CompoundTag tag = new CompoundTag();
         tag.putInt("Index",this.tradeIndex);
         if(this.tradeData != null)
-            tag.put("Trade",this.tradeData.getAsNBT(lookup));
+            tag.put("Trade",this.parent.tradeCodec().encodeStart(context.ops(),this.tradeData).getOrThrow());
         return tag;
     }
 
     @Nullable
-    public static TradeReference load(TraderInterfaceTargets parent, CompoundTag tag, HolderLookup.Provider lookup)
+    public static <T extends TradeData> TradeReference<T> load(TraderInterfaceTargets<T> parent, CompoundTag tag, DataContext<Tag> context)
     {
         if(tag.contains("Trade") && tag.contains("Index"))
         {
             int index = tag.getInt("Index");
-            TradeData trade = parent.loadTrade(tag.getCompound("Trade"),lookup);
+            T trade = context.read(tag.get("Trade"),parent.tradeCodec());
             if(trade == null)
             {
                 LightmansCurrency.LogWarning("Error loading cached trade from reference!");
                 return null;
             }
-            return new TradeReference(parent,index,trade);
+            try { return new TradeReference<>(parent,index,trade);
+            } catch (ClassCastException ignored) {}
+
         }
         return null;
     }
@@ -84,7 +90,7 @@ public class TradeReference {
     public void refreshTrade() {
         if(!this.hasTrade())
             return;
-        TradeData newTrade = this.parent.copyTrade(this.getTrueTrade());
+        T newTrade = this.parent.copyTrade(this.getTrueTrade());
         if(newTrade != null)
             this.tradeData = newTrade;
     }

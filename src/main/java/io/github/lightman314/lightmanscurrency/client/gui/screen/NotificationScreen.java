@@ -6,16 +6,16 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.WidgetRotation;
+import io.github.lightman314.lightmanscurrency.api.client.gui.EasyMenuScreen;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyTextButton;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.WidgetRotation;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.notifications.NotificationDisplayWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.notifications.NotificationTabButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
@@ -23,7 +23,6 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCat
 import io.github.lightman314.lightmanscurrency.common.data.types.NotificationDataCache;
 import io.github.lightman314.lightmanscurrency.common.menus.NotificationMenu;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -32,7 +31,7 @@ import javax.annotation.Nonnull;
 
 public class NotificationScreen extends EasyMenuScreen<NotificationMenu> {
 
-	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/notifications.png");
+	public static final ResourceLocation GUI_TEXTURE = LightmansCurrency.id("textures/gui/notifications.png");
 	
 	public final NotificationData getNotifications() { return NotificationDataCache.TYPE.get(true).getNotifications(this.menu.player); }
 
@@ -199,7 +198,7 @@ public class NotificationScreen extends EasyMenuScreen<NotificationMenu> {
 	}
 
 	public void markAsRead(EasyButton button) {
-		this.menu.SendMessage(this.builder().setCompound("MarkAsRead", this.selectedCategory.save(this.registryAccess())));
+		this.menu.SendMessage(this.builder().setTag("MarkAsRead", this.selectedCategory.save(this.registryAccess())));
 	}
 	
 	@Override
@@ -218,7 +217,7 @@ public class NotificationScreen extends EasyMenuScreen<NotificationMenu> {
 	}
 
 	private void deleteNotification(int notificationIndex) {
-		this.menu.SendMessage(this.builder().setInt("DeleteNotification",notificationIndex).setCompound("Category",this.selectedCategory.save(this.registryAccess())));
+		this.menu.SendMessage(this.builder().setInt("DeleteNotification",notificationIndex).setTag("Category",this.selectedCategory.save(this.registryAccess())));
 
 	}
 	

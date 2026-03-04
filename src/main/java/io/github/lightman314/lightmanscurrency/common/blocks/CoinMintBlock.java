@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import java.util.Collection;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.ImmutableList;
@@ -30,17 +29,17 @@ public class CoinMintBlock extends RotatableBlock implements IEasyEntityBlock, I
 	
 	public CoinMintBlock(Properties properties) { super(properties, box(1d,0d,1d,15d,16d,15d)); }
 
-	@Nonnull
+	
 	@Override
 	public Collection<BlockEntityType<?>> getAllowedTypes() { return ImmutableList.of(ModBlockEntities.COIN_MINT.get()); }
 
 	@Nullable
 	@Override
-	public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new CoinMintBlockEntity(pos, state); }
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new CoinMintBlockEntity(pos, state); }
 	
-	@Nonnull
+	
 	@Override
-	public InteractionResult useWithoutItem(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull BlockHitResult result)
+	public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{
@@ -55,7 +54,7 @@ public class CoinMintBlock extends RotatableBlock implements IEasyEntityBlock, I
 	}
 	
 	@Override
-	public void onRemove(@Nonnull BlockState state, Level level, @Nonnull BlockPos pos, @Nonnull BlockState newState, boolean isMoving)
+	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving)
 	{
 		BlockEntity blockEntity = level.getBlockEntity(pos);
 		if(blockEntity instanceof CoinMintBlockEntity mintEntity)
@@ -65,8 +64,7 @@ public class CoinMintBlock extends RotatableBlock implements IEasyEntityBlock, I
 
 	private record CoinMintMenuProvider(CoinMintBlockEntity blockEntity) implements MenuProvider {
 		@Override
-		public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) { return new MintMenu(id, inventory, this.blockEntity); }
-		@Nonnull
+		public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) { return new MintMenu(id, inventory, this.blockEntity); }
 		@Override
 		public Component getDisplayName() { return LCText.GUI_COIN_MINT_TITLE.get(); }
 	}

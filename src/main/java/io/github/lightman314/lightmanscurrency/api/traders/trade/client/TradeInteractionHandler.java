@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.traders.trade.client;
 
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 
 import javax.annotation.Nonnull;

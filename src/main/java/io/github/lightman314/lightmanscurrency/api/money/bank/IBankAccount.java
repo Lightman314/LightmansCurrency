@@ -1,29 +1,35 @@
 package io.github.lightman314.lightmanscurrency.api.money.bank;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.salary.CustomTarget;
 import io.github.lightman314.lightmanscurrency.api.money.bank.salary.SalaryData;
-import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.builtin.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
+import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyHolder;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.BankTransferNotification;
+import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.DepositWithdrawNotification;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public interface IBankAccount extends IMoneyHolder, IClientTracker {
+public interface IBankAccount extends IMoneyHolder, IClientTracker, LazyPacketData.IBuilderProvider {
 
     int SALARY_LIMIT = 100;
 
@@ -96,6 +102,10 @@ public interface IBankAccount extends IMoneyHolder, IClientTracker {
      */
     void pushNotification(Supplier<Notification> notification, boolean notifyPlayers);
 
+    default void LogInteraction(Component name,MoneyValue amount,boolean deposit) { this.pushLocalNotification(new DepositWithdrawNotification.Custom(name,this.getName(),deposit,amount)); }
+    default void LogInteraction(Player player, MoneyValue amount, boolean deposit) { this.pushLocalNotification(new DepositWithdrawNotification.Player(PlayerReference.of(player),this.getName(),deposit,amount)); }
+    default void LogTransfer(Player player, MoneyValue amount, Component otherAccount, boolean received) { this.pushLocalNotification(new BankTransferNotification(PlayerReference.of(player),amount,this.getName(),otherAccount,received)); }
+
     /**
      * All {@link Notification Notifications} stored on the Bank Accounts local logger.
      */
@@ -139,7 +149,7 @@ public interface IBankAccount extends IMoneyHolder, IClientTracker {
     @Nullable
     StatTracker getStatTracker();
 
-    void markDirty();
+    void setSalaryChanged(SalaryData salary, Consumer<LazyPacketData.Builder> message);
 
     void tick();
 

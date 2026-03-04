@@ -1,8 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.util;
 
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyWidget;
 
-import javax.annotation.Nonnull;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @ParametersAreNonnullByDefault

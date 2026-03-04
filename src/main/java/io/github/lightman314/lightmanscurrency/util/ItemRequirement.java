@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -12,12 +11,9 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.function.Predicate;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class ItemRequirement implements Predicate<ItemStack> {
 
     private static ItemRequirement NULL = null;
@@ -119,7 +115,7 @@ public abstract class ItemRequirement implements Predicate<ItemStack> {
     {
         for(ItemStack s : list)
         {
-            if(InventoryUtil.ItemMatches(s,stack))
+            if(ItemStack.isSameItemSameComponents(s,stack))
             {
                 s.grow(stack.getCount());
                 return;
@@ -133,7 +129,7 @@ public abstract class ItemRequirement implements Predicate<ItemStack> {
         for(int i = 0; i < list.size(); ++i)
         {
             ItemStack s = list.get(i);
-            if(InventoryUtil.ItemMatches(s,stack))
+            if(ItemStack.isSameItemSameComponents(s,stack))
             {
                 s.shrink(stack.getCount());
                 if(s.isEmpty())
@@ -446,7 +442,7 @@ public abstract class ItemRequirement implements Predicate<ItemStack> {
                         boolean query = true;
                         for(int x = 0; x < results.size() && query; ++x)
                         {
-                            if(InventoryUtil.ItemMatches(results.get(x), stack))
+                            if(ItemStack.isSameItemSameComponents(results.get(x), stack))
                             {
                                 query = false;
                                 results.get(x).grow(consumeCount);
@@ -475,43 +471,49 @@ public abstract class ItemRequirement implements Predicate<ItemStack> {
      * Does not actually remove the items from the container, this is merely a query function.
      */
     @Nullable
-    public static List<ItemStack> getFirstItemsMatchingRequirements(IItemHandler container, ItemRequirement... requirements)
+    public static List<ItemStack> getFirstItemsMatchingRequirements(List<IItemHandler> itemHandlers, ItemRequirement... requirements)
     {
         List<ItemStack> results = new ArrayList<>();
-        Map<Integer,Integer> consumedItems = new HashMap<>();
+        Map<Integer,Map<Integer,Integer>> consumedItems = new HashMap<>();
         for(ItemRequirement requirement : requirements)
         {
             int leftToConsume = requirement.count;
-            for(int i = 0; i < container.getSlots() && leftToConsume > 0; ++i)
+            for(int h = 0; h < itemHandlers.size(); ++h)
             {
-                ItemStack stack = container.getStackInSlot(i);
-                if(requirement.test(stack))
+                IItemHandler handler = itemHandlers.get(h);
+                Map<Integer,Integer> handlerConsumed = consumedItems.getOrDefault(h,new HashMap<>());
+                for(int i = 0; i < handler.getSlots() && leftToConsume > 0; ++i)
                 {
-                    int alreadyConsumed = consumedItems.getOrDefault(i,0);
-                    int consumeCount = Math.min(leftToConsume, stack.getCount() - alreadyConsumed);
-                    leftToConsume -= consumeCount;
-                    if(consumeCount > 0)
+                    ItemStack stack = handler.getStackInSlot(i);
+                    if(requirement.test(stack))
                     {
-                        consumedItems.put(i, alreadyConsumed + consumeCount);
-                        //Search through results for another stack of the same item/nbt
-                        boolean query = true;
-                        for(int x = 0; x < results.size() && query; ++x)
+                        int alreadyConsumed = handlerConsumed.getOrDefault(i,0);
+                        int consumeCount = Math.min(leftToConsume,stack.getCount() - alreadyConsumed);
+                        leftToConsume -= consumeCount;
+                        if(consumeCount > 0)
                         {
-                            if(InventoryUtil.ItemMatches(results.get(x), stack))
+                            handlerConsumed.put(i,alreadyConsumed + consumeCount);
+                            //Search through results for another stack of the same item/nbt
+                            boolean query = true;
+                            for(int x = 0; x < results.size() && query; ++x)
                             {
-                                query = false;
-                                results.get(x).grow(consumeCount);
+                                if(ItemStack.isSameItemSameComponents(results.get(x),stack))
+                                {
+                                    query = false;
+                                    results.get(x).grow(consumeCount);
+                                }
                             }
-                        }
-                        if(query)
-                        {
-                            //None found in que
-                            ItemStack result = stack.copy();
-                            result.setCount(consumeCount);
-                            results.add(result);
+                            if(query)
+                            {
+                                //None found in que
+                                ItemStack result = stack.copy();
+                                result.setCount(consumeCount);
+                                results.add(result);
+                            }
                         }
                     }
                 }
+                consumedItems.put(h,handlerConsumed);
             }
             if(leftToConsume > 0) //Requirement not met.
                 return null;
@@ -528,19 +530,18 @@ public abstract class ItemRequirement implements Predicate<ItemStack> {
         private StackMatch(ItemStack stack, int count) { super(count); this.stack = stack; }
 
         @Override
-        public boolean test(ItemStack stack) { return InventoryUtil.ItemMatches(this.stack,stack); }
+        public boolean test(ItemStack stack) { return ItemStack.isSameItemSameComponents(this.stack,stack); }
 
         @Override
         public boolean matches(ItemRequirement otherRequirement) {
             if(otherRequirement instanceof StackMatch pm)
-                return InventoryUtil.ItemMatches(this.stack,pm.stack);
+                return ItemStack.isSameItemSameComponents(this.stack,pm.stack);
             return false;
         }
     }
 
     private static class ItemMatch extends ItemRequirement
     {
-
         private final Item item;
         private ItemMatch(Item item, int count) { super(count); this.item = item; }
 
@@ -553,7 +554,6 @@ public abstract class ItemRequirement implements Predicate<ItemStack> {
                 return im.item == this.item;
             return false;
         }
-
     }
 
     private static class IngredientRequirement extends ItemRequirement
@@ -578,7 +578,7 @@ public abstract class ItemRequirement implements Predicate<ItemStack> {
         @Override
         public boolean matches(ItemRequirement otherRequirement) {
             if(otherRequirement instanceof FilterRequirement fr)
-                return InventoryUtil.ItemMatches(fr.filterItem,this.filterItem);
+                return ItemStack.isSameItemSameComponents(fr.filterItem,this.filterItem);
             return false;
         }
     }

@@ -9,8 +9,8 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.blockentity.ItemTraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface.item.ItemStorageClientTab;
 import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
-import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.EasySlot;
+import io.github.lightman314.lightmanscurrency.common.traders.item.storage.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -123,7 +123,7 @@ public class ItemStorageTab extends TraderInterfaceTab {
                     if(removedAmount > 0)
                     {
                         removeStack.setCount(removedAmount);
-                        storage.removeItem(removeStack);
+                        storage.removeItemLimited(removeStack);
                     }
                 }
             }
@@ -201,7 +201,7 @@ public class ItemStorageTab extends TraderInterfaceTab {
                             //Remove the transferred amount from storage
                             ItemStack removeStack = stack.copy();
                             removeStack.setCount(removedCount);
-                            storage.removeItem(removeStack);
+                            storage.removeItemLimited(removeStack);
                         }
                         else
                             keepTrying = false;

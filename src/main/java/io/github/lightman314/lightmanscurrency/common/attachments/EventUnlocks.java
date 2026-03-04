@@ -2,28 +2,29 @@ package io.github.lightman314.lightmanscurrency.common.attachments;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.common.core.ModAttachmentTypes;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import io.github.lightman314.lightmanscurrency.network.message.event.SPacketSyncEventUnlocks;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
+import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.attachment.IAttachmentHolder;
-import net.neoforged.neoforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.attachment.*;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-public class EventUnlocks implements INBTSerializable<CompoundTag>, IClientTracker
+public class EventUnlocks implements IClientTracker
 {
-
-    public static EventUnlocks create(IAttachmentHolder holder) { return new EventUnlocks(holder); }
 
     @Override
     public boolean isClient() { return this.parent == null || this.parent.level().isClientSide; }
@@ -64,38 +65,75 @@ public class EventUnlocks implements INBTSerializable<CompoundTag>, IClientTrack
         }
     }
 
-    private void setChanged() {
-        this.holder.setData(ModAttachmentTypes.EVENT_UNLOCKS,this);
-        if(this.isServer() && this.parent instanceof Player player)
-            new SPacketSyncEventUnlocks(this.unlocked).sendTo(player);
-    }
+    private void setChanged() { this.holder.setData(ModAttachmentTypes.EVENT_UNLOCKS,this); }
 
-    @Override
-    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
-        CompoundTag tag = new CompoundTag();
-        StringBuilder builder = new StringBuilder();
-        for(String unlock : this.unlocked)
-        {
-            if(!builder.isEmpty())
-                builder.append(';');
-            builder.append(unlock);
-        }
-        tag.putString("Unlocked", builder.toString());
-        return tag;
+    private ListTag write() { return TagUtil.writeStringList(this.unlocked); }
+    private void read(ListTag tag) {
+        this.unlocked.clear();
+        this.unlocked.addAll(TagUtil.loadStringList(tag));
     }
-
-    @Override
-    public void deserializeNBT(HolderLookup.Provider lookup, CompoundTag tag) {
+    private void read(CompoundTag tag)
+    {
         this.unlocked.clear();
         String unlocked = tag.getString("Unlocked");
         this.unlocked.addAll(Arrays.stream(unlocked.split(";")).filter(Predicate.not(String::isBlank)).toList());
     }
 
-
     public void sync(List<String> list) {
         this.unlocked.clear();
         this.unlocked.addAll(list);
         this.setChanged();
+    }
+
+    public static AttachmentType.Builder<EventUnlocks> buildType() {
+        return AttachmentType.builder(EventUnlocks::new)
+                .serialize(new Serializer())
+                .sync(new Syncer())
+                .copyHandler(new Copier())
+                .copyOnDeath();
+    }
+
+    private static class Serializer implements IAttachmentSerializer<Tag,EventUnlocks>
+    {
+        @Override
+        public EventUnlocks read(IAttachmentHolder holder, Tag tag, HolderLookup.Provider provider) {
+            EventUnlocks result = new EventUnlocks(holder);
+            if(tag instanceof ListTag list)
+                result.read(list);
+            else if(tag instanceof CompoundTag t)
+                result.read(t);
+            return result;
+        }
+        @Override
+        public @Nullable Tag write(EventUnlocks attachment, HolderLookup.Provider provider) { return attachment.write(); }
+    }
+
+    private static class Syncer implements AttachmentSyncHandler<EventUnlocks>
+    {
+        private final StreamCodec<ByteBuf,List<String>> codec = ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list());
+        @Override
+        public void write(RegistryFriendlyByteBuf buf, EventUnlocks attachment, boolean initialSync) {
+            this.codec.encode(buf,attachment.unlocked);
+        }
+
+        @Override
+        public @Nullable EventUnlocks read(IAttachmentHolder holder, RegistryFriendlyByteBuf buf, @Nullable EventUnlocks previousValue) {
+            EventUnlocks eu = Objects.requireNonNullElseGet(previousValue,() -> new EventUnlocks(holder));
+            eu.unlocked.clear();
+            eu.unlocked.addAll(this.codec.decode(buf));
+            return eu;
+        }
+    }
+
+    private static class Copier implements IAttachmentCopyHandler<EventUnlocks>
+    {
+        @Override
+        @Nullable
+        public EventUnlocks copy(EventUnlocks attachment, IAttachmentHolder holder, HolderLookup.Provider provider) {
+            EventUnlocks newUnlocks = new EventUnlocks(holder);
+            newUnlocks.unlocked.addAll(attachment.unlocked);
+            return newUnlocks;
+        }
     }
 
 }

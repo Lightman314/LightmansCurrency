@@ -4,7 +4,6 @@ import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.InteractionUpgrade;
 
-import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
 public class InteractionUpgradeItem extends UpgradeItem {
@@ -17,7 +16,7 @@ public class InteractionUpgradeItem extends UpgradeItem {
     }
 
     @Override
-    public void setDefaultValues(@Nonnull UpgradeData.Mutable data) {
+    public void setDefaultValues(UpgradeData.Mutable data) {
         data.setIntValue(InteractionUpgrade.INTERACTIONS,this.interactionCount.get());
     }
 }

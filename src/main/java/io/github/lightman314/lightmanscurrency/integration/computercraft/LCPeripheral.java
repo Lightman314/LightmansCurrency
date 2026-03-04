@@ -6,24 +6,22 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IDynamicPeripheral;
 import dan200.computercraft.core.computer.GuardedLuaContext;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.menus.containers.SuppliedContainer;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
+import io.github.lightman314.lightmanscurrency.integration.computercraft.data.TableOps;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.InventoryPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.events.PeripheralMethodsEvent;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.Container;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class LCPeripheral implements IDynamicPeripheral {
 
     protected final AttachedComputerSet computers = new AttachedComputerSet();
@@ -36,11 +34,13 @@ public abstract class LCPeripheral implements IDynamicPeripheral {
         types.addAll(this.getAdditionalTypes());
         return types;
     }
-    private String[] getTypes() { return this.getTypeList().toArray(String[]::new); }
+    private LCLuaTable getTypes() { return LCLuaTable.fromList(this.getTypeList()); }
 
     private boolean isTypeArg(IArguments args) throws LuaException { return this.isType(args.getString(0)); }
 
     public boolean isType(String queryType) { return this.getTypeList().contains(queryType); }
+
+    public DataContext<Object> dataContext() { return DataContext.create(TableOps.INSTANCE,LookupHelper.getRegistryAccess()); }
 
     protected boolean hasComputer(IComputerAccess computer)
     {
@@ -84,11 +84,10 @@ public abstract class LCPeripheral implements IDynamicPeripheral {
     private void validateMethods() {
         if(this.methods == null)
         {
-            //Make it map-backed so that future
             LCPeripheralMethod.Registration registration = new LCPeripheralMethod.Registration();
             //Register built-in methods
             registration.register(LCPeripheralMethod.builder("getType").simple(this::getType));
-            registration.register(LCPeripheralMethod.builder("getTypes").simpleArray(this::getTypes));
+            registration.register(LCPeripheralMethod.builder("getTypes").simple(this::getTypes));
             registration.register(LCPeripheralMethod.builder("isType").withArgs(this::isTypeArg));
             //Register peripheral methods
             this.registerMethods(registration);
@@ -96,7 +95,13 @@ public abstract class LCPeripheral implements IDynamicPeripheral {
             VersionUtil.postEvent(new PeripheralMethodsEvent(this,registration));
             //Collect the method list from the map values
             this.methods = registration.getResults();
+            this.afterInitialization();
         }
+    }
+
+    protected void afterInitialization()
+    {
+
     }
 
     private List<LCPeripheralMethod> getMethods() {
@@ -119,7 +124,10 @@ public abstract class LCPeripheral implements IDynamicPeripheral {
     }
 
     public static Object wrapContainer(IComputerAccess computer,Supplier<Boolean> canAccess,Container container,Runnable setChanged,AccessTrackingPeripheral parent) { return wrapInventory(computer,canAccess,new InvWrapper(container),setChanged,parent); }
-    public static Object wrapContainer(IComputerAccess computer,Supplier<Boolean> canAccess,Supplier<Container> container,Runnable setChanged,AccessTrackingPeripheral parent) { return wrapInventory(computer,canAccess,new InvWrapper(new SuppliedContainer(container)),setChanged,parent); }
+    public static Object wrapContainer(IComputerAccess computer,Supplier<Boolean> canAccess,Supplier<Container> container,Runnable setChanged,AccessTrackingPeripheral parent) { return wrapInventory(computer,canAccess,() -> {
+        Container c = container.get();
+        return c == null ? null : new InvWrapper(c);
+    },setChanged,parent); }
     public static Object wrapInventory(IComputerAccess computer,Supplier<Boolean> canAccess,IItemHandler handler,Runnable setChanged,AccessTrackingPeripheral parent) { return wrapInventory(computer,canAccess,() -> handler,setChanged,parent); }
     public static Object wrapInventory(IComputerAccess computer,Supplier<Boolean> canAccess,Supplier<IItemHandler> handler,Runnable setChanged,AccessTrackingPeripheral parent) {
         InventoryPeripheral p = new InventoryPeripheral(canAccess,handler,setChanged);

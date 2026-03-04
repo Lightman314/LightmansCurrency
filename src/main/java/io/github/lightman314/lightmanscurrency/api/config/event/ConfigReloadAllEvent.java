@@ -2,10 +2,9 @@ package io.github.lightman314.lightmanscurrency.api.config.event;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import net.neoforged.bus.api.Event;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +24,6 @@ public abstract class ConfigReloadAllEvent extends Event implements IClientTrack
 
     //Cache files that will be reloaded
     private List<ConfigFile> reloadingFiles = null;
-    @Nonnull
     public List<ConfigFile> reloadedFiles() {
         if(this.reloadingFiles == null)
         {

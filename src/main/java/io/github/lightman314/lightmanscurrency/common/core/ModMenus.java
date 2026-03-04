@@ -1,5 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.core;
 
+import com.mojang.datafixers.util.Function3;
+import com.mojang.datafixers.util.Function4;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blockentity.*;
 import io.github.lightman314.lightmanscurrency.common.menus.*;
@@ -12,130 +15,92 @@ import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayer
 import io.github.lightman314.lightmanscurrency.common.menus.TraderMenu.*;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletBankMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenu;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.network.IContainerFactory;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 public class ModMenus {
+
+    public static final DeferredRegister<MenuType<?>> REGISTER = DeferredRegister.create(BuiltInRegistries.MENU,LightmansCurrency.MODID);
 	
-	/**
-	 * Placeholder function to force the static class loading
-	 */
-	public static void init() { }
+	public static final Supplier<MenuType<ATMMenu>> ATM = registerValidated("atm",ATMMenu::new);
 	
-	static {
+	public static final Supplier<MenuType<MintMenu>> MINT = registerBE("coinmint",CoinMintBlockEntity.class,MintMenu::new);
 
-		ATM = ModRegistries.MENUS.register("atm", () -> CreateType((IContainerFactory<ATMMenu>)(id, inventory, data) -> new ATMMenu(id, inventory, MenuValidator.decode(data))));
-		
-		MINT = ModRegistries.MENUS.register("coinmint", () -> CreateType((IContainerFactory<MintMenu>)(id, inventory, data)->{
-			CoinMintBlockEntity blockEntity = (CoinMintBlockEntity)inventory.player.level().getBlockEntity(data.readBlockPos());
-			return new MintMenu(id, inventory, blockEntity);
-		}));
-
-		NETWORK_TERMINAL = ModRegistries.MENUS.register("network_terminal", () -> CreateType((IContainerFactory<TerminalMenu>)(id,inventory,data) -> new TerminalMenu(id, inventory, MenuValidator.decode(data))));
-		
-		TRADER = ModRegistries.MENUS.register("trader", () -> CreateType((IContainerFactory<TraderMenu>)(id, inventory,data) -> new TraderMenu(id, inventory, data.readLong(), MenuValidator.decode(data))));
-		
-		TRADER_BLOCK = ModRegistries.MENUS.register("trader_block", () -> CreateType((IContainerFactory<TraderMenuBlockSource>)(id, inventory, data) -> new TraderMenuBlockSource(id, inventory, data.readBlockPos(), MenuValidator.decode(data))));
-		
-		TRADER_NETWORK_ALL = ModRegistries.MENUS.register("trader_network_all", () -> CreateType((IContainerFactory<TraderMenuAllNetwork>)(id, inventory,data) -> new TraderMenuAllNetwork(id, inventory, MenuValidator.decode(data))));
-
-		SLOT_MACHINE = ModRegistries.MENUS.register("slot_machine", () -> CreateType((IContainerFactory<SlotMachineMenu>)(id, inventory, data) -> new SlotMachineMenu(id, inventory, data.readLong(), MenuValidator.decode(data))));
-
-		GACHA_MACHINE = ModRegistries.MENUS.register("gacha_machine", () -> CreateType((IContainerFactory<GachaMachineMenu>)(id,inventory,data) -> new GachaMachineMenu(id,inventory,data.readLong(), MenuValidator.decode(data))));
-
-		TRADER_STORAGE = ModRegistries.MENUS.register("trader_storage", () -> CreateType((IContainerFactory<TraderStorageMenu>)(id, inventory,data) -> new TraderStorageMenu(id, inventory, data.readLong(), MenuValidator.decode(data))));
-		
-		WALLET = ModRegistries.MENUS.register("wallet", () -> CreateType((IContainerFactory<WalletMenu>)(id, inventory, data) -> new WalletMenu(id, inventory, data.readInt())));
-		
-		WALLET_BANK = ModRegistries.MENUS.register("wallet_bank", () -> CreateType((IContainerFactory<WalletBankMenu>)(id, inventory, data) -> new WalletBankMenu(id, inventory, data.readInt())));
-		
-		TICKET_MACHINE = ModRegistries.MENUS.register("ticket_machine", () -> CreateType((IContainerFactory<TicketStationMenu>)(id, inventory, data)->{
-			TicketStationBlockEntity blockEntity = (TicketStationBlockEntity)inventory.player.level().getBlockEntity(data.readBlockPos());
-			return new TicketStationMenu(id, inventory, blockEntity);
-		}));
-		
-		TRADER_INTERFACE = ModRegistries.MENUS.register("trader_interface", () -> CreateType((IContainerFactory<TraderInterfaceMenu>)(id, inventory, data) ->{
-			TraderInterfaceBlockEntity blockEntity = (TraderInterfaceBlockEntity)inventory.player.level().getBlockEntity(data.readBlockPos());
-			return new TraderInterfaceMenu(id, inventory, blockEntity);
-		}));
-		
-		EJECTION_RECOVERY = ModRegistries.MENUS.register("trader_recovery", () -> CreateType((IContainerFactory<EjectionRecoveryMenu>)(id, inventory, data) -> new EjectionRecoveryMenu(id, inventory)));
-
-		PLAYER_TRADE = ModRegistries.MENUS.register("player_trading", () -> CreateType((IContainerFactory<PlayerTradeMenu>)(id, inventory, data) -> new PlayerTradeMenu(id, inventory, data.readInt(), ClientPlayerTrade.decode(data))));
-
-		COIN_CHEST = ModRegistries.MENUS.register("coin_chest", () -> CreateType((IContainerFactory<CoinChestMenu>)(id,inventory,data) -> {
-			CoinChestBlockEntity blockEntity = (CoinChestBlockEntity)inventory.player.level().getBlockEntity(data.readBlockPos());
-			return new CoinChestMenu(id, inventory, blockEntity);
-		}));
-
-		TAX_COLLECTOR = ModRegistries.MENUS.register("tax_collector", () -> CreateType((IContainerFactory<TaxCollectorMenu>)(id, inventory, data) -> new TaxCollectorMenu(id, inventory, data.readLong(), MenuValidator.decode(data))));
-
-		TEAM_MANAGEMENT = ModRegistries.MENUS.register("team_management", () -> CreateType((IContainerFactory<TeamManagementMenu>)(id,inventory,data) -> new TeamManagementMenu(id,inventory)));
-
-		NOTIFICATIONS = ModRegistries.MENUS.register("notifications", () -> CreateType((IContainerFactory<NotificationMenu>)(id,inventory,data) -> new NotificationMenu(id,inventory)));
-
-		ATM_CARD = ModRegistries.MENUS.register("atm_card", () -> CreateType((IContainerFactory<ATMCardMenu>)(id, inventory, data) -> new ATMCardMenu(id,inventory,data.readInt())));
-
-		VARIANT_SELECT_BLOCK = ModRegistries.MENUS.register("variant_select", () -> CreateType((IContainerFactory<BlockVariantSelectMenu>)(id, inventory, data) -> new BlockVariantSelectMenu(id,inventory,data.readBlockPos())));
-		VARIANT_SELECT_ITEM = ModRegistries.MENUS.register("item_variant_select", () -> CreateType((IContainerFactory<ItemVariantSelectMenu>)(id, inventory, data) -> new ItemVariantSelectMenu(id,inventory)));
-
-        ITEM_FILTER = ModRegistries.MENUS.register("item_trade_filter", () -> CreateType((IContainerFactory<ItemFilterMenu>)(id,inventory,data) -> new ItemFilterMenu(id,inventory,data.readInt())));
-
-        TRANSACTION_REGISTER = ModRegistries.MENUS.register("transaction_register", () -> CreateType((IContainerFactory<TransactionRegisterMenu>)(id,inventory,data) -> new TransactionRegisterMenu(id,inventory,data.readInt())));
-
-	}
-	
-	public static final Supplier<MenuType<ATMMenu>> ATM;
-	
-	public static final Supplier<MenuType<MintMenu>> MINT;
-
-	public static final Supplier<MenuType<TerminalMenu>> NETWORK_TERMINAL;
+	public static final Supplier<MenuType<TerminalMenu>> NETWORK_TERMINAL = registerValidated("network_terminal",TerminalMenu::new);
 	
 	//Any Trader
-	public static final Supplier<MenuType<TraderMenu>> TRADER;
-	public static final Supplier<MenuType<TraderMenuBlockSource>> TRADER_BLOCK;
-	public static final Supplier<MenuType<TraderMenuAllNetwork>> TRADER_NETWORK_ALL;
+	public static final Supplier<MenuType<TraderMenu>> TRADER = registerTrader("trader",TraderMenu::new);
+	public static final Supplier<MenuType<TraderMenuBlockSource>> TRADER_BLOCK = register("trader_block",(id, inventory, data) -> new TraderMenuBlockSource(id, inventory, data.readBlockPos(), MenuValidator.decode(data)));
+	public static final Supplier<MenuType<TraderMenuAllNetwork>> TRADER_NETWORK_ALL = registerValidated("trader_network_all",TraderMenuAllNetwork::new);
 
 	//Slot Machine
-	public static final Supplier<MenuType<SlotMachineMenu>> SLOT_MACHINE;
+	public static final Supplier<MenuType<SlotMachineMenu>> SLOT_MACHINE = registerTrader("slot_machine",SlotMachineMenu::new);
 	//Gacha Machine
-	public static final Supplier<MenuType<GachaMachineMenu>> GACHA_MACHINE;
+	public static final Supplier<MenuType<GachaMachineMenu>> GACHA_MACHINE = registerTrader("gacha_machine",GachaMachineMenu::new);
 
 	//Any Trader Storage
-	public static final Supplier<MenuType<TraderStorageMenu>> TRADER_STORAGE;
+	public static final Supplier<MenuType<TraderStorageMenu>> TRADER_STORAGE = registerTrader("trader_storage",TraderStorageMenu::new);
 	
-	public static final Supplier<MenuType<WalletMenu>> WALLET;
-	public static final Supplier<MenuType<WalletBankMenu>> WALLET_BANK;
+	public static final Supplier<MenuType<WalletMenu>> WALLET = registerItem("wallet",WalletMenu::new);
+	public static final Supplier<MenuType<WalletBankMenu>> WALLET_BANK = registerItem("wallet_bank",WalletBankMenu::new);
 	
-	public static final Supplier<MenuType<TicketStationMenu>> TICKET_MACHINE;
+	public static final Supplier<MenuType<TicketStationMenu>> TICKET_MACHINE = registerBE("ticket_machine",TicketStationBlockEntity.class,TicketStationMenu::new);
 	
-	public static final Supplier<MenuType<TraderInterfaceMenu>> TRADER_INTERFACE;
+	public static final Supplier<MenuType<TraderInterfaceMenu>> TRADER_INTERFACE = registerBE("trader_interface",TraderInterfaceBlockEntity.class,TraderInterfaceMenu::new);
 	
-	public static final Supplier<MenuType<EjectionRecoveryMenu>> EJECTION_RECOVERY;
+	public static final Supplier<MenuType<EjectionRecoveryMenu>> EJECTION_RECOVERY = registerSimple("trader_recovery",EjectionRecoveryMenu::new);
 
-	public static final Supplier<MenuType<PlayerTradeMenu>> PLAYER_TRADE;
+	public static final Supplier<MenuType<PlayerTradeMenu>> PLAYER_TRADE = register("player_trading",(id, inventory, data) -> new PlayerTradeMenu(id, inventory, data.readInt(), ClientPlayerTrade.decode(data)));
 
-	public static final Supplier<MenuType<CoinChestMenu>> COIN_CHEST;
+	public static final Supplier<MenuType<CoinChestMenu>> COIN_CHEST = registerBE("coin_chest",CoinChestBlockEntity.class,CoinChestMenu::new);
 
-	public static final Supplier<MenuType<TaxCollectorMenu>> TAX_COLLECTOR;
+	public static final Supplier<MenuType<TaxCollectorMenu>> TAX_COLLECTOR = registerTrader("tax_collector",TaxCollectorMenu::new);
 
-	public static final Supplier<MenuType<TeamManagementMenu>> TEAM_MANAGEMENT;
+	public static final Supplier<MenuType<TeamManagementMenu>> TEAM_MANAGEMENT = registerSimple("team_management",TeamManagementMenu::new);
 
-	public static final Supplier<MenuType<NotificationMenu>> NOTIFICATIONS;
+	public static final Supplier<MenuType<NotificationMenu>> NOTIFICATIONS = registerSimple("notifications",NotificationMenu::new);
 
-	public static final Supplier<MenuType<ATMCardMenu>> ATM_CARD;
+	public static final Supplier<MenuType<ATMCardMenu>> ATM_CARD = registerItem("atm_card",ATMCardMenu::new);
 
-	public static final Supplier<MenuType<BlockVariantSelectMenu>> VARIANT_SELECT_BLOCK;
-	public static final Supplier<MenuType<ItemVariantSelectMenu>> VARIANT_SELECT_ITEM;
+	public static final Supplier<MenuType<BlockVariantSelectMenu>> VARIANT_SELECT_BLOCK = register("variant_select",(window,inventory,data) -> new BlockVariantSelectMenu(window,inventory,data.readBlockPos()));
+	public static final Supplier<MenuType<ItemVariantSelectMenu>> VARIANT_SELECT_ITEM = registerSimple("item_variant_select",ItemVariantSelectMenu::new);
 
-    public static final Supplier<MenuType<ItemFilterMenu>> ITEM_FILTER;
+    public static final Supplier<MenuType<ItemFilterMenu>> ITEM_FILTER = registerItem("item_trade_filter",ItemFilterMenu::new);
 
-    public static final Supplier<MenuType<TransactionRegisterMenu>> TRANSACTION_REGISTER;
+    public static final Supplier<MenuType<TransactionRegisterMenu>> TRANSACTION_REGISTER = registerItem("transaction_register",TransactionRegisterMenu::new);
 
-	private static <T extends AbstractContainerMenu> MenuType<T> CreateType(MenuType.MenuSupplier<T> supplier){ return new MenuType<>(supplier, FeatureFlagSet.of()); }
+    public static <T extends AbstractContainerMenu,B extends BlockEntity> DeferredHolder<MenuType<?>,MenuType<T>> registerBE(String id, Class<B> beClass,Function3<Integer,Inventory,B,T> factory) {
+        return register(id,(menu,inventory,data) -> {
+            BlockEntity be = inventory.player.level().getBlockEntity(data.readBlockPos());
+            if(beClass.isInstance(be))
+                return factory.apply(menu,inventory,beClass.cast(be));
+            return null;
+        });
+    }
+    public static <T extends AbstractContainerMenu> DeferredHolder<MenuType<?>,MenuType<T>> registerItem(String id,Function3<Integer,Inventory,Integer,T> factory) {
+        return register(id,(menu,inventory,data) -> factory.apply(menu,inventory,data.readInt()));
+    }
+    public static <T extends AbstractContainerMenu> DeferredHolder<MenuType<?>,MenuType<T>> registerTrader(String id, Function4<Integer,Inventory,Long,MenuValidator,T> factory) {
+        return register(id,(menu,inventory,data) -> factory.apply(menu,inventory,data.readLong(),MenuValidator.decode(data)));
+    }
+    public static <T extends AbstractContainerMenu> DeferredHolder<MenuType<?>,MenuType<T>> registerValidated(String id,Function3<Integer,Inventory,MenuValidator,T> factory) {
+        return register(id,(menu,inventory,data) -> factory.apply(menu,inventory,MenuValidator.decode(data)));
+    }
+    public static <T extends AbstractContainerMenu> DeferredHolder<MenuType<?>,MenuType<T>> registerSimple(String id, BiFunction<Integer,Inventory,T> factory) {
+        return register(id,(menu,inventory,data) -> factory.apply(menu,inventory));
+    }
+    public static <T extends AbstractContainerMenu> DeferredHolder<MenuType<?>,MenuType<T>> register(String id,IContainerFactory<T> factory) {
+        return REGISTER.register(id,() -> new MenuType<>(factory,FeatureFlagSet.of()));
+    }
 
 }

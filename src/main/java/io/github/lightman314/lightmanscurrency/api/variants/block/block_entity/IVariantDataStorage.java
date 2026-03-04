@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.variants.block.block_entity;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.capability.variant.CapabilityVariantData;
+import io.github.lightman314.lightmanscurrency.api.variants.block.CapabilityVariantData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.BlockGetter;
@@ -56,15 +56,14 @@ public interface IVariantDataStorage {
     @Nullable
     static IVariantDataStorage get(LootContext context)
     {
-        //Try and obtain from the data from the block entity parameter
-        if(context.hasParam(LootContextParams.BLOCK_ENTITY))
-            return get(context.getParam(LootContextParams.BLOCK_ENTITY));
         //Otherwise try and obtain it from the level and block position
-        else if(context.hasParam(LootContextParams.ORIGIN))
+        if(context.hasParam(LootContextParams.ORIGIN))
         {
             BlockPos pos = BlockPos.containing(context.getParam(LootContextParams.ORIGIN));
             return get(context.getLevel(),pos);
-        }
+        } //Otherwise try and obtain from the data from the block entity parameter
+        else if(context.hasParam(LootContextParams.BLOCK_ENTITY))
+            return get(context.getParam(LootContextParams.BLOCK_ENTITY));
         return null;
     }
 

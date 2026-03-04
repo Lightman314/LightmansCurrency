@@ -2,12 +2,12 @@ package io.github.lightman314.lightmanscurrency.api.traders.blocks;
 
 import java.util.function.BiFunction;
 
+import com.mojang.datafixers.util.Function3;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IWideBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import io.github.lightman314.lightmanscurrency.util.TriFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
@@ -24,11 +24,11 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotatable implements IWideBlock{
 
-	private final TriFunction<Direction,Boolean,Boolean,VoxelShape> shape;
+	private final Function3<Direction,Boolean,Boolean,VoxelShape> shape;
 	
 	protected TraderBlockTallWideRotatable(Properties properties) { this(properties, LazyShapes.TALL_WIDE_BOX_SHAPE); }
 	
@@ -42,7 +42,7 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 		this(properties, LazyShapes.lazyTallWideDirectionalShape(tallShape));
 	}
 	
-	protected TraderBlockTallWideRotatable(Properties properties, TriFunction<Direction,Boolean,Boolean,VoxelShape> shape)
+	protected TraderBlockTallWideRotatable(Properties properties, Function3<Direction,Boolean,Boolean,VoxelShape> shape)
 	{
 		super(properties);
 		this.shape = shape;
@@ -58,27 +58,26 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 	protected boolean shouldMakeTrader(BlockState state) { return this.getIsBottom(state) && this.getIsLeft(state); }
 	
 	@Override
-	@Nonnull
-	public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context)
+	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context)
 	{
 		return this.shape.apply(this.getFacing(state), this.getIsBottom(state), this.getIsLeft(state));
 	}
 	
 	@Override
-    protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
     {
 		super.createBlockStateDefinition(builder);
         builder.add(ISLEFT);
     }
 	
 	@Override
-	public BlockState getStateForPlacement(@Nonnull BlockPlaceContext context)
+	public BlockState getStateForPlacement(BlockPlaceContext context)
 	{
 		return super.getStateForPlacement(context).setValue(ISLEFT,true);
 	}
 	
 	@Override
-	public void setPlacedBy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
+	public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity player, ItemStack stack)
 	{
 		//Attempt to place the other three blocks
 		BlockPos rightPos = IRotatableBlock.getRightPos(pos, this.getFacing(state));
@@ -107,9 +106,9 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 		
 	}
 	
-	@Nonnull
+	
 	@Override
-	public BlockState playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player)
+	public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
 	{
 		//Run base functionality first to prevent the removal of the block containing the block entity
 		this.playerWillDestroyBase(level, pos, state, player);
@@ -140,7 +139,7 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
     }
 
 	@Override
-	public void removeOtherBlocks(@Nonnull Level level, @Nonnull BlockState state, @Nonnull BlockPos pos) {
+	public void removeOtherBlocks(Level level, BlockState state, BlockPos pos) {
 		BlockPos otherPos = this.getOtherSide(pos, state);
 		setAir(level, this.getOtherHeight(pos,state),null);
 		setAir(level, otherPos, null);

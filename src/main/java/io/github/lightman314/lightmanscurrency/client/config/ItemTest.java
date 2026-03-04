@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.config;
 
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -58,7 +57,7 @@ public abstract class ItemTest implements Predicate<ItemStack> {
         @Override
         public String toString() { return "#" + this.tag.location(); }
         @Override
-        public boolean test(ItemStack stack) { return InventoryUtil.ItemHasTag(stack,this.tag); }
+        public boolean test(ItemStack stack) { return stack.is(this.tag); }
     }
 
 }

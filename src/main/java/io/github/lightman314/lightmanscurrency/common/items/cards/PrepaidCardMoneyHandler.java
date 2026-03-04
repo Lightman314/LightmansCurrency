@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.items.cards;
 
-import io.github.lightman314.lightmanscurrency.api.capability.money.MoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.money.capability.MoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;

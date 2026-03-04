@@ -14,7 +14,7 @@ public class DurabilityData {
 
     public static final Codec<DurabilityData> CODEC = RecordCodecBuilder.create(builder ->
             builder.group(
-                    Codec.BOOL.optionalFieldOf("allowInfinite").forGetter(DurabilityData::aiOptional),
+                    Codec.BOOL.optionalFieldOf("allowInfinite").forGetter(DurabilityData::allowInfiniteOptional),
                     ExtraCodecs.intRange(0,Integer.MAX_VALUE).fieldOf("min").forGetter(d -> d.min),
                     ExtraCodecs.intRange(0,Integer.MAX_VALUE).fieldOf("max").forGetter(d -> d.max))
                     .apply(builder,DurabilityData::new));
@@ -28,7 +28,7 @@ public class DurabilityData {
     public static DurabilityData NULL = new DurabilityData(false,0,0);
 
     public final boolean allowInfinite;
-    private Optional<Boolean> aiOptional() {
+    private Optional<Boolean> allowInfiniteOptional() {
         if(this.min == 0)
             return Optional.empty();
         return Optional.of(this.allowInfinite);

@@ -1,20 +1,14 @@
 package io.github.lightman314.lightmanscurrency.api.ejection;
 
 import io.github.lightman314.lightmanscurrency.common.impl.SafeEjectionAPIImpl;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class SafeEjectionAPI {
 
     private static SafeEjectionAPI instance = null;
@@ -30,8 +24,7 @@ public abstract class SafeEjectionAPI {
     public abstract List<EjectionData> getAllData(boolean isClient);
 
     public abstract List<EjectionData> getDataForPlayer(Player player);
-    @Nullable
-    public abstract EjectionData parseData(CompoundTag tag, HolderLookup.Provider lookup);
-    public abstract void handleEjection(Level level, BlockPos pos, EjectionData data);
+
+    public abstract void handleEjection(@Nullable Level level, BlockPos pos, EjectionData data);
 
 }

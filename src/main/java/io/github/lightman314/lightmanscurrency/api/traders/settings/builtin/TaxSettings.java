@@ -3,17 +3,18 @@ package io.github.lightman314.lightmanscurrency.api.traders.settings.builtin;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.settings.data.LoadContext;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.api.traders.settings.EasyTraderSettingsNode;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.TaxesNode;
+import io.github.lightman314.lightmanscurrency.api.traders.settings.EasyTraderNodeSettings;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
 import java.util.function.Consumer;
 
-public class TaxSettings extends EasyTraderSettingsNode<TraderData> {
+public class TaxSettings extends EasyTraderNodeSettings<TraderData, TaxesNode> {
 
-    public TaxSettings(TraderData trader) { super("taxes", trader); }
+    public TaxSettings(TraderData trader,TaxesNode node) { super("taxes", trader, node); }
 
     @Override
     protected String getRequiredPermission() { return Permissions.EDIT_SETTINGS; }
@@ -23,12 +24,12 @@ public class TaxSettings extends EasyTraderSettingsNode<TraderData> {
 
     @Override
     public void saveSettings(SavedSettingData.MutableNodeAccess data) {
-        data.setIntValue("acceptable_rate",this.trader.getAcceptableTaxRate());
+        data.setIntValue("acceptable_rate",this.node.getAcceptableTaxRate());
     }
 
     @Override
     public void loadSettings(SavedSettingData.NodeAccess data, LoadContext context) {
-        this.trader.setAcceptableTaxRate(data.getIntValue("acceptable_rate"));
+        this.node.setAcceptableTaxRate(null,data.getIntValue("acceptable_rate"));
     }
 
     @Override

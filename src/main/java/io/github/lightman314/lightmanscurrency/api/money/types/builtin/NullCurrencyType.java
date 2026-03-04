@@ -4,37 +4,39 @@ import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.capability.money.CapabilityMoneyHandler;
-import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.money.capability.CapabilityMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.types.IPlayerMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.money.value.builtin.NullValue;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.function.Consumer;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-public final class NullCurrencyType extends CurrencyType {
+public final class NullCurrencyType extends CurrencyType<NullValue> {
 
-    public static final ResourceLocation TYPE = VersionUtil.lcResource("null");
     public static final NullCurrencyType INSTANCE = new NullCurrencyType();
 
-    private NullCurrencyType() { super(TYPE); }
+    private static final MapCodec<NullValue> NULL_CODEC = Codec.BOOL.fieldOf("free").xmap(free -> free ? NullValue.FREE : NullValue.EMPTY,MoneyValue::isFree);
+    private static final StreamCodec<ByteBuf,NullValue> NULL_STREAM_CODEC = ByteBufCodecs.BOOL.map(free -> free ? NullValue.FREE : NullValue.EMPTY,MoneyValue::isFree);
+
+    private NullCurrencyType() {}
 
     @Override
     protected MoneyValue sumValuesInternal(List<MoneyValue> values) { return MoneyValue.empty(); }
@@ -45,10 +47,10 @@ public final class NullCurrencyType extends CurrencyType {
 
     @Nullable
     @Override
-    public IMoneyHandler createMoneyHandlerForContainer(Container container, Consumer<ItemStack> overflowHandler, IClientTracker tracker) { return null; }
+    public IMoneyHandler createMoneyHandlerForContainer(IItemHandler container, Consumer<ItemStack> overflowHandler, IClientTracker tracker) { return null; }
 
     @Override
-    public MoneyValue loadMoneyValue(CompoundTag valueTag) {
+    public MoneyValue loadOldMoneyValue(CompoundTag valueTag) {
         if(valueTag.contains("Free", Tag.TAG_BYTE) && valueTag.getBoolean("Free"))
             return MoneyValue.free();
         return MoneyValue.empty();
@@ -63,6 +65,12 @@ public final class NullCurrencyType extends CurrencyType {
     public boolean allowItemInMoneySlot(Player player, ItemStack item) {
         return item.getCapability(CapabilityMoneyHandler.MONEY_HANDLER_ITEM) != null;
     }
+
+    @Override
+    public MapCodec<NullValue> moneyValueCodec() { return NULL_CODEC; }
+
+    @Override
+    public StreamCodec<ByteBuf,NullValue> moneyValueStreamCodec() { return NULL_STREAM_CODEC; }
 
     private static class DefaultValueParser extends MoneyValueParser {
 

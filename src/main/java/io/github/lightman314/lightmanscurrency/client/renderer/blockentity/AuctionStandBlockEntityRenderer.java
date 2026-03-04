@@ -19,7 +19,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class AuctionStandBlockEntityRenderer implements BlockEntityRenderer<AuctionStandBlockEntity> {
@@ -31,7 +30,7 @@ public class AuctionStandBlockEntityRenderer implements BlockEntityRenderer<Auct
     public static AuctionStandBlockEntityRenderer create(BlockEntityRendererProvider.Context context) { return new AuctionStandBlockEntityRenderer(context); }
 
     @Override
-    public void render(@Nonnull AuctionStandBlockEntity blockEntity, float partialTicks, @Nonnull PoseStack pose, @Nonnull MultiBufferSource buffer, int lightLevel, int id) {
+    public void render(AuctionStandBlockEntity blockEntity, float partialTicks, PoseStack pose, MultiBufferSource buffer, int lightLevel, int id) {
 
         ImmutableList<ItemStack> displayItems = AuctionStandBlockEntity.getDisplayItems();
         if(displayItems.isEmpty())

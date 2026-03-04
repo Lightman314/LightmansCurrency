@@ -4,7 +4,7 @@ import io.github.lightman314.lightmanscurrency.api.money.client.ClientCurrencyTy
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.client.CoinInputTypeHelper;
-import io.github.lightman314.lightmanscurrency.api.money.input.MoneyInputHandler;
+import io.github.lightman314.lightmanscurrency.api.money.client.input.MoneyInputHandler;
 import io.github.lightman314.lightmanscurrency.api.money.types.builtin.CoinCurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;

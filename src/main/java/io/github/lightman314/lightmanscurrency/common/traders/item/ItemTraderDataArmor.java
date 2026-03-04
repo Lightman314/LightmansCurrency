@@ -1,29 +1,27 @@
 package io.github.lightman314.lightmanscurrency.common.traders.item;
 
-import io.github.lightman314.lightmanscurrency.api.traders.TraderType;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.EquipmentRestriction;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.restrictions.ItemTradeRestriction;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderType;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.NodeCollector;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNode;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNodeType;
+import io.github.lightman314.lightmanscurrency.common.traders.item.nodes.ArmorRestrictionNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 
+import java.util.Map;
+
 public class ItemTraderDataArmor extends ItemTraderData {
 
-	public static final TraderType<ItemTraderDataArmor> TYPE = new TraderType<>(VersionUtil.lcResource("item_trader_armor"),ItemTraderDataArmor::new);
-	
-	private ItemTraderDataArmor() { super(TYPE); }
-	public ItemTraderDataArmor(Level level, BlockPos pos) { super(TYPE, 4, level, pos); }
+	public static final TraderType<ItemTraderDataArmor> TYPE = TraderType.simple(ItemTraderDataArmor::new,ItemTraderDataArmor::new);
 
-	@Override
-	protected ItemTradeRestriction getTradeRestriction(int tradeIndex)
-	{
-		return switch (tradeIndex % 4) {
-			case 0 -> EquipmentRestriction.HEAD;
-			case 1 -> EquipmentRestriction.CHEST;
-			case 2 -> EquipmentRestriction.LEGS;
-			default -> EquipmentRestriction.FEET;
-		};
-	}
-	
+    private ItemTraderDataArmor() {}
+	public ItemTraderDataArmor(Level level, BlockPos pos) { super(4, false,level, pos); }
+    private ItemTraderDataArmor(long id,Map<TraderNodeType<?>, TraderNode> nodes) { super(id,nodes); }
+
+    @Override
+    public void addCustomNodes(NodeCollector collector) {
+        super.addCustomNodes(collector);
+        collector.addNode(ArmorRestrictionNode.TYPE);
+    }
 	
 }

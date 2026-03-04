@@ -1,61 +1,75 @@
 package io.github.lightman314.lightmanscurrency.common.emergency_ejection;
 
 import com.google.common.collect.Lists;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.codecs.StreamHelper;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionDataType;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
-import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.misc.item_handlers.LCItemStackHandler;
+import io.github.lightman314.lightmanscurrency.api.misc.item_handlers.NonEmptyHandler;
+import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderState;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderState;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
-import io.github.lightman314.lightmanscurrency.common.menus.containers.NonEmptyContainer;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class TraderEjectionData extends EjectionData {
 
-    public static final EjectionDataType TYPE = new Type();
+    public static final EjectionDataType<?> TYPE = new Type();
+
+    private static final Codec<IData> DATA_CODEC = Codec.INT.dispatch(IData::getID,IData::getCodec);
+    private static final MapCodec<TraderEjectionData> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+            DATA_CODEC.fieldOf("data").forGetter(d -> d.data),
+            baseFields()
+    ).apply(builder,TraderEjectionData::new));
+
+    private static final StreamCodec<RegistryFriendlyByteBuf,IData> DATA_STREAM_CODEC = StreamHelper.mapBufReg(ByteBufCodecs.INT)
+            .dispatch(IData::getID,IData::getStreamCodec);
+    private static final StreamCodec<RegistryFriendlyByteBuf,TraderEjectionData> STREAM_CODEC = StreamHelper.combine(baseStreamFields(),
+            DATA_STREAM_CODEC,d -> d.data,
+            TraderEjectionData::new);
 
     private IData data;
 
-    public TraderEjectionData(long traderID, @Nonnull ItemStack item) { this.data = new PreSplitData(traderID,item); }
-    private TraderEjectionData(@Nonnull IData data) { this.data = data; }
+    public TraderEjectionData(long traderID, ItemStack item) { this.data = new PreSplitData(traderID,item); }
+    private TraderEjectionData(IData data,long id) { super(id); this.data = data; }
 
-    @Nonnull
     @Override
     public OwnerData getOwner() { return this.data.getOwner(this); }
 
-    @Nonnull
     @Override
     public Component getName() { return this.data.getName(this); }
 
-    @Nonnull
     @Override
-    public EjectionDataType getType() { return TYPE; }
-
-    @Nonnull
-    @Override
-    public Container getContents() { return this.data.getContents(); }
+    public EjectionDataType<?> getType() { return TYPE; }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
-        tag.putBoolean("Split",this.data.isSplit());
-        this.data.saveAdditional(tag,lookup);
-    }
+    public IItemHandlerModifiable getContents() { return this.data.getContents(); }
 
     @Override
     public boolean isEmpty() { return this.data.isEmpty(this) || super.isEmpty(); }
@@ -74,15 +88,14 @@ public class TraderEjectionData extends EjectionData {
         this.data = EmptyData.INSTANCE;
         this.setChanged();
     }
-
-    @Nonnull
+    
     @Override
     public List<Component> getSplitButtonTooltip() {
         if(this.data instanceof PreSplitData psd)
             return Lists.newArrayList(LCText.TOOLTIP_EJECTION_SPLIT_TRADER.get(psd.item.getHoverName()));
         return super.getSplitButtonTooltip();
     }
-    @Nonnull
+    
     @Override
     public IconData getSplitButtonIcon() {
         if(this.data instanceof PreSplitData psd)
@@ -102,12 +115,12 @@ public class TraderEjectionData extends EjectionData {
             ItemStack item = psd.item.copy();
             //Remove Trader ID so that it no longer links back to the trader
             item.remove(ModDataComponents.TRADER_ITEM_DATA);
-            Container contents = InventoryUtil.buildInventory(trader.getContents(item));
+            List<ItemStack> contents = trader.getContents(item);
             //Copy ownership
             OwnerData owner = new OwnerData(IClientTracker.forClient());
             owner.copyFrom(trader.getOwner());
             //Load post-split data
-            this.data = new SplitData(owner,new NonEmptyContainer(contents),trader.getName());
+            this.data = new SplitData(owner,contents,trader.getName());
             //Delete the Trader Data as there is no longer an item linked to it,
             //and we can safely assume the ejection system is working properly at this point
             if(this.isServer())
@@ -115,76 +128,106 @@ public class TraderEjectionData extends EjectionData {
         }
     }
 
-    private static class Type extends EjectionDataType
+    private static class Type extends EjectionDataType<TraderEjectionData>
     {
-        @Nonnull
+        
         @Override
-        public EjectionData load(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
+        public EjectionData loadOldData(CompoundTag tag, HolderLookup.Provider lookup, long id) {
             if(tag.getBoolean("Empty"))
-                return new TraderEjectionData(EmptyData.INSTANCE);
+                return new TraderEjectionData(EmptyData.INSTANCE,id);
             boolean split = tag.getBoolean("Split");
             IData data;
             if(split)
-                data = SplitData.load(tag,lookup);
+                data = SplitData.loadOldData(tag,lookup);
             else
-                data = PreSplitData.load(tag,lookup);
-            return new TraderEjectionData(data);
+                data = PreSplitData.loadOldData(tag,lookup);
+            return new TraderEjectionData(data,id);
         }
+
+        @Override
+        public MapCodec<TraderEjectionData> mapCodec() { return MAP_CODEC; }
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf,TraderEjectionData> streamCodec() { return STREAM_CODEC; }
     }
 
     private interface IData
     {
+
+        private static MapCodec<? extends IData> getCodec(int id) {
+            return switch (id) {
+                case 1 -> PreSplitData.MAP_CODEC;
+                case 2 -> SplitData.MAP_CODEC;
+                default -> EmptyData.MAP_CODEC;
+            };
+        }
+        private static StreamCodec<RegistryFriendlyByteBuf,? extends IData> getStreamCodec(int id)
+        {
+            return switch (id) {
+                case 1 -> PreSplitData.STREAM_CODEC;
+                case 2 -> SplitData.STREAM_CODEC;
+                default -> EmptyData.STREAM_CODEC;
+            };
+        }
+
         default boolean isPreSplit() { return this instanceof PreSplitData; }
         default boolean isSplit() { return this instanceof SplitData; }
-        @Nonnull
-        OwnerData getOwner(@Nonnull IClientTracker context);
-        @Nonnull
-        Component getName(@Nonnull IClientTracker context);
-        @Nonnull
-        Container getContents();
-        boolean isEmpty(@Nonnull IClientTracker context);
-        void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup);
+        int getID();
+        
+        OwnerData getOwner(IClientTracker context);
+        
+        Component getName(IClientTracker context);
+        
+        IItemHandlerModifiable getContents();
+        boolean isEmpty(IClientTracker context);
+
     }
 
     private static class PreSplitData implements IData
     {
+        private static final MapCodec<PreSplitData> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+                Codec.LONG.fieldOf("id").forGetter(d -> d.traderID),
+                ItemStack.CODEC.fieldOf("item").forGetter(d -> d.item)
+        ).apply(builder,PreSplitData::new));
+        private static final StreamCodec<RegistryFriendlyByteBuf,PreSplitData> STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.VAR_LONG,d -> d.traderID,
+                ItemStack.STREAM_CODEC,d -> d.item,
+                PreSplitData::new);
+
         private final long traderID;
         private final ItemStack item;
-        private final Container contents;
-        private PreSplitData(long traderID, @Nonnull ItemStack item)
+        private final LCItemStackHandler contents;
+        private PreSplitData(long traderID, ItemStack item)
         {
             this.traderID = traderID;
             this.item = item.copy();
-            this.contents = InventoryUtil.buildInventory(this.item);
+            this.contents = new LCItemStackHandler(this.item);
         }
 
-        private TraderData getTrader(@Nonnull IClientTracker context) { return TraderAPI.getApi().GetTrader(context,this.traderID); }
-        @Nonnull
-        public OwnerData getOwner(@Nonnull IClientTracker context) {
+        private TraderData getTrader(IClientTracker context) { return TraderAPI.getApi().GetTrader(context,this.traderID); }
+
+        @Override
+        public int getID() { return 1; }
+
+        public OwnerData getOwner(IClientTracker context) {
             TraderData trader = this.getTrader(context);
             return trader == null ? new OwnerData(context) : trader.getOwner();
         }
-        @Nonnull
-        public Component getName(@Nonnull IClientTracker context) {
+        
+        public Component getName(IClientTracker context) {
             TraderData trader = this.getTrader(context);
             return trader == null ? LCText.GUI_TRADER_DEFAULT_NAME.get() : trader.getName();
         }
-        @Nonnull
+        
         @Override
-        public Container getContents() { return this.contents; }
+        public IItemHandlerModifiable getContents() { return this.contents; }
         @Override
-        public boolean isEmpty(@Nonnull IClientTracker context) {
+        public boolean isEmpty(IClientTracker context) {
             TraderData trader = this.getTrader(context);
             return trader == null || trader.getState() != TraderState.EJECTED;
         }
 
-        @Override
-        public void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
-            tag.putLong("TraderID", this.traderID);
-            tag.put("Item",InventoryUtil.saveItemNoLimits(this.item,lookup));
-        }
-        @Nonnull
-        private static PreSplitData load(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
+        @SuppressWarnings("deprecation")
+        private static PreSplitData loadOldData(CompoundTag tag, HolderLookup.Provider lookup) {
             long traderID = tag.getLong("TraderID");
             ItemStack item = InventoryUtil.loadItemNoLimits(tag.getCompound("Item"),lookup);
             return new PreSplitData(traderID,item);
@@ -193,19 +236,39 @@ public class TraderEjectionData extends EjectionData {
 
     private static class SplitData implements IData
     {
+
+        private static final MapCodec<SplitData> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+                OwnerData.CODEC.fieldOf("owner").forGetter(d -> d.tempOwner),
+                NonEmptyHandler.CODEC.fieldOf("contents").forGetter(d -> d.contents),
+                ComponentSerialization.CODEC.fieldOf("name").forGetter(d -> d.name)
+        ).apply(builder,SplitData::new));
+        private static final StreamCodec<RegistryFriendlyByteBuf,SplitData> STREAM_CODEC = StreamCodec.composite(
+                OwnerData.STREAM_CODEC,d -> d.tempOwner,
+                NonEmptyHandler.STREAM_CODEC,d -> d.contents,
+                ComponentSerialization.STREAM_CODEC,d -> d.name,
+                SplitData::new);
+
         private final OwnerData tempOwner;
+        @Nullable
         private OwnerData owner;
-        private final NonEmptyContainer contents;
+        private final NonEmptyHandler contents;
+        private List<ItemStack> getItems() { return this.contents.getStacks(); }
         private final Component name;
-        private SplitData(@Nonnull OwnerData owner, @Nonnull NonEmptyContainer container, @Nonnull Component name)
+        private SplitData(OwnerData owner,List<ItemStack> contents,Component name) {
+            this(owner,new NonEmptyHandler(contents),name);
+        }
+        private SplitData(OwnerData owner, NonEmptyHandler contents, Component name)
         {
             this.tempOwner = owner;
-            this.contents = container;
+            this.contents = contents;
             this.name = name;
         }
-        @Nonnull
+
         @Override
-        public OwnerData getOwner(@Nonnull IClientTracker context) {
+        public int getID() { return 2; }
+
+        @Override
+        public OwnerData getOwner(IClientTracker context) {
             if(this.owner == null)
             {
                 this.owner = new OwnerData(context);
@@ -213,28 +276,22 @@ public class TraderEjectionData extends EjectionData {
             }
             return this.owner;
         }
-        @Nonnull
+        
         @Override
-        public Component getName(@Nonnull IClientTracker context) { return this.name; }
-        @Nonnull
+        public Component getName(IClientTracker context) { return this.name; }
+        
         @Override
-        public Container getContents() { return this.contents; }
+        public IItemHandlerModifiable getContents() { return this.contents; }
         @Override
-        public boolean isEmpty(@Nonnull IClientTracker context) { return false; }
+        public boolean isEmpty(IClientTracker context) { return false; }
 
-        @Override
-        public void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
-            OwnerData o = this.owner == null ? this.tempOwner : this.owner;
-            tag.put("Owner",o.save(lookup));
-            this.contents.save(tag,"Contents",lookup);
-            tag.putString("Name",Component.Serializer.toJson(this.name,lookup));
-        }
-        @Nonnull
-        public static SplitData load(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
+        @SuppressWarnings("deprecation")
+        public static SplitData loadOldData(CompoundTag tag, HolderLookup.Provider lookup)
         {
             OwnerData owner = new OwnerData(IClientTracker.forClient());
-            owner.load(tag.getCompound("Owner"),lookup);
-            NonEmptyContainer contents = NonEmptyContainer.load(tag,"Contents",lookup);
+            owner.load(tag.getCompound("Owner"),DataContext.createNBT(lookup));
+            Container container = InventoryUtil.loadAllItems("Contents",tag,tag.getList("Contents",Tag.TAG_COMPOUND).size(),lookup);
+            NonEmptyHandler contents = new NonEmptyHandler(InventoryUtil.buildList(container));
             Component name = Component.Serializer.fromJson(tag.getString("Name"),lookup);
             return new SplitData(owner,contents,name);
         }
@@ -242,22 +299,22 @@ public class TraderEjectionData extends EjectionData {
 
     private static class EmptyData implements IData
     {
+
         private static final EmptyData INSTANCE = new EmptyData();
-        @Nonnull
+
+        private static final MapCodec<EmptyData> MAP_CODEC = MapCodec.unit(INSTANCE);
+        private static final StreamCodec<RegistryFriendlyByteBuf,EmptyData> STREAM_CODEC = StreamCodec.unit(INSTANCE);
+
         @Override
-        public OwnerData getOwner(@Nonnull IClientTracker context) { return new OwnerData(context); }
-        @Nonnull
+        public int getID() { return 0; }
         @Override
-        public Component getName(@Nonnull IClientTracker context) { return EasyText.literal("Null"); }
-        @Nonnull
+        public OwnerData getOwner(IClientTracker context) { return new OwnerData(context); }
         @Override
-        public Container getContents() { return new SimpleContainer(1); }
+        public Component getName(IClientTracker context) { return EasyText.literal("Null"); }
         @Override
-        public boolean isEmpty(@Nonnull IClientTracker context) { return true; }
+        public IItemHandlerModifiable getContents() { return new NonEmptyHandler(new ArrayList<>()); }
         @Override
-        public void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
-            tag.putBoolean("Empty",true);
-        }
+        public boolean isEmpty(IClientTracker context) { return true; }
     }
 
 }

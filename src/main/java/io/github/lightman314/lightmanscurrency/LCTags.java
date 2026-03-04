@@ -9,8 +9,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.block.Block;
 
-import javax.annotation.Nonnull;
-
 public class LCTags {
 
     public static class Blocks {
@@ -25,7 +23,7 @@ public class LCTags {
         public static final TagKey<Block> SHELF = tag("shelf");
         public static final TagKey<Block> SHELF_2x2 = tag("shelf_2x2");
 
-        private static TagKey<Block> tag(String id) { return BlockTags.create(VersionUtil.lcResource(id)); }
+        private static TagKey<Block> tag(String id) { return BlockTags.create(LightmansCurrency.id(id)); }
 
     }
 
@@ -104,7 +102,7 @@ public class LCTags {
         //Valid Variant Wands
         public static final TagKey<Item> VARIANT_WANDS = tag("variant_wands");
 
-        private static TagKey<Item> tag(String id) { return ItemTags.create(VersionUtil.lcResource(id)); }
+        private static TagKey<Item> tag(String id) { return ItemTags.create(LightmansCurrency.id(id)); }
 
     }
 
@@ -114,8 +112,8 @@ public class LCTags {
         public static final TagKey<Enchantment> WALLET_ENCHANTMENT = tag("wallet_enchantment");
         public static final TagKey<Enchantment> MONEY_MENDING = tag("money_mending");
 
-        private static TagKey<Enchantment> common(@Nonnull String id) { return TagKey.create(Registries.ENCHANTMENT,VersionUtil.modResource("c",id)); }
-        private static TagKey<Enchantment> tag(@Nonnull String id) { return TagKey.create(Registries.ENCHANTMENT,VersionUtil.lcResource(id)); }
+        private static TagKey<Enchantment> common(String id) { return TagKey.create(Registries.ENCHANTMENT,VersionUtil.modResource("c",id)); }
+        private static TagKey<Enchantment> tag(String id) { return TagKey.create(Registries.ENCHANTMENT,LightmansCurrency.id(id)); }
 
     }
 

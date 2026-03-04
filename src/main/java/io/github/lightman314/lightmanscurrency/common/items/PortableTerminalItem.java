@@ -25,7 +25,7 @@ public class PortableTerminalItem extends TooltipItem implements IVariantItem {
 	{
 		if(!player.level().isClientSide)
 			TerminalMenuProvider.OpenMenu(player, new ItemValidator(this));
-		return InteractionResultHolder.success(player.getItemInHand(hand));
+		return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand),level.isClientSide);
 	}
 	
 }

@@ -1,52 +1,39 @@
 package io.github.lightman314.lightmanscurrency.network.message.trader;
 
 import io.github.lightman314.lightmanscurrency.common.menus.providers.TerminalMenuProvider;
-import io.github.lightman314.lightmanscurrency.common.menus.validation.IValidatedMenu;
-import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
+import io.github.lightman314.lightmanscurrency.common.menus.validation.types.ItemValidator;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
+/**
+ * Packet to request the terminal menu be opened via a key-bind<br>
+ * Included is the "Terminal" item that must be present in the players inventory or curios slot in order for the menu to remain open
+ */
 public class CPacketOpenNetworkTerminal extends ClientToServerPacket {
 
-	private static final Type<CPacketOpenNetworkTerminal> TYPE = new Type<>(VersionUtil.lcResource("c_open_terminal"));
+	private static final Type<CPacketOpenNetworkTerminal> TYPE = cType("open_terminal");
+    private static final StreamCodec<RegistryFriendlyByteBuf,CPacketOpenNetworkTerminal> STREAM_CODEC = ByteBufCodecs.registry(Registries.ITEM)
+            .map(CPacketOpenNetworkTerminal::new,p -> p.item);
 	public static final Handler<CPacketOpenNetworkTerminal> HANDLER = new H();
 
-	private final MenuValidator validator;
+	private final Item item;
 
-	public CPacketOpenNetworkTerminal() { this(null); }
-	public CPacketOpenNetworkTerminal(@Nullable MenuValidator validator) { super(TYPE); this.validator = validator; }
-
-	private static void encode(FriendlyByteBuf buffer, CPacketOpenNetworkTerminal message) {
-        buffer.writeBoolean(message.validator != null);
-        if(message.validator != null)
-            message.validator.encode(buffer);
-    }
-	private static CPacketOpenNetworkTerminal decode(FriendlyByteBuf buffer) {
-        MenuValidator validator = null;
-        if(buffer.readBoolean())
-            validator = MenuValidator.decode(buffer);
-        return new CPacketOpenNetworkTerminal(validator);
-    }
+	public CPacketOpenNetworkTerminal(Item terminal) { super(TYPE); this.item = terminal; }
 
 	private static class H extends Handler<CPacketOpenNetworkTerminal>
 	{
-		protected H() { super(TYPE, easyCodec(CPacketOpenNetworkTerminal::encode,CPacketOpenNetworkTerminal::decode)); }
+		protected H() { super(TYPE,STREAM_CODEC); }
 		@Override
 		protected void handle(CPacketOpenNetworkTerminal message, IPayloadContext context, Player player) {
-			MenuValidator validator = message.validator;
-			if(validator == null && player.containerMenu instanceof IValidatedMenu menu)
-				validator = menu.getValidator();
-            if(validator != null && !validator.isNull())
-			    TerminalMenuProvider.OpenMenu(player, validator);
+            if(message.item != Items.AIR)
+			    TerminalMenuProvider.OpenMenu(player,new ItemValidator(message.item));
 		}
 	}
 

@@ -1,62 +1,62 @@
 package io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.api.ejection.builtin.BasicEjectionData;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
-import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasySyncingBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
-import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
+import io.github.lightman314.lightmanscurrency.api.misc.ticker.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blocks.TraderInterfaceBlock;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.data.TradeReference;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.data.TraderInterfaceTargets;
-import io.github.lightman314.lightmanscurrency.api.traders.FullTradeResult;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeResult;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.ejection.IDumpable;
-import io.github.lightman314.lightmanscurrency.common.menus.containers.UpgradeContainer;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeStackHandler;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
-import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
+import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.traderinterface.handlers.SidedHandler;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.api.trader_interface.handlers.SidedHandler;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.InteractionUpgrade;
-import io.github.lightman314.lightmanscurrency.network.message.interfacebe.CPacketInterfaceHandlerMessage;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.common.upgrades.types.SpeedUpgrade;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
@@ -67,7 +67,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity implements IUpgradeable, IDumpable, IServerTicker, IUpgradeableBlockEntity {
+public abstract class TraderInterfaceBlockEntity<T extends TradeData> extends EasySyncingBlockEntity implements IUpgradeable, IDumpable, IServerTicker, IUpgradeableBlockEntity {
 	
 	public static final int INTERACTION_DELAY = 20;
 	
@@ -124,10 +124,10 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		public final Component getDisplayText() { return LCText.GUI_INTERFACE_ACTIVE_MODE.get(this).get(); }
 		public final ActiveMode getNext() { return fromIndex(this.index + 1); }
 		
-		private final Function<TraderInterfaceBlockEntity,Boolean> active;
-		public boolean isActive(TraderInterfaceBlockEntity blockEntity) { return this.active.apply(blockEntity); }
+		private final Function<TraderInterfaceBlockEntity<?>,Boolean> active;
+		public boolean isActive(TraderInterfaceBlockEntity<?> blockEntity) { return this.active.apply(blockEntity); }
 		
-		ActiveMode(int index, Function<TraderInterfaceBlockEntity,Boolean> active) { this.index = index; this.active = active;}
+		ActiveMode(int index, Function<TraderInterfaceBlockEntity<?>,Boolean> active) { this.index = index; this.active = active;}
 		
 		public static ActiveMode fromIndex(int index) {
 			for(ActiveMode mode : ActiveMode.values())
@@ -145,12 +145,12 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		this.mode = ActiveMode.DISABLED;
 		this.setChanged();
 		if(!this.isClient())
-			BlockEntityUtil.sendUpdatePacket(this, this.saveOwner(this.saveMode(new CompoundTag()),this.level.registryAccess()));
+			BlockEntityUtil.sendUpdatePacket(this, this.saveOwner(this.saveMode(new CompoundTag()),DataContext.createNBT(this.registryAccess())));
 	}
 	
 	public PlayerReference getReferencedPlayer() { return this.owner.getPlayerForContext(); }
 	
-	public MutableComponent getOwnerName() { return this.owner.getName(); }
+	public Component getOwnerName() { return this.owner.getName(); }
 
 	@Nullable
 	public IBankAccount getBankAccount() {
@@ -168,7 +168,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 
 	public final StatTracker statTracker = new StatTracker(() -> {},this);
 
-	List<SidedHandler<?>> handlers = new ArrayList<>();
+	Map<ResourceLocation,SidedHandler<?>> handlers = new HashMap<>();
 	
 	private ActiveMode mode = ActiveMode.DISABLED;
 	public ActiveMode getMode() { return this.mode; }
@@ -191,19 +191,19 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	}
 	public List<InteractionType> getBlacklistedInteractions() { return new ArrayList<>(); }
 	
-	public final TraderInterfaceTargets targets = new TraderInterfaceTargets(this);
+	public final TraderInterfaceTargets<T> targets = new TraderInterfaceTargets<>(this);
 	
-	private final UpgradeContainer upgradeSlots = new UpgradeContainer(5,this);
-	@Nonnull
+	private final UpgradeStackHandler upgradeSlots = new UpgradeStackHandler(5).setParent(this).withListener(this::setUpgradeSlotsDirty);
+
 	@Override
-	public Container getUpgrades() { return this.upgradeSlots; }
+	public UpgradeStackHandler getUpgrades() { return this.upgradeSlots; }
 
 	public int getSelectableCount()
 	{
 		int count = 1;
-		for(int i = 0; i < this.upgradeSlots.getContainerSize(); ++i)
+		for(int i = 0; i < this.upgradeSlots.getSlots(); ++i)
 		{
-			ItemStack stack = this.upgradeSlots.getItem(i);
+			ItemStack stack = this.upgradeSlots.getStackInSlot(i);
 			if(stack.getItem() instanceof UpgradeItem upgradeItem)
 			{
 				if(upgradeItem.getUpgradeType() == Upgrades.INTERACTION)
@@ -218,7 +218,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	public void setUpgradeSlotsDirty() {
 		this.setChanged();
 		if(!this.isClient())
-			BlockEntityUtil.sendUpdatePacket(this, this.saveUpgradeSlots(new CompoundTag(), this.level.registryAccess()));
+			BlockEntityUtil.sendUpdatePacket(this, this.saveUpgradeSlots(new CompoundTag(),DataContext.createNBT(this.registryAccess())));
 	}
 
 	public void toggleTrader(long traderID)
@@ -234,15 +234,14 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 
 	public void acceptTradeChanges(int entry)
 	{
-		List<TradeReference> references = this.targets.getTradeReferences();
+		List<TradeReference<T>> references = this.targets.getTradeReferences();
 		if(entry < 0 || entry >= references.size())
 			return;
 		references.get(entry).refreshTrade();
 		this.setTargetsDirty();
 	}
 
-	@Nullable
-	public abstract TradeData deserializeTrade(@Nonnull CompoundTag compound,@Nonnull HolderLookup.Provider lookup);
+    public abstract Codec<T> tradeCodec();
 	
 	private int waitTimer = INTERACTION_DELAY;
 	
@@ -273,41 +272,41 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	public void setStatsDirty() {
 		this.setChanged();
 		if(!this.isClient())
-			BlockEntityUtil.sendUpdatePacket(this, this.saveStatTracker(new CompoundTag(),this.level.registryAccess()));
+			BlockEntityUtil.sendUpdatePacket(this, this.saveStatTracker(new CompoundTag(),DataContext.createNBT(this.registryAccess())));
 	}
 	
 	protected abstract TradeContext.Builder buildTradeContext(TradeContext.Builder baseContext);
 
 	//Don't mark final to prevent conflicts with LC Tech not yet updating to the new method
-	public TradeContext getTradeContext(@Nonnull TraderData trader) {
+	public TradeContext getTradeContext(TraderData trader) {
 		if(this.interaction.trades())
 			return this.buildTradeContext(TradeContext.create(trader,this.getReferencedPlayer(),true).withBankAccount(this.getAccountReference())).build();
 		else
 			return TradeContext.createStorageMode(trader);
 	}
 	
-	protected final <H extends SidedHandler<?>> H addHandler(@Nonnull H handler) {
+	protected final <H extends SidedHandler<?>> H addHandler(H handler) {
 		handler.setParent(this);
-		this.handlers.add(handler);
+		this.handlers.put(handler.getType(),handler);
 		return handler;
 	}
 	
 	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
-		this.saveOwner(compound,lookup);
+	protected void saveAdditional(CompoundTag compound,DataContext<Tag> context) {
+		this.saveOwner(compound,context);
 		this.saveMode(compound);
 		this.saveOnlineMode(compound);
 		this.saveInteraction(compound);
-		this.saveTargets(compound,lookup);
-		this.saveUpgradeSlots(compound, lookup);
-		this.saveStatTracker(compound,lookup);
-		for(SidedHandler<?> handler : this.handlers)
-			this.saveHandler(compound,handler,lookup);
+		this.saveTargets(compound,context);
+		this.saveUpgradeSlots(compound, context);
+		this.saveStatTracker(compound,context);
+		for(SidedHandler<?> handler : this.handlers.values())
+			this.saveHandler(compound,handler,context);
 	}
 	
-	protected final CompoundTag saveOwner(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	protected final CompoundTag saveOwner(CompoundTag compound, DataContext<Tag> context) {
 		if(this.owner != null)
-			compound.put("Owner", this.owner.save(lookup));
+			compound.put("Owner", this.owner.save(context));
 		return compound;
 	}
 	
@@ -326,36 +325,36 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		return compound;
 	}
 	
-	protected final CompoundTag saveTargets(CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
-		compound.put("Targets", this.targets.save(lookup));
+	protected final CompoundTag saveTargets(CompoundTag compound,DataContext<Tag> context) {
+		compound.put("Targets", this.targets.save(context));
 		return compound;
 	}
 	
-	protected final CompoundTag saveUpgradeSlots(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
-        this.upgradeSlots.save("Upgrades",compound,lookup);
+	protected final CompoundTag saveUpgradeSlots(CompoundTag compound, DataContext<Tag> context) {
+        compound.put("Upgrades",context.write(this.upgradeSlots::serializeNBT));
 		return compound;
 	}
 
-	protected final CompoundTag saveStatTracker(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
-		compound.put("Stats", this.statTracker.save(lookup));
+	protected final CompoundTag saveStatTracker(CompoundTag compound, DataContext<Tag> context) {
+		compound.put("Stats",this.statTracker.save(context));
 		return compound;
 	}
 	
-	protected final CompoundTag saveHandler(CompoundTag compound, SidedHandler<?> handler, @Nonnull HolderLookup.Provider lookup) {
-		compound.put(handler.getTag(), handler.save(lookup));
+	protected final CompoundTag saveHandler(CompoundTag compound, SidedHandler<?> handler, DataContext<Tag> context) {
+		compound.put(handler.getTag(),handler.save(context));
 		return compound;
 	}
 	
 	public void setHandlerDirty(SidedHandler<?> handler) {
 		this.setChanged();
 		if(this.isServer())
-			BlockEntityUtil.sendUpdatePacket(this, this.saveHandler(new CompoundTag(), handler, this.level.registryAccess()));
+			BlockEntityUtil.sendUpdatePacket(this, this.saveHandler(new CompoundTag(),handler,DataContext.createNBT(this.registryAccess())));
 	}
 	
 	@Override
-	public void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+	public void loadAdditional(CompoundTag compound, DataContext<Tag> context) {
 		if(compound.contains("Owner", Tag.TAG_COMPOUND))
-			this.owner.load(compound.getCompound("Owner"),lookup);
+			this.owner.load(compound.getCompound("Owner"),context);
 		if(compound.contains("Mode"))
 			this.mode = EnumUtil.enumFromString(compound.getString("Mode"), ActiveMode.values(), ActiveMode.DISABLED);
 		if(compound.contains("OnlineMode"))
@@ -363,16 +362,16 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		if(compound.contains("InteractionType", Tag.TAG_STRING))
 			this.interaction = EnumUtil.enumFromString(compound.getString("InteractionType"), InteractionType.values(), InteractionType.TRADE);
 		if(compound.contains("Trade", Tag.TAG_COMPOUND))
-			this.targets.loadFromOldData(compound.getCompound("Trade"),lookup);
+			this.targets.loadFromOldData(compound.getCompound("Trade"),context.registryAccess());
 		if(compound.contains("Targets",Tag.TAG_COMPOUND))
-			this.targets.load(compound.getCompound("Targets"),lookup);
+			this.targets.load(compound.getCompound("Targets"),context);
 		if(compound.contains("Upgrades"))
-			this.upgradeSlots.load("Upgrades", compound, lookup);
+			this.upgradeSlots.safeLoad(compound, "Upgrades", context);
 		if(compound.contains("Stats"))
-			this.statTracker.load(compound.getCompound("Stats"),lookup);
-		for(SidedHandler<?> handler : this.handlers) {
-			if(compound.contains(handler.getTag(), Tag.TAG_COMPOUND))
-				handler.load(compound.getCompound(handler.getTag()), lookup);
+			this.statTracker.load(compound.getCompound("Stats"),context);
+		for(SidedHandler<?> handler : this.handlers.values()) {
+			if(compound.contains(handler.getTag(),Tag.TAG_COMPOUND))
+				handler.load(compound.getCompound(handler.getTag()), context);
 		}
 	}
 	
@@ -389,35 +388,21 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		return relativeSide;
 	}
 	
-	public void sendHandlerMessage(ResourceLocation type, CompoundTag message) {
-		if(this.isClient())
-			new CPacketInterfaceHandlerMessage(this.worldPosition, type, message).send();
-	}
-	
-	public void receiveHandlerMessage(ResourceLocation type, Player player, CompoundTag message) {
-		if(!this.canAccess(player))
-			return;
-		for (SidedHandler<?> handler : this.handlers) {
-			if (handler.getType().equals(type))
-				handler.receiveMessage(message);
-		}
-	}
-	
 	public void setTargetsDirty() {
 		this.setChanged();
 		if(!this.isClient())
-			BlockEntityUtil.sendUpdatePacket(this, this.saveTargets(new CompoundTag(),this.registryAccess()));
+			BlockEntityUtil.sendUpdatePacket(this, this.saveTargets(new CompoundTag(),DataContext.createNBT(this.registryAccess())));
 	}
 
-	@Nonnull
-	public FullTradeResult TryExecuteTrade(@Nonnull TradeReference target)
+	
+	public TradeResult TryExecuteTrade(TradeReference<T> target)
 	{
 		TraderData trader = this.targets.getTrader();
 		if(trader != null)
 		{
 			TradeContext context = this.getTradeContext(trader);
-			FullTradeResult result = trader.TryExecuteTradeWithResults(context, target.getTradeIndex());
-			target.setLastResult(result.simpleResult);
+			TradeResult result = trader.TryExecuteTrade(context, target.getTradeIndex());
+			target.setLastResult(result);
 			//Automatically log money paid/earned & trade executed
 			if(result.isSuccess())
 			{
@@ -435,7 +420,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		else
 		{
 			target.setLastResult(TradeResult.FAIL_NULL);
-			return FullTradeResult.failure(TradeResult.FAIL_NULL);
+			return TradeResult.FAIL_NULL;
 		}
 	}
 	
@@ -463,7 +448,8 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	}
 	
 	@Override
-	public void serverTick() {
+	protected void serverTickInternal() {
+        super.serverTickInternal();
 		//Disable all functions if dimension is quarantined just to be safe
 		if(QuarantineAPI.IsDimensionQuarantined(this))
 			return;
@@ -488,7 +474,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 				}
 				else if(this.interaction.trades())
 				{
-					for(TradeReference trade : this.targets.getTradeReferences())
+					for(TradeReference<T> trade : this.targets.getTradeReferences())
 					{
 						if(!this.validTrade(trade))
 							continue;
@@ -506,11 +492,11 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	
 	
 	//Returns whether the trader referenced is valid
-	public boolean validTrader(@Nonnull TraderData trader) {
+	public boolean validTrader(TraderData trader) {
 		return trader != null && this.validTraderType(trader);
 	}
 	
-	public boolean validTrade(@Nonnull TradeReference trade) {
+	public boolean validTrade(TradeReference<T> trade) {
 		TradeData expectedTrade = trade.getLocalTrade();
 		TradeData trueTrade = trade.getTrueTrade();
 		if(expectedTrade == null || trueTrade == null)
@@ -520,11 +506,11 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	
 	public abstract boolean validTraderType(TraderData trader);
 	
-	protected abstract void drainTick(@Nonnull TraderData trader);
+	protected abstract void drainTick(TraderData trader);
 	
-	protected abstract void restockTick(@Nonnull TraderData trader);
+	protected abstract void restockTick(TraderData trader);
 	
-	protected abstract void tradeTick(@Nonnull TradeReference trade);
+	protected abstract void tradeTick(TradeReference<T> trade);
 	
 	protected abstract void hopperTick();
 	
@@ -541,19 +527,19 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	protected MenuProvider getMenuProvider() { return new InterfaceMenuProvider(this); }
 	
 	public static class InterfaceMenuProvider implements EasyMenuProvider {
-		private final TraderInterfaceBlockEntity blockEntity;
-		public InterfaceMenuProvider(TraderInterfaceBlockEntity blockEntity) { this.blockEntity = blockEntity; }
+		private final TraderInterfaceBlockEntity<?> blockEntity;
+		public InterfaceMenuProvider(TraderInterfaceBlockEntity<?> blockEntity) { this.blockEntity = blockEntity; }
 		@Override
-		public AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory inventory, @Nonnull Player player) {
+		public AbstractContainerMenu createMenu(int windowID, Inventory inventory, Player player) {
 			return new TraderInterfaceMenu(windowID, inventory, this.blockEntity);
 		}
 	}
 	
 	protected int getInteractionDelay() {
 		int delay = INTERACTION_DELAY;
-		for(int i = 0; i < this.upgradeSlots.getContainerSize() && delay > 1; ++i)
+		for(int i = 0; i < this.upgradeSlots.getSlots() && delay > 1; ++i)
 		{
-			ItemStack stack = this.upgradeSlots.getItem(i);
+			ItemStack stack = this.upgradeSlots.getStackInSlot(i);
 			if(stack.getItem() instanceof UpgradeItem upgrade)
 			{
 				if(upgrade.getUpgradeType() instanceof SpeedUpgrade)
@@ -565,7 +551,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	
 	public abstract void initMenuTabs(TraderInterfaceMenu menu);
 	
-	public boolean allowUpgrade(@Nonnull UpgradeType type) {
+	public boolean allowUpgrade(UpgradeType type) {
 		return type == Upgrades.SPEED || (type == Upgrades.HOPPER && this.allowHopperUpgrade()) || type == Upgrades.INTERACTION || this.allowAdditionalUpgrade(type);
 	}
 	
@@ -575,8 +561,7 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	
 	protected final boolean hasHopperUpgrade() { return UpgradeType.hasUpgrade(Upgrades.HOPPER, this.upgradeSlots); }
 
-	@Nonnull
-	public final List<ItemStack> getContents(@Nonnull Level level, @Nonnull BlockPos pos, @Nullable BlockState state, boolean dropBlock) {
+	public final List<ItemStack> getContents(@Nullable Level level, BlockPos pos, @Nullable BlockState state, boolean dropBlock) {
 		List<ItemStack> contents = new ArrayList<>();
 		
 		//Drop trader block
@@ -589,10 +574,10 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 		}
 		
 		//Drop upgrade slots
-		for(int i = 0; i < this.upgradeSlots.getContainerSize(); ++i)
+		for(int i = 0; i < this.upgradeSlots.getSlots(); ++i)
 		{
-			if(!this.upgradeSlots.getItem(i).isEmpty())
-				contents.add(this.upgradeSlots.getItem(i));
+			if(!this.upgradeSlots.getStackInSlot(i).isEmpty())
+				contents.add(this.upgradeSlots.getStackInSlot(i));
 		}
 		
 		//Dump contents
@@ -602,11 +587,23 @@ public abstract class TraderInterfaceBlockEntity extends EasyBlockEntity impleme
 	}
 	
 	protected abstract void getAdditionalContents(List<ItemStack> contents);
-
-	@Nonnull
+	
 	@Override
-	public EjectionData buildEjectionData(@Nonnull Level level, @Nonnull BlockPos pos, @Nullable BlockState state) {
+	public EjectionData buildEjectionData(@Nullable Level level, BlockPos pos, @Nullable BlockState state) {
 		List<ItemStack> contents = this.getContents(level,pos,state,true);
 		return new BasicEjectionData(this.owner,contents,state == null ? LCText.BLOCK_ITEM_TRADER_INTERFACE.get() : state.getBlock().getName());
 	}
+
+    @Override
+    protected void handleSyncPacket(LazyPacketData data) {
+        //Process handler sync packet
+        for(String key : data.keySet())
+        {
+            try {
+                ResourceLocation id = ResourceLocation.parse(key);
+                if(this.handlers.containsKey(id))
+                    this.handlers.get(id).handleSyncPacket(data.getMap(key));
+            } catch (ResourceLocationException ignored) {}
+        }
+    }
 }

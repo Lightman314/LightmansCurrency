@@ -1,35 +1,50 @@
 package io.github.lightman314.lightmanscurrency.api.stats;
 
+import com.google.common.collect.ImmutableMap;
+import com.mojang.serialization.Codec;
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 
 public final class StatTracker implements IClientTracker
 {
 
+    public static final Codec<Map<String,StatType.Instance<?,?>>> CODEC = Codec.withAlternative(
+            Codec.unboundedMap(Codec.STRING,StatType.CODEC),
+            CodecHelper.oldValueLoader(StatTracker::loadOldData,"Stat Map")
+    );
+    public static final StreamCodec<RegistryFriendlyByteBuf,Map<String,StatType.Instance<?,?>>> STREAM_CODEC = ByteBufCodecs.map(HashMap::new,ByteBufCodecs.STRING_UTF8,StatType.STREAM_CODEC);
+
     private final Runnable onChange;
     private final IClientTracker parent;
-    private final Map<String, StatType.Instance<?,?>> stats = new HashMap<>();
+    private final Map<String,StatType.Instance<?,?>> stats = new HashMap<>();
+    public Map<String,StatType.Instance<?,?>> getStatMap() { return ImmutableMap.copyOf(this.stats); }
 
     @Override
     public boolean isClient() { return this.parent.isClient(); }
 
-    public StatTracker(@Nonnull Runnable onChange, @Nonnull IClientTracker parent)
+    public StatTracker(Runnable onChange, IClientTracker parent)
     {
         this.onChange = onChange;
         this.parent = parent;
     }
 
-    public <A,B> StatType.Instance<A,B> addStat(@Nonnull String key, @Nonnull StatType<A,B> type) { return this.addStat(key, type.create()); }
-    public <A,B> StatType.Instance<A,B> addStat(@Nonnull StatKey<A,B> key) { return this.addStat(key.key,key.type); }
-    public <A,B> StatType.Instance<A,B> addStat(@Nonnull String key, @Nonnull StatType.Instance<A,B> stat)
+    public <A,B> StatType.Instance<A,B> addStat(String key, StatType<A,B> type) { return this.addStat(key, type.create()); }
+    public <A,B> StatType.Instance<A,B> addStat(StatKey<A,B> key) { return this.addStat(key.key,key.type); }
+    public <A,B> StatType.Instance<A,B> addStat(String key, StatType.Instance<A,B> stat)
     {
         this.stats.put(key,stat);
         stat.setParent(this);
@@ -47,46 +62,46 @@ public final class StatTracker implements IClientTracker
 
     public void setChanged() { this.onChange.run(); }
 
-    @Nonnull
-    public CompoundTag save(@Nonnull HolderLookup.Provider lookup)
+    public Tag save(DataContext<Tag> context)
     {
-        CompoundTag tag = new CompoundTag();
-        this.stats.forEach((key,stat) -> tag.put(key,stat.save(lookup)));
-        return tag;
+        return context.write(this.stats,CODEC);
     }
 
-    public void load(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
+    public void load(CompoundTag tag,DataContext<Tag> context)
+    {
+        this.load(context.read(tag,CODEC));
+    }
+
+    public void load(Map<String,StatType.Instance<?,?>> newData) {
+        this.stats.clear();
+        newData.forEach(this::addStat);
+    }
+
+    private static Map<String,StatType.Instance<?,?>> loadOldData(CompoundTag tag, HolderLookup.Provider lookup)
     {
         //Clear all stats before loading, just in case they're not present in the existing data
-        this.stats.forEach((key,stat) -> stat.clear());
+        Map<String,StatType.Instance<?,?>> stats = new HashMap<>();
         for(String key : tag.getAllKeys())
         {
             try {
                 CompoundTag entry = tag.getCompound(key);
                 ResourceLocation typeID = VersionUtil.parseResource(entry.getString("Type"));
-                StatType.Instance<?,?> instance = this.getStat(key);
-                if(instance != null && instance.getType().getID().equals(typeID))
-                {
-                    instance.load(entry, lookup);
-                }
-                else
-                {
-                    StatType<?,?> type = StatType.getID(typeID);
-                    if(type == null)
-                        throw new RuntimeException(typeID + " is not a registered StatType!");
-                    instance = type.create();
-                    instance.load(entry, lookup);
-                    this.addStat(key,instance);
-                }
+                StatType<?,?> type = LCRegistries.STAT_TYPES.get(typeID);
+                if(type == null)
+                    throw new RuntimeException(typeID + " is not a registered StatType!");
+                StatType.Instance<?,?> instance = type.create();
+                instance.loadOldData(entry, lookup);
+                stats.put(key,instance);
             } catch (Throwable t) {LightmansCurrency.LogError("Error loading stat!",t);}
         }
+        return stats;
     }
 
     public Set<String> getKeys() { return this.stats.keySet(); }
 
-    public StatType.Instance<?,?> getStat(@Nonnull String key) { return this.stats.get(key); }
+    public StatType.Instance<?,?> getStat(String key) { return this.stats.get(key); }
 
-    public <T> T getStat(@Nonnull StatKey<T,?> key, @Nonnull T defaultValue) {
+    public <T> T getStat(StatKey<T,?> key, T defaultValue) {
         StatType.Instance<?,?> instance = this.getStat(key.key);
         if(instance == null)
             instance = this.addStat(key);
@@ -97,7 +112,7 @@ public final class StatTracker implements IClientTracker
         return defaultValue;
     }
 
-    public <T> void incrementStat(@Nonnull StatKey<?,T> key, @Nonnull T addValue)
+    public <T> void incrementStat(StatKey<?,T> key, T addValue)
     {
         StatType.Instance<?,?> instance = this.getStat(key.key);
         if(instance == null)
@@ -110,9 +125,9 @@ public final class StatTracker implements IClientTracker
         }
     }
 
-    public List<MutableComponent> getDisplayLines()
+    public List<Component> getDisplayLines()
     {
-        List<MutableComponent> result = new ArrayList<>();
+        List<Component> result = new ArrayList<>();
         this.stats.forEach((key,stat) ->  result.add(stat.getInfoText(key)) );
         return result;
     }

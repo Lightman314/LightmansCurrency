@@ -2,13 +2,11 @@ package io.github.lightman314.lightmanscurrency.common.blocks;
 
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.blockentity.trader.PaygateBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockRotatable;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
@@ -56,9 +54,8 @@ public class PaygateBlock extends TraderBlockRotatable implements IVariantBlock 
 		return 0;
 	}
 
-	@Nonnull
 	@Override
-	protected ItemInteractionResult useItemOn(@Nonnull ItemStack stack, @Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull InteractionHand hand, @Nonnull BlockHitResult hit) {
+	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 		if(!level.isClientSide)
 		{
 			if(level.getBlockEntity(pos) instanceof PaygateBlockEntity paygate)
@@ -76,17 +73,17 @@ public class PaygateBlock extends TraderBlockRotatable implements IVariantBlock 
 	}
 	
 	@Override
-    protected void createBlockStateDefinition(@Nonnull StateDefinition.Builder<Block, BlockState> builder)
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder)
     {
         super.createBlockStateDefinition(builder);
         builder.add(POWERED);
     }
 	
 	@Override
-	public boolean isSignalSource(@Nonnull BlockState state) { return true; }
+	public boolean isSignalSource(BlockState state) { return true; }
 	
 	@Override
-	public int getSignal(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull Direction dir) {
+	public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction dir) {
 		if(state.getValue(POWERED) && level.getBlockEntity(pos) instanceof PaygateBlockEntity be)
 		{
 			//Use opposite side as the direction input is relative to the requestor
@@ -98,7 +95,7 @@ public class PaygateBlock extends TraderBlockRotatable implements IVariantBlock 
 	}
 	
 	@Override
-	public void appendHoverText(@Nonnull ItemStack stack, @Nonnull Item.TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
+	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flagIn)
 	{
 		TooltipItem.addTooltip(tooltip, LCText.TOOLTIP_PAYGATE.asTooltip());
 		super.appendHoverText(stack, context, tooltip, flagIn);

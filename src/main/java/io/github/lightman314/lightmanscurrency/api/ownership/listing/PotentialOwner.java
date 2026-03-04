@@ -2,16 +2,11 @@ package io.github.lightman314.lightmanscurrency.api.ownership.listing;
 
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class PotentialOwner implements IClientTracker {
 
     private final Owner owner;
@@ -37,7 +32,7 @@ public abstract class PotentialOwner implements IClientTracker {
     public final Owner asOwner() { return this.owner; }
     public boolean failedFilter(String searchFilter) { return !this.getName().getString().toLowerCase().contains(searchFilter.toLowerCase()); }
 
-    public MutableComponent getName() { return this.asOwner().getName(); }
+    public Component getName() { return this.asOwner().getName(); }
 
     public abstract IconData getIcon();
 

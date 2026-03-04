@@ -6,15 +6,15 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.common.items.data.WalletDataWrapper;
+import io.github.lightman314.lightmanscurrency.common.items.data.WalletInventory;
+import io.github.lightman314.lightmanscurrency.common.menus.LazyMessageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.WalletBankMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.WalletMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.BlacklistSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.DisplaySlot;
-import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -27,13 +27,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class WalletMenuBase extends EasyMenu {
+public abstract class WalletMenuBase extends LazyMessageMenu {
 	
 	protected final Container dummyInventory = new SimpleContainer(1);
 	
@@ -41,11 +41,11 @@ public abstract class WalletMenuBase extends EasyMenu {
 	public final boolean isEquippedWallet() { return this.walletStackIndex < 0; }
 	public final int getWalletStackIndex() { return this.walletStackIndex; }
 
-	public final boolean hasWallet() { ItemStack wallet = this.getWallet(); return !wallet.isEmpty() && wallet.getItem() instanceof WalletItem; }
+	public final boolean hasWallet() { return WalletItem.isWallet(this.getWallet()); }
 	public final ItemStack getWallet()
 	{
 		if(this.isEquippedWallet())
-			return CoinAPI.getApi().getEquippedWallet(this.inventory.player);
+			return CoinAPI.getApi().getEquippedWallet(this.player);
 		return this.inventory.getItem(this.walletStackIndex);
 	}
 	
@@ -54,9 +54,13 @@ public abstract class WalletMenuBase extends EasyMenu {
 	public boolean canPickup() { return WalletItem.CanPickup(this.walletItem); }
 	public boolean hasBankAccess() { return WalletItem.HasBankAccess(this.walletItem); }
 	public boolean getAutoExchange() { return this.autoExchange; }
-	public void ToggleAutoExchange() { this.autoExchange = !this.autoExchange; this.saveWalletContents(); }
+	public void ToggleAutoExchange() {
+        if(this.isClient())
+            this.SendMessage(this.builder().setFlag("ToggleAutoExchange"));
+        this.autoExchange = !this.autoExchange; this.saveWalletContents();
+    }
 	
-	protected final SimpleContainer coinInput;
+	protected final WalletInventory walletInventory;
 	public final int coinSlotHeight;
 	public final int coinSlotWidth;
 	public final int bonusWidth;
@@ -65,7 +69,6 @@ public abstract class WalletMenuBase extends EasyMenu {
 	protected final WalletItem walletItem;
 
 	private final List<CoinSlot> coinSlots = new ArrayList<>();
-	@Nonnull
 	public List<CoinSlot> getCoinSlots() { return ImmutableList.copyOf(this.coinSlots); }
 
 	public Player getPlayer() { return this.player; }
@@ -83,7 +86,7 @@ public abstract class WalletMenuBase extends EasyMenu {
 			this.walletItem = null;
 
 		int walletSize = WalletItem.InventorySize(wallet);
-		this.coinInput = new SimpleContainer(walletSize);
+		this.walletInventory = new WalletInventory(walletSize);
 		this.coinSlotHeight = Math.min(6,MathUtil.DivideByAndRoundUp(walletSize,9));
 		if(walletSize > 9 * 6)
 		{
@@ -113,21 +116,22 @@ public abstract class WalletMenuBase extends EasyMenu {
 	protected final void addCoinSlots(int yPosition) {
 		if(!this.coinSlots.isEmpty())
 			return;
-		int dummySlots = WalletItem.MAX_WALLET_SLOTS - this.coinInput.getContainerSize();
+		int dummySlots = WalletItem.MAX_WALLET_SLOTS - this.walletInventory.getSlots();
 		int index = 0;
 		for(int y = 0; y < this.coinSlotHeight; y++)
 		{
 			int xOff;
 			if(y == this.coinSlotHeight - 1)
 			{
-				int emptySlots = this.coinSlotWidth - (this.coinInput.getContainerSize() - index);
+				int emptySlots = this.coinSlotWidth - (this.walletInventory.getSlots() - index);
 				xOff = Math.max(0,emptySlots * 9);
 			}
 			else
 				xOff = 0;
-			for(int x = 0; x < this.coinSlotWidth && index < this.coinInput.getContainerSize(); x++)
+			for(int x = 0; x < this.coinSlotWidth && index < this.walletInventory.getSlots(); x++)
 			{
-				CoinSlot slot = new CoinSlot(this.coinInput, index++, xOff + 8 + x * 18, yPosition + y * 18).addListener(this::saveWalletContents);
+                CoinSlot slot = new CoinSlot(this.walletInventory, index++, xOff + 8 + x * 18, yPosition + y * 18);
+                slot.setListener(this::saveWalletContents);
 				this.addSlot(slot);
 				this.coinSlots.add(slot);
 			}
@@ -143,17 +147,15 @@ public abstract class WalletMenuBase extends EasyMenu {
 	}
 	
 	public final void reloadWalletContents() {
-		Container walletInventory = WalletItem.getDataWrapper(getWallet()).getContents();
-		for(int i = 0; i < this.coinInput.getContainerSize() && i < walletInventory.getContainerSize(); i++)
-		{
-			this.coinInput.setItem(i, walletInventory.getItem(i));
-		}
+        WalletInventory inventory = WalletItem.getWalletInventory(getWallet());
+		for(int i = 0; i < this.walletInventory.getSlots() && i < inventory.getSlots(); i++)
+			this.walletInventory.setStackInSlot(i,inventory.getStackInSlot(i));
 	}
 	
-	public final int getSlotCount() { return this.coinInput.getContainerSize(); }
+	public final int getSlotCount() { return this.walletInventory.getSlots(); }
 
 	@Override
-	protected void onValidationTick(@Nonnull Player player) { this.validateHasWallet(); }
+	protected void onValidationTick(Player player) { this.validateHasWallet(); }
 
 	public final boolean validateHasWallet() {
 		if(!this.hasWallet())
@@ -173,9 +175,8 @@ public abstract class WalletMenuBase extends EasyMenu {
 		if(this.validateHasWallet())
 			return;
 		//Write the bag contents back into the item stack
-		WalletDataWrapper data = WalletItem.getDataWrapper(this.getWallet());
-		if(data != null)
-			data.setContents(this.coinInput, null);
+
+        WalletItem.putWalletInventory(this.getWallet(),this.walletInventory);
 		
 		if(this.autoExchange != WalletItem.getAutoExchange(this.getWallet()))
 			WalletItem.toggleAutoExchange(this.getWallet());
@@ -184,31 +185,19 @@ public abstract class WalletMenuBase extends EasyMenu {
 	
 	public final void ExchangeCoins()
 	{
-		CoinAPI.getApi().CoinExchangeAllUp(this.coinInput);
-		CoinAPI.getApi().SortCoinsByValue(this.coinInput);
+        if(this.isClient())
+        {
+            this.SendMessage(this.builder().setFlag("ExchangeCoins"));
+            return;
+        }
+		CoinAPI.getApi().CoinExchangeAllUp(this.walletInventory);
+		CoinAPI.getApi().SortCoinsByValue(this.walletInventory);
 		this.saveWalletContents();
 	}
 	
 	public final ItemStack PickupCoins(ItemStack stack)
 	{
-		
-		ItemStack returnValue = stack.copy();
-		
-		for(int i = 0; i < this.coinInput.getContainerSize() && !returnValue.isEmpty(); i++)
-		{
-			ItemStack thisStack = this.coinInput.getItem(i);
-			if(thisStack.isEmpty())
-			{
-				this.coinInput.setItem(i, returnValue.copy());
-				returnValue = ItemStack.EMPTY;
-			}
-			else if(InventoryUtil.ItemMatches(thisStack, returnValue))
-			{
-				int amountToAdd = MathUtil.clamp(returnValue.getCount(), 0, thisStack.getMaxStackSize() - thisStack.getCount());
-				thisStack.setCount(thisStack.getCount() + amountToAdd);
-				returnValue.setCount(returnValue.getCount() - amountToAdd);
-			}
-		}
+		ItemStack returnValue = ItemHandlerHelper.insertItem(this.walletInventory,stack,false);
 		
 		if(this.autoExchange)
 			this.ExchangeCoins();
@@ -218,23 +207,31 @@ public abstract class WalletMenuBase extends EasyMenu {
 		return returnValue;
 	}
 
-	public static void OnWalletUpdated(Entity entity) {
+    @Override
+    protected void processMessage(LazyPacketData message) {
+        if(message.contains("ExchangeCoins"))
+            this.ExchangeCoins();
+        if(message.contains("ToggleAutoExchange"))
+            this.ToggleAutoExchange();
+    }
+
+    public static void OnWalletUpdated(Entity entity) {
 		if(entity instanceof Player player && player.containerMenu instanceof WalletMenuBase menu)
 			menu.reloadWalletContents();
 	}
 
-	public static void SafeOpenWalletMenu(@Nonnull Player player, int walletIndex) { SafeOpenWallet(player, walletIndex, new WalletMenuProvider(walletIndex)); }
+	public static void SafeOpenWalletMenu(Player player, int walletIndex) { SafeOpenWallet(player, walletIndex, new WalletMenuProvider(walletIndex)); }
 
-	public static void SafeOpenWalletBankMenu(@Nonnull Player player, int walletIndex) {
+	public static void SafeOpenWalletBankMenu(Player player, int walletIndex) {
 		if(QuarantineAPI.IsDimensionQuarantined(player))
 			EasyText.sendMessage(player,LCText.MESSAGE_DIMENSION_QUARANTINED_BANK.getWithStyle(ChatFormatting.GOLD));
 		else
 			SafeOpenWallet(player, walletIndex, new WalletBankMenuProvider(walletIndex));
 	}
 
-	public static void SafeOpenWallet(@Nonnull Player player, int walletIndex, @Nonnull MenuProvider menu) { SafeOpenWallet(player, walletIndex, menu, new WalletDataWriter(walletIndex)); }
+	public static void SafeOpenWallet(Player player, int walletIndex, MenuProvider menu) { SafeOpenWallet(player, walletIndex, menu, new WalletDataWriter(walletIndex)); }
 
-	public static void SafeOpenWallet(@Nonnull Player player, int walletIndex, @Nonnull MenuProvider menu, @Nonnull Consumer<RegistryFriendlyByteBuf> dataWriter) {
+	public static void SafeOpenWallet(Player player, int walletIndex, MenuProvider menu, Consumer<RegistryFriendlyByteBuf> dataWriter) {
 		if (walletIndex < 0)
 		{
 			if(!WalletItem.isWallet(CoinAPI.getApi().getEquippedWallet(player)))
@@ -260,7 +257,5 @@ public abstract class WalletMenuBase extends EasyMenu {
 		@Override
 		public void accept(RegistryFriendlyByteBuf buffer) { buffer.writeInt(this.walletIndex); }
 	}
-
-
 
 }

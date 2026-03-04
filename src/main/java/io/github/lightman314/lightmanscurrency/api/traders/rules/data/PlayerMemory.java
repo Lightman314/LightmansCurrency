@@ -1,18 +1,55 @@
 package io.github.lightman314.lightmanscurrency.api.traders.rules.data;
 
+import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PlayerMemory {
 
-    private final Map<UUID, List<Long>> memory = new HashMap<>();
+    public static final Codec<PlayerMemory> CODEC = Codec.unboundedMap(UUIDUtil.STRING_CODEC,Codec.LONG.listOf())
+            .xmap(PlayerMemory::new,PlayerMemory::getMemory);
+
+    private final Map<UUID,List<Long>> memory = new HashMap<>();
+    private Map<UUID,List<Long>> getMemory() { return this.memory; }
+
+    public PlayerMemory() {}
+    private PlayerMemory(Map<UUID,List<Long>> memory) {
+        memory.forEach((key,list) -> this.memory.put(key,new ArrayList<>(list)));
+    }
+
+    public LazyPacketData encode(LazyPacketData.Builder builder,Player player)
+    {
+        if(this.memory.containsKey(player.getUUID()))
+        {
+            builder.setUUID("player",player.getUUID());
+            builder.setList("memory",this.memory.get(player.getUUID()),LazyPacketData.Builder::setLong);
+        }
+        return builder.build();
+    }
+
+    public static PlayerMemory decode(LazyPacketData data)
+    {
+        Map<UUID,List<Long>> memory = new HashMap<>();
+        UUID id = data.getUUID("player");
+        if(id != null)
+            memory.put(id,data.getList("memory",LazyPacketData::getLong));
+        return new PlayerMemory(memory);
+    }
+
+    public void copyFrom(PlayerMemory other) {
+        this.memory.clear();
+        other.memory.forEach((key,list) -> this.memory.put(key, new ArrayList<>(list)));
+    }
 
     public int getCount(TradeEvent event, long timeLimit) {
         PlayerReference pr = event.getPlayerReference();
@@ -98,19 +135,8 @@ public class PlayerMemory {
         return changed.get();
     }
 
-    public void save(CompoundTag compound)
-    {
-        final ListTag memoryList = new ListTag();
-        this.memory.forEach((id,entries) -> {
-            CompoundTag tag = new CompoundTag();
-            tag.putUUID("ID", id);
-            tag.putLongArray("Times", entries);
-            memoryList.add(tag);
-        });
-        compound.put("Memory", memoryList);
-    }
-
-    public void load(CompoundTag compound)
+    @Deprecated
+    public void loadOldData(CompoundTag compound)
     {
         if(compound.contains("Memory", Tag.TAG_LIST))
         {

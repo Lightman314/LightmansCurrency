@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.menus.teams;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.tabbed.EasyMenuClientTab;
+import io.github.lightman314.lightmanscurrency.api.client.gui.tabbed.EasyMenuClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.common.menus.TeamManagementMenu;
 

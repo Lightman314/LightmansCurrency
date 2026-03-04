@@ -1,13 +1,12 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.command;
 
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IKeyboardListener;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IMouseListener;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IScrollListener;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IKeyboardListener;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IMouseListener;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IScrollListener;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.common.traders.commands.tradedata.CommandTrade;
 import io.github.lightman314.lightmanscurrency.mixin.client.CommandSuggestionsAccessor;
 import io.github.lightman314.lightmanscurrency.mixin.client.SuggestionsListAccessor;
 import net.minecraft.MethodsReturnNonnullByDefault;

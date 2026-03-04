@@ -6,42 +6,40 @@ import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import javax.annotation.Nonnull;
 import java.util.Map;
 
 public class SPacketViewConfig extends ServerToClientPacket {
 
-    private static final Type<SPacketViewConfig> TYPE = new Type<>(VersionUtil.lcResource("s_config_view"));
+    private static final Type<SPacketViewConfig> TYPE = sType("config_view");
+    private static final StreamCodec<ByteBuf,SPacketViewConfig> STREAM_CODEC = StreamCodec.composite(
+            ResourceLocation.STREAM_CODEC,p -> p.fileID,
+            ByteBufCodecs.STRING_UTF8,p -> p.option,
+            SPacketViewConfig::new);
     public static final Handler<SPacketViewConfig> HANDLER = new H();
 
     private final ResourceLocation fileID;
     private final String option;
 
-    public SPacketViewConfig(@Nonnull ResourceLocation fileID, @Nonnull String option)
+    public SPacketViewConfig(ResourceLocation fileID, String option)
     {
         super(TYPE);
         this.fileID = fileID;
         this.option = option;
     }
 
-    private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull SPacketViewConfig message) {
-        buffer.writeResourceLocation(message.fileID);
-        buffer.writeUtf(message.option);
-    }
-    private static SPacketViewConfig decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketViewConfig(buffer.readResourceLocation(),buffer.readUtf()); }
-
     private static class H extends Handler<SPacketViewConfig>
     {
-        protected H() { super(TYPE, easyCodec(SPacketViewConfig::encode,SPacketViewConfig::decode)); }
+        protected H() { super(TYPE,STREAM_CODEC); }
         @Override
-        protected void handle(@Nonnull SPacketViewConfig message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+        protected void handle(SPacketViewConfig message, IPayloadContext context, Player player) {
             ConfigFile file = ConfigFile.lookupFile(message.fileID);
             if(file != null && file.isClientOnly())
             {

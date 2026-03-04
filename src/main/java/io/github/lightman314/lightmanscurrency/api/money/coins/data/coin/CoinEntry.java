@@ -17,7 +17,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -47,9 +46,11 @@ public class CoinEntry {
     private Pair<CoinEntry,Integer> lowerExchange = null;
     @Nullable
     public Pair<CoinEntry,Integer> getLowerExchange() { return this.lowerExchange; }
+    public boolean hasLowerExchange() { return this.lowerExchange != null; }
     private Pair<CoinEntry,Integer> upperExchange = null;
     @Nullable
     public Pair<CoinEntry,Integer> getUpperExchange() { return this.upperExchange; }
+    public boolean hasUpperExchange() { return this.upperExchange != null; }
 
     public void defineExchanges(@Nullable Pair<CoinEntry,Integer> lowerExchange, @Nullable Pair<CoinEntry,Integer> upperExchange)
     {
@@ -66,21 +67,21 @@ public class CoinEntry {
     public int getExchangeRate() { return 0; }
     public final Component getName() { return new ItemStack(this.coin).getHoverName(); }
     public final Item getCoin() { return this.coin; }
-    public CoinEntry(@Nonnull Item coin) { this(coin, false); }
-    protected CoinEntry(@Nonnull Item coin, boolean sideChain) { this.coin = coin; this.sideChain = sideChain; }
+    public CoinEntry(Item coin) { this(coin, false); }
+    protected CoinEntry(Item coin, boolean sideChain) { this.coin = coin; this.sideChain = sideChain; }
 
-    public boolean matches(@Nonnull CoinEntry coin) { return this == coin || this.coin == coin.coin; }
-    public boolean matches(@Nonnull Item item) { return this.coin == item; }
-    public boolean matches(@Nonnull ItemStack stack) { return this.matches(stack.getItem()); }
+    public boolean matches(CoinEntry coin) { return this == coin || this.coin == coin.coin; }
+    public boolean matches(Item item) { return this.coin == item; }
+    public boolean matches(ItemStack stack) { return this.matches(stack.getItem()); }
 
-    public boolean matches(@Nonnull CompoundTag tag)
+    public boolean matches(CompoundTag tag)
     {
         if(tag.contains("coin"))
             return this.matches(BuiltInRegistries.ITEM.get(VersionUtil.parseResource(tag.getString("coin"))));
         return false;
     }
 
-    public final JsonObject serialize(@Nonnull ValueDisplayData displayData)
+    public final JsonObject serialize(ValueDisplayData displayData)
     {
         JsonObject json = new JsonObject();
         json.addProperty("Coin", BuiltInRegistries.ITEM.getKey(this.coin).toString());
@@ -89,9 +90,9 @@ public class CoinEntry {
         return json;
     }
 
-    protected void writeAdditional(@Nonnull JsonObject json) {}
+    protected void writeAdditional(JsonObject json) {}
 
-    protected static Item parseBase(@Nonnull JsonObject json) throws JsonSyntaxException, ResourceLocationException
+    protected static Item parseBase(JsonObject json) throws JsonSyntaxException, ResourceLocationException
     {
         ResourceLocation itemID = VersionUtil.parseResource(GsonHelper.getAsString(json, "Coin"));
         Item item = BuiltInRegistries.ITEM.get(itemID);

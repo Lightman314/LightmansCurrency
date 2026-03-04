@@ -1,14 +1,13 @@
 package io.github.lightman314.lightmanscurrency.integration.computercraft.apis;
 
 import dan200.computercraft.api.lua.*;
-import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.misc.item_handlers.LCItemStackHandler;
+import io.github.lightman314.lightmanscurrency.api.money.capability.implementations.MoneyViewWrapper;
 import io.github.lightman314.lightmanscurrency.api.money.value.FlexibleMoneyValue;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyViewer;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyViewer;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCArgumentHelper;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.world.Container;
 
 public class LuaMoneyAPI implements ILuaAPI {
 
@@ -58,8 +57,8 @@ public class LuaMoneyAPI implements ILuaAPI {
     @LuaFunction
     public LCLuaTable readInventoryValues(IArguments args) throws LuaException
     {
-        Container container = InventoryUtil.buildInventory(LCArgumentHelper.parseBasicItems(args,0));
-        IMoneyViewer view = MoneyAPI.getApi().GetContainersMoneyHandler(container,s -> {}, IClientTracker.forServer());
+        LCItemStackHandler handler = new LCItemStackHandler(LCArgumentHelper.parseBasicItems(args,0));
+        IMoneyViewer view = MoneyViewWrapper.forInventory(handler,IClientTracker.forServer());
         return LCLuaTable.fromMoney(view);
     }
 

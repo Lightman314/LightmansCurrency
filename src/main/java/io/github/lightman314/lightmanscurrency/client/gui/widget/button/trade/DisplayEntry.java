@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.api.money.client.ClientMoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.display.*;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;

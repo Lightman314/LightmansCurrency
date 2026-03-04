@@ -4,8 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.codecs.StreamHelper;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.notifications.CommonData;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
@@ -14,33 +19,37 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.TraderCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.common.traders.item.trade.ItemTradeData;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class ItemTradeNotification extends SingleLineTaxableNotification {
 
-	public static final NotificationType<ItemTradeNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("item_trade"),ItemTradeNotification::new);
+	public static final NotificationType<ItemTradeNotification> TYPE = new Type();
 	
-	TraderCategory traderData;
+	TraderCategory traderData = TraderCategory.NULL;
 	
-	TradeDirection tradeType;
-	List<ItemData> items;
+	TradeDirection tradeType = TradeDirection.OTHER;
+	List<ItemData> items = new ArrayList<>();
 	MoneyValue cost = MoneyValue.empty();
 	
-	String customer;
+	String customer = "";
 
 	private ItemTradeNotification(){}
-
+    private ItemTradeNotification(TraderCategory trader, TradeDirection type, List<ItemData> items, MoneyValue cost, String customer, MoneyValue taxes, CommonData data) {
+        super(taxes,data);
+        this.traderData = trader;
+        this.tradeType = type;
+        this.items = items;
+        this.cost = cost;
+        this.customer = customer;
+    }
 	public ItemTradeNotification(ItemTradeData trade, MoneyValue cost, PlayerReference customer, TraderCategory traderData, MoneyValue taxesPaid) {
 
 		super(taxesPaid);
@@ -67,7 +76,7 @@ public class ItemTradeNotification extends SingleLineTaxableNotification {
 	public static Supplier<Notification> create(ItemTradeData trade, MoneyValue cost, PlayerReference customer, TraderCategory trader, MoneyValue taxesPaid) { return () -> new ItemTradeNotification(trade, cost, customer, trader, taxesPaid); }
 
 	@Override
-	protected NotificationType<ItemTradeNotification> getType() { return TYPE; }
+	public NotificationType<ItemTradeNotification> getType() { return TYPE; }
 
 	@Override
 	public NotificationCategory getCategory() { return this.traderData; }
@@ -91,21 +100,6 @@ public class ItemTradeNotification extends SingleLineTaxableNotification {
 
 		//Create log from stored data
 		return LCText.NOTIFICATION_TRADE_ITEM.get(this.customer, action, itemText, cost);
-		
-	}
-
-	@Override
-	protected void saveNormal(CompoundTag compound, HolderLookup.Provider lookup) {
-		
-		compound.put("TraderInfo", this.traderData.save(lookup));
-		compound.putInt("TradeType", this.tradeType.index);
-		ListTag itemList = new ListTag();
-		for(ItemData item : this.items)
-			itemList.add(item.save(lookup));
-		compound.put("Items", itemList);
-		if(this.tradeType != TradeDirection.BARTER)
-			compound.put("Price", this.cost.save());
-		compound.putString("Customer", this.customer);
 		
 	}
 
@@ -148,5 +142,31 @@ public class ItemTradeNotification extends SingleLineTaxableNotification {
 		}
 		return false;
 	}
+
+    private static class Type extends NotificationType<ItemTradeNotification>
+    {
+        private static final MapCodec<ItemTradeNotification> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+                TraderCategory.TYPE.codec().codec().fieldOf("trader").forGetter(n -> n.traderData),
+                TradeDirection.CODEC.fieldOf("tradeType").forGetter(n -> n.tradeType),
+                ItemData.LIST_CODEC.fieldOf("items").forGetter(n -> n.items),
+                MoneyValue.CODEC.fieldOf("cost").forGetter(n -> n.cost),
+                Codec.STRING.fieldOf("customer").forGetter(n -> n.customer)
+        ).and(taxableFields(builder)).apply(builder,ItemTradeNotification::new));
+
+        private static final StreamCodec<RegistryFriendlyByteBuf,ItemTradeNotification> STREAM_CODEC = StreamHelper.combine(taxableStreamFields(),
+                TraderCategory.TYPE.streamCodec(),n -> n.traderData,
+                TradeDirection.STREAM_CODEC,n -> n.tradeType,
+                ItemData.STREAM_CODEC_LIST,n -> n.items,
+                MoneyValue.STREAM_CODEC,n -> n.cost,
+                ByteBufCodecs.STRING_UTF8,n -> n.customer,
+                ItemTradeNotification::new);
+
+        @Override
+        protected ItemTradeNotification createNew() { return new ItemTradeNotification(); }
+        @Override
+        public MapCodec<ItemTradeNotification> codec() { return MAP_CODEC; }
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, ItemTradeNotification> streamCodec() { return STREAM_CODEC; }
+    }
 	
 }

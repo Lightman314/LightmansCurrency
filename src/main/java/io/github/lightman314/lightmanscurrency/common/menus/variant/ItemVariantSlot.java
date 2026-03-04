@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.menus.variant;
 
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.EasySlot;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;

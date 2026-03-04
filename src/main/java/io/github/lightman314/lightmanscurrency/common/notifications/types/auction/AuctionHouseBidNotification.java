@@ -3,33 +3,43 @@ package io.github.lightman314.lightmanscurrency.common.notifications.types.aucti
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.codecs.StreamHelper;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
+import io.github.lightman314.lightmanscurrency.api.notifications.CommonData;
 import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemData;
-import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.trade.AuctionTradeData;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class AuctionHouseBidNotification extends AuctionHouseNotification{
 
-	public static final NotificationType<AuctionHouseBidNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("auction_house_outbid"),AuctionHouseBidNotification::new);
+	public static final NotificationType<AuctionHouseBidNotification> TYPE = new Type();
 	
-	List<ItemData> items;
-	MoneyValue cost;
+	List<ItemData> items = ImmutableList.of();
+	MoneyValue cost = MoneyValue.empty();
 	
-	String customer;
+	String customer = "";
 
-	private AuctionHouseBidNotification() {}
+	private AuctionHouseBidNotification() { }
+
+    private AuctionHouseBidNotification(List<ItemData> items, MoneyValue cost, String customer, CommonData data) {
+        super(data);
+        this.items = ImmutableList.copyOf(items);
+        this.cost = cost;
+        this.customer = customer;
+    }
 
 	public AuctionHouseBidNotification(AuctionTradeData trade) {
 		
@@ -42,8 +52,10 @@ public class AuctionHouseBidNotification extends AuctionHouseNotification{
 		
 	}
 
+
+
     @Override
-	protected NotificationType<AuctionHouseBidNotification> getType() { return TYPE; }
+	public NotificationType<AuctionHouseBidNotification> getType() { return TYPE; }
 
 	@Override
 	public Component getMessage() {
@@ -58,18 +70,6 @@ public class AuctionHouseBidNotification extends AuctionHouseNotification{
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
-		
-		ListTag itemList = new ListTag();
-		for(ItemData item : this.items)
-			itemList.add(item.save(lookup));
-		compound.put("Items", itemList);
-		compound.put("Price", this.cost.save());
-		compound.putString("Customer", this.customer);
-		
-	}
-
-	@Override
 	protected void loadAdditional(CompoundTag compound,HolderLookup.Provider lookup) {
 		
 		ListTag itemList = compound.getList("Items", Tag.TAG_COMPOUND);
@@ -80,5 +80,29 @@ public class AuctionHouseBidNotification extends AuctionHouseNotification{
 		this.customer = compound.getString("Customer");
 		
 	}
+
+    private static class Type extends NotificationType<AuctionHouseBidNotification>
+    {
+
+        private static final MapCodec<AuctionHouseBidNotification> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+                ItemData.LIST_CODEC.fieldOf("items").forGetter(n -> n.items),
+                MoneyValue.CODEC.fieldOf("price").forGetter(n -> n.cost),
+                Codec.STRING.fieldOf("customer").forGetter(n -> n.customer),
+                baseFields()
+        ).apply(builder,AuctionHouseBidNotification::new));
+
+        private static final StreamCodec<RegistryFriendlyByteBuf,AuctionHouseBidNotification> STREAM_CODEC = StreamHelper.combine(baseStreamFields(),
+                ItemData.STREAM_CODEC_LIST,n -> n.items,
+                MoneyValue.STREAM_CODEC,n -> n.cost,
+                ByteBufCodecs.STRING_UTF8,n -> n.customer,
+                AuctionHouseBidNotification::new);
+
+        @Override
+        protected AuctionHouseBidNotification createNew() { return new AuctionHouseBidNotification(); }
+        @Override
+        public MapCodec<AuctionHouseBidNotification> codec() { return CODEC; }
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, AuctionHouseBidNotification> streamCodec() { return STREAM_CODEC; }
+    }
 	
 }

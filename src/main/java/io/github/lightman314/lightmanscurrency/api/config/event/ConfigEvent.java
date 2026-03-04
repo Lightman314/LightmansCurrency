@@ -1,13 +1,8 @@
 package io.github.lightman314.lightmanscurrency.api.config.event;
 
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.neoforged.bus.api.Event;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class ConfigEvent extends Event {
 
     protected final ConfigFile file;

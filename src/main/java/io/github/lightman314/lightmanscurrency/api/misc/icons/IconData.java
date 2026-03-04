@@ -1,30 +1,42 @@
 package io.github.lightman314.lightmanscurrency.api.misc.icons;
 
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.MapCodec;
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
+import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class IconData {
+
+    public static final IconType<IconData> NULL_TYPE = new NullIcon.Type();
+
+    public static final Codec<IconData> CODEC = Codec.withAlternative(
+            //Desired Codec
+            LCRegistries.ICON_TYPE.byNameCodec().dispatch(IconData::getType,IconType::codec),
+            //Fallback Codec for old data
+            CodecHelper.oldValueLoader(IconData::loadOldData,"Icon Data"));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf,IconData> STREAM_CODEC = ByteBufCodecs.registry(LCRegistries.ICON_TYPE_KEY).dispatch(IconData::getType,IconType::streamCodec);
+    public static final StreamCodec<RegistryFriendlyByteBuf,NonNullList<IconData>> LIST_STREAM_CODEC = STREAM_CODEC.apply(ByteBufCodecs.collection(NonNullList::createWithCapacity));
 
 	private static IconData NULL = null;
 	public static IconData Null() {
@@ -33,98 +45,65 @@ public abstract class IconData {
 		return NULL;
 	}
 
-	private static final Map<ResourceLocation,Type> ICON_TYPES = new HashMap<>();
-	public static void registerIconType(Type type)
-	{
-		if(ICON_TYPES.containsKey(type.id))
-		{
-			LightmansCurrency.LogDebug("Attempted to register icon of type '" + type + "' twice!");
-			return;
-		}
-		ICON_TYPES.put(type.id,type);
-	}
-
-	public static void registerDefaultIcons() {
-		if(ICON_TYPES.containsKey(NullIcon.TYPE.id))
-		{
-			LightmansCurrency.LogWarning("Attempted to register the default icons twice!");
-			return;
-		}
-		registerIconType(NullIcon.TYPE);
-		registerIconType(ItemIcon.TYPE);
-		registerIconType(ImageIcon.TYPE);
-		registerIconType(IconIcon.TYPE);
-		registerIconType(TextIcon.TYPE);
-		registerIconType(NumberIcon.TYPE);
-		registerIconType(MultiIcon.TYPE);
-	}
-
 	@Nullable
-	public static IconData load(CompoundTag tag, HolderLookup.Provider lookup)
+    @Deprecated
+	public static IconData loadOldData(CompoundTag tag, HolderLookup.Provider lookup)
 	{
+        if(tag.contains("type"))
+            return CODEC.decode(RegistryOps.create(NbtOps.INSTANCE,lookup),tag).getOrThrow().getFirst();
 		if(tag.contains("Type"))
 		{
 			ResourceLocation type = VersionUtil.parseResource(tag.getString("Type"));
-			if(ICON_TYPES.containsKey(type))
-				return ICON_TYPES.get(type).loader.apply(tag,lookup);
+            IconType<?> t = LCRegistries.ICON_TYPE.get(type);
+			if(t != null)
+				return t.loadOld(tag,lookup);
 		}
 		return null;
 	}
-    public static IconData safeLoad(CompoundTag tag, HolderLookup.Provider lookup, IconData defaultIcon) { return Objects.requireNonNullElse(load(tag,lookup),defaultIcon); }
+    public static IconData safeLoad(CompoundTag tag, HolderLookup.Provider lookup, IconData defaultIcon) { return Objects.requireNonNullElse(loadOldData(tag,lookup),defaultIcon); }
 
-    public static IconData parse(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException
+    @Deprecated
+    protected static IconData parseOld(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException
     {
+        if(json.has("type"))
+            return CODEC.decode(RegistryOps.create(JsonOps.INSTANCE,lookup),json).getOrThrow().getFirst();
         ResourceLocation type = VersionUtil.parseResource(GsonHelper.getAsString(json,"Type"));
-        if(ICON_TYPES.containsKey(type))
-            return ICON_TYPES.get(type).parser.apply(json,lookup);
+        IconType<?> t = LCRegistries.ICON_TYPE.get(type);
+        if(t != null)
+            return t.parseOld(json,lookup);
         throw new JsonSyntaxException("Unknown icon type " + type);
     }
 
-	protected final Type type;
 	public final boolean isNull() { return this instanceof NullIcon; }
-	protected IconData(Type type) { this.type = type; }
+	protected IconData() {}
 
-	@OnlyIn(Dist.CLIENT)
-	public final void render(EasyGuiGraphics gui, ScreenPosition pos) { this.render(gui, pos.x, pos.y); }
-	@OnlyIn(Dist.CLIENT)
-	public abstract void render(EasyGuiGraphics gui, int x, int y);
+    public abstract IconType<?> getType();
 
-	public final CompoundTag save(HolderLookup.Provider lookup)
-	{
-        CompoundTag tag = new CompoundTag();
-		this.saveAdditional(tag,lookup);
-        tag.putString("Type", this.type.toString());
-		return tag;
-	}
-	protected abstract void saveAdditional(CompoundTag context, HolderLookup.Provider lookup);
+	public final CompoundTag save(HolderLookup.Provider lookup)  { return (CompoundTag)CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE,lookup),this).getOrThrow(); }
 
-    public final JsonObject write(HolderLookup.Provider lookup)
-    {
-        JsonObject json = new JsonObject();
-        this.writeAdditional(json,lookup);
-        json.addProperty("Type",this.type.toString());
-        return json;
-    }
+    public final JsonObject write(HolderLookup.Provider lookup)  { return (JsonObject) CODEC.encodeStart(RegistryOps.create(JsonOps.INSTANCE,lookup),this).getOrThrow(); }
 
-    protected abstract void writeAdditional(JsonObject json, HolderLookup.Provider lookup);
+	private static class NullIcon extends IconData {
 
-	private static class NullIcon extends IconData
-	{
-        private static final Type TYPE = new Type(VersionUtil.lcResource("null"),c -> IconData.Null(),j -> IconData.Null());
-		private NullIcon() { super(TYPE); }
-		@Override
-		@OnlyIn(Dist.CLIENT)
-		public void render(EasyGuiGraphics gui, int x, int y) {}
-		@Override
-		protected void saveAdditional(CompoundTag tag, HolderLookup.Provider lookup) { }
+        private NullIcon() { super(); }
         @Override
-        protected void writeAdditional(JsonObject json, HolderLookup.Provider lookup) { }
-	}
+        public IconType<?> getType() { return NULL_TYPE; }
 
-    public record Type(ResourceLocation id, BiFunction<CompoundTag,HolderLookup.Provider,IconData> loader, BiFunction<JsonObject,HolderLookup.Provider,IconData> parser) {
-        public Type(ResourceLocation id, Function<CompoundTag,IconData> loader,Function<JsonObject,IconData> parser) { this(id,(c,l) -> loader.apply(c),(j,l) -> parser.apply(j)); }
-        @Override
-        public String toString() { return this.id.toString(); }
-    }
+        private static class Type extends IconType<IconData>
+        {
+            private static final MapCodec<IconData> CODEC = MapCodec.unit(IconData::Null);
+            private static final StreamCodec<ByteBuf,IconData> STREAM_CODEC = StreamCodec.of((b,v) -> {},b -> Null());
+
+            @Override
+            public IconData loadOld(CompoundTag tag, HolderLookup.Provider lookup) { return Null(); }
+            @Override
+            public IconData parseOld(JsonObject tag, HolderLookup.Provider lookup) { return Null(); }
+            @Override
+            public MapCodec<IconData> codec() { return CODEC; }
+            @Override
+            public StreamCodec<ByteBuf,IconData> streamCodec() { return STREAM_CODEC; }
+        }
+
+	}
 
 }

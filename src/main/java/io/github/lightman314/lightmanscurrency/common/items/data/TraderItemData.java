@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -14,7 +14,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipProvider;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -24,7 +23,7 @@ public record TraderItemData(long traderID) implements TooltipProvider {
     public static final StreamCodec<FriendlyByteBuf,TraderItemData> STREAM_CODEC = StreamCodec.of((b,d) -> b.writeLong(d.traderID),b -> new TraderItemData(b.readLong()));
 
     @Override
-    public void addToTooltip(@Nonnull Item.TooltipContext context, @Nonnull Consumer<Component> consumer, @Nonnull TooltipFlag flag) {
+    public void addToTooltip(Item.TooltipContext context, Consumer<Component> consumer, TooltipFlag flag) {
         //Tooltip
         consumer.accept(LCText.TOOLTIP_TRADER_ITEM_WITH_DATA.getWithStyle(ChatFormatting.GRAY));
         //Trader Name
@@ -33,7 +32,7 @@ public record TraderItemData(long traderID) implements TooltipProvider {
         {
             TraderData trader = TraderAPI.getApi().GetTrader(level.isClientSide, this.traderID);
             if(trader != null)
-                consumer.accept(trader.getName().withStyle(ChatFormatting.GRAY));
+                consumer.accept(trader.getName().copy().withStyle(ChatFormatting.GRAY));
         }
         //Trader ID
         if(flag.isAdvanced())

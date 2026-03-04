@@ -1,22 +1,24 @@
 package io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.auction;
 
+import dan200.computercraft.api.detail.VanillaDetailRegistries;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
-import io.github.lightman314.lightmanscurrency.common.traders.auction.tradedata.AuctionTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.nodes.AuctionTradesNode;
+import io.github.lightman314.lightmanscurrency.common.traders.auction.trade.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.AccessTrackingPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPeripheralMethod;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class AuctionHousePeripheral extends AccessTrackingPeripheral {
 
@@ -40,16 +42,26 @@ public class AuctionHousePeripheral extends AccessTrackingPeripheral {
         throw new LuaException("Auction House could not be located!");
     }
 
+    private AuctionTradesNode getNode() throws LuaException
+    {
+        AuctionHouseTrader trader = this.getTrader();
+        AuctionTradesNode node = trader.getNode(AuctionTradesNode.TYPE);
+        if(node == null)
+            throw new LuaException("Auction House is missing a critical node!");
+        return node;
+    }
+
     public long getID() throws LuaException { return this.getTrader().getID(); }
 
     public int getAuctionCount() throws LuaException { return this.getTrader().validTradeCount(); }
 
-    public LCLuaTable[] getAuctions() throws LuaException {
+    public LCLuaTable getAuctions() throws LuaException {
         AuctionHouseTrader trader = this.getTrader();
         List<LCLuaTable> list = new ArrayList<>();
+        AuctionTradesNode node = this.getNode();
         for(int i = 0; i < trader.getTradeCount(); ++i)
         {
-            AuctionTradeData trade = trader.getTrade(i);
+            AuctionTradeData trade = node.getTrade(i);
             if(trade.isValid())
             {
                 LCLuaTable entry = new LCLuaTable();
@@ -60,21 +72,21 @@ public class AuctionHousePeripheral extends AccessTrackingPeripheral {
                 entry.put("LastBidder",lastBidder == null ? null : lastBidder.getName(false));
                 entry.put("Owner",trade.getOwner().getName(false));
                 entry.put("RemainingTime",trade.getRemainingTime(TimeUtil.getCurrentTime()));
-                List<LCLuaTable> items = new ArrayList<>();
+                List<Map<String,Object>> items = new ArrayList<>();
                 for(ItemStack item : trade.getAuctionItems())
-                    items.add(LCLuaTable.fromTag(InventoryUtil.saveItemNoLimits(item,this.registryAccess())));
-                entry.put("Items",items.toArray(LCLuaTable[]::new));
+                    items.add(VanillaDetailRegistries.ITEM_STACK.getDetails(item));
+                entry.put("Items",LCLuaTable.fromList(items));
                 list.add(entry);
             }
         }
-        return list.toArray(LCLuaTable[]::new);
+        return LCLuaTable.fromList(list);
     }
 
     @Override
     protected void registerMethods(LCPeripheralMethod.Registration registration) {
         registration.register(LCPeripheralMethod.builder("getID").simple(this::getID));
         registration.register(LCPeripheralMethod.builder("getAuctionCount").simple(this::getAuctionCount));
-        registration.register(LCPeripheralMethod.builder("getAuctions").simpleArray(this::getAuctions));
+        registration.register(LCPeripheralMethod.builder("getAuctions").simple(this::getAuctions));
     }
 
 }

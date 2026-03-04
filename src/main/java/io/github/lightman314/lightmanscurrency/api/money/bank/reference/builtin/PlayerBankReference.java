@@ -1,33 +1,33 @@
 package io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin;
 
+import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReferenceType;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.common.data.types.BankDataCache;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.UUID;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class PlayerBankReference extends BankReference {
 
-    public static final BankReferenceType TYPE = new Type();
+    public static final BankReferenceType<PlayerBankReference> TYPE = new Type();
+
+    private static final MapCodec<PlayerBankReference> MAP_CODEC = PlayerReference.CODEC.xmap(PlayerBankReference::new,PlayerBankReference::getPlayer).fieldOf("player");
+    private static final StreamCodec<FriendlyByteBuf,PlayerBankReference> STREAM_CODEC = PlayerReference.STREAM_CODEC.map(PlayerBankReference::new,PlayerBankReference::getPlayer);
 
     private final PlayerReference player;
     public PlayerReference getPlayer() { return this.player; }
 
-    protected PlayerBankReference(PlayerReference player) { super(TYPE); this.player = player; }
+    protected PlayerBankReference(PlayerReference player) { this.player = player; }
     
     public static BankReference of(UUID player) { return new PlayerBankReference(PlayerReference.of(player,"")); }
     @Nullable
@@ -40,6 +40,9 @@ public class PlayerBankReference extends BankReference {
     @Nullable
     @Override
     public IconData getIcon() { return ItemIcon.ofItem(this.player.getSkull(this.isClient())); }
+
+    @Override
+    public BankReferenceType<?> getType() { return TYPE; }
 
     @Nullable
     @Override
@@ -61,30 +64,19 @@ public class PlayerBankReference extends BankReference {
     public int salaryPermission(PlayerReference player) { return this.player.is(player) ? Integer.MAX_VALUE : 0; }
 
     @Override
-    protected void saveAdditional(CompoundTag tag) {
-        tag.put("Player",this.player.save());
-    }
-
-    @Override
-    protected void encodeAdditional(FriendlyByteBuf buffer) {
-        this.player.encode(buffer,this.isClient());
-    }
-
-    @Override
     public boolean canPersist(Player player) { return this.player.is(player); }
 
-    private static final class Type extends BankReferenceType {
-        Type() { super(VersionUtil.lcResource("personal")); }
+    private static final class Type extends BankReferenceType<PlayerBankReference> {
         @Override
-        public BankReference load(CompoundTag tag) {
+        public MapCodec<PlayerBankReference> codec() { return MAP_CODEC; }
+        @Override
+        public StreamCodec<FriendlyByteBuf,PlayerBankReference> streamCodec() { return STREAM_CODEC; }
+        @Override
+        public BankReference loadOldData(CompoundTag tag) {
             if(tag.contains("PlayerID"))
                 return of(tag.getUUID("PlayerID"));
             else
                 return of(PlayerReference.load(tag.getCompound("Player")));
-        }
-        @Override
-        public BankReference decode(FriendlyByteBuf buffer) {
-            return of(PlayerReference.decode(buffer));
         }
     }
 

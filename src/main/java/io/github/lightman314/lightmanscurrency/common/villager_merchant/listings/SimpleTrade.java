@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 public class SimpleTrade extends ItemsForXTradeTemplate
 {
 
-    public static final ResourceLocation TYPE = VersionUtil.lcResource("simple");
+    public static final ResourceLocation TYPE = LightmansCurrency.id("simple");
     public static final Serializer SERIALIZER = new Serializer();
 
     protected final ItemStack forSale;

@@ -1,31 +1,28 @@
 package io.github.lightman314.lightmanscurrency.common.data.types;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomData;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomDataType;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.teams.ITeam;
+import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-@FieldsAreNonnullByDefault
 public class TeamDataCache extends CustomData {
 
     public static final CustomDataType<TeamDataCache> TYPE = new CustomDataType<>("lightmanscurrency_team_data",TeamDataCache::new);
@@ -40,34 +37,27 @@ public class TeamDataCache extends CustomData {
 
     private final Map<Long,Team> teams = new HashMap<>();
 
+    private Set<Long> changedTeams = new HashSet<>();
+
     private TeamDataCache() {}
 
     @Override
     public CustomDataType<?> getType() { return TYPE; }
 
     @Override
-    public void save(CompoundTag tag, HolderLookup.Provider lookup) {
+    public void save(CompoundTag tag,DataContext<Tag> context) {
         tag.putLong("NextID", this.nextID);
 
-        ListTag teamList = new ListTag();
-        this.teams.forEach((teamID, team) ->{
-            if(team != null)
-                teamList.add(team.save(lookup));
-        });
-        tag.put("Teams", teamList);
+        tag.put("Teams",context.write(new ArrayList<>(this.teams.values()),Team.CODEC.listOf()));
     }
 
     @Override
-    protected void load(CompoundTag tag, HolderLookup.Provider lookup) {
+    protected void load(CompoundTag tag,DataContext<Tag> context) {
         this.nextID = tag.getLong("NextID");
 
-        ListTag teamList = tag.getList("Teams", Tag.TAG_COMPOUND);
-        for(int i = 0; i < teamList.size(); ++i)
-        {
-            Team team = Team.load(teamList.getCompound(i),lookup);
-            if(team != null)
-                this.teams.put(team.getID(),team.initialize());
-        }
+        List<Team> list = context.safeReadList(tag.get("Teams"),Team.CODEC,e -> LightmansCurrency.LogError("Error loading team: " + e));
+        for(Team t : list)
+            this.teams.put(t.getID(),t.initialize());
     }
 
     public List<ITeam> getAllTeams() { return new ArrayList<>(this.teams.values()); }
@@ -80,9 +70,7 @@ public class TeamDataCache extends CustomData {
         if(this.isClient())
             return;
         this.setChanged();
-        Team team = this.teams.get(teamID);
-        if(team != null)
-            this.sendSyncPacket(this.builder().setCompound("UpdateTeam",team.save(LookupHelper.getRegistryAccess())));
+        this.changedTeams.add(teamID);
     }
 
     @Nullable
@@ -92,7 +80,7 @@ public class TeamDataCache extends CustomData {
         Team newTeam = Team.of(teamID, PlayerReference.of(owner), teamName);
         this.teams.put(teamID, newTeam.initialize());
 
-        this.markTeamDirty(teamID);
+        this.sendSyncPacket(this.builder().setCustom("CreateTeam",newTeam,ModLazyPackets.TEAM));
 
         return newTeam;
     }
@@ -110,21 +98,52 @@ public class TeamDataCache extends CustomData {
 
     @Override
     protected void parseSyncPacket(LazyPacketData message, HolderLookup.Provider lookup) {
-        if(message.contains("UpdateTeam"))
+        if(message.contains("CreateTeam"))
         {
-            Team team = Team.load(message.getNBT("UpdateTeam"),message.lookup);
+            Team team = message.getCustom("CreateTeam",ModLazyPackets.TEAM);
             if(team != null)
                 this.teams.put(team.getID(),team.flagAsClient(this).initialize());
+        }
+        if(message.contains("UpdateTeam"))
+        {
+            long id = message.getLong("UpdateTeam");
+            if(this.teams.containsKey(id))
+                this.teams.get(id).handlePacket(message.getMap("UpdateData"));
         }
         if(message.contains("DeleteTeam"))
             this.teams.remove(message.getLong("DeleteTeam"));
     }
 
     @Override
+    protected void serverInit() {
+        NeoForge.EVENT_BUS.register(this);
+    }
+
+    @SubscribeEvent
+    private void serverTick(ServerTickEvent.Post event)
+    {
+        Set<Long> changed = this.changedTeams;
+        this.changedTeams = new HashSet<>();
+        for(long teamID : changed)
+        {
+            Team team = this.teams.get(teamID);
+            if(team != null)
+            {
+                this.sendSyncPacket(this.builder()
+                        .setLong("UpdateTeam",teamID)
+                        .setMap("UpdateData",team.getAndCleanPacket()));
+            }
+        }
+    }
+
+    @SubscribeEvent
+    private void onServerShutdown(ServerStoppingEvent event) { NeoForge.EVENT_BUS.unregister(this); }
+
+    @Override
     public void onPlayerJoin(ServerPlayer player) {
         HolderLookup.Provider lookup = LookupHelper.getRegistryAccess();
         for(Team team : this.teams.values())
-            this.sendSyncPacket(this.builder().setCompound("UpdateTeam",team.save(lookup)),player);
+            this.sendSyncPacket(this.builder().setCustom("CreateTeam",team,ModLazyPackets.TEAM),player);
     }
 
 }

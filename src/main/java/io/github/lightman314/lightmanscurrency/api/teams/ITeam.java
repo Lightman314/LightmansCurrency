@@ -1,25 +1,22 @@
 package io.github.lightman314.lightmanscurrency.api.teams;
 
 import com.google.common.collect.ImmutableList;
-import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Range;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-public interface ITeam extends IClientTracker {
+public interface ITeam extends IClientTracker, LazyPacketData.IBuilderProvider {
 
     long getID();
     String getName();
@@ -98,7 +95,7 @@ public interface ITeam extends IClientTracker {
     int getBankSalaryEdit();
 
     /**
-     * The bank account stored in this teams data.<br>
+     * The bank account stored in this team's data.<br>
      * Make sure to check {@link #canAccessBankAccount(Player)} or {@link io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.TeamBankReference#allowedAccess(Player) TeamBankReference#allowedAccess(Player)} before attempting any player-based interactions.
      */
     @Nullable

@@ -10,8 +10,8 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisp
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.InteractionType;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.ActiveMode;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeResult;
-import io.github.lightman314.lightmanscurrency.api.traders.attachments.builtin.ExternalAuthorizationAttachment;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeResult;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.MachineAccessNode;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.items.data.register.TransactionType;
@@ -19,7 +19,6 @@ import io.github.lightman314.lightmanscurrency.common.text.MultiLineTextEntry;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.OutputConflictHandling;
 import io.github.lightman314.lightmanscurrency.datagen.client.language.version_specific.VersionEnglishProvider;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -742,9 +741,9 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.BUTTON_TRADER_SETTINGS_PASTE, "Paste");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS_EXTERNAL_AUTH,"External Authorization");
         this.translate(LCText.TOOLTIP_TRADER_SETTINGS_EXTERNAL_AUTH_SELECT,"Click to Select Access Level");
-        this.translate(LCText.GUI_TRADER_SETTINGS_EXTERNAL_AUTH_ACCESS_LEVEL.get(ExternalAuthorizationAttachment.AccessLevel.NONE),"No Access");
-        this.translate(LCText.GUI_TRADER_SETTINGS_EXTERNAL_AUTH_ACCESS_LEVEL.get(ExternalAuthorizationAttachment.AccessLevel.ALLY),"Ally Level Access");
-        this.translate(LCText.GUI_TRADER_SETTINGS_EXTERNAL_AUTH_ACCESS_LEVEL.get(ExternalAuthorizationAttachment.AccessLevel.ADMIN),"Full Administrator Access");
+        this.translate(LCText.GUI_TRADER_SETTINGS_EXTERNAL_AUTH_ACCESS_LEVEL.get(MachineAccessNode.AccessLevel.NONE),"No Access");
+        this.translate(LCText.GUI_TRADER_SETTINGS_EXTERNAL_AUTH_ACCESS_LEVEL.get(MachineAccessNode.AccessLevel.ALLY),"Ally Level Access");
+        this.translate(LCText.GUI_TRADER_SETTINGS_EXTERNAL_AUTH_ACCESS_LEVEL.get(MachineAccessNode.AccessLevel.ADMIN),"Full Administrator Access");
 
         //General Trade Tooltips
         this.translate(LCText.TOOLTIP_TRADE_EDIT_PRICE, "Click to Edit Price");
@@ -1115,7 +1114,6 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.NOTIFICATION_EJECTION_DROPPED,"%s was destroyed by unpreventable means, and its contents were dropped");
         //Settings Notifications
         this.translate(LCText.NOTIFICATION_SETTINGS_ADD_REMOVE_ALLY,"%1$s %2$s %3$s %4$s the list of allies");
-        this.translate(LCText.NOTIFICATION_SETTINGS_ADD_REMOVE_TRADE,"%1$s %2$s a trade slot. Trader now has %3$s trades");
         this.translate(LCText.NOTIFICATION_SETTINGS_CHANGE_ALLY_PERMISSIONS,"%1$s changed allies %2$s value from %3$s to %4$s");
         this.translate(LCText.NOTIFICATION_SETTINGS_CHANGE_ALLY_PERMISSIONS_SIMPLE,"%1$s changed allies %2$s value to %3$s");
         this.translate(LCText.NOTIFICATION_SETTINGS_CHANGE_CREATIVE,"%1$s %2$s creative mode");
@@ -1226,7 +1224,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.DATA_ENTRY_PAYGATE_CONFLICT_HANDLING,"Output Conflict Handling");
         this.translate(LCText.DATA_ENTRY_RULES_COUNT,"%s Active Rules");
         this.translate(LCText.DATA_ENTRY_TRADER_TRADES,"Trade #%s");
-        this.translate(LCText.DATA_ENTRY_TRADER_TRADE_COUNT,"Trades");
+        this.translate(LCText.DATA_ENTRY_TRADER_TRADE_COUNT,"Trade Offers");
         this.translate(LCText.DATA_ENTRY_TRADER_TRADE_TYPE,"Trade Type");
         this.translate(LCText.DATA_ENTRY_TRADER_TRADE_PRICE,"Price");
         this.translate(LCText.DATA_ENTRY_TRADER_TRADE_ITEM_SELL_ITEMS,"Selling %s Items");
@@ -1243,9 +1241,9 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.DATA_CATEGORY_TRADER_TAXES,"Tax Settings");
         this.translate(LCText.DATA_CATEGORY_TRADER_TRADES,"Trades");
         this.translate(LCText.DATA_CATEGORY_OWNERSHIP,"Ownership Settings");
+        this.translate(LCText.DATA_CATEGORY_LOGGER,"Notification Settings");
         this.translate(LCText.DATA_CATEGORY_MISC,"Miscellaneous Settings");
         this.translate(LCText.DATA_CATEGORY_INPUT_SETTINGS,"Input/Output Settings");
-        this.translate(LCText.DATA_CATEGORY_MISC_SETTINGS,"Misc Settings");
         this.translate(LCText.DATA_CATEGORY_CREATIVE,"Creative Settings");
 
         //Vanilla Stats
@@ -1912,7 +1910,7 @@ public class EnglishProvider extends TranslationProvider {
         this.add("create.item_attributes.lightmanscurrency.wallet_ability.bank","Is a Wallet that can access your bank accounts");
         this.add("create.item_attributes.lightmanscurrency.wallet_ability.bank.inverted","Is not a Wallet that can access your bank accounts");
 
-        final ResourceLocation TRADER_GUIDE = VersionUtil.lcResource("trader_guide");
+        final ResourceLocation TRADER_GUIDE = LightmansCurrency.id("trader_guide");
         //Patchouli
         this.translateGuide(TRADER_GUIDE,"Trading Guide","A guide to Buying and Selling your way to unfathomable riches");
 

@@ -6,6 +6,7 @@ import com.google.gson.JsonSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEntry;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisplayData;
@@ -13,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.display.ValueDisp
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValuePair;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -26,7 +26,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
@@ -34,16 +33,14 @@ import java.util.function.Supplier;
 
 public class CoinDisplay extends ValueDisplayData {
 
-    public static final ResourceLocation TYPE = VersionUtil.lcResource("coin");
+    public static final ResourceLocation TYPE = LightmansCurrency.id("coin");
     public static final ValueDisplaySerializer SERIALIZER = new Serializer();
 
-    @Nonnull
     public ValueDisplaySerializer getSerializer() { return SERIALIZER; }
 
     private final List<ItemData> displayData;
 
-    @Nonnull
-    private ItemData getDataForCoin(@Nonnull CoinEntry entry)
+    private ItemData getDataForCoin(CoinEntry entry)
     {
         for(ItemData data : this.displayData)
         {
@@ -54,7 +51,7 @@ public class CoinDisplay extends ValueDisplayData {
     }
 
     @Nullable
-    private ItemData getDataForItem(@Nonnull ItemStack item)
+    private ItemData getDataForItem(ItemStack item)
     {
         for(ItemData data : this.displayData)
         {
@@ -64,11 +61,11 @@ public class CoinDisplay extends ValueDisplayData {
         return null;
     }
 
-    protected CoinDisplay(@Nonnull List<ItemData> displayData)  { this.displayData = displayData; }
+    protected CoinDisplay(List<ItemData> displayData)  { this.displayData = displayData; }
 
-    @Nonnull
+    
     @Override
-    public MutableComponent formatValue(@Nonnull CoinValue value, @Nonnull MutableComponent emptyText)
+    public Component formatValue(CoinValue value, Component emptyText)
     {
         if(value.getEntries().isEmpty())
             return emptyText;
@@ -83,7 +80,7 @@ public class CoinDisplay extends ValueDisplayData {
     }
 
     @Override
-    public void formatCoinTooltip(@Nonnull ItemStack stack, @Nonnull List<Component> tooltip)
+    public void formatCoinTooltip(ItemStack stack, List<Component> tooltip)
     {
         ChainData parent = this.getParent();
         if(parent == null)
@@ -112,18 +109,18 @@ public class CoinDisplay extends ValueDisplayData {
 
         private final List<ItemData> displayData = new ArrayList<>();
 
-        @Nonnull
+        
         @Override
         public ResourceLocation getType() { return TYPE; }
         @Override
         public void resetBuilder() { this.displayData.clear(); }
         @Override
-        public void parseAdditional(@Nonnull JsonObject chainJson) { }
+        public void parseAdditional(JsonObject chainJson) { }
         @Override
-        public void writeAdditional(@Nonnull ValueDisplayData data, @Nonnull JsonObject chainJson) throws JsonSyntaxException, ResourceLocationException { }
+        public void writeAdditional(ValueDisplayData data, JsonObject chainJson) throws JsonSyntaxException, ResourceLocationException { }
 
         @Override
-        public void parseAdditionalFromCoin(@Nonnull CoinEntry coin, @Nonnull JsonObject coinEntry) throws JsonSyntaxException, ResourceLocationException {
+        public void parseAdditionalFromCoin(CoinEntry coin, JsonObject coinEntry) throws JsonSyntaxException, ResourceLocationException {
             ItemData data = new ItemData(coin.getCoin());
             if(coinEntry.has("initial"))
                 data.initial = ComponentSerialization.CODEC.parse(JsonOps.INSTANCE,coinEntry.get("initial")).getOrThrow(JsonSyntaxException::new);
@@ -133,7 +130,7 @@ public class CoinDisplay extends ValueDisplayData {
         }
 
         @Override
-        public void writeAdditionalToCoin(@Nonnull ValueDisplayData data, @Nonnull CoinEntry coin, @Nonnull JsonObject coinEntry) {
+        public void writeAdditionalToCoin(ValueDisplayData data, CoinEntry coin, JsonObject coinEntry) {
             if(data instanceof CoinDisplay display)
             {
                 ItemData d = display.getDataForCoin(coin);
@@ -144,7 +141,7 @@ public class CoinDisplay extends ValueDisplayData {
             }
         }
 
-        @Nonnull
+        
         @Override
         public CoinDisplay build() { return new CoinDisplay(ImmutableList.copyOf(this.displayData)); }
     }
@@ -157,7 +154,7 @@ public class CoinDisplay extends ValueDisplayData {
         protected Component initial = null;
         @Nullable
         protected Component plural = null;
-        @Nonnull
+        
         public Component getInitial()
         {
             return LCText.TOOLTIP_COIN_DISPLAY.get(Objects.requireNonNullElseGet(this.initial, () -> {
@@ -167,10 +164,10 @@ public class CoinDisplay extends ValueDisplayData {
                 return EasyText.literal("X");
             }),this.getIcon());
         }
-        @Nonnull
+        
         public Component getPlural() { return LCText.TOOLTIP_COIN_DISPLAY_WORTH.get(Objects.requireNonNullElseGet(this.plural, () -> LCText.MISC_GENERIC_PLURAL.get(new ItemStack(this.coin).getHoverName())),this.getIcon()); }
         private Component getIcon() { return ValueDisplayData.getIcon(this.coin); }
-        ItemData(@Nonnull Item coin) { this.coin = coin; }
+        ItemData(Item coin) { this.coin = coin; }
     }
 
     public static CoinDisplay easyDefine()
@@ -189,7 +186,7 @@ public class CoinDisplay extends ValueDisplayData {
             return Component.translatable(type + itemID.getNamespace() + "." + itemID.getPath() + ".plural");
         });
     }
-    public static CoinDisplay easyDefine(@Nonnull Function<Item,Component> initialGenerator, @Nonnull Function<Item,Component> pluralGenerator)
+    public static CoinDisplay easyDefine(Function<Item,Component> initialGenerator, Function<Item,Component> pluralGenerator)
     {
         Builder builder = builder();
         for(CoinEntry entry : builder.possibleCoinEntries())
@@ -220,9 +217,9 @@ public class CoinDisplay extends ValueDisplayData {
             return entries;
         }
 
-        public Builder defineFor(@Nonnull Supplier<? extends ItemLike> coin, @Nonnull Component initial, @Nonnull Component plural) { return defineFor(coin.get(), initial, plural); }
-        private void defineFor(@Nullable CoinEntry coin, @Nonnull Component initial, @Nonnull Component plural) { defineFor(coin.getCoin(), initial, plural); }
-        public Builder defineFor(@Nullable ItemLike coin, @Nonnull Component initial, @Nonnull Component plural)
+        public Builder defineFor(Supplier<? extends ItemLike> coin, Component initial, Component plural) { return defineFor(coin.get(), initial, plural); }
+        private void defineFor(@Nullable CoinEntry coin, Component initial, Component plural) { defineFor(coin.getCoin(), initial, plural); }
+        public Builder defineFor(@Nullable ItemLike coin, Component initial, Component plural)
         {
             if(coin == null)
                 return this;

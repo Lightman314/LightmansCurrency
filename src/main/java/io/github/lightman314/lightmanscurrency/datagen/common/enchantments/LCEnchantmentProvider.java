@@ -35,7 +35,7 @@ public class LCEnchantmentProvider {
                                 Enchantment.dynamicCost(75,25),
                                 4,
                                 EquipmentSlotGroup.ANY
-                        )).withSpecialEffect(ModEnchantments.COLLECT_COINS.get(), Unit.INSTANCE).build(VersionUtil.lcResource("coin_magnet")));
+                        )).withSpecialEffect(ModEnchantments.COLLECT_COINS.get(), Unit.INSTANCE).build(LightmansCurrency.id("coin_magnet")));
         context.register(ModEnchantments.MONEY_MENDING,
                 Enchantment.enchantment(
                                 Enchantment.definition(
@@ -47,7 +47,7 @@ public class LCEnchantmentProvider {
                                         EquipmentSlotGroup.ANY
                                 ))
                         .exclusiveWith(enchantmentLookup.getOrThrow(LCTags.Enchantments.EXCUSIVE_SET_MENDING))
-                        .withSpecialEffect(ModEnchantments.REPAIR_WITH_MONEY.get(), RepairWithMoneyData.builder().baseCost(LCConfig.SERVER.moneyMendingRepairCost).bonusForEnchantment(Enchantments.INFINITY,LCConfig.SERVER.moneyMendingInfinityCost,1).build()).build(VersionUtil.lcResource("money_mending")));
+                        .withSpecialEffect(ModEnchantments.REPAIR_WITH_MONEY.get(), RepairWithMoneyData.builder().baseCost(LCConfig.SERVER.moneyMendingRepairCost).bonusForEnchantment(Enchantments.INFINITY,LCConfig.SERVER.moneyMendingInfinityCost,1).build()).build(LightmansCurrency.id("money_mending")));
 
     }
 

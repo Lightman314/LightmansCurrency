@@ -3,43 +3,47 @@ package io.github.lightman314.lightmanscurrency.common.blockentity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mojang.serialization.Codec;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.data.TradeReference;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.ItemInterfaceHandler;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage;
-import io.github.lightman314.lightmanscurrency.common.traders.item.TraderItemStorage.ITraderItemFilter;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.common.traders.item.nodes.ItemStorageNode;
+import io.github.lightman314.lightmanscurrency.common.traders.item.nodes.ItemTradeNode;
+import io.github.lightman314.lightmanscurrency.common.traders.item.storage.TraderItemStorage;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.item.tradedata.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.item.trade.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.item.ItemStorageTab;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
-import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
-import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
+import io.github.lightman314.lightmanscurrency.api.upgrades.types.CapacityUpgrade;
 import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
-import javax.annotation.Nonnull;
-
-public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity implements ITraderItemFilter{
+public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity<ItemTradeData> {
 	
-	private final TraderItemStorage itemBuffer = new TraderItemStorage(this);
+	private final TraderItemStorage itemBuffer = new TraderItemStorage()
+            .withFilter(this::isItemRelevant)
+            .withStorageLimit(this::getStorageStackLimit)
+            .withListener(this::setItemBufferDirty);
 	public TraderItemStorage getItemBuffer() { return this.itemBuffer; }
 	
 	ItemInterfaceHandler itemHandler;
@@ -50,7 +54,10 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 		this.itemHandler = this.addHandler(new ItemInterfaceHandler(this));
 	}
 
-	@Override
+    @Override
+    public Codec<ItemTradeData> tradeCodec() { return ItemTradeData.CODEC; }
+
+    @Override
 	public TradeContext.Builder buildTradeContext(TradeContext.Builder baseContext) {
 		return baseContext.withItemHandler(this.itemBuffer);
 	}
@@ -59,7 +66,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 		if(this.getInteractionType().trades())
 		{
 			//Check trade for barter items to restock
-			for(TradeReference t : this.targets.getTradeReferences())
+			for(TradeReference<ItemTradeData> t : this.targets.getTradeReferences())
 			{
 				TradeData t2 = t.getLocalTrade();
 				if(t2 instanceof ItemTradeData trade)
@@ -88,10 +95,10 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 		else
 		{
 			//Scan all trades for sale items to restock
-			TraderData t = this.targets.getTrader();
-			if(t instanceof ItemTraderData trader)
+            ItemTradeNode node = this.targets.getTraderNode(ItemTradeNode.TYPE);
+			if(node != null)
 			{
-				for(ItemTradeData trade : trader.getTradeData())
+				for(ItemTradeData trade : node.getAllTrades())
 				{
 					if(trade.isSale() || trade.isBarter())
 					{
@@ -109,12 +116,11 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	}
 	
 	public boolean allowOutput(ItemStack item) { return !this.allowInput(item); }
-	
-	@Override
+
 	public boolean isItemRelevant(ItemStack item) {
 		if(this.getInteractionType().trades())
 		{
-			for(TradeReference t : this.targets.getTradeReferences())
+			for(TradeReference<ItemTradeData> t : this.targets.getTradeReferences())
 			{
 				TradeData t2 = t.getLocalTrade();
 				if(t2 instanceof ItemTradeData trade && trade.allowItemInStorage(item))
@@ -123,10 +129,10 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 		}
 		else
 		{
-			TraderData t = this.targets.getTrader();
-			if(t instanceof ItemTraderData trader)
+            ItemTradeNode node = this.targets.getTraderNode(ItemTradeNode.TYPE);
+			if(node != null)
 			{
-				for(ItemTradeData trade : trader.getTradeData())
+				for(ItemTradeData trade : node.getAllTrades())
 				{
 					if(trade.allowItemInStorage(item))
 						return true;
@@ -135,52 +141,26 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 		}
 		return false;
 	}
-	
-	@Override
-	public int getStorageStackLimit() { 
-		int limit = ItemTraderData.DEFAULT_STACK_LIMIT;
-		for(int i = 0; i < this.getUpgrades().getContainerSize(); ++i)
-		{
-			ItemStack stack = this.getUpgrades().getItem(i);
-			if(stack.getItem() instanceof UpgradeItem upgradeItem)
-			{
-				if(this.allowUpgrade(upgradeItem))
-				{
-					if(upgradeItem.getUpgradeType() == Upgrades.ITEM_CAPACITY)
-					{
-						limit += UpgradeItem.getUpgradeData(stack).getIntValue(CapacityUpgrade.CAPACITY);
-					}
-				}
-			}
-		}
-		return limit;
+
+	public int getStorageStackLimit() {
+		return ItemTraderData.DEFAULT_STACK_LIMIT + CapacityUpgrade.getBonusCapacity(this.getUpgrades(),Upgrades.ITEM_CAPACITY);
 	}
-	
+
 	@Override
-	public ItemTradeData deserializeTrade(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) { return ItemTradeData.loadOfUnknownType(compound,lookup,false); }
-	
-	@Override
-	protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
-		super.saveAdditional(compound,lookup);
-		this.saveItemBuffer(compound,lookup);
-	}
-	
-	protected final CompoundTag saveItemBuffer(CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
-		this.itemBuffer.save(compound, "Storage",lookup);
-		return compound;
+	protected void saveAdditional(CompoundTag compound,DataContext<Tag> context) {
+		super.saveAdditional(compound,context);
+        this.itemBuffer.save(compound, "Storage",context);
 	}
 	
 	public void setItemBufferDirty() {
-		this.setChanged();
-		if(!this.isClient())
-			BlockEntityUtil.sendUpdatePacket(this, this.saveItemBuffer(new CompoundTag(),this.registryAccess()));
+        this.setChanged(builder -> builder.setList("Storage",this.itemBuffer.getContents(),ModLazyPackets.ITEM_STACK));
 	}
 	
 	@Override
-	public void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
-		super.loadAdditional(compound,lookup);
+	public void loadAdditional(CompoundTag compound,DataContext<Tag> context) {
+		super.loadAdditional(compound,context);
 		if(compound.contains("Storage"))
-			this.itemBuffer.load(compound, "Storage",lookup);
+			this.itemBuffer.load(compound.getCompound("Storage"),context);
 	}
 
 	@Override
@@ -194,12 +174,14 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	}
 	
 	@Override
-	protected void drainTick(@Nonnull TraderData t) {
-		if(t instanceof ItemTraderData trader && trader.hasPermission(this.owner.getPlayerForContext(), Permissions.INTERACTION_LINK))
+	protected void drainTick(TraderData trader) {
+        ItemTradeNode node = trader.getNode(ItemTradeNode.TYPE);
+        ItemStorageNode storageNode = trader.getNode(ItemStorageNode.TYPE);
+		if(node != null && storageNode != null && trader.hasPermission(this.owner.getPlayerForContext(), Permissions.INTERACTION_LINK))
 		{
 			for(int i = 0; i < trader.getTradeCount(); ++i)
 			{
-				ItemTradeData trade = trader.getTrade(i);
+				ItemTradeData trade = node.getTrade(i);
 				if(trade.isValid())
 				{
 					List<ItemStack> drainItems = new ArrayList<>();
@@ -219,21 +201,19 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 						if(!drainItem.isEmpty())
 						{
 							//Drain the item from the trader
-							int drainableAmount = trader.getStorage().getItemCount(drainItem);
+							int drainableAmount = storageNode.getStorage().getItemCount(drainItem);
 							if(drainableAmount > 0)
 							{
 								ItemStack movingStack = drainItem.copy();
 								movingStack.setCount(Math.min(movingStack.getMaxStackSize(), drainableAmount));
 								//Remove the stack from storage
-								ItemStack removed = trader.getStorage().removeItem(movingStack);
+								ItemStack removed = storageNode.getStorage().removeItemUnlimited(movingStack);
 								//InventoryUtil.RemoveItemCount(trader.getStorage(), movingStack);
 								//Put the stack in the item buffer (if possible)
 								ItemStack leftovers = ItemHandlerHelper.insertItemStacked(this.itemBuffer, removed, false);
 								//If some items couldn't be put in the item buffer, put them back in storage
 								if(!leftovers.isEmpty())
-									trader.getStorage().forceAddItem(leftovers);
-								this.setItemBufferDirty();
-								trader.markStorageDirty();
+                                    storageNode.getStorage().forceAddItem(leftovers);
 							}
 						}
 					}
@@ -243,12 +223,14 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	}
 
 	@Override
-	protected void restockTick(@Nonnull TraderData t) {
-		if(t instanceof ItemTraderData trader && trader.hasPermission(this.owner.getPlayerForContext(), Permissions.INTERACTION_LINK))
+	protected void restockTick(TraderData trader) {
+        ItemTradeNode node = trader.getNode(ItemTradeNode.TYPE);
+        ItemStorageNode storageNode = trader.getNode(ItemStorageNode.TYPE);
+		if(node != null && storageNode != null && trader.hasPermission(this.owner.getPlayerForContext(), Permissions.INTERACTION_LINK))
 		{
 			for(int i = 0; i < trader.getTradeCount(); ++i)
 			{
-				ItemTradeData trade = trader.getTrade(i);
+				ItemTradeData trade = node.getTrade(i);
 				if(trade.isValid() && (trade.isBarter() || trade.isSale()))
 				{
 					for(int s = 0; s < 2; ++s)
@@ -262,10 +244,10 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 								ItemStack movingStack = stockItem.copy();
 								movingStack.setCount(Math.min(movingStack.getMaxStackSize(), stockableAmount));
 								//Remove the item from the item buffer
-								ItemStack removedItem = this.itemBuffer.removeItem(movingStack);
+								ItemStack removedItem = this.itemBuffer.removeItemUnlimited(movingStack);
 								if(removedItem.getCount() == movingStack.getCount())
 								{
-									trader.getStorage().tryAddItem(movingStack);
+                                    storageNode.getStorage().tryAddItem(movingStack);
 									if(!movingStack.isEmpty())
 									{
 										//Place the leftovers back in storage
@@ -274,8 +256,6 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 								}
 								else
 									this.itemBuffer.forceAddItem(removedItem);
-								this.setItemBufferDirty();
-								trader.markStorageDirty();
 							}
 						}
 					}
@@ -285,7 +265,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 	}
 
 	@Override
-	protected void tradeTick(@Nonnull TradeReference tr) {
+	protected void tradeTick(TradeReference<ItemTradeData> tr) {
 		TradeData t = tr.getTrueTrade();
 		if(t instanceof ItemTradeData trade)
 		{
@@ -369,7 +349,7 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 									if (placed > 0) {
 										query = false;
 										stack.setCount(placed);
-										this.itemBuffer.removeItem(stack);
+										this.itemBuffer.removeItemUnlimited(stack);
 										markBufferDirty = true;
 									}
 								}
@@ -399,5 +379,12 @@ public class ItemTraderInterfaceBlockEntity extends TraderInterfaceBlockEntity i
 		contents.addAll(this.itemBuffer.getSplitContents());
 		
 	}
-	
+
+    @Override
+    protected void handleSyncPacket(LazyPacketData data) {
+        super.handleSyncPacket(data);
+        //Update storage
+        if(data.contains("Storage"))
+            this.itemBuffer.load(data.getList("Storage",ModLazyPackets.ITEM_STACK));
+    }
 }

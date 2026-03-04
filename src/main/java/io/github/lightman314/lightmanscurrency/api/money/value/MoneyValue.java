@@ -3,34 +3,35 @@ package io.github.lightman314.lightmanscurrency.api.money.value;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import io.github.lightman314.lightmanscurrency.LCText;
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
-import io.github.lightman314.lightmanscurrency.api.money.client.ClientMoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
 import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
-import io.github.lightman314.lightmanscurrency.api.money.types.builtin.NullCurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
+import io.github.lightman314.lightmanscurrency.api.money.value.builtin.NullValue;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.builtin.MoneyStorage;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
+import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtAccounter;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,36 +41,49 @@ import java.util.Objects;
  */
 public abstract class MoneyValue {
 
-    private static MoneyValue FREE = null;
-    @Nonnull
-    public static MoneyValue free() {
-        if(FREE == null)
-            FREE = new NullValue(true);
-        return FREE;
+    public static final Codec<MoneyValue> CODEC = Codec.withAlternative(
+            //Intended Codec
+            CurrencyType.CODEC.dispatch(MoneyValue::getType,CurrencyType::moneyValueCodec)
+            //Fallback Codec for old data
+            , CodecHelper.oldValueLoader(MoneyValue::loadOldData,"Money Value"));
+    public static final Codec<MoneyValue> NON_EMPTY_CODEC = CODEC.validate(value -> {
+        if(value.isEmpty() && !value.isFree())
+            return DataResult.error(() -> "Money Value cannot be empty!");
+        return DataResult.success(value);
+    });
+    public static final Codec<MoneyValue> NON_EMPTY_OR_FREE_CODEC = CODEC.validate(value -> {
+        if(value.isEmpty())
+            return DataResult.error(() -> "Money Value cannot be empty or free!");
+        return DataResult.success(value);
+    });
+
+
+
+    private static Codec<MoneyValue> argumentCodec(boolean allowEmpty) {
+        return Codec.STRING.comapFlatMap(string -> {
+            try {
+                return DataResult.success(MoneyValueParser.parse(new StringReader(string),allowEmpty));
+            } catch (CommandSyntaxException e) { return DataResult.error(() -> "Error parsing Money Value: " + e.getMessage()); }
+        },MoneyValueParser::writeParsable);
     }
-    private static MoneyValue EMPTY = null;
-    @Nonnull
-    public static MoneyValue empty() {
-        if (EMPTY == null)
-            EMPTY = new NullValue(false);
-        return EMPTY;
-    }
+
+    public static final Codec<MoneyValue> LENIENT_CODEC = Codec.withAlternative(CODEC,argumentCodec(true));
+    public static final Codec<MoneyValue> LENIENT_NON_EMPTY_CODEC = Codec.withAlternative(NON_EMPTY_CODEC,argumentCodec(false));
+    public static final Codec<MoneyValue> LENIENT_NON_EMPTY_OR_FREE_CODEC = Codec.withAlternative(NON_EMPTY_OR_FREE_CODEC,argumentCodec(false));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf,MoneyValue> STREAM_CODEC = CurrencyType.STREAM_CODEC.dispatch(MoneyValue::getType,CurrencyType::moneyValueStreamCodec);
+    
+    public static MoneyValue free() { return NullValue.FREE; }
+    public static MoneyValue empty() { return NullValue.EMPTY; }
 
     private String uniqueName;
 
     /**
      * The {@link CurrencyType} id corresponding to this value type.
      */
-    @Nonnull
-    protected abstract ResourceLocation getType();
-    /**
-     * The corresponding {@link CurrencyType} that should be used to handle this MoneyValue
-     * May return null if this currency type hasn't been properly registered
-     */
-    public CurrencyType getCurrency() { return MoneyAPI.getApi().GetRegisteredCurrencyType(this.getType()); }
+    public abstract CurrencyType<?> getType();
 
-    @Nonnull
-    protected String generateUniqueName() { return this.getType().toString(); }
+    protected String generateUniqueName() { return LCRegistries.CURRENCY_TYPE.getKey(this.getType()).toString(); }
 
     /**
      * Returns a unique name for this storage type.<br>
@@ -77,29 +91,29 @@ public abstract class MoneyValue {
      * For {@link CoinValue} data, this returns a combination of it's <code>chain</code> and {@link #getType()},
      * but values without varying types may simply return a String version of {@link #getType()}
      */
-    @Nonnull
+    
     public final String getUniqueName() {
         if(this.uniqueName == null)
             this.uniqueName = this.generateUniqueName();
         return this.uniqueName;
     }
 
-    @Nonnull
-    protected final String generateCustomUniqueName(@Nonnull String addon) { return generateCustomUniqueName(this.getType(), addon); }
+    
+    protected final String generateCustomUniqueName(String addon) { return generateCustomUniqueName(this.getType(),addon); }
 
-    @Nonnull
-    public static String generateCustomUniqueName(@Nonnull ResourceLocation type, @Nonnull String addon)
+    public static String generateCustomUniqueName(CurrencyType<?> type, String addon)
     {
+        ResourceLocation id = LCRegistries.CURRENCY_TYPE.getKey(type);
         if(addon.isEmpty())
-            return type.toString();
+            return id.toString();
         else //For custom unique names, place '!' character between them, as it's not a legal ResourceLocation character
-            return type + "!" + addon;
+            return id + "!" + addon;
     }
 
     /**
      * Whether this value is considered "Free".
      * Should never be true for values used to denote an amount of stored money.
-     * Should only be true if this is {@link #FREE}
+     * Should only be true if this is {@link #free()}
      */
     public boolean isFree() { return false; }
 
@@ -108,7 +122,7 @@ public abstract class MoneyValue {
      * Used to cull un-used value data to saveItem space, but can also be used to simplify math
      * as there's no need to add two values if one is already empty (and thus a value of 0)
      * By default returns <code>true</code> if {@link MoneyValue#getCoreValue} returns exactly 0.
-     * @see #EMPTY
+     * @see #empty()
      */
     public abstract boolean isEmpty();
 
@@ -128,9 +142,9 @@ public abstract class MoneyValue {
     /**
      * Whether these values are the same type, and thus can be added or subtracted from each other.
      * By default, confirms that {@link #getUniqueName()} is equal,
-     * but allows compatiblity if one or both are the {@link #FREE} or {@link #EMPTY} constant.
+     * but allows compatiblity if one or both are the {@link #free()} or {@link #empty()} constant.
      */
-    public boolean sameType(@Nonnull MoneyValue otherValue) { return otherValue.getUniqueName().equals(this.getUniqueName()) || this instanceof NullValue || otherValue instanceof NullValue; }
+    public boolean sameType(MoneyValue otherValue) { return otherValue.getUniqueName().equals(this.getUniqueName()) || this instanceof NullValue || otherValue instanceof NullValue; }
 
     @Range(from = 0,to = Long.MAX_VALUE)
     public abstract long getCoreValue();
@@ -138,33 +152,33 @@ public abstract class MoneyValue {
     /**
      * Returns a string display of this value.
      */
-    @Nonnull
+    
     public final String getString() { return this.getString(""); }
 
     /**
      * Returns a string display of this value.
-     * By default, returns a string version of {@link #getText(MutableComponent)}
+     * By default, returns a string version of {@link #getText(Component)}
      */
-    @Nonnull
-    public String getString(@Nonnull String emptyText) { return this.getText(EasyText.literal(emptyText)).getString(); }
+    
+    public String getString(String emptyText) { return this.getText(EasyText.literal(emptyText)).getString(); }
 
     /**
      * Returns a text display of this value.
      */
-    @Nonnull
-    public final MutableComponent getText() { return this.getText(EasyText.empty()); }
+    
+    public final Component getText() { return this.getText(EasyText.empty()); }
 
     /**
      * Returns a text display of this value.
      * @param emptyText Text to display if this value is empty (such as "NULL" or "0" or even blank text). May be ignored if your value has its own formatting for being empty (such as $0, etc.)
      */
-    @Nonnull
-    public final MutableComponent getText(@Nonnull String emptyText) { return this.getText(EasyText.literal(emptyText)); }
+    
+    public final Component getText(String emptyText) { return this.getText(EasyText.literal(emptyText)); }
     /**
      * Returns a text display of this value.
      * @param emptyText Text to display if this value is empty (such as "NULL" or "0" or even blank text). May be ignored if your value has its own formatting for being empty (such as $0, etc.)
      */
-    public abstract MutableComponent getText(@Nonnull MutableComponent emptyText);
+    public abstract Component getText(Component emptyText);
 
     /**
      * Does math to add the given value to this value.
@@ -178,7 +192,8 @@ public abstract class MoneyValue {
      * @see #subtractValue(MoneyValue)
      * @see #getCoreValue()
      */
-    public abstract MoneyValue addValue(@Nonnull MoneyValue addedValue);
+    @Nullable
+    public abstract MoneyValue addValue(MoneyValue addedValue);
 
     /**
      * Whether this value contains enough money to safely subtract the given {@link MoneyValue}.
@@ -188,7 +203,7 @@ public abstract class MoneyValue {
      * @see #subtractValue(MoneyValue)
      * @see #getCoreValue()
      */
-    public abstract boolean containsValue(@Nonnull MoneyValue queryValue);
+    public abstract boolean containsValue(MoneyValue queryValue);
 
     /**
      * Does math to remove the given value from this value.
@@ -202,11 +217,12 @@ public abstract class MoneyValue {
      * @see #containsValue(MoneyValue)
      * @see #getCoreValue()
      */
-    public abstract MoneyValue subtractValue(@Nonnull MoneyValue removedValue);
+    @Nullable
+    public abstract MoneyValue subtractValue(MoneyValue removedValue);
 
     /**
      * Does math to obtain the given percentage of the value.
-     * Used to calculate Tax Collection and certain {@link io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule}'s that give
+     * Used to calculate Tax Collection and certain {@link TradeRule}'s that give
      * percentage-based discounts.
      * Will round down by default.
      * @param percentage The percentage value between 0 and 1000 (limited to 1000% to avoid values exceeding number limitations)
@@ -214,16 +230,15 @@ public abstract class MoneyValue {
      * Otherwise, a value equal to <code>{@link #getCoreValue()} * percentage / 100 </code>
      * @see #percentageOfValue(int, boolean)
      */
-    @Nonnull
     public final MoneyValue percentageOfValue(int percentage) { return this.percentageOfValue(percentage, false); }
 
     /**
      * Does math to obtain the given percentage of the value.
-     * Used to calculate Tax Collection and certain {@link io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule}'s that give
+     * Used to calculate Tax Collection and certain {@link TradeRule}'s that give
      * percentage-based discounts.
      * @param percentage The percentage value between 0 and 1000 (limited to 1000% to avoid values exceeding number limitations)
      * @param roundUp Whether we should round a value up to nearest valid value if the exact percentage results in a partial value. If <code>false</code> round down.
-     * @return {@link #FREE} if percentage = 0, <code>this</code> if percentage = 100.
+     * @return {@link #free()} if percentage = 0, <code>this</code> if percentage = 100.
      * Otherwise, a value equal to <code>{@link #getCoreValue()} * percentage / 100 </code>
      */
     public abstract MoneyValue percentageOfValue(int percentage, boolean roundUp);
@@ -234,7 +249,7 @@ public abstract class MoneyValue {
      * @param multiplier The amount to multiply this value by.
      * @return The mathematical result of multiplying this value by the given number.
      */
-    @Nonnull
+    
     public abstract MoneyValue multiplyValue(double multiplier);
 
 
@@ -245,74 +260,49 @@ public abstract class MoneyValue {
      * @param owner Data about the blocks' owner, so that any non-item based money can instead be given to the player directly.
      * @return List of items to drop/eject. Leave empty if money is given to the owner manually.
      */
-    @Nonnull
-    public abstract List<ItemStack> onBlockBroken(@Nonnull OwnerData owner);
+    
+    public abstract List<ItemStack> onBlockBroken(OwnerData owner);
 
     /**
      * Returns the smallest non-zero value of this money value type.
      */
-    @Nonnull
+    
     public abstract MoneyValue getSmallestValue();
 
     /**
      * Returns a Money Value with the same {@link #getUniqueName()} but with the given core value<br>
      * Used for calculated math
      */
-    @Nonnull
+    
     public abstract MoneyValue fromCoreValue(long value);
 
 
     /**
      * Saves this {@link MoneyValue} data into an NBT tag.
-     * @see #load(CompoundTag)
+     * @see #loadOldData(CompoundTag)
      * @see #safeLoad(CompoundTag,String)
      */
-    @Nonnull
-    public final CompoundTag save()
-    {
-        CompoundTag tag = new CompoundTag();
-        this.saveAdditional(tag);
-        tag.putString("type", this.getType().toString());
-        return tag;
-    }
-
-    /**
-     * Type-dependent method to actually save the value to the NBT tag.
-     * Data saved here should be loadable via its corresponding {@link CurrencyType#loadMoneyValue(CompoundTag)}
-     */
-    protected abstract void saveAdditional(@Nonnull CompoundTag tag);
+    public final CompoundTag save() { return (CompoundTag)CODEC.encodeStart(NbtOps.INSTANCE,this).getOrThrow(); }
 
     /**
      * Encodes this value into the given buffer for use in custom packets.
      */
-    public final void encode(@Nonnull FriendlyByteBuf buffer) { buffer.writeNbt(this.save()); }
+    public final void encode(RegistryFriendlyByteBuf buffer) { STREAM_CODEC.encode(buffer,this); }
 
     /**
      * Saves this {@link MoneyValue} data into a Json Object
      */
-    public final JsonObject toJson()
-    {
-        JsonObject json = new JsonObject();
-        this.writeAdditionalToJson(json);
-        json.addProperty("type", this.getType().toString());
-        return json;
-    }
-
-    /**
-     * Type-dependent method to actually save the value to the NBT tag.
-     * Data saved here should be loadable via its corresponding {@link CurrencyType#loadMoneyValue(CompoundTag)}
-     */
-    protected abstract void writeAdditionalToJson(@Nonnull JsonObject json);
+    public final JsonObject toJson() { return (JsonObject)CODEC.encodeStart(JsonOps.INSTANCE,this).getOrThrow(); }
 
     /**
      * Decoded this value from the given buffer.
      * If it fails to load the data, an empty value will be given instead.
      */
-    @Nonnull
-    public static MoneyValue decode(@Nonnull FriendlyByteBuf buffer) {
-        CompoundTag tag = (CompoundTag)buffer.readNbt(NbtAccounter.unlimitedHeap());
-        MoneyValue loadedValue = load(tag);
-        return Objects.requireNonNullElse(loadedValue, EMPTY);
+    public static MoneyValue decode(RegistryFriendlyByteBuf buffer) { return STREAM_CODEC.decode(buffer); }
+
+    public static MoneyValue load(CompoundTag tag) {
+        try { return CODEC.decode(NbtOps.INSTANCE,tag).getOrThrow().getFirst();
+        } catch (IllegalStateException ignored) { return empty(); }
     }
 
     /**
@@ -320,8 +310,7 @@ public abstract class MoneyValue {
      * Tag given should match the tag created by {@link #save()}
      * Requires that the requisite {@link CurrencyType} be registered in for it to load custom Money Values
      */
-    @Nullable
-    public static MoneyValue load(@Nonnull CompoundTag tag)
+    private static MoneyValue loadOldData(CompoundTag tag)
     {
         //LightmansCurrency.LogDebug("Attempting to load tag as MoneyValue:\n" + tag.getAsString());
         if(tag.contains("type", Tag.TAG_STRING))
@@ -330,18 +319,18 @@ public abstract class MoneyValue {
             try { valueType = VersionUtil.parseResource(tag.getString("type"));
             } catch (ResourceLocationException e) {
                 //LightmansCurrency.LogError("Error loading CoinValue type " + tag.getString("type"));
-                return null;
+                return empty();
             }
-            CurrencyType currencyType = MoneyAPI.getApi().GetRegisteredCurrencyType(valueType);
+            CurrencyType<?> currencyType = LCRegistries.CURRENCY_TYPE.get(valueType);
             if(currencyType != null)
             {
                 //LightmansCurrency.LogDebug("Loaded Money Value from tag. Result: " + result.getString("Empty") + "\nTag: " + tag.getAsString());
-                return currencyType.loadMoneyValue(tag);
+                return currencyType.loadOldMoneyValue(tag);
             }
             else
             {
                 LightmansCurrency.LogError("No CurrencyType " + valueType + " could be found. Could not load the stored value!");
-                return null;
+                return empty();
             }
         }
         else {
@@ -350,12 +339,12 @@ public abstract class MoneyValue {
         }
     }
 
-    @Nonnull
-    public static MoneyValue safeLoad(@Nonnull CompoundTag parentTag, @Nonnull String tagName)
+    
+    public static MoneyValue safeLoad(CompoundTag parentTag, String tagName)
     {
         if(parentTag.contains(tagName, Tag.TAG_COMPOUND))
         {
-            MoneyValue result = load(parentTag.getCompound(tagName));
+            MoneyValue result = loadOldData(parentTag.getCompound(tagName));
             return result == null ? empty() : result;
         }
         else
@@ -365,80 +354,15 @@ public abstract class MoneyValue {
         }
     }
 
-    public static MoneyValue loadFromJson(@Nonnull JsonElement json) throws JsonSyntaxException, ResourceLocationException {
+    public static MoneyValue loadFromJson(JsonElement json) throws JsonSyntaxException, ResourceLocationException {
         if(json.isJsonArray() || json.isJsonPrimitive())
             return CoinValue.loadDeprecated(json);
         return loadFromJson(GsonHelper.convertToJsonObject(json, "Price"));
     }
 
-    public static MoneyValue loadFromJson(@Nonnull JsonObject json) throws JsonSyntaxException, ResourceLocationException
+    public static MoneyValue loadFromJson(JsonObject json) throws JsonSyntaxException, ResourceLocationException
     {
-        if(json.has("type"))
-        {
-            ResourceLocation valueType = VersionUtil.parseResource(GsonHelper.getAsString(json, "type"));
-            CurrencyType currencyType = MoneyAPI.getApi().GetRegisteredCurrencyType(valueType);
-            if(currencyType != null)
-                return currencyType.loadMoneyValueJson(json);
-            else
-                throw new JsonSyntaxException("No CurrencyType " + valueType + " could be found. Could not load the stored json value!");
-        }
-        else
-            return CoinValue.loadDeprecated(json);
-    }
-
-    @Nonnull
-    @OnlyIn(Dist.CLIENT)
-    @Deprecated(since = "2.3.0.4")
-    public DisplayEntry getDisplayEntry(@Nullable List<Component> additionalTooltips, boolean tooltipOverride) { return ClientMoneyAPI.getApi().GetDisplayEntry(this,additionalTooltips,tooltipOverride); }
-
-    private static final class NullValue extends MoneyValue
-    {
-        private final boolean free;
-        private NullValue(boolean free) { this.free = free; }
-        @Nonnull
-        @Override
-        protected ResourceLocation getType() { return NullCurrencyType.TYPE;}
-        @Nonnull
-        @Override
-        protected String generateUniqueName() { return this.free ? "null!free" : "null!empty"; }
-        @Override
-        public boolean isFree() { return this.free; }
-        @Override
-        public boolean isValidPrice() { return this.free; }
-        @Override
-        public boolean isEmpty() { return true; }
-        @Override
-        @Range(from = 0, to = Long.MAX_VALUE)
-        public long getCoreValue() { return 0; }
-        @Nonnull
-        @Override
-        public MutableComponent getText(@Nonnull MutableComponent emptyText) { return this.free ? LCText.GUI_MONEY_VALUE_FREE.get() : emptyText; }
-        @Override
-        public MoneyValue addValue(@Nonnull MoneyValue addedValue) { return addedValue; }
-        @Nonnull
-        @Override
-        public MoneyValue multiplyValue(double multiplier) { return this; }
-        @Override
-        public boolean containsValue(@Nonnull MoneyValue queryValue) { return queryValue.isFree() || queryValue.isEmpty(); }
-        @Override
-        public MoneyValue subtractValue(@Nonnull MoneyValue removedValue) { return removedValue.isFree() || removedValue.isEmpty() ? this : null; }
-        @Override
-        public MoneyValue percentageOfValue(int percentage, boolean roundUp) { return FREE; }
-        @Nonnull
-        @Override
-        public List<ItemStack> onBlockBroken(@Nonnull OwnerData owner) { return new ArrayList<>(); }
-        @Override
-        protected void saveAdditional(@Nonnull CompoundTag tag) { tag.putBoolean("Free", this.isFree()); }
-        @Override
-        protected void writeAdditionalToJson(@Nonnull JsonObject json) { if(this.isFree()) json.addProperty("Free", true); }
-        @Nonnull
-        @Override
-        public MoneyValue getSmallestValue() { return this; }
-        @Nonnull
-        @Override
-        public MoneyValue fromCoreValue(long value) { return this; }
-        @Override
-        public String toString() { return "NullMoneyValue:"+ (this.free ? "Free" : "Empty"); }
+        return LENIENT_CODEC.decode(JsonOps.INSTANCE,json).getOrThrow(JsonSyntaxException::new).getFirst();
     }
 
     @Override

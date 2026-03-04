@@ -4,22 +4,23 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.network.FriendlyByteBuf;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Map;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class CPacketEditConfig extends ClientToServerPacket {
 
-    private static final Type<CPacketEditConfig> TYPE = new Type<>(VersionUtil.lcResource("c_config_edit"));
+    private static final Type<CPacketEditConfig> TYPE = cType("config_edit");
+    private static final StreamCodec<ByteBuf,CPacketEditConfig> STREAM_CODEC = StreamCodec.composite(
+            ResourceLocation.STREAM_CODEC,p -> p.fileID,
+            ByteBufCodecs.STRING_UTF8,p -> p.option,
+            ByteBufCodecs.STRING_UTF8,p -> p.input,
+            CPacketEditConfig::new);
     public static final Handler<CPacketEditConfig> HANDLER = new H();
 
     private final ResourceLocation fileID;
@@ -33,18 +34,10 @@ public class CPacketEditConfig extends ClientToServerPacket {
         this.input = input;
     }
 
-    private static void encode(FriendlyByteBuf buffer, CPacketEditConfig message) {
-        buffer.writeResourceLocation(message.fileID);
-        buffer.writeUtf(message.option);
-        buffer.writeUtf(message.input);
-    }
-
-    private static CPacketEditConfig decode(FriendlyByteBuf buffer) { return new CPacketEditConfig(buffer.readResourceLocation(),buffer.readUtf(),buffer.readUtf()); }
-
     private static class H extends Handler<CPacketEditConfig>
     {
 
-        private H() { super(TYPE, StreamCodec.of(CPacketEditConfig::encode,CPacketEditConfig::decode)); }
+        private H() { super(TYPE,STREAM_CODEC); }
         @Override
         protected void handle(CPacketEditConfig message, IPayloadContext context, Player player) {
 

@@ -29,7 +29,7 @@ public class VariantAttributeType implements ItemAttributeType {
 
     @Override
     @Nonnull
-    public ItemAttribute createAttribute() { return new VariantAttribute(VersionUtil.lcResource("null")); }
+    public ItemAttribute createAttribute() { return new VariantAttribute(LightmansCurrency.id("null")); }
 
     @Override
     public List<ItemAttribute> getAllAttributes(ItemStack stack, Level level) {

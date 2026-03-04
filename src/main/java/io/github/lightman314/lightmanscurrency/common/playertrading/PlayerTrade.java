@@ -2,21 +2,19 @@ package io.github.lightman314.lightmanscurrency.common.playertrading;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.capability.money.IMoneyHandler;
+import io.github.lightman314.lightmanscurrency.api.misc.item_handlers.LCItemStackHandler;
+import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
 import io.github.lightman314.lightmanscurrency.network.message.playertrading.SPacketSyncPlayerTrade;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Container;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -24,7 +22,6 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 import java.util.UUID;
@@ -43,32 +40,30 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
     public boolean isCompleted() { return this.completed; }
 
     @Override
-    public boolean isHost(@Nonnull Player player) { return player.getUUID() == this.hostPlayerID; }
-    public boolean isGuest(@Nonnull Player player) { return player.getUUID() == this.guestPlayerID; }
+    public boolean isHost(Player player) { return player.getUUID() == this.hostPlayerID; }
+    public boolean isGuest(Player player) { return player.getUUID() == this.guestPlayerID; }
     private final UUID hostPlayerID;
-    @Nonnull
     @Override
     public UUID getHostID() { return this.hostPlayerID; }
 
-    @Nonnull
     @Override
     public Component getHostName() {
         ServerPlayer hostPlayer = this.getPlayer(this.hostPlayerID);
         return hostPlayer == null ? Component.literal("NULL") : hostPlayer.getName();
     }
     private final UUID guestPlayerID;
-    @Nonnull
+    
     @Override
     public UUID getGuestID() { return this.guestPlayerID; }
 
-    @Nonnull
+    
     @Override
     public Component getGuestName() {
         ServerPlayer guestPlayer = this.getPlayer(this.guestPlayerID);
         return guestPlayer == null ? Component.literal("NULL") : guestPlayer.getName();
     }
 
-    private boolean playerMissing(@Nonnull UUID playerID) { return getPlayer(playerID) == null; }
+    private boolean playerMissing(UUID playerID) { return getPlayer(playerID) == null; }
 
     private ServerPlayer getPlayer(UUID playerID) {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
@@ -78,22 +73,20 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
     }
 
     private MoneyValue hostMoney = MoneyValue.empty();
-    @Nonnull
+    
     @Override
     public MoneyValue getHostMoney() { return this.hostMoney; }
     private MoneyValue guestMoney = MoneyValue.empty();
-    @Nonnull
+    
     @Override
     public MoneyValue getGuestMoney() { return this.guestMoney; }
 
-    private final SimpleContainer hostItems = new SimpleContainer(IPlayerTrade.ITEM_COUNT);
-    @Nonnull
+    private final LCItemStackHandler hostItems = new LCItemStackHandler(IPlayerTrade.ITEM_COUNT);
     @Override
-    public Container getHostItems() { return this.hostItems; }
-    private final SimpleContainer guestItems = new SimpleContainer(IPlayerTrade.ITEM_COUNT);
-    @Nonnull
+    public LCItemStackHandler getHostItems() { return this.hostItems; }
+    private final LCItemStackHandler guestItems = new LCItemStackHandler(IPlayerTrade.ITEM_COUNT);
     @Override
-    public Container getGuestItems() { return this.guestItems; }
+    public LCItemStackHandler getGuestItems() { return this.guestItems; }
 
     private int hostState = 0;
     @Override
@@ -107,15 +100,19 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
         this.guestPlayerID = guest.getUUID();
         this.tradeID = tradeID;
         this.creationTime = TimeUtil.getCurrentTime();
-        this.hostItems.addListener(this::onContainerChange);
-        this.guestItems.addListener(this::onContainerChange);
+        this.hostItems.withListener(this::onHostContainerChange);
+        this.guestItems.withListener(this::onGuestContainerChange);
     }
 
-    private void onContainerChange(Container container) {
-        if(this.hostItems == container)
-            this.onTradeEdit(true);
-        if(this.guestItems == container)
-            this.onTradeEdit(false);
+    private void onHostContainerChange()
+    {
+        this.onTradeEdit(true);
+        this.markDirty();
+    }
+
+    private void onGuestContainerChange()
+    {
+        this.onTradeEdit(false);
         this.markDirty();
     }
 
@@ -291,9 +288,9 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
             //Give & take money/items to/from host
             hostHandler.extractMoney(this.hostMoney, false);
             hostHandler.insertMoney(this.guestMoney, false);
-            for(int i = 0; i < this.guestItems.getContainerSize(); ++i)
+            for(int i = 0; i < this.guestItems.getSlots(); ++i)
             {
-                ItemStack stack = this.guestItems.getItem(i);
+                ItemStack stack = this.guestItems.getStackInSlot(i);
                 if(!stack.isEmpty())
                     ItemHandlerHelper.giveItemToPlayer(host, stack);
             }
@@ -301,9 +298,9 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
             //Give money/items to guest
             guestHandler.extractMoney(this.guestMoney, false);
             guestHandler.insertMoney(this.hostMoney,false);
-            for(int i = 0; i < this.hostItems.getContainerSize(); ++i)
+            for(int i = 0; i < this.hostItems.getSlots(); ++i)
             {
-                ItemStack stack = this.hostItems.getItem(i);
+                ItemStack stack = this.hostItems.getStackInSlot(i);
                 if(!stack.isEmpty())
                     ItemHandlerHelper.giveItemToPlayer(guest, stack);
             }
@@ -314,9 +311,9 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
 
     }
 
-    private ClientPlayerTrade getData() { return new ClientPlayerTrade(this.hostPlayerID, this.guestPlayerID, this.getHostName(), this.getGuestName(), this.hostMoney, this.guestMoney, InventoryUtil.copy(this.hostItems), InventoryUtil.copy(this.guestItems), this.hostState, this.guestState); }
+    private ClientPlayerTrade getData() { return new ClientPlayerTrade(this.hostPlayerID, this.guestPlayerID, this.getHostName(), this.getGuestName(), this.hostMoney, this.guestMoney, this.hostItems.copy(), this.guestItems.copy(), this.hostState, this.guestState); }
 
-    public void handleInteraction(Player player, CompoundTag message) {
+    public void handleInteraction(Player player, LazyPacketData message) {
         if(!this.isHost(player) && !this.isGuest(player))
             return;
         if(this.isHost(player))
@@ -343,7 +340,7 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
             }
             else if(message.contains("ChangeMoney"))
             {
-                this.hostMoney = MoneyValue.load(message.getCompound("ChangeMoney"));
+                this.hostMoney = message.getMoneyValue("ChangeMoney");
                 this.onTradeEdit(true);
             }
         }
@@ -371,7 +368,7 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
             }
             else if(message.contains("ChangeMoney"))
             {
-                this.guestMoney = MoneyValue.load(message.getCompound("ChangeMoney"));
+                this.guestMoney = message.getMoneyValue("ChangeMoney");
                 this.onTradeEdit(false);
             }
         }
@@ -395,12 +392,12 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
 
     //Menu Handling/Opening
     @Override
-    @Nonnull
+    
     public Component getDisplayName() { return Component.empty(); }
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(int windowID, @Nonnull Inventory inventory, @Nonnull Player player) { return new PlayerTradeMenu(windowID, inventory, this.tradeID, this); }
+    public AbstractContainerMenu createMenu(int windowID, Inventory inventory, Player player) { return new PlayerTradeMenu(windowID, inventory, this.tradeID, this); }
 
     private void writeAdditionalMenuData(RegistryFriendlyByteBuf buffer) {
         buffer.writeInt(this.tradeID);

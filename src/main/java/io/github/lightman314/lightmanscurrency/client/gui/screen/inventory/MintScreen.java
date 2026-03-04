@@ -1,13 +1,12 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteSource;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteSource;
+import io.github.lightman314.lightmanscurrency.api.client.gui.EasyMenuScreen;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 
 import io.github.lightman314.lightmanscurrency.common.menus.MintMenu;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -19,7 +18,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 public class MintScreen extends EasyMenuScreen<MintMenu> {
 
-	public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/coinmint.png");
+	public static final ResourceLocation GUI_TEXTURE = LightmansCurrency.id("textures/gui/container/coinmint.png");
 
 	public static final SpriteSource ARROW_SPRITE = new SpriteSource(GUI_TEXTURE, 176, 0, 22, 16);
 	

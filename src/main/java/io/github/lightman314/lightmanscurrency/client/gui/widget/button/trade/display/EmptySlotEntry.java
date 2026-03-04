@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.display;
 
 import com.mojang.datafixers.util.Pair;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import net.minecraft.network.chat.Component;

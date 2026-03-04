@@ -1,9 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.menus.validation.types;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidatorType;
 import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -11,7 +11,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class BlockEntityValidator extends MenuValidator {
@@ -22,7 +21,7 @@ public class BlockEntityValidator extends MenuValidator {
 
     private BlockEntity be = null;
     private BlockPos bePos = null;
-    private void validateBE(@Nonnull Player player)
+    private void validateBE(Player player)
     {
         if(this.bePos != null)
         {
@@ -31,42 +30,40 @@ public class BlockEntityValidator extends MenuValidator {
         }
     }
 
-    protected BlockEntityValidator(@Nonnull BlockEntity be) { super(TYPE); this.be = be; }
-    protected BlockEntityValidator(@Nonnull BlockPos pos) { super(TYPE); this.bePos = pos; }
+    protected BlockEntityValidator(BlockEntity be) { super(TYPE); this.be = be; }
+    protected BlockEntityValidator(BlockPos pos) { super(TYPE); this.bePos = pos; }
 
     public static MenuValidator of(@Nullable BlockEntity be) { return be == null ? NULL : new BlockEntityValidator(be); }
 
     @Override
-    protected void encodeAdditional(@Nonnull FriendlyByteBuf buffer) {
+    protected void encodeAdditional(FriendlyByteBuf buffer) {
         buffer.writeBoolean(this.be != null);
         if(this.be != null)
             buffer.writeBlockPos(this.be.getBlockPos());
     }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag tag) {
+    protected void saveAdditional(CompoundTag tag) {
         if(this.be != null)
             tag.put("Position", TagUtil.saveBlockPos(this.be.getBlockPos()));
     }
 
     @Override
-    public boolean stillValid(@Nonnull Player player) { this.validateBE(player); return this.be != null && Container.stillValidBlockEntity(this.be, player); }
+    public boolean stillValid(Player player) { this.validateBE(player); return this.be != null && Container.stillValidBlockEntity(this.be, player); }
 
     private static class Type extends MenuValidatorType
     {
-        protected Type() { super(VersionUtil.lcResource( "block_entity")); }
+        protected Type() { super(LightmansCurrency.id( "block_entity")); }
 
-        @Nonnull
         @Override
-        public MenuValidator decode(@Nonnull FriendlyByteBuf buffer) {
+        public MenuValidator decode(FriendlyByteBuf buffer) {
             if(buffer.readBoolean())
                 return new BlockEntityValidator(buffer.readBlockPos());
             return NULL;
         }
 
-        @Nonnull
         @Override
-        public MenuValidator load(@Nonnull CompoundTag tag) {
+        public MenuValidator load(CompoundTag tag) {
             if(tag.contains("Position"))
                 return new BlockEntityValidator(TagUtil.loadBlockPos(tag.getCompound("Position")));
             return NULL;

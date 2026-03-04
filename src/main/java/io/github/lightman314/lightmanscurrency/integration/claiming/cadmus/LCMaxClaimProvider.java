@@ -12,7 +12,7 @@ import net.minecraft.world.entity.player.Player;
 public class LCMaxClaimProvider implements MaxClaimProvider {
 
     public static final LCMaxClaimProvider INSTANCE = new LCMaxClaimProvider();
-    public static final ResourceLocation CLAIM_PRIVIDER_TYPE = VersionUtil.lcResource("claim_provider");
+    public static final ResourceLocation CLAIM_PRIVIDER_TYPE = LightmansCurrency.id("claim_provider");
 
     private static ResourceLocation lastSelected = Cadmus.DEFAULT_ID;
 

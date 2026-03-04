@@ -14,7 +14,8 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.interfaces.IPersistentTrader;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -86,10 +87,10 @@ public class TraderArgument implements ArgumentType<TraderData>{
 			{
 				//LightmansCurrency.LogDebug("Recommending trader ID '" + t.getID() + "'");
 				suggestionsBuilder.suggest(String.valueOf(t.getID()));
-				if(this.acceptPersistentIDs && t.isPersistent())
+				if(this.acceptPersistentIDs && t instanceof IPersistentTrader pt && pt.isPersistent())
 				{
 					//LightmansCurrency.LogDebug("Recommending persistent ID '" + t.getPersistentID() + "'");
-					suggestionsBuilder.suggest(t.getPersistentID());
+					suggestionsBuilder.suggest(pt.getPersistentID());
 				}
 			}
 		}

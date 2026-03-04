@@ -6,42 +6,111 @@ import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.mojang.datafixers.Products;
+import com.mojang.datafixers.util.Function6;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.codecs.partial.SPart6;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.salary.CustomTarget;
 import io.github.lightman314.lightmanscurrency.api.money.bank.salary.SalaryData;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.money.value.MoneyStorage;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolder;
+import io.github.lightman314.lightmanscurrency.api.money.value.holder.builtin.MoneyStorage;
+import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyHolder;
+import io.github.lightman314.lightmanscurrency.api.money.capability.MoneyHolder;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
+import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.BankInterestNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.BankTransferNotification;
-import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.DepositWithdrawNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.LowBalanceNotification;
-import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
+import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
+
+    private static final Codec<Map<String,MoneyValue>> NOTIFICATION_LEVEL_CODEC = MoneyValue.NON_EMPTY_OR_FREE_CODEC.listOf()
+            .xmap(list -> {
+                Map<String,MoneyValue> map = new HashMap<>();
+                for(MoneyValue v : list)
+                    map.put(v.getUniqueName(),v);
+                return map;
+            },map -> new ArrayList<>(map.values()));
+    private static final StreamCodec<RegistryFriendlyByteBuf,Map<String,MoneyValue>> NOTIFICATION_LEVEL_STREAM = MoneyValue.STREAM_CODEC.apply(ByteBufCodecs.list())
+            .map(list -> {
+                Map<String,MoneyValue> map = new HashMap<>();
+                for(MoneyValue v : list)
+                    map.put(v.getUniqueName(),v);
+                return map;
+            },map -> new ArrayList<>(map.values()));
+
+    public static final Codec<BankAccount> CODEC = buildCodec(BankAccount::new);
+
+    public static final StreamCodec<RegistryFriendlyByteBuf,BankAccount> STREAM_CODEC = buildStreamCodec(BankAccount.class,BankAccount::new);
+
+    protected static <T extends BankAccount> Products.P6<RecordCodecBuilder.Mu<T>,MoneyStorage,NotificationData,String,Map<String,MoneyValue>,Integer,List<SalaryData>> baseFields(RecordCodecBuilder.Instance<T> builder) {
+        return builder.group(
+                MoneyStorage.CODEC.fieldOf("money").forGetter(BankAccount::getMoneyStorage),
+                NotificationData.CODEC.fieldOf("logs").forGetter(a -> a.logger),
+                Codec.STRING.fieldOf("ownerName").forGetter(BankAccount::getOwnersName),
+                NOTIFICATION_LEVEL_CODEC.fieldOf("notificationLevels").forGetter(BankAccount::getNotificationLevels),
+                Codec.INT.fieldOf("atmCardCode").forGetter(BankAccount::getCardValidation),
+                SalaryData.CODEC.listOf().fieldOf("salaries").forGetter(BankAccount::getSalaries)
+        );
+    }
+
+    protected static <T extends BankAccount> Codec<T> buildCodec(Function6<MoneyStorage,NotificationData,String,Map<String,MoneyValue>,Integer,List<SalaryData>,T> factory) { return RecordCodecBuilder.create(builder -> baseFields(builder).apply(builder,factory)); }
+
+    protected static <T extends BankAccount> SPart6<RegistryFriendlyByteBuf,T,MoneyStorage,NotificationData,String,Map<String,MoneyValue>,Integer,List<SalaryData>> baseStreamFields(Class<T> clazz) {
+        return new SPart6<>(
+                MoneyStorage.STREAM_CODEC,BankAccount::getMoneyStorage,
+                NotificationData.STREAM_CODEC,a -> a.logger,
+                ByteBufCodecs.STRING_UTF8,BankAccount::getOwnersName,
+                NOTIFICATION_LEVEL_STREAM,BankAccount::getNotificationLevels,
+                ByteBufCodecs.INT,BankAccount::getCardValidation,
+                SalaryData.STREAM_CODEC.apply(ByteBufCodecs.list()),BankAccount::getSalaries);
+    }
+
+    protected static <T extends BankAccount> StreamCodec<RegistryFriendlyByteBuf,T> buildStreamCodec(Class<T> clazz,Function6<MoneyStorage,NotificationData,String,Map<String,MoneyValue>,Integer,List<SalaryData>,T> factory) { return baseStreamFields(clazz).assemble(factory); }
+
+    @Nullable
+    private LazyPacketData.Builder changedData = null;
+    protected final void setChanged(Consumer<LazyPacketData.Builder> dataWriter)
+    {
+        if(this.changedData == null)
+            this.changedData = this.builder();
+        dataWriter.accept(this.changedData);
+        this.listener.run();
+    }
+
+    @Override
+    public void setSalaryChanged(SalaryData salary,Consumer<LazyPacketData.Builder> dataWriter) {
+        int index = this.salaryData.indexOf(salary);
+        if(index >= 0)
+            this.setChanged(builder -> builder.modifyMap("Salary_" + index,dataWriter));
+    }
+
+    public LazyPacketData getAndCleanPacket()
+    {
+        LazyPacketData.Builder result = this.changedData;
+        this.changedData = null;
+        return result.build();
+    }
 
 	private boolean isClient = false;
 	@Override
@@ -51,9 +120,11 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	public BankAccount flagAsClient(boolean isClient) { this.isClient = isClient; if(this.isClient) this.logger.flagAsClient(); return this; }
 	public BankAccount flagAsClient(IClientTracker parent) { return this.flagAsClient(parent.isClient()); }
 
-	private final Runnable markDirty;
+	private Runnable listener;
+    public void setListener(Runnable listener) { this.listener = listener; }
 	
-	private final MoneyStorage coinStorage = new MoneyStorage(this::markDirty);
+	private final MoneyStorage coinStorage = new MoneyStorage().withListener(() ->
+            this.setChanged(builder -> builder.setList("Money",this.coinStorage.allValues(),ModLazyPackets.MONEY_VALUE)));
 	
 	public MoneyStorage getMoneyStorage() { return this.coinStorage; }
 
@@ -64,9 +135,14 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
     public SalaryData createNewSalary() {
         if(this.salaryData.size() >= SALARY_LIMIT)
             return null;
-        SalaryData newSalary = new SalaryData(this,this.salaryData::indexOf);
+        SalaryData newSalary = new SalaryData().init(this,this.salaryData::indexOf);
         this.salaryData.add(newSalary);
-        this.markDirty();
+        this.setChanged(builder -> {
+            if(builder.has("SetSalaries"))
+                builder.setList("SetSalaries",this.salaryData,ModLazyPackets.SALARY_DATA);
+            else
+                builder.addToList("AddSalary",null,LazyPacketData.FLAG_FACTORY);
+        });
         return newSalary;
     }
 
@@ -74,15 +150,21 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
     public void deleteSalary(SalaryData salary) {
         if(this.salaryData.contains(salary))
         {
+            int index = this.salaryData.indexOf(salary);
             this.salaryData.remove(salary);
-            this.markDirty();
+            this.setChanged(builder -> builder
+                    .remove("AddSalary")
+                    .setList("SetSalaries",this.salaryData,ModLazyPackets.SALARY_DATA));
         }
     }
 
-    int cardValidation = 0;
+    int cardValidation;
 	public int getCardValidation() { return this.cardValidation; }
 	public boolean isCardValid(int validationLevel) { return validationLevel >= this.cardValidation; }
-	public void resetCards() { this.cardValidation++; this.markDirty(); }
+	public void resetCards() {
+        this.cardValidation++;
+        this.setChanged(builder -> builder.setInt("CardValidation",this.cardValidation));
+    }
 
 	@Override
 	@Nullable
@@ -97,12 +179,12 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	public MoneyValue getNotificationLevelFor(String type) { return this.notificationLevels.getOrDefault(type, MoneyValue.empty()); }
 
 	@Override
-	public void setNotificationLevel(String type, MoneyValue value) {
+	public void setNotificationLevel(String type,MoneyValue value) {
 		if(value.isEmpty())
 			this.notificationLevels.remove(type);
 		else
 			this.notificationLevels.put(type, value);
-		this.markDirty();
+		this.setChanged(builder -> builder.setList("NotificationLevels",new ArrayList<>(this.notificationLevels.values()),ModLazyPackets.MONEY_VALUE));
 	}
 	
 	private Consumer<Supplier<Notification>> notificationSender;
@@ -111,7 +193,7 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 	@Override
 	public void pushLocalNotification(Notification notification) {
 		this.logger.addNotification(notification);
-		this.markDirty();
+		this.setChanged(builder -> builder.addToList("AddNotification",notification,ModLazyPackets.NOTIFICATION));
 	}
 	@Override
 	public void pushNotification(Supplier<Notification> notification, boolean notifyPlayers) {
@@ -124,12 +206,12 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 		return (notification) -> NotificationAPI.getApi().PushPlayerNotification(playerID, notification.get());
 	}
 	
-	private final NotificationData logger = new NotificationData();
-	
+	protected final NotificationData logger = new NotificationData();
+
 	@Override
 	public List<Notification> getNotifications() { return this.logger.getNotifications(); }
 	
-	private String ownerName = "Unknown";
+	private String ownerName;
 	public String getOwnersName() { return this.ownerName; }
 	public void updateOwnersName(String ownerName) { this.ownerName = ownerName; }
 	@Override
@@ -156,85 +238,107 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 		return withdrawAmount;
 	}
 	
-	public void LogInteraction(Player player, MoneyValue amount, boolean isDeposit) {
-		this.pushLocalNotification(new DepositWithdrawNotification.Player(PlayerReference.of(player), this.getName(), isDeposit, amount));
-	}
-	
-	public void LogInteraction(TaxEntry tax, MoneyValue amount) {
-		this.pushLocalNotification(new DepositWithdrawNotification.Custom(tax.getName(), this.getName(), true, amount));
-	}
+	public BankAccount() {
+        this(new MoneyStorage(),new NotificationData(),"Unknown",new HashMap<>(),0,new ArrayList<>());
+    }
 
-	public void LogInteraction(TraderData trader, MoneyValue amount, boolean isDeposit) {
-		this.pushLocalNotification(new DepositWithdrawNotification.Custom(trader.getName(), this.getName(), isDeposit, amount));
-	}
-	
-	public void LogTransfer(Player player, MoneyValue amount, MutableComponent otherAccount, boolean wasReceived) {
-		this.pushLocalNotification(new BankTransferNotification(PlayerReference.of(player), amount, this.getName(), otherAccount, wasReceived));
-	}
-	
-	public BankAccount() { this(null); }
-	public BankAccount(Runnable markDirty) { this.markDirty = markDirty; }
-	
-	public BankAccount(CompoundTag compound,HolderLookup.Provider lookup) { this(null, compound, lookup); }
-	public BankAccount(Runnable markDirty, CompoundTag compound, HolderLookup.Provider lookup) {
-		this.markDirty = markDirty;
-		this.coinStorage.safeLoad(compound, "CoinStorage");
-		this.logger.load(compound.getCompound("AccountLogs"),lookup);
-		this.ownerName = compound.getString("OwnerName");
-		if(compound.contains("NotificationLevel"))
-		{
-			MoneyValue level = MoneyValue.safeLoad(compound, "NotificationLevel");
-			if(!level.isEmpty() && !level.isFree())
-				this.notificationLevels.put(level.getUniqueName(), level);
-		}
-		else if(compound.contains("NotificationLevels"))
-		{
-			ListTag list = compound.getList("NotificationLevels", Tag.TAG_COMPOUND);
-			for(int i = 0; i < list.size(); ++i)
-			{
-				MoneyValue level = MoneyValue.load(list.getCompound(i));
-				if(level.isInvalid() || (!level.isFree() && !level.isEmpty()))
-					this.notificationLevels.put(level.getUniqueName(), level);
-			}
-		}
-		if(compound.contains("CardValidation"))
-			this.cardValidation = compound.getInt("CardValidation");
+    protected BankAccount(MoneyStorage storage,NotificationData logger,String ownerName,Map<String,MoneyValue> notificationLevels,int cardValidation,List<SalaryData> salaries)
+    {
+        this.coinStorage.load(storage.allValues());
+        this.logger.copyFrom(logger);
+        this.ownerName = ownerName;
+        this.notificationLevels.putAll(notificationLevels);
+        this.cardValidation = cardValidation;
+        this.salaryData.addAll(salaries);
+        SalaryData.init(this.salaryData,this);
+    }
+
+    public void copyFrom(BankAccount other)
+    {
+        this.coinStorage.load(other.coinStorage.allValues());
+        this.logger.copyFrom(other.logger);
+        this.ownerName = other.ownerName;
+        this.notificationLevels.clear();
+        this.notificationLevels.putAll(other.notificationLevels);
+        this.cardValidation = other.cardValidation;
+        this.salaryData.clear();
+        this.salaryData.addAll(other.salaryData);
+        SalaryData.init(this.salaryData,this);
+    }
+
+    public final void handlePacket(LazyPacketData data)
+    {
+        //Handle "Add Salary" methods
+        for(var dummy : data.getList("AddSalary",Void.class))
+            this.createNewSalary();
+        //Handle "Remove Salary" arguments
+        if(data.contains("SetSalaries"))
+        {
+            this.salaryData.clear();
+            this.salaryData.addAll(data.getList("SetSalaries",ModLazyPackets.SALARY_DATA));
+            SalaryData.init(this.salaryData,this);
+        }
+        for(int i = 0; i < this.salaryData.size(); ++i)
+        {
+            String key = "Salary_" + i;
+            if(data.contains(key))
+                this.salaryData.get(i).handlePacket(data.getMap(key));
+        }
+        if(data.contains("CardValidation"))
+            this.cardValidation = data.getInt("CardValidation");
+        if(data.contains("NotificationLevels"))
+        {
+            this.notificationLevels.clear();
+            for(MoneyValue value : data.getList("NotificationLevels",ModLazyPackets.MONEY_VALUE))
+                this.notificationLevels.put(value.getUniqueName(),value);
+        }
+        if(data.contains("AddNotification"))
+        {
+            for(Notification n : data.getList("AddNotification",ModLazyPackets.NOTIFICATION))
+                this.logger.addNotification(n);
+        }
+    }
+
+    @Deprecated
+    public static BankAccount loadOldData(CompoundTag compound,HolderLookup.Provider lookup)
+    {
+        MoneyStorage storage = new MoneyStorage();
+        storage.load(compound.getList("CoinStorage",Tag.TAG_COMPOUND));
+        NotificationData logger = new NotificationData();
+        logger.load(compound.getCompound("AccountLogs"),lookup);
+        String ownerName = compound.getString("OwnerName");
+        Map<String,MoneyValue> notificationLevels = new HashMap<>();
+        if(compound.contains("NotificationLevel"))
+        {
+            MoneyValue level = MoneyValue.safeLoad(compound, "NotificationLevel");
+            if(!level.isEmpty() && !level.isFree())
+                notificationLevels.put(level.getUniqueName(), level);
+        }
+        else if(compound.contains("NotificationLevels"))
+        {
+            ListTag list = compound.getList("NotificationLevels", Tag.TAG_COMPOUND);
+            for(int i = 0; i < list.size(); ++i)
+            {
+                MoneyValue level = MoneyValue.load(list.getCompound(i));
+                if(level.isInvalid() || (!level.isFree() && !level.isEmpty()))
+                    notificationLevels.put(level.getUniqueName(), level);
+            }
+        }
+        int cardValidation = compound.getInt("CardValidation");
+        List<SalaryData> salaryData = new ArrayList<>();
         if(compound.contains("Salaries"))
         {
             ListTag list = compound.getList("Salaries",Tag.TAG_COMPOUND);
             for(int i = 0; i < list.size(); ++i)
             {
-                SalaryData newSalary = new SalaryData(this,this.salaryData::indexOf);
-                newSalary.load(list.getCompound(i));
-                this.salaryData.add(newSalary);
+                SalaryData newSalary = SalaryData.loadOldData(list.getCompound(i));
+                salaryData.add(newSalary);
             }
         }
-	}
+        return new BankAccount(storage,logger,ownerName,notificationLevels,cardValidation,salaryData);
+    }
 
     @Override
-	public void markDirty()
-	{
-		if(this.markDirty != null)
-			this.markDirty.run();
-	}
-	
-	public final CompoundTag save(HolderLookup.Provider lookup) {
-		CompoundTag compound = new CompoundTag();
-		compound.put("CoinStorage", this.coinStorage.save());
-		compound.put("AccountLogs", this.logger.save(lookup));
-		compound.putString("OwnerName", this.ownerName);
-		ListTag notificationLevelList = new ListTag();
-		this.notificationLevels.forEach((key,level) -> notificationLevelList.add(level.save()));
-		compound.put("NotificationLevels", notificationLevelList);
-		compound.putInt("CardValidation", this.cardValidation);
-        ListTag salaries = new ListTag();
-        for(SalaryData salary : this.salaryData)
-            salaries.add(salary.save());
-        compound.put("Salaries",salaries);
-		return compound;
-	}
-
-	@Override
 	public void formatTooltip(List<Component> tooltip) {
 		IMoneyHolder.defaultTooltipFormat(tooltip, this.getTooltipTitle(), this.getStoredMoney());
 	}
@@ -294,5 +398,8 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 			return entry.equals(id);
 		});
 	}
+
+    @Override
+    public LazyPacketData.Builder builder() { return LazyPacketData.builder(LookupHelper.getRegistryAccess()); }
 
 }

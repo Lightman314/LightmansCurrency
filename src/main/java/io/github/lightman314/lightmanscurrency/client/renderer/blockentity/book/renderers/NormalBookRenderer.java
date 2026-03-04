@@ -1,22 +1,21 @@
 package io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.renderers;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.BookRenderer;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.BookRendererGenerator;
 import io.github.lightman314.lightmanscurrency.client.renderer.blockentity.book.SimpleBookRenderer;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class NormalBookRenderer extends SimpleBookRenderer {
 
-    public static final ModelResourceLocation MODEL_LOCATION = modelLocation(VersionUtil.lcResource( "block/bookshelf_trader/books/book"));
+    public static final ModelResourceLocation MODEL_LOCATION = modelLocation(LightmansCurrency.id( "block/bookshelf_trader/books/book"));
 
 
     public static final NormalBookRenderer INSTANCE = new NormalBookRenderer(new ItemStack(Items.BOOK));
@@ -31,7 +30,7 @@ public class NormalBookRenderer extends SimpleBookRenderer {
         private final List<Item> bookItems = ImmutableList.of(Items.BOOK, Items.WRITABLE_BOOK, Items.WRITTEN_BOOK);
         @Nullable
         @Override
-        public BookRenderer createRendererForItem(@Nonnull ItemStack book) {
+        public BookRenderer createRendererForItem(ItemStack book) {
             if(this.bookItems.contains(book.getItem()))
                 return INSTANCE;
             return null;

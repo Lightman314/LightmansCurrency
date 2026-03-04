@@ -3,11 +3,11 @@ package io.github.lightman314.lightmanscurrency.integration.reiplugin;
 import com.mojang.datafixers.util.Pair;
 import dev.architectury.event.CompoundEventResult;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
+import io.github.lightman314.lightmanscurrency.api.client.gui.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.*;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidget;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
@@ -16,7 +16,7 @@ import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObject
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
-import io.github.lightman314.lightmanscurrency.common.crafting.RecipeTypes;
+import io.github.lightman314.lightmanscurrency.common.core.ModRecipeTypes;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
 import io.github.lightman314.lightmanscurrency.integration.reiplugin.coin_mint.CoinMintCategory;
@@ -25,7 +25,6 @@ import io.github.lightman314.lightmanscurrency.integration.reiplugin.coin_mint.C
 import io.github.lightman314.lightmanscurrency.integration.reiplugin.util.EasyDraggableStackVisitor;
 import io.github.lightman314.lightmanscurrency.integration.reiplugin.ticket_station.TicketStationCategory;
 import io.github.lightman314.lightmanscurrency.integration.reiplugin.ticket_station.TicketStationDisplay;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import me.shedaniel.math.Rectangle;
 import me.shedaniel.rei.api.client.plugins.REIClientPlugin;
 import me.shedaniel.rei.api.client.registry.category.CategoryRegistry;
@@ -68,9 +67,9 @@ public class LCClientPlugin implements REIClientPlugin {
     @Override
     public void registerDisplays(DisplayRegistry registry) {
         //Coin Mint
-        registry.registerRecipeFiller(CoinMintRecipe.class,RecipeTypes.COIN_MINT.get(),CoinMintDisplay::new);
+        registry.registerRecipeFiller(CoinMintRecipe.class, ModRecipeTypes.COIN_MINT.get(),CoinMintDisplay::new);
         //Ticket Station
-        registry.registerRecipeFiller(TicketStationRecipe.class,RecipeTypes.TICKET.get(),TicketStationDisplay::new);
+        registry.registerRecipeFiller(TicketStationRecipe.class, ModRecipeTypes.TICKET.get(),TicketStationDisplay::new);
     }
 
     @Override
@@ -152,37 +151,37 @@ public class LCClientPlugin implements REIClientPlugin {
     @Override
     public void registerCollapsibleEntries(CollapsibleEntryRegistry registry) {
         //Display Case
-        registry.group(VersionUtil.lcResource("rei_groups/display_case"),LCText.REI_GROUP_DISPLAY_CASE.get(),isInBundle(ModBlocks.DISPLAY_CASE));
+        registry.group(LightmansCurrency.id("rei_groups/display_case"),LCText.REI_GROUP_DISPLAY_CASE.get(),isInBundle(ModBlocks.DISPLAY_CASE));
         //Shelf
-        registry.group(VersionUtil.lcResource("rei_groups/shelves"),LCText.REI_GROUP_SHELF.get(),isInBundle(ModBlocks.SHELF));
+        registry.group(LightmansCurrency.id("rei_groups/shelves"),LCText.REI_GROUP_SHELF.get(),isInBundle(ModBlocks.SHELF));
         //Double Shelf
-        registry.group(VersionUtil.lcResource("rei_groups/double_shelves"),LCText.REI_GROUP_SHELF_2x2.get(),isInBundle(ModBlocks.SHELF_2x2));
+        registry.group(LightmansCurrency.id("rei_groups/double_shelves"),LCText.REI_GROUP_SHELF_2x2.get(),isInBundle(ModBlocks.SHELF_2x2));
         //Card Displays
         ModBlocks.CARD_DISPLAY.forEachKey1(woodType ->
-            registry.group(VersionUtil.lcResource(woodType.generateID("rei_groups/card_displays")),LCText.REI_GROUP_CARD_DISPLAY.get(woodType).get(),isInBundle(ModBlocks.CARD_DISPLAY,woodType))
+            registry.group(LightmansCurrency.id(woodType.generateID("rei_groups/card_displays")),LCText.REI_GROUP_CARD_DISPLAY.get(woodType).get(),isInBundle(ModBlocks.CARD_DISPLAY,woodType))
         );
         //Vending Machine
-        registry.group(VersionUtil.lcResource("rei_groups/vending_machine"),LCText.REI_GROUP_VENDING_MACHINE.get(),isInBundle(ModBlocks.VENDING_MACHINE));
+        registry.group(LightmansCurrency.id("rei_groups/vending_machine"),LCText.REI_GROUP_VENDING_MACHINE.get(),isInBundle(ModBlocks.VENDING_MACHINE));
         //Large Vending Machines
-        registry.group(VersionUtil.lcResource("rei_groups/large_vending_machine"),LCText.REI_GROUP_LARGE_VENDING_MACHINE.get(),isInBundle(ModBlocks.VENDING_MACHINE_LARGE));
+        registry.group(LightmansCurrency.id("rei_groups/large_vending_machine"),LCText.REI_GROUP_LARGE_VENDING_MACHINE.get(),isInBundle(ModBlocks.VENDING_MACHINE_LARGE));
         //Freezers
-        registry.group(VersionUtil.lcResource("rei_groups/freezer"),LCText.REI_GROUP_FREEZER.get(),isInBundle(ModBlocks.FREEZER));
+        registry.group(LightmansCurrency.id("rei_groups/freezer"),LCText.REI_GROUP_FREEZER.get(),isInBundle(ModBlocks.FREEZER));
         //Bookshelves
-        registry.group(VersionUtil.lcResource("rei_groups/bookshelves"),LCText.REI_GROUP_BOOKSHELF_TRADER.get(),isInBundle(ModBlocks.BOOKSHELF_TRADER));
+        registry.group(LightmansCurrency.id("rei_groups/bookshelves"),LCText.REI_GROUP_BOOKSHELF_TRADER.get(),isInBundle(ModBlocks.BOOKSHELF_TRADER));
         //Auction Stands
-        registry.group(VersionUtil.lcResource("rei_groups/auction_stand"),LCText.REI_GROUP_AUCTION_STAND.get(),isInBundle(ModBlocks.AUCTION_STAND));
+        registry.group(LightmansCurrency.id("rei_groups/auction_stand"),LCText.REI_GROUP_AUCTION_STAND.get(),isInBundle(ModBlocks.AUCTION_STAND));
 
         //Jar of Sus
-        registry.group(VersionUtil.lcResource("rei_groups/jar_of_sus"),LCText.REI_GROUP_JAR_OF_SUS.get(),isItem(ModBlocks.SUS_JAR));
+        registry.group(LightmansCurrency.id("rei_groups/jar_of_sus"),LCText.REI_GROUP_JAR_OF_SUS.get(),isItem(ModBlocks.SUS_JAR));
 
         //ATM Card
-        registry.group(VersionUtil.lcResource("rei_groups/atm_card"),LCText.REI_GROUP_ATM_CARD.get(),isItem(ModItems.ATM_CARD));
+        registry.group(LightmansCurrency.id("rei_groups/atm_card"),LCText.REI_GROUP_ATM_CARD.get(),isItem(ModItems.ATM_CARD));
 
         //Ancient Coins
-        registry.group(VersionUtil.lcResource("rei_groups/ancient_coins"),LCText.REI_GROUP_ANCIENT_COINS.get(),isItem(ModItems.COIN_ANCIENT));
+        registry.group(LightmansCurrency.id("rei_groups/ancient_coins"),LCText.REI_GROUP_ANCIENT_COINS.get(),isItem(ModItems.COIN_ANCIENT));
 
         //Gacha Machines
-        registry.group(VersionUtil.lcResource("rei_groups/gacha_machines"),LCText.REI_GROUP_GACHA_MACHINE.get(),isInBundle(ModBlocks.GACHA_MACHINE));
+        registry.group(LightmansCurrency.id("rei_groups/gacha_machines"),LCText.REI_GROUP_GACHA_MACHINE.get(),isInBundle(ModBlocks.GACHA_MACHINE));
 
     }
 

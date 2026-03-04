@@ -1,22 +1,18 @@
 package io.github.lightman314.lightmanscurrency.api.config.client.screen.widgets.builtin;
 
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IRemovalListener;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IRemovalListener;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextBoxWrapper;
-import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs.TextBoxWrapper;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs.TextInputUtil;
 import net.minecraft.client.gui.components.EditBox;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class SimpleEditBoxOption extends OptionWidget implements IRemovalListener {
 
     private TextBoxWrapper<?> textBox;

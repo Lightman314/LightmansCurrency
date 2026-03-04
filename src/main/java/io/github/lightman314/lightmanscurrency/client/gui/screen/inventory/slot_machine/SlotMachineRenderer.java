@@ -2,36 +2,31 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.slot
 
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCConfig;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.SlotMachineScreen;
-import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
+import io.github.lightman314.lightmanscurrency.api.misc.ticker.ICommonTicker;
 import io.github.lightman314.lightmanscurrency.common.menus.slot_machine.ResultHolder;
 import io.github.lightman314.lightmanscurrency.common.menus.slot_machine.SlotMachineMenu;
-import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.nodes.SlotMachineNode;
+import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade.SlotMachineEntry;
 import net.minecraft.client.gui.Font;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-public final class SlotMachineRenderer implements IEasyTickable {
+public final class SlotMachineRenderer implements ICommonTicker {
 
-    public static final ResourceLocation GUI_TEXTURE = VersionUtil.lcResource("textures/gui/container/slot_machine_overlay.png");
+    public static final ResourceLocation GUI_TEXTURE = LightmansCurrency.id("textures/gui/container/slot_machine_overlay.png");
 
     public Font getFont() { return this.screen.getFont(); }
     private final SlotMachineScreen screen;
     private final SlotMachineMenu menu;
-    private SlotMachineTraderData getTrader() { return this.menu.getTrader(); }
+    private SlotMachineNode getNode() { return this.menu.getNode(SlotMachineNode.TYPE); }
     private RandomSource getRandom() { return this.menu.player.level().random; }
 
     public static int GetAnimationTime() { return Math.max(LCConfig.CLIENT.slotMachineAnimationTime.get(), 20); }
@@ -63,12 +58,12 @@ public final class SlotMachineRenderer implements IEasyTickable {
 
     private void recollectPossibleBlocks()
     {
-        SlotMachineTraderData trader = this.getTrader();
+        SlotMachineNode node = this.getNode();
         this.possibleBlocks.clear();
         this.totalWeight = 0;
-        if(trader != null)
+        if(node != null)
         {
-            for(SlotMachineEntry entry : trader.getValidEntries())
+            for(SlotMachineEntry entry : node.getValidEntries())
             {
                 for(IconData icon : entry.getIconsToDisplay())
                 {
@@ -90,10 +85,10 @@ public final class SlotMachineRenderer implements IEasyTickable {
         //Create line entries
         while(this.lines.size() < SlotMachineEntry.ITEM_LIMIT)
             this.lines.add(new SlotMachineLine(this));
-        SlotMachineTraderData trader = this.getTrader();
-        if(trader != null)
+        SlotMachineNode node = this.getNode();
+        if(node != null)
         {
-            List<IconData> previousIcons = shuffleListOrder(trader.getLastIcons());
+            List<IconData> previousIcons = shuffleListOrder(node.getLastIcons());
             for(int i = 0; i < SlotMachineEntry.ITEM_LIMIT; ++i)
             {
                 if(i < previousIcons.size())
@@ -122,8 +117,8 @@ public final class SlotMachineRenderer implements IEasyTickable {
     @Override
     public void tick()
     {
-        SlotMachineTraderData trader = this.getTrader();
-        if(trader != null && trader.areEntriesChanged())
+        SlotMachineNode node = this.getNode();
+        if(node != null && node.areEntriesChanged())
             this.recollectPossibleBlocks();
         if(this.menu.hasPendingReward() && this.animationTick == 0)
         {

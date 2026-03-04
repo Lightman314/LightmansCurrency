@@ -9,6 +9,9 @@ import java.util.List;
 @MethodsReturnNonnullByDefault
 public abstract class SingleLineNotification extends Notification {
 
+    protected SingleLineNotification() { }
+    protected SingleLineNotification(CommonData data) { super(data); }
+
     @Override
     public final List<Component> getMessageLines() { return Lists.newArrayList(this.getMessage()); }
 

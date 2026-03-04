@@ -1,8 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.filter;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -11,13 +9,10 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.items.IItemHandler;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public interface IItemTradeFilter {
 
     @Nullable
@@ -68,7 +63,7 @@ public interface IItemTradeFilter {
     {
         for(ItemStack i : list)
         {
-            if(InventoryUtil.ItemMatches(i,item))
+            if(ItemStack.isSameItemSameComponents(i,item))
                 return true;
         }
         return false;

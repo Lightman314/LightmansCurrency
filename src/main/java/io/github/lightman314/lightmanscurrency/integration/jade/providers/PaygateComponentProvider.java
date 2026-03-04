@@ -22,7 +22,7 @@ import java.util.List;
 
 public class PaygateComponentProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
 
-    public final ResourceLocation ID = VersionUtil.lcResource("paygate");
+    public final ResourceLocation ID = LightmansCurrency.id("paygate");
     public static final PaygateComponentProvider INSTANCE = new PaygateComponentProvider();
 
     @Override

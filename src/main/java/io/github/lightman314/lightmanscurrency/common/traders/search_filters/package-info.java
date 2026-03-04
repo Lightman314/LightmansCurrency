@@ -1,0 +1,4 @@
+@ParametersAreNonnullByDefault
+package io.github.lightman314.lightmanscurrency.common.traders.search_filters;
+
+import javax.annotation.ParametersAreNonnullByDefault;

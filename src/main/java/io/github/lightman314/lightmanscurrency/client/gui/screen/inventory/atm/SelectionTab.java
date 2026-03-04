@@ -3,22 +3,22 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm;
 import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.BankAccountSelectionWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyTextButton;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketSelectBankAccount;
-import io.github.lightman314.lightmanscurrency.network.message.bank.CPacketATMSetPlayerAccount;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
@@ -110,18 +110,14 @@ public class SelectionTab extends ATMTab {
 
 	private void selectAccount(@Nonnull BankReference account)
 	{
-		new CPacketSelectBankAccount(account).send();
+		new CPacketSelectBankAccount(account).sendToServer();
 	}
 	
 	private void PressSelectPlayerAccount(EasyButton button) {
 		String playerName = this.playerAccountSelect.getValue();
 		this.playerAccountSelect.setValue("");
 		if(!playerName.isBlank())
-			new CPacketATMSetPlayerAccount(playerName).send();
-	}
-	
-	public void ReceiveSelectPlayerResponse(Component message) {
-		this.responseMessage = message;
+            this.menu.SendMessageToClient(this.builder().setString("SetPlayerAccount",playerName));
 	}
 
 	@Override
@@ -141,4 +137,9 @@ public class SelectionTab extends ATMTab {
 	@Override
 	public void closeAction() { this.screen.setCoinSlotsActive(true); }
 
+    @Override
+    public void HandleMessage(LazyPacketData message) {
+        if(message.contains("PlayerAccountResults"))
+            this.responseMessage = message.getText("PlayerAccountResults");
+    }
 }

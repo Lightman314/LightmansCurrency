@@ -11,7 +11,7 @@ import io.github.lightman314.lightmanscurrency.common.blocks.EasyBlock;
 import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockValidator;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
@@ -30,7 +30,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.util.Collection;
 
 public class AuctionStandBlock extends EasyBlock implements IEasyEntityBlock, IVariantBlock {
@@ -41,12 +40,10 @@ public class AuctionStandBlock extends EasyBlock implements IEasyEntityBlock, IV
     protected boolean isBlockOpaque() { return false; }
 
     @Override
-    @Nonnull
-    public VoxelShape getShape(@Nonnull BlockState state, @Nonnull BlockGetter level, @Nonnull BlockPos pos, @Nonnull CollisionContext context) { return LazyShapes.BOX; }
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) { return LazyShapes.BOX; }
 
     @Override
-    @Nonnull
-    public InteractionResult useWithoutItem(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull BlockHitResult result) {
+    public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult result) {
         if(!level.isClientSide && AuctionHouseTrader.isEnabled())
         {
             if(QuarantineAPI.IsDimensionQuarantined(level))
@@ -65,17 +62,16 @@ public class AuctionStandBlock extends EasyBlock implements IEasyEntityBlock, IV
         return InteractionResult.SUCCESS;
     }
 
-    @Nonnull
+    
     @Override
     public Collection<BlockEntityType<?>> getAllowedTypes() { return Lists.newArrayList(ModBlockEntities.AUCTION_STAND.get()); }
 
     @Nullable
     @Override
-    public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new AuctionStandBlockEntity(pos, state); }
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new AuctionStandBlockEntity(pos, state); }
 
-    @Nonnull
     @Override
-    public BlockState playerWillDestroy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull Player player) {
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         //Flag it to not drop if the player was in creative mode
         if(player.isCreative() && level.getBlockEntity(pos) instanceof AuctionStandBlockEntity be)
             be.dropItem = false;
@@ -83,7 +79,7 @@ public class AuctionStandBlock extends EasyBlock implements IEasyEntityBlock, IV
     }
 
     @Override
-    public void onRemove(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, BlockState newState, boolean flag) {
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean flag) {
         if(state.is(newState.getBlock()))
         {
             super.onRemove(state, level, pos, newState, flag);

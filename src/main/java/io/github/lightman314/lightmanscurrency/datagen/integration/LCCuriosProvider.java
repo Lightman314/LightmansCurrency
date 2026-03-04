@@ -21,7 +21,7 @@ public class LCCuriosProvider extends CuriosDataProvider {
         this.createSlot("wallet")
                 .order(0) //Give the wallet a priority of 0 so that it appears above most default slots
                 .addCosmetic(true)
-                .icon(VersionUtil.lcResource("item/empty_wallet_slot"));
+                .icon(LightmansCurrency.id("item/empty_wallet_slot"));
 
         this.createSlot("charm")
                 .operation("ADD")

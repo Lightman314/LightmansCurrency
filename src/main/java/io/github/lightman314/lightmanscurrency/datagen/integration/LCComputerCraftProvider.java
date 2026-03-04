@@ -31,7 +31,7 @@ public class LCComputerCraftProvider {
         context.register(makeKey("atm_portable"),new ATMPocketUpgrade(new ItemStack(ModItems.PORTABLE_ATM.get())));
     }
 
-    private static ResourceKey<IPocketUpgrade> makeKey(String key) { return makeKey(VersionUtil.lcResource(key)); }
+    private static ResourceKey<IPocketUpgrade> makeKey(String key) { return makeKey(LightmansCurrency.id(key)); }
     private static ResourceKey<IPocketUpgrade> makeKey(ResourceLocation key) { return ResourceKey.create(IPocketUpgrade.REGISTRY,key); }
 
 }

@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.money.client.builtin;
 
 import io.github.lightman314.lightmanscurrency.api.money.client.ClientCurrencyType;
-import io.github.lightman314.lightmanscurrency.api.money.input.MoneyInputHandler;
+import io.github.lightman314.lightmanscurrency.api.money.client.input.MoneyInputHandler;
 import io.github.lightman314.lightmanscurrency.api.money.types.builtin.NullCurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;

@@ -1,30 +1,39 @@
 package io.github.lightman314.lightmanscurrency.api.money.bank.reference;
 
+import com.mojang.serialization.Codec;
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
 import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.api.money.bank.BankAPI;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.builtin.TeamBankReference;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
-import io.github.lightman314.lightmanscurrency.api.money.value.holder.MoneyHolder;
+import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyHolder;
+import io.github.lightman314.lightmanscurrency.api.money.capability.MoneyHolder;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class BankReference extends MoneyHolder.Slave implements ISidedObject {
+
+    public static final Codec<BankReference> CODEC = Codec.withAlternative(
+            //Intended Codec
+            LCRegistries.BANK_REFERENCE.byNameCodec().dispatch(BankReference::getType,BankReferenceType::codec),
+            //Fallback Codec for old data
+            CodecHelper.oldValueLoader(BankReference::loadOldData,"Bank Reference"));
+    public static final StreamCodec<RegistryFriendlyByteBuf,BankReference> STREAM_CODEC = ByteBufCodecs.registry(LCRegistries.BANK_REFERENCE_KEY)
+            .dispatch(BankReference::getType,BankReferenceType::streamCodec);
 
     private Supplier<Boolean> isClient = () -> false;
     public boolean isClient() { return this.isClient.get(); }
@@ -33,8 +42,8 @@ public abstract class BankReference extends MoneyHolder.Slave implements ISidedO
     public BankReference flagAsClient(boolean isClient) { this.isClient = () -> isClient; return this; }
     public BankReference flagAsClient(IClientTracker parent) { this.isClient = parent::isClient; return this; }
 
-    protected final BankReferenceType type;
-    protected BankReference(BankReferenceType type) { this.type = type; }
+
+    public abstract BankReferenceType<?> getType();
 
     public final boolean isValid() { return this.get() != null; }
     @Nullable
@@ -66,33 +75,16 @@ public abstract class BankReference extends MoneyHolder.Slave implements ISidedO
 
     public boolean canPersist(Player player) { return true; }
 
-    
-    public final CompoundTag save()
-    {
-        CompoundTag tag = new CompoundTag();
-        this.saveAdditional(tag);
-        tag.putString("Type", this.type.id.toString());
-        return tag;
-    }
+    public final CompoundTag save() { return (CompoundTag)CODEC.encodeStart(NbtOps.INSTANCE,this).getOrThrow(); }
+    public static BankReference load(CompoundTag tag) { return CODEC.decode(NbtOps.INSTANCE,tag).getOrThrow().getFirst(); }
 
-    protected abstract void saveAdditional(CompoundTag tag);
-
-    public final void encode(FriendlyByteBuf buffer)
-    {
-        buffer.writeUtf(this.type.id.toString());
-        this.encodeAdditional(buffer);
-    }
-
-    protected abstract void encodeAdditional(FriendlyByteBuf buffer);
-
-    @Nullable
-    public static BankReference load(CompoundTag tag)
+    private static BankReference loadOldData(CompoundTag tag)
     {
         if(tag.contains("Type"))
         {
-            BankReferenceType type = BankAPI.getApi().GetReferenceType(VersionUtil.parseResource(tag.getString("Type")));
+            BankReferenceType<?> type = LCRegistries.BANK_REFERENCE.get(VersionUtil.parseResource(tag.getString("Type")));
             if(type != null)
-                return type.load(tag);
+                return type.loadOldData(tag);
             else
                 LightmansCurrency.LogWarning("No Bank Reference Type '" + type + "' could be loaded.");
         }
@@ -104,16 +96,6 @@ public abstract class BankReference extends MoneyHolder.Slave implements ISidedO
             if(tag.contains("TeamID"))
                 return TeamBankReference.of(tag.getLong("TeamID"));
         }
-        return null;
-    }
-
-    public static BankReference decode(FriendlyByteBuf buffer)
-    {
-        BankReferenceType type = BankAPI.getApi().GetReferenceType(VersionUtil.parseResource(buffer.readUtf()));
-        if(type != null)
-            return type.decode(buffer);
-        else
-            LightmansCurrency.LogWarning("No Bank Reference Type '" + type + "' could be decoded.");
         return null;
     }
 

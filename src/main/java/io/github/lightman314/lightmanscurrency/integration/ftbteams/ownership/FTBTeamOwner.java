@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.integration.ftbteams.ownership;
 
+import com.mojang.serialization.MapCodec;
 import dev.ftb.mods.ftbteams.api.FTBTeamsAPI;
 import dev.ftb.mods.ftbteams.api.Team;
 import dev.ftb.mods.ftbteams.api.TeamManager;
@@ -13,13 +14,14 @@ import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerType;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.codec.StreamCodec;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
@@ -27,10 +29,10 @@ import java.util.function.Supplier;
 
 public class FTBTeamOwner extends Owner {
 
-    public static final OwnerType TYPE = OwnerType.create(VersionUtil.lcResource("ftbteams"),(tag, l) -> new FTBTeamOwner(tag.getUUID("Team")));
+    public static final OwnerType<FTBTeamOwner> TYPE = new Type();
 
     private final UUID teamID;
-    public FTBTeamOwner(@Nonnull UUID teamID) { this.teamID = teamID; }
+    public FTBTeamOwner(UUID teamID) { this.teamID = teamID; }
 
     @Nullable
     private Team getTeam()
@@ -48,18 +50,16 @@ public class FTBTeamOwner extends Owner {
         return null;
     }
 
-    @Nonnull
     @Override
-    public MutableComponent getName() {
+    public Component getName() {
         Team team = this.getTeam();
         if(team != null)
             return EasyText.makeMutable(team.getName()).setStyle(Style.EMPTY);
         return LCText.GUI_OWNER_NULL.get();
     }
 
-    @Nonnull
     @Override
-    public MutableComponent getCommandLabel() { return LCText.COMMAND_LCADMIN_DATA_OWNER_TEAM.get(this.getName(),this.teamID); }
+    public Component getCommandLabel() { return LCText.COMMAND_LCADMIN_DATA_OWNER_TEAM.get(this.getName(),this.teamID); }
 
     @Override
     public boolean stillValid() {
@@ -76,7 +76,7 @@ public class FTBTeamOwner extends Owner {
     }
 
     @Override
-    public boolean isAdmin(@Nonnull PlayerReference player) {
+    public boolean isAdmin(PlayerReference player) {
         Team team = this.getTeam();
         if(team != null)
         {
@@ -87,7 +87,7 @@ public class FTBTeamOwner extends Owner {
     }
 
     @Override
-    public boolean isMember(@Nonnull PlayerReference player) {
+    public boolean isMember(PlayerReference player) {
         Team team = this.getTeam();
         if(team != null)
         {
@@ -97,7 +97,7 @@ public class FTBTeamOwner extends Owner {
         return false;
     }
 
-    @Nonnull
+    
     @Override
     public PlayerReference asPlayerReference() {
         Team team = this.getTeam();
@@ -111,7 +111,7 @@ public class FTBTeamOwner extends Owner {
     public BankReference asBankReference() { return null; }
 
     @Override
-    public void pushNotification(@Nonnull Supplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) {
+    public void pushNotification(Supplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) {
         Team team = this.getTeam();
         if(team != null)
         {
@@ -126,24 +126,35 @@ public class FTBTeamOwner extends Owner {
         }
     }
 
-    @Nonnull
+    
     @Override
-    public OwnerType getType() { return TYPE; }
-
-    @Override
-    protected void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
-        tag.putUUID("Team", this.teamID);
-    }
-
-    @Nonnull
+    public OwnerType<?> getType() { return TYPE; }
+    
     @Override
     public Owner copy() { return new FTBTeamOwner(this.teamID); }
 
     @Override
-    public boolean matches(@Nonnull Owner other) {
+    public boolean matches(Owner other) {
         if(other instanceof FTBTeamOwner to)
             return to.teamID.equals(this.teamID);
         return false;
+    }
+
+    @Override
+    public int hash() { return this.teamID.hashCode(); }
+
+    private static class Type extends OwnerType<FTBTeamOwner>
+    {
+        private static final MapCodec<FTBTeamOwner> MAP_CODEC = UUIDUtil.CODEC.fieldOf("team")
+                .xmap(FTBTeamOwner::new,o -> o.teamID);
+        private static final StreamCodec<ByteBuf,FTBTeamOwner> STREAM_CODEC = UUIDUtil.STREAM_CODEC
+                .map(FTBTeamOwner::new,o -> o.teamID);
+        @Override
+        public Owner loadOldData(CompoundTag tag, HolderLookup.Provider lookup) { return new FTBTeamOwner(tag.getUUID("Team")); }
+        @Override
+        public MapCodec<FTBTeamOwner> codec() { return MAP_CODEC; }
+        @Override
+        public StreamCodec<ByteBuf, FTBTeamOwner> streamCodec() { return STREAM_CODEC; }
     }
     
 }

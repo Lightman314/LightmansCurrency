@@ -1,13 +1,11 @@
 package io.github.lightman314.lightmanscurrency.api.ticket;
 
 import com.google.common.collect.ImmutableList;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +21,7 @@ public class TicketGroupData {
     public final Item ticketStub;
     public final TagKey<Item> material;
 
-    private TicketGroupData(@Nonnull ItemLike masterTicket, @Nonnull ItemLike ticket, @Nonnull ItemLike ticketStub, @Nonnull TagKey<Item> material)
+    private TicketGroupData(ItemLike masterTicket, ItemLike ticket, ItemLike ticketStub, TagKey<Item> material)
     {
         this.masterTicket = masterTicket.asItem();
         this.ticket = ticket.asItem();
@@ -31,10 +29,10 @@ public class TicketGroupData {
         this.material = material;
     }
 
-    public static void create(@Nonnull ItemLike masterTicket, @Nonnull ItemLike ticket, @Nonnull ItemLike ticketStub, @Nonnull TagKey<Item> material) { DATA.add(new TicketGroupData(masterTicket,ticket,ticketStub,material)); }
+    public static void create(ItemLike masterTicket, ItemLike ticket, ItemLike ticketStub, TagKey<Item> material) { DATA.add(new TicketGroupData(masterTicket,ticket,ticketStub,material)); }
 
     @Nullable
-    public static TicketGroupData getForMaster(@Nonnull ItemStack masterTicket)
+    public static TicketGroupData getForMaster(ItemStack masterTicket)
     {
         for(TicketGroupData data : DATA)
         {
@@ -45,7 +43,7 @@ public class TicketGroupData {
     }
 
     @Nullable
-    public static TicketGroupData getForTicket(@Nonnull ItemStack ticket)
+    public static TicketGroupData getForTicket(ItemStack ticket)
     {
         for(TicketGroupData data : DATA)
         {
@@ -56,11 +54,11 @@ public class TicketGroupData {
     }
 
     @Nullable
-    public static TicketGroupData getForMaterial(@Nonnull ItemStack material)
+    public static TicketGroupData getForMaterial(ItemStack material)
     {
         for(TicketGroupData data : DATA)
         {
-            if(InventoryUtil.ItemHasTag(material, data.material))
+            if(material.is(data.material))
                 return data;
         }
         return null;

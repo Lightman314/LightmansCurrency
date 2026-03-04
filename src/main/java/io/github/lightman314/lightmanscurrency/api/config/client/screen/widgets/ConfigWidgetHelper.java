@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.config.client.screen.widgets;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs.*;
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.builtin.subscreens.MoneyValueConfigScreen;
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.builtin.subscreens.list.settings.*;
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.builtin.subscreens.trade_mod.ConfiguredTradeModConfigScreen;
@@ -15,12 +16,10 @@ import io.github.lightman314.lightmanscurrency.api.config.options.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.client.config.CustomItemScaleConfigOption;
 import io.github.lightman314.lightmanscurrency.client.config.ItemTestListOption;
-import io.github.lightman314.lightmanscurrency.client.util.text_inputs.*;
 import io.github.lightman314.lightmanscurrency.common.config.VillagerTradeModsOption;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.configured.ConfiguredTradeModOption;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
@@ -30,14 +29,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class ConfigWidgetHelper {
 
     private static final List<WidgetBuilder> builders;

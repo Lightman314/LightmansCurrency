@@ -63,7 +63,7 @@ public class BlockEntityUtil
     public static void requestUpdatePacket(Level level, BlockPos pos)
     {
     	if(level.isClientSide)
-    		new CPacketRequestNBT(pos).send();
+    		new CPacketRequestNBT(pos).sendToServer();
     }
     
 }

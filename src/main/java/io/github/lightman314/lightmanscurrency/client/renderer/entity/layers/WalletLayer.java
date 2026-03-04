@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.renderer.entity.layers;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
@@ -13,7 +14,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -27,19 +27,14 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
-
 public class WalletLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T,M>{
 
-	public static final ResourceLocation NULL_MODEL = VersionUtil.lcResource("item/wallet_hip/wallet_base");
+	public static final ResourceLocation NULL_MODEL = LightmansCurrency.id("item/wallet_hip/wallet_base");
 
-	public WalletLayer(RenderLayerParent<T,M> renderer)
-	{
-		super(renderer);
-	}
+	public WalletLayer(RenderLayerParent<T,M> renderer) { super(renderer); }
 
 	@Override
-	public void render(@Nonnull PoseStack pose, @Nonnull MultiBufferSource bufferSource, int light, @Nonnull T entity, float limbSwing,
+	public void render(PoseStack pose, MultiBufferSource bufferSource, int light, T entity, float limbSwing,
 					   float limbSwingAmount,
 					   float partialTicks,
 					   float ageInTicks,

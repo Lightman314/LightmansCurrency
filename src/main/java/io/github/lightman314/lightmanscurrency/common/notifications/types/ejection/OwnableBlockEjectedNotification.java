@@ -1,34 +1,40 @@
 package io.github.lightman314.lightmanscurrency.common.notifications.types.ejection;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.codecs.StreamHelper;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
-import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.api.notifications.SingleLineNotification;
+import io.github.lightman314.lightmanscurrency.api.notifications.*;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.NullCategory;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class OwnableBlockEjectedNotification extends SingleLineNotification {
 
-    public static final NotificationType<OwnableBlockEjectedNotification> TYPE = new NotificationType<>(VersionUtil.lcResource("block_ejected"),OwnableBlockEjectedNotification::new);
+    public static final NotificationType<OwnableBlockEjectedNotification> TYPE = new Type();
 
     private Component name = EasyText.empty();
     private boolean ejected = false;
     private boolean anarchy = false;
 
     private OwnableBlockEjectedNotification() {}
+    private OwnableBlockEjectedNotification(Component name, boolean ejected, boolean anarchy, CommonData data) {
+        super(data);
+        this.name = name;
+        this.ejected = ejected;
+        this.anarchy = anarchy;
+    }
     public OwnableBlockEjectedNotification(Component name) {
         this.name = name.copy();
         this.ejected = LCConfig.SERVER.safelyEjectMachineContents.get();
@@ -38,7 +44,7 @@ public class OwnableBlockEjectedNotification extends SingleLineNotification {
     public static Supplier<Notification> create(Component name) { return () -> new OwnableBlockEjectedNotification(name); }
 
     @Override
-    protected NotificationType<?> getType() { return TYPE; }
+    public NotificationType<?> getType() { return TYPE; }
 
     @Override
     public NotificationCategory getCategory() { return NullCategory.INSTANCE; }
@@ -55,15 +61,6 @@ public class OwnableBlockEjectedNotification extends SingleLineNotification {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
-        compound.putString("Name", Component.Serializer.toJson(this.name,lookup));
-        if(this.ejected)
-            compound.putBoolean("Ejected", this.ejected);
-        if(this.anarchy)
-            compound.putBoolean("Anarchy", this.anarchy);
-    }
-
-    @Override
     protected void loadAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
         this.name = Component.Serializer.fromJson(compound.getString("Name"),lookup);
         if(compound.contains("Ejected"))
@@ -74,5 +71,28 @@ public class OwnableBlockEjectedNotification extends SingleLineNotification {
 
     @Override
     protected boolean canMerge(Notification other) { return false; }
+
+    private static class Type extends NotificationType<OwnableBlockEjectedNotification>
+    {
+        private static final MapCodec<OwnableBlockEjectedNotification> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+                ComponentSerialization.CODEC.fieldOf("name").forGetter(n -> n.name),
+                Codec.BOOL.fieldOf("ejected").forGetter(n -> n.ejected),
+                Codec.BOOL.fieldOf("anarchy").forGetter(n -> n.anarchy),
+                baseFields()
+                ).apply(builder,OwnableBlockEjectedNotification::new));
+
+        private static final StreamCodec<RegistryFriendlyByteBuf,OwnableBlockEjectedNotification> STREAM_CODEC = StreamHelper.combine(baseStreamFields(),
+                ComponentSerialization.STREAM_CODEC,n -> n.name,
+                ByteBufCodecs.BOOL,n -> n.ejected,
+                ByteBufCodecs.BOOL,n -> n.anarchy,
+                OwnableBlockEjectedNotification::new);
+
+        @Override
+        protected OwnableBlockEjectedNotification createNew() { return new OwnableBlockEjectedNotification(); }
+        @Override
+        public MapCodec<OwnableBlockEjectedNotification> codec() { return MAP_CODEC; }
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf,OwnableBlockEjectedNotification> streamCodec() { return STREAM_CODEC; }
+    }
 
 }

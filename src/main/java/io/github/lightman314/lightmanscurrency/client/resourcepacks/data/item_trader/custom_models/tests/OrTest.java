@@ -4,10 +4,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.custom_models.CustomModelTest;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.custom_models.NestedModelTest;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -15,15 +14,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class OrTest extends NestedModelTest {
 
-    public static final ResourceLocation TYPE = VersionUtil.lcResource("or");
+    public static final ResourceLocation TYPE = LightmansCurrency.id("or");
 
     private final List<CustomModelTest> tests;
     public OrTest(CustomModelTest... tests) { this(ImmutableList.copyOf(tests)); }

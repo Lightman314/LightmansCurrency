@@ -3,13 +3,13 @@ package io.github.lightman314.lightmanscurrency.network;
 import io.github.lightman314.lightmanscurrency.network.message.*;
 import io.github.lightman314.lightmanscurrency.network.message.auction.*;
 import io.github.lightman314.lightmanscurrency.network.message.bank.*;
+import io.github.lightman314.lightmanscurrency.network.message.auction.CPacketSubmitBid;
 import io.github.lightman314.lightmanscurrency.network.message.command.*;
 import io.github.lightman314.lightmanscurrency.network.message.config.*;
 import io.github.lightman314.lightmanscurrency.network.message.data.*;
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.*;
-import io.github.lightman314.lightmanscurrency.network.message.event.*;
 import io.github.lightman314.lightmanscurrency.network.message.interfacebe.*;
-import io.github.lightman314.lightmanscurrency.network.message.menu.*;
+import io.github.lightman314.lightmanscurrency.network.message.lazy.*;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.*;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.*;
 import io.github.lightman314.lightmanscurrency.network.message.persistentdata.*;
@@ -22,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.network.message.trader.*;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.*;
 import io.github.lightman314.lightmanscurrency.network.message.walletslot.*;
 import io.github.lightman314.lightmanscurrency.network.message.time.*;
+import io.github.lightman314.lightmanscurrency.network.packet.BiDirectionalPacket;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import io.github.lightman314.lightmanscurrency.network.packet.CustomPacket;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
@@ -48,20 +49,10 @@ public class LightmansCurrencyPacketHandler {
 		registerC2S(CPacketOpenATM.HANDLER);
 		registerC2S(CPacketSelectBankAccount.HANDLER);
 		registerC2S(CPacketBankInteraction.HANDLER);
-		registerC2S(CPacketBankTransferAccount.HANDLER);
-		registerC2S(CPacketBankTransferPlayer.HANDLER);
-		registerS2C(SPacketBankTransferResponse.HANDLER);
-		registerC2S(CPacketATMSetPlayerAccount.HANDLER);
-		registerS2C(SPacketATMPlayerAccountResponse.HANDLER);
 		
 		//Trader
-		registerC2S(CPacketExecuteTrade.HANDLER);
-		registerC2S(CPacketCollectCoins.HANDLER);
-		registerC2S(CPacketOpenStorage.HANDLER);
-		registerC2S(CPacketOpenTrades.HANDLER);
 		registerC2S(CPacketOpenNetworkTerminal.HANDLER);
 		registerS2C(SPacketSyncUsers.HANDLER);
-		registerC2S(CPacketAddOrRemoveTrade.HANDLER);
 		registerS2C(SPacketTaxInfo.HANDLER);
 
 		//Paygate
@@ -69,15 +60,10 @@ public class LightmansCurrencyPacketHandler {
 
 		//Wallet
 		registerS2C(SPacketPlayCoinSound.HANDLER);
-		registerC2S(CPacketWalletExchangeCoins.HANDLER);
-		registerC2S(CPacketWalletToggleAutoExchange.HANDLER);
 		registerC2S(CPacketOpenWallet.HANDLER);
-		registerC2S(CPacketOpenWalletBank.HANDLER);
-		registerC2S(CPacketWalletQuickCollect.HANDLER);
 		registerC2S(CPacketChestQuickCollect.HANDLER);
 
 		//Wallet Inventory Slot
-		registerS2C(SPacketSyncWallet.HANDLER);
 		registerC2S(CPacketSetVisible.HANDLER);
 		registerC2S(CPacketCreativeWalletEdit.HANDLER);
 		
@@ -92,9 +78,9 @@ public class LightmansCurrencyPacketHandler {
 		//Teams
 		registerC2S(CPacketOpenTeamManager.HANDLER);
 
-		//Lazy Menu Interaction
-		registerS2C(SPacketLazyMenu.HANDLER);
-		registerC2S(CPacketLazyMenu.HANDLER);
+		//Lazy Menu and Block Entity interaction
+		registerBi(BPacketLazyMenu.HANDLER);
+		registerBi(BPacketLazyBlockEntity.HANDLER);
 
 		//Notifications
 		registerS2C(SPacketChatNotification.HANDLER);
@@ -122,10 +108,6 @@ public class LightmansCurrencyPacketHandler {
 
 		//Player Trading
 		registerS2C(SPacketSyncPlayerTrade.HANDLER);
-		registerC2S(CPacketPlayerTradeInteraction.HANDLER);
-
-		//Event Tracker Syncing
-		registerS2C(SPacketSyncEventUnlocks.HANDLER);
 
 		//Config System
         registerC2S(CPacketEditConfig.HANDLER);
@@ -152,13 +134,18 @@ public class LightmansCurrencyPacketHandler {
 
 	private static <T extends ServerToClientPacket> void registerS2C(CustomPacket.AbstractHandler<T> handler)
 	{
-		registrar.playToClient(handler.type, handler.codec, handler);
+		registrar.playToClient(handler.type,handler.codec,handler);
 	}
 
 	private static <T extends ClientToServerPacket> void registerC2S(CustomPacket.AbstractHandler<T> handler)
 	{
-		registrar.playToServer(handler.type, handler.codec, handler);
+		registrar.playToServer(handler.type,handler.codec,handler);
 	}
+
+    private static <T extends BiDirectionalPacket> void registerBi(CustomPacket.AbstractHandler<T> handler)
+    {
+        registrar.playBidirectional(handler.type,handler.codec,handler);
+    }
 
 	private static <T extends ServerToClientPacket> void registerConfigS2C(CustomPacket.ConfigHandler<T> handler)
 	{

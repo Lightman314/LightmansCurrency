@@ -16,8 +16,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.Nonnull;
-
 public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItemTraderBlock, IVariantBlock {
 	
 	public ArmorDisplayBlock(Properties properties) { super(properties); }
@@ -36,15 +34,14 @@ public class ArmorDisplayBlock extends TraderBlockTallRotatable implements IItem
 	public BlockEntityType<?> traderType() { return ModBlockEntities.ARMOR_TRADER.get(); }
 	
 	@Override
-	public void onRemove(BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, BlockState newState, boolean isMoving) {
+	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
 		if(state.is(newState.getBlock()))
 		{
 			super.onRemove(state,level,pos,newState,isMoving);
 			return;
 		}
 
-		BlockEntity blockEntity = level.getBlockEntity(pos);
-		if(blockEntity instanceof ArmorDisplayTraderBlockEntity be)
+		if(level.getBlockEntity(pos) instanceof ArmorDisplayTraderBlockEntity be)
 			be.destroyArmorStand();
 		super.onRemove(state, level, pos, newState, isMoving);
 	}

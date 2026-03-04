@@ -2,24 +2,22 @@ package io.github.lightman314.lightmanscurrency.api.traders.settings.builtin.tra
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.settings.SettingsSubNode;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.api.traders.settings.EasyTraderSettingsNode;
+import io.github.lightman314.lightmanscurrency.api.traders.settings.EasyTraderNodeSettings;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.settings.builtin.rules.RuleSubNode;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.templates.TradeOfferSourceNode;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.ITradeRuleHost;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-public abstract class TradeSettings<T extends TraderData> extends EasyTraderSettingsNode<T> {
+public abstract class TradeSettings<T extends TradeData,N extends TradeOfferSourceNode<T>> extends EasyTraderNodeSettings<TraderData,N> {
 
-    public TradeSettings(String key, T trader) { super(key, trader); }
+    public TradeSettings(String key, TraderData trader, N node) { super(key,trader,node); }
 
     @Override
     public MutableComponent getName() { return LCText.DATA_CATEGORY_TRADER_TRADES.get(); }
@@ -42,7 +40,13 @@ public abstract class TradeSettings<T extends TraderData> extends EasyTraderSett
 
     protected int getTradeCount() { return this.trader.getTradeCount(); }
     @Nullable
-    protected abstract ITradeRuleHost getRuleHost(int tradeIndex);
+    protected ITradeRuleHost getRuleHost(int tradeIndex)
+    {
+        T trade = this.node.getTrade(tradeIndex);
+        if(trade instanceof ITradeRuleHost h)
+            return h;
+        return null;
+    }
     protected abstract SettingsSubNode<?> createTradeNode(int tradeIndex);
 
 }

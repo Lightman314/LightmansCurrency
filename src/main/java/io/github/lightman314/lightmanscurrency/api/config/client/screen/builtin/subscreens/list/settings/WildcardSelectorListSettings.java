@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.config.client.screen.builtin
 import com.mojang.datafixers.util.Either;
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.widgets.builtin.list.ListEditBoxOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.builtin.WildcardSelectorListOption;
-import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.util.WildcardTargetSelector;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.components.AbstractWidget;

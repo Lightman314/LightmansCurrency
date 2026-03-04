@@ -16,7 +16,6 @@ import net.neoforged.neoforge.capabilities.ICapabilityProvider;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import org.joml.Vector3f;
 
-import javax.annotation.Nonnull;
 import java.util.function.BiFunction;
 
 public interface IRotatableBlock {
@@ -194,7 +193,7 @@ public interface IRotatableBlock {
 	/**
 	 * Runs the {@link RegisterCapabilitiesEvent#registerBlockEntity(BlockCapability, BlockEntityType, ICapabilityProvider)} function, but converts the direction input of the {@link IBlockCapabilityProvider} into the "relativeSide" of the given rotatable block instead of the actual side.
 	 */
-	static <T,BE extends BlockEntity> void registerRotatableCapability(@Nonnull RegisterCapabilitiesEvent event, @Nonnull BlockCapability<T,Direction> capability, @Nonnull BlockEntityType<BE> type, @Nonnull BiFunction<BE,Direction,T> getter)
+	static <T,BE extends BlockEntity> void registerRotatableCapability(RegisterCapabilitiesEvent event, BlockCapability<T,Direction> capability, BlockEntityType<BE> type, BiFunction<BE,Direction,T> getter)
 	{
 		event.registerBlockEntity(capability, type, (be,side) -> {
 			if(be.getBlockState().getBlock() instanceof IRotatableBlock rb)
@@ -206,7 +205,7 @@ public interface IRotatableBlock {
 	/**
 	 * Runs the {@link RegisterCapabilitiesEvent#registerBlock(BlockCapability, IBlockCapabilityProvider, Block...)} function, but converts the direction input of the {@link IBlockCapabilityProvider} into the "relativeSide" of the given rotatable block instead of the actual side.
 	 */
-	static <T,BE extends BlockEntity> void registerRotatableCapability(@Nonnull RegisterCapabilitiesEvent event, @Nonnull BlockCapability<T,Direction> capability, @Nonnull IBlockCapabilityProvider<T,Direction> getter, Block... blocks)
+	static <T,BE extends BlockEntity> void registerRotatableCapability(RegisterCapabilitiesEvent event, BlockCapability<T,Direction> capability, IBlockCapabilityProvider<T,Direction> getter, Block... blocks)
 	{
 		event.registerBlock(capability,(level,pos,state,be,side) -> {
 			if(be.getBlockState().getBlock() instanceof IRotatableBlock rb)

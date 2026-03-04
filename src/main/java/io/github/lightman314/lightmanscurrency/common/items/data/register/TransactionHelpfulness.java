@@ -11,5 +11,4 @@ public enum TransactionHelpfulness {
     public final UnaryOperator<Style> style;
     TransactionHelpfulness(int textColor,UnaryOperator<Style> style) { this.textColor = textColor; this.style = style; }
     TransactionHelpfulness(int textColor, ChatFormatting style) { this(textColor,s -> s.applyFormat(style)); }
-
 }

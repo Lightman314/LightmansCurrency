@@ -4,7 +4,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
 public record SortTypeKey(ResourceLocation id, boolean inverted) {
@@ -26,7 +25,6 @@ public record SortTypeKey(ResourceLocation id, boolean inverted) {
         return builder.toString();
     }
 
-    @Nonnull
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

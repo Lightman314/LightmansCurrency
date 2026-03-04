@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.util;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,11 +7,18 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 public class ListUtil {
 
     public static <T> List<T> convertList(List<? extends T> list) {
         return new ArrayList<>(list);
+    }
+
+    public static <T> List<T> copyList(List<T> list,UnaryOperator<T> copyFunction) {
+        List<T> result = new ArrayList<>(list);
+        result.replaceAll(copyFunction);
+        return result;
     }
 
     public static List<Integer> createList(int[] array)
@@ -23,11 +29,19 @@ public class ListUtil {
         return list;
     }
 
-    @Nonnull
-    public static <T> T randomItemFromList(@Nonnull List<T> list, @Nonnull T emptyEntry) { return randomItemFromList(list,(Supplier<T>)() -> emptyEntry); }
+    public static <T> List<T> createList(Iterable<T> iterable)
+    {
+        List<T> list = new ArrayList<>();
+        for(T e : iterable)
+            list.add(e);
+        return list;
+    }
 
-    @Nonnull
-    public static <T> T randomItemFromList(@Nonnull List<T> list, @Nonnull Supplier<T> emptyEntry)
+    public static <T,X> List<T> mapList(List<X> oldList,Function<X,T> mapper) { return new ArrayList<>(oldList.stream().map(mapper).toList()); }
+
+    public static <T> T randomItemFromList(List<T> list, T emptyEntry) { return randomItemFromList(list,(Supplier<T>)() -> emptyEntry); }
+
+    public static <T> T randomItemFromList(List<T> list, Supplier<T> emptyEntry)
     {
         if(list.isEmpty())
             return emptyEntry.get();
@@ -35,11 +49,9 @@ public class ListUtil {
         return list.get(displayIndex);
     }
 
-    @Nonnull
-    public static <T> T randomItemFromCollection(@Nonnull Collection<T> collection, @Nonnull T emptyEntry) { return randomItemFromCollection(collection,(Supplier<T>)() -> emptyEntry); }
+    public static <T> T randomItemFromCollection(Collection<T> collection, T emptyEntry) { return randomItemFromCollection(collection,(Supplier<T>)() -> emptyEntry); }
 
-    @Nonnull
-    public static <T> T randomItemFromCollection(@Nonnull Collection<T> collection, @Nonnull Supplier<T> emptyEntry) { return randomItemFromList(collection.stream().toList(),emptyEntry); }
+    public static <T> T randomItemFromCollection(Collection<T> collection, Supplier<T> emptyEntry) { return randomItemFromList(collection.stream().toList(),emptyEntry); }
 
     @Nullable
     public static <T> T weightedRandomItemFromList(List<T> list, Function<T,Integer> weightGetter)

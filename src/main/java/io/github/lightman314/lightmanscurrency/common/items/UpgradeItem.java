@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.common.items;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Function;
@@ -30,6 +29,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.items.IItemHandler;
 
 public abstract class UpgradeItem extends Item implements IUpgradeItem{
 
@@ -43,9 +43,8 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 		this.upgradeType = upgradeType;
 	}
 
-	@Nonnull
 	@Override
-	public InteractionResultHolder<ItemStack> use(@Nonnull Level level, @Nonnull Player player, @Nonnull InteractionHand hand) {
+	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
 		//Delete stored override data if crouching + right-click
 		ItemStack stack = player.getItemInHand(hand);
 		if(player.isCrouching())
@@ -71,9 +70,9 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 		return super.use(level, player, hand);
 	}
 
-	@Nonnull
+	
 	@Override
-	public InteractionResult onItemUseFirst(@Nonnull ItemStack stack, @Nonnull UseOnContext context) {
+	public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
 		Level level = context.getLevel();
 		BlockPos pos = context.getClickedPos();
 		BlockState state = level.getBlockState(pos);
@@ -93,15 +92,14 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 	protected final void ignoreTooltips() { this.addTooltips = false; }
 	protected final void setCustomTooltips(Function<UpgradeData,List<Component>> customTooltips) { this.customTooltips = customTooltips; }
 
-	@Nonnull
+	
 	@Override
 	public UpgradeType getUpgradeType() { return this.upgradeType; }
 
 
-	public abstract void setDefaultValues(@Nonnull UpgradeData.Mutable data);
+	public abstract void setDefaultValues(UpgradeData.Mutable data);
 
-	@Nonnull
-	public static UpgradeData getUpgradeData(@Nonnull ItemStack stack)
+	public static UpgradeData getUpgradeData(ItemStack stack)
 	{
 		if(stack.getItem() instanceof IUpgradeItem upgrade)
 		{
@@ -114,7 +112,7 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 		return UpgradeData.EMPTY;
 	}
 	
-	public static List<Component> getUpgradeTooltip(@Nonnull ItemStack stack, @Nonnull TooltipContext context)
+	public static List<Component> getUpgradeTooltip(ItemStack stack, TooltipContext context)
 	{
 		try {
 			return getUpgradeTooltip(stack, false, context);
@@ -122,7 +120,7 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 		return new ArrayList<>();
 	}
 	
-	public static List<Component> getUpgradeTooltip(@Nonnull ItemStack stack, boolean forceCollection, @Nonnull TooltipContext context)
+	public static List<Component> getUpgradeTooltip(ItemStack stack, boolean forceCollection, TooltipContext context)
 	{
 		if(stack.getItem() instanceof UpgradeItem item)
 		{
@@ -155,7 +153,7 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 	}
 	
 	@Override
-	public void appendHoverText(@Nonnull ItemStack stack, @Nullable TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flagIn)
+	public void appendHoverText(ItemStack stack, @Nullable TooltipContext context, List<Component> tooltip, TooltipFlag flagIn)
 	{
 		//Add upgrade tooltips
 		List<Component> upgradeTooltips = getUpgradeTooltip(stack,context);
@@ -165,23 +163,32 @@ public abstract class UpgradeItem extends Item implements IUpgradeItem{
 		super.appendHoverText(stack, context, tooltip, flagIn);
 		
 	}
-	
-	public static class Simple extends UpgradeItem
-	{
-		public Simple(UpgradeType upgradeType, Properties properties) { super(upgradeType, properties); }
 
-		@Override
-		public void setDefaultValues(@Nonnull UpgradeData.Mutable data) {}
-	}
-
-	public static boolean noUniqueConflicts(@Nonnull UpgradeItem item, @Nonnull Container container)
+    public static boolean noUniqueConflicts(UpgradeItem item, Container container)
+    {
+        UpgradeType type = item.getUpgradeType();
+        if(type.isUnique())
+        {
+            for(int i = 0; i < container.getContainerSize(); ++i)
+            {
+                ItemStack stack = container.getItem(i);
+                if(!stack.isEmpty() && stack.getItem() instanceof UpgradeItem otherItem)
+                {
+                    if(otherItem.getUpgradeType() == type)
+                        return false;
+                }
+            }
+        }
+        return true;
+    }
+	public static boolean noUniqueConflicts(UpgradeItem item, IItemHandler container)
 	{
 		UpgradeType type = item.getUpgradeType();
 		if(type.isUnique())
 		{
-			for(int i = 0; i < container.getContainerSize(); ++i)
+			for(int i = 0; i < container.getSlots(); ++i)
 			{
-				ItemStack stack = container.getItem(i);
+				ItemStack stack = container.getStackInSlot(i);
 				if(!stack.isEmpty() && stack.getItem() instanceof UpgradeItem otherItem)
 				{
 					if(otherItem.getUpgradeType() == type)

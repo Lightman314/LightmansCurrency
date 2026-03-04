@@ -1,13 +1,14 @@
 package io.github.lightman314.lightmanscurrency.api.traders.settings.builtin.rules;
 
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.settings.SettingsNode;
 import io.github.lightman314.lightmanscurrency.api.settings.SettingsSubNode;
 import io.github.lightman314.lightmanscurrency.api.settings.data.LoadContext;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.ICopySupportingRule;
-import io.github.lightman314.lightmanscurrency.common.traders.rules.ITradeRuleHost;
-import io.github.lightman314.lightmanscurrency.common.traders.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.ITradeRuleHost;
+import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRule;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -44,23 +45,21 @@ public class RuleSubNode extends SettingsSubNode<SettingsNode> {
 
     @Override
     public void saveSettings(SavedSettingData.MutableNodeAccess data) {
-        for(TradeRule rule : this.host.getRules())
-        {
+        this.host.getRuleMap().forEach((type,rule) -> {
             if(rule.isActive() && rule instanceof ICopySupportingRule csr)
             {
-                SavedSettingData.MutableNodeAccess ruleNode = data.forSubNode(rule.type.toString());
+                SavedSettingData.MutableNodeAccess ruleNode = data.forSubNode(LCRegistries.TRADE_RULE.getKey(type).toString());
                 csr.writeSettings(ruleNode);
             }
-        }
+        });
     }
 
     @Override
     public void loadSettings(SavedSettingData.NodeAccess data, LoadContext context) {
-        for(TradeRule rule : this.host.getRules())
-        {
+        this.host.getRuleMap().forEach((type,rule) -> {
             if(rule instanceof ICopySupportingRule csr)
             {
-                SavedSettingData.NodeAccess ruleNode = data.forSubNode(rule.type.toString());
+                SavedSettingData.NodeAccess ruleNode = data.forSubNode(LCRegistries.TRADE_RULE.getKey(type).toString());
                 if(ruleNode.isEmpty())
                 {
                     //If no data is present for this rule, reset the rule to inactive and default settings
@@ -74,7 +73,7 @@ public class RuleSubNode extends SettingsSubNode<SettingsNode> {
                     csr.loadSettings(ruleNode);
                 }
             }
-        }
+        });
     }
 
     @Override
@@ -82,7 +81,7 @@ public class RuleSubNode extends SettingsSubNode<SettingsNode> {
         int count = 0;
         for(TradeRule rule : this.host.getRules())
         {
-            SavedSettingData.NodeAccess ruleNode = data.forSubNode(rule.type.type.toString());
+            SavedSettingData.NodeAccess ruleNode = data.forSubNode(LCRegistries.TRADE_RULE.getKey(rule.getType()).toString());
             if(!ruleNode.isEmpty())
                 count++;
         }

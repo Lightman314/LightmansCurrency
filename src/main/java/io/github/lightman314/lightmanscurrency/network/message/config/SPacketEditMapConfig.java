@@ -8,19 +8,26 @@ import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.MapLikeOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import javax.annotation.Nonnull;
 import java.util.Map;
 
 public class SPacketEditMapConfig extends ServerToClientPacket {
 
-    private static final Type<SPacketEditMapConfig> TYPE = new Type<>(VersionUtil.lcResource("s_config_edit_map"));
+    private static final Type<SPacketEditMapConfig> TYPE = sType("config_edit_map");
+    private static final StreamCodec<ByteBuf,SPacketEditMapConfig> STREAM_CODEC = StreamCodec.composite(
+            ResourceLocation.STREAM_CODEC,p -> p.fileID,
+            ByteBufCodecs.STRING_UTF8,p -> p.option,
+            ByteBufCodecs.STRING_UTF8,p -> p.input,
+            ByteBufCodecs.STRING_UTF8,p -> p.key,
+            ByteBufCodecs.BOOL,p -> p.isSet,
+            SPacketEditMapConfig::new);
     public static final Handler<SPacketEditMapConfig> HANDLER = new H();
 
     private final ResourceLocation fileID;
@@ -29,7 +36,7 @@ public class SPacketEditMapConfig extends ServerToClientPacket {
     private final String key;
     private final boolean isSet;
 
-    public SPacketEditMapConfig(@Nonnull ResourceLocation fileID, @Nonnull String option, @Nonnull String input, String key, boolean isSet)
+    public SPacketEditMapConfig(ResourceLocation fileID, String option, String input, String key, boolean isSet)
     {
         super(TYPE);
         this.fileID = fileID;
@@ -39,22 +46,11 @@ public class SPacketEditMapConfig extends ServerToClientPacket {
         this.isSet = isSet;
     }
 
-    private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull SPacketEditMapConfig message) {
-        buffer.writeResourceLocation(message.fileID);
-        buffer.writeUtf(message.option);
-        buffer.writeUtf(message.input);
-        buffer.writeUtf(message.key);
-        buffer.writeBoolean(message.isSet);
-    }
-    private static SPacketEditMapConfig decode(@Nonnull FriendlyByteBuf buffer) {
-        return new SPacketEditMapConfig(buffer.readResourceLocation(),buffer.readUtf(), buffer.readUtf(), buffer.readUtf(), buffer.readBoolean());
-    }
-
     private static class H extends Handler<SPacketEditMapConfig>
     {
-        protected H() { super(TYPE, easyCodec(SPacketEditMapConfig::encode, SPacketEditMapConfig::decode)); }
+        protected H() { super(TYPE,STREAM_CODEC); }
         @Override
-        protected void handle(@Nonnull SPacketEditMapConfig message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+        protected void handle(SPacketEditMapConfig message, IPayloadContext context, Player player) {
             ConfigFile file = ConfigFile.lookupFile(message.fileID);
             if(file != null && file.isClientOnly())
             {

@@ -6,9 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.settings.SettingsSubNode;
 import io.github.lightman314.lightmanscurrency.api.settings.data.LoadContext;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
-import net.minecraft.core.HolderLookup;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
 import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nullable;
@@ -20,8 +18,6 @@ public abstract class TradeSubNode<T extends TradeData,N extends SettingsNode> e
         super(parent);
         this.index = index;
     }
-
-    public final HolderLookup.Provider registryAccess() { return LookupHelper.getRegistryAccess(); }
 
     @Nullable
     protected abstract T getTrade();

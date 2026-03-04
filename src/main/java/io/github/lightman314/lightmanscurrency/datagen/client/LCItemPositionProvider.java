@@ -19,7 +19,7 @@ public class LCItemPositionProvider extends ItemPositionProvider {
     @Override
     protected void addEntries() {
         //Card Display
-        this.addDataWithBlocks(VersionUtil.lcResource("card_display"),ItemPositionBuilder.builder()
+        this.addDataWithBlocks(LightmansCurrency.id("card_display"),ItemPositionBuilder.builder()
                 .withGlobalScale(0.4f)
                 .withGlobalRotationType(FacingUpRotation.createDefault())
                 .withGlobalExtraCount(1)
@@ -31,7 +31,7 @@ public class LCItemPositionProvider extends ItemPositionProvider {
                 LCTags.Blocks.CARD_DISPLAY
         );
         //Card Display Inner Corner
-        this.addData(VersionUtil.lcResource("variants/card_display/inner_corner"),ItemPositionBuilder.builder()
+        this.addData(LightmansCurrency.id("variants/card_display/inner_corner"),ItemPositionBuilder.builder()
                 .withGlobalScale(0.4f)
                 .withGlobalRotationType(FacingUpRotation.createDefault())
                 .withGlobalExtraCount(1)
@@ -48,7 +48,7 @@ public class LCItemPositionProvider extends ItemPositionProvider {
                 .withSimpleEntry(new Vector3f(11f/16f, 12f/16f,12f/16f))
         );
         //Card Display Outer Corner
-        this.addData(VersionUtil.lcResource("variants/card_display/outer_corner"),ItemPositionBuilder.builder()
+        this.addData(LightmansCurrency.id("variants/card_display/outer_corner"),ItemPositionBuilder.builder()
                 .withGlobalScale(0.4f)
                 .withGlobalRotationType(FacingUpRotation.createDefault())
                 .withGlobalExtraCount(1)
@@ -67,19 +67,19 @@ public class LCItemPositionProvider extends ItemPositionProvider {
 
 
         //Display Case
-        this.addDataWithBlocks(VersionUtil.lcResource("display_case"),ItemPositionBuilder.builder()
+        this.addDataWithBlocks(LightmansCurrency.id("display_case"),ItemPositionBuilder.builder()
                 .withGlobalScale(0.75f)
                 .withGlobalRotationType(SpinningRotation.createDefault())
                 .withSimpleEntry(new Vector3f(0.5f, 0.5f + 2f/16f, 0.5f)),
                 ModBlocks.DISPLAY_CASE
         );
         //Glassless Display Case
-        this.addData(VersionUtil.lcResource("display_case_open"),ItemPositionBuilder.builder()
+        this.addData(LightmansCurrency.id("display_case_open"),ItemPositionBuilder.builder()
                 .withGlobalRotationType(SpinningRotation.createDefault())
                 .withGlobalScale(0.85f)
                 .withSimpleEntry(new Vector3f(0.5f,0.6999f,0.5f)));
         //Freezer
-        this.addDataWithBlocks(VersionUtil.lcResource("freezer"), ItemPositionBuilder.builder()
+        this.addDataWithBlocks(LightmansCurrency.id("freezer"), ItemPositionBuilder.builder()
                 .withGlobalScale(0.4f)
                 .withGlobalRotationType(FacingRotation.getInstance())
                 .withGlobalExtraCount(2)
@@ -95,14 +95,14 @@ public class LCItemPositionProvider extends ItemPositionProvider {
                 ModBlocks.FREEZER
         );
         //Shelf
-        this.addDataWithBlocks(VersionUtil.lcResource("shelf"), ItemPositionBuilder.builder()
+        this.addDataWithBlocks(LightmansCurrency.id("shelf"), ItemPositionBuilder.builder()
                 .withGlobalScale(14f/16f)
                 .withGlobalRotationType(FacingRotation.getInstance())
                 .withSimpleEntry(new Vector3f(0.5f, 9f/16f,14.5f/16f)),
                 LCTags.Blocks.SHELF
         );
         //Shelf 2x2
-        this.addDataWithBlocks(VersionUtil.lcResource("shelf_2x2"), ItemPositionBuilder.builder()
+        this.addDataWithBlocks(LightmansCurrency.id("shelf_2x2"), ItemPositionBuilder.builder()
                         .withGlobalScale(5.5f/16f)
                         .withGlobalRotationType(FacingRotation.getInstance())
                         .withSimpleEntry(new Vector3f(0.25f, 13f/16f,14.5f/16f))
@@ -112,7 +112,7 @@ public class LCItemPositionProvider extends ItemPositionProvider {
                 LCTags.Blocks.SHELF_2x2
         );
         //Vending Machine
-        this.addDataWithBlocks(VersionUtil.lcResource("vending_machine"), ItemPositionBuilder.builder()
+        this.addDataWithBlocks(LightmansCurrency.id("vending_machine"), ItemPositionBuilder.builder()
                 .withGlobalScale(0.3f)
                 .withGlobalRotationType(FacingRotation.getInstance())
                 .withGlobalExtraCount(2)
@@ -127,7 +127,7 @@ public class LCItemPositionProvider extends ItemPositionProvider {
                 ModBlocks.VENDING_MACHINE
         );
         //Large Vending Machine
-        this.addDataWithBlocks(VersionUtil.lcResource("large_vending_machine"), ItemPositionBuilder.builder()
+        this.addDataWithBlocks(LightmansCurrency.id("large_vending_machine"), ItemPositionBuilder.builder()
                 .withGlobalScale(0.3f)
                 .withGlobalRotationType(FacingRotation.getInstance())
                 .withGlobalExtraCount(2)
@@ -149,7 +149,7 @@ public class LCItemPositionProvider extends ItemPositionProvider {
         );
 
         //Auction House
-        this.addDataWithBlocks(VersionUtil.lcResource("auction_stand"), ItemPositionBuilder.builder()
+        this.addDataWithBlocks(LightmansCurrency.id("auction_stand"), ItemPositionBuilder.builder()
                 .withEntry(new Vector3f(0.5f,0.75f,0.5f))
                         .withScale(0.4f)
                         .withRotationType(SpinningRotation.createDefault())

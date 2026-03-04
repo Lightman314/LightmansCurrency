@@ -1,52 +1,86 @@
 package io.github.lightman314.lightmanscurrency.api.traders.blockentity;
 
-import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.misc.blocks.CapabilityBlockHelper;
+import io.github.lightman314.lightmanscurrency.api.misc.ticker.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
+import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderState;
+import io.github.lightman314.lightmanscurrency.api.traders.tracking.BlockEntityTraderTrackingHolder;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderState;
 import io.github.lightman314.lightmanscurrency.api.traders.blocks.TraderBlockBase;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.DisplayNode;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeableBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.items.data.TraderItemData;
 import io.github.lightman314.lightmanscurrency.network.message.trader.SPacketTaxInfo;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.IOwnableBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.event.level.ChunkEvent;
+import net.neoforged.neoforge.event.level.ChunkWatchEvent;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 
+@EventBusSubscriber
 public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockEntity implements IOwnableBlockEntity, IServerTicker, IUpgradeableBlockEntity {
+
+    private final BlockEntityTraderTrackingHolder trackingHolder = new BlockEntityTraderTrackingHolder(this);
+    public void clearAllTracking() { this.trackingHolder.clearAll(); }
 
 	private long traderID = -1;
 	public long getTraderID() { return this.traderID; }
-	@Deprecated
-	public void setTraderID(long traderID) { this.traderID = traderID; }
+	protected void setTraderID(long traderID) {
+        if(this.traderID == traderID)
+            return;
+        if(this.traderID >= 0)
+            this.trackingHolder.endTracking(this.traderID);
+        this.traderID = traderID;
+        //Start tracking for all players within range
+        if(this.level instanceof ServerLevel serverLevel)
+        {
+            TraderData trader = this.getTraderData();
+            if(trader != null)
+            {
+                for(Player player : serverLevel.getChunkSource().chunkMap.getPlayers(new ChunkPos(this.worldPosition),true))
+                    this.trackingHolder.requestTracking(trader,player);
+            }
+        }
+    }
 
 	private CompoundTag customTrader = null;
 	private boolean ignoreCustomTrader = false;
@@ -69,17 +103,17 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 	 * otherwise returns an item stack ready to have the trader data assigned to it and then given to the player<br>
 	 * <i>May</i> give additional items to the player should the block warrant it (such as a carpenter trader, etc.)
 	 */
-	public ItemStack PickupTrader(@Nonnull Player player, @Nonnull TraderData trader)
+	public ItemStack PickupTrader(Player player, TraderData trader)
 	{
 		if(!this.supportsTraderPickup() || trader.getID() != this.traderID)
 			return ItemStack.EMPTY;
-		BlockState state = this.level.getBlockState(this.worldPosition);
+		BlockState state = this.getBlockState();
 		if(state.getBlock() instanceof TraderBlockBase block)
 		{
 			this.selfPickup = true;
 			this.legitimateBreak = true;
 			block.removeAllBlocks(this.level,state,this.worldPosition);
-			return new ItemStack(state.getBlock());
+            return new ItemStack(state.getBlock());
 		}
 		return ItemStack.EMPTY;
 	}
@@ -99,14 +133,14 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		D newTrader = this.buildNewTrader();
 		newTrader.getOwner().SetOwner(PlayerOwner.of(owner));
 		if(placementStack.has(DataComponents.CUSTOM_NAME))
-			newTrader.setCustomName(placementStack.getHoverName().getString());
+			newTrader.ifNodePresent(DisplayNode.TYPE,node -> node.setCustomName(null,placementStack.getHoverName()));
 		return newTrader;
 	}
 
 	protected final D initCustomTrader()
 	{
 		try {
-			return (D)TraderData.Deserialize(false, this.customTrader, this.level.registryAccess());
+			return (D)TraderData.CODEC.decode(RegistryOps.create(NbtOps.INSTANCE,this.level.registryAccess()),this.customTrader).getOrThrow().getFirst();
 		} catch(Throwable t) { LightmansCurrency.LogError("Error while attempting to load the custom trader!", t); }
 		return null;
 	}
@@ -128,14 +162,13 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 			customTrader.move(this.level, this.worldPosition);
 	}
 
-	@Nonnull
 	protected abstract D buildNewTrader();
 
 	public final void saveCurrentTraderAsCustomTrader() {
 		TraderData trader = this.getTraderData();
 		if(trader != null)
 		{
-			this.customTrader = trader.save(this.level.registryAccess());
+			this.customTrader = trader.save(DataContext.createNBT(this.level.registryAccess()));
 			this.ignoreCustomTrader = true;
 			this.markDirty();
 		}
@@ -145,11 +178,11 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 	private CompoundTag getCurrentTraderAsTag() {
 		TraderData trader = this.getRawTraderData();
 		if(trader != null)
-			return trader.save(this.level.registryAccess());
+			return trader.save(DataContext.createNBT(this.level.registryAccess()));
 		return null;
 	}
 
-	public void initialize(@Nonnull Player owner, @Nonnull ItemStack placementStack)
+	public void initialize(Player owner, ItemStack placementStack)
 	{
 		if(this.getTraderData() != null)
 			return;
@@ -162,7 +195,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 			if(trader != null && this.castOrNullify(trader) != null && trader.isRecoverable())
 			{
 				//Flag this block as that trader
-				this.traderID = data.traderID();
+				this.setTraderID(data.traderID());
 				this.markDirty();
 				//Move the trader to this position & reset its state
 				trader.move(this.level,this.worldPosition);
@@ -177,7 +210,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		if(this.getCurrentVariant() != null)
 			newTrader.setTraderBlockVariant(this.getCurrentVariant(),this.isVariantLocked());
 		//Register to the trading office
-		this.traderID = TraderAPI.getApi().CreateTrader(newTrader, owner);
+		this.setTraderID(TraderAPI.getApi().CreateTrader(newTrader, owner));
 		this.checkTaxes(owner,newTrader);
 		//Send update packet to connected clients, so that they'll have the new trader id.
 		this.markDirty();
@@ -185,7 +218,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		this.level.invalidateCapabilities(this.worldPosition);
 	}
 
-	private void checkTaxes(@Nonnull Player player, @Nonnull TraderData trader)
+	private void checkTaxes(Player player, TraderData trader)
 	{
 		List<ITaxCollector> taxes = TaxAPI.getApi().AcknowledgeTaxCollectors(trader);
 		if(!taxes.isEmpty())
@@ -205,19 +238,19 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 	}
 
 	@Nullable
-	protected abstract D castOrNullify(@Nonnull TraderData trader);
+	protected abstract D castOrNullify(TraderData trader);
 
 	@Override
-	public void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
-		super.saveAdditional(compound, lookup);
+	public void saveAdditional(CompoundTag compound,DataContext<Tag> context) {
+		super.saveAdditional(compound,context);
 		compound.putLong("TraderID", this.traderID);
 		if(this.customTrader != null)
 			compound.put("CustomTrader", this.customTrader);
 	}
 
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
-		super.loadAdditional(compound, lookup);
+	protected void loadAdditional(CompoundTag compound,DataContext<Tag> context) {
+		super.loadAdditional(compound,context);
 		if(compound.contains("TraderID", Tag.TAG_LONG))
 			this.traderID = compound.getLong("TraderID");
 		if(compound.contains("CustomTrader"))
@@ -237,14 +270,15 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 				LightmansCurrency.LogWarning("The trader block at " + this.worldPosition.toShortString() + " could not properly load it's custom trader.");
 				this.customTrader = null;
 			}
+            WorldPosition position = customTrader.getWorldPosition();
 			//Check if the custom trader is this position & dimension
-			if(customTrader.getLevel() == this.level.dimension() && this.worldPosition.equals(customTrader.getPos()))
+			if(position.getDimension() == this.level.dimension() && this.worldPosition.equals(position.getPos()))
 				this.ignoreCustomTrader = true;
 			else
 			{
 				//If the dimension and position don't match exactly, assume it's been moved and load the custom trader
 				this.moveCustomTrader(customTrader);
-				this.traderID = TraderAPI.getApi().CreateTrader(customTrader, null);
+				this.setTraderID(TraderAPI.getApi().CreateTrader(customTrader,null));
 				this.customTrader = null;
 				this.ignoreCustomTrader = true;
 				this.markDirty();
@@ -272,9 +306,9 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		super.onLoad();
 	}
 
-	public static <X> void easyRegisterCapProvider(@Nonnull RegisterCapabilitiesEvent event, @Nonnull BlockCapability<X,Direction> cap, @Nonnull BiFunction<TraderData,Direction,X> getter, Block... blocks)
+	public static <X> void easyRegisterCapProvider(RegisterCapabilitiesEvent event, BlockCapability<X,Direction> cap, BiFunction<TraderData,Direction,X> getter, Block... blocks)
 	{
-		event.registerBlock(cap, (level,pos,state,be,side) -> {
+		event.registerBlock(cap,CapabilityBlockHelper.wrapProvider((level,pos,state,be,side) -> {
 			if(be instanceof TraderBlockEntity<?> traderBE)
 			{
 				TraderData trader = traderBE.getRawTraderData();
@@ -282,12 +316,12 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 				{
 					Direction relativeSide = side;
 					if(state.getBlock() instanceof IRotatableBlock rb)
-						relativeSide = IRotatableBlock.getRelativeSide(rb.getFacing(state), side);
+						relativeSide = IRotatableBlock.getRelativeSide(rb.getFacing(state),side);
 					return getter.apply(trader, relativeSide);
 				}
 			}
 			return null;
-		}, blocks);
+		}), blocks);
 	}
 
 	public boolean canBreak(@Nullable Player player)
@@ -301,7 +335,7 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 	public void onBreak() { TraderAPI.getApi().DeleteTrader(this.traderID); }
 
 	@Nullable
-	public static AABB getRenderBoundingBox(@Nonnull TraderBlockEntity<?> be)
+	public static AABB getRenderBoundingBox(TraderBlockEntity<?> be)
 	{
 		if(be.getBlockState() != null)
 			return be.getBlockState().getCollisionShape(be.level, be.worldPosition).bounds().move(be.worldPosition);
@@ -319,5 +353,51 @@ public abstract class TraderBlockEntity<D extends TraderData> extends EasyBlockE
 		if(t != null)
 			t.setTraderBlockVariant(variant,locked);
 	}
+
+    //Start tracking for the given player when it's now being watched
+    @SubscribeEvent
+    private static void trackBlockEntity(ChunkWatchEvent.Sent event)
+    {
+        for(BlockEntity be : new ArrayList<>(event.getChunk().getBlockEntities().values()))
+        {
+            if(be instanceof TraderBlockEntity<?> traderBlockEntity)
+            {
+                TraderData trader = traderBlockEntity.getTraderData();
+                if(trader != null)
+                {
+                    traderBlockEntity.trackingHolder.requestTracking(trader,event.getPlayer());
+                }
+            }
+        }
+    }
+
+    //Clear tracking for the given player when it's no longer being watched
+    @SubscribeEvent
+    private static void untrackBlockEntity(ChunkWatchEvent.UnWatch event)
+    {
+        ChunkPos pos = event.getPos();
+        ServerLevel level = event.getLevel();
+        if(level.hasChunk(pos.x,pos.z))
+        {
+            LevelChunk chunk = level.getChunk(pos.x,pos.z);
+            for(BlockEntity be : new ArrayList<>(chunk.getBlockEntities().values()))
+            {
+                if(be instanceof TraderBlockEntity<?> traderBlockEntity)
+                    traderBlockEntity.trackingHolder.clearPlayer(event.getPlayer());
+            }
+        }
+    }
+
+    //Clear all tracking when the chunk is unloaded
+    @SubscribeEvent
+    private static void untrackChunk(ChunkEvent.Unload event)
+    {
+        ChunkAccess chunk = event.getChunk();
+        for(BlockPos pos : chunk.getBlockEntitiesPos())
+        {
+            if(chunk.getBlockEntity(pos) instanceof TraderBlockEntity<?> traderBlockEntity)
+                traderBlockEntity.trackingHolder.clearAll();
+        }
+    }
 
 }

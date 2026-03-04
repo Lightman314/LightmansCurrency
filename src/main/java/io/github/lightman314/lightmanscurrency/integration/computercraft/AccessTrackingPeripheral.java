@@ -6,16 +6,12 @@ import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import net.minecraft.MethodsReturnNonnullByDefault;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class AccessTrackingPeripheral extends LCPeripheral {
 
     private final List<AccessTrackingPeripheral> children = new ArrayList<>();
@@ -71,7 +67,7 @@ public abstract class AccessTrackingPeripheral extends LCPeripheral {
     }
 
     protected final String getComputerID(IComputerAccess computer) { return "computercraft#" + computer.getID(); }
-    protected final PlayerReference getFakePlayer(IComputerAccess computer) { return PlayerReference.dummy(this.getComputerID(computer)); }
+    public final PlayerReference getFakePlayer(IComputerAccess computer) { return PlayerReference.dummy(this.getComputerID(computer)); }
 
     @Override
     protected void onFirstAttachment() {

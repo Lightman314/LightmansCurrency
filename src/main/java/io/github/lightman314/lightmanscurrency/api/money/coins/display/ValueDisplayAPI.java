@@ -7,7 +7,6 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.display.builtin.N
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.fml.ModLoader;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Map;
 
@@ -30,6 +29,6 @@ public class ValueDisplayAPI {
     }
 
     @Nullable
-    public static ValueDisplaySerializer get(@Nonnull ResourceLocation type) { return REGISTRY == null ? null : REGISTRY.get(type); }
+    public static ValueDisplaySerializer get(ResourceLocation type) { return REGISTRY == null ? null : REGISTRY.get(type); }
 
 }

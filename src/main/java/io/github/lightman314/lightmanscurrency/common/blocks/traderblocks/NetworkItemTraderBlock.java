@@ -20,14 +20,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.Nonnull;
-
 public class NetworkItemTraderBlock extends TraderBlockRotatable {
-
-	public static final int TRADER_COUNT_SMALL = 4;
-	public static final int TRADER_COUNT_MEDIUM = 8;
-	public static final int TRADER_COUNT_LARGE = 12;
-	public static final int TRADER_COUNT_XLARGE = 16;
 	
 	private final int tradeCount;
 	
@@ -49,7 +42,7 @@ public class NetworkItemTraderBlock extends TraderBlockRotatable {
 	protected Supplier<List<Component>> getItemTooltips() { return LCText.TOOLTIP_ITEM_TRADER_NETWORK.asTooltip(this.tradeCount); }
 
 	@Override
-	public void appendHoverText(@Nonnull ItemStack stack, @Nonnull Item.TooltipContext context, @Nonnull List<Component> tooltip, @Nonnull TooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
 		super.appendHoverText(stack, context, tooltip, flag);
 		if(QuarantineAPI.IsDimensionQuarantined(context))
 			tooltip.add(LCText.TOOLTIP_DIMENSION_QUARANTINED_NETWORK_TRADER.getWithStyle(ChatFormatting.GOLD));

@@ -2,9 +2,9 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
@@ -25,7 +25,7 @@ public class ChestCoinCollectButton extends IconButton {
     private final ContainerScreen screen;
 
     private ChestCoinCollectButton(@Nonnull Builder builder) {
-        super(IconButton.builder().pressAction(CPacketChestQuickCollect::sendToServer).icon(ChestCoinCollectButton::getIcon));
+        super(IconButton.builder().pressAction(CPacketChestQuickCollect::send).icon(ChestCoinCollectButton::getIcon));
         this.screen = builder.screen;
         lastButton = this;
         //Position in the top-right corner

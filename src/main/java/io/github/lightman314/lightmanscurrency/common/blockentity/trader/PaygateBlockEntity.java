@@ -6,13 +6,14 @@ import com.google.common.collect.Multimap;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettings;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.IDirectionalSettingsHolder;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.PaygateBlock;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.OutputConflictHandling;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.PaygateTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.paygate.tradedata.PaygateTradeData;
+import io.github.lightman314.lightmanscurrency.common.traders.paygate.nodes.PaygateTradeNode;
+import io.github.lightman314.lightmanscurrency.common.traders.paygate.trade.PaygateTradeData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
@@ -82,7 +83,7 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 			if(compound.contains("OutputSides") && compound.contains("Power"))
 			{
 				//Load output sides
-				sides.load(compound,"OutputSides");
+				sides.loadOldData(compound,"OutputSides");
 				power = compound.getInt("Power");
 			}
 			else
@@ -222,13 +223,16 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 		PaygateTraderData trader = this.getTraderData();
 		if(TicketItem.isTicketOrPass(heldItem))
 		{
+            PaygateTradeNode node = trader.getNode(PaygateTradeNode.TYPE);
+            if(node == null)
+                return -1;
 			long ticketID = TicketItem.GetTicketID(heldItem);
 			if(ticketID >= -1)
 			{
 				TradeContext context = TradeContext.create(trader,player,false).build();
-				for(int i = 0; i < trader.getTradeCount(); ++i)
+				for(int i = 0; i < node.getTradeCount(); ++i)
 				{
-					PaygateTradeData trade = trader.getTrade(i);
+					PaygateTradeData trade = node.getTrade(i);
 					if(trade.isTicketTrade() && trade.getTicketID() == ticketID)
 					{
 						//Confirm that the player is allowed to access the trade

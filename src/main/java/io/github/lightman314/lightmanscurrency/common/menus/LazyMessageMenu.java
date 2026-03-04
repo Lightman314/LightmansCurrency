@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
-import io.github.lightman314.lightmanscurrency.network.message.menu.*;
+import io.github.lightman314.lightmanscurrency.network.message.lazy.*;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
@@ -31,22 +31,22 @@ public abstract class LazyMessageMenu extends EasyMenu {
     {
         if(this.isServer())
             return;
-        new CPacketLazyMenu(this.containerId,message).send();
+        new BPacketLazyMenu(this.containerId,message).sendToServer();
     }
 
     public void SendMessageToClient(LazyPacketData.Builder message)
     {
         if(this.isClient())
             return;
-        new SPacketLazyMenu(this.containerId,message).sendTo(this.player);
+        new BPacketLazyMenu(this.containerId,message).sendTo(this.player);
     }
 
     public final void handleMessage(LazyPacketData message)
     {
-        this.HandleMessage(message);
+        this.processMessage(message);
         this.clientHandler.accept(message);
     }
 
-    public abstract void HandleMessage(LazyPacketData message);
+    protected abstract void processMessage(LazyPacketData message);
 
 }

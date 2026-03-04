@@ -16,7 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class CashRegisterBlock extends RotatableBlock implements EntityBlock, IVariantBlock {
 
@@ -28,10 +28,10 @@ public class CashRegisterBlock extends RotatableBlock implements EntityBlock, IV
 	}
 	
 	@Override
-	public BlockEntity newBlockEntity(@Nonnull BlockPos pos, @Nonnull BlockState state) { return new CashRegisterBlockEntity(pos, state); }
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new CashRegisterBlockEntity(pos, state); }
 	
 	@Override
-	public void setPlacedBy(@Nonnull Level level, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity player, @Nonnull ItemStack stack)
+	public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity player, ItemStack stack)
 	{
 		if(!level.isClientSide)
 		{
@@ -42,9 +42,8 @@ public class CashRegisterBlock extends RotatableBlock implements EntityBlock, IV
 		this.tryCopyVariant(level,pos,stack);
 	}
 
-	@Nonnull
 	@Override
-	public InteractionResult useWithoutItem(@Nonnull BlockState state, @Nonnull Level level, @Nonnull BlockPos pos, @Nonnull Player player, @Nonnull BlockHitResult result)
+	public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult result)
 	{
 		if(!level.isClientSide)
 		{

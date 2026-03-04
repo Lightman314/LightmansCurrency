@@ -4,18 +4,13 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.builtin.subscreens.list.settings.CustomItemScaleSettings;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.client.config.ItemTest;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IRemovalListener;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IRemovalListener;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.client.util.text_inputs.FloatParser;
-import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs.FloatParser;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs.TextInputUtil;
 import net.minecraft.client.gui.components.EditBox;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class ListItemScaleOption extends ListOptionWidget implements IRemovalListener {
 
     private EditBox box1;

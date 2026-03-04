@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.common.core.ModRecipeTypes;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
@@ -14,7 +15,7 @@ public class RecipeValidator {
 	public static List<CoinMintRecipe> getAllMintRecipes(Level level)
 	{
 		RecipeManager recipeManager = level.getRecipeManager();
-		return recipeManager.getAllRecipesFor(RecipeTypes.COIN_MINT.get()).stream().map(RecipeHolder::value).toList();
+		return recipeManager.getAllRecipesFor(ModRecipeTypes.COIN_MINT.get()).stream().map(RecipeHolder::value).toList();
 	}
 
 	public static List<CoinMintRecipe> getValidMintRecipes(Level level)
@@ -31,7 +32,7 @@ public class RecipeValidator {
 	public static List<RecipeHolder<TicketStationRecipe>> getTicketStationRecipes(Level level)
 	{
 		RecipeManager recipeManager = level.getRecipeManager();
-		return recipeManager.getAllRecipesFor(RecipeTypes.TICKET.get());
+		return recipeManager.getAllRecipesFor(ModRecipeTypes.TICKET.get());
 	}
 
 	public static List<TicketStationRecipe> getTicketStationRecipeList(Level level)

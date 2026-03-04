@@ -4,7 +4,7 @@ import dan200.computercraft.api.peripheral.IPeripheral;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TraderEvent;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.AccessTrackingPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCComputerHelper;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.integration.computercraft.periphe
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.neoforge.common.NeoForge;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Consumer;
@@ -23,8 +22,8 @@ public class TerminalPeripheral extends MultiTraderPeripheral {
 
     private final Consumer<TradeEvent.PreTradeEvent> preTradeEventListener = this::preTradeEvent;
     private final Consumer<TradeEvent.PostTradeEvent> postTradeEventListener = this::postTradeEvent;
-    private final Consumer<TraderEvent.CreateNetworkTraderEvent> newTraderEventListener = this::newTraderEvent;
-    private final Consumer<TraderEvent.RemoveNetworkTraderEvent> removedTraderEventListener = this::removeTraderEvent;
+    private final Consumer<TraderEvent.CreateNewTraderEvent> newTraderEventListener = this::newTraderEvent;
+    private final Consumer<TraderEvent.TraderDeletedEvent> removedTraderEventListener = this::removeTraderEvent;
     private TerminalPeripheral() {}
 
     @Override
@@ -43,12 +42,11 @@ public class TerminalPeripheral extends MultiTraderPeripheral {
         NeoForge.EVENT_BUS.unregister(this.postTradeEventListener);
     }
 
-    @Nonnull
     @Override
     protected List<TraderData> getAccessibleTraders() { return TraderAPI.getApi().GetAllNetworkTraders(false); }
 
     @Override
-    protected boolean stillAccessible(TraderData trader) { return trader.showOnTerminal(); }
+    protected boolean stillAccessible(TraderData trader) { return trader.isNetworkAccessible(); }
 
     @Override
     public boolean equals(@Nullable IPeripheral peripheral) { return peripheral == INSTANCE; }
@@ -57,7 +55,7 @@ public class TerminalPeripheral extends MultiTraderPeripheral {
     {
         TraderData t = event.getTrader();
         //Only push event if trader is visible on the network
-        if(t.canShowOnTerminal() && LCComputerHelper.getPeripheral(t) instanceof TraderPeripheral<?,?> trader)
+        if(t.isNetworkAccessible() && LCComputerHelper.getPeripheral(t) instanceof TraderPeripheral trader)
         {
             AccessTrackingPeripheral tradeWrapper = trader.safeWrapTrade(event.getTrade());
             if(tradeWrapper == null)
@@ -72,7 +70,7 @@ public class TerminalPeripheral extends MultiTraderPeripheral {
     {
         TraderData t = event.getTrader();
         //Only push event if trader is visible on the network
-        if(t.canShowOnTerminal() && LCComputerHelper.getPeripheral(t) instanceof TraderPeripheral<?,?> trader)
+        if(t.isNetworkAccessible() && LCComputerHelper.getPeripheral(t) instanceof TraderPeripheral trader)
         {
             AccessTrackingPeripheral tradeWrapper = trader.safeWrapTrade(event.getTrade());
             if(tradeWrapper == null)
@@ -84,17 +82,23 @@ public class TerminalPeripheral extends MultiTraderPeripheral {
         }
     }
 
-    private void newTraderEvent(TraderEvent.CreateNetworkTraderEvent event)
+    private void newTraderEvent(TraderEvent.CreateNewTraderEvent event)
     {
-        AccessTrackingPeripheral trader = LCComputerHelper.getPeripheral(event.getTrader());
-        LCLuaTable player = LCLuaTable.fromPlayer(event.getPlayer());
-        this.queueEvent("lc_trader_created",computer -> new Object[] { trader.asTable(computer),player,event.getID()});
+        if(event.getTrader().isNetworkAccessible())
+        {
+            AccessTrackingPeripheral trader = LCComputerHelper.getPeripheral(event.getTrader());
+            LCLuaTable player = LCLuaTable.fromPlayer(event.getPlayer());
+            this.queueEvent("lc_trader_created",computer -> new Object[] { trader.asTable(computer),player,event.getID()});
+        }
     }
 
-    private void removeTraderEvent(TraderEvent.RemoveNetworkTraderEvent event)
+    private void removeTraderEvent(TraderEvent.TraderDeletedEvent event)
     {
-        AccessTrackingPeripheral trader = LCComputerHelper.getPeripheral(event.getTrader());
-        this.queueEvent("lc_trader_removed",computer -> new Object[] { trader.asTable(computer),event.getID()});
+        if(event.getTrader().isNetworkAccessible())
+        {
+            AccessTrackingPeripheral trader = LCComputerHelper.getPeripheral(event.getTrader());
+            this.queueEvent("lc_trader_removed",computer -> new Object[] { trader.asTable(computer),event.getID()});
+        }
     }
 
 }

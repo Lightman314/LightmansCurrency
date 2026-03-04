@@ -1,16 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
-import javax.annotation.Nonnull;
-
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.ActiveMode;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.common.menus.tabbed.EasyTabbedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.*;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
-import io.github.lightman314.lightmanscurrency.api.traders.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import net.minecraft.world.entity.player.Inventory;
@@ -20,12 +18,12 @@ import net.minecraft.world.item.ItemStack;
 
 public class TraderInterfaceMenu extends EasyTabbedMenu<TraderInterfaceMenu,TraderInterfaceTab> {
 
-	private final TraderInterfaceBlockEntity blockEntity;
-	public final TraderInterfaceBlockEntity getBE() { return this.blockEntity; }
+	private final TraderInterfaceBlockEntity<?> blockEntity;
+	public final TraderInterfaceBlockEntity<?> getBE() { return this.blockEntity; }
 	
 	public static final int SLOT_OFFSET = 15;
 
-    public TraderInterfaceMenu(int windowID, Inventory inventory, TraderInterfaceBlockEntity blockEntity) {
+    public TraderInterfaceMenu(int windowID, Inventory inventory, TraderInterfaceBlockEntity<?> blockEntity) {
 		super(ModMenus.TRADER_INTERFACE.get(), windowID, inventory);
 		this.blockEntity = blockEntity;
 
@@ -63,13 +61,12 @@ public class TraderInterfaceMenu extends EasyTabbedMenu<TraderInterfaceMenu,Trad
 
 	}
 
-	public TradeContext getTradeContext(@Nonnull TraderData trader) {
+	public TradeContext getTradeContext(TraderData trader) {
 		return this.blockEntity.getTradeContext(trader);
 	}
-	
-	@Nonnull
+
 	@Override
-	public ItemStack quickMoveStack(@Nonnull Player playerEntity, int index)
+	public ItemStack quickMoveStack(Player playerEntity, int index)
 	{
 		
 		ItemStack clickedStack = ItemStack.EMPTY;
@@ -128,7 +125,7 @@ public class TraderInterfaceMenu extends EasyTabbedMenu<TraderInterfaceMenu,Trad
 	}
 
 	@Override
-	public void HandleMessages(@Nonnull LazyPacketData message) {
+	public void HandleMessages(LazyPacketData message) {
 		if(message.contains("ModeChange"))
 			this.changeMode(ActiveMode.fromIndex(message.getInt("ModeChange")));
 		if(message.contains("OnlineModeChange"))

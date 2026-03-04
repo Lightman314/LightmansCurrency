@@ -14,6 +14,7 @@ import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.Container;
+import net.minecraft.world.Containers;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -22,8 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.items.IItemHandler;
 
-import javax.annotation.Nonnull;
-
+@Deprecated
 public class InventoryUtil {
 
 	
@@ -484,7 +484,7 @@ public class InventoryUtil {
     	return buildInventory(tempInventory);
     }
 
-	public static CompoundTag saveItemNoLimits(@Nonnull ItemStack stack, @Nonnull HolderLookup.Provider lookup)
+	public static CompoundTag saveItemNoLimits(ItemStack stack, HolderLookup.Provider lookup)
 	{
 		if(stack.isEmpty())
 			return new CompoundTag();
@@ -493,7 +493,7 @@ public class InventoryUtil {
 		return tag;
 	}
 
-	public static ItemStack loadItemNoLimits(@Nonnull CompoundTag itemTag, @Nonnull HolderLookup.Provider lookup)
+	public static ItemStack loadItemNoLimits(CompoundTag itemTag, HolderLookup.Provider lookup)
 	{
 		CompoundTag tag = itemTag.copy();
 		int count = tag.getInt("count");
@@ -592,7 +592,7 @@ public class InventoryUtil {
 
 	public static boolean ItemsFullyMatch(ItemStack stack1, ItemStack stack2) { return ItemMatches(stack1, stack2) && stack1.getCount() == stack2.getCount(); }
 
-	public static boolean ContainerMatches(@Nonnull List<ItemStack> list1, @Nonnull List<ItemStack> list2)
+	public static boolean ContainerMatches(List<ItemStack> list1, List<ItemStack> list2)
 	{
 		if(list1.size() != list2.size())
 			return false;
@@ -604,7 +604,7 @@ public class InventoryUtil {
 		return true;
 	}
 
-	public static boolean ContainerMatches(@Nonnull Container container1, @Nonnull Container container2)
+	public static boolean ContainerMatches(Container container1, Container container2)
 	{
 		if(container1.getContainerSize() != container2.getContainerSize())
 			return false;
@@ -618,8 +618,7 @@ public class InventoryUtil {
     
     public static boolean ItemHasTag(ItemStack item, TagKey<Item> tag) { return item.getTags().anyMatch(t -> t.equals(tag)); }
 
-	@Nonnull
-	public static List<Item> GetItemsWithTag(@Nonnull TagKey<Item> tag)
+	public static List<Item> GetItemsWithTag(TagKey<Item> tag)
 	{
 		List<Item> result = new ArrayList<>();
 		for(Holder<Item> holder : BuiltInRegistries.ITEM.getTagOrEmpty(tag))
@@ -627,8 +626,7 @@ public class InventoryUtil {
 		return result;
 	}
 
-	@Nonnull
-	public static List<ItemStack> GetItemStacksWithTag(@Nonnull TagKey<Item> tag) { return GetItemsWithTag(tag).stream().map(ItemStack::new).toList(); }
+	public static List<ItemStack> GetItemStacksWithTag(TagKey<Item> tag) { return GetItemsWithTag(tag).stream().map(ItemStack::new).toList(); }
     
     public static int safeGiveToPlayer(Inventory inv, ItemStack stack) {
     	
@@ -659,12 +657,18 @@ public class InventoryUtil {
      		return 0;
     }
 
-	public static int totalItemCount(@Nonnull List<ItemStack> list)
+	public static int totalItemCount(List<ItemStack> list)
 	{
 		int count = 0;
 		for(ItemStack s : list)
 			count += s.getCount();
 		return count;
 	}
+
+    public static void dropContents(Level level, BlockPos pos, IItemHandler container)
+    {
+        for(int i = 0; i < container.getSlots(); ++i)
+            Containers.dropItemStack(level,pos.getX(),pos.getY(),pos.getZ(),container.getStackInSlot(i));
+    }
     
 }

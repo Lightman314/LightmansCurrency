@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.traders.terminal;
 
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import net.minecraft.core.HolderLookup;
 
 import javax.annotation.ParametersAreNonnullByDefault;

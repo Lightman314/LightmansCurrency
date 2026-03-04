@@ -3,14 +3,16 @@ package io.github.lightman314.lightmanscurrency.common.crafting;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
-import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
+import io.github.lightman314.lightmanscurrency.common.core.ModRecipeSerializers;
 import io.github.lightman314.lightmanscurrency.common.crafting.durability.DurabilityData;
 import io.github.lightman314.lightmanscurrency.common.crafting.input.TicketStationRecipeInput;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
@@ -26,7 +28,7 @@ import java.util.Optional;
 @ParametersAreNonnullByDefault
 public class TicketRecipe implements TicketStationRecipe {
 
-    public static final MapCodec<TicketRecipe> CODEC = RecordCodecBuilder.mapCodec(builder ->
+    public static final MapCodec<TicketRecipe> MAP_CODEC = RecordCodecBuilder.mapCodec(builder ->
             builder.group(
                     Ingredient.CODEC_NONEMPTY.fieldOf("masterTicket").forGetter(r -> r.masterIngredient),
                     Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(r -> r.ingredient),
@@ -34,7 +36,12 @@ public class TicketRecipe implements TicketStationRecipe {
                     DurabilityData.CODEC.optionalFieldOf("durability").forGetter(r -> r.durability.asOptional())
             ).apply(builder,TicketRecipe::new)
     );
-    public static final StreamCodec<RegistryFriendlyByteBuf,TicketRecipe> STREAM_CODEC = StreamCodec.of(TicketRecipe::toNetwork,TicketRecipe::fromNetwork);
+    public static final StreamCodec<RegistryFriendlyByteBuf,TicketRecipe> STREAM_CODEC = StreamCodec.composite(
+            Ingredient.CONTENTS_STREAM_CODEC,r -> r.masterIngredient,
+            Ingredient.CONTENTS_STREAM_CODEC,r -> r.ingredient,
+            ByteBufCodecs.registry(Registries.ITEM),r -> r.ticketResult,
+            DurabilityData.STREAM_CODEC,r -> r.durability,
+            TicketRecipe::new);
 
     private final Ingredient masterIngredient;
     public Ingredient getMasterIngredient() { return this.masterIngredient; }
@@ -99,25 +106,6 @@ public class TicketRecipe implements TicketStationRecipe {
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() { return ModRecipes.TICKET.get(); }
-
-    private static TicketRecipe fromNetwork(RegistryFriendlyByteBuf buffer) {
-        return new TicketRecipe(Ingredient.CONTENTS_STREAM_CODEC.decode(buffer), Ingredient.CONTENTS_STREAM_CODEC.decode(buffer), TicketStationRecipe.itemStreamCodec().decode(buffer),DurabilityData.STREAM_CODEC.decode(buffer));
-    }
-
-    private static void toNetwork(RegistryFriendlyByteBuf buffer, TicketRecipe recipe) {
-        Ingredient.CONTENTS_STREAM_CODEC.encode(buffer,recipe.masterIngredient);
-        Ingredient.CONTENTS_STREAM_CODEC.encode(buffer,recipe.ingredient);
-        TicketStationRecipe.itemStreamCodec().encode(buffer,recipe.ticketResult);
-        DurabilityData.STREAM_CODEC.encode(buffer,recipe.durability);
-    }
-
-    public static class Serializer implements RecipeSerializer<TicketRecipe>
-    {
-        @Override
-        public MapCodec<TicketRecipe> codec() { return CODEC; }
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, TicketRecipe> streamCodec() { return STREAM_CODEC; }
-    }
+    public RecipeSerializer<?> getSerializer() { return ModRecipeSerializers.TICKET.get(); }
 
 }

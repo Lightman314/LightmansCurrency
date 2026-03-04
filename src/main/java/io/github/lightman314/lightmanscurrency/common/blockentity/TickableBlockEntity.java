@@ -1,9 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity;
 
-import io.github.lightman314.lightmanscurrency.api.misc.IClientTicker;
-import io.github.lightman314.lightmanscurrency.api.misc.IServerTicker;
+import io.github.lightman314.lightmanscurrency.api.misc.ticker.IClientTicker;
+import io.github.lightman314.lightmanscurrency.api.misc.ticker.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
-import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
+import io.github.lightman314.lightmanscurrency.api.misc.ticker.ICommonTicker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import javax.annotation.Nonnull;
 
 
-public abstract class TickableBlockEntity extends EasyBlockEntity implements IClientTicker, IServerTicker, IEasyTickable {
+public abstract class TickableBlockEntity extends EasyBlockEntity implements IClientTicker, IServerTicker, ICommonTicker {
 
 	//Should inherit IClientTicker, IServerTicker, and/or IEasyTickable instead of extending this class
 	@Deprecated
@@ -27,7 +27,7 @@ public abstract class TickableBlockEntity extends EasyBlockEntity implements ICl
 	public static <A extends BlockEntity> BlockEntityTicker<A> createTicker(@Nonnull Level level, @Nonnull BlockState state, BlockEntityType<A> type)
 	{
 		A be = type.create(BlockPos.ZERO, state);
-		if(be instanceof IEasyTickable)
+		if(be instanceof ICommonTicker)
 		{
 			if(level.isClientSide && be instanceof IClientTicker)
 				return TickableBlockEntity::clientTicker2;
@@ -46,7 +46,7 @@ public abstract class TickableBlockEntity extends EasyBlockEntity implements ICl
 	}
 
 	private static <T extends BlockEntity> void commonTicker(Level level, BlockPos ignored1, BlockState ignored2, T blockEntity) {
-		((IEasyTickable)blockEntity).tick();
+		((ICommonTicker)blockEntity).tick();
 	}
 
 	private static <T extends BlockEntity> void clientTicker1(Level level, BlockPos ignored1, BlockState ignored2, T blockEntity) {
@@ -55,7 +55,7 @@ public abstract class TickableBlockEntity extends EasyBlockEntity implements ICl
 
 	private static <T extends BlockEntity> void clientTicker2(Level level, BlockPos ignored1, BlockState ignored2, T blockEntity) {
 		((IClientTicker)blockEntity).clientTick();
-		((IEasyTickable)blockEntity).tick();
+		((ICommonTicker)blockEntity).tick();
 	}
 
 	private static <T extends BlockEntity> void serverTicker1(Level level, BlockPos ignored1, BlockState ignored2, T blockEntity) {
@@ -64,7 +64,7 @@ public abstract class TickableBlockEntity extends EasyBlockEntity implements ICl
 
 	private static <T extends BlockEntity> void serverTicker2(Level level, BlockPos ignored1, BlockState ignored2, T blockEntity) {
 		((IServerTicker)blockEntity).serverTick();
-		((IEasyTickable)blockEntity).tick();
+		((ICommonTicker)blockEntity).tick();
 	}
 
 	@Deprecated

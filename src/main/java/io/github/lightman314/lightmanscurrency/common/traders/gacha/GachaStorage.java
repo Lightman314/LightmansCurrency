@@ -1,30 +1,25 @@
 package io.github.lightman314.lightmanscurrency.common.traders.gacha;
 
 import com.google.common.collect.ImmutableList;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.items.GachaBallItem;
-import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class GachaStorage {
 
+    private Runnable listener = () -> {};
     private final Supplier<Integer> maxStorage;
     public GachaStorage(Supplier<Integer> maxStorage) { this.maxStorage = maxStorage; }
+
+    public GachaStorage withListener(Runnable listener) { this.listener = listener; return this; }
 
     private List<ItemStack> randomizedContents = null;
     private void clearRandomizedContents() { this.randomizedContents = null; }
@@ -50,35 +45,18 @@ public class GachaStorage {
         return this.contents.get(slot);
     }
 
-    public ListTag save(HolderLookup.Provider lookup) {
-        ListTag list = new ListTag();
-        for(ItemStack item : this.contents)
-        {
-            if(item.isEmpty())
-                continue;
-            list.add(InventoryUtil.saveItemNoLimits(item,lookup));
-        }
-        return list;
-    }
-
-    public void load(ListTag list, HolderLookup.Provider lookup) {
+    public void load(List<ItemStack> contents)
+    {
         this.contents.clear();
-        for(int i = 0; i < list.size(); ++i)
-            this.contents.add(InventoryUtil.loadItemNoLimits(list.getCompound(i),lookup));
+        this.contents.addAll(contents);
         this.clearRandomizedContents();
     }
 
-    public JsonArray write(HolderLookup.Provider lookup) {
-        JsonArray list = new JsonArray();
-        for(ItemStack item : this.contents)
-            list.add(FileUtil.convertItemStack(item,lookup));
-        return list;
-    }
-
-    public void read(JsonArray list, HolderLookup.Provider lookup) throws JsonSyntaxException {
+    @Deprecated
+    public void loadOldData(ListTag list, HolderLookup.Provider lookup) {
         this.contents.clear();
         for(int i = 0; i < list.size(); ++i)
-            this.forceInsertItem(FileUtil.parseItemStack(GsonHelper.convertToJsonObject(list.get(i),"Storage[" + i + "]"),lookup));
+            this.contents.add(InventoryUtil.loadItemNoLimits(list.getCompound(i),lookup));
         this.clearRandomizedContents();
     }
 
@@ -105,14 +83,20 @@ public class GachaStorage {
                 int fittableAmount = Math.min(space,item.getCount());
                 entry.grow(fittableAmount);
                 item.shrink(fittableAmount);
-                this.clearRandomizedContents();
+                this.setChanged();
                 return true;
             }
         }
         //Not found in existing stack, so we'll add a new entry to the list
         this.contents.add(item.split(space));
-        this.clearRandomizedContents();
+        this.setChanged();
         return true;
+    }
+
+    private void setChanged()
+    {
+        this.clearRandomizedContents();
+        this.listener.run();
     }
 
     public void forceInsertItem(ItemStack item)
@@ -122,13 +106,13 @@ public class GachaStorage {
             if(InventoryUtil.ItemMatches(entry,item))
             {
                 entry.grow(item.getCount());
-                this.clearRandomizedContents();
+                this.setChanged();
                 return;
             }
         }
         //Not found in existing stack, so we'll add a new entry to the list
         this.contents.add(item.copy());
-        this.clearRandomizedContents();
+        this.setChanged();
     }
 
     public ItemStack removeItem(int slot, int count) {
@@ -138,7 +122,7 @@ public class GachaStorage {
         ItemStack result = item.split(count);
         if(item.isEmpty())
             this.contents.remove(slot);
-        this.clearRandomizedContents();
+        this.setChanged();
         return result;
     }
 
@@ -160,7 +144,7 @@ public class GachaStorage {
                     item.shrink(1);
                     if(item.isEmpty())
                         this.contents.remove(i);
-                    this.clearRandomizedContents();
+                    this.setChanged();
                 }
                 return result;
             }

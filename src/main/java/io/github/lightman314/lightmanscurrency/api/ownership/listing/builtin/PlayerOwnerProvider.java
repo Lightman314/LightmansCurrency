@@ -7,7 +7,6 @@ import io.github.lightman314.lightmanscurrency.api.ownership.listing.IPotentialO
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.PotentialOwner;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,9 +16,8 @@ public class PlayerOwnerProvider implements IPotentialOwnerProvider {
 
     private PlayerOwnerProvider() {}
 
-    @Nonnull
     @Override
-    public List<PotentialOwner> collectPotentialOwners(@Nonnull Player player) {
+    public List<PotentialOwner> collectPotentialOwners(Player player) {
         List<PotentialOwner> results = new ArrayList<>();
         for(GameProfile profile : LightmansCurrency.getProxy().getPlayerList(player.level().isClientSide))
         {

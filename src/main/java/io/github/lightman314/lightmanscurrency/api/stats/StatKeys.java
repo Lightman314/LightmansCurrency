@@ -11,21 +11,21 @@ public class StatKeys {
 
     public static class Generic
     {
-        public static final StatKey<MoneyView,MoneyValue> MONEY_EARNED = MultiMoneyStat.INSTANCE.createKey("generic.money_earned");
-        public static final StatKey<MoneyView,MoneyValue> MONEY_PAID = MultiMoneyStat.INSTANCE.createKey("generic.money_paid");
-        public static final StatKey<Integer,Integer> SALARY_TRIGGERS = IntegerStat.INSTANCE.createKey("generic.salary_triggers");
+        public static final StatKey<MoneyView,MoneyValue> MONEY_EARNED = MultiMoneyStat.TYPE.createKey("generic.money_earned");
+        public static final StatKey<MoneyView,MoneyValue> MONEY_PAID = MultiMoneyStat.TYPE.createKey("generic.money_paid");
+        public static final StatKey<Integer,Integer> SALARY_TRIGGERS = IntegerStat.TYPE.createKey("generic.salary_triggers");
     }
 
     public static class Traders
     {
-        public static final StatKey<MoneyView, MoneyValue> MONEY_EARNED = MultiMoneyStat.INSTANCE.createKey("traders.money_earned");
-        public static final StatKey<MoneyView, MoneyValue> MONEY_PAID = MultiMoneyStat.INSTANCE.createKey("traders.money_paid");
-        public static final StatKey<Integer,Integer> TRADES_EXECUTED = IntegerStat.INSTANCE.createKey("traders.trades_executed");
+        public static final StatKey<MoneyView, MoneyValue> MONEY_EARNED = MultiMoneyStat.TYPE.createKey("traders.money_earned");
+        public static final StatKey<MoneyView, MoneyValue> MONEY_PAID = MultiMoneyStat.TYPE.createKey("traders.money_paid");
+        public static final StatKey<Integer,Integer> TRADES_EXECUTED = IntegerStat.TYPE.createKey("traders.trades_executed");
     }
 
     public static class Taxables
     {
-        public static final StatKey<MoneyView, MoneyValue> TAXES_PAID = MultiMoneyStat.INSTANCE.createKey("taxables.taxes_paid");
+        public static final StatKey<MoneyView, MoneyValue> TAXES_PAID = MultiMoneyStat.TYPE.createKey("taxables.taxes_paid");
     }
 
 }

@@ -4,20 +4,17 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.architectury.fluid.FluidStack;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public record FilterData(List<ResourceLocation> entries, List<ResourceLocation> tags) {
 
     public static final FilterData EMPTY = new FilterData(ImmutableList.of(),ImmutableList.of());
@@ -28,24 +25,10 @@ public record FilterData(List<ResourceLocation> entries, List<ResourceLocation> 
                 ResourceLocation.CODEC.listOf().fieldOf("tags").forGetter(FilterData::tags))
                 .apply(builder,FilterData::new));
 
-    public static final StreamCodec<FriendlyByteBuf,FilterData> STREAM_CODEC = StreamCodec.of((b,d) -> {
-        b.writeInt(d.entries.size());
-        for(ResourceLocation e : d.entries)
-            b.writeResourceLocation(e);
-        b.writeInt(d.tags.size());
-        for(ResourceLocation t : d.tags)
-            b.writeResourceLocation(t);
-        },b -> {
-            int count = b.readInt();
-            List<ResourceLocation> entries = new ArrayList<>();
-            while(count-- > 0)
-                entries.add(b.readResourceLocation());
-            count = b.readInt();
-            List<ResourceLocation> tags = new ArrayList<>();
-            while(count-- > 0)
-                tags.add(b.readResourceLocation());
-            return new FilterData(ImmutableList.copyOf(entries),ImmutableList.copyOf(tags));
-    });
+    public static final StreamCodec<FriendlyByteBuf,FilterData> STREAM_CODEC = StreamCodec.composite(
+            ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.list()),FilterData::entries,
+            ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.list()),FilterData::tags,
+            FilterData::new);
 
     public boolean isEmpty() { return this.entries.isEmpty() && this.tags.isEmpty(); }
 

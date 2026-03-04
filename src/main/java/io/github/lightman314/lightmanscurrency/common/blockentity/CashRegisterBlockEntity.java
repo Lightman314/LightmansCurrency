@@ -5,16 +5,16 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.api.traders.ITraderSource;
-import io.github.lightman314.lightmanscurrency.api.traders.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -24,10 +24,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class CashRegisterBlockEntity extends EasyBlockEntity implements ITraderSource{
@@ -63,7 +61,7 @@ public class CashRegisterBlockEntity extends EasyBlockEntity implements ITraderS
 	
 	public void OpenContainer(Player player)
 	{
-		MenuProvider provider = TraderData.getTraderMenuProvider(this.worldPosition, BlockEntityValidator.of(this));
+		MenuProvider provider = TraderData.getTraderMenuProvider(this.worldPosition,BlockEntityValidator.of(this));
 		if(!(player instanceof ServerPlayer))
 		{
 			LightmansCurrency.LogError("Player is not a server player entity. Cannot open the trade menu.");
@@ -77,8 +75,7 @@ public class CashRegisterBlockEntity extends EasyBlockEntity implements ITraderS
 	
 	@Override
 	public boolean isSingleTrader() { return false; }
-	
-	@Nonnull
+
 	@Override
 	public List<TraderData> getTraders() {
 		List<TraderData> traders = new ArrayList<>();
@@ -108,7 +105,7 @@ public class CashRegisterBlockEntity extends EasyBlockEntity implements ITraderS
 	public boolean showSearchBox() { return this.positions.size() > 1; }
 
 	@Override
-	public void saveAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup)
+	public void saveAdditional(CompoundTag tag, DataContext<Tag> context)
 	{
 		
 		ListTag storageList = new ListTag();
@@ -124,21 +121,21 @@ public class CashRegisterBlockEntity extends EasyBlockEntity implements ITraderS
 			tag.put("TraderPos", storageList);
 
 		if(this.customTitle != null)
-			tag.putString("CustomName", Component.Serializer.toJson(this.customTitle,lookup));
+            tag.putString("CustomName",context.writeComponent(this.customTitle));
 		
-		super.saveAdditional(tag,lookup);
+		super.saveAdditional(tag,context);
 	}
 
 	@Override
-	protected void loadAdditional(@Nonnull CompoundTag tag, @Nonnull HolderLookup.Provider lookup) {
+	protected void loadAdditional(CompoundTag tag,DataContext<Tag> context) {
 		this.readPositions(tag);
 
 		if(tag.contains("CustomName"))
-			this.customTitle = Component.Serializer.fromJson(tag.getString("CustomName"),lookup);
+			this.customTitle = context.readComponent(tag.getString("CustomName"));
 		else
 			this.customTitle = null;
 
-		super.loadAdditional(tag,lookup);
+		super.loadAdditional(tag,context);
 	}
 	
 	private void readPositions(CompoundTag compound)

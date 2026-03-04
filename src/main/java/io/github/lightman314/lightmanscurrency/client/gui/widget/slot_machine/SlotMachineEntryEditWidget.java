@@ -1,48 +1,43 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.slot_machine;
 
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyScreenHelper;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.GhostSlot;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IGhostSlotProvider;
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.ITooltipSource;
-import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderstorage.slot_machine.SlotMachineEntryClientTab;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.client.gui.EasyScreenHelper;
+import io.github.lightman314.lightmanscurrency.api.client.gui.GhostSlot;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IGhostSlotProvider;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.ITooltipSource;
+import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.client.tabs.SlotMachineEntryClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyWidgetWithChildren;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.HorizScrollBarWidget;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.client.util.text_inputs.DoubleParser;
-import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextBoxWrapper;
-import io.github.lightman314.lightmanscurrency.client.util.text_inputs.TextInputUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.IEasyTickable;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.easy.EasySlot;
-import io.github.lightman314.lightmanscurrency.common.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
-import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineEntry;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs.DoubleParser;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs.TextBoxWrapper;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs.TextInputUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.ticker.ICommonTicker;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.EasySlot;
+import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
+import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.nodes.SlotMachineNode;
+import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implements IEasyTickable, ITooltipSource, IGhostSlotProvider, IScrollable {
+public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implements ICommonTicker, ITooltipSource, IGhostSlotProvider, IScrollable {
 
     public static final int WIDTH = 160;
     public static final int HEIGHT = 64;
@@ -281,9 +276,10 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
     public void tick()
     {
         SlotMachineEntry entry = this.getEntry();
-        if(entry != null && this.tab.menu.getTrader() instanceof SlotMachineTraderData trader)
+        SlotMachineNode node = this.tab.commonTab.getNode();
+        if(entry != null && node != null)
         {
-            if(trader.areEntriesChanged())
+            if(node.areEntriesChanged())
             {
                 this.oddsEdit.setStringValue(entry.getOddsString());
                 return;
@@ -391,7 +387,6 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
             this.tab.commonTab.ChangeEntryCustomIcon(entryIndex,index,ItemIcon.ofItem(item.copyWithCount(1)));
     }
 
-    @FieldsAreNonnullByDefault
     public static class Builder extends EasyBuilder<Builder>
     {
         private Builder() { super(WIDTH,HEIGHT); }

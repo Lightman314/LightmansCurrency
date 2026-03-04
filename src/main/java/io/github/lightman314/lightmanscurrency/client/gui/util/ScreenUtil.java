@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.util;
 
-import io.github.lightman314.lightmanscurrency.client.gui.easy.interfaces.IEasyScreen;
+import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 
 public class ScreenUtil {

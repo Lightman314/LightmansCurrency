@@ -3,17 +3,18 @@ package io.github.lightman314.lightmanscurrency.common.crafting;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCTags;
-import io.github.lightman314.lightmanscurrency.common.core.ModRecipes;
+import io.github.lightman314.lightmanscurrency.common.core.ModRecipeSerializers;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.crafting.durability.DurabilityData;
 import io.github.lightman314.lightmanscurrency.common.crafting.input.TicketStationRecipeInput;
 import io.github.lightman314.lightmanscurrency.common.items.CouponItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketModifierSlot;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
@@ -23,21 +24,22 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.neoforged.neoforge.common.Tags;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Optional;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class CouponRecipe implements TicketStationRecipe {
 
-    public static final MapCodec<CouponRecipe> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+    public static final MapCodec<CouponRecipe> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
                             Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(r -> r.ingredient),
                             BuiltInRegistries.ITEM.byNameCodec().fieldOf("result").forGetter(r -> r.result),
                             DurabilityData.VALID_CODEC.fieldOf("durability").forGetter(r -> r.durability))
                     .apply(builder, CouponRecipe::new)
     );
-    public static final StreamCodec<RegistryFriendlyByteBuf, CouponRecipe> STREAM_CODEC = StreamCodec.of(CouponRecipe::toNetwork, CouponRecipe::fromNetwork);
+    public static final StreamCodec<RegistryFriendlyByteBuf, CouponRecipe> STREAM_CODEC = StreamCodec.composite(
+            Ingredient.CONTENTS_STREAM_CODEC,r -> r.ingredient,
+            ByteBufCodecs.registry(Registries.ITEM),r -> r.result,
+            DurabilityData.STREAM_CODEC,r -> r.durability,
+            CouponRecipe::new);
 
     private final Ingredient ingredient;
     private final Item result;
@@ -107,24 +109,6 @@ public class CouponRecipe implements TicketStationRecipe {
     public ItemStack assembleWithKiosk(ItemStack sellItem, ExtraData data) { return CouponItem.CreateCoupon(this.result,data.code(),data.durability()); }
 
     @Override
-    public RecipeSerializer<?> getSerializer() { return ModRecipes.COUPON.get(); }
-
-    
-    private static CouponRecipe fromNetwork(RegistryFriendlyByteBuf buffer) {
-        return new CouponRecipe(Ingredient.CONTENTS_STREAM_CODEC.decode(buffer),TicketStationRecipe.itemStreamCodec().decode(buffer),DurabilityData.STREAM_CODEC.decode(buffer));
-    }
-    private static void toNetwork(RegistryFriendlyByteBuf buffer, CouponRecipe recipe) {
-        Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.ingredient);
-        TicketStationRecipe.itemStreamCodec().encode(buffer,recipe.result);
-        DurabilityData.STREAM_CODEC.encode(buffer,recipe.durability);
-    }
-
-    public static class Serializer implements RecipeSerializer<CouponRecipe>
-    {
-        @Override
-        public MapCodec<CouponRecipe> codec() { return CODEC; }
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, CouponRecipe> streamCodec() { return STREAM_CODEC; }
-    }
+    public RecipeSerializer<?> getSerializer() { return ModRecipeSerializers.COUPON.get(); }
 
 }

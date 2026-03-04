@@ -1,16 +1,11 @@
 package io.github.lightman314.lightmanscurrency.api.config;
 
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.HashMap;
 import java.util.Map;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class SyncedConfigFile extends ConfigFile {
 
     @Override

@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.items;
 import java.util.function.Supplier;
 
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeData;
-import io.github.lightman314.lightmanscurrency.common.upgrades.types.capacity.CapacityUpgrade;
+import io.github.lightman314.lightmanscurrency.api.upgrades.types.CapacityUpgrade;
 
 import javax.annotation.Nonnull;
 

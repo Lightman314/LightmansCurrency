@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class RegisterVariantPropertiesEvent extends Event implements IModBusEvent {
 
-    private final Map<ResourceLocation, VariantProperty<?>> registry = new HashMap<>();
+    private final Map<ResourceLocation,VariantProperty<?>> registry = new HashMap<>();
     public Map<ResourceLocation,VariantProperty<?>> getRegistry() { return ImmutableMap.copyOf(this.registry); }
 
     public void register(ResourceLocation type, VariantProperty<?> property)

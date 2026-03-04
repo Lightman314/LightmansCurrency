@@ -14,8 +14,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import net.neoforged.neoforge.event.village.VillagerTradesEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
-
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -44,7 +42,7 @@ public class LookupHelper {
     }
 
     @Nullable
-    public static Holder<Enchantment> lookupEnchantment(@Nonnull HolderLookup.Provider lookup, @Nonnull ResourceKey<Enchantment> enchantment)
+    public static Holder<Enchantment> lookupEnchantment(HolderLookup.Provider lookup, ResourceKey<Enchantment> enchantment)
     {
         AtomicReference<Holder<Enchantment>> result = new AtomicReference<>(null);
         lookup.lookup(Registries.ENCHANTMENT).flatMap(registry -> registry.get(enchantment)).ifPresent(result::set);

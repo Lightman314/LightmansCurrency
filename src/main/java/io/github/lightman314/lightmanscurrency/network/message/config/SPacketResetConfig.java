@@ -5,42 +5,40 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import javax.annotation.Nonnull;
 import java.util.Map;
 
 public class SPacketResetConfig extends ServerToClientPacket {
 
-    private static final Type<SPacketResetConfig> TYPE = new Type<>(VersionUtil.lcResource("s_config_reset"));
+    private static final Type<SPacketResetConfig> TYPE = sType("config_reset");
+    private static final StreamCodec<ByteBuf,SPacketResetConfig> STREAM_CODEC = StreamCodec.composite(
+            ResourceLocation.STREAM_CODEC,p -> p.fileID,
+            ByteBufCodecs.STRING_UTF8,p -> p.option,
+            SPacketResetConfig::new);
     public static final Handler<SPacketResetConfig> HANDLER = new H();
 
     private final ResourceLocation fileID;
     private final String option;
 
-    public SPacketResetConfig(@Nonnull ResourceLocation fileID, @Nonnull String option)
+    public SPacketResetConfig(ResourceLocation fileID, String option)
     {
         super(TYPE);
         this.fileID = fileID;
         this.option = option;
     }
 
-    private static void encode(@Nonnull FriendlyByteBuf buffer, @Nonnull SPacketResetConfig message) {
-        buffer.writeResourceLocation(message.fileID);
-        buffer.writeUtf(message.option);
-    }
-    private static SPacketResetConfig decode(@Nonnull FriendlyByteBuf buffer) { return new SPacketResetConfig(buffer.readResourceLocation(),buffer.readUtf()); }
-
     private static class H extends Handler<SPacketResetConfig>
     {
-        protected H() { super(TYPE, easyCodec(SPacketResetConfig::encode,SPacketResetConfig::decode)); }
+        protected H() { super(TYPE,STREAM_CODEC); }
         @Override
-        protected void handle(@Nonnull SPacketResetConfig message, @Nonnull IPayloadContext context, @Nonnull Player player) {
+        protected void handle(SPacketResetConfig message, IPayloadContext context, Player player) {
             ConfigFile file = ConfigFile.lookupFile(message.fileID);
             if(file != null && file.isClientOnly())
             {
