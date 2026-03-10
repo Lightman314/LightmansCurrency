@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen;
 
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.client.gui.tabbed.EasyTabbedMenuScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.IWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.WidgetRotation;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;

@@ -68,7 +68,6 @@ public abstract class BankAPI {
      * @param account The bank account to take money from.
      * @param amount The amount of money to take.
      */
-    
     public final Pair<Boolean, MoneyValue> BankWithdrawFromServer(IBankAccount account, MoneyValue amount) { return this.BankWithdrawFromServer(account, amount, true); }
     /**
      * Called by admins/commands to forcibly withdraw and destroy money from the given bank account.

@@ -13,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.FlexibleMoneyValu
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TransactionRegisterScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TransactionDisplayWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;

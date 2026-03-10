@@ -82,7 +82,7 @@ public class WalletHandler extends MoneyHandler implements IClientTracker, IComm
                 if(handler != null)
                     overflow = ItemHandlerHelper.insertItem(handler,overflow,false);
                 if(!overflow.isEmpty())
-                    ItemHandlerUtil.dumpContents(this.entity.level(), this.entity.blockPosition(),overflow);
+                    ItemHandlerUtil.dropContents(this.entity.level(), this.entity.blockPosition(),overflow);
             }
         };
     }

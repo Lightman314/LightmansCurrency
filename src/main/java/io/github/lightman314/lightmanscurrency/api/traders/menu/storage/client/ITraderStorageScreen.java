@@ -4,7 +4,7 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.client.gui.tabbed.IEasyTabbedMenuScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.IWidgetPositioner;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;

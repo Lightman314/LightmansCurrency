@@ -87,7 +87,7 @@ public class AuctionStandBlock extends EasyBlock implements IEasyEntityBlock, IV
         }
         //Drop myself
         if(level.getBlockEntity(pos) instanceof AuctionStandBlockEntity be && be.dropItem)
-            InventoryUtil.dumpContents(level, pos, new ItemStack(this));
+            InventoryUtil.dropContents(level, pos, new ItemStack(this));
 
     }
 }

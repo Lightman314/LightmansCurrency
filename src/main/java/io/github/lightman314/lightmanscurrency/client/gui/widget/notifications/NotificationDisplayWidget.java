@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.ITooltipWidget;
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;

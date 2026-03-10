@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.IWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;

@@ -17,7 +17,7 @@ import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IMouseL
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs.IntParser;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;

@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -9,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.items.cards.ATMCardItem;
 import io.github.lightman314.lightmanscurrency.common.items.data.ATMCardData;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -17,7 +17,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class ATMCardMenu extends LazyMessageMenu {
@@ -37,10 +36,8 @@ public class ATMCardMenu extends LazyMessageMenu {
 
     private boolean isBankCardValid() { return this.getBankCard().getItem() instanceof ATMCardItem; }
 
-    @Nonnull
     protected final ItemStack getBankCard() { return this.inventory.getItem(this.inventorySlot); }
 
-    @Nonnull
     protected final ATMCardData getCardData()
     {
         ItemStack stack = this.getBankCard();
@@ -103,12 +100,11 @@ public class ATMCardMenu extends LazyMessageMenu {
             this.SendMessage(this.builder().setBoolean("SetLocked",locked));
     }
 
-    @Nonnull
     @Override
-    public ItemStack quickMoveStack(@Nonnull Player player, int slot) { return ItemStack.EMPTY; }
+    public ItemStack quickMoveStack(Player player, int slot) { return ItemStack.EMPTY; }
 
     @Override
-    public void processMessage(@Nonnull LazyPacketData message) {
+    public void processMessage(LazyPacketData message) {
         if(message.contains("SelectEmptyAccount"))
             this.setSelectedAccount(null);
         if(message.contains("SelectAccount"))
@@ -117,14 +113,14 @@ public class ATMCardMenu extends LazyMessageMenu {
             this.setAccountLocked(message.getBoolean("SetLocked"));
     }
 
-    @Nonnull
+    
     public static MenuProvider getProvider(int inventorySlot) { return new Provider(inventorySlot); }
 
     private record Provider(int inventorySlot) implements EasyMenuProvider
     {
         @Nullable
         @Override
-        public AbstractContainerMenu createMenu(int id, @Nonnull Inventory inventory, @Nonnull Player player) {
+        public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
             return new ATMCardMenu(id,inventory,this.inventorySlot);
         }
     }

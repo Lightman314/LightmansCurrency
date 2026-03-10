@@ -1,6 +1,6 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-package io.github.lightman314.lightmanscurrency.api.misc.menus.item_handlers;
+package io.github.lightman314.lightmanscurrency.api.variants.item;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

@@ -1,23 +1,18 @@
 package io.github.lightman314.lightmanscurrency.api.misc.menus.slots;
 
-
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
-
 
 /**
  * Copied from {@link EasyItemHandlerSlot}, but extending the EasySlot class for easy toggling
  */
 public class EasyItemHandlerSlot extends EasySlot {
-    public static final Container emptyInventory = new SimpleContainer(0);
     private final IItemHandlerModifiable itemHandler;
     protected final int index;
 
     public EasyItemHandlerSlot(IItemHandlerModifiable itemHandler, int index, int xPosition, int yPosition) {
-        super(emptyInventory, index, xPosition, yPosition);
+        super(itemHandler,index, xPosition, yPosition);
         this.itemHandler = itemHandler;
         this.index = index;
     }
@@ -38,9 +33,6 @@ public class EasyItemHandlerSlot extends EasySlot {
         this.getItemHandler().setStackInSlot(this.index, stack);
         this.setChanged();
     }
-
-    @Override
-    public void onQuickCraft(ItemStack oldStackIn, ItemStack newStackIn) {}
 
     @Override
     public int getMaxStackSize() {

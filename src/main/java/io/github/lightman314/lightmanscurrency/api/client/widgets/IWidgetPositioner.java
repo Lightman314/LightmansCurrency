@@ -1,10 +1,7 @@
-package io.github.lightman314.lightmanscurrency.client.gui.util;
+package io.github.lightman314.lightmanscurrency.api.client.widgets;
 
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyWidget;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@ParametersAreNonnullByDefault
 public interface IWidgetPositioner {
 
     void addWidget(EasyWidget widget);

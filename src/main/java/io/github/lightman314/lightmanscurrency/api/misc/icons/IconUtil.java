@@ -7,7 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.icons.types.IconIcon;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.types.MultiIcon;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponents;

@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.api.money.client.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.client.gui.tabbed.EasyClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TransactionRegisterScreen;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.items.data.register.TransactionData;

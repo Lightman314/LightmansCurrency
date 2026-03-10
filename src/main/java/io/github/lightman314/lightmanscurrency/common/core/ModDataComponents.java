@@ -5,6 +5,8 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
 import io.github.lightman314.lightmanscurrency.api.upgrades.*;
+import io.github.lightman314.lightmanscurrency.api.variants.item.data.VariantData;
+import io.github.lightman314.lightmanscurrency.api.variants.item.data.VariantLock;
 import io.github.lightman314.lightmanscurrency.common.items.data.LootTableEntry;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.items.data.*;
@@ -92,8 +94,13 @@ public class ModDataComponents {
     public static final Supplier<DataComponentType<LootTableEntry>> LOOT_TABLE_ENTRY = register("loot_table", builder -> builder
             .persistent(LootTableEntry.CODEC)
             .networkSynchronized(LootTableEntry.STREAM_CODEC));
-    public static final Supplier<DataComponentType<ResourceLocation>> MODEL_VARIANT = registerResource("model_variant");
-    public static final Supplier<DataComponentType<Unit>> VARIANT_LOCK = registerUnit("variant_lock");
+    public static final Supplier<DataComponentType<VariantData>> MODEL_VARIANT = register("model_variant",builder -> builder
+            .persistent(VariantData.CODEC)
+            .networkSynchronized(VariantData.STREAM_CODEC));
+    public static final Supplier<DataComponentType<VariantLock>> VARIANT_LOCK = register("variant_lock",builder -> builder
+            .persistent(Codec.unit(VariantLock.INSTANCE))
+            .networkSynchronized(StreamCodec.unit(VariantLock.INSTANCE))
+            .cacheEncoding());
     public static final Supplier<DataComponentType<SavedSettingData>> SETTINGS_DATA = register("settings_data",builder -> builder
             .persistent(SavedSettingData.CODEC)
             .networkSynchronized(SavedSettingData.STREAM_CODEC));

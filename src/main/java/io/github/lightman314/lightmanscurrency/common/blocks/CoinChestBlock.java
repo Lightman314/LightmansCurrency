@@ -8,13 +8,12 @@ import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IOwnableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
@@ -35,7 +34,6 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
@@ -106,8 +104,8 @@ public class CoinChestBlock extends RotatableBlock implements IEasyEntityBlock, 
         if(level.getBlockEntity(pos) instanceof CoinChestBlockEntity be)
         {
             be.onBlockRemoval();
-            Containers.dropContents(level,pos,be.getStorage());
-            InventoryUtil.dropContents(level,pos,be.getUpgrades());
+            ItemHandlerUtil.dropContents(level,pos,be.getStorage());
+            ItemHandlerUtil.dropContents(level,pos,be.getUpgrades());
         }
         super.onRemove(state, level, pos, newState, flag);
     }

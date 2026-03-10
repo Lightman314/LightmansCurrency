@@ -5,16 +5,17 @@ import com.google.common.collect.Lists;
 import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IEasyEntityBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import io.github.lightman314.lightmanscurrency.common.blockentity.MoneyBagBlockEntity;
+import io.github.lightman314.lightmanscurrency.common.blockentity.item_handler.MoneyBagInventory;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
 import io.github.lightman314.lightmanscurrency.common.items.data.LootTableEntry;
 import io.github.lightman314.lightmanscurrency.common.items.MoneyBagItem;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,8 +23,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -255,15 +254,7 @@ public class MoneyBagBlock extends FallingBlock implements IRotatableBlock, IEas
         if(tag.contains("CustomName"))
             stack.set(DataComponents.CUSTOM_NAME,Component.Serializer.fromJson(tag.getString("CustomName"),lookup));
 
-        List<ItemStack> contents = new ArrayList<>();
-        ListTag list = tag.getList("Contents", Tag.TAG_COMPOUND);
-        for(int i = 0; i < list.size(); ++i)
-        {
-            ItemStack item = InventoryUtil.loadItemNoLimits(list.getCompound(i),lookup);
-            if(item.isEmpty())
-                continue;
-            contents.add(item);
-        }
+        MoneyBagInventory contents = DataContext.createNBT(lookup).read(tag.get("Contents"),MoneyBagInventory.CODEC);
         MoneyBagItem.setContents(stack,contents);
         if(tag.contains("LootTable"))
         {

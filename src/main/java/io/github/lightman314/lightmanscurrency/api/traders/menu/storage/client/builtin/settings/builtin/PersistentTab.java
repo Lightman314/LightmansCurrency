@@ -7,7 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.builtin.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.builtin.settings.TraderSettingsClientTab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;

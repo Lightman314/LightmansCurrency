@@ -10,7 +10,7 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IPreRender;
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.IWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyWidget;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.IRotatableWidget;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.WidgetRotation;

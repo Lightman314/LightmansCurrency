@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
@@ -7,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.api.client.gui.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.client.gui.GhostSlot;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
@@ -24,7 +25,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,7 +105,7 @@ public class ItemFilterScreen extends EasyMenuScreen<ItemFilterMenu> implements 
     }
 
     @Override
-    protected void renderBG(@Nonnull EasyGuiGraphics gui) {
+    protected void renderBG(EasyGuiGraphics gui) {
 
         gui.renderNormalBackground(GUI_TEXTURE,this);
 
@@ -134,7 +134,7 @@ public class ItemFilterScreen extends EasyMenuScreen<ItemFilterMenu> implements 
     }
 
     @Override
-    protected void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
+    protected void renderAfterWidgets(EasyGuiGraphics gui) {
         if(!this.menu.getCarried().isEmpty())
             return;
         if(this.filterItemArea.isMouseInArea(gui.mousePos))

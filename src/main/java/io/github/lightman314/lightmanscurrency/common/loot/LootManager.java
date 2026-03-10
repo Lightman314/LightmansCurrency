@@ -288,7 +288,7 @@ public class LootManager {
 
 		LootContext context = generateEntityContext(entity, player, damageSource);
 
-		InventoryUtil.dumpContents(entity.level(), entity.blockPosition(), getLoot(coinPool.lootTable, context));
+		InventoryUtil.dropContents(entity.level(), entity.blockPosition(), getLoot(coinPool.lootTable, context));
 
 	}
 

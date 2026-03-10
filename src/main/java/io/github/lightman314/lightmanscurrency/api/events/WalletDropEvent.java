@@ -6,15 +6,12 @@ import java.util.List;
 
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.world.Container;
+import io.github.lightman314.lightmanscurrency.common.items.data.WalletInventory;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.ICancellableEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 
 /**
  * Event called when a player dies and the wallet drops are calculated.<br>
@@ -29,23 +26,21 @@ import javax.annotation.ParametersAreNonnullByDefault;
  * Use {@link #setWalletStack(ItemStack)} to replace the players equipped wallet completely. Set to {@link ItemStack#EMPTY} to unequip it entirely.<br>
  * Note: Default behaviour is done in {@link net.neoforged.bus.api.EventPriority#LOW}
  */
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class WalletDropEvent extends PlayerEvent implements ICancellableEvent {
 
-	private Container walletInventory;
+	private WalletInventory walletInventory;
 	private ItemStack walletStack;
-	public Container getWalletInventory() { return this.walletInventory; }
+	public WalletInventory getWalletInventory() { return this.walletInventory; }
 	public ItemStack getWalletStack()
 	{
 		ItemStack result = this.walletStack.copy();
 		if(WalletItem.isWallet(result))
-			WalletItem.getDataWrapper(result).setContents(this.walletInventory, null);
+            WalletItem.putWalletInventory(result,this.walletInventory);
 		return result;
 	}
 	public void setWalletStack(ItemStack wallet) {
 		this.walletStack = wallet.copy();
-		this.walletInventory = WalletItem.getDataWrapper(wallet).getContents();
+		this.walletInventory = WalletItem.getWalletInventory(wallet);
 	}
 	public final DamageSource source;
 	private List<ItemStack> walletDrops = new ArrayList<>();
@@ -62,7 +57,7 @@ public class WalletDropEvent extends PlayerEvent implements ICancellableEvent {
 	{
 		super(player);
 		this.walletStack = walletHandler.getWallet().copy();
-		this.walletInventory = WalletItem.getDataWrapper(this.walletStack).getContents();
+		this.walletInventory = WalletItem.getWalletInventory(this.walletStack);
 		this.source = source;
 		this.keepWallet = keepWallet;
 		this.destroyWallet = destroyWallet;

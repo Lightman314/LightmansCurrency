@@ -2,10 +2,14 @@ package io.github.lightman314.lightmanscurrency.common.traders.gacha;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.common.items.GachaBallItem;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 
@@ -29,7 +33,7 @@ public class GachaStorage {
     public List<ItemStack> getSplitContents()
     {
         List<ItemStack> result = new ArrayList<>();
-        for(ItemStack stack : InventoryUtil.copyList(this.contents))
+        for(ItemStack stack : ItemHandlerUtil.copyList(this.contents))
         {
             while(stack.getCount() > stack.getMaxStackSize())
                 result.add(stack.split(stack.getMaxStackSize()));
@@ -55,8 +59,8 @@ public class GachaStorage {
     @Deprecated
     public void loadOldData(ListTag list, HolderLookup.Provider lookup) {
         this.contents.clear();
-        for(int i = 0; i < list.size(); ++i)
-            this.contents.add(InventoryUtil.loadItemNoLimits(list.getCompound(i),lookup));
+        DataContext<Tag> context = DataContext.createNBT(lookup);
+        this.contents.addAll(context.read(list,CodecHelper.UNLIMITED_ITEM_LIST));
         this.clearRandomizedContents();
     }
 
@@ -78,7 +82,7 @@ public class GachaStorage {
             return false;
         for(ItemStack entry : this.contents)
         {
-            if(InventoryUtil.ItemMatches(entry,item))
+            if(ItemStack.isSameItemSameComponents(entry,item))
             {
                 int fittableAmount = Math.min(space,item.getCount());
                 entry.grow(fittableAmount);
@@ -103,7 +107,7 @@ public class GachaStorage {
     {
         for(ItemStack entry : this.contents)
         {
-            if(InventoryUtil.ItemMatches(entry,item))
+            if(ItemStack.isSameItemSameComponents(entry,item))
             {
                 entry.grow(item.getCount());
                 this.setChanged();
@@ -164,7 +168,7 @@ public class GachaStorage {
     {
         List<ItemStack> results = new ArrayList<>();
         RandomSource random = RandomSource.create();
-        List<ItemStack> contentCopy = InventoryUtil.copyList(this.contents);
+        List<ItemStack> contentCopy = ItemHandlerUtil.copyList(this.contents);
         int totalCount = this.getItemCount();
         while(!contentCopy.isEmpty() && totalCount > 0)
         {

@@ -128,7 +128,7 @@ public class MoneyMendingEnchantment {
 
 	private static Component infoTooltip(@Nonnull ItemStack stack, @Nonnull RepairWithMoneyData data, @Nonnull HolderLookup.Provider lookup)
 	{
-		return LCText.TOOLTIP_MONEY_MENDING_COST.get(MoneyMendingEnchantment.getRepairCost(stack, data, lookup).getText().withStyle(ChatFormatting.YELLOW,ChatFormatting.BOLD));
+		return LCText.TOOLTIP_MONEY_MENDING_COST.get(MoneyMendingEnchantment.getRepairCost(stack, data, lookup).getText().copy().withStyle(ChatFormatting.YELLOW,ChatFormatting.BOLD));
 	}
 	
 }

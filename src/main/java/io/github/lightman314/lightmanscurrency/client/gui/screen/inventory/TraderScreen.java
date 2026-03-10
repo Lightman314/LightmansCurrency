@@ -11,7 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.client.
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.client.gui.tabbed.EasyClientUnenforcedTabbedMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.common.DiscountCodeTab;
-import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.IWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
@@ -20,7 +20,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 
 import io.github.lightman314.lightmanscurrency.api.traders.menu.customer.client.TraderClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.trader.common.TraderInteractionTab;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.util.ButtonUtil;
 import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;

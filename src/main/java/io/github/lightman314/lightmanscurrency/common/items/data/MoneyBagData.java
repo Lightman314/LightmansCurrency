@@ -1,12 +1,10 @@
 package io.github.lightman314.lightmanscurrency.common.items.data;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
 import io.github.lightman314.lightmanscurrency.common.blockentity.MoneyBagBlockEntity;
-import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
+import io.github.lightman314.lightmanscurrency.common.blockentity.item_handler.MoneyBagInventory;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -18,27 +16,26 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipProvider;
 import org.jetbrains.annotations.Range;
 
-import java.util.List;
 import java.util.function.Consumer;
 
-public record MoneyBagData(List<ItemStack> contents, @Range(from = 0,to = 3) int size) implements TooltipProvider {
+public record MoneyBagData(MoneyBagInventory contents, @Range(from = 0,to = 3) int size) implements TooltipProvider {
 
     public static final Codec<MoneyBagData> CODEC = RecordCodecBuilder.create(builder ->
-            builder.group(CodecHelper.UNLIMITED_ITEM_LIST.fieldOf("contents").forGetter(MoneyBagData::contents),
+            builder.group(MoneyBagInventory.CODEC.fieldOf("contents").forGetter(MoneyBagData::contents),
                             Codec.INT.fieldOf("size").forGetter(MoneyBagData::size))
                     .apply(builder,MoneyBagData::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf,MoneyBagData> STREAM_CODEC = StreamCodec.composite(
-            ItemStack.LIST_STREAM_CODEC,MoneyBagData::contents,
+            MoneyBagInventory.STREAM_CODEC,MoneyBagData::contents,
             ByteBufCodecs.INT,MoneyBagData::size,
             MoneyBagData::new);
 
-    public static final MoneyBagData EMPTY = new MoneyBagData(ImmutableList.of(),0);
+    public static final MoneyBagData EMPTY = new MoneyBagData(new MoneyBagInventory(),0);
 
-    public static MoneyBagData of(List<ItemStack> contents)
+    public static MoneyBagData of(MoneyBagInventory contents)
     {
         int size = MoneyBagBlockEntity.getBlockSize(contents);
-        return new MoneyBagData(ImmutableList.copyOf(ItemHandlerUtil.copyList(contents)),size);
+        return new MoneyBagData(contents.copy(),size);
     }
 
     @Override
@@ -47,7 +44,7 @@ public record MoneyBagData(List<ItemStack> contents, @Range(from = 0,to = 3) int
         {
             if(flag.hasControlDown())
             {
-                for (ItemStack coin : this.contents) {
+                for (ItemStack coin : this.contents.getStacks()) {
                     if (coin.getCount() > 1)
                         adder.accept(LCText.TOOLTIP_COIN_JAR_CONTENTS_MULTIPLE.get(coin.getCount(), coin.getHoverName()));
                     else

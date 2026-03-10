@@ -23,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.common.commands.*;
 import io.github.lightman314.lightmanscurrency.common.core.ModAttachmentTypes;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.common.items.data.WalletInventory;
 import io.github.lightman314.lightmanscurrency.common.menus.variant.ItemVariantSelectMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
@@ -36,7 +37,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -283,10 +283,9 @@ public class EventHandler {
 
 		List<ItemStack> drops = new ArrayList<>();
 
-		Container walletInventory = event.getWalletInventory();
-		IMoneyHandler walletHandler = MoneyAPI.getApi().GetContainersMoneyHandler(walletInventory,drops::add, IClientTracker.entityWrapper(event.getEntity()));
+		WalletInventory walletInventory = event.getWalletInventory();
+		IMoneyHandler walletHandler = MoneyAPI.getApi().GetContainersMoneyHandler(walletInventory,drops::add,IClientTracker.entityWrapper(event.getEntity()));
 		MoneyView walletFunds = walletHandler.getStoredMoney();
-
 
 		//Remove the dropped coins from the wallet
 

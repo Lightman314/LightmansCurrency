@@ -162,7 +162,7 @@ public abstract class TraderBlockBase extends EasyBlock implements ITraderBlock,
 				traderSource.flagAsLegitBreak();
 				TraderData trader = traderSource.getTraderData();
 				if(trader != null)
-					ItemHandlerUtil.dumpContents(level, pos, trader.getContents(level, pos, state, !player.isCreative()));
+					ItemHandlerUtil.dropContents(level, pos, trader.getContents(level, pos, state, !player.isCreative()));
 			}
 		}
 		else

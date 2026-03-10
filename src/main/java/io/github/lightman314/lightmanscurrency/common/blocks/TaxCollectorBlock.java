@@ -57,7 +57,7 @@ public class TaxCollectorBlock extends RotatableBlock implements IOwnableBlock, 
                 if(entry.getOwner().isAdmin(player))
                 {
                     be.flagAsValidBreak();
-                    InventoryUtil.dumpContents(level, pos, be.getContents(!player.isCreative()));
+                    InventoryUtil.dropContents(level, pos, be.getContents(!player.isCreative()));
                 }
                 else
                     return state;

@@ -333,6 +333,4 @@ public class CoinChestBlockEntity extends EasyBlockEntity implements IUpgradeabl
         }
     }
 
-
-
 }

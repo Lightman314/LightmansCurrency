@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.client.gui.tabbed;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.IWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.network.chat.Component;

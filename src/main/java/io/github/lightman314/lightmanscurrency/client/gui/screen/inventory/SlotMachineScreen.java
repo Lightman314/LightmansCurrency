@@ -13,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraph
 import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.NormalSprite;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.slot_machine.SlotMachineRenderer;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;

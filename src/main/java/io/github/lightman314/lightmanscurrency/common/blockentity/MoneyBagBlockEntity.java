@@ -1,36 +1,30 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity;
 
-import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.misc.ticker.IServerTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.blockentity.EasyBlockEntity;
-import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
-import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.money.capability.implementations.MoneyViewWrapper;
 import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyViewer;
-import io.github.lightman314.lightmanscurrency.common.blockentity.handler.MoneyBagItemViewer;
+import io.github.lightman314.lightmanscurrency.common.blockentity.item_handler.MoneyBagInventory;
 import io.github.lightman314.lightmanscurrency.common.blocks.MoneyBagBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.items.data.LootTableEntry;
 import io.github.lightman314.lightmanscurrency.common.items.data.MoneyBagData;
-import io.github.lightman314.lightmanscurrency.common.menus.item_handlers.SuppliedContainer;
 import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -39,16 +33,11 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
-import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Range;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.ArrayList;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class MoneyBagBlockEntity extends EasyBlockEntity implements IServerTicker {
 
     public static final int MAX_ITEM_COUNT = 9 * 64;
@@ -62,21 +51,21 @@ public class MoneyBagBlockEntity extends EasyBlockEntity implements IServerTicke
     private ResourceKey<LootTable> lootTable;
     private long lootTableSeed = -1;
 
-    private final List<ItemStack> contents = new ArrayList<>();
+    private final MoneyBagInventory contents = new MoneyBagInventory();
 
-    public final IItemHandler viewer = new MoneyBagItemViewer(this);
-    public final IMoneyViewer moneyViewer = MoneyAPI.getApi().GetContainersMoneyHandler(new SuppliedContainer(() -> InventoryUtil.buildInventory(this.contents)),s -> {},this);
+    public final IMoneyViewer moneyViewer = MoneyViewWrapper.forInventory(this.contents,this);
 
     public MoneyBagBlockEntity(BlockPos pos, BlockState state) { this(ModBlockEntities.MONEY_BAG.get(),pos,state); }
     protected MoneyBagBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+        this.contents.withListener(this::setChanged);
     }
 
-    public List<ItemStack> viewContents() { return InventoryUtil.copyList(this.contents); }
+    public List<ItemStack> viewContents() { return ItemHandlerUtil.toList(this.contents); }
 
     public List<ItemStack> clearContents() {
         this.checkLootTable();
-        List<ItemStack> result = new ArrayList<>(this.contents);
+        List<ItemStack> result = ItemHandlerUtil.toList(this.contents);
         this.contents.clear();
         //This should only be called right before the bag is destroyed, but I'm going to flag it as changed anyway just to be safe
         this.setChanged();
@@ -89,7 +78,7 @@ public class MoneyBagBlockEntity extends EasyBlockEntity implements IServerTicke
     public int getBlockSize() { return getBlockSize(this.getTotalContentCount()); }
 
     @Range(from = 0, to = 3)
-    public static int getBlockSize(List<ItemStack> contents) { return getBlockSize(getTotalContentCount(contents)); }
+    public static int getBlockSize(MoneyBagInventory contents) { return getBlockSize(contents.getCurrentCount()); }
 
     @Range(from = 0, to = 3)
     public static int getBlockSize(int totalCount)
@@ -103,34 +92,16 @@ public class MoneyBagBlockEntity extends EasyBlockEntity implements IServerTicke
         return 3;
     }
 
-    public int getTotalContentCount() { return getTotalContentCount(this.contents); }
-
-    public static int getTotalContentCount(List<ItemStack> contents)
-    {
-        int count = 0;
-        for(ItemStack item : contents)
-            count += item.getCount();
-        return count;
-    }
+    public int getTotalContentCount() { return this.contents.getCurrentCount(); }
 
     public boolean tryInsertItem(ItemStack item, @Nullable Player player)
     {
         this.checkLootTable();
         if(this.getTotalContentCount() >= MAX_ITEM_COUNT)
             return false;
-        if(CoinAPI.getApi().IsAllowedInCoinContainer(item,false))
+        if(this.contents.insertItem(0,item,true).isEmpty())
         {
-            for(ItemStack i : this.contents)
-            {
-                if(InventoryUtil.ItemMatches(i,item))
-                {
-                    i.grow(1);
-                    this.onContentsChanged();
-                    return true;
-                }
-            }
-            this.contents.add(item.copyWithCount(1));
-            this.onContentsChanged();
+            this.contents.insertItem(0,item,true);
             return true;
         }
         return false;
@@ -139,33 +110,7 @@ public class MoneyBagBlockEntity extends EasyBlockEntity implements IServerTicke
     public ItemStack removeRandomItem()
     {
         this.checkLootTable();
-        ItemStack result = removeRandomItem(this.contents,this.level.random);
-        if(!result.isEmpty())
-            this.onContentsChanged();
-        return result;
-    }
-
-    public static ItemStack removeRandomItem(List<ItemStack> contents, RandomSource random)
-    {
-        if(contents.isEmpty())
-            return ItemStack.EMPTY;
-        int totalCount = 0;
-        for(ItemStack item : contents)
-            totalCount += item.getCount();
-        int rand = random.nextInt(totalCount);
-        for(int i = 0; i < contents.size(); ++i)
-        {
-            ItemStack item = contents.get(i);
-            rand -= item.getCount();
-            if(rand < 0)
-            {
-                ItemStack result = item.split(1);
-                if(item.isEmpty())
-                    contents.remove(i);
-                return result;
-            }
-        }
-        return ItemStack.EMPTY;
+        return this.contents.removeRandomItem(this.level.random);
     }
 
     private void onContentsChanged()
@@ -185,20 +130,13 @@ public class MoneyBagBlockEntity extends EasyBlockEntity implements IServerTicke
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider lookup) {
-        super.saveAdditional(tag, lookup);
+    protected void saveAdditional(CompoundTag tag, DataContext<Tag> context) {
+        super.saveAdditional(tag,context);
 
         if(this.customName != null)
-            tag.putString("CustomName",Component.Serializer.toJson(this.customName,lookup));
+            tag.putString("CustomName",context.writeComponent(this.customName));
 
-        ListTag list = new ListTag();
-        for(ItemStack item : new ArrayList<>(this.contents))
-        {
-            if(item.isEmpty())
-                continue;
-            list.add(InventoryUtil.saveItemNoLimits(item,lookup));
-        }
-        tag.put("Contents",list);
+        tag.put("Contents",context.write(this.contents,MoneyBagInventory.CODEC));
         if(this.lootTable != null)
         {
             tag.putString("LootTable",this.lootTable.location().toString());
@@ -209,21 +147,14 @@ public class MoneyBagBlockEntity extends EasyBlockEntity implements IServerTicke
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider lookup) {
-        super.loadAdditional(tag, lookup);
+    protected void loadAdditional(CompoundTag tag,DataContext<Tag> context) {
+        super.loadAdditional(tag,context);
 
         if(tag.contains("CustomName",Tag.TAG_STRING))
-            this.customName = Component.Serializer.fromJson(tag.getString("CustomName"),lookup);
+            this.customName = context.readComponent(tag.getString("CustomName"));
 
         this.contents.clear();
-        ListTag list = tag.getList("Contents",Tag.TAG_COMPOUND);
-        for(int i = 0; i < list.size(); ++i)
-        {
-            ItemStack item = InventoryUtil.loadItemNoLimits(list.getCompound(i),lookup);
-            if(item.isEmpty())
-                continue;
-            this.contents.add(item);
-        }
+        this.contents.load(context.read(tag.get("Contents"),MoneyBagInventory.CODEC));
         if(tag.contains("LootTable"))
         {
             this.lootTable = ResourceKey.create(Registries.LOOT_TABLE,VersionUtil.parseResource(tag.getString("LootTable")));
@@ -244,7 +175,7 @@ public class MoneyBagBlockEntity extends EasyBlockEntity implements IServerTicke
         //Clear components that were copied from the item by vanilla means
         MoneyBagData data = moneybag.getOrDefault(ModDataComponents.MONEY_BAG_CONTENTS,MoneyBagData.EMPTY);
         this.contents.clear();
-        this.contents.addAll(InventoryUtil.copyList(data.contents()));
+        this.contents.load(data.contents());
         this.onContentsChanged();
         //Load loot table
         if(moneybag.has(ModDataComponents.LOOT_TABLE_ENTRY))
@@ -299,7 +230,7 @@ public class MoneyBagBlockEntity extends EasyBlockEntity implements IServerTicke
                 loot = table.getRandomItems(lootParams,this.lootTableSeed);
             else
                 loot = table.getRandomItems(lootParams);
-            this.contents.addAll(InventoryUtil.combineQueryItems(loot));
+            this.contents.load(ItemHandlerUtil.combineStacks(loot));
             //Clear the Loot Table Data
             this.lootTable = null;
             this.lootTableSeed = -1;
@@ -316,7 +247,7 @@ public class MoneyBagBlockEntity extends EasyBlockEntity implements IServerTicke
 
         if(!this.contents.isEmpty())
         {
-            MoneyBagData data = new MoneyBagData(ImmutableList.copyOf(this.viewContents()),this.getBlockSize());
+            MoneyBagData data = new MoneyBagData(this.contents.copy(),this.getBlockSize());
             item.set(ModDataComponents.MONEY_BAG_CONTENTS,data);
         }
 

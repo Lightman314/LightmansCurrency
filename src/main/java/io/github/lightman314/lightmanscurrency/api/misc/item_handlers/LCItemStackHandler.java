@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
+import io.github.lightman314.lightmanscurrency.util.ItemStackHelper;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -25,6 +26,7 @@ public class LCItemStackHandler extends ItemStackHandler {
     public static <T extends LCItemStackHandler> Codec<T> createCodec(Function<List<ItemStack>,T> factory) { return ItemStack.OPTIONAL_CODEC.listOf().xmap(factory,s -> s.stacks); }
     public static <T extends LCItemStackHandler> StreamCodec<RegistryFriendlyByteBuf,T> createStreamCodec(Function<List<ItemStack>,T> factory) { return ItemStack.OPTIONAL_LIST_STREAM_CODEC.map(factory, s -> s.stacks); }
 
+    public static final Codec<LCItemStackHandler> CODEC = createCodec(LCItemStackHandler::new);
     public static final StreamCodec<RegistryFriendlyByteBuf,LCItemStackHandler> STREAM_CODEC = createStreamCodec(LCItemStackHandler::new);
 
     private final List<Runnable> listeners = new ArrayList<>();
@@ -126,13 +128,10 @@ public class LCItemStackHandler extends ItemStackHandler {
     @SuppressWarnings("deprecation")
     public final void safeLoad(CompoundTag tag, String key, DataContext<Tag> context)
     {
-        if(tag.contains(key, Tag.TAG_COMPOUND))
+        if(tag.contains(key,Tag.TAG_COMPOUND))
             this.deserializeNBT(context.registryAccess(),tag.getCompound(key));
         else
-        {
-            Container container = InventoryUtil.loadAllItems(key,tag,this.stacks.size(),context.registryAccess());
-            this.copyFromContainer(container);
-        }
+            ItemStackHelper.loadAllItems(key,tag,this.stacks,context.registryAccess());
     }
 
     @Override

@@ -87,7 +87,7 @@ public abstract class TraderInterfaceBlock extends RotatableBlock implements IEa
 		{
 			if(!blockEntity.isOwner(player))
 				return state;
-			InventoryUtil.dumpContents(level, pos, blockEntity.getContents(level, pos, state, !player.isCreative()));
+			InventoryUtil.dropContents(level, pos, blockEntity.getContents(level, pos, state, !player.isCreative()));
 			blockEntity.flagAsRemovable();
 		}
 		return super.playerWillDestroy(level, pos, state, player);

@@ -11,7 +11,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.menus.wallet.WalletMenuBase;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
@@ -23,11 +23,9 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
-import javax.annotation.Nonnull;
-
 public class CoinMagnetEnchantment {
 	
-	public static void runEntityTick(@Nonnull WalletHandler walletHandler, @Nonnull LivingEntity entity) {
+	public static void runEntityTick(WalletHandler walletHandler, LivingEntity entity) {
 		if(entity.isSpectator())
 			return;
 		ItemStack wallet = walletHandler.getWallet();
@@ -53,7 +51,7 @@ public class CoinMagnetEnchantment {
 			ItemEntity ie = (ItemEntity)e;
 			ItemStack coinStack = ie.getItem();
 			ItemStack leftovers = WalletItem.PickupCoin(wallet, coinStack);
-			if(!InventoryUtil.ItemsFullyMatch(leftovers, coinStack))
+			if(!ItemHandlerUtil.isExactMatch(leftovers, coinStack))
 			{
 				updateWallet = true;
 				if(leftovers.isEmpty())
@@ -72,7 +70,7 @@ public class CoinMagnetEnchantment {
 		}
 	}
 
-	public static boolean coinMagnetEntityFilter(Entity entity, @Nonnull LivingEntity potentialPickup) {
+	public static boolean coinMagnetEntityFilter(Entity entity, LivingEntity potentialPickup) {
 		if(entity instanceof ItemEntity item)
 		{
 			//Deny if the item is reserved for a given player/entity

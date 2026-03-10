@@ -1,8 +1,9 @@
 package io.github.lightman314.lightmanscurrency.api.misc.menus.slots;
 
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.Predicate;
 
+import com.google.common.base.Predicates;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.resources.ResourceLocation;
@@ -11,12 +12,13 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
-public class EasySlot extends SlotItemHandler {
+public class EasySlot extends SlotItemHandler implements IEasySlot {
 
     public static final ResourceLocation EMPTY_SLOT_BG = LightmansCurrency.id( "item/empty_item_slot");
     public static final Pair<ResourceLocation,ResourceLocation> BACKGROUND = Pair.of(InventoryMenu.BLOCK_ATLAS, EMPTY_SLOT_BG);
@@ -25,8 +27,17 @@ public class EasySlot extends SlotItemHandler {
 
     public final IItemHandler itemHandler;
 
-    public boolean active = true;
-    public boolean locked = false;
+    private boolean active = true;
+    @Override
+    public boolean isActive() { return this.active; }
+    private boolean locked = false;
+    @Override
+    public boolean isLocked() { return this.locked; }
+
+    @Override
+    public void setLocked(boolean locked) { this.locked = locked; }
+    @Override
+    public void setActive(boolean active) { this.active = active; }
 
     private Runnable listener = () ->{};
 
@@ -34,9 +45,6 @@ public class EasySlot extends SlotItemHandler {
     public EasySlot(IItemHandlerModifiable itemHandler, int index, int x, int y) { super(itemHandler,index,x,y); this.itemHandler = itemHandler; }
     //Protected constructor allows non-modifiable IItemHandler input under the assumption that they'll override the relevant set methods
     protected EasySlot(IItemHandler itemHandler, int index, int x, int y) { super(itemHandler,index,x,y); this.itemHandler = itemHandler; }
-
-    @Override
-    public boolean isActive() { return this.active; }
 
     @Override
     public boolean mayPlace(ItemStack stack) {
@@ -67,59 +75,26 @@ public class EasySlot extends SlotItemHandler {
         this.listener.run();
     }
 
-    public static void SetActive(AbstractContainerMenu menu) {
-        SetActive(menu, (slot) -> true);
-    }
-
-    public static void SetActive(AbstractContainerMenu menu, Function<EasySlot,Boolean> filter) {
-        menu.slots.forEach(slot -> {
-            if(slot instanceof EasySlot simpleSlot) {
-                if(filter.apply(simpleSlot))
-                    simpleSlot.active = true;
-            }
-        });
-    }
-
-    public static void SetInactive(AbstractContainerMenu menu) {
-        SetInactive(menu, (slot) -> true);
-    }
-
-    public static void SetInactive(AbstractContainerMenu menu, Function<EasySlot,Boolean> filter) {
-        menu.slots.forEach(slot -> {
-            if(slot instanceof EasySlot simpleSlot) {
-                if(filter.apply(simpleSlot))
-                    simpleSlot.active = false;
-            }
-        });
-    }
-
-    public static void SetActive(List<? extends EasySlot> slots) { SetActive(slots, true); }
-    public static void SetInactive(List<? extends EasySlot> slots) { SetActive(slots, false); }
-
-    public static void SetActive(List<? extends EasySlot> slots, boolean active) {
-        for(EasySlot slot: slots) {
-            slot.active = active;
+    public static void SetActive(AbstractContainerMenu menu,boolean active) { SetActive(menu.slots,active); }
+    public static void SetActive(AbstractContainerMenu menu,boolean active,Predicate<IEasySlot> filter) { SetActive(menu.slots,active,filter); }
+    public static void SetActive(List<? extends Slot> slots,boolean active) { SetActive(slots,active,Predicates.alwaysTrue()); }
+    public static void SetActive(List<? extends Slot> slots,boolean active,Predicate<IEasySlot> filter) {
+        for(Slot slot : slots)
+        {
+            if(slot instanceof IEasySlot s && filter.test(s))
+                s.setActive(active);
         }
     }
 
-    public static void SetLocked(AbstractContainerMenu menu, boolean locked) { SetLocked(menu, locked, (slot) -> true); }
-
-    public static void SetLocked(AbstractContainerMenu menu, boolean locked, Function<EasySlot,Boolean> filter) {
-        menu.slots.forEach(slot -> {
-            if(slot instanceof  EasySlot simpleSlot)
-            {
-                if(filter.apply(simpleSlot))
-                    simpleSlot.locked = locked;
-            }
-        });
+    public static void SetLocked(AbstractContainerMenu menu,boolean locked) { SetLocked(menu.slots,locked); }
+    public static void SetLocked(AbstractContainerMenu menu,boolean locked,Predicate<IEasySlot> filter) { SetLocked(menu.slots,locked,filter); }
+    public static void SetLocked(List<? extends Slot> slots, boolean locked) { SetLocked(slots,locked,Predicates.alwaysTrue()); }
+    public static void SetLocked(List<? extends Slot> slots, boolean locked,Predicate<IEasySlot> filter) {
+        for(Slot slot : slots)
+        {
+            if(slot instanceof IEasySlot s && filter.test(s))
+                s.setLocked(locked);
+        }
     }
-
-    public static void Lock(AbstractContainerMenu menu) { SetLocked(menu, true); }
-
-    public static void Lock(AbstractContainerMenu menu, Function<EasySlot,Boolean> filter) { SetLocked(menu, true, filter); }
-
-    public static void Unlock(AbstractContainerMenu menu) { SetLocked(menu, false); }
-
-    public static void Unlock(AbstractContainerMenu menu, Function<EasySlot,Boolean> filter) { SetLocked(menu, false, filter); }
 
 }

@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraph
 import io.github.lightman314.lightmanscurrency.api.client.gui.tabbed.EasyClientTabbedMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.*;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.atm.salary.SalaryTab;
-import io.github.lightman314.lightmanscurrency.client.gui.util.IWidgetPositioner;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.IWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.TabButton;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.WidgetRotation;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidgetPositioner;

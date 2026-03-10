@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraph
 import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.OwnerSelectionWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;

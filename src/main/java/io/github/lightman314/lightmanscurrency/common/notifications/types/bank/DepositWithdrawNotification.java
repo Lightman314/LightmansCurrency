@@ -62,14 +62,14 @@ public abstract class DepositWithdrawNotification extends SingleLineNotification
                 ComponentSerialization.CODEC.fieldOf("account").forGetter(n -> n.accountName),
                 Codec.BOOL.fieldOf("deposit").forGetter(n -> n.isDeposit),
                 MoneyValue.CODEC.fieldOf("amount").forGetter(n -> n.amount),
-                NotificationType.baseFields()
+                baseFields()
         );
     }
 
     protected static <T extends DepositWithdrawNotification> SPart4<RegistryFriendlyByteBuf,T,Component,Boolean,MoneyValue,CommonData> dwStreamFields(Class<T> clazz) { return dwStreamFields(); }
     protected static <T extends DepositWithdrawNotification> SPart4<RegistryFriendlyByteBuf,T,Component,Boolean,MoneyValue,CommonData> dwStreamFields()
     {
-        return SPart4.of(NotificationType.baseStreamFields(),
+        return SPart4.of(baseStreamFields(),
                 ComponentSerialization.STREAM_CODEC,n -> n.accountName,
                 ByteBufCodecs.BOOL,n -> n.isDeposit,
                 MoneyValue.STREAM_CODEC,n -> n.amount);

@@ -197,24 +197,24 @@ public class ItemHandlerUtil {
         return false;
     }
 
-    public static void dumpContents(Level level,BlockPos pos,IItemHandler inventory) {
+    public static void dropContents(Level level, BlockPos pos, IItemHandler inventory) {
         for(int i = 0; i < inventory.getSlots(); ++i)
         {
             ItemStack removed = inventory.extractItem(i,Integer.MAX_VALUE,false);
             if(!removed.isEmpty())
-                dumpContents(level,pos,removed);
+                dropContents(level,pos,removed);
         }
     }
 
-    public static void dumpContents(Level level,BlockPos pos,List<ItemStack> inventory)
+    public static void dropContents(Level level, BlockPos pos, List<ItemStack> inventory)
     {
         if(level.isClientSide)
             return;
         for (ItemStack itemStack : inventory)
-            dumpContents(level, pos, itemStack);
+            dropContents(level, pos, itemStack);
     }
 
-    public static void dumpContents(Level level, BlockPos pos, ItemStack stack)
+    public static void dropContents(Level level, BlockPos pos, ItemStack stack)
     {
         if(level.isClientSide)
             return;

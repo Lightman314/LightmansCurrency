@@ -164,6 +164,6 @@ public final class FlexibleMoneyValue {
     }
 
     public Component getText() { return this.value.getText("0"); }
-    public Component getText(int color, int negativeColor) { return this.value.getText("0").withColor(this.negative ? negativeColor : color); }
+    public Component getText(int color,int negativeColor) { return this.value.getText("0").copy().withColor(this.negative ? negativeColor : color); }
 
 }

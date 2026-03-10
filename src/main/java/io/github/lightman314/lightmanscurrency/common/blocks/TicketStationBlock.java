@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.blocks.RotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
+import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.*;
@@ -58,7 +59,7 @@ public class TicketStationBlock extends RotatableBlock implements EntityBlock, I
 	protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
 		//Drop the ticket stations contents
 		if(!state.is(newState.getBlock()) && level.getBlockEntity(pos) instanceof TicketStationBlockEntity be)
-			Containers.dropContents(level,pos,be.getStorage());
+			ItemHandlerUtil.dropContents(level,pos,be.getStorage());
 		super.onRemove(state, level, pos, newState, movedByPiston);
 	}
 

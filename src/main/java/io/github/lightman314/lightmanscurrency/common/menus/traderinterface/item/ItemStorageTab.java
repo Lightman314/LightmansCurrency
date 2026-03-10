@@ -6,14 +6,15 @@ import java.util.function.Function;
 
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeStackHandler;
 import io.github.lightman314.lightmanscurrency.common.blockentity.ItemTraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.traderinterface.item.ItemStorageClientTab;
-import io.github.lightman314.lightmanscurrency.api.upgrades.slot.UpgradeInputSlot;
 import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.traders.item.storage.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.menu.TraderInterfaceTab;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -41,17 +42,18 @@ public class ItemStorageTab extends TraderInterfaceTab {
     public List<? extends Slot> getSlots() { return this.slots; }
 
     @Override
-    public void onTabOpen() { EasySlot.SetActive(this.slots); }
+    public void onTabOpen() { EasySlot.SetActive(this.slots,true); }
 
     @Override
-    public void onTabClose() { EasySlot.SetInactive(this.slots); }
+    public void onTabClose() { EasySlot.SetActive(this.slots,false); }
 
     @Override
     public void addStorageMenuSlots(Function<Slot,Slot> addSlot) {
-        for(int i = 0; i < this.menu.getBE().getUpgrades().getContainerSize(); ++i)
+        UpgradeStackHandler upgrades = this.menu.getBE().getUpgrades();
+        for(int i = 0; i < upgrades.getSlots(); ++i)
         {
-            EasySlot upgradeSlot = new UpgradeInputSlot(this.menu.getBE().getUpgrades(), i, 176, 18 + 18 * i, this.menu.getBE(), this::onUpgradeModified);
-            upgradeSlot.active = false;
+            EasySlot upgradeSlot = new EasySlot(upgrades, i, 176, 18 + 18 * i);
+            upgradeSlot.setActive(false);
             addSlot.apply(upgradeSlot);
             this.slots.add(upgradeSlot);
         }
@@ -184,7 +186,7 @@ public class ItemStorageTab extends TraderInterfaceTab {
             else if(type == 1)
             {
                 //Quick Extract
-                List<ItemStack> itemList = InventoryUtil.copyList(storage.getContents());
+                List<ItemStack> itemList = ItemHandlerUtil.copyList(storage.getContents());
                 for(ItemStack stack : itemList)
                 {
                     boolean keepTrying = true;
@@ -194,7 +196,8 @@ public class ItemStorageTab extends TraderInterfaceTab {
                         int transferCount = Math.min(storage.getItemCount(stack), stack.getMaxStackSize());
                         transferStack.setCount(transferCount);
                         //Attempt to move the stack into the players inventory
-                        int removedCount = InventoryUtil.safeGiveToPlayer(inv, transferStack);
+                        ItemStack result = InventoryUtil.insertItem(inv,transferStack,false);
+                        int removedCount = transferStack.getCount() - result.getCount();
                         if(removedCount > 0)
                         {
                             changed = true;

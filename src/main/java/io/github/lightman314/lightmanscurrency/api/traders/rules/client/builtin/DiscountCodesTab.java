@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.rules.client.TradeRul
 import io.github.lightman314.lightmanscurrency.api.traders.rules.client.TradeRulesClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.TimeInputWidget;
-import io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon.IconButton;
+import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyTextButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.IScrollable;

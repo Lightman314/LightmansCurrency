@@ -1,14 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.items;
 
-import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
-import io.github.lightman314.lightmanscurrency.common.blockentity.MoneyBagBlockEntity;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.common.blockentity.item_handler.MoneyBagInventory;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
 import io.github.lightman314.lightmanscurrency.common.items.data.LootTableEntry;
 import io.github.lightman314.lightmanscurrency.common.items.data.MoneyBagData;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -28,7 +27,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MoneyBagItem extends BlockItem {
@@ -66,8 +64,8 @@ public class MoneyBagItem extends BlockItem {
         if(dropChance > 0d && random.nextDouble() < dropChance)
         {
             //Drop a random coin
-            List<ItemStack> contents = getContents(stack);
-            ItemStack droppedCoin = MoneyBagBlockEntity.removeRandomItem(contents,random);
+            MoneyBagInventory contents = getContents(stack);
+            ItemStack droppedCoin = contents.removeRandomItem(random);
             if(!droppedCoin.isEmpty())
             {
                 //Update the money bags contents
@@ -87,14 +85,14 @@ public class MoneyBagItem extends BlockItem {
         }
     }
 
-    public static List<ItemStack> getContents(ItemStack moneybag)
+    public static MoneyBagInventory getContents(ItemStack moneybag)
     {
         if(moneybag.getItem() instanceof MoneyBagItem)
-            return InventoryUtil.copyList(moneybag.getOrDefault(ModDataComponents.MONEY_BAG_CONTENTS, MoneyBagData.EMPTY).contents());
-        return new ArrayList<>();
+            return moneybag.getOrDefault(ModDataComponents.MONEY_BAG_CONTENTS, MoneyBagData.EMPTY).contents().copy();
+        return new MoneyBagInventory();
     }
 
-    public static void setContents(ItemStack moneyBag,List<ItemStack> contents)
+    public static void setContents(ItemStack moneyBag,MoneyBagInventory contents)
     {
         if(moneyBag.getItem() instanceof MoneyBagItem)
             moneyBag.set(ModDataComponents.MONEY_BAG_CONTENTS,MoneyBagData.of(contents));
@@ -107,7 +105,7 @@ public class MoneyBagItem extends BlockItem {
         return 0;
     }
 
-    public static ItemStack createItem(ItemLike item, List<ItemStack> contents, int size) { return createItem(item,new MoneyBagData(ImmutableList.copyOf(InventoryUtil.copyList(contents)),size)); }
+    public static ItemStack createItem(ItemLike item, List<ItemStack> contents, int size) { return createItem(item,new MoneyBagData(new MoneyBagInventory(contents),size)); }
     public static ItemStack createItem(ItemLike item, MoneyBagData data)
     {
         ItemStack stack = new ItemStack(item);

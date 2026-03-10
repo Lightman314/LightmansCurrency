@@ -15,7 +15,6 @@ import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.D
 import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
@@ -58,7 +57,7 @@ public interface IBankAccount extends IMoneyHolder, IClientTracker, LazyPacketDa
      * The name of the bank account.<br>
      * Typically, returns text along the lines of <code><b>USER's Bank Account</b></code>
      */
-    MutableComponent getName();
+    Component getName();
 
     /**
      * The name of the bank accounts owner.<br>
@@ -86,7 +85,6 @@ public interface IBankAccount extends IMoneyHolder, IClientTracker, LazyPacketDa
     void setNotificationLevel(String type, MoneyValue level);
 
     //Notification System
-
     /**
      * Stores the {@link Notification} in the Bank Accounts local logger.
      */
@@ -109,10 +107,9 @@ public interface IBankAccount extends IMoneyHolder, IClientTracker, LazyPacketDa
     /**
      * All {@link Notification Notifications} stored on the Bank Accounts local logger.
      */
-    
     List<Notification> getNotifications();
 
-    default MutableComponent getBalanceText() { return LCText.GUI_BANK_BALANCE.get(this.getMoneyStorage().getRandomValueText()); }
+    default Component getBalanceText() { return LCText.GUI_BANK_BALANCE.get(this.getMoneyStorage().getRandomValueText()); }
 
 
     /**

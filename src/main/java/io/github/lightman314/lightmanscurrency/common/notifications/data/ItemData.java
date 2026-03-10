@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -116,7 +117,7 @@ public class ItemData
         //Cannot compare text components server-side apparently...
         if(this.deprecatedName.isPresent() || other.deprecatedName.isPresent())
             return false;
-        return this.customName.equals(other.customName) && InventoryUtil.ItemsFullyMatch(this.stack, other.stack);
+        return this.customName.equals(other.customName) && ItemHandlerUtil.isExactMatch(this.stack,other.stack);
     }
 
     public static Component getItemNames(List<ItemData> items) {

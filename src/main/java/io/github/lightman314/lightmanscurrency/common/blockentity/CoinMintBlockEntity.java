@@ -13,14 +13,12 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.crafting.CoinMintRecipe;
 import io.github.lightman314.lightmanscurrency.common.crafting.RecipeValidator;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
@@ -70,16 +68,12 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 	}
 	
 	@Override
-    @SuppressWarnings("deprecation")
 	public void loadAdditional(CompoundTag compound,DataContext<Tag> context)
 	{
 		super.loadAdditional(compound,context);
 
 		if(compound.contains("Storage"))
-		{
-            Container old = InventoryUtil.loadAllItems("Storage", compound, 2, context.registryAccess());
-			this.storage.copyFromContainer(old);
-		}
+            this.storage.safeLoad(compound,"Storage",context);
         if(compound.contains("Inventory"))
             this.storage.deserializeNBT(context.registryAccess(),compound.getCompound("Inventory"));
 
@@ -138,7 +132,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
         this.sendPacket(this.builder().setInt("mint_time",this.mintTime));
 	}
 
-	public void dumpContents(Level world, BlockPos pos) { ItemHandlerUtil.dumpContents(world, pos, this.storage); }
+	public void dumpContents(Level world, BlockPos pos) { ItemHandlerUtil.dropContents(world, pos, this.storage); }
 	
 	//Coin Minting Functions
 	public boolean validMintInput(ItemStack item)

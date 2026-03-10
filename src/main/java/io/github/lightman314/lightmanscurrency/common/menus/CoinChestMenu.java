@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.EasyItemHandlerSlot;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.classic.ClassicEasySlot;
 import io.github.lightman314.lightmanscurrency.common.blockentity.CoinChestBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.CoinSlot;
@@ -24,7 +25,7 @@ public class CoinChestMenu extends LazyMessageMenu {
 
     private final List<CoinSlot> coinSlots;
     private final List<EasySlot> upgradeSlots;
-    private final List<EasySlot> inventorySlots;
+    private final List<ClassicEasySlot> inventorySlots;
 
     public CoinChestMenu(int id, Inventory inventory, CoinChestBlockEntity be) {
         super(ModMenus.COIN_CHEST.get(), id, inventory);
@@ -60,12 +61,12 @@ public class CoinChestMenu extends LazyMessageMenu {
         this.upgradeSlots = ImmutableList.copyOf(uSlots);
 
         //Player inventory
-        List<EasySlot> iSlots = new ArrayList<>();
+        List<ClassicEasySlot> iSlots = new ArrayList<>();
         for(int y = 0; y < 3; y++)
         {
             for(int x = 0; x < 9; x++)
             {
-                EasySlot s = new EasySlot(inventory, x + y * 9 + 9, 8 + x * 18, 161 + y * 18);
+                ClassicEasySlot s = new ClassicEasySlot(inventory, x + y * 9 + 9, 8 + x * 18, 161 + y * 18);
                 iSlots.add(s);
                 this.addSlot(s);
             }
@@ -73,7 +74,7 @@ public class CoinChestMenu extends LazyMessageMenu {
         //Player hotbar
         for(int x = 0; x < 9; x++)
         {
-            EasySlot s = new EasySlot(inventory, x, 8 + x * 18, 219);
+            ClassicEasySlot s = new ClassicEasySlot(inventory, x, 8 + x * 18, 219);
             iSlots.add(s);
             this.addSlot(s);
         }

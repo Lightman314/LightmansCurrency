@@ -1,12 +1,9 @@
-package io.github.lightman314.lightmanscurrency.client.gui.widget.button.icon;
-
-import javax.annotation.Nonnull;
+package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.client.IconRenderer;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -19,39 +16,36 @@ public class IconButton extends EasyButton {
 
 	private final Function<IconButton,Integer> color;
 
-	protected IconButton(@Nonnull Builder builder)
+	protected IconButton(Builder builder)
 	{
 		super(builder);
 		this.setIcon(builder.icon);
 		this.color = builder.color;
 	}
 
-	public void setIcon(@Nonnull IconData icon) { this.iconSource = b -> icon; }
+	public void setIcon(IconData icon) { this.iconSource = b -> icon; }
 	
-	public void setIcon(@Nonnull Supplier<IconData> iconSource) { this.iconSource = b -> iconSource.get(); }
+	public void setIcon(Supplier<IconData> iconSource) { this.iconSource = b -> iconSource.get(); }
 	
-	public void setIcon(@Nonnull Function<IconButton,IconData> iconSource) { this.iconSource = iconSource; }
+	public void setIcon(Function<IconButton,IconData> iconSource) { this.iconSource = iconSource; }
 
 	@Override
-	public void renderWidget(@Nonnull EasyGuiGraphics gui)
+	public void renderWidget(EasyGuiGraphics gui)
 	{
 
 		gui.renderButtonBG(0,0,this.getWidth(), this.getHeight(), this.alpha, this, this.color.apply(this));
 
         if(!this.active)
             gui.setColor(0.5f, 0.5f, 0.5f,this.alpha);
-        
-        this.iconSource.apply(this).render(gui, 2, 2);
+
+        IconRenderer.renderIcon(this.iconSource.apply(this),gui,2,2);
 
 		gui.resetColor();
 
 	}
 
-	@Nonnull
 	public static Builder builder() { return new Builder(); }
 
-	@MethodsReturnNonnullByDefault
-	@FieldsAreNonnullByDefault
 	public static class Builder extends EasyButtonBuilder<Builder>
 	{
 

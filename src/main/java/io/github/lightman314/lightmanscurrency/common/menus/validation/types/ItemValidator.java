@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.menus.validation.types;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidatorType;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
@@ -35,12 +36,12 @@ public class ItemValidator extends MenuValidator {
 
     @Override
     public boolean stillValid(Player player) {
-        int count = InventoryUtil.GetItemCount(player.getInventory(),this.item);
+        //Check their inventory
+        int count = InventoryUtil.GetItemCount(player.getInventory(),s -> s.is(this.item));
         if(count > 0)
             return true;
-        if(LCCurios.isLoaded() && LCCurios.hasItem(player,s -> s.is(this.item)))
-            return true;
-        return false;
+        //If not in their inventory, check curios
+        return LCCurios.hasItem(player, s -> s.is(this.item));
     }
 
 
