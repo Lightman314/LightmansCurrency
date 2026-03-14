@@ -32,6 +32,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.type
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.api.variants.block.block_entity.IVariantDataStorage;
 import io.github.lightman314.lightmanscurrency.api.variants.block.builtin.VariantChunkDataStorageAttachment;
+
 import io.github.lightman314.lightmanscurrency.common.blocks.MoneyBagBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache;
@@ -92,6 +93,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.paygate.*;
 import io.github.lightman314.lightmanscurrency.common.traders.rules.types.*;
 import io.github.lightman314.lightmanscurrency.common.traders.terminal.filters.*;
 import io.github.lightman314.lightmanscurrency.common.core.ModRegistries;
+import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.crafting.condition.LCCraftingConditions;
 import io.github.lightman314.lightmanscurrency.common.gamerule.ModGameRules;
 import io.github.lightman314.lightmanscurrency.common.loot.LootManager;
@@ -106,6 +108,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.network.PacketDistributor.PacketTarget;
 
 import javax.annotation.Nonnull;
@@ -123,6 +126,12 @@ public class LightmansCurrency {
     private static final Logger LOGGER = LogManager.getLogger();
 
 	public LightmansCurrency() {
+	
+	    //Setup Wood Compatibilities before registering blocks/items
+		IntegrationUtil.SafeRunIfLoaded("biomesoplenty", BOPCustomWoodTypes::setupWoodTypes, "Error setting up BOP wood types! BOP has probably changed their API!");
+		IntegrationUtil.SafeRunIfLoaded("quark", QuarkCustomWoodTypes::setupWoodTypes, "Error setting up Quark wood types! Quark has probably changed their API!");
+		IntegrationUtil.SafeRunIfLoaded("biomeswevegone", BWGCustomWoodTypes::setupWoodTypes, "Error setting up BWG wood types! BWG has probably changed their API!");
+		//IntegrationUtil.SafeRunIfLoaded("tconstruct", TinkersCustomWoodTypes::setupWoodTypes, "Error setting up Tinkers' Construct wood types! Tinkers has probably changed their API!");
 
 		LootManager.registerDroplistListeners();
 
@@ -130,18 +139,12 @@ public class LightmansCurrency {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerCapabilities);
 
-        //Register configs
+		//Register configs
 		LCConfig.init();
 		LootManager.init();
-
-        // Register ourselves for server and other game events we are interested in
+		
+		// Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
-
-		//Setup Wood Compatibilities before registering blocks/items
-		IntegrationUtil.SafeRunIfLoaded("biomesoplenty", BOPCustomWoodTypes::setupWoodTypes, "Error setting up BOP wood types! BOP has probably changed their API!");
-		IntegrationUtil.SafeRunIfLoaded("quark", QuarkCustomWoodTypes::setupWoodTypes, "Error setting up Quark wood types! Quark has probably changed their API!");
-		IntegrationUtil.SafeRunIfLoaded("biomeswevegone", BWGCustomWoodTypes::setupWoodTypes, "Error setting up BWG wood types! BWG has probably changed their API!");
-		//IntegrationUtil.SafeRunIfLoaded("tconstruct", TinkersCustomWoodTypes::setupWoodTypes, "Error setting up Tinkers' Construct wood types! Tinkers has probably changed their API!");
 
         //Setup Deferred Registries
         ModRegistries.register(FMLJavaModLoadingContext.get().getModEventBus());
