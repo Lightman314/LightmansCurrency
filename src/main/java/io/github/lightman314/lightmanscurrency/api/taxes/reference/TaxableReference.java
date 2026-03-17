@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
@@ -19,10 +19,11 @@ public abstract class TaxableReference {
             //Desired Codec
             TaxReferenceType.CODEC.dispatch(t -> t.type,TaxReferenceType::codec),
             //Fallback Codec for old data
-            CodecHelper.oldValueLoader(TaxableReference::load,"Taxable Reference"));
-    public static final StreamCodec<FriendlyByteBuf,TaxableReference> STREAM_CODEC = TaxReferenceType.STREAM_CODEC.dispatch(t -> t.type,TaxReferenceType::streamCodec);
+            CodecHelper.oldValueLoader(TaxableReference::loadOldData,"Taxable Reference"));
+    public static final StreamCodec<ByteBuf,TaxableReference> STREAM_CODEC = TaxReferenceType.STREAM_CODEC.dispatch(TaxableReference::getType,TaxReferenceType::streamCodec);
 
     public final TaxReferenceType type;
+    private TaxReferenceType getType() { return this.type; }
     protected TaxableReference(TaxReferenceType type) { this.type = type; }
 
     @Nullable
@@ -34,9 +35,10 @@ public abstract class TaxableReference {
 
     public static TaxableReference load(CompoundTag tag) { return CODEC.decode(NbtOps.INSTANCE,tag).getOrThrow().getFirst(); }
 
+    @Deprecated
     private static TaxableReference loadOldData(CompoundTag tag) {
         //Load old data
-        ResourceLocation type = VersionUtil.parseResource(tag.getString("Type"));
+        ResourceLocation type = ResourceLocation.parse(tag.getString("Type"));
         TaxReferenceType t = TaxAPI.getApi().GetReferenceType(type);
         if(t != null)
             return t.load(tag);

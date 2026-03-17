@@ -64,7 +64,7 @@ public class PaygateTradeButtonRenderer extends TradeRenderManager<PaygateTradeD
 
     @Override
     protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) {
-        if(context.hasTrader() && context.getTrader() instanceof PaygateTraderData paygate)
+        if(context.getTrader() instanceof PaygateTraderData paygate)
         {
             OutputConflictHandling handling = paygate.findNodeValue(PaygateTradeNode.TYPE,PaygateTradeNode::getConflictHandling,OutputConflictHandling.DENY_ANY);
             //Check whether the paygate is currently active

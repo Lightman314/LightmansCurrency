@@ -2,22 +2,34 @@ package io.github.lightman314.lightmanscurrency.api.misc.data;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.network.IBuilderProvider;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
-import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.network.message.data.SPacketSyncCustomData;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
 
-public abstract class CustomData implements IClientTracker, LazyPacketData.IBuilderProvider {
+public abstract class CustomData implements IClientTracker, IBuilderProvider {
 
     public abstract CustomDataType<?> getType();
+
+    @Nullable
+    private HolderLookup.Provider registryAccess;
+    public HolderLookup.Provider registryAccess() {
+        if(this.registryAccess == null)
+            throw new IllegalStateException("Cannot access the registry before the custom data is initialized!");
+        return this.registryAccess;
+    }
+    public DataContext<Tag> dataContext() { return DataContext.createNBT(this.registryAccess()); }
 
     private boolean initialized = false;
     private boolean isClient = false;
@@ -29,19 +41,24 @@ public abstract class CustomData implements IClientTracker, LazyPacketData.IBuil
     //Override to make it final
     @Override
     public final boolean isServer() { return IClientTracker.super.isServer(); }
-    public final CustomData initClient() {
+    public final CustomData initClient(HolderLookup.Provider registryAccess) {
         if(this.initialized)
             return this;
+        this.registryAccess = registryAccess;
         this.initialized = this.isClient = true;
         return this;
     }
-    public final void initServer(Runnable setChanged) {
+    public final void initServer(Runnable setChanged,HolderLookup.Provider registryAccess) {
         if(this.initialized)
             return;
-        this.initialized = true;
+        this.registryAccess = registryAccess;
         this.setChanged = setChanged;
+        this.initialized = true;
         try { this.serverInit();
         } catch (Throwable t) { LightmansCurrency.LogError("Error caught in the custom data's serverInit function!",t); }
+        //Register to the event bus if it's an event listener
+        if(this.eventListener())
+            NeoForge.EVENT_BUS.register(this);
     }
 
     /**
@@ -138,7 +155,14 @@ public abstract class CustomData implements IClientTracker, LazyPacketData.IBuil
      */
     public final void setChanged() { this.setChanged.run(); }
 
-    @Override
-    public final LazyPacketData.Builder builder() { return LazyPacketData.builder(LookupHelper.getRegistryAccess()); }
+    @ApiStatus.Internal
+    public void syncTick() {}
+
+    public final void onServerShutdown() {
+        if(this.eventListener())
+            NeoForge.EVENT_BUS.unregister(this);
+    }
+
+    protected boolean eventListener() { return false; }
 
 }

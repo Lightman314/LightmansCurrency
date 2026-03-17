@@ -60,14 +60,14 @@ public class TraderMoneyStorageTab extends TraderStorageNodeTab<MoneyStorageNode
             MoneySlot slot = new MoneySlot(this.coinSlotContainer,x, TraderStorageMenu.SLOT_OFFSET + 8 + (x + 4) * 18, 122);
             this.coinSlots.add(slot);
             addSlot.apply(slot);
-            slot.active = false;
+            slot.setActive(false);
         }
     }
 
     @Override
-    public void onTabOpen() { EasySlot.SetActive(this.coinSlots); }
+    public void onTabOpen() { EasySlot.SetActive(this.coinSlots,true); }
     @Override
-    public void onTabClose() { EasySlot.SetInactive(this.coinSlots); }
+    public void onTabClose() { EasySlot.SetActive(this.coinSlots,false); }
     @Override
     public void onMenuClose() { this.menu.clearContainer(this.coinSlotContainer); }
 

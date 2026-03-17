@@ -12,9 +12,9 @@ import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LC
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.TableOps;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.InventoryPeripheral;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.events.PeripheralMethodsEvent;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.Container;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.wrapper.InvWrapper;
 
@@ -92,7 +92,7 @@ public abstract class LCPeripheral implements IDynamicPeripheral {
             //Register peripheral methods
             this.registerMethods(registration);
             //Allow addons to add methods via event
-            VersionUtil.postEvent(new PeripheralMethodsEvent(this,registration));
+            NeoForge.EVENT_BUS.post(new PeripheralMethodsEvent(this,registration));
             //Collect the method list from the map values
             this.methods = registration.getResults();
             this.afterInitialization();

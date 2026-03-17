@@ -18,7 +18,6 @@ import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.datagen.util.ColorHelper;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -53,14 +52,14 @@ public class LCBlockStateProvider extends BlockStateProvider {
 
     protected static final ResourceLocation UPGRADE_ITEM_CAPACITY = LightmansCurrency.id("item/item_capacity_upgrade");
     protected static final ResourceLocation UPGRADE_TRADE_OFFER = LightmansCurrency.id("item/trading_core");
-    protected static final ResourceLocation UPGRADE_NETWORK = VersionUtil.vanillaResource("item/ender_eye");
-    protected static final ResourceLocation UPGRADE_VOID = VersionUtil.vanillaResource("item/barrier");
-    protected static final ResourceLocation UPGRADE_SPEED = VersionUtil.vanillaResource("item/clock_00");
-    protected static final ResourceLocation UPGRADE_HOPPER = VersionUtil.vanillaResource("item/hopper");
+    protected static final ResourceLocation UPGRADE_NETWORK = ResourceLocation.withDefaultNamespace("item/ender_eye");
+    protected static final ResourceLocation UPGRADE_VOID = ResourceLocation.withDefaultNamespace("item/barrier");
+    protected static final ResourceLocation UPGRADE_SPEED = ResourceLocation.withDefaultNamespace("item/clock_00");
+    protected static final ResourceLocation UPGRADE_HOPPER = ResourceLocation.withDefaultNamespace("item/hopper");
     protected static final ResourceLocation UPGRADE_CC_SECURITY = LightmansCurrency.id("item/coin_chest_security_upgrade");
     protected static final ResourceLocation UPGRADE_CC_BANK = LightmansCurrency.id("item/coin_chest_bank_upgrade");
     protected static final ResourceLocation UPGRADE_CC_EXCHANGE = LightmansCurrency.id("item/coin_chest_exchange_upgrade");
-    protected static final ResourceLocation UPGRADE_CC_MAGNET = VersionUtil.vanillaResource("item/ender_pearl");
+    protected static final ResourceLocation UPGRADE_CC_MAGNET = ResourceLocation.withDefaultNamespace("item/ender_pearl");
 
     protected static final ResourceLocation WALLET_MODEL_BASE = WalletItem.lazyModel("wallet_base");
 
@@ -364,10 +363,10 @@ public class LCBlockStateProvider extends BlockStateProvider {
         });
 
         //Coin Chest
-        this.getVariantBuilder(ModBlocks.COIN_CHEST.get()).forAllStates(state -> ConfiguredModel.builder().modelFile(new ModelFile.ExistingModelFile(VersionUtil.vanillaResource("block/chest"), this.models().existingFileHelper)).build());
-        this.registerBlockItemModel(ModBlocks.COIN_CHEST, new ModelFile.ExistingModelFile(VersionUtil.vanillaResource("item/chest"), this.models().existingFileHelper));
+        this.getVariantBuilder(ModBlocks.COIN_CHEST.get()).forAllStates(state -> ConfiguredModel.builder().modelFile(new ModelFile.ExistingModelFile(ResourceLocation.withDefaultNamespace("block/chest"), this.models().existingFileHelper)).build());
+        this.registerBlockItemModel(ModBlocks.COIN_CHEST, new ModelFile.ExistingModelFile(ResourceLocation.withDefaultNamespace("item/chest"), this.models().existingFileHelper));
         //Gatcha Ball
-        this.itemModels().getBuilder("item/gacha_ball").parent(new ModelFile.ExistingModelFile(VersionUtil.vanillaResource("item/chest"), this.models().existingFileHelper));
+        this.itemModels().getBuilder("item/gacha_ball").parent(new ModelFile.ExistingModelFile(ResourceLocation.withDefaultNamespace("item/chest"), this.models().existingFileHelper));
         //Coin Jars
         this.registerRotatable(ModBlocks.PIGGY_BANK, "jars/piggy_bank", true);
         this.registerRotatable(ModBlocks.COINJAR_BLUE, "jars/coinjar_blue", true);
@@ -439,7 +438,7 @@ public class LCBlockStateProvider extends BlockStateProvider {
     protected void registerHandheldItem(Supplier<? extends ItemLike> item) { this.itemModels().handheldItem(item.get().asItem()); }
     protected void registerLayeredItem(Supplier<? extends ItemLike> item) {
         ResourceLocation itemID = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item.get().asItem()));
-        this.itemModels().basicItem(itemID).texture("layer1", VersionUtil.modResource(itemID.getNamespace(), "item/" + itemID.getPath() + "_overlay"));
+        this.itemModels().basicItem(itemID).texture("layer1", ResourceLocation.fromNamespaceAndPath(itemID.getNamespace(), "item/" + itemID.getPath() + "_overlay"));
     }
 
     protected void registerUpgradeItem(@Nonnull Supplier<? extends ItemLike> item, @Nonnull ResourceLocation base, @Nonnull ResourceLocation tier)

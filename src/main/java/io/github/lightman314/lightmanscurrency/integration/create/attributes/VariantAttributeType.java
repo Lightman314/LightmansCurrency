@@ -3,9 +3,10 @@ package io.github.lightman314.lightmanscurrency.integration.create.attributes;
 import com.mojang.serialization.MapCodec;
 import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttribute;
 import com.simibubi.create.content.logistics.item.filter.attribute.ItemAttributeType;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
+import io.github.lightman314.lightmanscurrency.api.variants.item.data.VariantData;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
@@ -18,7 +19,7 @@ import java.util.Objects;
 
 public class VariantAttributeType implements ItemAttributeType {
 
-    private static final ResourceLocation NULL_ID = VersionUtil.modResource("null","null");
+    private static final ResourceLocation NULL_ID = ResourceLocation.fromNamespaceAndPath("null","null");
     private static final VariantAttribute NO_VARIANT_ATTRIBUTE = new VariantAttribute(NULL_ID);
 
     public static final MapCodec<VariantAttribute> CODEC = ResourceLocation.CODEC
@@ -35,7 +36,7 @@ public class VariantAttributeType implements ItemAttributeType {
     public List<ItemAttribute> getAllAttributes(ItemStack stack, Level level) {
         if(VariantProvider.getVariantItem(stack) != null)
         {
-            ResourceLocation variantID = stack.getOrDefault(ModDataComponents.MODEL_VARIANT,null);
+            ResourceLocation variantID = stack.getOrDefault(ModDataComponents.MODEL_VARIANT,VariantData.NULL).variant();
             if(variantID != null)
                 return List.of(new VariantAttribute(variantID));
             return List.of(NO_VARIANT_ATTRIBUTE);
@@ -60,7 +61,7 @@ public class VariantAttributeType implements ItemAttributeType {
         private boolean isNullType() { return this.variantID.equals(NULL_ID); }
         @Override
         public boolean appliesTo(ItemStack stack, Level world) {
-            ResourceLocation variant = stack.getOrDefault(ModDataComponents.MODEL_VARIANT,null);
+            ResourceLocation variant = stack.getOrDefault(ModDataComponents.MODEL_VARIANT,VariantData.NULL).variant();
             if(this.isNullType())
                 return variant == null;
             return Objects.equals(this.variantID,variant);

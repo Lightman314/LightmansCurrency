@@ -6,7 +6,6 @@ import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -21,7 +20,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,9 +75,9 @@ public class RandomTrade extends ItemsForXTradeTemplate
     }
 
     @Override
-    protected ItemStack createResult(@Nonnull Entity trader, @Nonnull RandomSource rand) { return this.getRandomItem(rand); }
+    protected ItemStack createResult(Entity trader, RandomSource rand) { return this.getRandomItem(rand); }
 
-    private ItemStack getRandomItem(@Nonnull RandomSource rand) {
+    private ItemStack getRandomItem(RandomSource rand) {
         if(this.sellItemOptions != null)
         {
             int index = rand.nextInt(this.sellItemOptions.size());
@@ -101,7 +99,7 @@ public class RandomTrade extends ItemsForXTradeTemplate
         public ResourceLocation getType() { return TYPE; }
 
         @Override
-        public JsonObject serializeInternal(@Nonnull JsonObject json, @Nonnull ItemListing trade, @Nonnull HolderLookup.Provider lookup) {
+        public JsonObject serializeInternal(JsonObject json, ItemListing trade, HolderLookup.Provider lookup) {
             if(trade instanceof RandomTrade t)
             {
                 t.serializeData(json,lookup);
@@ -119,9 +117,8 @@ public class RandomTrade extends ItemsForXTradeTemplate
             return null;
         }
 
-        @Nonnull
         @Override
-        public ItemListing deserialize(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
+        public ItemListing deserialize(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
             var data = deserializeData(json,lookup);
             List<ItemStack> sellItems = null;
             if(json.has("Sell"))
@@ -133,7 +130,7 @@ public class RandomTrade extends ItemsForXTradeTemplate
             }
             TagKey<Item> sellTag = null;
             if(json.has("SellTag"))
-                sellTag = TagKey.create(BuiltInRegistries.ITEM.key(), VersionUtil.parseResource(GsonHelper.getAsString(json, "SellTag")));
+                sellTag = TagKey.create(BuiltInRegistries.ITEM.key(), ResourceLocation.parse(GsonHelper.getAsString(json, "SellTag")));
             if(sellTag == null && sellItems == null)
                 throw new JsonSyntaxException("Missing 'Sell' or 'SellTag' key");
             return new RandomTrade(data, sellItems, sellTag);

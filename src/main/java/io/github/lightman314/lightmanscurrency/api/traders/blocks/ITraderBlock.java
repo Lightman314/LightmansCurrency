@@ -18,7 +18,7 @@ public interface ITraderBlock extends IOwnableBlock, ICapabilityBlock {
 	@Nullable
 	default BlockEntity getBlockEntity(BlockState state, LevelAccessor level, BlockPos pos)
 	{
-		return level.getBlockEntity(this.getCapabilityBlockPos(state,level,pos));
+		return level.getBlockEntity(this.getCapabilityBlockPos(state,pos));
 	}
 	
 	default boolean canBreak(Player player, LevelAccessor level, BlockPos pos, BlockState state)

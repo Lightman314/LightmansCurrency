@@ -16,7 +16,7 @@ import io.github.lightman314.lightmanscurrency.common.notifications.categories.T
 import io.github.lightman314.lightmanscurrency.common.notifications.data.ItemData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade.SlotMachineEntry;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -35,7 +35,7 @@ public class SlotMachineTradeNotification extends SingleLineTaxableNotification 
 
     public static final NotificationType<SlotMachineTradeNotification> TYPE = new Type();
 
-    TraderCategory traderData = TraderCategory.NULL;
+    TraderCategory traderData = TraderCategory.getEmpty();
 
     List<ItemData> items = new ArrayList<>();
     MoneyValue money = MoneyValue.empty();
@@ -71,7 +71,7 @@ public class SlotMachineTradeNotification extends SingleLineTaxableNotification 
                 this.money = entry.getMoneyValue();
             else
             {
-                for(ItemStack item : InventoryUtil.combineQueryItems(entry.items))
+                for(ItemStack item : ItemHandlerUtil.combineStacks(entry.items))
                     this.items.add(new ItemData(item));
             }
         }
@@ -101,9 +101,10 @@ public class SlotMachineTradeNotification extends SingleLineTaxableNotification 
     }
 
     @Override
+    @Deprecated
     protected void loadNormal(CompoundTag compound, HolderLookup.Provider lookup) {
 
-        this.traderData = new TraderCategory(compound.getCompound("TraderInfo"),lookup);
+        this.traderData = TraderCategory.loadOldData(compound.getCompound("TraderInfo"),lookup);
         ListTag itemList = compound.getList("Items", Tag.TAG_COMPOUND);
         this.items = new ArrayList<>();
         for(int i = 0; i < itemList.size(); ++i)

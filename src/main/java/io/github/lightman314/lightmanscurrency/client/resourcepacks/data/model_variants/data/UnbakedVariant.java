@@ -15,7 +15,6 @@ import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_v
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantPropertyWithDefault;
 import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -218,20 +217,20 @@ public class UnbakedVariant {
     {
         ResourceLocation parent = null;
         if(json.has("parent"))
-            parent = VersionUtil.parseResource(GsonHelper.getAsString(json,"parent"));
+            parent = ResourceLocation.parse(GsonHelper.getAsString(json,"parent"));
         List<ResourceLocation> targets = new ArrayList<>();
         if(json.has("target"))
         {
             JsonElement targetElement = json.get("target");
             if(targetElement.isJsonPrimitive())
             {
-                addTarget(targets,VersionUtil.parseResource(GsonHelper.getAsString(json,"target")));
+                addTarget(targets,ResourceLocation.parse(GsonHelper.getAsString(json,"target")));
             }
             else
             {
                 JsonArray array = GsonHelper.getAsJsonArray(json,"target");
                 for(int i = 0; i < array.size(); ++i)
-                    addTarget(targets,VersionUtil.parseResource(GsonHelper.convertToString(array.get(i),"target[" + i + "]")));
+                    addTarget(targets,ResourceLocation.parse(GsonHelper.convertToString(array.get(i),"target[" + i + "]")));
             }
         }
         List<String> targetSelectors = new ArrayList<>();
@@ -257,9 +256,9 @@ public class UnbakedVariant {
 
         ResourceLocation item = null;
         if(json.has("item"))
-            item = VersionUtil.parseResource(GsonHelper.getAsString(json,"item"));
+            item = ResourceLocation.parse(GsonHelper.getAsString(json,"item"));
         else if(json.has("icon"))
-            item = VersionUtil.parseResource(GsonHelper.getAsString(json,"icon"));
+            item = ResourceLocation.parse(GsonHelper.getAsString(json,"icon"));
 
 
         List<ResourceLocation> models = new ArrayList<>();
@@ -267,7 +266,7 @@ public class UnbakedVariant {
         {
             JsonArray modelList = GsonHelper.getAsJsonArray(json,"models");
             for(int i = 0; i < modelList.size(); ++i)
-                models.add(VersionUtil.parseResource(GsonHelper.convertToString(modelList.get(i),"models[" + i + "]")));
+                models.add(ResourceLocation.parse(GsonHelper.convertToString(modelList.get(i),"models[" + i + "]")));
         }
         Map<String,ResourceLocation> textureOverrides = new HashMap<>();
         if(json.has("textures"))
@@ -275,7 +274,7 @@ public class UnbakedVariant {
             JsonObject textures = GsonHelper.getAsJsonObject(json,"textures");
             for(Map.Entry<String,JsonElement> entry : textures.entrySet())
             {
-                ResourceLocation t = VersionUtil.parseResource(GsonHelper.convertToString(entry.getValue(),entry.getKey()));
+                ResourceLocation t = ResourceLocation.parse(GsonHelper.convertToString(entry.getValue(),entry.getKey()));
                 textureOverrides.put(entry.getKey(),t);
             }
         }

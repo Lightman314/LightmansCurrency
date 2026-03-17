@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.data.TradeReference;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
-import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeResult;
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
@@ -33,6 +32,7 @@ import io.github.lightman314.lightmanscurrency.common.menus.TraderInterfaceMenu;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.client.TraderInterfaceClientTab;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.InfoTab;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
+import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
@@ -131,14 +131,15 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab> implements 
 			return new ArrayList<>();
 		
 		//Get last result
-		TradeReference tradeReference = this.getTradeReference();
+		TradeReference<?> tradeReference = this.getTradeReference();
 		if(tradeReference == null)
 			return new ArrayList<>();
 		List<Component> list = new ArrayList<>();
-		TradeResult result = tradeReference.getLastResult();
-		Component message = result.getMessage();
-		if(message != null)
-			list.add(message);
+		tradeReference.getLastResult().ifPresent(result -> {
+            Component message = result.getMessage();
+            if(message != null)
+                list.add(message);
+        });
 		
 		if(this.menu.getBE().getInteractionType().trades())
 		{
@@ -164,7 +165,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab> implements 
 	}
 
 	private TradeContext getTradeContext() {
-		TraderInterfaceBlockEntity be = this.menu.getBE();
+		TraderInterfaceBlockEntity<?> be = this.menu.getBE();
 		TraderData trader =	be.targets.getTrader();
 		if(trader == null)
 			return null;
@@ -172,12 +173,12 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab> implements 
 	}
 
 	@Nullable
-	private TradeReference getTradeReference()
+	private TradeReference<?> getTradeReference()
 	{
-		TraderInterfaceBlockEntity be = this.menu.getBE();
+		TraderInterfaceBlockEntity<?> be = this.menu.getBE();
 		if(be.getInteractionType().trades())
 		{
-			List<TradeReference> trades = be.targets.getTradeReferences();
+			List<TradeReference<?>> trades = ListUtil.castList(be.targets.getTradeReferences());
 			this.validateScroll();
 			if(this.scroll < 0 || this.scroll >= trades.size())
 				return null;
@@ -190,14 +191,14 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab> implements 
 	@Nullable
 	private TradeData getReferencedTrade()
 	{
-		TradeReference tradeReference = this.getTradeReference();
+		TradeReference<?> tradeReference = this.getTradeReference();
 		return tradeReference == null ? null : tradeReference.getLocalTrade();
 	}
 
 	@Nullable
 	private TradeData getTrueTrade()
 	{
-		TradeReference tradeReference = this.getTradeReference();
+		TradeReference<?> tradeReference = this.getTradeReference();
 		return tradeReference == null ? null : tradeReference.getTrueTrade();
 	}
 
@@ -212,7 +213,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab> implements 
 		//Block name
 		gui.drawString(this.menu.getBE().getBlockState().getBlock().getName(), 8, 6, 0x404040);
 		//Trader name
-		TraderInterfaceBlockEntity be = this.menu.getBE();
+		TraderInterfaceBlockEntity<?> be = this.menu.getBE();
 		if(be.getInteractionType().targetsTraders())
 		{
 			//Render list of trader names
@@ -284,7 +285,7 @@ public class InfoClientTab extends TraderInterfaceClientTab<InfoTab> implements 
 	}
 	
 	public boolean changeInTrades() {
-		TradeReference tradeReference = this.getTradeReference();
+		TradeReference<?> tradeReference = this.getTradeReference();
 		if(tradeReference == null)
 			return false;
 		TradeData referencedTrade = tradeReference.getLocalTrade();

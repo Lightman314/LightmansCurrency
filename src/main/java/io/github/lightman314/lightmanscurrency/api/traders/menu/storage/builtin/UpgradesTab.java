@@ -24,17 +24,7 @@ public class UpgradesTab extends TraderStorageTab {
 
     public static final ResourceLocation KEY = LightmansCurrency.id("upgrade_slots");
 
-    private final int slotLimit;
-    public UpgradesTab(ITraderStorageMenu menu) { this(menu,0); }
-
-    /**
-     * Use non-limited constructor. Slot limit should no longer be necessary since you can now customize how many upgrade slots your trader has when adding the node
-     */
-    @Deprecated(forRemoval = true)
-    public UpgradesTab(ITraderStorageMenu menu, int slotLimit) {
-        super(menu);
-        this.slotLimit = slotLimit;
-    }
+    public UpgradesTab(ITraderStorageMenu menu) { super(menu); }
 
     @Override
     public ResourceLocation tabKey() { return KEY; }
@@ -58,14 +48,14 @@ public class UpgradesTab extends TraderStorageTab {
         if(trader != null)
         {
             UpgradeStackHandler upgrades = trader.getUpgrades();
-            int limit = this.slotLimit > 0 ? Math.min(this.slotLimit,upgrades.getSlots()) : upgrades.getSlots();
+            int limit = upgrades.getSlots();
             int nextCount = limit;
             int xPos = 103 - (9 * Math.min(9,limit));
             int yPos = 54 - (9 * Math.max(1,(limit + 8) / 9));
             for(int i = 1; i <= limit; ++i)
             {
                 EasySlot upgradeSlot = new EasyItemHandlerSlot(upgrades, i, xPos, yPos);
-                upgradeSlot.active = false;
+                upgradeSlot.setActive(false);
                 addSlot.apply(upgradeSlot);
                 this.slots.add(upgradeSlot);
                 if(limit % 9 == 8)
@@ -81,10 +71,10 @@ public class UpgradesTab extends TraderStorageTab {
     }
 
     @Override
-    public void onTabOpen() { EasySlot.SetActive(this.slots); }
+    public void onTabOpen() { EasySlot.SetActive(this.slots,true); }
 
     @Override
-    public void onTabClose() { EasySlot.SetInactive(this.slots); }
+    public void onTabClose() { EasySlot.SetActive(this.slots,false); }
 
     @Override
     public boolean quickMoveStack(ItemStack stack) {

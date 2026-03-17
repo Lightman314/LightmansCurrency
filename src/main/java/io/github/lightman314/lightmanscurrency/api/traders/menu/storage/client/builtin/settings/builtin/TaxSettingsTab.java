@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.TaxesNode;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.builtin.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.builtin.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
@@ -14,18 +15,13 @@ import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButto
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Objects;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class TaxSettingsTab extends SettingsSubTab {
 
     public TaxSettingsTab(TraderSettingsClientTab parent) { super(parent); }
@@ -68,11 +64,11 @@ public class TaxSettingsTab extends SettingsSubTab {
     @Override
     public void renderBG(EasyGuiGraphics gui) {
 
-        TraderData trader = this.menu.getTrader();
-        if(trader != null)
+        TaxesNode node = this.getNode(TaxesNode.TYPE);
+        if(node != null)
         {
-            Pair<Integer,Integer> result = trader.getTotalTaxPercentageRange();
-            int acceptableRate = trader.getAcceptableTaxRate();
+            Pair<Integer,Integer> result = node.getTotalTaxPercentageRange();
+            int acceptableRate = node.getAcceptableTaxRate();
             //If min rate > acceptable rate -> ERROR
             //If max rate > acceptable rate OR min rate == acceptable rate -> WARNING
             //Otherwise HELPFUL
@@ -94,29 +90,29 @@ public class TaxSettingsTab extends SettingsSubTab {
 
     private boolean getIgnoreAllTaxes()
     {
-        TraderData trader = this.menu.getTrader();
-        return trader != null && trader.ShouldIgnoreAllTaxes();
+        TaxesNode node = this.getNode(TaxesNode.TYPE);
+        return node != null && node.IgnoresAllTaxes();
     }
 
     private int getAcceptableTaxRate()
     {
-        TraderData trader = this.menu.getTrader();
-        return trader != null ? trader.getAcceptableTaxRate() : 0;
+        TaxesNode node = this.getNode(TaxesNode.TYPE);
+        return node != null ? node.getAcceptableTaxRate() : 0;
     }
 
-    private void toggleIgnoreAllTaxes(EasyButton button)
+    private void toggleIgnoreAllTaxes()
     {
-        TraderData trader = this.menu.getTrader();
-        if(trader != null)
-            this.sendMessage(this.builder().setBoolean("ForceIgnoreAllTaxCollectors", !trader.ShouldIgnoreAllTaxes()));
+        TaxesNode node = this.getNode(TaxesNode.TYPE);
+        if(node != null)
+            this.sendMessage(this.builder().setBoolean("ForceIgnoreAllTaxCollectors",!node.IgnoresAllTaxes()));
     }
 
     private void increaseAcceptableTaxRate(EasyButton button)
     {
-        TraderData trader = this.menu.getTrader();
-        if(trader != null)
+        TaxesNode node = this.getNode(TaxesNode.TYPE);
+        if(node != null)
         {
-            int oldRate = trader.getAcceptableTaxRate();
+            int oldRate = node.getAcceptableTaxRate();
             int newRate = Screen.hasShiftDown() ? oldRate + 10 : oldRate + 1;
             this.sendMessage(this.builder().setInt("AcceptableTaxRate", newRate));
         }
@@ -124,10 +120,10 @@ public class TaxSettingsTab extends SettingsSubTab {
 
     private void decreaseAcceptableTaxRate(EasyButton button)
     {
-        TraderData trader = this.menu.getTrader();
-        if(trader != null)
+        TaxesNode node = this.getNode(TaxesNode.TYPE);
+        if(node != null)
         {
-            int oldRate = trader.getAcceptableTaxRate();
+            int oldRate = node.getAcceptableTaxRate();
             int newRate = Screen.hasShiftDown() ? oldRate - 10 : oldRate - 1;
             this.sendMessage(this.builder().setInt("AcceptableTaxRate", newRate));
         }

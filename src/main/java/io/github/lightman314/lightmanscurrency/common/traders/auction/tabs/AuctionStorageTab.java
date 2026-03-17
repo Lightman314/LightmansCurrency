@@ -7,7 +7,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.auction.client.tab
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionPlayerStorage;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.nodes.AuctionStorageNode;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 
@@ -54,7 +53,7 @@ public class AuctionStorageTab extends TraderStorageNodeTab<AuctionStorageNode> 
 						storage.getStoredItems().remove(storageSlot);
 						storage.setChanged();
 					}
-					else if(InventoryUtil.ItemMatches(storedItem, heldItem))
+					else if(ItemStack.isSameItemSameComponents(storedItem, heldItem))
 					{
 						int transferCount = Math.min(heldItem.getMaxStackSize() - heldItem.getCount(), storedItem.getCount());
 						if(transferCount > 0)

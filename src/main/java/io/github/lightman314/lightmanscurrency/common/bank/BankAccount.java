@@ -12,6 +12,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.codecs.partial.SPart6;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.data.IRegistryAccess;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.salary.CustomTarget;
@@ -29,7 +31,6 @@ import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.BankInterestNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.LowBalanceNotification;
 import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
-import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -87,6 +88,12 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
     }
 
     protected static <T extends BankAccount> StreamCodec<RegistryFriendlyByteBuf,T> buildStreamCodec(Class<T> clazz,Function6<MoneyStorage,NotificationData,String,Map<String,MoneyValue>,Integer,List<SalaryData>,T> factory) { return baseStreamFields(clazz).assemble(factory); }
+
+    private HolderLookup.Provider registryAccess = null;
+    @Override
+    public final HolderLookup.Provider registryAccess() { return Objects.requireNonNull(this.registryAccess); }
+    public final void setRegistryAccess(HolderLookup.Provider registryAccess) { this.registryAccess = registryAccess; }
+    public final void setRegistryAccess(IRegistryAccess parent) { this.registryAccess = parent.registryAccess(); }
 
     @Nullable
     private LazyPacketData.Builder changedData = null;
@@ -304,8 +311,8 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
     {
         MoneyStorage storage = new MoneyStorage();
         storage.load(compound.getList("CoinStorage",Tag.TAG_COMPOUND));
-        NotificationData logger = new NotificationData();
-        logger.load(compound.getCompound("AccountLogs"),lookup);
+        NotificationData logger = DataContext.createNBT(lookup)
+                .read(compound.get("AccountLogs"),NotificationData.CODEC);
         String ownerName = compound.getString("OwnerName");
         Map<String,MoneyValue> notificationLevels = new HashMap<>();
         if(compound.contains("NotificationLevel"))
@@ -398,8 +405,5 @@ public class BankAccount extends MoneyHolder.Slave implements IBankAccount {
 			return entry.equals(id);
 		});
 	}
-
-    @Override
-    public LazyPacketData.Builder builder() { return LazyPacketData.builder(LookupHelper.getRegistryAccess()); }
 
 }

@@ -2,18 +2,14 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.slot
 
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.client.IconRenderer;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade.SlotMachineEntry;
-import net.minecraft.MethodsReturnNonnullByDefault;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public final class SlotMachineRenderBlock {
 
     private static final SlotMachineRenderBlock EMPTY = forIcon(0, SlotMachineEntry.DEFAULT_ICON);
 
-    public void render(EasyGuiGraphics gui, int x, int y) { this.icon.render(gui,x,y); }
+    public void render(EasyGuiGraphics gui, int x, int y) { IconRenderer.renderIcon(this.icon,gui,x,y); }
     public final int weight;
     private final IconData icon;
     private SlotMachineRenderBlock(double odds,IconData icon) { this(oddsToWeight(odds),icon); }

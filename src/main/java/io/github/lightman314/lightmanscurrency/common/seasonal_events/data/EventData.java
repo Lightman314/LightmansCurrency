@@ -16,9 +16,8 @@ import io.github.lightman314.lightmanscurrency.common.loot.modifier.SimpleLootMo
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.EventCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TextNotification;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -34,12 +33,9 @@ import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class EventData extends SimpleLootModifier {
 
     public final String eventID;
@@ -192,7 +188,7 @@ public class EventData extends SimpleLootModifier {
         public Builder startingReward(ItemLike item, int count) { return this.startingReward(new ItemStack(item,count)); }
         public Builder startingReward(Supplier<? extends ItemLike> item, int count) { return this.startingReward(item.get(),count); }
         public Builder startingReward(ItemStack item) { this.startingRewards.add(item.copy()); return this; }
-        public Builder startingReward(List<ItemStack> items) { this.startingRewards.addAll(InventoryUtil.copyList(items)); return this; }
+        public Builder startingReward(List<ItemStack> items) { this.startingRewards.addAll(ItemHandlerUtil.copyList(items)); return this; }
 
         public Builder startingRewardMessage(@Nullable Component message) { this.startingRewardMessage = message; return this; }
 

@@ -1,7 +1,10 @@
 package io.github.lightman314.lightmanscurrency.common.menus.variant;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.item_handlers.LCItemStackHandler;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.EasySlot;
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
+import io.github.lightman314.lightmanscurrency.api.variants.item.data.VariantData;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
@@ -17,13 +20,12 @@ import javax.annotation.Nullable;
 
 public class ItemVariantSelectMenu extends VariantSelectMenu {
 
-    private final ItemVariantSlot variantSlot;
+    private final VariantHolder variantHolder = new VariantHolder();
 
     public ItemVariantSelectMenu(int id, Inventory inventory) {
         super(ModMenus.VARIANT_SELECT_ITEM.get(), id, inventory);
 
-        this.variantSlot = new ItemVariantSlot(155,72);
-        this.addSlot(this.variantSlot);
+        this.addSlot(new EasySlot(this.variantHolder,0,155,72));
 
         //Add Inventory Slots
         //Player inventory
@@ -42,13 +44,13 @@ public class ItemVariantSelectMenu extends VariantSelectMenu {
 
     }
 
-    public ItemStack getVariantStack() { return this.variantSlot.getItem().copy(); }
+    public ItemStack getVariantStack() { return this.variantHolder.getItem().copy(); }
 
-    private boolean validSlotItem() { return VariantProvider.getVariantItem(this.variantSlot.getItem().getItem()) != null; }
+    private boolean validSlotItem() { return VariantProvider.getVariantItem(this.variantHolder.getItem().getItem()) != null; }
 
     @Override
     protected void changeVariant(@Nullable ResourceLocation newVariant) {
-        ItemStack variantItem = this.variantSlot.getItem();
+        ItemStack variantItem = this.variantHolder.getItem();
         if(variantItem.isEmpty())
             return;
         if(variantItem.has(ModDataComponents.VARIANT_LOCK) && !this.player.isCreative())
@@ -59,15 +61,15 @@ public class ItemVariantSelectMenu extends VariantSelectMenu {
         if(newVariant == null)
             variantItem.remove(ModDataComponents.MODEL_VARIANT);
         else if(VariantProvider.getVariantItem(variantItem) != null)
-            variantItem.set(ModDataComponents.MODEL_VARIANT,newVariant);
+            variantItem.set(ModDataComponents.MODEL_VARIANT,new VariantData(newVariant));
     }
     @Nullable
     @Override
     public ResourceLocation getSelectedVariant() {
         if(this.validSlotItem())
         {
-            ItemStack variantItem = this.variantSlot.getItem();
-            return variantItem.getOrDefault(ModDataComponents.MODEL_VARIANT,null);
+            ItemStack variantItem = this.variantHolder.getItem();
+            return variantItem.getOrDefault(ModDataComponents.MODEL_VARIANT,VariantData.NULL).variant();
         }
         return null;
     }
@@ -114,7 +116,7 @@ public class ItemVariantSelectMenu extends VariantSelectMenu {
     @Override
     public void removed(Player player) {
         super.removed(player);
-        this.clearContainer(player,this.variantSlot.container);
+        this.clearContainer(player,this.variantHolder);
     }
 
     public static MenuProvider providerFor() { return Provider.INSTANCE; }
@@ -125,6 +127,13 @@ public class ItemVariantSelectMenu extends VariantSelectMenu {
         @Nullable
         @Override
         public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) { return new ItemVariantSelectMenu(containerId,playerInventory); }
+    }
+
+    private static class VariantHolder extends LCItemStackHandler {
+        private VariantHolder() { super(1); }
+        public final ItemStack getItem() { return this.getStackInSlot(0); }
+        @Override
+        public boolean isItemValid(int slot, ItemStack stack) { return VariantProvider.getVariantItem(stack.getItem()) != null; }
     }
 
 }

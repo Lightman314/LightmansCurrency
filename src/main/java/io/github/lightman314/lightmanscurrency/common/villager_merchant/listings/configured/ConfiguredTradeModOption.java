@@ -6,31 +6,27 @@ import io.github.lightman314.lightmanscurrency.api.config.options.parsing.Config
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.mods.ConfiguredTradeMod;
 
-import javax.annotation.Nonnull;
 import java.util.function.Supplier;
 
 public class ConfiguredTradeModOption extends ConfigOption<ConfiguredTradeMod> {
 
     public static final ConfigParser<ConfiguredTradeMod> PARSER = new Parser();
 
-    private ConfiguredTradeModOption(@Nonnull Supplier<ConfiguredTradeMod> defaultValue) { super(defaultValue); }
+    private ConfiguredTradeModOption(Supplier<ConfiguredTradeMod> defaultValue) { super(defaultValue); }
 
-    public static ConfiguredTradeModOption create(@Nonnull Supplier<ConfiguredTradeMod> defaultValue) { return new ConfiguredTradeModOption(defaultValue); }
+    public static ConfiguredTradeModOption create(Supplier<ConfiguredTradeMod> defaultValue) { return new ConfiguredTradeModOption(defaultValue); }
 
-    @Nonnull
     @Override
     protected ConfigParser<ConfiguredTradeMod> getParser() { return PARSER; }
 
     private static class Parser implements ConfigParser<ConfiguredTradeMod>
     {
 
-        @Nonnull
         @Override
-        public ConfiguredTradeMod tryParse(@Nonnull String cleanLine) throws ConfigParsingException { return ConfiguredTradeMod.tryParse(StringOption.PARSER.tryParse(cleanLine),true); }
+        public ConfiguredTradeMod tryParse(String cleanLine) throws ConfigParsingException { return ConfiguredTradeMod.tryParse(StringOption.PARSER.tryParse(cleanLine),true); }
 
-        @Nonnull
         @Override
-        public String write(@Nonnull ConfiguredTradeMod value) {
+        public String write(ConfiguredTradeMod value) {
             StringBuilder builder = new StringBuilder();
             value.write(builder);
             return StringOption.PARSER.write(builder.toString());

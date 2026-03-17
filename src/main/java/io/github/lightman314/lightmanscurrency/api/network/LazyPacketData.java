@@ -8,7 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -149,7 +149,10 @@ public final class LazyPacketData {
     {
         Data d = this.getData(key);
         if(d.type == TYPE_STRING)
-            return VersionUtil.parseResource((String)d.value);
+        {
+            try { return ResourceLocation.parse((String)d.value);
+            } catch (ResourceLocationException ignored) {}
+        }
         return defaultValue;
     }
 
@@ -436,11 +439,6 @@ public final class LazyPacketData {
 
         public LazyPacketData build() { return new LazyPacketData(this.data, this.lookup); }
 
-    }
-
-    public interface IBuilderProvider
-    {
-        Builder builder();
     }
 
     @Override

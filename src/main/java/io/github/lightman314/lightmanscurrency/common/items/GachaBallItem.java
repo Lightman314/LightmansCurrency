@@ -6,9 +6,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.items.data.ItemStackData;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
@@ -22,11 +20,8 @@ import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class GachaBallItem extends Item {
 
     public static final int MAX_INCEPTION_LEVEL = 16;
@@ -56,7 +51,7 @@ public class GachaBallItem extends Item {
     public static ItemStack createWithItemAndColor(ItemStack contents,Color color) { return createWithItemAndColor(contents,color.hexColor); }
     public static ItemStack createWithItemAndColor(ItemStack contents,int color) {
         //Don't create a new gacha ball if we are already several gacha balls deep
-        if(InventoryUtil.ItemHasTag(contents,LCTags.Items.GACHA_BLACKLIST) || inceptionLevel(contents) >= MAX_INCEPTION_LEVEL)
+        if(contents.is(LCTags.Items.GACHA_BLACKLIST) || inceptionLevel(contents) >= MAX_INCEPTION_LEVEL)
             return contents.copy();
         ItemStack stack = new ItemStack(ModItems.GACHA_BALL.get());
         stack.set(ModDataComponents.GACHA_ITEM,ItemStackData.of(contents));

@@ -16,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.ModSounds;
 import io.github.lightman314.lightmanscurrency.common.items.data.LootTableEntry;
 import io.github.lightman314.lightmanscurrency.common.items.MoneyBagItem;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -25,6 +24,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -258,7 +258,7 @@ public class MoneyBagBlock extends FallingBlock implements IRotatableBlock, IEas
         MoneyBagItem.setContents(stack,contents);
         if(tag.contains("LootTable"))
         {
-            ResourceKey<LootTable> lootTable = ResourceKey.create(Registries.LOOT_TABLE, VersionUtil.parseResource(tag.getString("LootTable")));
+            ResourceKey<LootTable> lootTable = ResourceKey.create(Registries.LOOT_TABLE,ResourceLocation.parse(tag.getString("LootTable")));
             long lootTableSeed = -1;
             if(tag.contains("LootTableSeed"))
                 lootTableSeed = tag.getLong("LootTableSeed");

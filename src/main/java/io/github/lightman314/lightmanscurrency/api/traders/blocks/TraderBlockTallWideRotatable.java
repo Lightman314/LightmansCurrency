@@ -7,7 +7,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlo
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IWideBlock;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
@@ -23,6 +22,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nullable;
 
@@ -98,7 +98,7 @@ public abstract class TraderBlockTallWideRotatable extends TraderBlockTallRotata
 			{
 				ItemStack giveStack = stack.copy();
 				giveStack.setCount(1);
-				InventoryUtil.safeGiveToPlayer(p.getInventory(),giveStack);
+                ItemHandlerHelper.giveItemToPlayer(p,giveStack);
 			}
 		}
 		

@@ -15,7 +15,6 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.*;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.configured.ConfiguredItemListing;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;

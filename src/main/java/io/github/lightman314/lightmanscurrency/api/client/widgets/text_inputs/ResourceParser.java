@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs;
 
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 
@@ -16,7 +15,7 @@ public class ResourceParser implements Function<String,ResourceLocation> {
         if(s.isEmpty())
             return true;
         try {
-            VersionUtil.parseResource(s);
+            ResourceLocation.parse(s);
             return true;
         } catch (ResourceLocationException ignored) { return false; }
     }
@@ -28,7 +27,7 @@ public class ResourceParser implements Function<String,ResourceLocation> {
     public ResourceLocation apply(String s) {
         if(this.requireNamespace && !s.contains(":"))
             return null;
-        try { return VersionUtil.parseResource(s);
+        try { return ResourceLocation.parse(s);
         } catch (ResourceLocationException ignored) { return null; }
     }
 

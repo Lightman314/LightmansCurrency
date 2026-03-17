@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.integration.reiplugin;
 import com.mojang.datafixers.util.Pair;
 import dev.architectury.event.CompoundEventResult;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.client.gui.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.NotificationScreen;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.TeamManagerScreen;

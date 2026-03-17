@@ -47,6 +47,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
@@ -67,44 +68,10 @@ public class LCComputerHelper {
     public static void setup(IEventBus modBus)
     {
         LCPocketUpgrades.init(modBus);
-        //Register globals
-        ComputerCraftAPI.registerAPIFactory(LuaMoneyAPI.FACTORY);
-        //Register detail providers
-        VanillaDetailRegistries.ITEM_STACK.addProvider(AncientCoinDetailProvider.INSTANCE);
-        //Register Item Parsers
-        registerItemParser(AncientCoinParser.INSTANCE);
         //Register Event Listener
         modBus.addListener(LCComputerHelper::registerCapabilities);
+        modBus.addListener(LCComputerHelper::commonSetup);
         NeoForge.EVENT_BUS.addListener(LCComputerHelper::addTraderAttachments);
-        //Create Trader Peripheral Sources
-        //Auction House
-        registerTraderPeripheralSource(TraderPeripheralSource.dataOnly((trader) -> {
-            if(trader instanceof AuctionHouseTrader)
-                return AuctionHousePeripheral.INSTANCE;
-            return null;
-        }));
-        //Register Nodes
-        registerTraderNodeMethod(TraderNodeMethods.easySource(AlliesNode.TYPE,AllyNodeMethods::new));
-        registerTraderNodeMethod(TraderNodeMethods.easySource(BankNode.TYPE,BankNodeMethods::new));
-        registerTraderNodeMethod(TraderNodeMethods.easySource(DisplayNode.TYPE,DisplayNodeMethods::new));
-        registerTraderNodeMethod(TraderNodeMethods.easySource(InputNode.TYPE,InputNodeMethods::new));
-        registerTraderNodeMethod(TraderNodeMethods.easySource(LoggerNode.TYPE,LoggerNodeMethods::new));
-        registerTraderNodeMethod(TraderNodeMethods.easySource(TaxesNode.TYPE,TaxesNodeMethods::new));
-
-        registerTraderNodeMethod(TraderNodeMethods.easySource(GachaNode.TYPE,GachaNodeMethods::new));
-        registerTraderNodeMethod(TraderNodeMethods.easySource(GachaStorageNode.TYPE,GachaStorageNodeMethods::new));
-
-        registerTraderNodeMethod(TraderNodeMethods.easySource(ItemStorageNode.TYPE,ItemStorageNodeMethods::new));
-        registerTraderNodeMethod(TraderNodeMethods.easySource(ItemTradeNode.TYPE,ItemTradeNodeMethods::new));
-
-        registerTraderNodeMethod(TraderNodeMethods.easySource(PaygateTradeNode.TYPE,PaygateTradeNodeMethods::new));
-        registerTraderNodeMethod(TraderNodeMethods.easySource(TicketStubNode.TYPE,TicketStubNodeMethods::new));
-
-        registerTraderNodeMethod(TraderNodeMethods.easySource(SlotMachineNode.TYPE,SlotMachineNodeMethods::new));
-
-        //Register Custom Stat Displays
-        registerStatDisplay(StatReaders::parseStat);
-
     }
 
     public static void registerTraderPeripheralSource(TraderPeripheralSource source)
@@ -212,6 +179,46 @@ public class LCComputerHelper {
     {
         for(BasicItemParser p : itemParsers)
             p.modifyResult(input,table);
+    }
+
+    private static void commonSetup(FMLCommonSetupEvent event)
+    {
+        event.enqueueWork(() -> {
+            //Register globals
+            ComputerCraftAPI.registerAPIFactory(LuaMoneyAPI.FACTORY);
+            //Register detail providers
+            VanillaDetailRegistries.ITEM_STACK.addProvider(AncientCoinDetailProvider.INSTANCE);
+            //Register Item Parsers
+            registerItemParser(AncientCoinParser.INSTANCE);
+            //Create Trader Peripheral Sources
+            //Auction House
+            registerTraderPeripheralSource(TraderPeripheralSource.dataOnly((trader) -> {
+                if(trader instanceof AuctionHouseTrader)
+                    return AuctionHousePeripheral.INSTANCE;
+                return null;
+            }));
+            //Register Nodes
+            registerTraderNodeMethod(TraderNodeMethods.easySource(AlliesNode.TYPE,AllyNodeMethods::new));
+            registerTraderNodeMethod(TraderNodeMethods.easySource(BankNode.TYPE,BankNodeMethods::new));
+            registerTraderNodeMethod(TraderNodeMethods.easySource(DisplayNode.TYPE,DisplayNodeMethods::new));
+            registerTraderNodeMethod(TraderNodeMethods.easySource(InputNode.TYPE,InputNodeMethods::new));
+            registerTraderNodeMethod(TraderNodeMethods.easySource(LoggerNode.TYPE,LoggerNodeMethods::new));
+            registerTraderNodeMethod(TraderNodeMethods.easySource(TaxesNode.TYPE,TaxesNodeMethods::new));
+
+            registerTraderNodeMethod(TraderNodeMethods.easySource(GachaNode.TYPE,GachaNodeMethods::new));
+            registerTraderNodeMethod(TraderNodeMethods.easySource(GachaStorageNode.TYPE,GachaStorageNodeMethods::new));
+
+            registerTraderNodeMethod(TraderNodeMethods.easySource(ItemStorageNode.TYPE,ItemStorageNodeMethods::new));
+            registerTraderNodeMethod(TraderNodeMethods.easySource(ItemTradeNode.TYPE,ItemTradeNodeMethods::new));
+
+            registerTraderNodeMethod(TraderNodeMethods.easySource(PaygateTradeNode.TYPE,PaygateTradeNodeMethods::new));
+            registerTraderNodeMethod(TraderNodeMethods.easySource(TicketStubNode.TYPE,TicketStubNodeMethods::new));
+
+            registerTraderNodeMethod(TraderNodeMethods.easySource(SlotMachineNode.TYPE,SlotMachineNodeMethods::new));
+
+            //Register Custom Stat Displays
+            registerStatDisplay(StatReaders::parseStat);
+        });
     }
 
 }

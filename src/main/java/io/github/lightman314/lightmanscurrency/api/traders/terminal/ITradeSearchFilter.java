@@ -13,10 +13,8 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@ParametersAreNonnullByDefault
 public interface ITradeSearchFilter {
 
     void filterTrade(TradeData data, PendingSearch search, HolderLookup.Provider lookup);

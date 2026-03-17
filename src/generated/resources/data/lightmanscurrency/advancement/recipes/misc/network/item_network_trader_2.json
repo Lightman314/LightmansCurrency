@@ -28,7 +28,7 @@
       "conditions": {
         "items": [
           {
-            "items": "lightmanscurrency:item_trader_server_sml"
+            "items": "lightmanscurrency:item_network_trader_1"
           }
         ]
       },

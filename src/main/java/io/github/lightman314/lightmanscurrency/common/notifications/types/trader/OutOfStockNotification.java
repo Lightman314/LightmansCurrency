@@ -20,7 +20,7 @@ public class OutOfStockNotification extends SingleLineNotification {
 
 	public static final NotificationType<OutOfStockNotification> TYPE = new Type();
 	
-	TraderCategory traderData = TraderCategory.NULL;
+	TraderCategory traderData = TraderCategory.getEmpty();
 	
 	int tradeSlot;
 
@@ -47,8 +47,9 @@ public class OutOfStockNotification extends SingleLineNotification {
 	public Component getMessage() { return this.tradeSlot > 0 ? LCText.NOTIFICATION_TRADER_OUT_OF_STOCK.get(this.traderData.getTooltip(), this.tradeSlot) : LCText.NOTIFICATION_TRADER_OUT_OF_STOCK_INDEXLESS.get(); }
 
 	@Override
+    @Deprecated
 	protected void loadAdditional(CompoundTag compound, HolderLookup.Provider lookup) {
-		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"),lookup);
+		this.traderData = TraderCategory.loadOldData(compound.getCompound("TraderInfo"),lookup);
 		this.tradeSlot = compound.getInt("TradeSlot");
 	}
 
@@ -58,7 +59,7 @@ public class OutOfStockNotification extends SingleLineNotification {
     private static class Type extends NotificationType<OutOfStockNotification>
     {
         private static final MapCodec<OutOfStockNotification> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
-                TraderCategory.TYPE.codec().codec().fieldOf("trader").forGetter(n -> n.traderData),
+                TraderCategory.TYPE.codec().fieldOf("trader").forGetter(n -> n.traderData),
                 Codec.INT.fieldOf("slot").forGetter(n -> n.tradeSlot),
                 baseFields()
         ).apply(builder,OutOfStockNotification::new));

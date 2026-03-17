@@ -8,8 +8,6 @@ import net.minecraft.core.HolderLookup;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Predicate;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public interface IBasicTraderFilter extends ITraderSearchFilter, ITradeSearchFilter {
 
     @Override

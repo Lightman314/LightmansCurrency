@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.ticker.IClientTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.ticker.ICommonTicker;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomData;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomDataType;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -34,7 +35,7 @@ public class ClientCustomDataCache {
             return null;
         }
         if(!clientDataCache.containsKey(dataID))
-            clientDataCache.put(dataID,type.create().initClient());
+            clientDataCache.put(dataID,type.create().initClient(Minecraft.getInstance().getConnection().registryAccess()));
 
         return (T)clientDataCache.get(dataID);
     }

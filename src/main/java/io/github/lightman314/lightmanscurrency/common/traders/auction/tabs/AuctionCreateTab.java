@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.misc.item_handlers.LCItemStackHandler;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageNodeTab;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.client.tabs.AuctionCreateClientTab;
@@ -15,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.auction.nodes.Auct
 import io.github.lightman314.lightmanscurrency.common.traders.auction.trade.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.Slot;
 
 public class AuctionCreateTab extends TraderStorageNodeTab<AuctionTradesNode> {
@@ -32,13 +32,13 @@ public class AuctionCreateTab extends TraderStorageNodeTab<AuctionTradesNode> {
 	
 	List<EasySlot> slots = new ArrayList<>();
 	public List<EasySlot> getSlots() { return this.slots; }
-	SimpleContainer auctionItems = new SimpleContainer(2);
-	public SimpleContainer getAuctionItems() { return this.auctionItems; }
+	LCItemStackHandler auctionItems = new LCItemStackHandler(2);
+	public LCItemStackHandler getAuctionItems() { return this.auctionItems; }
 	
 	@Override
 	public void addStorageMenuSlots(Function<Slot, Slot> addSlot) {
 		
-		for(int i = 0; i < this.auctionItems.getContainerSize(); ++i)
+		for(int i = 0; i < this.auctionItems.getSlots(); ++i)
 		{
 			EasySlot newSlot = new EasySlot(this.auctionItems, i, TraderMenu.SLOT_OFFSET + 8 + i * 18, 122);
 			addSlot.apply(newSlot);
@@ -50,14 +50,13 @@ public class AuctionCreateTab extends TraderStorageNodeTab<AuctionTradesNode> {
 	
 	@Override
 	public void onTabOpen() {
-		EasySlot.SetActive(this.slots);
-		for(EasySlot slot : this.slots)
-			slot.locked = false;
+		EasySlot.SetActive(this.slots,true);
+        EasySlot.SetLocked(this.slots,false);
 	}
 	
 	@Override
 	public void onTabClose() {
-		EasySlot.SetInactive(this.slots);
+		EasySlot.SetActive(this.slots,false);
 		this.menu.clearContainer(this.auctionItems);
 	}
 	
@@ -86,11 +85,11 @@ public class AuctionCreateTab extends TraderStorageNodeTab<AuctionTradesNode> {
 			if(success)
 			{
 				//Delete the contents of the auctionItems
-				this.auctionItems.clearContent();
+				this.auctionItems.clear();
 			}
 			//Send response message to the client
 			this.menu.SendMessage(this.builder().setBoolean("AuctionCreated", success));
-			for(EasySlot slot : this.slots) slot.locked = true;
+            EasySlot.SetLocked(this.slots,true);
 			//LightmansCurrency.LogInfo("Successfully created the auction!");
 		}
 	}

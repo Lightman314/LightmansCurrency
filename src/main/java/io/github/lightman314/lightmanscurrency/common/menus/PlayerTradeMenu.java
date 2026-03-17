@@ -44,8 +44,8 @@ public class PlayerTradeMenu extends LazyMessageMenu {
     private Consumer<Component> chatReceiver = c -> {};
     public final void setChatReceiver(Consumer<Component> chatReceiver) { this.chatReceiver = chatReceiver; }
 
-    public void hideSlots() { EasySlot.SetInactive(this); }
-    public void showSlots() { EasySlot.SetActive(this); }
+    public void hideSlots() { EasySlot.SetActive(this,false); }
+    public void showSlots() { EasySlot.SetActive(this,true); }
 
     public PlayerTradeMenu(int windowID, Inventory inventory, int tradeID, IPlayerTrade trade) {
         super(ModMenus.PLAYER_TRADE.get(), windowID, inventory);

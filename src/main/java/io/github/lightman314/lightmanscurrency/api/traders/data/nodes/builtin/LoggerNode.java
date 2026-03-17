@@ -129,12 +129,6 @@ public class LoggerNode extends SyncedTraderNode implements ISidedListener {
             if(node instanceof INotificationConsumer consumer)
                 consumer.pushNotification(source,this.teamNotificationLevel,this.notificationsToChat);
         }
-
-    }
-
-    private void setLogsChanged()
-    {
-        this.setChanged(builder -> builder.setTag("notifications",this.logger.save(builder.lookup)));
     }
 
     private void onStatsChanged()
@@ -153,7 +147,7 @@ public class LoggerNode extends SyncedTraderNode implements ISidedListener {
 
     @Override
     public void createSyncPacket(LazyPacketData.Builder builder,Player player) {
-        builder.setTag("notifications",this.logger.save(builder.lookup))
+        builder.setCustom("notifications",this.logger,ModLazyPackets.NOTIFICATION_DATA)
                 .setBoolean("notificationsEnabled",this.notificationsEnabled)
                 .setInt("teamNotificationLevel",this.teamNotificationLevel)
                 .setBoolean("notificationsToChat",this.notificationsToChat)
@@ -182,7 +176,7 @@ public class LoggerNode extends SyncedTraderNode implements ISidedListener {
     @Override
     public void loadOldData(CompoundTag tag, HolderLookup.Provider lookup) {
         if(tag.contains("Logger"))
-            this.logger.load(tag.getCompound("Logger"), lookup);
+            this.logger.copyFrom(DataContext.createNBT(lookup).read(tag.get("Logger"),NotificationData.CODEC));
         if(tag.contains("NotificationsEnabled"))
             this.notificationsEnabled = tag.getBoolean("NotificationsEnabled");
         if(tag.contains("ChatNotifications"))

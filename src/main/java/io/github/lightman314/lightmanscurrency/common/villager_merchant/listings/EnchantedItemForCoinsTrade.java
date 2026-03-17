@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ListingUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -26,7 +25,6 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.level.ItemLike;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class EnchantedItemForCoinsTrade implements ItemListing
@@ -56,7 +54,7 @@ public class EnchantedItemForCoinsTrade implements ItemListing
     }
 
     @Override
-    public MerchantOffer getOffer(@Nonnull Entity trader, @Nonnull RandomSource rand) {
+    public MerchantOffer getOffer(Entity trader, RandomSource rand) {
         int i = 5 + rand.nextInt(15);
         ItemStack itemstack = EnchantmentHelper.enchantItem(rand, new ItemStack(sellItem), i, trader.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).getOrThrow(EnchantmentTags.ON_TRADED_EQUIPMENT).stream());
 
@@ -90,7 +88,7 @@ public class EnchantedItemForCoinsTrade implements ItemListing
         @Override
         public ResourceLocation getType() { return TYPE; }
         @Override
-        public JsonObject serializeInternal(@Nonnull JsonObject json, @Nonnull ItemListing trade, @Nonnull HolderLookup.Provider lookup) {
+        public JsonObject serializeInternal(JsonObject json, ItemListing trade, HolderLookup.Provider lookup) {
             if(trade instanceof EnchantedItemForCoinsTrade t)
             {
                 json.addProperty("Coin", BuiltInRegistries.ITEM.getKey(t.baseCoin).toString());
@@ -105,13 +103,12 @@ public class EnchantedItemForCoinsTrade implements ItemListing
             return null;
         }
 
-        @Nonnull
         @Override
-        public ItemListing deserialize(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
-            Item coin = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(GsonHelper.getAsString(json,"Coin")));
+        public ItemListing deserialize(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
+            Item coin = BuiltInRegistries.ITEM.get(ResourceLocation.parse(GsonHelper.getAsString(json,"Coin")));
             int baseCoinCount = GsonHelper.getAsInt(json,"BaseCoinCount");
             double basePriceModifier = GsonHelper.getAsDouble(json,"EnchantmentValueModifier");
-            Item sellItem = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(GsonHelper.getAsString(json,"Sell")));
+            Item sellItem = BuiltInRegistries.ITEM.get(ResourceLocation.parse(GsonHelper.getAsString(json,"Sell")));
             int maxTrades = GsonHelper.getAsInt(json,"MaxTrades");
             int xp = GsonHelper.getAsInt(json,"XP");
             float priceMult = GsonHelper.getAsFloat(json, "PriceMult");

@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Di
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.display.ScrollingTextEntry;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.common.traders.commands.CommandTrader;
 import io.github.lightman314.lightmanscurrency.common.traders.commands.trade.CommandTrade;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 
@@ -41,12 +40,9 @@ public class CommandTradeButtonRenderer extends TradeRenderManager<CommandTrade>
 
     @Override
     protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) {
-        if(context.hasTrader() && context.getTrader() instanceof CommandTrader trader)
-        {
-            //Check whether they can afford the cost
-            if(!this.trade.canAfford(context))
-                alerts.add(AlertData.warn(LCText.TOOLTIP_CANNOT_AFFORD));
-        }
+        //Check whether they can afford the cost
+        if(!this.trade.canAfford(context))
+            alerts.add(AlertData.warn(LCText.TOOLTIP_CANNOT_AFFORD));
     }
 
 }

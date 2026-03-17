@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraph
 import io.github.lightman314.lightmanscurrency.api.client.sprites.FixedSizeSprite;
 import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.client.IconRenderer;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.ITooltipWidget;
@@ -89,7 +90,7 @@ public class BankAccountSelectButton extends EasyButton implements ITooltipWidge
         //Render owner
         IconData icon = reference.getIcon();
         if(icon != null)
-            icon.render(gui, 2, 2);
+            IconRenderer.renderIcon(icon,gui, 2, 2);
         //Render the name
         //Component name = TextRenderUtil.fitString(this.accountName(), this.width - 22);
         int textColor = this.isActive() ? 0xFFFFFFFF : 0xFF404040 / 2;

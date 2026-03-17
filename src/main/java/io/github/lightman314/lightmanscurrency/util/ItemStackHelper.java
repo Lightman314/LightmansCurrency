@@ -1,14 +1,7 @@
 package io.github.lightman314.lightmanscurrency.util;
 
 import com.mojang.authlib.properties.PropertyMap;
-import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
-import io.github.lightman314.lightmanscurrency.api.data.DataContext;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ResolvableProfile;
@@ -41,23 +34,6 @@ public class ItemStackHelper {
 			skullsById.put(playerID,stack);
 		}
 		return skullsById.get(playerID);
-	}
-
-    @Deprecated
-	public static void loadAllItems(String key, CompoundTag tag, NonNullList<ItemStack> list, HolderLookup.Provider lookup)
-	{
-		ListTag listTag = tag.getList(key, Tag.TAG_COMPOUND);
-        DataContext<Tag> context = DataContext.createNBT(lookup);
-		for(int i = 0; i < listTag.size(); i++)
-		{
-			CompoundTag slotCompound = listTag.getCompound(i);
-			int index = slotCompound.getByte("Slot") & 255;
-			if(index < list.size())
-			{
-				ItemStack stack = context.read(slotCompound,CodecHelper.UNLIMITED_ITEM);
-				list.set(index, stack);
-			}
-		}
 	}
 	
 }

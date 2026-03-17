@@ -1,13 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.traders.slot_machine.client.trade;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.AlertData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.display.ItemEntry;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
-import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.SlotMachineTraderData;
+import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.nodes.SlotMachineNode;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade.SlotMachineDummyTrade;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
@@ -44,7 +45,8 @@ public class SlotMachineTradeButtonRenderer extends TradeRenderManager<SlotMachi
     @Nullable
     private SlotMachineEntry getTimedEntry()
     {
-        return ListUtil.randomItemFromList(this.trade.trader.getValidEntries(),(Supplier<SlotMachineEntry>)() -> null);
+        SlotMachineNode node = this.trade.getTrader().getNode(SlotMachineNode.TYPE);
+        return ListUtil.randomItemFromList(node.getValidEntries(),(Supplier<SlotMachineEntry>)() -> null);
     }
 
     @Override
@@ -67,12 +69,14 @@ public class SlotMachineTradeButtonRenderer extends TradeRenderManager<SlotMachi
     @Override
     protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts)
     {
-        if(context.hasTrader() && context.getTrader() instanceof SlotMachineTraderData trader)
+        TraderData trader = context.getTrader();
+        SlotMachineNode node = context.getTraderNode(SlotMachineNode.TYPE);
+        if(node != null)
         {
-            if(!trader.isCreative())
+            if(!trader.hasInfiniteStock())
             {
                 //Check Stock
-                if(!trader.hasStock())
+                if(!this.trade.hasStock(context))
                     alerts.add(AlertData.warn(LCText.TOOLTIP_OUT_OF_STOCK));
             }
             //Check whether they can afford the price

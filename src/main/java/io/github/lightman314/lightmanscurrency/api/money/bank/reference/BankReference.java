@@ -14,12 +14,12 @@ import io.github.lightman314.lightmanscurrency.api.money.capability.MoneyHolder;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
@@ -78,11 +78,12 @@ public abstract class BankReference extends MoneyHolder.Slave implements ISidedO
     public final CompoundTag save() { return (CompoundTag)CODEC.encodeStart(NbtOps.INSTANCE,this).getOrThrow(); }
     public static BankReference load(CompoundTag tag) { return CODEC.decode(NbtOps.INSTANCE,tag).getOrThrow().getFirst(); }
 
+    @Deprecated
     private static BankReference loadOldData(CompoundTag tag)
     {
         if(tag.contains("Type"))
         {
-            BankReferenceType<?> type = LCRegistries.BANK_REFERENCE.get(VersionUtil.parseResource(tag.getString("Type")));
+            BankReferenceType<?> type = LCRegistries.BANK_REFERENCE.get(ResourceLocation.parse(tag.getString("Type")));
             if(type != null)
                 return type.loadOldData(tag);
             else

@@ -59,7 +59,6 @@ public class TicketItemTradeWrapper extends ItemTradeWrapper<TicketItemTrade> {
         if(this.hasPermission(computer))
         {
             trade.getTicketData(slot - 1).setRecipe(recipe);
-            this.markTradeDirty();
             return true;
         }
         return false;
@@ -83,12 +82,7 @@ public class TicketItemTradeWrapper extends ItemTradeWrapper<TicketItemTrade> {
         String newCode = args.getString(1);
         TicketItemTrade trade = this.getTrade();
         if(this.hasPermission(computer))
-        {
-            boolean success = trade.getTicketData(slot - 1).setCode(newCode);
-            if(success)
-                this.markTradeDirty();
-            return success;
-        }
+            return trade.getTicketData(slot - 1).setCode(newCode);
         return false;
     }
 
@@ -109,7 +103,6 @@ public class TicketItemTradeWrapper extends ItemTradeWrapper<TicketItemTrade> {
         if(this.hasPermission(computer))
         {
             trade.getTicketData(slot - 1).setDurability(newDurability);
-            this.markTradeDirty();
             return true;
         }
         return false;

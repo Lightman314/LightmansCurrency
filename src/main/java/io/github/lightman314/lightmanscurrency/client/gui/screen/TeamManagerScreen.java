@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.client.gui.tabbed.EasyTabbedMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.IWidgetPositioner;
@@ -9,15 +10,10 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.util.LazyWidget
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.menus.TeamManagementMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.teams.TeamManagementTab;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class TeamManagerScreen extends EasyTabbedMenuScreen<TeamManagementMenu,TeamManagementTab,TeamManagerScreen>{
 
     public static final ResourceLocation GUI_TEXTURE = LightmansCurrency.id("textures/gui/teammanager.png");

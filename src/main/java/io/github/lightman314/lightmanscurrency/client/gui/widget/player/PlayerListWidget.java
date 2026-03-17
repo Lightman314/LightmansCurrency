@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.widget.player;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.ticker.ICommonTicker;
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
@@ -20,14 +21,11 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -36,9 +34,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-@FieldsAreNonnullByDefault
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class PlayerListWidget extends EasyWidgetWithChildren implements IScrollable, ICommonTicker {
 
     private static final int UPPER_SIZE = 40;
@@ -261,9 +256,6 @@ public class PlayerListWidget extends EasyWidgetWithChildren implements IScrolla
     
     public static Builder builder() { return new Builder(); }
 
-    @MethodsReturnNonnullByDefault
-    @ParametersAreNonnullByDefault
-    @FieldsAreNonnullByDefault
     public static class Builder extends EasyBuilder<Builder>
     {
 

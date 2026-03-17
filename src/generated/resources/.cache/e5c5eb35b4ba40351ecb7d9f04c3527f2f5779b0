@@ -1,4 +1,4 @@
-// 1.21.1	2025-12-12T22:05:03.8165688	Advancements
+// 1.21.1	2026-03-17T14:48:38.0200295	Advancements
 45e122d21d614268fef0a93ce678d3314e30e293 data/lightmanscurrency/advancement/currency/ancient_coin.json
 90dc39b02c81d32259dc9f5801ceb28d2908aeef data/lightmanscurrency/advancement/currency/atm.json
 d091b5dc70a906fa28e8f13c9b09762023a776b6 data/lightmanscurrency/advancement/currency/banker_trade.json
@@ -13,7 +13,7 @@ b844d0233809d2d74c20a4f273f5e83c98460be8 data/lightmanscurrency/advancement/curr
 b7715aeff5422fa5762b0fd32bf79abfa04dfe9a data/lightmanscurrency/advancement/currency/myfirstpenny.json
 1bc47c85a23e97228d007c9bfe87b9b12132cd6d data/lightmanscurrency/advancement/currency/netherite_wallet.json
 ca3986e268121a1852c5e91bab94a6f06880c976 data/lightmanscurrency/advancement/currency/nether_star_wallet.json
-d89944b854d7e77868ebd9d1d166d8f8a8eae3d0 data/lightmanscurrency/advancement/currency/network_trader.json
+97d8066925e9d65357a0d8d5e7974f5786253820 data/lightmanscurrency/advancement/currency/network_trader.json
 ac554758cb46e86c0231ad6501706331f469c4ff data/lightmanscurrency/advancement/currency/root.json
 5a8cb057c9a26598edf183adb5106c5de6833320 data/lightmanscurrency/advancement/currency/specialty_trader.json
 76fb85bf7ed4e5e6c7eac6fe631bf421ce544264 data/lightmanscurrency/advancement/currency/terminal.json

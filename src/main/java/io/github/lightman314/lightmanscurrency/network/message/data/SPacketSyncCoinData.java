@@ -16,6 +16,7 @@ public final class SPacketSyncCoinData extends ServerToClientPacket {
 
     public static final ConfigurationTask.Type CONFIG_TYPE = new ConfigurationTask.Type(LightmansCurrency.id("send_coin_data"));
 
+
     private static final Type<SPacketSyncCoinData> TYPE = sType("sync_master_coin_list");
     private static final StreamCodec<FriendlyByteBuf,SPacketSyncCoinData> STREAM_CODEC = StreamCodec.of(SPacketSyncCoinData::encode,SPacketSyncCoinData::decode);
     public static final ConfigHandler<SPacketSyncCoinData> HANDLER = new H();
@@ -43,9 +44,9 @@ public final class SPacketSyncCoinData extends ServerToClientPacket {
 
     private static class H extends ConfigHandler<SPacketSyncCoinData>
     {
-        protected H() { super(TYPE, easyCodec(SPacketSyncCoinData::encode,SPacketSyncCoinData::decode)); }
+        protected H() { super(TYPE,STREAM_CODEC); }
         @Override
-        public void handle(SPacketSyncCoinData message, IPayloadContext context) {
+        public void handle(SPacketSyncCoinData message,IPayloadContext context) {
             CoinAPI.getApi().HandleSyncPacket(message);
             if(message.isConfigTask)
                 context.reply(new CPacketAcknowledgeCoinData());

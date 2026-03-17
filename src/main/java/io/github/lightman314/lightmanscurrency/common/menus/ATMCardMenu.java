@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.menus;
 
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
-import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.DisplaySlot;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.classic.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;

@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.datagen.client.generators;
 import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.UnbakedVariant;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -38,11 +37,11 @@ public abstract class ModelVariantProvider implements DataProvider {
 
     protected abstract void addEntries();
 
-    protected final void add(String id, UnbakedVariant variant) { this.add(VersionUtil.modResource(this.modid,id),variant); }
+    protected final void add(String id, UnbakedVariant variant) { this.add(ResourceLocation.fromNamespaceAndPath(this.modid,id),variant); }
     protected final void add(ResourceLocation id, UnbakedVariant variant) { this.data.put(id,variant); }
 
     protected final void addItem(String id, Component name, Supplier<Item> target, ResourceLocation... textures) { this.addItem(id,name,target.get(),textures); }
-    protected final void addItem(String id, Component name, Item target, ResourceLocation... textures) { this.addItem(VersionUtil.modResource(this.modid,id),name,target,textures); }
+    protected final void addItem(String id, Component name, Item target, ResourceLocation... textures) { this.addItem(ResourceLocation.fromNamespaceAndPath(this.modid,id),name,target,textures); }
     protected final void addItem(ResourceLocation id, Component name, Supplier<Item> target, ResourceLocation... textures) { this.addItem(id,name,target.get(),textures); }
     protected final void addItem(ResourceLocation id, Component name, Item target, ResourceLocation... textures) {
         UnbakedVariant.Builder builder = UnbakedVariant.builder()

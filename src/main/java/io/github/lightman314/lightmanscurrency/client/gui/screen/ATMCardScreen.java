@@ -14,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.common.menus.ATMCardMenu;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class ATMCardScreen extends EasyMenuScreen<ATMCardMenu> {
@@ -56,10 +55,10 @@ public class ATMCardScreen extends EasyMenuScreen<ATMCardMenu> {
         return null;
     }
 
-    private boolean canAccess(@Nonnull BankReference reference) { return reference.allowedAccess(this.menu.player); }
+    private boolean canAccess(BankReference reference) { return reference.allowedAccess(this.menu.player); }
 
     @Override
-    protected void renderBG(@Nonnull EasyGuiGraphics gui) {
+    protected void renderBG(EasyGuiGraphics gui) {
 
         gui.renderNormalBackground(this);
         //gui.renderNormalBackground(GUI_TEXTURE,this);

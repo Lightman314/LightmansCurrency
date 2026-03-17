@@ -3,9 +3,8 @@ package io.github.lightman314.lightmanscurrency.api.misc.item_handlers;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.data.DataContext;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
-import io.github.lightman314.lightmanscurrency.util.ItemStackHelper;
+import io.github.lightman314.lightmanscurrency.util.OldDataHelper;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -61,7 +60,7 @@ public class LCItemStackHandler extends ItemStackHandler {
 
     @Deprecated
     public void copyFromContainer(Container container) {
-        NonNullList<ItemStack> list = InventoryUtil.buildList(container);
+        NonNullList<ItemStack> list = OldDataHelper.buildList(container);
         //Force the new list to match my current list size
         while(list.size() < this.stacks.size())
             list.add(ItemStack.EMPTY);
@@ -131,7 +130,7 @@ public class LCItemStackHandler extends ItemStackHandler {
         if(tag.contains(key,Tag.TAG_COMPOUND))
             this.deserializeNBT(context.registryAccess(),tag.getCompound(key));
         else
-            ItemStackHelper.loadAllItems(key,tag,this.stacks,context.registryAccess());
+            OldDataHelper.loadAllItems(key,tag,this.stacks,context.registryAccess());
     }
 
     @Override

@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.client.gui.interfaces;
 
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.api.network.IBuilderProvider;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.client.gui.GhostSlot;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
@@ -18,7 +19,7 @@ import java.util.List;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public interface IEasyScreen extends LazyPacketData.IBuilderProvider {
+public interface IEasyScreen extends IBuilderProvider {
 
     RegistryAccess registryAccess();
     default LazyPacketData.Builder builder() { return LazyPacketData.builder(this.registryAccess()); }

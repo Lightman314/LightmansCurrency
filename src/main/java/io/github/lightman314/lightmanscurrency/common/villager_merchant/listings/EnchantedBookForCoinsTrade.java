@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ListingUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -31,7 +30,6 @@ import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,15 +46,15 @@ public class EnchantedBookForCoinsTrade implements ItemListing {
     protected final float priceMult;
 
     public EnchantedBookForCoinsTrade(int xp) { this(xp, EnchantmentTags.TRADEABLE); }
-    public EnchantedBookForCoinsTrade(int xp, @Nonnull TagKey<Enchantment> tag) { this(BASE_COIN, BASE_COIN_COUNT, tag,SimpleTrade.MAX_TRADES, xp, SimpleTrade.PRICE_MULT); }
+    public EnchantedBookForCoinsTrade(int xp, TagKey<Enchantment> tag) { this(BASE_COIN, BASE_COIN_COUNT, tag,SimpleTrade.MAX_TRADES, xp, SimpleTrade.PRICE_MULT); }
     public EnchantedBookForCoinsTrade(Item baseCoin, int baseCoinCount, int maxTrades, int xp, float priceMult) { this(baseCoin,baseCoinCount, EnchantmentTags.TRADEABLE, maxTrades,xp,priceMult); }
-    public EnchantedBookForCoinsTrade(Item baseCoin, int baseCoinCount, @Nonnull TagKey<Enchantment> tag, int maxTrades, int xp, float priceMult) { this.xp = xp; this.baseCoin = baseCoin; this.baseCoinCount = baseCoinCount; this.allowedEnchantments = tag; this.maxTrades = maxTrades; this.priceMult = priceMult; }
+    public EnchantedBookForCoinsTrade(Item baseCoin, int baseCoinCount, TagKey<Enchantment> tag, int maxTrades, int xp, float priceMult) { this.xp = xp; this.baseCoin = baseCoin; this.baseCoinCount = baseCoinCount; this.allowedEnchantments = tag; this.maxTrades = maxTrades; this.priceMult = priceMult; }
 
     private static final Item BASE_COIN = ModItems.COIN_GOLD.get();
     private static final int BASE_COIN_COUNT = 5;
 
     @Override
-    public MerchantOffer getOffer(@Nonnull Entity trader, @Nonnull RandomSource rand) {
+    public MerchantOffer getOffer(Entity trader, RandomSource rand) {
 
         Optional<Holder<Enchantment>> optional = trader.level()
                 .registryAccess()
@@ -114,9 +112,8 @@ public class EnchantedBookForCoinsTrade implements ItemListing {
         @Override
         public ResourceLocation getType() { return TYPE; }
 
-        @Nonnull
         @Override
-        public JsonObject serializeInternal(@Nonnull JsonObject json, @Nonnull ItemListing trade, @Nonnull HolderLookup.Provider lookup) {
+        public JsonObject serializeInternal(JsonObject json, ItemListing trade, HolderLookup.Provider lookup) {
             if(trade instanceof EnchantedBookForCoinsTrade t)
             {
                 json.addProperty("Coin", BuiltInRegistries.ITEM.getKey(t.baseCoin).toString());
@@ -130,12 +127,11 @@ public class EnchantedBookForCoinsTrade implements ItemListing {
             return null;
         }
 
-        @Nonnull
         @Override
-        public ItemListing deserialize(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
-            Item baseCoin = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(GsonHelper.getAsString(json,"Coin")));
+        public ItemListing deserialize(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
+            Item baseCoin = BuiltInRegistries.ITEM.get(ResourceLocation.parse(GsonHelper.getAsString(json,"Coin")));
             int baseCoinCount = GsonHelper.getAsInt(json,"StartCoinCount");
-            TagKey<Enchantment> enchantmentTag = TagKey.create(Registries.ENCHANTMENT,VersionUtil.parseResource(GsonHelper.getAsString(json,"EnchantmentTag")));
+            TagKey<Enchantment> enchantmentTag = TagKey.create(Registries.ENCHANTMENT,ResourceLocation.parse(GsonHelper.getAsString(json,"EnchantmentTag")));
             int maxTrades = GsonHelper.getAsInt(json,"MaxTrades");
             int xp = GsonHelper.getAsInt(json,"XP");
             float priceMult = GsonHelper.getAsFloat(json,"PriceMult");

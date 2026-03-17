@@ -21,6 +21,8 @@ import io.github.lightman314.lightmanscurrency.api.taxes.ITaxableContext;
 import io.github.lightman314.lightmanscurrency.api.ticket.TicketCollectionResult;
 import io.github.lightman314.lightmanscurrency.api.ticket.TicketUtil;
 import io.github.lightman314.lightmanscurrency.api.traders.InteractionSlotData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNode;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.traders.discount_codes.CouponSource;
 import io.github.lightman314.lightmanscurrency.api.traders.discount_codes.IDiscountCodeSource;
 import io.github.lightman314.lightmanscurrency.api.traders.misc.PlayerInventoryFailsafe;
@@ -60,8 +62,10 @@ public class TradeContext {
 	
 	//Trader Data (public as it will be needed for trade data context)
 	private final TraderData trader;
-	public boolean hasTrader() { return this.trader != null; }
 	public TraderData getTrader() { return this.trader; }
+    @Nullable
+    public <N extends TraderNode> N getTraderNode(TraderNodeType<N> type) { return this.trader.getNode(type); }
+    public boolean hasTraderNode(TraderNodeType<?> type) { return this.trader.hasNode(type); }
 
 	//Player Data
 	@Nullable

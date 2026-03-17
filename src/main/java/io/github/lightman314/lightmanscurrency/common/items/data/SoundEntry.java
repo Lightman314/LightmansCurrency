@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.items.data;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -49,8 +49,8 @@ public record SoundEntry(int weight,ResourceLocation sound) {
     {
         private final List<SoundEntry> list = new ArrayList<>();
 
-        public Builder addVanilla(int weight,String sound) { return this.add(weight,VersionUtil.vanillaResource(sound)); }
-        public Builder addModded(int weight,String modid,String sound) { return this.add(weight,VersionUtil.modResource(modid,sound)); }
+        public Builder addVanilla(int weight,String sound) { return this.add(weight,ResourceLocation.withDefaultNamespace(sound)); }
+        public Builder addModded(int weight,String modid,String sound) { return this.add(weight,ResourceLocation.fromNamespaceAndPath(modid,sound)); }
         public Builder addLC(int weight,String modid,String sound) { return this.add(weight,LightmansCurrency.id(sound)); }
         public Builder add(int weight,ResourceLocation sound) { this.list.add(new SoundEntry(weight,sound)); return this; }
 

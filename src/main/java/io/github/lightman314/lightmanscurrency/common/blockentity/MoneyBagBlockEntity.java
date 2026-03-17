@@ -14,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.common.items.data.MoneyBagData;
 import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.component.DataComponentMap;
@@ -24,6 +23,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -51,7 +51,7 @@ public class MoneyBagBlockEntity extends EasyBlockEntity implements IServerTicke
     private ResourceKey<LootTable> lootTable;
     private long lootTableSeed = -1;
 
-    private final MoneyBagInventory contents = new MoneyBagInventory();
+    public final MoneyBagInventory contents = new MoneyBagInventory();
 
     public final IMoneyViewer moneyViewer = MoneyViewWrapper.forInventory(this.contents,this);
 
@@ -157,7 +157,7 @@ public class MoneyBagBlockEntity extends EasyBlockEntity implements IServerTicke
         this.contents.load(context.read(tag.get("Contents"),MoneyBagInventory.CODEC));
         if(tag.contains("LootTable"))
         {
-            this.lootTable = ResourceKey.create(Registries.LOOT_TABLE,VersionUtil.parseResource(tag.getString("LootTable")));
+            this.lootTable = ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.parse(tag.getString("LootTable")));
             if(tag.contains("LootTableSeed"))
                 this.lootTableSeed = tag.getLong("LootTableSeed");
             if(tag.contains("SavedPos"))

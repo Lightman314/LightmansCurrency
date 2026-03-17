@@ -14,7 +14,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -85,14 +84,14 @@ public class MasterTicketRecipe implements TicketStationRecipe {
     }
 
     @Override
-    public ItemStack peekAtResult(Container container,ExtraData data) {
+    public ItemStack peekAtResult(TicketStationRecipeInput input) {
         long nextTicketID = TicketDataCache.TYPE.getUnknown().peekNextID();
-        ItemStack dyeStack = container.getItem(0);
+        ItemStack dyeStack = input.getItem(0);
         Color dyeColor = TicketModifierSlot.getColorFromDye(dyeStack);
         if(dyeColor != null)
-            return TicketItem.CreateTicket(this.result, nextTicketID, dyeColor.hexColor);
+            return TicketItem.CreateTicket(this.result,nextTicketID,dyeColor.hexColor);
         else
-            return TicketItem.CreateTicket(this.result, nextTicketID);
+            return TicketItem.CreateTicket(this.result,nextTicketID);
     }
 
     @Override

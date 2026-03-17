@@ -13,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.common.loot.modifier.ILootModifie
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.*;
 import io.github.lightman314.lightmanscurrency.integration.alexsmobs.LCAlexsMobs;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -364,7 +363,7 @@ public class LootManager {
 				//Check entity tags
 				if(option.startsWith("#"))
 				{
-					ResourceLocation tagKey = VersionUtil.parseResource(option.substring(1));
+					ResourceLocation tagKey = ResourceLocation.parse(option.substring(1));
 					if(entityTags.anyMatch(tag -> tag.location().equals(tagKey)))
 						return true;
 				}
@@ -374,11 +373,11 @@ public class LootManager {
 					if(option.endsWith(":*"))
 					{
 						//Only check the namespace of the id
-						if(VersionUtil.parseResource(option.replace(":*", ":null")).getNamespace().equals(entityID.getNamespace()))
+						if(ResourceLocation.parse(option.replace(":*", ":null")).getNamespace().equals(entityID.getNamespace()))
 							return true;
 					}
 					//Check entire entity id
-					else if(VersionUtil.parseResource(option).equals(entityID))
+					else if(ResourceLocation.parse(option).equals(entityID))
 						return true;
 				}
 			} catch (ResourceLocationException ignored) {}

@@ -5,8 +5,6 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.settings.pretty.PrettyTextData;
 import io.github.lightman314.lightmanscurrency.api.settings.pretty.PrettyTextWriter;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -17,12 +15,9 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.WrittenBookContent;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class BookTextWriter extends PrettyTextWriter {
 
     public static final PrettyTextWriter INSTANCE = new BookTextWriter();
@@ -32,7 +27,7 @@ public class BookTextWriter extends PrettyTextWriter {
 
     //Apply to written books or items flagged as being transformed into a written book
     @Override
-    public boolean worksOnStack(ItemStack stack) { return stack.getItem() == Items.WRITTEN_BOOK || InventoryUtil.ItemHasTag(stack, LCTags.Items.SETTINGS_REPLACE_WITH_WRITTEN_BOOK); }
+    public boolean worksOnStack(ItemStack stack) { return stack.getItem() == Items.WRITTEN_BOOK || stack.is(LCTags.Items.SETTINGS_REPLACE_WITH_WRITTEN_BOOK); }
 
     @Override
     public ItemStack writeLinesToStack(@Nullable Player player, ItemStack stack, PrettyTextData data) {

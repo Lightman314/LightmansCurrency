@@ -27,7 +27,7 @@ public class CommandTradeNotification extends SingleLineTaxableNotification {
 
     public static final NotificationType<CommandTradeNotification> TYPE = new Type();
 
-    TraderCategory traderData = TraderCategory.NULL;
+    TraderCategory traderData = TraderCategory.getEmpty();
     String command = "";
     MoneyValue cost = MoneyValue.empty();
 
@@ -64,7 +64,7 @@ public class CommandTradeNotification extends SingleLineTaxableNotification {
     @Override
     protected void loadNormal(CompoundTag compound, HolderLookup.Provider lookup) {
 
-        this.traderData = new TraderCategory(compound.getCompound("TraderInfo"),lookup);
+        this.traderData = TraderCategory.loadOldData(compound.getCompound("TraderInfo"),lookup);
         this.command = compound.getString("Command");
         this.cost = MoneyValue.load(compound.getCompound("Price"));
         this.customer = compound.getString("Customer");

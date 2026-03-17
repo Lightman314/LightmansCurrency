@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.traders.data.nodes;
 import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.network.IBuilderProvider;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.settings.SettingsNode;
@@ -11,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.interfaces
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 
 import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
-import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
@@ -22,7 +22,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public abstract class TraderNode implements IClientTracker, LazyPacketData.IBuilderProvider {
+public abstract class TraderNode implements IClientTracker, IBuilderProvider {
 
     public static final Codec<TraderNode> CODEC = LCRegistries.TRADER_NODE.byNameCodec().dispatch(TraderNode::getType,TraderNodeType::codec);
     public static final Codec<Map<TraderNodeType<?>, TraderNode>> SET_CODEC = Codec.unboundedMap(TraderNodeType.CODEC,CODEC);
@@ -31,15 +31,15 @@ public abstract class TraderNode implements IClientTracker, LazyPacketData.IBuil
     protected TraderData trader = null;
     @Nullable
     public TraderData getTrader() { return this.trader; }
+    @Override
+    public final HolderLookup.Provider registryAccess() { return this.trader.registryAccess(); }
+
     protected TraderNode() { }
 
     @Override
     public final boolean isClient() { return this.trader == null || this.trader.isClient(); }
     @Override
     public final boolean isServer() { return IClientTracker.super.isServer(); }
-
-    @Override
-    public LazyPacketData.Builder builder() { return LazyPacketData.builder(LookupHelper.getRegistryAccess()); }
 
     public final void attach(TraderData trader) {
         if(this.trader != null)

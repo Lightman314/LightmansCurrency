@@ -401,7 +401,7 @@ public class PlayerTrade implements IPlayerTrade, MenuProvider {
 
     private void writeAdditionalMenuData(RegistryFriendlyByteBuf buffer) {
         buffer.writeInt(this.tradeID);
-        this.getData().encode(buffer);
+        ClientPlayerTrade.STREAM_CODEC.encode(buffer,this.getData());
     }
 
 }

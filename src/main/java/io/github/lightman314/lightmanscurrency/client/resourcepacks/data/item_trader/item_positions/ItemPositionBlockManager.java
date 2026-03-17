@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_t
 
 import com.google.gson.*;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -60,16 +59,16 @@ public class ItemPositionBlockManager extends SimpleJsonResourceReloadListener {
         map.forEach((id,json) -> {
             try {
                 JsonObject root = GsonHelper.convertToJsonObject(json, "top element");
-                ResourceLocation target = VersionUtil.parseResource(GsonHelper.getAsString(root,"target",id.toString()));
+                ResourceLocation target = ResourceLocation.parse(GsonHelper.getAsString(root,"target",id.toString()));
                 JsonArray valueList = GsonHelper.getAsJsonArray(root, "values");
                 List<Predicate<Block>> results = new ArrayList<>();
                 for(int i = 0; i < valueList.size(); ++i)
                 {
                     String value = GsonHelper.convertToString(valueList.get(i),"values[" + i + "]");
                     if(value.startsWith("#"))
-                        results.add(new TagPredicate(VersionUtil.parseResource(value.substring(1))));
+                        results.add(new TagPredicate(ResourceLocation.parse(value.substring(1))));
                     else
-                        results.add(new BlockPredicate(VersionUtil.parseResource(value)));
+                        results.add(new BlockPredicate(ResourceLocation.parse(value)));
                 }
                 this.data.put(id, new BlockEntry(target,results));
             } catch (JsonSyntaxException | IllegalArgumentException | ResourceLocationException exception) {

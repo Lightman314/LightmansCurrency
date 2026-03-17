@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
+import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.classic.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
@@ -14,7 +15,6 @@ import io.github.lightman314.lightmanscurrency.common.menus.providers.WalletBank
 import io.github.lightman314.lightmanscurrency.common.menus.providers.WalletMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.BlacklistSlot;
 import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.CoinSlot;
-import io.github.lightman314.lightmanscurrency.common.menus.slots.DisplaySlot;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -141,7 +141,7 @@ public abstract class WalletMenuBase extends LazyMessageMenu {
 		while(dummySlots-- > 0)
 		{
 			DisplaySlot slot = new DisplaySlot(this.dummyInventory,0,Integer.MAX_VALUE / 2, Integer.MAX_VALUE / 2);
-			slot.active = false;
+			slot.setActive(false);
 			this.addSlot(slot);
 		}
 	}

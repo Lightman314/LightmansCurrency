@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.blockentity.trader;
 import java.util.List;
 import java.util.UUID;
 
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.filter.FilterAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
@@ -13,8 +14,8 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.storage.Trade
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -27,8 +28,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderDat
 import io.github.lightman314.lightmanscurrency.common.traders.item.trade.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.trade.restrictions.EquipmentRestriction;
 import io.github.lightman314.lightmanscurrency.common.traders.item.trade.restrictions.ItemTradeRestriction;
-
-import javax.annotation.Nonnull;
 
 public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 
@@ -46,8 +45,7 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 	{
 		super(ModBlockEntities.ARMOR_TRADER.get(), pos, state, TRADE_COUNT);
 	}
-	
-	@Nonnull
+
     @Override
 	public ItemTraderData buildNewTrader() { return new ItemTraderDataArmor(this.level, this.worldPosition); }
 	
@@ -203,11 +201,10 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 	}
 	
 	@Override
-	public void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup)
+	public void saveAdditional(CompoundTag compound, DataContext<Tag> context)
 	{
+        super.saveAdditional(compound,context);
 		this.writeArmorStandData(compound);
-		
-		super.saveAdditional(compound,lookup);
 	}
 
 
@@ -218,12 +215,12 @@ public class ArmorDisplayTraderBlockEntity extends ItemTraderBlockEntity {
 	}
 	
 	@Override
-	public void loadAdditional(@Nonnull CompoundTag compound,@Nonnull HolderLookup.Provider lookup)
+	public void loadAdditional(CompoundTag compound,DataContext<Tag> context)
 	{
+        super.loadAdditional(compound,context);
 		this.loaded = true;
 		if(compound.contains("ArmorStand"))
 			this.armorStandID = compound.getUUID("ArmorStand");
-		super.loadAdditional(compound,lookup);
 	}
 	
 	protected ArmorStand getArmorStand()

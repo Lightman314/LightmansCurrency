@@ -1,17 +1,13 @@
 package io.github.lightman314.lightmanscurrency.api.settings.pretty;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class PrettyTextWriter {
 
     public static final PrettyTextWriter DEFAULT = new DefaultWriter();

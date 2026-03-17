@@ -51,7 +51,7 @@ public abstract class TradeData {
 	 * and will cache the results to save framerate for client-side displays.
 	 */
 	public final MoneyValue getCost(TradeContext context) {
-		if(!context.hasTrader() || !this.validCost())
+		if(!this.validCost())
 			return this.getCost();
 		MoneyValue baseCost = TradeRule.getBaseCost(this,context);
 		TradeCostEvent event = context.getTrader().runTradeCostEvent(this, context, baseCost);
@@ -73,15 +73,11 @@ public abstract class TradeData {
 	public MoneyValue getCostWithTaxes(TradeContext context)
 	{
 		MoneyValue cost = this.getCost(context);
-		if(context.hasTrader())
-		{
-			TraderData trader = context.getTrader();
-			MoneyValue taxAmount = MoneyValue.empty();
-			for(ITaxCollector entry : trader.findNodeValue(TaxesNode.TYPE, n -> n.getApplicableTaxes(context.getTaxContext()),new ArrayList<ITaxCollector>()))
-				taxAmount = taxAmount.addValue(cost.percentageOfValue(entry.getTaxRate()));
-			return cost.addValue(taxAmount);
-		}
-		return cost;
+        TraderData trader = context.getTrader();
+        MoneyValue taxAmount = MoneyValue.empty();
+        for(ITaxCollector entry : trader.findNodeValue(TaxesNode.TYPE, n -> n.getApplicableTaxes(context.getTaxContext()),new ArrayList<ITaxCollector>()))
+            taxAmount = taxAmount.addValue(cost.percentageOfValue(entry.getTaxRate()));
+        return cost.addValue(taxAmount);
 	}
 	
 	public void setCost(MoneyValue value) {
@@ -118,9 +114,6 @@ public abstract class TradeData {
 
 	public final int stockCountOfCost(TradeContext context)
 	{
-		if(!context.hasTrader())
-			return 0;
-
 		TraderData trader = context.getTrader();
 		if(this.getCost().isFree())
 			return 1;

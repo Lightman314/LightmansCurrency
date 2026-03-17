@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.money.ancient_money;
 
-import com.google.gson.JsonObject;
 import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyHandler;
@@ -91,9 +90,6 @@ public class AncientMoneyType extends CurrencyType<AncientMoneyValue> {
 
     @Override
     public MoneyValue loadOldMoneyValue(CompoundTag valueTag) { return AncientMoneyValue.load(valueTag); }
-
-    @Override
-    public MoneyValue loadMoneyValueJson(JsonObject json) { return AncientMoneyValue.loadFromJson(json); }
 
     @Override
     public MoneyValueParser getValueParser() { return AncientMoneyParser.INSTANCE; }

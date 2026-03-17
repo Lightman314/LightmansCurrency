@@ -33,7 +33,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.builtin.
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.builtin.DemandPricing;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tickets.TicketInfo;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -260,7 +259,7 @@ public class PaygateTradeData extends RuleSupportingTradeData implements IDirect
 		{
 			this.ticketID = compound.getLong("TicketID");
 			if(compound.contains("TicketItem"))
-				this.ticketItem = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(compound.getString("TicketItem")));
+				this.ticketItem = BuiltInRegistries.ITEM.get(ResourceLocation.parse(compound.getString("TicketItem")));
 			else
 				this.ticketItem = ModItems.TICKET.get();
 		}

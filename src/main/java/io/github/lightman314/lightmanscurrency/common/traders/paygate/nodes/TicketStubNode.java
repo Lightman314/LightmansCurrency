@@ -12,7 +12,7 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets;
 import io.github.lightman314.lightmanscurrency.common.traders.paygate.tickets.ITicketRelevanceSource;
 import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.OldDataHelper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -103,6 +103,7 @@ public class TicketStubNode extends SyncedTraderNode implements IContentProvider
     }
 
     @Override
+    @Deprecated
     public void loadOldData(CompoundTag tag, HolderLookup.Provider lookup) {
         //Load Ticket Stubs
         if(tag.contains("TicketStubs"))
@@ -118,7 +119,7 @@ public class TicketStubNode extends SyncedTraderNode implements IContentProvider
             this.storedTicketStubs.clear();
             for(int i = 0; i < list.size(); ++i)
             {
-                ItemStack stack = InventoryUtil.loadItemNoLimits(list.getCompound(i),lookup);
+                ItemStack stack = OldDataHelper.loadItem(list.getCompound(i),lookup);
                 if(!stack.isEmpty())
                     this.storedTicketStubs.add(stack);
             }

@@ -21,7 +21,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.data.TraderState;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.OldDataHelper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -30,7 +30,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
@@ -229,7 +228,7 @@ public class TraderEjectionData extends EjectionData {
         @SuppressWarnings("deprecation")
         private static PreSplitData loadOldData(CompoundTag tag, HolderLookup.Provider lookup) {
             long traderID = tag.getLong("TraderID");
-            ItemStack item = InventoryUtil.loadItemNoLimits(tag.getCompound("Item"),lookup);
+            ItemStack item = OldDataHelper.loadItem(tag.getCompound("Item"),lookup);
             return new PreSplitData(traderID,item);
         }
     }
@@ -290,8 +289,7 @@ public class TraderEjectionData extends EjectionData {
         {
             OwnerData owner = new OwnerData(IClientTracker.forClient());
             owner.load(tag.getCompound("Owner"),DataContext.createNBT(lookup));
-            Container container = InventoryUtil.loadAllItems("Contents",tag,tag.getList("Contents",Tag.TAG_COMPOUND).size(),lookup);
-            NonEmptyHandler contents = new NonEmptyHandler(InventoryUtil.buildList(container));
+            NonEmptyHandler contents = new NonEmptyHandler(OldDataHelper.loadNonEmptyList(tag.getList("Contents",Tag.TAG_COMPOUND),lookup));
             Component name = Component.Serializer.fromJson(tag.getString("Name"),lookup);
             return new SplitData(owner,contents,name);
         }

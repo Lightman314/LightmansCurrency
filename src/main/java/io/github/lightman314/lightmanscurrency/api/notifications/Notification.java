@@ -11,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.api.codecs.partial.SPart1;
 import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
 import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
@@ -118,7 +117,7 @@ public abstract class Notification implements ISidedObject {
     {
         if(tag.contains("Type") || tag.contains("type"))
         {
-            ResourceLocation type = VersionUtil.parseResource(tag.contains("Type") ? tag.getString("Type") : tag.getString("type"));
+            ResourceLocation type = ResourceLocation.parse(tag.contains("Type") ? tag.getString("Type") : tag.getString("type"));
             if(LCRegistries.NOTIFICATION_TYPES.containsKey(type))
             {
                 try {

@@ -29,7 +29,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.nodes
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade.SlotMachineDummyTrade;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.MenuProvider;
@@ -165,7 +165,7 @@ public class SlotMachineTraderData extends PersistentSupportingTraderData implem
                 if(loot.isMoney())
                     product.add(loot.getMoneyValue());
                 else
-                    product.addAll(InventoryUtil.copyList(loot.items));
+                    product.addAll(ItemHandlerUtil.copyList(loot.items));
             }
 
             //Push the post-trade event

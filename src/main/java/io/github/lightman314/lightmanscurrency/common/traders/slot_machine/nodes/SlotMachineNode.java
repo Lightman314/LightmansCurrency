@@ -30,8 +30,8 @@ import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.tabs.
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade.SlotMachineDummyTrade;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade.SlotMachineEntry;
 import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.NumberUtil;
+import io.github.lightman314.lightmanscurrency.util.OldDataHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
@@ -233,6 +233,7 @@ public class SlotMachineNode extends DummyTradeOfferNode<SlotMachineDummyTrade> 
     protected Supplier<LazyPacketType<SlotMachineDummyTrade>> getPacketType() { return ModLazyPackets.SLOT_MACHINE_DUMMY; }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void loadOldData(CompoundTag tag, HolderLookup.Provider lookup) {
         this.loadOldLastIcons(tag,lookup);
         if(tag.contains("Entries"))
@@ -243,7 +244,7 @@ public class SlotMachineNode extends DummyTradeOfferNode<SlotMachineDummyTrade> 
             for(int i = 0; i < list.size(); ++i)
             {
                 CompoundTag e = list.getCompound(i);
-                this.entries.add(SlotMachineEntry.load(e,lookup));
+                this.entries.add(SlotMachineEntry.loadOldData(e,lookup));
                 if(e.contains("Weight"))
                     deprecatedWeights.add(e.getInt("Weight"));
             }
@@ -264,6 +265,7 @@ public class SlotMachineNode extends DummyTradeOfferNode<SlotMachineDummyTrade> 
             this.price = MoneyValue.safeLoad(tag, "Price");
     }
 
+    @Deprecated
     private void loadOldLastIcons(CompoundTag compound, HolderLookup.Provider lookup)
     {
         if(compound.contains("LastReward"))
@@ -272,7 +274,7 @@ public class SlotMachineNode extends DummyTradeOfferNode<SlotMachineDummyTrade> 
             ListTag itemList = compound.getList("LastReward", Tag.TAG_COMPOUND);
             for(int i = 0; i < itemList.size(); ++i)
             {
-                ItemStack stack = InventoryUtil.loadItemNoLimits(itemList.getCompound(i),lookup);
+                ItemStack stack = OldDataHelper.loadItem(itemList.getCompound(i),lookup);
                 if(!stack.isEmpty())
                     lastReward.add(stack);
             }

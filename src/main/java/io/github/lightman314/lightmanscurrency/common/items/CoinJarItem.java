@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -42,14 +42,14 @@ public class CoinJarItem extends BlockItem {
 				tooltip.add(LCText.TOOLTIP_COIN_JAR_HOLD_CTRL.get().withStyle(ChatFormatting.YELLOW));
 		}
 
-		if(InventoryUtil.ItemHasTag(stack, ItemTags.DYEABLE))
+		if(stack.getItem() instanceof CoinJarItem jar && jar.canDye(stack))
 			tooltip.add(LCText.TOOLTIP_COIN_JAR_COLORED.getWithStyle(ChatFormatting.GRAY));
 
 		super.appendHoverText(stack,level,tooltip,flag);
 
 	}
 
-	public boolean canDye(ItemStack stack) { return InventoryUtil.ItemHasTag(stack, ItemTags.DYEABLE); }
+	public boolean canDye(ItemStack stack) { return stack.is(ItemTags.DYEABLE); }
 
 	/**
 	 * Gets the contents of the Coin Jar<br>
@@ -72,7 +72,7 @@ public class CoinJarItem extends BlockItem {
 		if(jarContents.isEmpty())
 			stack.remove(ModDataComponents.COIN_JAR_CONTENTS);
 		//Copy list & contents and then make them immutable just in case someone tries to edit the result of getJarContents later.
-		stack.set(ModDataComponents.COIN_JAR_CONTENTS,ImmutableList.copyOf(InventoryUtil.copyList(jarContents)));
+		stack.set(ModDataComponents.COIN_JAR_CONTENTS,ImmutableList.copyOf(ItemHandlerUtil.copyList(jarContents)));
 	}
 
 	public static int getJarColor(ItemStack stack)
@@ -85,7 +85,7 @@ public class CoinJarItem extends BlockItem {
 
 	public static void setJarColor(ItemStack stack, int color)
 	{
-		if(!(stack.getItem() instanceof CoinJarItem jar) || !InventoryUtil.ItemHasTag(stack, ItemTags.DYEABLE))
+		if(!(stack.getItem() instanceof CoinJarItem jar) || !jar.canDye(stack))
 			return;
 		stack.set(DataComponents.DYED_COLOR, new DyedItemColor(color,true));
 	}

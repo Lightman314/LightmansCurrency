@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity.trader;
 
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.ItemPositionData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
@@ -7,8 +8,8 @@ import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.blocks.traderblocks.interfaces.IItemTraderBlock;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -55,17 +56,17 @@ public class ItemTraderBlockEntity extends TraderBlockEntity<ItemTraderData> {
 	}
 	
 	@Override
-	public void saveAdditional(CompoundTag compound, HolderLookup.Provider lookup)
+	public void saveAdditional(CompoundTag compound,DataContext<Tag> context)
 	{
-		super.saveAdditional(compound,lookup);
+		super.saveAdditional(compound,context);
 		compound.putInt("TradeCount", this.tradeCount);
 		compound.putBoolean("NetworkTrader", this.networkTrader);
 	}
 	
 	@Override
-	public void loadAdditional(CompoundTag compound, HolderLookup.Provider lookup)
+	public void loadAdditional(CompoundTag compound,DataContext<Tag> context)
 	{
-		super.loadAdditional(compound,lookup);
+		super.loadAdditional(compound,context);
 		this.tradeCount = compound.getInt("TradeCount");
 		this.networkTrader = compound.getBoolean("NetworkTrader");
 	}

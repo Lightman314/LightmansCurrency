@@ -1,13 +1,12 @@
 package io.github.lightman314.lightmanscurrency.common.menus.validation.types;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidatorType;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -19,30 +18,28 @@ public final class SimpleValidator extends MenuValidator {
 
     private final Function<Player,Boolean> test;
 
-    private SimpleValidator(@Nonnull Supplier<Boolean> test) { this(p -> test.get()); }
-    private SimpleValidator(@Nonnull Function<Player,Boolean> test) { super(TYPE); this.test = test; }
+    private SimpleValidator(Supplier<Boolean> test) { this(p -> test.get()); }
+    private SimpleValidator(Function<Player,Boolean> test) { super(TYPE); this.test = test; }
 
-    public static MenuValidator of(@Nonnull Supplier<Boolean> test) { return new SimpleValidator(test); }
-    public static MenuValidator of(@Nonnull Function<Player,Boolean> test) { return new SimpleValidator(test); }
-
-    @Override
-    protected void encodeAdditional(@Nonnull FriendlyByteBuf buffer) { }
+    public static MenuValidator of(Supplier<Boolean> test) { return new SimpleValidator(test); }
+    public static MenuValidator of(Function<Player,Boolean> test) { return new SimpleValidator(test); }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag tag) { }
+    protected void encodeAdditional(FriendlyByteBuf buffer) { }
 
     @Override
-    public boolean stillValid(@Nonnull Player player) { try{ return this.test.apply(player); } catch (Throwable t) { return false; } }
+    protected void saveAdditional(CompoundTag tag) { }
+
+    @Override
+    public boolean stillValid(Player player) { try{ return this.test.apply(player); } catch (Throwable t) { return false; } }
 
     private static class Type extends MenuValidatorType
     {
         protected Type() { super(LightmansCurrency.id("null")); }
-        @Nonnull
         @Override
-        public MenuValidator decode(@Nonnull FriendlyByteBuf buffer) { return NULL; }
-        @Nonnull
+        public MenuValidator decode(FriendlyByteBuf buffer) { return NULL; }
         @Override
-        public MenuValidator load(@Nonnull CompoundTag tag) { return NULL; }
+        public MenuValidator load(CompoundTag tag) { return NULL; }
     }
 
 }

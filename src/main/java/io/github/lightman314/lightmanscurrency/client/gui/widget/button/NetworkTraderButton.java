@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.client.sprites.FixedSizeSprit
 import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.ITooltipWidget;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.client.IconRenderer;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import net.minecraft.FieldsAreNonnullByDefault;
@@ -66,7 +67,7 @@ public class NetworkTraderButton extends EasyButton implements ITooltipWidget {
         sprite.render(gui,0,0,this);
 		
 		//Draw the icon
-		this.data.getDisplayIcon().render(gui, 4, 7);
+        IconRenderer.renderIcon(this.data.getDisplayIcon(),gui, 4, 7);
 		
 		//Draw the name & owner of the trader
 		int color = this.data.getTerminalTextColor();

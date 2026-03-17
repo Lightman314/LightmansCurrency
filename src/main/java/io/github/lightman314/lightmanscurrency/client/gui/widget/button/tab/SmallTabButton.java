@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IToolti
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.IRotatableWidget;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.WidgetRotation;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.client.IconRenderer;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -74,7 +75,7 @@ public class SmallTabButton extends EasyButton implements ITooltipSource, IRotat
 
 		float m = this.active ? 1f : 0.5f;
 		gui.setColor(m,m,m);
-        this.tab.getIcon().render(gui, getIconOffset(this.rotation));
+        IconRenderer.renderIcon(this.tab.getIcon(),gui,getIconOffset(this.rotation));
 
 		gui.resetColor();
 

@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.blockentity.trader;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettings;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.DirectionalSettingsState;
 import io.github.lightman314.lightmanscurrency.api.misc.settings.directional.IDirectionalSettingsHolder;
@@ -19,7 +20,6 @@ import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
@@ -27,7 +27,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -45,15 +44,15 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 
 	@Nullable
 	@Override
-	protected PaygateTraderData castOrNullify(@Nonnull TraderData trader) {
+	protected PaygateTraderData castOrNullify(TraderData trader) {
 		if(trader instanceof PaygateTraderData pg)
 			return pg;
 		return null;
 	}
 
 	@Override
-	public void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
-		super.saveAdditional(compound,lookup);
+	public void saveAdditional(CompoundTag compound,DataContext<Tag> context) {
+		super.saveAdditional(compound,context);
 		this.saveRedstoneData(compound);
 	}
 
@@ -72,8 +71,8 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 	}
 	
 	@Override
-	public void loadAdditional(@Nonnull CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
-		
+	public void loadAdditional(CompoundTag compound,DataContext<Tag> context) {
+        super.loadAdditional(compound,context);
 		//Load the timer
 		if(compound.contains("Timer", Tag.TAG_INT))
 		{
@@ -118,9 +117,6 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 					this.simplifiedData.put(side,data.getInt(side.toString()));
 			}
 		}
-		
-		super.loadAdditional(compound,lookup);
-		
 	}
 
 	public static List<OutputVisibilityData> parseVisibilityData(CompoundTag dataTag)
@@ -245,7 +241,6 @@ public class PaygateBlockEntity extends TraderBlockEntity<PaygateTraderData> {
 		return -1;
 	}
 
-	@Nonnull
     @Override
 	protected PaygateTraderData buildNewTrader() { return new PaygateTraderData(this.level, this.worldPosition); }
 

@@ -37,7 +37,7 @@ public final class CustomDataType<T extends CustomData> {
 
     /**
      * Easy unsided access to the data cache.<br>
-     * Use with caution only in instances where you have no way of knowing which side your own, but always assume the possiblity of only getting the client-side data.<br>
+     * Use with caution only in instances where you have no way of knowing which side you're on, but always assume the possiblity of only getting the client-side data.<br>
      * No alterations to the data should be done with this get, and you should treat it as read-only
      */
     public T getUnknown() {

@@ -12,8 +12,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.text.MultiLineTextEntry;
 import io.github.lightman314.lightmanscurrency.network.message.config.SPacketReloadConfig;
 import io.github.lightman314.lightmanscurrency.network.message.config.SPacketSyncConfig;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -25,7 +23,6 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -85,7 +82,7 @@ public abstract class ConfigFile implements ConfigReloadable {
 
     private static void reloadFiles(boolean logicalClient)
     {
-        VersionUtil.postEvent(new ConfigReloadAllEvent.Pre(logicalClient));
+        NeoForge.EVENT_BUS.post(new ConfigReloadAllEvent.Pre(logicalClient));
         for(ConfigFile file : loadableFiles.values())
         {
             try {
@@ -93,7 +90,7 @@ public abstract class ConfigFile implements ConfigReloadable {
                     file.reload();
             } catch (IllegalArgumentException | NullPointerException e) { LightmansCurrency.LogError("Error reloading config file!", e); }
         }
-        VersionUtil.postEvent(new ConfigReloadAllEvent.Post(logicalClient));
+        NeoForge.EVENT_BUS.post(new ConfigReloadAllEvent.Post(logicalClient));
     }
 
     public static void handleSyncData(ResourceLocation configID, Map<String,String> data)
@@ -216,10 +213,10 @@ public abstract class ConfigFile implements ConfigReloadable {
         if(fileName.contains("-"))
         {
             String[] split = fileName.split("-",2);
-            return VersionUtil.modResource(forceValidNamespace(split[0]),forceValidPath(split[1]));
+            return ResourceLocation.fromNamespaceAndPath(forceValidNamespace(split[0]),forceValidPath(split[1]));
         }
         else
-            return VersionUtil.modResource("unknown",forceValidPath(fileName));
+            return ResourceLocation.fromNamespaceAndPath("unknown",forceValidPath(fileName));
     }
 
     private static String forceValidNamespace(String string)
@@ -290,7 +287,7 @@ public abstract class ConfigFile implements ConfigReloadable {
         this.reloading = true;
         final boolean isFirstLoad = !this.isLoaded();
         //Pre reload event
-        VersionUtil.postEvent(new ConfigEvent.ConfigReloadedEvent.Pre(this,isFirstLoad));
+        NeoForge.EVENT_BUS.post(new ConfigEvent.ConfigReloadedEvent.Pre(this,isFirstLoad));
 
         try {
             LightmansCurrency.LogInfo("Reloading " + this.getFilePath());
@@ -366,7 +363,7 @@ public abstract class ConfigFile implements ConfigReloadable {
 
         this.reloading = false;
         //Post reload event
-        VersionUtil.postEvent(new ConfigEvent.ConfigReloadedEvent.Post(this,isFirstLoad));
+        NeoForge.EVENT_BUS.post(new ConfigEvent.ConfigReloadedEvent.Post(this,isFirstLoad));
 
     }
 
@@ -533,8 +530,6 @@ public abstract class ConfigFile implements ConfigReloadable {
 
     public void clearSyncedData() { this.forEach(ConfigOption::clearSyncedData); }
 
-    @ParametersAreNonnullByDefault
-    @MethodsReturnNonnullByDefault
     protected static final class ConfigBuilder
     {
 

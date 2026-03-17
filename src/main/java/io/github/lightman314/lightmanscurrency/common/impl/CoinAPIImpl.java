@@ -6,6 +6,7 @@ import com.google.gson.*;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.events.BuildDefaultMoneyDataEvent;
 import io.github.lightman314.lightmanscurrency.api.events.ChainDataReloadedEvent;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
@@ -58,6 +59,9 @@ public final class CoinAPIImpl extends CoinAPI {
     public CoinAPIImpl() { instance = this; }
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
+    private HolderLookup.Provider registryAccess() { return LookupHelper.getRegistryAccess(); }
+    private DataContext<JsonElement> dataContext() { return DataContext.createJson(this.registryAccess()); }
+
     Map<String, ChainData> loadedChains = null;
     Map<ResourceLocation,ChainData> itemIdToChainMap = null;
     private final List<Comparator<ItemStack>> customSorters = new ArrayList<>();
@@ -96,20 +100,12 @@ public final class CoinAPIImpl extends CoinAPI {
             if(fileData.has("CoinEntries") && !fileData.has("Chains"))
                 loadDeprecatedData(GsonHelper.getAsJsonArray(fileData, "CoinEntries"));
             else
-                loadMoneyDataFromJson(fileData, LookupHelper.getRegistryAccess());
+                loadMoneyDataFromJson(fileData,this.dataContext());
         } catch (JsonParseException | ResourceLocationException | IOException e) {
             LightmansCurrency.LogError("Error loading the Master Coin List. Using default values for now.", e);
             loadData(generateDefaultMoneyData());
         }
         this.SyncCoinDataWith(null);
-    }
-
-    public static void LoadEditedData(String customJson) {
-        try {
-            JsonObject json = GsonHelper.parse(customJson);
-            instance.loadMoneyDataFromJson(json,LookupHelper.getRegistryAccess());
-            instance.createMoneyDataFile(new File(MONEY_FILE_LOCATION),instance.loadedChains,false);
-        } catch (JsonParseException | ResourceLocationException e) { LightmansCurrency.LogError("Error parsing custom json data!",e); }
     }
 
     private void loadData(Map<String,ChainData> dataMap)
@@ -233,7 +229,7 @@ public final class CoinAPIImpl extends CoinAPI {
         return null;
     }
 
-    private void loadMoneyDataFromJson(JsonObject root, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException
+    private void loadMoneyDataFromJson(JsonObject root, DataContext<JsonElement> context) throws JsonSyntaxException, ResourceLocationException
     {
         List<CoinEntry> allEntries = new ArrayList<>();
         Map<String, ChainData> tempMap = new HashMap<>();
@@ -244,7 +240,7 @@ public final class CoinAPIImpl extends CoinAPI {
             try {
                 JsonObject entry = GsonHelper.convertToJsonObject(chainList.get(i), "Chains[" + i + "]");
                 chainName = GsonHelper.getAsString(entry, "chain", null);
-                ChainData chain = ChainData.fromJson(allEntries, entry, lookup);
+                ChainData chain = ChainData.fromJson(allEntries, entry, context);
                 if(tempMap.containsKey(chain.chain))
                     throw new JsonSyntaxException("Multple '" + chain.chain  + "' chains detected. Duplicate will be ignored!");
                 tempMap.put(chain.chain, chain);
@@ -333,7 +329,7 @@ public final class CoinAPIImpl extends CoinAPI {
         {
             if(hideEventChains && chain.isEvent)
                 continue;
-            chainArray.add(chain.getAsJson(LookupHelper.getRegistryAccess()));
+            chainArray.add(chain.getAsJson(this.dataContext()));
         }
 
         fileJson.add("Chains", chainArray);
@@ -593,7 +589,7 @@ public final class CoinAPIImpl extends CoinAPI {
     }
 
     @Override
-    public void HandleSyncPacket(SPacketSyncCoinData packet) { this.loadMoneyDataFromJson(packet.getJson(),LookupHelper.getRegistryAccess()); }
+    public void HandleSyncPacket(SPacketSyncCoinData packet) { this.loadMoneyDataFromJson(packet.getJson(),this.dataContext()); }
 
     public static class CoinSorter implements Comparator<ItemStack>
     {

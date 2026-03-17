@@ -4,7 +4,6 @@ import com.mojang.datafixers.util.Either;
 import io.github.lightman314.lightmanscurrency.api.config.client.screen.widgets.builtin.list.ListEditBoxOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.builtin.ResourceListOption;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs.TextInputUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -22,7 +21,7 @@ public class ResourceListSettings extends EasyListSettings<ResourceLocation,Reso
     @Override
     protected ResourceLocation getBackupValue() { return null; }
     @Override
-    protected ResourceLocation getNewEntryValue() { return VersionUtil.vanillaResource("null"); }
+    protected ResourceLocation getNewEntryValue() { return ResourceLocation.withDefaultNamespace("null"); }
 
     @Override
     protected Either<ResourceLocation, Void> tryCastValue(Object newValue) {
@@ -31,7 +30,7 @@ public class ResourceListSettings extends EasyListSettings<ResourceLocation,Reso
         if(newValue instanceof String string)
         {
             try {
-                return Either.left(VersionUtil.parseResource(string));
+                return Either.left(ResourceLocation.parse(string));
             } catch (ResourceLocationException ignored) { }
         }
         return Either.right(null);

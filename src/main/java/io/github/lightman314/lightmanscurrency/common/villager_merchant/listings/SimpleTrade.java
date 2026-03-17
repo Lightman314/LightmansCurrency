@@ -3,9 +3,9 @@ package io.github.lightman314.lightmanscurrency.common.villager_merchant.listing
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -20,8 +20,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.SuspiciousStewEffects;
 import net.minecraft.world.level.ItemLike;
-
-import javax.annotation.Nonnull;
 
 public class SimpleTrade extends ItemsForXTradeTemplate
 {
@@ -87,7 +85,7 @@ public class SimpleTrade extends ItemsForXTradeTemplate
         super(price,price2,maxTrades,xp,priceMult);
         this.forSale = forSale;
     }
-    private SimpleTrade(@Nonnull DeserializedData data, @Nonnull ItemStack forSale)
+    private SimpleTrade(DeserializedData data, ItemStack forSale)
     {
         super(data);
         this.forSale = forSale;
@@ -100,7 +98,7 @@ public class SimpleTrade extends ItemsForXTradeTemplate
     }
 
     @Override
-    protected ItemStack createResult(@Nonnull Entity trader, @Nonnull RandomSource rand) { return this.forSale; }
+    protected ItemStack createResult(Entity trader, RandomSource rand) { return this.forSale; }
 
     public static class Serializer implements ItemListingSerializer.IItemListingSerializer, ItemListingSerializer.IItemListingDeserializer {
 
@@ -108,7 +106,7 @@ public class SimpleTrade extends ItemsForXTradeTemplate
         @Override
         public ResourceLocation getType() { return TYPE; }
         @Override
-        public JsonObject serializeInternal(@Nonnull JsonObject json, @Nonnull VillagerTrades.ItemListing trade, @Nonnull HolderLookup.Provider lookup) {
+        public JsonObject serializeInternal(JsonObject json, VillagerTrades.ItemListing trade, HolderLookup.Provider lookup) {
             if(trade instanceof SimpleTrade t)
             {
                 t.serializeData(json,lookup);
@@ -118,9 +116,9 @@ public class SimpleTrade extends ItemsForXTradeTemplate
             }
             return null;
         }
-        @Nonnull
+        
         @Override
-        public VillagerTrades.ItemListing deserialize(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
+        public VillagerTrades.ItemListing deserialize(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
 
             DeserializedData data = deserializeData(json,lookup);
             ItemStack forSale = FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json,"Sell"),lookup);

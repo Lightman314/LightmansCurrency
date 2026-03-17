@@ -7,7 +7,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
 import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -85,7 +84,7 @@ public final class StatTracker implements IClientTracker
         {
             try {
                 CompoundTag entry = tag.getCompound(key);
-                ResourceLocation typeID = VersionUtil.parseResource(entry.getString("Type"));
+                ResourceLocation typeID = ResourceLocation.parse(entry.getString("Type"));
                 StatType<?,?> type = LCRegistries.STAT_TYPES.get(typeID);
                 if(type == null)
                     throw new RuntimeException(typeID + " is not a registered StatType!");

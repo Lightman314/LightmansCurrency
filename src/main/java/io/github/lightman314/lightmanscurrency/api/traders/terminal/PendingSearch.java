@@ -1,16 +1,11 @@
 package io.github.lightman314.lightmanscurrency.api.traders.terminal;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
-
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class PendingSearch {
 
     public static final PendingSearch EMPTY = new PendingSearch("",new HashMap<>(),new ArrayList<>());

@@ -28,7 +28,11 @@ public class TeamBankAccount extends BankAccount {
     public static final String TARGET_MEMBERS = "members";
     public static final String TARGET_ADMINS = "admins";
 
-    public TeamBankAccount forTeam(ITeam team) { this.bonusOptions = ImmutableMap.copyOf(this.buildOptions(team)); return this; }
+    public TeamBankAccount forTeam(ITeam team) {
+        this.setRegistryAccess(team);
+        this.bonusOptions = ImmutableMap.copyOf(this.buildOptions(team));
+        return this;
+    }
 
     public TeamBankAccount() { }
     protected TeamBankAccount(MoneyStorage money, NotificationData logger, String ownerName, Map<String, MoneyValue> notificaionLevels, int cardValidation, List<SalaryData> salaries) { super(money,logger,ownerName,notificaionLevels,cardValidation,salaries); }

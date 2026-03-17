@@ -15,10 +15,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.server.ServerStoppingEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -78,6 +74,7 @@ public class TeamDataCache extends CustomData {
     {
         long teamID = this.getNextID();
         Team newTeam = Team.of(teamID, PlayerReference.of(owner), teamName);
+        newTeam.setRegistryAccess(this);
         this.teams.put(teamID, newTeam.initialize());
 
         this.sendSyncPacket(this.builder().setCustom("CreateTeam",newTeam,ModLazyPackets.TEAM));
@@ -102,7 +99,11 @@ public class TeamDataCache extends CustomData {
         {
             Team team = message.getCustom("CreateTeam",ModLazyPackets.TEAM);
             if(team != null)
+            {
+                team.setRegistryAccess(this);
                 this.teams.put(team.getID(),team.flagAsClient(this).initialize());
+            }
+
         }
         if(message.contains("UpdateTeam"))
         {
@@ -115,12 +116,7 @@ public class TeamDataCache extends CustomData {
     }
 
     @Override
-    protected void serverInit() {
-        NeoForge.EVENT_BUS.register(this);
-    }
-
-    @SubscribeEvent
-    private void serverTick(ServerTickEvent.Post event)
+    public void syncTick()
     {
         Set<Long> changed = this.changedTeams;
         this.changedTeams = new HashSet<>();
@@ -135,9 +131,6 @@ public class TeamDataCache extends CustomData {
             }
         }
     }
-
-    @SubscribeEvent
-    private void onServerShutdown(ServerStoppingEvent event) { NeoForge.EVENT_BUS.unregister(this); }
 
     @Override
     public void onPlayerJoin(ServerPlayer player) {

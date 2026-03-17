@@ -11,7 +11,6 @@ import java.util.function.Supplier;
 
 public class ConfigComments {
 
-
     public static final ConfigComments EMPTY = new ConfigComments();
     private final List<Object> comments;
     private ConfigComments() { this(new ArrayList<>()); }

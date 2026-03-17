@@ -1,15 +1,11 @@
 package io.github.lightman314.lightmanscurrency.api.variants.block;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class VariantBlockWrapper implements IVariantBlock {
 
     private final Supplier<Block> block;

@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.LCComputerHelper;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -66,7 +65,7 @@ public class LCArgumentHelper {
 
     public static ResourceLocation parseResourceLocation(IArguments args, int index) throws LuaException
     {
-        try { return VersionUtil.parseResource(args.getString(index));
+        try { return ResourceLocation.parse(args.getString(index));
         } catch (ResourceLocationException e) { throw LuaValues.badArgumentOf(args,index,"id"); }
     }
 
@@ -139,7 +138,7 @@ public class LCArgumentHelper {
     public static ItemStack parseBasicItem(IArguments args, int index, Map<?,?> table) throws LuaException
     {
         try {
-            Item item = BuiltInRegistries.ITEM.get(VersionUtil.parseResource((String)table.get("name")));
+            Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse((String)table.get("name")));
             int count = ((Number)table.get("count")).intValue();
             ItemStack stack = new ItemStack(item,count);
             LCComputerHelper.modifyItemParsing(stack,table);

@@ -5,14 +5,10 @@ import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.TerminalSortType;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.types.SortByID;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.AuctionHouseTrader;
-import net.minecraft.MethodsReturnNonnullByDefault;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Comparator;
 import java.util.Objects;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class TerminalSorter {
 
     private TerminalSorter() {}
@@ -63,9 +59,9 @@ public class TerminalSorter {
 
                 if (this.options.creativeAtTop) {
                     //Prioritize creative traders at the top of the list
-                    if (a.isCreative() && !b.isCreative())
+                    if (a.hasInfiniteStock() && !b.hasInfiniteStock())
                         return -1;
-                    else if (b.isCreative() && !a.isCreative())
+                    else if (b.hasInfiniteStock() && !a.hasInfiniteStock())
                         return 1;
                 }
 

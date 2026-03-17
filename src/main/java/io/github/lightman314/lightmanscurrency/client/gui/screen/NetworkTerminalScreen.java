@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.client.sprites.FixedSizeSprite;
 import io.github.lightman314.lightmanscurrency.api.client.sprites.FlexibleSizeSprite;
 import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteSource;

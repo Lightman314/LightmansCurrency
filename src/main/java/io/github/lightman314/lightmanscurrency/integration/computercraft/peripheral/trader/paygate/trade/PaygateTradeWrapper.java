@@ -14,10 +14,9 @@ import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPerip
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCArgumentHelper;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.TradeWrapper;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -56,8 +55,8 @@ public class PaygateTradeWrapper extends TradeWrapper<PaygateTradeData> {
         int color = args.getInt(1);
         Item ticket;
         try {
-            Item item = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(args.getString(2)));
-            if(item instanceof TicketItem && InventoryUtil.ItemHasTag(new ItemStack(item),LCTags.Items.TICKETS_MASTER))
+            Item item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(args.getString(2)));
+            if(item instanceof TicketItem && new ItemStack(item).is(LCTags.Items.TICKETS_MASTER))
                 ticket = item;
             else
                 throw new Exception("Pass to bad argument exception!");

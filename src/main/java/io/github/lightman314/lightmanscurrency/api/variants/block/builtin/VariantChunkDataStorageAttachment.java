@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.api.variants.block.builtin;
 import io.github.lightman314.lightmanscurrency.api.variants.block.block_entity.IVariantDataStorage;
 import io.github.lightman314.lightmanscurrency.common.core.ModAttachmentTypes;
 import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -89,7 +88,7 @@ public class VariantChunkDataStorageAttachment {
         {
             DataHolder result = new DataHolder();
             if(tag.contains("variant"))
-                result.variantID = VersionUtil.parseResource(tag.getString("variant"));
+                result.variantID = ResourceLocation.parse(tag.getString("variant"));
             result.locked = tag.getBoolean("locked");
             return result;
         }

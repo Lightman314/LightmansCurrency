@@ -15,9 +15,7 @@ import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +30,6 @@ public class InterfaceStatsClientTab extends TraderInterfaceClientTab<InterfaceS
 
     private int scroll = 0;
 
-    @Nonnull
     @Override
     public IconData getIcon() { return IconUtil.ICON_PRICE_FLUCTUATION; }
 
@@ -63,10 +60,10 @@ public class InterfaceStatsClientTab extends TraderInterfaceClientTab<InterfaceS
     }
 
     @Override
-    public void renderBG(@Nonnull EasyGuiGraphics gui) {
+    public void renderBG(EasyGuiGraphics gui) {
         this.validateScroll();
         int yPos = START_POS;
-        List<MutableComponent> lines = this.getLines();
+        List<Component> lines = this.getLines();
         if(lines.isEmpty())
         {
             TextRenderUtil.drawVerticallyCenteredMultilineText(gui, LCText.GUI_TRADER_STATS_EMPTY.get(), 10, this.screen.getXSize() - 20, yPos, LINE_COUNT * LINE_SIZE, 0x404040);
@@ -81,9 +78,9 @@ public class InterfaceStatsClientTab extends TraderInterfaceClientTab<InterfaceS
         }
     }
 
-    private List<MutableComponent> getLines()
+    private List<Component> getLines()
     {
-        TraderInterfaceBlockEntity be = this.menu.getBE();
+        TraderInterfaceBlockEntity<?> be = this.menu.getBE();
         if(be == null)
             return new ArrayList<>();
         return be.statTracker.getDisplayLines();

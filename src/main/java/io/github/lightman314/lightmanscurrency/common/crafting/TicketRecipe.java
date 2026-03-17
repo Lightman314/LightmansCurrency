@@ -7,25 +7,20 @@ import io.github.lightman314.lightmanscurrency.common.core.ModRecipeSerializers;
 import io.github.lightman314.lightmanscurrency.common.crafting.durability.DurabilityData;
 import io.github.lightman314.lightmanscurrency.common.crafting.input.TicketStationRecipeInput;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.Optional;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class TicketRecipe implements TicketStationRecipe {
 
     public static final MapCodec<TicketRecipe> MAP_CODEC = RecordCodecBuilder.mapCodec(builder ->
@@ -93,7 +88,7 @@ public class TicketRecipe implements TicketStationRecipe {
     }
 
     @Override
-    public ItemStack peekAtResult(Container container, ExtraData data) { return this.applyDurability(TicketItem.CraftTicket(container.getItem(0), this.ticketResult),data); }
+    public ItemStack peekAtResult(TicketStationRecipeInput input) { return this.applyDurability(TicketItem.CraftTicket(input.getItem(0), this.ticketResult),input.data); }
 
     @Override
     public ItemStack assembleWithKiosk(ItemStack sellItem, ExtraData data) { return this.applyDurability(TicketItem.CraftTicket(sellItem,this.ticketResult),data); }

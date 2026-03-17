@@ -25,6 +25,7 @@ import io.github.lightman314.lightmanscurrency.api.filter.FilterAPI;
 import io.github.lightman314.lightmanscurrency.api.filter.IItemTradeFilter;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.MoneyStorageNode;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.RuleSupportingTradeData;
@@ -33,6 +34,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNode;
+import io.github.lightman314.lightmanscurrency.common.traders.item.nodes.ItemStorageNode;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tabs.ItemTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.traders.item.CodecData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
@@ -43,9 +45,8 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.Prod
 import io.github.lightman314.lightmanscurrency.api.traders.trade.comparison.TradeComparisonResult;
 import io.github.lightman314.lightmanscurrency.common.traders.item.trade.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.builtin.BasicTradeEditTab;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemRequirement;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
+import io.github.lightman314.lightmanscurrency.util.OldDataHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
@@ -321,7 +322,7 @@ public class ItemTradeData extends RuleSupportingTradeData {
         return new TraderItemStorage();
     }
 
-	public boolean hasSpace(ItemTraderData trader, List<ItemStack> collectableItems)
+	public boolean hasSpace(TraderData trader, List<ItemStack> collectableItems)
 	{
 		return switch (this.tradeType) {
 			case PURCHASE, BARTER -> getStorage(trader).canFitItems(collectableItems);
@@ -354,9 +355,9 @@ public class ItemTradeData extends RuleSupportingTradeData {
 	{
 		if(!this.sellItemsDefined())
             return 0;
-		if(!context.hasTrader() || !(context.getTrader() instanceof ItemTraderData trader))
+		if(!context.hasTraderNode(ItemStorageNode.TYPE) || !context.hasTraderNode(MoneyStorageNode.TYPE))
 			return 0;
-		if(trader.hasInfiniteStock())
+		if(context.getTrader().hasInfiniteStock())
 			return 1;
 		
 		if(this.tradeType == TradeDirection.PURCHASE)
@@ -365,7 +366,7 @@ public class ItemTradeData extends RuleSupportingTradeData {
 		}
 		else if(this.tradeType == TradeDirection.SALE || this.tradeType == TradeDirection.BARTER)
 		{
-			return this.getRestriction().getSaleStock(getStorage(trader), this);
+			return this.getRestriction().getSaleStock(getStorage(context.getTrader()), this);
 		}
 		else //Other types are not handled yet.
 			return 0;
@@ -399,7 +400,7 @@ public class ItemTradeData extends RuleSupportingTradeData {
 		ItemTradeType<?> tradeType = DEFAULT_TYPE;
 		if(compoundTag.contains("Type"))
 		{
-			ResourceLocation type = VersionUtil.parseResource(compoundTag.getString("Type"));
+			ResourceLocation type = ResourceLocation.parse(compoundTag.getString("Type"));
 			if(LCRegistries.ITEM_TRADE.containsKey(type))
                 tradeType = LCRegistries.ITEM_TRADE.get(type);
 		}
@@ -431,7 +432,7 @@ public class ItemTradeData extends RuleSupportingTradeData {
 		super.loadFromNBT(nbt, lookup);
 
 		if(nbt.contains("Items", Tag.TAG_LIST)) //Load Sale/Barter Items
-			this.items = InventoryUtil.buildList(InventoryUtil.loadAllItems("Items", nbt, 4, lookup));
+			this.items = OldDataHelper.loadListOfSize("Items", nbt, 4, lookup);
 		
 		//Set the Trade Direction
 		if(nbt.contains("TradeDirection", Tag.TAG_STRING))
@@ -664,7 +665,7 @@ public class ItemTradeData extends RuleSupportingTradeData {
 							.setInt("TradeIndex", tradeIndex)
 							.setInt("StartingSlot", index));
 				}
-				else if(InventoryUtil.ItemMatches(sellItem, heldItem) && data.mouseButton() == 1)
+				else if(ItemStack.isSameItemSameComponents(sellItem, heldItem) && data.mouseButton() == 1)
 				{
 					sellItem.setCount(Math.min(sellItem.getCount() + 1, sellItem.getMaxStackSize()));
 					this.setItem(sellItem, index);
@@ -691,7 +692,7 @@ public class ItemTradeData extends RuleSupportingTradeData {
 							.setInt("TradeIndex", tradeIndex)
 							.setInt("StartingSlot", index + 2));
 				}
-				else if(InventoryUtil.ItemMatches(barterItem, heldItem) && data.mouseButton() == 1)
+				else if(ItemStack.isSameItemSameComponents(barterItem, heldItem) && data.mouseButton() == 1)
 				{
 					barterItem.setCount(Math.min(barterItem.getCount() + 1, barterItem.getMaxStackSize()));
 					this.setItem(barterItem, index + 2);
@@ -722,7 +723,7 @@ public class ItemTradeData extends RuleSupportingTradeData {
                 sellItem = this.getActualItem(index);
 			if(sellItem.isEmpty() && heldItem.isEmpty())
 				return;
-			if(InventoryUtil.ItemMatches(sellItem, heldItem) && button == 1)
+			if(ItemStack.isSameItemSameComponents(sellItem, heldItem) && button == 1)
 			{
 				sellItem.setCount(Math.min(sellItem.getCount() + 1, sellItem.getMaxStackSize()));
 				this.setItem(sellItem, index);
@@ -741,7 +742,7 @@ public class ItemTradeData extends RuleSupportingTradeData {
 			ItemStack barterItem = this.getItem(index);
 			if(barterItem.isEmpty() && heldItem.isEmpty())
 				return;
-			if(InventoryUtil.ItemMatches(barterItem, heldItem) && button == 1)
+			if(ItemStack.isSameItemSameComponents(barterItem, heldItem) && button == 1)
 			{
 				barterItem.setCount(Math.min(barterItem.getCount() + 1, barterItem.getMaxStackSize()));
 				this.setItem(barterItem, index);
@@ -776,7 +777,7 @@ public class ItemTradeData extends RuleSupportingTradeData {
 							.setInt("TradeIndex", tradeIndex)
 							.setInt("StartingSlot", index));
 				}
-				else if(InventoryUtil.ItemMatches(sellItem, heldItem) && data.mouseButton() == 1)
+				else if(ItemStack.isSameItemSameComponents(sellItem, heldItem) && data.mouseButton() == 1)
 				{
 					sellItem.setCount(Math.min(sellItem.getCount() + 1, sellItem.getMaxStackSize()));
 					this.setItem(sellItem, index);

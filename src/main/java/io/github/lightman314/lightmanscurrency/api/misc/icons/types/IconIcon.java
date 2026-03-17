@@ -5,7 +5,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconType;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -34,9 +33,9 @@ public class IconIcon extends IconData {
     private static class Type extends IconType<IconIcon>
     {
         @Override
-        public IconIcon loadOld(CompoundTag tag, HolderLookup.Provider lookup) { return new IconIcon(VersionUtil.parseResource(tag.getString("location"))); }
+        public IconIcon loadOld(CompoundTag tag, HolderLookup.Provider lookup) { return new IconIcon(ResourceLocation.parse(tag.getString("location"))); }
         @Override
-        public IconIcon parseOld(JsonObject json, HolderLookup.Provider lookup) { return new IconIcon(VersionUtil.parseResource(GsonHelper.getAsString(json,"location"))); }
+        public IconIcon parseOld(JsonObject json, HolderLookup.Provider lookup) { return new IconIcon(ResourceLocation.parse(GsonHelper.getAsString(json,"location"))); }
         @Override
         public MapCodec<IconIcon> codec() { return MAP_CODEC; }
         @Override

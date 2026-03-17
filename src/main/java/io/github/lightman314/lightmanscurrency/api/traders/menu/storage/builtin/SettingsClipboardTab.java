@@ -20,12 +20,9 @@ import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SettingsCopySlot;
 import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.EasySlot;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.Container;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -59,14 +56,14 @@ public class SettingsClipboardTab extends TraderStorageTab {
     @Override
     public void addStorageMenuSlots(Function<Slot, Slot> addSlot) {
         this.slot = new SettingsCopySlot(this.container,0, 95, 122);
-        this.slot.active = false;
+        this.slot.setActive(false);
         addSlot.apply(this.slot);
     }
     @Override
-    public void onTabOpen() { this.slot.active = true; }
+    public void onTabOpen() { this.slot.setActive(true); }
     @Override
     public void onTabClose() {
-        this.slot.active = false;
+        this.slot.setActive(false);
         //Kick the item out of the slot when leaving this tab
         ItemStack stackInSlot = this.container.getStackInSlot(0);
         if(!stackInSlot.isEmpty())

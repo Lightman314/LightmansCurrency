@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.salary.SalaryData;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.builtin.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyHolder;
+import io.github.lightman314.lightmanscurrency.api.network.IBuilderProvider;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
@@ -28,7 +29,7 @@ import java.util.function.Supplier;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
-public interface IBankAccount extends IMoneyHolder, IClientTracker, LazyPacketData.IBuilderProvider {
+public interface IBankAccount extends IMoneyHolder, IClientTracker, IBuilderProvider {
 
     int SALARY_LIMIT = 100;
 

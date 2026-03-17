@@ -11,6 +11,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.api.codecs.StreamHelper;
 import io.github.lightman314.lightmanscurrency.api.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.data.IRegistryAccess;
 import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
@@ -29,7 +30,6 @@ import io.github.lightman314.lightmanscurrency.common.data.types.TeamDataCache;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
-import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -39,7 +39,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 
-public class Team implements ITeam, ISidedObject {
+public class Team extends IRegistryAccess.Holder implements ITeam, ISidedObject {
 
 	public static final int MAX_NAME_LENGTH = 32;
 
@@ -315,6 +315,7 @@ public class Team implements ITeam, ISidedObject {
     private void createBankAccountInternal()
     {
         this.bankAccount = new TeamBankAccount().forTeam(this);
+        this.bankAccount.setRegistryAccess(this);
         this.bankAccount.setListener(this::setChangedNoPacket);
         this.bankAccount.updateOwnersName(this.teamName);
         this.bankAccount.setNotificationConsumer(this::notificationSender);
@@ -553,9 +554,6 @@ public class Team implements ITeam, ISidedObject {
 	public static Team of(long id, PlayerReference owner, String name) { return new Team(id, owner, name); }
 	
 	public static Comparator<ITeam> sorterFor(Player player) { return new TeamSorter(player); }
-
-    @Override
-    public LazyPacketData.Builder builder() { return LazyPacketData.builder(LookupHelper.getRegistryAccess()); }
 
     private record TeamSorter(Player player) implements Comparator<ITeam>
 	{

@@ -5,7 +5,6 @@ import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.api.misc.SafeSpriteData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconType;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -34,7 +33,7 @@ public class ImageIcon extends IconData
     {
         @Override
         public ImageIcon loadOld(CompoundTag tag, HolderLookup.Provider lookup) {
-            ResourceLocation image = VersionUtil.parseResource(tag.getString("Image"));
+            ResourceLocation image = ResourceLocation.parse(tag.getString("Image"));
             int u = tag.getInt("u");
             int v = tag.getInt("v");
             int w = tag.getInt("w");
@@ -45,7 +44,7 @@ public class ImageIcon extends IconData
         }
         @Override
         public ImageIcon parseOld(JsonObject json, HolderLookup.Provider lookup) {
-            ResourceLocation image = VersionUtil.parseResource(GsonHelper.getAsString(json,"Image"));
+            ResourceLocation image = ResourceLocation.parse(GsonHelper.getAsString(json,"Image"));
             int u = GsonHelper.getAsInt(json,"u");
             int v = GsonHelper.getAsInt(json,"v");
             int w = GsonHelper.getAsInt(json,"w");

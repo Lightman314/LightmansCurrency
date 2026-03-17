@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.data.types;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomData;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomDataType;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
@@ -69,7 +70,7 @@ public class EventRewardDataCache extends CustomData {
     }
 
     @Override
-    public void save(CompoundTag tag, HolderLookup.Provider lookup) {
+    public void save(CompoundTag tag,DataContext<Tag> context) {
         ListTag list = new ListTag();
         this.rewardData.forEach((event,players) -> {
             CompoundTag entry = new CompoundTag();
@@ -84,7 +85,7 @@ public class EventRewardDataCache extends CustomData {
     }
 
     @Override
-    protected void load(CompoundTag tag, HolderLookup.Provider lookup) {
+    protected void load(CompoundTag tag,DataContext<Tag> context) {
         this.rewardData.clear();
         ListTag list = tag.getList("Data",Tag.TAG_COMPOUND);
         for(int i = 0; i < list.size(); ++i)

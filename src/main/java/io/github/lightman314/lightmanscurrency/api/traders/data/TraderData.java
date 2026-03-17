@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
 import io.github.lightman314.lightmanscurrency.api.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.data.IRegistryAccess;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.api.events.TraderEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.IPermissions;
@@ -24,6 +25,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.network.IBuilderProvider;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -67,8 +69,6 @@ import io.github.lightman314.lightmanscurrency.api.taxes.reference.builtin.Taxab
 import io.github.lightman314.lightmanscurrency.api.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
-import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
-import io.github.lightman314.lightmanscurrency.util.*;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
 
@@ -111,7 +111,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
-public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeable, ITraderSource, ITradeRuleHost, ITaxable, IOwnable, ISaveableSettingsHolder, IPermissions, LazyPacketData.IBuilderProvider {
+public abstract class TraderData extends IRegistryAccess.Holder implements ISidedObject, IDumpable, IUpgradeable, ITraderSource, ITradeRuleHost, ITaxable, IOwnable, ISaveableSettingsHolder, IPermissions, IBuilderProvider {
 
     public static final Codec<TraderData> CODEC = Codec.withAlternative(
             //Desired Codec
@@ -257,12 +257,6 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
         for(TraderNode node : this.nodes.values())
             node.onAttach();
     }
-
-    @Override
-    public final HolderLookup.Provider registryAccess() { return LookupHelper.getRegistryAccess(); }
-
-    @Override
-    public final LazyPacketData.Builder builder() { return LazyPacketData.builder(this.registryAccess()); }
 
     private long id = -1;
 	public final long getID() { return this.id; }
@@ -729,7 +723,7 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
         Map<TraderNodeType<?>,Object> nodes = new HashMap<>();
         NodeCollector c = NodeCollector.forMap(nodes,arguments);
         this.addDefaultNodes(c);
-        TraderEvent.RegisterNodesEvent event = VersionUtil.postEvent(new TraderEvent.RegisterNodesEvent(this,nodes));
+        TraderEvent.RegisterNodesEvent event = NeoForge.EVENT_BUS.post(new TraderEvent.RegisterNodesEvent(this,nodes));
         //Assemble attachments
         Map<TraderNodeType<?>, TraderNode> temp = new HashMap<>();
         event.getNodes().forEach((type,argument) -> {

@@ -7,9 +7,9 @@ import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.ATMIconType;
 import io.github.lightman314.lightmanscurrency.api.money.coins.atm.icons.ATMIconData;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -26,7 +26,7 @@ public class ATMItemIcon extends ATMIconData {
 
         if(data.has("item") && data.get("item").isJsonPrimitive())
         {
-            this.item = new ItemStack(BuiltInRegistries.ITEM.get(VersionUtil.parseResource(GsonHelper.getAsString(data, "item"))));
+            this.item = new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(GsonHelper.getAsString(data, "item"))));
             this.simpleItem = true;
         }
 		else

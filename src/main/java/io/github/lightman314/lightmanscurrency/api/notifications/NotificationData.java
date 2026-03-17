@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 
 import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
 import io.github.lightman314.lightmanscurrency.api.misc.ISidedObject;
 import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import net.minecraft.core.HolderLookup;
@@ -19,7 +20,9 @@ import net.minecraft.resources.RegistryOps;
 
 public class NotificationData implements ISidedObject {
 
-    public static final Codec<NotificationData> CODEC = Notification.CODEC.listOf().xmap(NotificationData::new,NotificationData::getNotifications);
+    public static final Codec<NotificationData> CODEC = Codec.withAlternative(
+            Notification.CODEC.listOf().xmap(NotificationData::new,NotificationData::getNotifications),
+            CodecHelper.oldValueLoader(NotificationData::loadOldData,"Notification Data"));
     public static final StreamCodec<RegistryFriendlyByteBuf,NotificationData> STREAM_CODEC = Notification.STREAM_CODEC
             .apply(ByteBufCodecs.list())
             .map(NotificationData::new,NotificationData::getNotifications);
@@ -132,28 +135,15 @@ public class NotificationData implements ISidedObject {
 			this.notifications.removeLast();
 	}
 
-	
-	public CompoundTag save(HolderLookup.Provider lookup) {
-		CompoundTag tag = new CompoundTag();
-        tag.put("Notifications",Notification.LIST_CODEC.encodeStart(RegistryOps.create(NbtOps.INSTANCE,lookup),this.notifications).getOrThrow());
-		return tag;
-	}
-
-	
-	public static NotificationData loadFrom(CompoundTag compound, HolderLookup.Provider lookup) {
+    @Deprecated
+	private static NotificationData loadOldData(CompoundTag compound, HolderLookup.Provider lookup) {
 		NotificationData data = new NotificationData();
-		data.load(compound, lookup);
+        if(compound.contains("Notifications",Tag.TAG_LIST))
+        {
+            data.notifications = new ArrayList<>(Notification.LIST_CODEC.decode(RegistryOps.create(NbtOps.INSTANCE,lookup),compound.get("Notifications")).getOrThrow().getFirst());
+            data.validateListSize();
+        }
 		return data;
-	}
-	
-	public void load(CompoundTag compound, HolderLookup.Provider lookup) {
-		if(compound.contains("Notifications",Tag.TAG_LIST))
-		{
-			this.notifications = new ArrayList<>(Notification.LIST_CODEC.decode(RegistryOps.create(NbtOps.INSTANCE,lookup),compound.get("Notifications")).getOrThrow().getFirst());
-			this.validateListSize();
-			if(this.isClient())
-				this.flagAsClient();
-		}
 	}
 
 	@Override

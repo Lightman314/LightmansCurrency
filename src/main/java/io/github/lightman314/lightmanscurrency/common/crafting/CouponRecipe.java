@@ -9,14 +9,12 @@ import io.github.lightman314.lightmanscurrency.common.crafting.durability.Durabi
 import io.github.lightman314.lightmanscurrency.common.crafting.input.TicketStationRecipeInput;
 import io.github.lightman314.lightmanscurrency.common.items.CouponItem;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.ticket.TicketModifierSlot;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.Container;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -92,17 +90,17 @@ public class CouponRecipe implements TicketStationRecipe {
 
     
     @Override
-    public ItemStack peekAtResult(Container container, ExtraData data) {
-        ItemStack dyeStack = container.getItem(0);
+    public ItemStack peekAtResult(TicketStationRecipeInput input) {
+        ItemStack dyeStack = input.getItem(0);
         Color dyeColor = TicketModifierSlot.getColorFromDye(dyeStack);
         if(dyeColor != null)
-            return CouponItem.CreateCoupon(this.result,data.code(),data.durability(),dyeColor.hexColor);
+            return CouponItem.CreateCoupon(this.result,input.data.code(),input.data.durability(),dyeColor.hexColor);
         else
-            return CouponItem.CreateCoupon(this.result,data.code(),data.durability());
+            return CouponItem.CreateCoupon(this.result,input.data.code(),input.data.durability());
     }
 
     @Override
-    public boolean matchesTicketKioskSellItem(ItemStack sellItem) { return this.validIngredient(sellItem) && !InventoryUtil.ItemHasTag(sellItem, LCTags.Items.TICKETS_MASTER); }
+    public boolean matchesTicketKioskSellItem(ItemStack sellItem) { return this.validIngredient(sellItem) && !sellItem.is(LCTags.Items.TICKETS_MASTER); }
     @Override
     public boolean allowIgnoreKioskRecipe() { return true; }
     @Override

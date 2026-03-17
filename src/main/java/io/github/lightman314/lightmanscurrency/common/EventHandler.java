@@ -310,8 +310,9 @@ public class EventHandler {
 	}
 
 	@SubscribeEvent
-	public static void entityTick(EntityTickEvent.Pre event)
+	public static void entityTick(EntityTickEvent.Post event)
 	{
+        //Do this in post-tick as this
 		if(event.getEntity() instanceof LivingEntity entity && entity.hasData(ModAttachmentTypes.WALLET_HANDLER))
 		{
 			WalletHandler handler = WalletHandler.get(entity);

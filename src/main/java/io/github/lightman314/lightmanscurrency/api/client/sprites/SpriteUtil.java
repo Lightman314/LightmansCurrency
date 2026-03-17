@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.api.client.sprites;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.HorizontalSliceSprite;
 import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.NineSliceSprite;
 import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.NormalSprite;
 import io.github.lightman314.lightmanscurrency.api.client.sprites.builtin.WidgetStateSprite;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;

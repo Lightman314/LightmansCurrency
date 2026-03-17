@@ -13,7 +13,9 @@ import net.minecraft.resources.RegistryOps;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -48,10 +50,27 @@ public record DataContext<T>(DynamicOps<T> ops, HolderLookup.Provider registryAc
             error.accept(s);
             return new IllegalStateException(s);
         };
-        this.ops.getList(data).getOrThrow().accept(entry ->
+        this.ops.getList(data).getOrThrow(exceptionHandler).accept(entry ->
             codec.parse(this.ops,entry).resultOrPartial(error).ifPresent(list::add)
         );
         return list;
+    }
+
+    public <K,C> Map<K,C> safeReadMap(T data,Codec<K> keyCodec,Codec<C> valueCodec,Consumer<String> error)
+    {
+        Map<K,C> map = new HashMap<>();
+        Function<String,IllegalStateException> exceptionHandler = s -> {
+            error.accept(s);
+            return new IllegalStateException(s);
+        };
+        this.ops.getMap(data).getOrThrow(exceptionHandler).entries().forEach(pair -> {
+            try {
+                K key = keyCodec.decode(this.ops,pair.getFirst()).getOrThrow(exceptionHandler).getFirst();
+                C value = valueCodec.decode(this.ops,pair.getSecond()).getOrThrow(exceptionHandler).getFirst();
+                map.put(key,value);
+            } catch (IllegalStateException ignored) {}
+        });
+        return map;
     }
 
     public T write(Function<HolderLookup.Provider,? extends T> writer) { return writer.apply(this.registryAccess); }

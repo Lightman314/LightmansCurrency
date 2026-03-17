@@ -16,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.datagen.client.generators.ModelVa
 import io.github.lightman314.lightmanscurrency.datagen.util.ColorHelper;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodData;
 import io.github.lightman314.lightmanscurrency.datagen.util.WoodDataHelper;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.data.PackOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;

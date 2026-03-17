@@ -8,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.ITab;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -59,7 +58,7 @@ public abstract class NotificationCategory implements ITab
     {
         if(tag.contains("Type") || tag.contains("type"))
         {
-            ResourceLocation type = VersionUtil.parseResource(tag.contains("Type") ? tag.getString("Type") : tag.getString("type"));
+            ResourceLocation type = ResourceLocation.parse(tag.contains("Type") ? tag.getString("Type") : tag.getString("type"));
             if(LCRegistries.NOTIFICATION_CATEGORIES.containsKey(type))
                 return LCRegistries.NOTIFICATION_CATEGORIES.get(type).loadOldData(tag, lookup);
             else

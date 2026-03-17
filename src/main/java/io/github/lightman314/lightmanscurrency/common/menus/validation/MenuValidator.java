@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.common.menus.validation;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.SimpleValidator;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -51,7 +50,7 @@ public abstract class MenuValidator {
     public static MenuValidator decode(FriendlyByteBuf buffer)
     {
         try {
-            ResourceLocation type = VersionUtil.parseResource(buffer.readUtf());
+            ResourceLocation type = ResourceLocation.parse(buffer.readUtf());
             MenuValidatorType decoder = MenuValidatorType.getType(type);
             if(decoder != null)
             {
@@ -69,7 +68,7 @@ public abstract class MenuValidator {
     public static MenuValidator load(CompoundTag tag)
     {
         try {
-            ResourceLocation type = VersionUtil.parseResource(tag.getString("Type"));
+            ResourceLocation type = ResourceLocation.parse(tag.getString("Type"));
             MenuValidatorType decoder = MenuValidatorType.getType(type);
             if(decoder != null)
             {

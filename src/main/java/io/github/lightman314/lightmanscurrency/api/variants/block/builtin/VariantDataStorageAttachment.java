@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.api.variants.block.builtin;
 
 import io.github.lightman314.lightmanscurrency.api.variants.block.block_entity.IVariantDataStorage;
 import io.github.lightman314.lightmanscurrency.common.core.ModAttachmentTypes;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -53,7 +52,7 @@ public class VariantDataStorageAttachment implements IVariantDataStorage {
 
     private void read(CompoundTag tag) {
         if(tag.contains("Variant"))
-            this.variant = VersionUtil.parseResource(tag.getString("Variant"));
+            this.variant = ResourceLocation.parse(tag.getString("Variant"));
         else
             this.variant = null;
         this.locked = tag.getBoolean("Locked");

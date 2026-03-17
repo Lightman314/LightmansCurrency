@@ -7,13 +7,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEntry;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -58,7 +58,7 @@ public final class CoinValuePair
         return tag;
     }
 
-    public static CoinValuePair load(@Nullable ChainData chainData, @Nonnull CompoundTag tag) { return from(chainData, BuiltInRegistries.ITEM.get(VersionUtil.parseResource(tag.getString("Coin"))), tag.getInt("Amount")); }
+    public static CoinValuePair load(@Nullable ChainData chainData, @Nonnull CompoundTag tag) { return from(chainData, BuiltInRegistries.ITEM.get(ResourceLocation.parse(tag.getString("Coin"))), tag.getInt("Amount")); }
 
     public JsonObject toJson()
     {
@@ -71,7 +71,7 @@ public final class CoinValuePair
     @Nullable
     public static CoinValuePair fromJson(@Nonnull ChainData chainData, @Nonnull JsonObject json) throws JsonSyntaxException, ResourceLocationException
     {
-        Item coin = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(GsonHelper.getAsString(json, "Coin")));
+        Item coin = BuiltInRegistries.ITEM.get(ResourceLocation.parse(GsonHelper.getAsString(json, "Coin")));
         int quantity = GsonHelper.getAsInt(json, "Amount", 1);
         if(quantity <= 0)
             throw new JsonSyntaxException("Coin Amount (" + quantity + ") is <= 0!");

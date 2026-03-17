@@ -2,10 +2,10 @@ package io.github.lightman314.lightmanscurrency.datagen.common.enchantments;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCTags;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.holder_sets.ItemListOptionSet;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
 import io.github.lightman314.lightmanscurrency.common.enchantments.data.RepairWithMoneyData;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -35,7 +35,7 @@ public class LCEnchantmentProvider {
                                 Enchantment.dynamicCost(75,25),
                                 4,
                                 EquipmentSlotGroup.ANY
-                        )).withSpecialEffect(ModEnchantments.COLLECT_COINS.get(), Unit.INSTANCE).build(LightmansCurrency.id("coin_magnet")));
+                        )).withSpecialEffect(ModEnchantments.COLLECT_COINS.get(),Unit.INSTANCE).build(LightmansCurrency.id("coin_magnet")));
         context.register(ModEnchantments.MONEY_MENDING,
                 Enchantment.enchantment(
                                 Enchantment.definition(

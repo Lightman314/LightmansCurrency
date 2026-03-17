@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.LoggerNode;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.builtin.info.InfoSubTab;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.builtin.info.TraderInfoClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.scroll.ScrollBarWidget;
@@ -14,7 +15,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -29,7 +29,6 @@ public class TraderLogClientTab extends InfoSubTab {
         this.filter = this.settingsView ? TraderData.LOGS_SETTINGS_FILTER : TraderData.LOGS_NORMAL_FILTER;
     }
 
-    @Nonnull
     @Override
     public IconData getIcon() { return this.settingsView ? IconUtil.ICON_SETTINGS : IconUtil.ICON_SHOW_LOGGER; }
     @Override
@@ -55,13 +54,13 @@ public class TraderLogClientTab extends InfoSubTab {
     }
 
     @Override
-    public void renderBG(@Nonnull EasyGuiGraphics gui) { }
+    public void renderBG(EasyGuiGraphics gui) { }
 
     private List<Notification> getNotifications()
     {
-        TraderData trader = this.menu.getTrader();
-        if(trader != null)
-            return trader.getNotifications(this.filter);
+        LoggerNode node = this.getNode(LoggerNode.TYPE);
+        if(node != null)
+            return node.getNotifications(this.filter);
         return new ArrayList<>();
     }
 

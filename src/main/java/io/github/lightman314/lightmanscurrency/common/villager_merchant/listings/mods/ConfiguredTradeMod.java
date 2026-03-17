@@ -5,8 +5,6 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.configured.ConfiguredTradeModOption;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -21,14 +19,11 @@ import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class ConfiguredTradeMod extends VillagerTradeMod {
 
     private final Pair<Item,Item> defaultReplacements;
@@ -103,7 +98,7 @@ public class ConfiguredTradeMod extends VillagerTradeMod {
         //LightmansCurrency.LogDebug("Attempting to parse '" + item + "' as an item!");
         if(item.isBlank() || item.equals("minecraft:air"))
             return null;
-        try { return BuiltInRegistries.ITEM.get(VersionUtil.parseResource(item));
+        try { return BuiltInRegistries.ITEM.get(ResourceLocation.parse(item));
         } catch (ResourceLocationException e) { throw new ConfigParsingException(item + " is not a valid ResourceLocation!",e); }
     }
 

@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.datagen.integration;
 
 import dan200.computercraft.api.pocket.IPocketUpgrade;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.pocket_upgrades.ATMPocketUpgrade;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.pocket_upgrades.TerminalPocketUpgrade;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;

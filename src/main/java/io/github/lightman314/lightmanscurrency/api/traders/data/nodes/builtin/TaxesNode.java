@@ -111,6 +111,7 @@ public class TaxesNode extends SyncedTraderNode implements ITradeListener {
         }
     }
 
+    public boolean IsEntryDirectlyIgnored(ITaxCollector collector) { return this.ignoredTaxCollectors.contains(collector.getID()); }
     public boolean ShouldIgnoreTaxEntry(ITaxCollector collector) { return this.ignoreAllTaxes || this.ignoredTaxCollectors.contains(collector.getID()); }
     public boolean AllowTaxEntry(ITaxCollector collector)  { return !this.ShouldIgnoreTaxEntry(collector); }
 

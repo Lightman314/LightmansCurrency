@@ -7,7 +7,7 @@ import com.simibubi.create.content.logistics.BigItemStack;
 import com.simibubi.create.content.logistics.packager.InventorySummary;
 import com.simibubi.create.content.logistics.stockTicker.StockTickerInteractionHandler;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.capability.implementations.MoneyViewWrapper;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.builtin.MoneyStorage;
@@ -18,10 +18,10 @@ import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import io.github.lightman314.lightmanscurrency.mixinsupport.create.WalletInventoryWrapper;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -70,7 +70,7 @@ public class StockTickerInteractionHandlerMixin {
         }
 
         //Get the total cost requirement excluding the amount of money in the players inventory
-        MoneyStorage cost = new MoneyStorage(() -> {});
+        MoneyStorage cost = new MoneyStorage();
         for(Item coin : map.keySet())
         {
             ChainData chain = CoinAPI.getApi().ChainDataOfCoin(coin);
@@ -81,12 +81,12 @@ public class StockTickerInteractionHandlerMixin {
         if(!cost.isEmpty())
         {
             //Get money stored in the wallet
-            MoneyView available = MoneyAPI.getApi().GetContainersMoneyHandler(WalletItem.getDataWrapper(wallet).getContents(),s -> {}, IClientTracker.forServer()).getStoredMoney();
+            MoneyView available = MoneyViewWrapper.forInventory(WalletItem.getWalletInventory(wallet),IClientTracker.forServer()).getStoredMoney();
             for(MoneyValue c : cost.allValues())
             {
                 if(!available.containsValue(c))
                 {
-                    player.playNotifySound(BuiltInRegistries.SOUND_EVENT.get(VersionUtil.modResource("create","deny")), SoundSource.PLAYERS, 1, 0.5f);
+                    player.playNotifySound(BuiltInRegistries.SOUND_EVENT.get(ResourceLocation.fromNamespaceAndPath("create","deny")), SoundSource.PLAYERS, 1, 0.5f);
                     player.displayClientMessage(EasyText.translatable("create.stock_keeper.too_broke").withStyle(ChatFormatting.RED),true);
                     ci.cancel();
                     return;

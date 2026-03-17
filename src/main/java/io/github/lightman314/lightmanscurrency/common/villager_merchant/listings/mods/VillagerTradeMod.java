@@ -6,24 +6,21 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.ItemCost;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public abstract class VillagerTradeMod {
 
-    @Nonnull
-    public abstract ItemCost modifyCost(@Nullable Entity villager, @Nonnull ItemCost cost);
+    public abstract ItemCost modifyCost(@Nullable Entity villager, ItemCost cost);
 
-    @Nonnull
-    public abstract ItemStack modifyResult(@Nullable Entity villager, @Nonnull ItemStack result);
+    public abstract ItemStack modifyResult(@Nullable Entity villager, ItemStack result);
 
-    protected final ItemCost copyWithNewItem(@Nonnull ItemCost cost, @Nullable Item replacement)
+    protected final ItemCost copyWithNewItem(ItemCost cost, @Nullable Item replacement)
     {
         if(replacement == null)
             return cost;
         return new ItemCost(BuiltInRegistries.ITEM.wrapAsHolder(replacement),cost.count(),cost.components());
     }
-    protected final ItemStack copyWithNewItem(@Nonnull ItemStack result, @Nullable Item replacement)
+    protected final ItemStack copyWithNewItem(ItemStack result, @Nullable Item replacement)
     {
         if(replacement == null)
             return result;

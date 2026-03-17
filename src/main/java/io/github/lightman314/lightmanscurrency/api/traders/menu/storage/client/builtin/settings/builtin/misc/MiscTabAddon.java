@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.
 
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.LabelWidget;
+import io.github.lightman314.lightmanscurrency.api.network.IBuilderProvider;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.builtin.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
@@ -9,13 +10,17 @@ import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNode
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
 
-public abstract class MiscTabAddon implements LazyPacketData.IBuilderProvider {
+public abstract class MiscTabAddon implements IBuilderProvider {
 
     public static final int DEFAULT_WIDTH = 150;
+
+    @Override
+    public HolderLookup.Provider registryAccess() { return this.tab.registryAccess(); }
 
     private MiscTab tab;
     public final void setup(MiscTab tab) { this.tab = tab; }

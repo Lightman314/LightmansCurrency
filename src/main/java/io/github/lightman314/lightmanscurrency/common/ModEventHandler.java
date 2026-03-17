@@ -47,6 +47,7 @@ public class ModEventHandler {
         event.register(LCRegistries.LAZY_PACKETS);
         event.register(LCRegistries.ICON_TYPE);
         event.register(LCRegistries.ATM_ICON_TYPE);
+        event.register(LCRegistries.CURRENCY_TYPE);
     }
 
     @SubscribeEvent
@@ -85,7 +86,7 @@ public class ModEventHandler {
         event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.COIN_MINT.get(), (mint,side) -> mint.getStorage());
 
         //Item Viewer for the Money Bag
-        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MONEY_BAG.get(), (b,s) -> b.viewer);
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, ModBlockEntities.MONEY_BAG.get(), (b,s) -> b.contents);
         event.registerBlockEntity(CapabilityMoneyViewer.MONEY_VIEWER_BLOCK, ModBlockEntities.MONEY_BAG.get(), (b,s) -> b.moneyViewer);
 
         //Money-related capabilities

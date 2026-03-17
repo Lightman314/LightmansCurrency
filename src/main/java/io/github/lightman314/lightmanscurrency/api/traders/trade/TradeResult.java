@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.traders.trade;
 
 import com.google.common.collect.ImmutableList;
-import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import net.minecraft.network.chat.Component;
@@ -9,7 +8,6 @@ import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.function.Function;
 
 public class TradeResult {
 
@@ -56,23 +54,22 @@ public class TradeResult {
 
     private final String key;
     public String getKey() { return this.key; }
-    private final Function<TradeResult,Component> message;
+    public String getTranslationKey() { return "gui.lightmanscurrency.trade_result." + this.key; }
     @Nullable
     public final TradeEvent.PostTradeEvent data;
     public boolean isSuccess() { return this.key.equals(SUCCESS_KEY); }
-    public boolean hasMessage() { return this.getMessage() != null; }
+    public boolean hasMessage() { return !this.isSuccess(); }
     @Nullable
-    public final Component getMessage() { return this.message.apply(this); }
+    public final Component getMessage() { return Component.translatable(this.getTranslationKey()); }
 
     //Success Constructor
-    private TradeResult(@Nullable TradeEvent.PostTradeEvent event) { this(SUCCESS_KEY, r -> null,event); }
+    private TradeResult(@Nullable TradeEvent.PostTradeEvent event) { this(SUCCESS_KEY,event); }
     //Failure Constructor
-    private TradeResult(String key, Function<TradeResult,Component> message) { this(key,message,null); }
+    private TradeResult(String key) { this(key,null); }
     //Actual Constructor
-    private TradeResult(String key, Function<TradeResult,Component> message, @Nullable TradeEvent.PostTradeEvent event)
+    private TradeResult(String key,@Nullable TradeEvent.PostTradeEvent event)
     {
         this.key = key;
-        this.message = message;
         this.data = event;
     }
 
@@ -87,10 +84,7 @@ public class TradeResult {
 
     /**
      * Should be used the generate failure trade result constants. Don't call frequently if not necessary
-     * @param message The message to display upon failure
      */
-    public static TradeResult failure(String key, Function<TradeResult,Component> message) { return new TradeResult(key,message); }
-
-    private static TradeResult failure(String key) { return new TradeResult(key,LCText.GUI_TRADE_RESULT::getComponent); }
+    private static TradeResult failure(String key) { return new TradeResult(key); }
 
 }

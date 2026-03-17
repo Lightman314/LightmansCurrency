@@ -2,14 +2,11 @@ package io.github.lightman314.lightmanscurrency.datagen.client.generators;
 
 import com.google.gson.JsonObject;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.custom_models.CustomModelData;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,8 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class CustomModelDataProvider implements DataProvider {
 
     protected final PackOutput output;
@@ -52,7 +47,7 @@ public abstract class CustomModelDataProvider implements DataProvider {
         return CompletableFuture.allOf(results.toArray(CompletableFuture[]::new));
     }
 
-    protected final void add(String id, CustomModelData data) { this.add(VersionUtil.modResource(this.modid,id),data); }
+    protected final void add(String id, CustomModelData data) { this.add(ResourceLocation.fromNamespaceAndPath(this.modid,id),data); }
     protected final void add(ResourceLocation id, CustomModelData data) { this.data.put(id,data); }
 
     @Override

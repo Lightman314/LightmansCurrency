@@ -33,7 +33,7 @@ public class ItemTradeNotification extends SingleLineTaxableNotification {
 
 	public static final NotificationType<ItemTradeNotification> TYPE = new Type();
 	
-	TraderCategory traderData = TraderCategory.NULL;
+	TraderCategory traderData = TraderCategory.getEmpty();
 	
 	TradeDirection tradeType = TradeDirection.OTHER;
 	List<ItemData> items = new ArrayList<>();
@@ -106,7 +106,7 @@ public class ItemTradeNotification extends SingleLineTaxableNotification {
 	@Override
 	protected void loadNormal(CompoundTag compound, HolderLookup.Provider lookup) {
 		
-		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"),lookup);
+		this.traderData = TraderCategory.loadOldData(compound.getCompound("TraderInfo"),lookup);
 		this.tradeType = TradeDirection.fromIndex(compound.getInt("TradeType"));
 		ListTag itemList = compound.getList("Items", Tag.TAG_COMPOUND);
 		this.items = new ArrayList<>();

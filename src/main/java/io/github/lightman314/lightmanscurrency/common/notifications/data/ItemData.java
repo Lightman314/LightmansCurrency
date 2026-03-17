@@ -5,8 +5,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
+import io.github.lightman314.lightmanscurrency.util.OldDataHelper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -104,7 +104,7 @@ public class ItemData
             int count = tag.getInt("Count");
             return new ItemData(deprecatedName,count);
         }
-        ItemStack stack = InventoryUtil.loadItemNoLimits(tag.getCompound("Stack"),lookup);
+        ItemStack stack = OldDataHelper.loadItem(tag.getCompound("Stack"),lookup);
         String customName = tag.getString("CustomName");
         Component deprecatedName = null;
         if(tag.contains("DeprecatedName"))

@@ -9,6 +9,8 @@ import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.Di
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.DisplayEntry;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.trade.display.ItemEntry;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaStorage;
+import io.github.lightman314.lightmanscurrency.common.traders.gacha.nodes.GachaStorageNode;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.trade.GachaDummyTrade;
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.network.chat.Component;
@@ -37,9 +39,14 @@ public class GachaTradeButtonRenderer extends TradeRenderManager<GachaDummyTrade
     @Override
     public DisplayData outputDisplayArea(TradeContext context) { return new DisplayData(59, 1, 34, 16); }
 
+    private GachaStorage getStorage() {
+        GachaStorageNode node = this.trade.getTrader().getNode(GachaStorageNode.TYPE);
+        return node == null ? new GachaStorage(() -> 0) : node.getStorage();
+    }
+
     @Override
     public List<DisplayEntry> getOutputDisplays(TradeContext context) {
-        List<ItemStack> items = this.trade.trader.getStorage().getContents();
+        List<ItemStack> items = this.getStorage().getContents();
         if(items.isEmpty())
             return ImmutableList.of();
         ItemStack display = ListUtil.randomItemFromList(items,ItemStack.EMPTY);
@@ -56,7 +63,7 @@ public class GachaTradeButtonRenderer extends TradeRenderManager<GachaDummyTrade
 
     @Override
     protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) {
-        if(this.trade.trader.getStorage().isEmpty())
+        if(this.getStorage().isEmpty())
             alerts.add(AlertData.warn(LCText.TOOLTIP_OUT_OF_STOCK));
         if(!context.hasFunds(this.trade.getCost(context)))
             alerts.add(AlertData.warn(LCText.TOOLTIP_CANNOT_AFFORD));

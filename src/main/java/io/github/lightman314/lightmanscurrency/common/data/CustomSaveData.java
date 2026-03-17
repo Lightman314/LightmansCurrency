@@ -63,24 +63,24 @@ public class CustomSaveData extends SavedData {
         serverDataCache.clear();
         LCRegistries.CUSTOM_DATA.forEach(type -> {
             ResourceLocation id = LCRegistries.CUSTOM_DATA.getKey(type);
-            CustomSaveData data = overworld.getDataStorage().computeIfAbsent(factory(type), type.fileName);
+            CustomSaveData data = overworld.getDataStorage().computeIfAbsent(factory(type,server), type.fileName);
             serverDataCache.put(id,data.data);
         });
     }
 
     private final CustomData data;
-    private CustomSaveData(CustomData data) {
+    private CustomSaveData(CustomData data,HolderLookup.Provider lookup) {
         this.data = data;
-        this.data.initServer(this::setDirty);
+        this.data.initServer(this::setDirty,lookup);
     }
 
-    private static Factory<CustomSaveData> factory(CustomDataType<?> type) { return new Factory<>(() ->
-                new CustomSaveData(type.create()),
+    private static Factory<CustomSaveData> factory(CustomDataType<?> type,MinecraftServer server) { return new Factory<>(() ->
+                new CustomSaveData(type.create(),server.registryAccess()),
             (t,l) -> {
                 CustomData data = type.create();
                 //LightmansCurrency.LogDebug("Loading '" + type.fileName + "' from file!\n" + t.getAsString());
                 data.loadData(t,DataContext.createNBT(l));
-                return new CustomSaveData(data);
+                return new CustomSaveData(data,l);
             });
     }
 
@@ -111,6 +111,15 @@ public class CustomSaveData extends SavedData {
     }
 
     @SubscribeEvent
+    private static void afterServerTick(ServerTickEvent.Post event)
+    {
+        for(CustomData data : serverDataCache.values())
+        {
+            data.syncTick();
+        }
+    }
+
+    @SubscribeEvent
     private static void onServerStart(ServerStartedEvent event)
     {
         //Forcibly load all custom data from file on server boot
@@ -119,6 +128,9 @@ public class CustomSaveData extends SavedData {
 
     @SubscribeEvent
     private static void onServerStop(ServerStoppedEvent event) {
+        //Call server-shutdown code
+        for(CustomData data : serverDataCache.values())
+            data.onServerShutdown();
         //Clear the data cache when the server stops
         serverDataCache.clear();
     }

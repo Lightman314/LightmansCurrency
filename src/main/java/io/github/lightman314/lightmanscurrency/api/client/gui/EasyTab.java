@@ -1,29 +1,26 @@
 package io.github.lightman314.lightmanscurrency.api.client.gui;
 
+import io.github.lightman314.lightmanscurrency.api.network.IBuilderProvider;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.tab.ITab;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.ticker.ICommonTicker;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.core.RegistryAccess;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-public abstract class EasyTab implements ITab, ICommonTicker, LazyPacketData.IBuilderProvider {
+public abstract class EasyTab implements ITab, ICommonTicker, IBuilderProvider {
 
     private final IEasyScreen screen;
     public final Font getFont() { return this.screen.getFont(); }
     private final List<Object> children = new ArrayList<>();
 
-    protected final RegistryAccess registryAccess() { return this.screen.registryAccess(); }
+    public final RegistryAccess registryAccess() { return this.screen.registryAccess(); }
     public final LazyPacketData.Builder builder() { return this.screen.builder(); }
 
     protected EasyTab(IEasyScreen screen) { this.screen = screen; }

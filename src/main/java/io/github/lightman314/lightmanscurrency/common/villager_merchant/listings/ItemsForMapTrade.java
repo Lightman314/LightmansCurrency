@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.common.villager_merchant.listing
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -24,8 +24,6 @@ import net.minecraft.world.item.MapItem;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.saveddata.maps.MapDecorationType;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
-
-import javax.annotation.Nonnull;
 
 public class ItemsForMapTrade extends ItemsForXTradeTemplate
 {
@@ -50,7 +48,7 @@ public class ItemsForMapTrade extends ItemsForXTradeTemplate
         this.displayName = displayName;
         this.mapDecorationType = mapDecorationType;
     }
-    private ItemsForMapTrade(@Nonnull DeserializedData data, TagKey<Structure> destination, String displayName, Holder<MapDecorationType> mapDecorationType)
+    private ItemsForMapTrade(DeserializedData data, TagKey<Structure> destination, String displayName, Holder<MapDecorationType> mapDecorationType)
     {
         super(data);
         this.destination = destination;
@@ -59,7 +57,7 @@ public class ItemsForMapTrade extends ItemsForXTradeTemplate
     }
 
     @Override
-    protected ItemStack createResult(@Nonnull Entity trader, @Nonnull RandomSource rand) {
+    protected ItemStack createResult(Entity trader, RandomSource rand) {
         if(trader == null || (!(trader.level() instanceof ServerLevel level)))
             return null;
         else
@@ -85,9 +83,8 @@ public class ItemsForMapTrade extends ItemsForXTradeTemplate
         @Override
         public ResourceLocation getType() { return TYPE; }
 
-        @Nonnull
         @Override
-        public JsonObject serializeInternal(@Nonnull JsonObject json, @Nonnull ItemListing trade, @Nonnull HolderLookup.Provider lookup) {
+        public JsonObject serializeInternal(JsonObject json, ItemListing trade, HolderLookup.Provider lookup) {
             if(trade instanceof ItemsForMapTrade t)
             {
                 t.serializeData(json,lookup);
@@ -99,13 +96,12 @@ public class ItemsForMapTrade extends ItemsForXTradeTemplate
             return null;
         }
 
-        @Nonnull
         @Override
-        public ItemListing deserialize(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
+        public ItemListing deserialize(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
             DeserializedData data = deserializeData(json,lookup);
-            TagKey<Structure> destination = TagKey.create(Registries.STRUCTURE, VersionUtil.parseResource(GsonHelper.getAsString(json,"Destination")));
+            TagKey<Structure> destination = TagKey.create(Registries.STRUCTURE, ResourceLocation.parse(GsonHelper.getAsString(json,"Destination")));
             String displayName = GsonHelper.getAsString(json,"MapName");
-            Holder<MapDecorationType> mapDecorationType = BuiltInRegistries.MAP_DECORATION_TYPE.getHolder(VersionUtil.parseResource(GsonHelper.getAsString(json,"Decoration"))).orElseThrow(() -> new JsonSyntaxException(GsonHelper.getAsString(json,"Decoration") + " is not a valid decoration type!"));
+            Holder<MapDecorationType> mapDecorationType = BuiltInRegistries.MAP_DECORATION_TYPE.getHolder(ResourceLocation.parse(GsonHelper.getAsString(json,"Decoration"))).orElseThrow(() -> new JsonSyntaxException(GsonHelper.getAsString(json,"Decoration") + " is not a valid decoration type!"));
             return new ItemsForMapTrade(data, destination, displayName, mapDecorationType);
         }
     }

@@ -3,8 +3,6 @@ package io.github.lightman314.lightmanscurrency.common.enchantments.data;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -36,9 +34,9 @@ public final class ItemOverride extends ValueInput {
         for(String entry : inputs)
         {
             if(entry.startsWith("#"))
-                tagTemp.add(TagKey.create(Registries.ITEM, VersionUtil.parseResource(entry.substring(1))));
+                tagTemp.add(TagKey.create(Registries.ITEM, ResourceLocation.parse(entry.substring(1))));
             else
-                itemTemp.add(VersionUtil.parseResource(entry));
+                itemTemp.add(ResourceLocation.parse(entry));
         }
         this.items = ImmutableList.copyOf(itemTemp);
         this.tags = ImmutableList.copyOf(tagTemp);
@@ -55,7 +53,7 @@ public final class ItemOverride extends ValueInput {
     }
 
     public boolean matches(@Nonnull ItemStack item) {
-        return this.items.contains(BuiltInRegistries.ITEM.getKey(item.getItem())) || this.tags.stream().anyMatch(t -> InventoryUtil.ItemHasTag(item,t));
+        return this.items.contains(BuiltInRegistries.ITEM.getKey(item.getItem())) || this.tags.stream().anyMatch(item::is);
     }
 
     @Override

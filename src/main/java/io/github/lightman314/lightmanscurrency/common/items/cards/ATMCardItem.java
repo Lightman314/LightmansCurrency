@@ -42,12 +42,12 @@ public class ATMCardItem extends Item implements IVariantItem {
                 tooltip.add(LCText.TOOLTIP_ATM_CARD_NOT_LINKED.getWithStyle(ChatFormatting.GRAY));
             else
             {
-                tooltip.add(LCText.TOOLTIP_ATM_CARD_ACCOUNT.get(account.getName().withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GRAY));
+                tooltip.add(LCText.TOOLTIP_ATM_CARD_ACCOUNT.get(account.getName().copy().withStyle(ChatFormatting.YELLOW)).withStyle(ChatFormatting.GRAY));
                 if(!account.isCardValid(data.validation()))
                     tooltip.add(LCText.TOOLTIP_ATM_CARD_LINK_INVALID.getWithStyle(ChatFormatting.RED));
                 else
                 {
-                    tooltip.add(account.getBalanceText().withStyle(ChatFormatting.GRAY));
+                    tooltip.add(account.getBalanceText().copy().withStyle(ChatFormatting.GRAY));
                     //Usage tooltip
                     tooltip.addAll(TooltipHelper.splitTooltips(LCText.TOOLTIP_PAYMENT_CARD_USAGE.get(),ChatFormatting.GRAY));
                 }

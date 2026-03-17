@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.slot_machine;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.client.IconRenderer;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.client.gui.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.api.client.gui.GhostSlot;
@@ -26,7 +27,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.EasySlot;
 import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.nodes.SlotMachineNode;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.trade.SlotMachineEntry;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -165,9 +165,9 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
                     int xPos = 80 + (18 * i);
                     SpriteUtil.EMPTY_SLOT_NORMAL.render(gui,xPos - 1,ITEM_POSY - 1);
                     if(i >= entry.getCustomIcons().size())
-                        SlotMachineEntry.DEFAULT_ICON.render(gui,xPos,ITEM_POSY);
+                        IconRenderer.renderIcon(SlotMachineEntry.DEFAULT_ICON,gui,xPos,ITEM_POSY);
                     else
-                        entry.getCustomIcons().get(i).render(gui,xPos,ITEM_POSY);
+                        IconRenderer.renderIcon(entry.getCustomIcons().get(i),gui,xPos,ITEM_POSY);
                 }
             }
 
@@ -224,7 +224,7 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
                             if(rightClick) //If right-clicked, either set as 1 or increase by 1
                             {
                                 ItemStack oldStack = entry.items.get(itemIndex);
-                                if(InventoryUtil.ItemMatches(heldItem, oldStack))
+                                if(ItemStack.isSameItemSameComponents(heldItem, oldStack))
                                 {
                                     ItemStack newStack = entry.items.get(itemIndex).copy();
                                     if(newStack.getCount() >= newStack.getMaxStackSize())
@@ -365,7 +365,7 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
             else
             {
                 ItemStack existingItem = entry.items.get(index).copy();
-                if(InventoryUtil.ItemMatches(existingItem,item))
+                if(ItemStack.isSameItemSameComponents(existingItem,item))
                 {
                     if(existingItem.getCount() < existingItem.getMaxStackSize())
                     {

@@ -8,7 +8,7 @@ import com.simibubi.create.foundation.item.SmartInventory;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
@@ -52,7 +52,7 @@ public class StockTickerBlockMixin {
                     {
                         ItemStack leftovers = walletHandler.PickupCoins(item);
                         //Nothing was inserted, ignore further interactions
-                        if(InventoryUtil.ItemsFullyMatch(item,leftovers))
+                        if(ItemHandlerUtil.isExactMatch(item,leftovers))
                             continue;
                         //Put the items that didn't fit in the slot
                         payments.setItem(i,leftovers);

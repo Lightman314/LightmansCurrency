@@ -11,6 +11,8 @@ import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
+import io.github.lightman314.lightmanscurrency.util.ItemStackHelper;
+import io.github.lightman314.lightmanscurrency.util.OldDataHelper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -81,8 +83,7 @@ public class BasicEjectionData extends EjectionData {
             OwnerData owner = new OwnerData(IClientTracker.forClient());
             owner.load(tag,DataContext.createNBT(lookup));
             Component name = Component.Serializer.fromJson(tag.getString("Name"),lookup);
-            Container container = InventoryUtil.loadAllItems("Contents",tag,tag.getInt("Size"),lookup);
-            NonEmptyHandler contents = new NonEmptyHandler(InventoryUtil.buildList(container));
+            NonEmptyHandler contents = new NonEmptyHandler(OldDataHelper.loadListOfSize("Contents",tag,tag.getInt("Size"),lookup));
             return new BasicEjectionData(owner,contents,name);
         }
     }

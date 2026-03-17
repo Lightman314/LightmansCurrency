@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.integration.patchouli;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -69,7 +68,7 @@ public class LCPatchouli {
         if(!walletID.contains("-")) //Use LC namespace by default as it's assumed wallets will have that namespace
             id = LightmansCurrency.id(walletID);
         else
-            id = VersionUtil.parseResource(walletID.replace("-",":"));
+            id = ResourceLocation.parse(walletID.replace("-",":"));
         if(BuiltInRegistries.ITEM.get(id) instanceof WalletItem wallet)
             return wallet;
         return null;

@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.misc.blockentity;
 
 import io.github.lightman314.lightmanscurrency.api.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.network.IBuilderProvider;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.api.variants.block.block_entity.IVariantDataStorage;
@@ -23,8 +24,9 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 
-public class EasyBlockEntity extends BlockEntity implements IClientTracker, IVariantDataStorage, LazyPacketData.IBuilderProvider {
+public class EasyBlockEntity extends BlockEntity implements IClientTracker, IVariantDataStorage, IBuilderProvider {
 
+    @Override
     public final HolderLookup.Provider registryAccess() { return this.level.registryAccess(); }
 
     public final DataContext<Tag> dataContext() { return DataContext.createNBT(this.registryAccess()); }
@@ -117,7 +119,4 @@ public class EasyBlockEntity extends BlockEntity implements IClientTracker, IVar
     }
 
     public void handleMessage(Player player,LazyPacketData message) {}
-
-    @Override
-    public LazyPacketData.Builder builder() { return LazyPacketData.builder(this.registryAccess()); }
 }

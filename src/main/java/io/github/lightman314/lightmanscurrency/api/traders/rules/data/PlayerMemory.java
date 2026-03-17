@@ -32,7 +32,7 @@ public class PlayerMemory {
         if(this.memory.containsKey(player.getUUID()))
         {
             builder.setUUID("player",player.getUUID());
-            builder.setList("memory",this.memory.get(player.getUUID()),LazyPacketData.Builder::setLong);
+            builder.setList("memory",this.memory.get(player.getUUID()),LazyPacketData.LONG_FACTORY);
         }
         return builder.build();
     }
@@ -42,7 +42,7 @@ public class PlayerMemory {
         Map<UUID,List<Long>> memory = new HashMap<>();
         UUID id = data.getUUID("player");
         if(id != null)
-            memory.put(id,data.getList("memory",LazyPacketData::getLong));
+            memory.put(id,data.getList("memory",Long.class));
         return new PlayerMemory(memory);
     }
 

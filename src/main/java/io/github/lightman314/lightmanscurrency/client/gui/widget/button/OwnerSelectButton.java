@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.widget.button;
 
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.client.IconRenderer;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.PotentialOwner;
 import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.ITooltipWidget;
@@ -65,7 +66,7 @@ public class OwnerSelectButton extends EasyButton implements ITooltipWidget {
         //Render owner
         IconData icon = owner.getIcon();
         if(icon != null)
-            icon.render(gui, 2, 2);
+            IconRenderer.renderIcon(icon,gui, 2, 2);
         //Render the name
         Component name = TextRenderUtil.fitString(owner.getName(), this.width - 22);
         int textColor = this.isActive() ? 0xFFFFFF : 0x7F7F7F / 2;

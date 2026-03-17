@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.datagen.common.advancements;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCTags;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.advancements.date.DateTrigger;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModEnchantments;
@@ -13,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.Ancien
 import io.github.lightman314.lightmanscurrency.common.text.DualTextEntry;
 import io.github.lightman314.lightmanscurrency.common.core.ModProfessions;
 import io.github.lightman314.lightmanscurrency.datagen.util.EmptyHolder;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.advancements.*;
 import net.minecraft.advancements.Advancement.Builder;
@@ -45,7 +45,7 @@ public class LCCurrencyAdvancements implements AdvancementProvider.AdvancementGe
     @Override
     public void generate(@Nonnull HolderLookup.Provider lookup, @Nonnull Consumer<AdvancementHolder> consumer, @Nonnull ExistingFileHelper existingFileHelper) {
         AdvancementHolder root = save(consumer, Builder.advancement()
-                        .display(ModItems.COIN_GOLD.get(), LCText.ADVANCEMENT_ROOT.first.get(), LCText.ADVANCEMENT_ROOT.second.get(), VersionUtil.modResource("lightmanscurrency","textures/gui/advancements/backgrounds/currency.png"), AdvancementType.TASK,false,false,false)
+                        .display(ModItems.COIN_GOLD.get(), LCText.ADVANCEMENT_ROOT.first.get(), LCText.ADVANCEMENT_ROOT.second.get(),LightmansCurrency.id("textures/gui/advancements/backgrounds/currency.png"), AdvancementType.TASK,false,false,false)
                         .addCriterion("coin", ezItemTrigger(LCTags.Items.COINS)),
                 "currency/root");
         AdvancementHolder mfp = save(consumer, Builder.advancement()

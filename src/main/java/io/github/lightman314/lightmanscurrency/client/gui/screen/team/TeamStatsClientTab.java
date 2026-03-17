@@ -16,7 +16,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -68,7 +67,7 @@ public class TeamStatsClientTab extends TeamManagementClientTab<TeamStatsTab> im
     public void renderBG(@Nonnull EasyGuiGraphics gui) {
         this.validateScroll();
         int yPos = START_POS;
-        List<MutableComponent> lines = this.getLines();
+        List<Component> lines = this.getLines();
         if(lines.isEmpty())
         {
             TextRenderUtil.drawVerticallyCenteredMultilineText(gui, LCText.GUI_TRADER_STATS_EMPTY.get(), 10, this.screen.getXSize() - 20, yPos, LINE_COUNT * LINE_SIZE, 0x404040);
@@ -89,7 +88,7 @@ public class TeamStatsClientTab extends TeamManagementClientTab<TeamStatsTab> im
         this.buttonClear.active = team != null && team.isAdmin(this.menu.player);
     }
 
-    private List<MutableComponent> getLines()
+    private List<Component> getLines()
     {
         ITeam team = this.menu.selectedTeam();
         if(team == null)

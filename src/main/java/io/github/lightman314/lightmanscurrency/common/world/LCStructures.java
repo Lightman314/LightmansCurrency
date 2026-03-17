@@ -6,7 +6,6 @@ import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.mixin.TemplatePoolAccess;
 import io.github.lightman314.lightmanscurrency.util.DebugUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
@@ -77,7 +76,7 @@ public class LCStructures {
         {
             for(String biome : villageBiomes())
             {
-                ResourceLocation housePool = VersionUtil.vanillaResource("village/" + biome + "/houses");
+                ResourceLocation housePool = ResourceLocation.withDefaultNamespace("village/" + biome + "/houses");
                 for(String type : houseTypes())
                 {
                     addToPool(
@@ -92,12 +91,12 @@ public class LCStructures {
             //Add Integrated Dungeons and Structures village structures
             if(spawnIDAS)
             {
-                addToPool(VersionUtil.vanillaResource("village/taiga/houses"),
+                addToPool(ResourceLocation.withDefaultNamespace("village/taiga/houses"),
                         LightmansCurrency.id("village/houses/idas_taiga_large_bank"),
                         registryAccess,
                         1
                 );
-                addToPool(VersionUtil.vanillaResource("village/plains/houses"),
+                addToPool(ResourceLocation.withDefaultNamespace("village/plains/houses"),
                         LightmansCurrency.id("village/houses/idas_plains_gundam"),
                         registryAccess,
                         1
@@ -107,7 +106,7 @@ public class LCStructures {
         }
         if(LCConfig.COMMON.structureAncientCity.get())
         {
-            addToPool(VersionUtil.vanillaResource("ancient_city/structures"),
+            addToPool(ResourceLocation.withDefaultNamespace("ancient_city/structures"),
                     LightmansCurrency.id("ancient_city/ancient_ruins"),
                     registryAccess,
                     2);

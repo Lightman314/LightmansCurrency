@@ -19,7 +19,6 @@ import io.github.lightman314.lightmanscurrency.client.config.ItemTestListOption;
 import io.github.lightman314.lightmanscurrency.common.config.VillagerTradeModsOption;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.configured.ConfiguredTradeModOption;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
@@ -174,7 +173,7 @@ public class ConfigWidgetHelper {
                                             if(string.isEmpty() && option.allowedValue(Items.AIR))
                                                 handler.accept(Items.AIR);
                                             try {
-                                                ResourceLocation id = VersionUtil.parseResource(string);
+                                                ResourceLocation id = ResourceLocation.parse(string);
                                                 if(BuiltInRegistries.ITEM.containsKey(id))
                                                 {
                                                     Item item = BuiltInRegistries.ITEM.get(id);

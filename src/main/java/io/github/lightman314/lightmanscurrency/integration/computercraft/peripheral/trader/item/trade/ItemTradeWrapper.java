@@ -6,6 +6,7 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaValues;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.core.util.ArgumentHelpers;
+import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
 import io.github.lightman314.lightmanscurrency.common.traders.item.trade.ItemTradeData;
@@ -14,7 +15,6 @@ import io.github.lightman314.lightmanscurrency.integration.computercraft.LCPerip
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCArgumentHelper;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.data.LCLuaTable;
 import io.github.lightman314.lightmanscurrency.integration.computercraft.peripheral.trader.TradeWrapper;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
@@ -102,7 +102,7 @@ public class ItemTradeWrapper<T extends ItemTradeData> extends TradeWrapper<T> {
         for(int i = 0; i < 2; ++i)
         {
             ItemStack item = trade.getBarterItem(i);
-            LCLuaTable entry = LCLuaTable.fromTag(InventoryUtil.saveItemNoLimits(item,this.registryAccess()));
+            LCLuaTable entry = LCLuaTable.fromValueAsTable(item,CodecHelper.UNLIMITED_ITEM_OPTIONAL);
             if(!item.isEmpty())
                 addTradeData(entry,trade,i + 2,"");
             list.add(entry);

@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
 import io.github.lightman314.lightmanscurrency.api.stats.StatType;
+import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeResult;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
 import io.github.lightman314.lightmanscurrency.common.core.variants.WoodType;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
@@ -88,6 +89,11 @@ public abstract class TranslationProvider extends LanguageProvider {
         this.add(StatType.getTranslationKey(statistic.key), text);
     }
 
+    protected final void translate(TradeResult result,String text)
+    {
+        this.add(result.getTranslationKey(),text);
+    }
+
     protected final void translateWooden(TextEntryBundle<WoodType> bundle, String format)
     {
         this.translate(bundle,format,this::getWoodTypeName);
@@ -123,7 +129,6 @@ public abstract class TranslationProvider extends LanguageProvider {
     {
         this.translate(new TextEntry(type.initialKey()),text);
     }
-
 
     protected final void translateGuide(ResourceLocation guide, String name, String landingText)
     {

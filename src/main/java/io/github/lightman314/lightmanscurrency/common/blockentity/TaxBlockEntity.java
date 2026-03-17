@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity;
 
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.api.ejection.SafeEjectionAPI;
 import io.github.lightman314.lightmanscurrency.api.ejection.builtin.BasicEjectionData;
@@ -11,14 +12,13 @@ import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
 import io.github.lightman314.lightmanscurrency.util.BlockEntityUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,14 +90,14 @@ public class TaxBlockEntity extends EasyBlockEntity {
     }
 
     @Override
-    protected void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
+    protected void saveAdditional(CompoundTag compound,DataContext<Tag> context) {
+        super.saveAdditional(compound,context);
         compound.putLong("EntryID", this.taxEntryID);
-        super.saveAdditional(compound,lookup);
     }
 
     @Override
-    public void loadAdditional(@Nonnull CompoundTag compound,@Nonnull HolderLookup.Provider lookup) {
-        super.loadAdditional(compound,lookup);
+    public void loadAdditional(CompoundTag compound,DataContext<Tag> context) {
+        super.loadAdditional(compound,context);
         if(compound.contains("EntryID"))
             this.taxEntryID = compound.getLong("EntryID");
     }

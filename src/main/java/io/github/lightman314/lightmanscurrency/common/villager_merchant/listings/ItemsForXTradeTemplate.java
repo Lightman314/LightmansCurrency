@@ -13,7 +13,6 @@ import net.minecraft.world.entity.npc.VillagerTrades;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.MerchantOffer;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public abstract class ItemsForXTradeTemplate implements VillagerTrades.ItemListing {
@@ -27,27 +26,27 @@ public abstract class ItemsForXTradeTemplate implements VillagerTrades.ItemListi
     private final int xp;
     private final float priceMult;
 
-    protected ItemsForXTradeTemplate(@Nonnull ItemStack price, @Nonnull ItemStack price2, int maxTrades, int xp, float priceMult) {
+    protected ItemsForXTradeTemplate(ItemStack price, ItemStack price2, int maxTrades, int xp, float priceMult) {
         this.price = price;
         this.price2 = price2;
         this.maxTrades = maxTrades;
         this.xp = xp;
         this.priceMult = priceMult;
     }
-    protected ItemsForXTradeTemplate(@Nonnull DeserializedData data) { this(data.price1,data.price2,data.maxTrades,data.xp,data.priceMult); }
+    protected ItemsForXTradeTemplate(DeserializedData data) { this(data.price1,data.price2,data.maxTrades,data.xp,data.priceMult); }
 
-    protected abstract ItemStack createResult(@Nonnull Entity trader, @Nonnull RandomSource rand);
+    protected abstract ItemStack createResult(Entity trader, RandomSource rand);
 
     @Nullable
     @Override
-    public final MerchantOffer getOffer(@Nonnull Entity trader, @Nonnull RandomSource rand) {
+    public final MerchantOffer getOffer(Entity trader, RandomSource rand) {
         ItemStack result = this.createResult(trader,rand);
         if(result == null)
             return null;
         return new MerchantOffer(ListingUtil.costFor(this.price),ListingUtil.optionalCost(this.price2),result,this.maxTrades,this.xp,this.priceMult);
     }
 
-    protected final void serializeData(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup)
+    protected final void serializeData(JsonObject json, HolderLookup.Provider lookup)
     {
         json.add("Price", FileUtil.convertItemStack(this.price,lookup));
         if(!this.price2.isEmpty())
@@ -57,8 +56,7 @@ public abstract class ItemsForXTradeTemplate implements VillagerTrades.ItemListi
         json.addProperty("PriceMult", this.priceMult);
     }
 
-    @Nonnull
-    protected static DeserializedData deserializeData(@Nonnull JsonObject json, @Nonnull HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException
+    protected static DeserializedData deserializeData(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException
     {
         ItemStack price = FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json,"Price"),lookup);
         ItemStack price2 = json.has("Price2") ? FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json,"Price2"),lookup) : ItemStack.EMPTY;
@@ -68,6 +66,6 @@ public abstract class ItemsForXTradeTemplate implements VillagerTrades.ItemListi
         return new DeserializedData(price,price2,maxTrades,xp,priceMult);
     }
 
-    protected record DeserializedData(@Nonnull ItemStack price1, @Nonnull ItemStack price2, int maxTrades, int xp, float priceMult)  { }
+    protected record DeserializedData(ItemStack price1, ItemStack price2, int maxTrades, int xp, float priceMult)  { }
 
 }

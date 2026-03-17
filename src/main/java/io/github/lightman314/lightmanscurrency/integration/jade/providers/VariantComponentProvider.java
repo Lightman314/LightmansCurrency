@@ -1,15 +1,16 @@
 package io.github.lightman314.lightmanscurrency.integration.jade.providers;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.api.variants.block.block_entity.IVariantDataStorage;
+import io.github.lightman314.lightmanscurrency.api.variants.item.data.VariantData;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.TooltipInfo;
 import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -42,7 +43,7 @@ public class VariantComponentProvider implements IBlockComponentProvider {
                 if(variant != null)
                 {
                     ItemStack item = new ItemStack(accessor.getBlock());
-                    item.set(ModDataComponents.MODEL_VARIANT,variant);
+                    item.set(ModDataComponents.MODEL_VARIANT,new VariantData(variant));
                     return ItemStackElement.of(item);
                 }
             }

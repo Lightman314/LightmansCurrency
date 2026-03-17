@@ -6,7 +6,6 @@ import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBiBundle;
 import io.github.lightman314.lightmanscurrency.common.core.groups.RegistryObjectBundle;
 import io.github.lightman314.lightmanscurrency.common.core.variants.IOptionalKey;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
@@ -170,16 +169,16 @@ public class LCBlockTagProvider extends BlockTagsProvider {
         ///OTHER MODS TAGS
         //Add Multi-block to other mods immovable tags
         this.cTag(Tags.Blocks.RELOCATION_NOT_SUPPORTED).addTag(LCTags.Blocks.MULTI_BLOCK);
-        this.cTag(VersionUtil.modResource("create","non_movable")).addTag(LCTags.Blocks.MULTI_BLOCK);
+        this.cTag(ResourceLocation.fromNamespaceAndPath("create","non_movable")).addTag(LCTags.Blocks.MULTI_BLOCK);
         //Add protected blocks to Create's non-breakable tag
-        this.cTag(VersionUtil.modResource("create","non_breakable")).addTag(LCTags.Blocks.OWNER_PROTECTED);
+        this.cTag(ResourceLocation.fromNamespaceAndPath("create","non_breakable")).addTag(LCTags.Blocks.OWNER_PROTECTED);
 
         //Add Safe-Interactable to ftb chunks interact whitelist
-        this.cTag(VersionUtil.modResource("ftbchunks", "interact_whitelist")).addTag(LCTags.Blocks.SAFE_INTERACTABLE);
-        this.cTag(VersionUtil.modResource("cadmus", "allows_claim_interactions")).addTag(LCTags.Blocks.SAFE_INTERACTABLE);
+        this.cTag(ResourceLocation.fromNamespaceAndPath("ftbchunks", "interact_whitelist")).addTag(LCTags.Blocks.SAFE_INTERACTABLE);
+        this.cTag(ResourceLocation.fromNamespaceAndPath("cadmus", "allows_claim_interactions")).addTag(LCTags.Blocks.SAFE_INTERACTABLE);
 
         //Blacklist ownable blocks from Carry-On mod, as it started ignoring the common/forge non-moveable tag
-        this.cTag(VersionUtil.modResource("carryon","block_blacklist"))
+        this.cTag(ResourceLocation.fromNamespaceAndPath("carryon","block_blacklist"))
                 .addTag(LCTags.Blocks.OWNER_PROTECTED)
                 .addTag(LCTags.Blocks.MULTI_BLOCK);
 

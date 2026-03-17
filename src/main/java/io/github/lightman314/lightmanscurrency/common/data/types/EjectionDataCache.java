@@ -7,7 +7,8 @@ import io.github.lightman314.lightmanscurrency.api.ejection.EjectionData;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomData;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomDataType;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets;
+import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -90,7 +91,7 @@ public class EjectionDataCache extends CustomData {
             //Split/dismantle the ejection data in anarchy mode, but leave it as the recoverable item if ejection is simply turned off/disabled
             if(data.canSplit() && LCConfig.SERVER.anarchyMode.get())
                 data.splitContents();
-            InventoryUtil.dumpContents(level, pos, data.getContents());
+            ItemHandlerUtil.dropContents(level, pos,data.getContents());
         }
 
         //Push notification to the data's owner(s)
@@ -112,7 +113,7 @@ public class EjectionDataCache extends CustomData {
             else
             {
                 //Otherwise send an update packet
-                this.sendSyncPacket(this.builder().setCustom("UpdateData",data,EjectionData.STREAM_CODEC));
+                this.sendSyncPacket(this.builder().setCustom("UpdateData",data,ModLazyPackets.EJECTION_DATA));
             }
         }
         else
@@ -128,7 +129,7 @@ public class EjectionDataCache extends CustomData {
             this.data.remove(message.getLong("RemoveData"));
         if(message.contains("UpdateData"))
         {
-            EjectionData d = message.getCustom("UpdateData",EjectionData.STREAM_CODEC).flagAsClient(this);
+            EjectionData d = message.getCustom("UpdateData",ModLazyPackets.EJECTION_DATA).flagAsClient(this);
             if(d != null)
                 this.data.put(d.id(),d);
         }
@@ -139,7 +140,7 @@ public class EjectionDataCache extends CustomData {
 
         HolderLookup.Provider lookup = player.registryAccess();
         for(EjectionData d : this.data.values())
-            this.sendSyncPacket(this.builder().setCustom("UpdateData",d,EjectionData.STREAM_CODEC),player);
+            this.sendSyncPacket(this.builder().setCustom("UpdateData",d,ModLazyPackets.EJECTION_DATA),player);
 
     }
 

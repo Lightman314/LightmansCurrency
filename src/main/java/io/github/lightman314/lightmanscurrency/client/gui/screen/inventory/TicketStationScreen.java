@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.client.sprites.FixedSizeSprite;
 import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteSource;
 import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
@@ -28,7 +29,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.crafting.RecipeHolder;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -107,7 +107,7 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
     }
 
 	@Override
-	protected void renderBG(@Nonnull EasyGuiGraphics gui)
+	protected void renderBG(EasyGuiGraphics gui)
 	{
 
 		gui.renderNormalBackground(GUI_TEXTURE, this);
@@ -136,7 +136,7 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 		gui.drawString(this.playerInventoryTitle, 8, (this.getYSize() - 94), 0x404040);
 
 		if(this.selectedRecipe != null)
-			gui.renderItem(this.selectedRecipe.value().peekAtResult(this.menu.blockEntity.getStorage(),this.menu.getExtraData()), SELECTION_AREA.pos);
+			gui.renderItem(this.selectedRecipe.value().peekAtResult(this.menu.blockEntity.getRecipeInput(this.menu.getExtraData())),SELECTION_AREA.pos);
 
 		//Reset the color
 		gui.resetColor();
@@ -144,12 +144,12 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 	}
 
 	@Override
-	protected void renderAfterWidgets(@Nonnull EasyGuiGraphics gui) {
+	protected void renderAfterWidgets(EasyGuiGraphics gui) {
 		//Render tooltip
 		if(this.selectedRecipe != null && SELECTION_AREA.offsetPosition(this.getCorner()).isMouseInArea(gui.mousePos))
 		{
 			List<Component> tooltip = new ArrayList<>();
-			tooltip.add(LCText.TOOLTIP_TICKET_STATION_RECIPE_INFO.get(this.selectedRecipe.value().peekAtResult(this.menu.blockEntity.getStorage(),this.menu.getExtraData()).getHoverName()));
+			tooltip.add(LCText.TOOLTIP_TICKET_STATION_RECIPE_INFO.get(this.selectedRecipe.value().peekAtResult(this.menu.blockEntity.getRecipeInput(this.menu.getExtraData())).getHoverName()));
 			if(this.getMatchingRecipes().size() > 1)
 				tooltip.add(LCText.TOOLTIP_TICKET_STATION_SELECT_RECIPE.get());
 			gui.renderComponentTooltip(tooltip);
@@ -174,7 +174,7 @@ public class TicketStationScreen extends EasyMenuScreen<TicketStationMenu> imple
 	private Component getArrowTooltip()
 	{
 		if(this.selectedRecipe != null)
-			return LCText.TOOLTIP_TICKET_STATION_CRAFT.get(this.selectedRecipe.value().peekAtResult(this.menu.blockEntity.getStorage(),this.menu.getExtraData()).getHoverName());
+			return LCText.TOOLTIP_TICKET_STATION_CRAFT.get(this.selectedRecipe.value().peekAtResult(this.menu.blockEntity.getRecipeInput(this.menu.getExtraData())).getHoverName());
 		return EasyText.empty();
 	}
 

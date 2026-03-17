@@ -1,21 +1,17 @@
 package io.github.lightman314.lightmanscurrency.common.blockentity.trader;
 
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.traders.gacha.GachaTrader;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.block.state.BlockState;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class GachaMachineBlockEntity extends TraderBlockEntity<GachaTrader> {
 
     private int color = -1;
@@ -23,19 +19,18 @@ public class GachaMachineBlockEntity extends TraderBlockEntity<GachaTrader> {
     public GachaMachineBlockEntity(BlockPos pos, BlockState state) { this(pos,state,0xFFFFFF); }
     public GachaMachineBlockEntity(BlockPos pos, BlockState state, int color) { super(ModBlockEntities.GACHA_MACHINE.get(), pos, state); }
 
-    @Nonnull
     @Override
     protected GachaTrader buildNewTrader() { return new GachaTrader(this.level,this.worldPosition,this.color); }
 
     @Override
-    public void saveAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
-        super.saveAdditional(compound, lookup);
+    public void saveAdditional(CompoundTag compound, DataContext<Tag> context) {
+        super.saveAdditional(compound,context);
         compound.putInt("Color",this.color);
     }
 
     @Override
-    protected void loadAdditional(@Nonnull CompoundTag compound, @Nonnull HolderLookup.Provider lookup) {
-        super.loadAdditional(compound, lookup);
+    protected void loadAdditional(CompoundTag compound,DataContext<Tag> context) {
+        super.loadAdditional(compound,context);
         this.color = compound.getInt("Color");
     }
 

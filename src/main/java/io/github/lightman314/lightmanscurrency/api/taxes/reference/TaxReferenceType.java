@@ -19,9 +19,10 @@ public abstract class TaxReferenceType {
     public final ResourceLocation typeID;
     protected TaxReferenceType(ResourceLocation typeID) { this.typeID = typeID; }
 
+    @Deprecated
     public abstract TaxableReference load(CompoundTag tag);
 
     public abstract MapCodec<? extends TaxableReference> codec();
-    public abstract StreamCodec<? super FriendlyByteBuf,? extends TaxableReference> streamCodec();
+    public abstract StreamCodec<ByteBuf,? extends TaxableReference> streamCodec();
 
 }

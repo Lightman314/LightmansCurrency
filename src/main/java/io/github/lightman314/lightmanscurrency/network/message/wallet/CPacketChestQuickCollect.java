@@ -29,7 +29,7 @@ public class CPacketChestQuickCollect extends ClientToServerPacket {
 		@Override
 		protected void handle(CPacketChestQuickCollect message, IPayloadContext context, Player player) {
 			if(player.containerMenu instanceof ChestMenu menu)
-				WalletItem.QuickCollect(player, menu.getContainer(), message.allowSideChains);
+				WalletItem.QuickCollect(player,menu.getContainer(),message.allowSideChains);
 		}
 	}
 

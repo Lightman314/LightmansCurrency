@@ -28,7 +28,7 @@ public class GachaTradeNotification extends SingleLineTaxableNotification {
 
     public static final NotificationType<GachaTradeNotification> TYPE = new Type();
 
-    private TraderCategory traderData = TraderCategory.NULL;
+    private TraderCategory traderData = TraderCategory.getEmpty();
 
     private ItemData item = ItemData.EMPTY;
     private MoneyValue cost = MoneyValue.empty();
@@ -68,7 +68,7 @@ public class GachaTradeNotification extends SingleLineTaxableNotification {
 
     @Override
     protected void loadNormal(CompoundTag compound, HolderLookup.Provider lookup) {
-        this.traderData = new TraderCategory(compound.getCompound("TraderInfo"),lookup);
+        this.traderData = TraderCategory.loadOldData(compound.getCompound("TraderInfo"),lookup);
         this.item = ItemData.load(compound.getCompound("Item"),lookup);
         this.cost = MoneyValue.safeLoad(compound,"Money");
         this.customer = compound.getString("Customer");

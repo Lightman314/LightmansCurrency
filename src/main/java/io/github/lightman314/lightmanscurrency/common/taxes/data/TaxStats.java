@@ -1,31 +1,26 @@
 package io.github.lightman314.lightmanscurrency.common.taxes.data;
 
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.builtin.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
 import io.github.lightman314.lightmanscurrency.common.taxes.TaxEntry;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableReference;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public final class TaxStats {
 
     private final TaxEntry entry;
     public TaxStats(TaxEntry entry) { this.entry = entry; }
 
+    public void setChanged() { this.entry.setStatsChanged(); }
 
-    public void markDirty() { this.entry.markStatsDirty(); }
-
-    private final MoneyStorage totalCollected = new MoneyStorage(this::markDirty);
+    private final MoneyStorage totalCollected = new MoneyStorage().withListener(this::setChanged);
     public MoneyStorage getTotalCollected() { return this.totalCollected; }
 
     private final List<CollectionData> collectionCount = new ArrayList<>();
@@ -40,7 +35,7 @@ public final class TaxStats {
     public void removeInvalidData()
     {
         if(this.removeInvalidDataInternal())
-            this.markDirty();
+            this.setChanged();
     }
     private boolean removeInvalidDataInternal()
     {
@@ -100,7 +95,7 @@ public final class TaxStats {
             if(this.mostTaxed == null || data.interactionCount > this.mostTaxed.interactionCount)
                 this.mostTaxed = data.copy();
         }
-        this.markDirty();
+        this.setChanged();
     }
 
     @Nullable
@@ -120,10 +115,10 @@ public final class TaxStats {
         this.collectionCount.clear();
         this.uniqueTaxableCount = 0;
         this.mostTaxed = null;
-        this.markDirty();
+        this.setChanged();
     }
 
-    public CompoundTag save(HolderLookup.Provider lookup)
+    public CompoundTag save(DataContext<Tag> context)
     {
         CompoundTag tag = new CompoundTag();
         tag.put("TotalCollected", this.totalCollected.save());
@@ -144,10 +139,10 @@ public final class TaxStats {
         return tag;
     }
 
-    public void load(CompoundTag tag, HolderLookup.Provider lookup)
+    public void load(CompoundTag tag,DataContext<Tag> context)
     {
         if(tag.contains("TotalCollected"))
-            this.totalCollected.safeLoad(tag, "TotalCollected");
+            this.totalCollected.load(context.read(tag.get("TotalCollected"),MoneyStorage.CODEC).allValues());
         if(tag.contains("TaxableInteractions"))
         {
             this.collectionCount.clear();

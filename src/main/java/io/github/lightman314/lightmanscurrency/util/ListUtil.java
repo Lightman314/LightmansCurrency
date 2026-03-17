@@ -11,7 +11,7 @@ import java.util.function.UnaryOperator;
 
 public class ListUtil {
 
-    public static <T> List<T> convertList(List<? extends T> list) {
+    public static <T> List<T> castList(List<? extends T> list) {
         return new ArrayList<>(list);
     }
 

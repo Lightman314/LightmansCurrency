@@ -9,7 +9,6 @@ import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
@@ -53,7 +52,7 @@ public abstract class IconData {
             return CODEC.decode(RegistryOps.create(NbtOps.INSTANCE,lookup),tag).getOrThrow().getFirst();
 		if(tag.contains("Type"))
 		{
-			ResourceLocation type = VersionUtil.parseResource(tag.getString("Type"));
+			ResourceLocation type = ResourceLocation.parse(tag.getString("Type"));
             IconType<?> t = LCRegistries.ICON_TYPE.get(type);
 			if(t != null)
 				return t.loadOld(tag,lookup);
@@ -67,7 +66,7 @@ public abstract class IconData {
     {
         if(json.has("type"))
             return CODEC.decode(RegistryOps.create(JsonOps.INSTANCE,lookup),json).getOrThrow().getFirst();
-        ResourceLocation type = VersionUtil.parseResource(GsonHelper.getAsString(json,"Type"));
+        ResourceLocation type = ResourceLocation.parse(GsonHelper.getAsString(json,"Type"));
         IconType<?> t = LCRegistries.ICON_TYPE.get(type);
         if(t != null)
             return t.parseOld(json,lookup);

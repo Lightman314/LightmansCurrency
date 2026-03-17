@@ -40,6 +40,7 @@ public abstract class MoneyValueParser {
         return null;
     }
 
+    @Nullable
     protected abstract String writeValueArgument(MoneyValue value);
 
     public <S> CompletableFuture<Suggestions> listSuggestions(final CommandContext<S> context, final SuggestionsBuilder builder, String trail, HolderLookup<Item> items) { return Suggestions.empty(); }
@@ -77,7 +78,7 @@ public abstract class MoneyValueParser {
             prefix = readStringUntil(inputReader,';');
         else
             prefix = null;
-        for(CurrencyType type : MoneyAPI.getApi().AllCurrencyTypes())
+        for(CurrencyType<?> type : MoneyAPI.getApi().AllCurrencyTypes())
         {
             MoneyValueParser parser = type.getValueParser();
             if(parser != null && parser.tryParse(prefix))
@@ -98,7 +99,7 @@ public abstract class MoneyValueParser {
 
     
     public static String writeParsable(MoneyValue value) {
-        for(CurrencyType type : MoneyAPI.getApi().AllCurrencyTypes())
+        for(CurrencyType<?> type : MoneyAPI.getApi().AllCurrencyTypes())
         {
             MoneyValueParser parser = type.getValueParser();
             if(parser != null)

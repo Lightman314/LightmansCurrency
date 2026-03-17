@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.common.traders.paygate.client;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.traders.client.IClientMiscTabAddonProvider;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.builtin.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.builtin.settings.builtin.misc.MiscTabAddon;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
@@ -14,7 +15,7 @@ import net.minecraft.network.chat.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ClientPaygateTradeNode extends ClientTradeOfferNode<PaygateTradeNode> {
+public class ClientPaygateTradeNode extends ClientTradeOfferNode<PaygateTradeNode> implements IClientMiscTabAddonProvider {
 
     public ClientPaygateTradeNode(PaygateTradeNode node) {
         super(node);

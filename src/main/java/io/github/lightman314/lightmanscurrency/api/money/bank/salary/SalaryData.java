@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.network.IBuilderProvider;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKeys;
@@ -20,9 +21,9 @@ import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.DepositWithdrawNotification;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.bank.SalaryPaymentNotification;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -41,7 +42,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class SalaryData implements LazyPacketData.IBuilderProvider{
+public class SalaryData implements IBuilderProvider {
 
     public static final int PERM_VIEW = 1;
     public static final int PERM_EDIT = 2;
@@ -94,7 +95,7 @@ public class SalaryData implements LazyPacketData.IBuilderProvider{
         this.failedLastSalary = failedLastSalary;
     }
 
-    public SalaryData init(IBankAccount account,Function<SalaryData,Integer> index)
+    public SalaryData init(IBankAccount account, Function<SalaryData,Integer> index)
     {
         this.account = account;
         this.index = index;
@@ -644,9 +645,9 @@ public class SalaryData implements LazyPacketData.IBuilderProvider{
     }
 
     @Override
-    public LazyPacketData.Builder builder() {
-        if(this.account != null)
-            return this.account.builder();
-        return LazyPacketData.builder(LookupHelper.getRegistryAccess());
-    }
+    public LazyPacketData.Builder builder() { return this.account.builder(); }
+
+    @Override
+    public HolderLookup.Provider registryAccess() { return this.account.registryAccess(); }
+
 }

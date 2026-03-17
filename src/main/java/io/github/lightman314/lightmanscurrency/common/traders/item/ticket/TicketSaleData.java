@@ -10,8 +10,6 @@ import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingDat
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketRecipe;
 import io.github.lightman314.lightmanscurrency.common.crafting.TicketStationRecipe;
 import io.github.lightman314.lightmanscurrency.common.menus.TicketStationMenu;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -188,7 +186,7 @@ public class TicketSaleData {
         TicketStationRecipe recipe = this.tryGetRecipe();
         if (recipe != null)
             return recipe.matchesTicketKioskSellItem(sellItem) && (recipe.validData(this.getData()));
-        return sellItem.isEmpty() || InventoryUtil.ItemHasTag(sellItem, LCTags.Items.TICKET_MATERIAL);
+        return sellItem.isEmpty() || sellItem.is(LCTags.Items.TICKET_MATERIAL);
     }
 
     public boolean isPotentiallyRecipeMode() {
@@ -220,7 +218,7 @@ public class TicketSaleData {
 
     public void load(CompoundTag tag) {
         if (tag.contains("Recipe"))
-            this.recipe = VersionUtil.parseResource(tag.getString("Recipe"));
+            this.recipe = ResourceLocation.parse(tag.getString("Recipe"));
         this.code = tag.getString("Code");
         this.durability = tag.getInt("Durability");
     }
@@ -229,7 +227,7 @@ public class TicketSaleData {
         String prefix = "item_" + this.index + "_ticketdata_";
         if (node.getBooleanValue(prefix + "no_recipe"))
             this.recipe = null;
-        this.recipe = VersionUtil.parseResource(node.getStringValue(prefix + "recipe"));
+        this.recipe = ResourceLocation.parse(node.getStringValue(prefix + "recipe"));
         this.code = node.getStringValue(prefix + "code");
         this.durability = node.getIntValue(prefix + "durability");
     }

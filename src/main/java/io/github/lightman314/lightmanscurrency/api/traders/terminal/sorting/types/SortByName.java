@@ -1,13 +1,9 @@
 package io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.types;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.TerminalSortType;
-import net.minecraft.MethodsReturnNonnullByDefault;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class SortByName extends TerminalSortType {
 
     public static final SortByName INSTANCE = new SortByName();

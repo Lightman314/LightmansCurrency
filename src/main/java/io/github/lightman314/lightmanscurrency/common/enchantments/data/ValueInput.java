@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.builtin.MoneyValueOption;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
@@ -64,7 +63,7 @@ public class ValueInput {
                 String[] entries = input.split(";");
                 if(entries.length != 3)
                     return MoneyValue.empty();
-                ResourceLocation fileID = VersionUtil.parseResource(entries[1]);
+                ResourceLocation fileID = ResourceLocation.parse(entries[1]);
                 String optionPath = entries[2];
                 ConfigFile file = ConfigFile.lookupFile(fileID);
                 if(file != null)

@@ -3,13 +3,11 @@ package io.github.lightman314.lightmanscurrency.api.events;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.loot.tiers.*;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -22,9 +20,9 @@ import java.util.function.Consumer;
 public abstract class DroplistConfigGenerator {
 
     private final static List<Consumer<Entity>> entityListeners = new ArrayList<>();
-    public static void registerEntityListener(@Nonnull Consumer<Entity> listener) { if(!entityListeners.contains(listener)) entityListeners.add(listener); }
+    public static void registerEntityListener(Consumer<Entity> listener) { if(!entityListeners.contains(listener)) entityListeners.add(listener); }
     private final static List<Consumer<Chest>> chestListeners = new ArrayList<>();
-    public static void registerChestListener(@Nonnull Consumer<Chest> listener) { if(!chestListeners.contains(listener)) chestListeners.add(listener); }
+    public static void registerChestListener(Consumer<Chest> listener) { if(!chestListeners.contains(listener)) chestListeners.add(listener); }
 
     public static List<String> CollectDefaultEntityDrops(EntityPoolLevel level)
     {
@@ -34,7 +32,7 @@ public abstract class DroplistConfigGenerator {
             try { listener.accept(generator);
             } catch(Throwable t) { LightmansCurrency.LogError("Error collecting default entity drops.", t); }
         }
-        return debugEntries(generator.getEntries(), "Collected Default Entity drops of type '" + level.toString() + "'!\n_VALUE_");
+        return debugEntries(generator.getEntries(), "Collected Default Entity drops of type '" + level + "'!\n_VALUE_");
     }
 
     public static List<String> CollectDefaultChestDrops(ChestPoolLevel level)
@@ -45,7 +43,7 @@ public abstract class DroplistConfigGenerator {
             try { listener.accept(generator);
             } catch(Throwable t) { LightmansCurrency.LogError("Error collecting default chest drops.", t); }
         }
-        return debugEntries(generator.getEntries(), "Collected Default Chest drops of type '" + level.toString() + "'!\n_VALUE_");
+        return debugEntries(generator.getEntries(), "Collected Default Chest drops of type '" + level + "'!\n_VALUE_");
     }
 
     private static List<String> debugEntries(List<String> results, String message)
@@ -65,7 +63,7 @@ public abstract class DroplistConfigGenerator {
 
     private String defaultNamespace = "minecraft";
     public final void resetDefaultNamespace() { this.defaultNamespace = "minecraft"; }
-    public final void setDefaultNamespace(@Nonnull String namespace) { this.defaultNamespace = namespace; }
+    public final void setDefaultNamespace(String namespace) { this.defaultNamespace = namespace; }
     public final String getDefaultNamespace() { return this.defaultNamespace; }
 
     private final List<String> entries = new ArrayList<>();
@@ -99,9 +97,9 @@ public abstract class DroplistConfigGenerator {
      */
     public final void addEntry(String entry) throws ResourceLocationException { this.addEntry(this.defaultNamespace, entry); }
 
-    public final void forceAddEntry(@Nonnull ResourceLocation entry) { this.forceAdd(entry.toString()); }
+    public final void forceAddEntry(ResourceLocation entry) { this.forceAdd(entry.toString()); }
 
-    protected final void forceAdd(@Nonnull String entry) {
+    protected final void forceAdd(String entry) {
         if(!this.entries.contains(entry))
             this.entries.add(entry);
     }
@@ -110,7 +108,7 @@ public abstract class DroplistConfigGenerator {
      * Forcibly removes the defined entry from the entry list.
      * Should generally only be useful for adventure mapmakers that want to define their own coin drop rules, or for other mods overriding my own default values for their mods entities.
      */
-    public final void removeEntry(@Nonnull ResourceLocation entry) { this.entries.remove(entry.toString()); }
+    public final void removeEntry(ResourceLocation entry) { this.entries.remove(entry.toString()); }
 
     public static class Chest extends DroplistConfigGenerator
     {
@@ -121,7 +119,7 @@ public abstract class DroplistConfigGenerator {
         protected Chest(ChestPoolLevel level) { this.level = level; }
 
         @Override
-        protected ResourceLocation createEntry(String modid, String entry) { return VersionUtil.modResource(modid, "chests/" + entry); }
+        protected ResourceLocation createEntry(String modid, String entry) { return ResourceLocation.fromNamespaceAndPath(modid, "chests/" + entry); }
 
     }
 
@@ -134,11 +132,11 @@ public abstract class DroplistConfigGenerator {
         protected Entity(EntityPoolLevel level) { this.level = level; }
 
         @Override
-        protected ResourceLocation createEntry(String modid, String entry) { return VersionUtil.modResource(modid, entry); }
+        protected ResourceLocation createEntry(String modid, String entry) { return ResourceLocation.fromNamespaceAndPath(modid, entry); }
 
-        public final void forceAddTag(@Nonnull TagKey<EntityType<?>> tag) { this.forceAdd("#" + tag.location()); }
-        public final void forceAddTag(@Nonnull ResourceLocation tag) { this.forceAdd("#" + tag); }
-        public final void addTag(@Nonnull String tagID) throws ResourceLocationException { this.forceAddTag(VersionUtil.modResource(this.getDefaultNamespace(), tagID)); }
+        public final void forceAddTag(TagKey<EntityType<?>> tag) { this.forceAdd("#" + tag.location()); }
+        public final void forceAddTag(ResourceLocation tag) { this.forceAdd("#" + tag); }
+        public final void addTag(String tagID) throws ResourceLocationException { this.forceAddTag(ResourceLocation.fromNamespaceAndPath(this.getDefaultNamespace(), tagID)); }
 
     }
 

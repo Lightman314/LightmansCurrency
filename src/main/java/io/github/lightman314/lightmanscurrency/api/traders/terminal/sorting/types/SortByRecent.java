@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.types;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.TerminalSortType;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.InteractionNode;

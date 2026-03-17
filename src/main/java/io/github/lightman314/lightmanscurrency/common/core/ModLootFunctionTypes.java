@@ -15,8 +15,6 @@ public class ModLootFunctionTypes {
 
     public static final DeferredRegister<LootItemFunctionType<?>> REGISTER = DeferredRegister.create(BuiltInRegistries.LOOT_FUNCTION_TYPE,LightmansCurrency.MODID);
 
-    public static void init() {}
-
     public static final Supplier<LootItemFunctionType<ModelVariantLootFunction>> MODEL_VARIANT = register("model_variant",() -> ModelVariantLootFunction.CODEC);
 
     public static <T extends LootItemFunction> DeferredHolder<LootItemFunctionType<?>,LootItemFunctionType<T>> register(String id,Supplier<MapCodec<T>> codec) {

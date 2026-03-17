@@ -18,23 +18,18 @@ import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.fml.ModLoader;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class TradeRenderManager<T extends TradeData> {
 
     private static Map<Class<? extends TradeData>,Function<TradeData,TradeRenderManager<?>>> renderManagers;
@@ -144,7 +139,7 @@ public abstract class TradeRenderManager<T extends TradeData> {
     }
 
     private void addTradeRuleAlertData(List<AlertData> alerts, TradeContext context) {
-        if(context.hasTrader() && context.hasPlayerReference())
+        if(context.hasPlayerReference())
         {
             TradeEvent.PreTradeEvent pte = context.getTrader().runPreTradeEvent(this.trade, context);
             alerts.addAll(pte.getAlertInfo());
@@ -170,10 +165,12 @@ public abstract class TradeRenderManager<T extends TradeData> {
      */
     public List<Component> getAdditionalTooltips(TradeContext context, int mouseX, int mouseY) { return null; }
 
-    public final MutableComponent getStockTooltip(boolean isCreative, int stockCount)
+    public final Component getStockTooltip(TradeContext context) { return getStockTooltip(context,this.trade::getStock); }
+    public final Component getStockTooltip(TradeContext context,Function<TradeContext,Integer> tradeStock)
     {
-        return LCText.TOOLTIP_TRADE_INFO_STOCK.get(isCreative ? LCText.TOOLTIP_TRADE_INFO_STOCK_INFINITE.getWithStyle(ChatFormatting.GOLD) : EasyText.literal(String.valueOf(stockCount)).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GOLD);
+        return LCText.TOOLTIP_TRADE_INFO_STOCK.get(context.getTrader().hasInfiniteStock() ? LCText.TOOLTIP_TRADE_INFO_STOCK_INFINITE.getWithStyle(ChatFormatting.GOLD) : EasyText.literal(String.valueOf(tradeStock.apply(context))).withStyle(ChatFormatting.GOLD)).withStyle(ChatFormatting.GOLD);
     }
+
 
     @Nullable
     public final List<GhostSlot<?>> getGhostSlots(TradeContext context, @Nullable ITraderStorageMenu menu, ScreenPosition buttonPos) { if(context.isStorageMode) return this.collectGhostSlots(context,menu,buttonPos); return null; }

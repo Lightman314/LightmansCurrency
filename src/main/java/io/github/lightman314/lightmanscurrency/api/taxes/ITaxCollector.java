@@ -2,14 +2,15 @@ package io.github.lightman314.lightmanscurrency.api.taxes;
 
 import io.github.lightman314.lightmanscurrency.api.misc.world.WorldArea;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.network.IBuilderProvider;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
-import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
 
-public interface ITaxCollector extends IClientTracker {
+public interface ITaxCollector extends IClientTracker, IBuilderProvider {
 
     /**
      * The tax collectors id.
@@ -35,7 +36,7 @@ public interface ITaxCollector extends IClientTracker {
     /**
      * The tax collectors name.
      */
-    MutableComponent getName();
+    Component getName();
 
     /**
      * The owner of this tax collector.

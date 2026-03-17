@@ -47,7 +47,7 @@ public class GachaStorageTab extends TraderStorageNodeTab<GachaStorageNode> {
             for(int i = 0; i < upgrades.getSlots(); ++i)
             {
                 EasySlot upgradeSlot = new EasyItemHandlerSlot(upgrades, i, 176, 18 + 18 * i);
-                upgradeSlot.active = false;
+                upgradeSlot.setActive(false);
                 addSlot.apply(upgradeSlot);
                 this.slots.add(upgradeSlot);
             }
@@ -55,10 +55,10 @@ public class GachaStorageTab extends TraderStorageNodeTab<GachaStorageNode> {
     }
 
     @Override
-    public void onTabOpen() { EasySlot.SetActive(this.slots); }
+    public void onTabOpen() { EasySlot.SetActive(this.slots,true); }
 
     @Override
-    public void onTabClose() { EasySlot.SetInactive(this.slots); }
+    public void onTabClose() { EasySlot.SetActive(this.slots,false); }
 
     @Override
     public boolean quickMoveStack(ItemStack stack) {

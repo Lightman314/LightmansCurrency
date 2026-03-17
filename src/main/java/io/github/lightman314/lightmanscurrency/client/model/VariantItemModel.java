@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.model;
 
+import io.github.lightman314.lightmanscurrency.api.variants.item.data.VariantData;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.models.VariantModelLocation;
@@ -52,7 +53,7 @@ public class VariantItemModel extends BakedModelWrapper<BakedModel> {
 
     private BakedModel getModel(ItemStack item)
     {
-        ResourceLocation variantID = item.getOrDefault(ModDataComponents.MODEL_VARIANT,null);
+        ResourceLocation variantID = item.getOrDefault(ModDataComponents.MODEL_VARIANT,VariantData.NULL).variant();
         if(variantID == null)
             return this.defaultModel;
         if(this.itemModelCache.containsKey(variantID))

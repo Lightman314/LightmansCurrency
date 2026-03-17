@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.custom_models.CustomModelTest;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -29,6 +28,6 @@ public class BlockEntityTest extends CustomModelTest {
     @Override
     protected void writeAdditional(JsonObject json) { json.addProperty("type",this.type.toString()); }
 
-    public static BlockEntityTest parse(JsonObject json) throws JsonSyntaxException, ResourceLocationException { return new BlockEntityTest(VersionUtil.parseResource(GsonHelper.getAsString(json,"type"))); }
+    public static BlockEntityTest parse(JsonObject json) throws JsonSyntaxException, ResourceLocationException { return new BlockEntityTest(ResourceLocation.parse(GsonHelper.getAsString(json,"type"))); }
 
 }

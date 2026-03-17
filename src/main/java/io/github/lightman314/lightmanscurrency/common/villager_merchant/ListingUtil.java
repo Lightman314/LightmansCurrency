@@ -7,13 +7,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.ItemCost;
 
-import javax.annotation.Nonnull;
 import java.util.Optional;
 
 public class ListingUtil {
 
-    @Nonnull
-    public static ItemCost costFor(@Nonnull ItemStack stack)
+    public static ItemCost costFor(ItemStack stack)
     {
         if(stack.getComponents().isEmpty())
             return new ItemCost(stack.getItem(),stack.getCount());
@@ -25,8 +23,7 @@ public class ListingUtil {
         }
     }
 
-    @Nonnull
-    public static Optional<ItemCost> optionalCost(@Nonnull ItemStack stack)
+    public static Optional<ItemCost> optionalCost(ItemStack stack)
     {
         if(stack.isEmpty())
             return Optional.empty();

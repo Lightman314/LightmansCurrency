@@ -13,7 +13,6 @@ import io.github.lightman314.lightmanscurrency.api.money.coins.data.coin.CoinEnt
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValueParser;
 import io.github.lightman314.lightmanscurrency.util.NumberUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -60,7 +59,7 @@ public class CoinValueParser extends MoneyValueParser {
 
     @Nullable
     @Override
-    protected String writeValueArgument(@Nonnull MoneyValue value) {
+    protected String writeValueArgument(MoneyValue value) {
         if(value instanceof CoinValue coinValue)
         {
             StringBuilder builder = new StringBuilder();
@@ -81,7 +80,7 @@ public class CoinValueParser extends MoneyValueParser {
     private static MoneyValue TryParseCoin(MoneyValue result, StringReader reader, String coinIDString, int count) throws CommandSyntaxException
     {
         try {
-            ResourceLocation coinID = VersionUtil.parseResource(coinIDString);
+            ResourceLocation coinID = ResourceLocation.parse(coinIDString);
             Item coin = BuiltInRegistries.ITEM.get(coinID);
             ChainData chainData = CoinAPI.getApi().ChainDataOfCoin(coin);
             if(chainData == null)

@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraph
 import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.client.IconRenderer;
 import io.github.lightman314.lightmanscurrency.api.traders.blockentity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.builtin.settings.NodeSettingsSubTab;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.DisplayNode;
@@ -118,7 +119,7 @@ public class NameTab extends NodeSettingsSubTab<DisplayNode> implements IMouseLi
             //Render custom icon
             IconData icon = node.getCustomIcon();
             if(icon != null)
-                icon.render(gui, this.iconArea.pos);
+                IconRenderer.renderIcon(icon,gui,this.iconArea.pos);
         }
 
     }

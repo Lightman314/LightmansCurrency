@@ -5,19 +5,14 @@ import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValid
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidatorType;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class ItemValidator extends MenuValidator {
 
     public static MenuValidatorType TYPE = new Type();
@@ -53,7 +48,7 @@ public class ItemValidator extends MenuValidator {
         @Override
         public MenuValidator decode(FriendlyByteBuf buffer) { return new ItemValidator(BuiltInRegistries.ITEM.get(buffer.readResourceLocation())); }
         @Override
-        public MenuValidator load(CompoundTag tag) { return new ItemValidator(BuiltInRegistries.ITEM.get(VersionUtil.parseResource(tag.getString("Item")))); }
+        public MenuValidator load(CompoundTag tag) { return new ItemValidator(BuiltInRegistries.ITEM.get(ResourceLocation.parse(tag.getString("Item")))); }
     }
 
 }

@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
 import io.github.lightman314.lightmanscurrency.api.codecs.StreamHelper;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.BooleanOption;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
@@ -39,7 +40,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.builtin.
 import io.github.lightman314.lightmanscurrency.common.traders.auction.nodes.AuctionStorageNode;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.nodes.AuctionTradesNode;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -49,10 +50,10 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nullable;
@@ -168,16 +169,11 @@ public class AuctionTradeData extends TradeData {
 
 	List<ItemStack> auctionItems = new ArrayList<>();
 	public List<ItemStack> getAuctionItems() { return this.auctionItems; }
-	public void setAuctionItems(Container auctionItems) {
+	public void setAuctionItems(IItemHandler auctionItems) {
 		if(this.isActive())
 			return;
 		this.auctionItems.clear();
-		for(int i = 0; i < auctionItems.getContainerSize(); ++i)
-		{
-			ItemStack stack = auctionItems.getItem(i);
-			if(!stack.isEmpty())
-				this.auctionItems.add(stack.copy());
-		}
+        this.auctionItems.addAll(ItemHandlerUtil.toNonEmptyList(auctionItems));
 	}
 	
 	public AuctionTradeData(Player owner) {
@@ -429,9 +425,10 @@ public class AuctionTradeData extends TradeData {
 		//Do not run super.loadFromNBT() as we didn't saveItem the default data in the first place
 		ListTag itemList = compound.getList("SellItems", Tag.TAG_COMPOUND);
         List<ItemStack> auctionItems = new ArrayList<>();
-		for(int i = 0; i < itemList.size(); ++i)
+        DataContext<Tag> context = DataContext.createNBT(lookup);
+		for(Tag tag : itemList)
 		{
-			ItemStack stack = InventoryUtil.loadItemNoLimits(itemList.getCompound(i),lookup);
+			ItemStack stack = context.read(tag,CodecHelper.UNLIMITED_ITEM_OPTIONAL);
 			if(!stack.isEmpty())
 				auctionItems.add(stack);
 		}

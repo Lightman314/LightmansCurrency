@@ -1,13 +1,8 @@
 package io.github.lightman314.lightmanscurrency.common.text;
 
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.TerminalSortType;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class DualTextEntry {
 
     public final TextEntry first;

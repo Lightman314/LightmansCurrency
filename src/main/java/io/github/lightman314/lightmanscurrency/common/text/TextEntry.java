@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.common.text;
 
-import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.types.TextIcon;
@@ -11,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRule;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -21,20 +19,19 @@ import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
+import net.neoforged.jarjar.nio.util.Lazy;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public final class TextEntry {
 
-    private final Supplier<String> key;
+    private final Lazy<String> key;
     public String getKey() { return this.key.get(); }
-    public TextEntry(String key) { this.key = () -> key; }
-    public TextEntry(Supplier<String> key) { this.key = Suppliers.memoize(key::get); }
+    public TextEntry(String key) { this.key = Lazy.of(key); }
+    public TextEntry(Supplier<String> key) { this.key = Lazy.of(key); }
 
     public MutableComponent get(Object... objects) { return Component.translatableEscape(this.getKey(),objects);}
     public MutableComponent getWithStyle(ChatFormatting... format) { return Component.translatableEscape(this.getKey()).withStyle(format); }
@@ -69,14 +66,15 @@ public final class TextEntry {
     public static TextEntry description(TextEntry parent) { return extend(parent,"desc"); }
     public static TextEntry plural(TextEntry parent) { return extend(parent,"plural"); }
     public static TextEntry initial(TextEntry parent) { return extend(parent,"initial"); }
-    public static TextEntry tradeRule(TradeRuleType<?> type) { return new TextEntry(TradeRule.translationKeyOfType(type)); }
-    public static TextEntry tradeRuleMessage(TradeRuleType<?> type, String message) { return new TextEntry(TradeRule.translationKeyOfType(type) + "." + message); }
-    public static TextEntry notification(NotificationType<?> type) { return notification(LCRegistries.NOTIFICATION_TYPES.getKey(type)); }
-    public static TextEntry notification(ResourceLocation type) { return new TextEntry("notification." + type.getNamespace() + "." + type.getPath()); }
-    public static TextEntry notification(NotificationType<?> type, String extra) { return notification(LCRegistries.NOTIFICATION_TYPES.getKey(type),extra); }
-    public static TextEntry notification(ResourceLocation type, String extra) { return new TextEntry("notification." + type.getNamespace() + "." + type.getPath() + "." + extra); }
+    public static TextEntry tradeRule(TradeRuleType<?> type) { return new TextEntry(() -> TradeRule.translationKeyOfType(type)); }
+    public static TextEntry tradeRuleMessage(TradeRuleType<?> type, String message) { return new TextEntry(() -> TradeRule.translationKeyOfType(type) + "." + message); }
+    public static TextEntry notification(NotificationType<?> type) { return notification(() -> LCRegistries.NOTIFICATION_TYPES.getKey(type)); }
+    public static TextEntry notification(ResourceLocation type) { return notification(() -> type); }
+    public static TextEntry notification(Supplier<ResourceLocation> type) { return delayed(type,key -> "notification." + key.getNamespace() + "." + key.getPath()); }
+    public static TextEntry notification(NotificationType<?> type, String extra) { return notification(() -> LCRegistries.NOTIFICATION_TYPES.getKey(type),extra); }
+    public static TextEntry notification(ResourceLocation type, String extra) { return notification(() -> type,extra); }
+    public static TextEntry notification(Supplier<ResourceLocation> type, String extra) { return delayed(type,key -> "notification." + key.getNamespace() + "." + key.getPath() + "." + extra); }
     public static TextEntry terminalSortType(String modid, String id) { return new TextEntry("gui." + modid + ".terminal.sort_type." + id); }
-
 
     public static TextEntry dataName(String modid, String key) { return new TextEntry("data." + modid + ".name." + key); }
     public static TextEntry dataCategory(String modid, String key) { return new TextEntry("data." + modid + ".category." + key); }
@@ -99,6 +97,11 @@ public final class TextEntry {
     public static TextEntry curiosSlot(String type) { return new TextEntry("curios.identifier." + type); }
 
     public static TextEntry extend(TextEntry parent, String extra) { return new TextEntry(() -> parent.getKey() + "." + extra); }
+
+    private static TextEntry delayed(Supplier<ResourceLocation> keyGetter, Function<ResourceLocation,String> factory) {
+        return new TextEntry(() -> factory.apply(keyGetter.get()));
+    }
+
     @Override
     public String toString() { return this.get().getString(); }
 

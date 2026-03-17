@@ -27,10 +27,7 @@ import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.traders.item.trade.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.trade.restrictions.ItemTradeRestriction;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.components.EditBox;
@@ -49,10 +46,7 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollable, ITooltipSource {
 
 	private static ItemEditWidget latestInstance = null;
@@ -313,8 +307,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		}
 	}
 
-	private static boolean notYetInList(ItemStack stack) { return allItems.stream().noneMatch(s -> InventoryUtil.ItemMatches(s, stack)); }
-
+	private static boolean notYetInList(ItemStack stack) { return allItems.stream().noneMatch(s -> ItemStack.isSameItemSameComponents(s, stack)); }
 	
 	private List<ItemStack> getFilteredItems()
 	{
@@ -617,7 +610,6 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 
 	public static Builder builder() { return new Builder(); }
 
-	@FieldsAreNonnullByDefault
 	public static class Builder extends EasyBuilder<Builder>
 	{
 		private Builder() { super(18,18); }

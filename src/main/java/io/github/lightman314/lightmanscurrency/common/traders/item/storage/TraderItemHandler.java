@@ -6,7 +6,6 @@ import java.util.Map;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNode;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.InputNode;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -73,7 +72,7 @@ public class TraderItemHandler<T extends TraderData> {
 		private boolean allowedInGhostSlot(int slot, ItemStack stack)
 		{
 			if(slot >= this.getStorage().getContents().size())
-				return this.getStorage().getContents().stream().noneMatch(s -> InventoryUtil.ItemMatches(s,stack));
+				return this.getStorage().getContents().stream().noneMatch(s -> ItemStack.isSameItemSameComponents(s,stack));
 			//Not a bonus slot, so it's always allowed
 			return true;
 		}

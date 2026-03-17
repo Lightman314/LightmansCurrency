@@ -1,10 +1,10 @@
 package io.github.lightman314.lightmanscurrency.client.config;
 
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -30,9 +30,9 @@ public abstract class ItemTest implements Predicate<ItemStack> {
     {
         try {
             if(string.startsWith("#"))
-                return create(TagKey.create(Registries.ITEM, VersionUtil.parseResource(string.substring(1))));
+                return create(TagKey.create(Registries.ITEM,ResourceLocation.parse(string.substring(1))));
             else
-                return create(BuiltInRegistries.ITEM.get(VersionUtil.parseResource(string)));
+                return create(BuiltInRegistries.ITEM.get(ResourceLocation.parse(string)));
         } catch (ResourceLocationException e) { throw new ConfigParsingException(string + " is not a valid Resource Location"); }
     }
 

@@ -1,19 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.data.types;
 
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomData;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomDataType;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-@FieldsAreNonnullByDefault
 public class TicketDataCache extends CustomData {
 
     public static final CustomDataType<TicketDataCache> TYPE = new CustomDataType<>("lightmanscurrency_ticket_data",TicketDataCache::new);
@@ -26,10 +21,10 @@ public class TicketDataCache extends CustomData {
     public CustomDataType<?> getType() { return TYPE; }
 
     @Override
-    public void save(CompoundTag tag, HolderLookup.Provider lookup) { tag.putLong("NextID", this.nextID); }
+    public void save(CompoundTag tag,DataContext<Tag> context) { tag.putLong("NextID", this.nextID); }
 
     @Override
-    public void load(CompoundTag tag, HolderLookup.Provider lookup) { this.nextID = tag.getLong("NextID"); }
+    public void load(CompoundTag tag,DataContext<Tag> context) { this.nextID = tag.getLong("NextID"); }
 
     public long peekNextID() { return this.nextID; }
 

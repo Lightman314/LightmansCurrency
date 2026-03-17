@@ -2,7 +2,9 @@ package io.github.lightman314.lightmanscurrency.common.traders.item.client.trade
 
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.filter.FilterAPI;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeInteractionData;
@@ -16,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.builtin.BasicTradeEditTab;
+import io.github.lightman314.lightmanscurrency.common.traders.item.nodes.ItemStorageNode;
 import io.github.lightman314.lightmanscurrency.common.traders.item.tabs.ItemTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.client.TradeRenderManager;
@@ -23,29 +26,21 @@ import io.github.lightman314.lightmanscurrency.api.filter.IItemTradeFilter;
 import io.github.lightman314.lightmanscurrency.common.traders.item.trade.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.EasySlot;
 import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-@OnlyIn(Dist.CLIENT)
 public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
 
     public static final ResourceLocation NBT_SLOT = LightmansCurrency.id("item/empty_nbt_highlight");
@@ -106,14 +101,16 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
     {
         ItemStack internalItem = this.trade.getActualItem(index);
         IItemTradeFilter filter = FilterAPI.tryGetFilter(internalItem);
-        if(filter != null && this.trade.allowFilters() && filter.getFilter(internalItem) != null && context.getTrader() instanceof ItemTraderData trader)
+        TraderData trader = context.getTrader();
+        ItemStorageNode storageNode = context.getTrader().getNode(ItemStorageNode.TYPE);
+        if(filter != null && this.trade.allowFilters() && filter.getFilter(internalItem) != null)
         {
             List<ItemStack> displayItems;
             if(this.trade.isSale() || this.trade.isBarter())
             {
-                displayItems = filter.getDisplayableItems(internalItem,trader.getStorage());
+                displayItems = filter.getDisplayableItems(internalItem,storageNode.getStorage());
                 //Display all possible items if trader is creative but no display items could be found in storage
-                if(displayItems.isEmpty() && context.getTrader().isCreative())
+                if(displayItems.isEmpty() && context.getTrader().hasInfiniteStock())
                     displayItems = filter.getDisplayableItems(internalItem,null);
             }
             else
@@ -128,7 +125,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
             if(!context.isStorageMode && context.hasPlayerReference())
             {
                 tooltip.add(LCText.TOOLTIP_TRADE_INFO_TITLE.getWithStyle(ChatFormatting.GOLD));
-                tooltip.add(this.getStockTooltip(trader.isCreative(), this.trade.getStock(context)));
+                tooltip.add(this.getStockTooltip(context));
             }
             return ItemAndBackgroundEntry.of(displayItem,tooltip,FILTER_BACKGROUND);
         }
@@ -164,13 +161,10 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
             if(originalName != null)
                 tooltips.add(LCText.TOOLTIP_TRADE_INFO_ORIGINAL_NAME.get(originalName).withStyle(ChatFormatting.GOLD));
 
-            if(context.hasTrader() && context.hasPlayerReference())
+            if(context.hasPlayerReference() && context.hasTraderNode(ItemStorageNode.TYPE))
             {
                 //Stock
-                if(context.getTrader() instanceof ItemTraderData trader)
-                {
-                    tooltips.add(this.getStockTooltip(trader.isCreative(), this.trade.getStock(context)));
-                }
+                tooltips.add(this.getStockTooltip(context));
             }
         };
     }
@@ -241,32 +235,29 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
 
     @Override
     protected void getAdditionalAlertData(TradeContext context, List<AlertData> alerts) {
-        if(context.hasTrader() && context.getTrader() instanceof ItemTraderData trader)
+        TraderData trader = context.getTrader();
+        if(!trader.hasInfiniteStock())
         {
-            if(!trader.isCreative())
+            //Check Stock
+            if(this.trade.outOfStock(context))
+                alerts.add(AlertData.warn(LCText.TOOLTIP_OUT_OF_STOCK));
+
+            //Check Space (Purchase)
+            if(this.trade.isPurchase())
             {
-                //Check Stock
-                if(this.trade.outOfStock(context))
-                    alerts.add(AlertData.warn(LCText.TOOLTIP_OUT_OF_STOCK));
-
-                //Check Space (Purchase)
-                if(this.trade.isPurchase())
-                {
-                    if(!this.trade.hasSpace(trader, context.getCollectableItems(this.trade.getItemRequirement(0), this.trade.getItemRequirement(1))))
-                        alerts.add(AlertData.warn(LCText.TOOLTIP_OUT_OF_SPACE));
-                }
-                //Check Space (Barter)
-                if(this.trade.isBarter())
-                {
-                    if(!this.trade.hasSpace(trader, context.getCollectableItems(this.trade.getItemRequirement(2), this.trade.getItemRequirement(3))))
-                        alerts.add(AlertData.warn(LCText.TOOLTIP_OUT_OF_SPACE));
-                }
+                if(!this.trade.hasSpace(trader, context.getCollectableItems(this.trade.getItemRequirement(0), this.trade.getItemRequirement(1))))
+                    alerts.add(AlertData.warn(LCText.TOOLTIP_OUT_OF_SPACE));
             }
-            //Check whether they can afford the cost
-            if(!this.trade.canAfford(context))
-                alerts.add(AlertData.warn(LCText.TOOLTIP_CANNOT_AFFORD));
-
+            //Check Space (Barter)
+            if(this.trade.isBarter())
+            {
+                if(!this.trade.hasSpace(trader, context.getCollectableItems(this.trade.getItemRequirement(2), this.trade.getItemRequirement(3))))
+                    alerts.add(AlertData.warn(LCText.TOOLTIP_OUT_OF_SPACE));
+            }
         }
+        //Check whether they can afford the cost
+        if(!this.trade.canAfford(context))
+            alerts.add(AlertData.warn(LCText.TOOLTIP_CANNOT_AFFORD));
     }
 
     @Nullable
@@ -309,7 +300,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
         {
             return item -> {
                 ItemStack original = this.trade.getActualItem(slot).copy();
-                if(InventoryUtil.ItemMatches(item,original))
+                if(ItemStack.isSameItemSameComponents(item,original))
                 {
                     if(original.getCount() < original.getMaxStackSize())
                         original.grow(1);
@@ -326,7 +317,7 @@ public class ItemTradeButtonRenderer extends TradeRenderManager<ItemTradeData> {
     {
         TradeInteractionData interaction = TradeInteractionData.DUMMY;
         //Send right-click if the items are the same
-        if(InventoryUtil.ItemMatches(this.trade.getActualItem(slot),stack))
+        if(ItemStack.isSameItemSameComponents(this.trade.getActualItem(slot),stack))
             interaction = TradeInteractionData.DUMMY_RIGHT;
         final int s;
         if(this.trade.isPurchase())

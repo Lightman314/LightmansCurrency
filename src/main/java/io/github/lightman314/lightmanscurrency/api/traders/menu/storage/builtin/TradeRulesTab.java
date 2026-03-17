@@ -11,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
@@ -46,7 +45,7 @@ public abstract class TradeRulesTab extends TraderStorageTab {
     public void receiveMessage(LazyPacketData message) {
         if(message.contains("TradeRuleEdit"))
         {
-            ResourceLocation type = VersionUtil.parseResource(message.getString("TradeRuleEdit"));
+            ResourceLocation type = ResourceLocation.parse(message.getString("TradeRuleEdit"));
             this.EditTradeRule(type, message.copyToBuilder());
         }
     }

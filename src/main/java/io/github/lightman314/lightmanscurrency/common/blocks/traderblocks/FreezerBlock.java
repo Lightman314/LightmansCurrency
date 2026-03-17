@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.blocks.LazyShapes;
 import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModBlockEntities;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -20,8 +19,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
 import javax.annotation.Nullable;
 
@@ -49,14 +46,12 @@ public class FreezerBlock extends TraderBlockTallRotatable implements IItemTrade
 	@Nullable
 	public ResourceLocation getCustomDefaultModel(int index) { return this.getDoorModel(); }
 
-	@OnlyIn(Dist.CLIENT)
-	
 	public ResourceLocation getDoorModel() { return this.doorModel; }
 
 	public static ResourceLocation GenerateDoorModel(Color color) { return GenerateDoorModel(LightmansCurrency.MODID, color); }
 
 	public static ResourceLocation GenerateDoorModel(String namespace, Color color) {
-		return VersionUtil.modResource(namespace, "block/freezer/doors/" + color.getResourceSafeName());
+		return ResourceLocation.fromNamespaceAndPath(namespace, "block/freezer/doors/" + color.getResourceSafeName());
 	}
 	
 	@Override

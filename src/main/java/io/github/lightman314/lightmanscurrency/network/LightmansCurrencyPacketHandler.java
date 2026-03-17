@@ -8,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.network.message.command.*;
 import io.github.lightman314.lightmanscurrency.network.message.config.*;
 import io.github.lightman314.lightmanscurrency.network.message.data.*;
 import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.*;
-import io.github.lightman314.lightmanscurrency.network.message.interfacebe.*;
 import io.github.lightman314.lightmanscurrency.network.message.lazy.*;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.*;
 import io.github.lightman314.lightmanscurrency.network.message.paygate.*;
@@ -71,9 +70,6 @@ public class LightmansCurrencyPacketHandler {
 		registerS2C(SPacketStartBid.HANDLER);
 		registerC2S(CPacketSubmitBid.HANDLER);
 		registerS2C(SPacketSyncAuctionStandDisplay.HANDLER);
-		
-		//Trader Interfaces
-		registerC2S(CPacketInterfaceHandlerMessage.HANDLER);
 		
 		//Teams
 		registerC2S(CPacketOpenTeamManager.HANDLER);

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.client.renderer.entity.layers;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
+import io.github.lightman314.lightmanscurrency.api.variants.item.data.VariantData;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.models.VariantModelLocation;
@@ -72,7 +73,7 @@ public class WalletLayer<T extends LivingEntity, M extends EntityModel<T>> exten
         IVariantItem variantItem = VariantProvider.getVariantItem(wallet);
         if(variantItem != null)
         {
-            ResourceLocation variantID = wallet.getOrDefault(ModDataComponents.MODEL_VARIANT,null);
+            ResourceLocation variantID = wallet.getOrDefault(ModDataComponents.MODEL_VARIANT,VariantData.NULL).variant();
             if(variantID != null)
             {
                 ModelVariant variant = ModelVariantDataManager.getVariant(variantID);

@@ -6,7 +6,6 @@ import io.github.lightman314.lightmanscurrency.common.traders.item.client.tabs.t
 import io.github.lightman314.lightmanscurrency.common.traders.item.tabs.ItemTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ticket.TicketItemTrade;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ticket.TicketSaleData;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.annotation.Nullable;
@@ -95,7 +94,7 @@ public class ItemTradeTicketEditTab extends ItemTradeEditTab {
         {
             int slot = message.getInt("Slot");
             if(message.contains("ChangeRecipe"))
-                this.ChangeRecipe(VersionUtil.parseResource(message.getString("ChangeRecipe")),slot);
+                this.ChangeRecipe(ResourceLocation.parse(message.getString("ChangeRecipe")),slot);
             if(message.contains("DeleteRecipe"))
                 this.ChangeRecipe(null,slot);
             if(message.contains("ChangeCode"))

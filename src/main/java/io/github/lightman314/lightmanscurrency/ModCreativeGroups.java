@@ -3,6 +3,8 @@ package io.github.lightman314.lightmanscurrency;
 import com.google.common.base.Suppliers;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
+import io.github.lightman314.lightmanscurrency.api.variants.item.data.VariantData;
+import io.github.lightman314.lightmanscurrency.api.variants.item.data.VariantLock;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
@@ -24,7 +26,6 @@ import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Unit;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.ItemLike;
@@ -140,9 +141,9 @@ public class ModCreativeGroups {
                 for(Pair<ResourceLocation,ModelVariant> entry : foundVariants)
                 {
                     ItemStack stack = new ItemStack(item);
-                    stack.set(ModDataComponents.MODEL_VARIANT,entry.getFirst());
+                    stack.set(ModDataComponents.MODEL_VARIANT,new VariantData(entry.getFirst()));
                     if(entry.getSecond().getOrDefault(VariantProperties.SHOW_IN_CREATIVE).locked())
-                        stack.set(ModDataComponents.VARIANT_LOCK, Unit.INSTANCE);
+                        stack.set(ModDataComponents.VARIANT_LOCK,VariantLock.INSTANCE);
                     populator.accept(stack);
                 }
             }

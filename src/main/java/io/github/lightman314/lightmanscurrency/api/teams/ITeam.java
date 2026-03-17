@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.teams;
 
 import com.google.common.collect.ImmutableList;
-import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.network.IBuilderProvider;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public interface ITeam extends IClientTracker, LazyPacketData.IBuilderProvider {
+public interface ITeam extends IClientTracker, IBuilderProvider {
 
     long getID();
     String getName();

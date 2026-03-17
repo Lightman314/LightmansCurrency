@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.IEasyScreen;
 import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.ITooltipWidget;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
+import io.github.lightman314.lightmanscurrency.api.variants.item.data.VariantData;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperties;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.TooltipInfo;
@@ -73,7 +74,7 @@ public class ModelVariantButton extends EasyButton implements ITooltipWidget {
         else if(entry.getFirst() != null)
         {
             ItemStack item = new ItemStack(this.targetSource.get());
-            item.set(ModDataComponents.MODEL_VARIANT,entry.getFirst());
+            item.set(ModDataComponents.MODEL_VARIANT,new VariantData(entry.getFirst()));
             gui.renderItem(item,1,1);
         }
         if(this.isMouseOver(gui.mousePos))

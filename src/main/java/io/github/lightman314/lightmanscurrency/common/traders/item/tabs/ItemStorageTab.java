@@ -15,11 +15,15 @@ import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.EasySlot;
 import io.github.lightman314.lightmanscurrency.common.traders.item.nodes.ItemStorageNode;
 import io.github.lightman314.lightmanscurrency.common.traders.item.storage.TraderItemStorage;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemHandlerHelper;
+import net.neoforged.neoforge.items.wrapper.PlayerMainInvWrapper;
 
 public class ItemStorageTab extends TraderStorageNodeTab<ItemStorageNode> {
 
@@ -46,7 +50,7 @@ public class ItemStorageTab extends TraderStorageNodeTab<ItemStorageNode> {
             for(int i = 0; i < upgrades.getSlots(); ++i)
             {
                 EasySlot upgradeSlot = new EasyItemHandlerSlot(upgrades, i, 176, 18 + 18 * i);
-                upgradeSlot.active = false;
+                upgradeSlot.setActive(false);
                 addSlot.apply(upgradeSlot);
                 this.slots.add(upgradeSlot);
             }
@@ -54,10 +58,10 @@ public class ItemStorageTab extends TraderStorageNodeTab<ItemStorageNode> {
     }
 
     @Override
-    public void onTabOpen() { EasySlot.SetActive(this.slots); }
+    public void onTabOpen() { EasySlot.SetActive(this.slots,true); }
 
     @Override
-    public void onTabClose() { EasySlot.SetInactive(this.slots); }
+    public void onTabClose() { EasySlot.SetActive(this.slots,false); }
 
     @Override
     public boolean quickMoveStack(ItemStack stack) {
@@ -175,7 +179,8 @@ public class ItemStorageTab extends TraderStorageNodeTab<ItemStorageNode> {
             if(this.isPersistent())
                 return;
             TraderItemStorage storage = node.getStorage();
-            Inventory inv = this.menu.getPlayer().getInventory();
+            Player player = this.menu.getPlayer();
+            Inventory inv = player.getInventory();
             boolean changed = false;
             if(type == 0)
             {
@@ -196,23 +201,25 @@ public class ItemStorageTab extends TraderStorageNodeTab<ItemStorageNode> {
             else if(type == 1)
             {
                 //Quick Extract
-                List<ItemStack> itemList = InventoryUtil.copyList(storage.getContents());
+                List<ItemStack> itemList = ItemHandlerUtil.copyList(storage.getContents());
                 for(ItemStack stack : itemList)
                 {
                     boolean keepTrying = true;
+                    IItemHandler mainInventory = new PlayerMainInvWrapper(inv);
                     while(storage.getItemCount(stack) > 0 && keepTrying)
                     {
                         ItemStack transferStack = stack.copy();
-                        int transferCount = Math.min(storage.getItemCount(stack), stack.getMaxStackSize());
+                        int transferCount = Math.min(storage.getItemCount(stack),stack.getMaxStackSize());
                         transferStack.setCount(transferCount);
                         //Attempt to move the stack into the players inventory
-                        int removedCount = InventoryUtil.safeGiveToPlayer(inv, transferStack);
+                        ItemStack remainder = ItemHandlerHelper.insertItemStacked(mainInventory,transferStack,false);
+                        int removedCount = transferCount - remainder.getCount();
                         if(removedCount > 0)
                         {
                             //Remove the transferred amount from storage
                             ItemStack removeStack = stack.copy();
                             removeStack.setCount(removedCount);
-                            storage.removeItemLimited(removeStack);
+                            storage.removeItemUnlimited(removeStack);
                         }
                         else
                             keepTrying = false;

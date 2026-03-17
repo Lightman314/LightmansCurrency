@@ -68,7 +68,7 @@ public class CashRegisterPeripheral extends MultiTraderPeripheral {
         BlockPos newPos = new BlockPos(x,y,z);
         BlockState state = this.be.getLevel().getBlockState(newPos);
         if(state instanceof ICapabilityBlock capBlock)
-            newPos = capBlock.getCapabilityBlockPos(state,this.be.getLevel(),newPos);
+            newPos = capBlock.getCapabilityBlockPos(state,newPos);
         BlockEntity newBE = this.be.getLevel().getBlockEntity(newPos);
         if(newBE instanceof TraderBlockEntity<?> tbe)
             newPos = tbe.getBlockPos();

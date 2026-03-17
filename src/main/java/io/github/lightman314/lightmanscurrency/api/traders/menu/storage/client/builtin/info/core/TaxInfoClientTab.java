@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.TaxesNode;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.builtin.info.InfoSubTab;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.builtin.info.TraderInfoClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
@@ -17,12 +18,10 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
 import io.github.lightman314.lightmanscurrency.common.menus.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
-import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -35,7 +34,6 @@ public class TaxInfoClientTab extends InfoSubTab implements IScrollable, ITaxInf
 
     private int scroll = 0;
 
-    @Nonnull
     @Override
     public IconData getIcon() { return IconUtil.ICON_TAXES; }
     @Nullable
@@ -69,25 +67,25 @@ public class TaxInfoClientTab extends InfoSubTab implements IScrollable, ITaxInf
     }
 
     @Override
-    public void renderBG(@Nonnull EasyGuiGraphics gui) {
-        TraderData trader = this.getTrader();
-        if(trader != null)
+    public void renderBG(EasyGuiGraphics gui) {
+        TaxesNode node = this.getNode(TaxesNode.TYPE);
+        if(node != null)
         {
-            Pair<Integer,Integer> result = trader.getTotalTaxPercentageRange();
+            Pair<Integer,Integer> result = node.getTotalTaxPercentageRange();
             if(Objects.equals(result.getFirst(), result.getSecond()))
                 TextRenderUtil.drawCenteredText(gui, LCText.GUI_TRADER_TAXES_TOTAL_RATE.get(result.getFirst()), this.screen.getXSize() / 2, 6, 0x404040);
             else
                 TextRenderUtil.drawCenteredText(gui, LCText.GUI_TRADER_TAXES_TOTAL_RATE_RANGE.get(result.getFirst(),result.getSecond()), this.screen.getXSize() / 2, 6, 0x404040);
 
-            if(trader.getPossibleTaxes().isEmpty())
+            if(node.getPossibleTaxes().isEmpty())
                 TextRenderUtil.drawCenteredMultilineText(gui, LCText.GUI_TRADER_TAXES_NO_TAX_COLLECTORS.get(), 10, this.screen.getXSize() - 20, 60, 0x404040);
         }
     }
 
     private List<ITaxCollector> getAllEntries() {
-        TraderData trader = this.menu.getTrader();
-        if(trader != null)
-            return trader.getPossibleTaxes();
+        TaxesNode node = this.getNode(TaxesNode.TYPE);
+        if(node != null)
+            return node.getPossibleTaxes();
         return new ArrayList<>();
     }
 
@@ -103,10 +101,6 @@ public class TaxInfoClientTab extends InfoSubTab implements IScrollable, ITaxInf
 
     @Override
     public void tick() { this.validateScroll(); }
-
-    @Nullable
-    @Override
-    public TraderData getTrader() { return this.menu.getTrader(); }
 
     @Override
     public boolean canPlayerForceIgnore() { return LCAdminMode.isAdminPlayer(this.menu.getPlayer()); }

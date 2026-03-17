@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.resources.model.*;
@@ -75,7 +74,7 @@ public class VariantModelHelper {
         if(properties.requiredModels() <= 0)
             return new ArrayList<>();
         //Intiailize list that should be built
-        List<ResourceLocation> models = NonNullList.withSize(properties.requiredModels(),VersionUtil.vanillaResource("null"));
+        List<ResourceLocation> models = NonNullList.withSize(properties.requiredModels(),ResourceLocation.withDefaultNamespace("null"));
         if(properties.modelsFromBlockState() > 0)
         {
             Block b = BuiltInRegistries.BLOCK.get(properties.target());
@@ -122,9 +121,9 @@ public class VariantModelHelper {
     public static Function<String,ResourceLocation> createIDGenerator(ResourceLocation variantID, @Nullable ResourceLocation target)
     {
         if(target == null)
-            return s -> VersionUtil.modResource(variantID.getNamespace(),"lc_model_variants/" + variantID.getPath() + "/" + s);
+            return s -> ResourceLocation.fromNamespaceAndPath(variantID.getNamespace(),"lc_model_variants/" + variantID.getPath() + "/" + s);
         else
-            return s -> VersionUtil.modResource(variantID.getNamespace(),"lc_model_variants/" + variantID.getPath() + "/" + target.getNamespace() + "/" + target.getPath() + "/" + s);
+            return s -> ResourceLocation.fromNamespaceAndPath(variantID.getNamespace(),"lc_model_variants/" + variantID.getPath() + "/" + target.getNamespace() + "/" + target.getPath() + "/" + s);
     }
 
 }

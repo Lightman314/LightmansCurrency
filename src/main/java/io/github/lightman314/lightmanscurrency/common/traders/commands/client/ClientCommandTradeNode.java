@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
+import io.github.lightman314.lightmanscurrency.api.traders.client.IClientMiscTabAddonProvider;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.builtin.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.client.ClientTradeOfferNode;
@@ -16,7 +17,7 @@ import io.github.lightman314.lightmanscurrency.common.traders.commands.nodes.Com
 
 import java.util.List;
 
-public class ClientCommandTradeNode extends ClientTradeOfferNode<CommandTradeNode> {
+public class ClientCommandTradeNode extends ClientTradeOfferNode<CommandTradeNode> implements IClientMiscTabAddonProvider {
 
     public ClientCommandTradeNode(CommandTradeNode node) { super(node); }
 

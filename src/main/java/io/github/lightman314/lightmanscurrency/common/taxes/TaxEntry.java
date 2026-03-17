@@ -3,16 +3,20 @@ package io.github.lightman314.lightmanscurrency.common.taxes;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.data.IRegistryAccess;
 import io.github.lightman314.lightmanscurrency.api.money.bank.IBankAccount;
 import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.builtin.MoneyStorage;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.FakeOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxable;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxableContext;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
+import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets;
 import io.github.lightman314.lightmanscurrency.common.data.types.TaxDataCache;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.TaxCollectorMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
@@ -28,10 +32,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.world.WorldArea;
 import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableReference;
 import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
-import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -40,16 +41,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-public class TaxEntry implements ITaxCollector {
+public class TaxEntry extends IRegistryAccess.Holder implements ITaxCollector {
 
     public static final long SERVER_TAX_ID = -9;
 
@@ -63,6 +60,10 @@ public class TaxEntry implements ITaxCollector {
     public static int maxTaxRate() { return LCConfig.SERVER.taxCollectorMaxRate.get(); }
 
     public final TaxStats stats = new TaxStats(this);
+    public void setStatsChanged() {
+        this.setChanged(builder -> builder
+                .setTag("Stats",this.stats.save(DataContext.createNBT(this.registryAccess()))));
+    }
 
     private boolean locked = true;
     public final TaxEntry unlock() { this.locked = false; return this; }
@@ -75,19 +76,51 @@ public class TaxEntry implements ITaxCollector {
 
     private WorldPosition center = WorldPosition.VOID;
     public WorldPosition getCenter() { return this.center; }
-    public void moveCenter(WorldPosition newPosition) { if(this.center.equals(newPosition)) return; this.center = newPosition; this.markCenterDirty(); }
+    public void moveCenter(WorldPosition newPosition) {
+        if(this.center.equals(newPosition))
+            return;
+        this.center = newPosition;
+        this.setChanged(builder -> builder.setCustom("Center",this.center,ModLazyPackets.WORLD_POS));
+    }
     @Override
     public WorldArea getArea() { return this.isInfiniteRange() ? WorldArea.ofInfiniteRange(this.center) : this.center.getArea(this.getRadius(), this.getHeight(), this.getVertOffset()); }
 
     private int radius = 10;
     public int getRadius() { return MathUtil.clamp(this.radius, minRadius(), maxRadius()); }
-    public void setRadius(int newRadius) { if(this.isInfiniteRange()) return; this.radius = MathUtil.clamp(newRadius, minRadius(), maxRadius()); this.markAreaDirty(); }
+    public void setRadius(int newRadius) {
+        if(this.isInfiniteRange())
+            return;
+        newRadius = MathUtil.clamp(newRadius, minRadius(), maxRadius());
+        if(this.radius != newRadius)
+        {
+            this.radius = newRadius;
+            this.setChanged(builder -> builder.setInt("Radius",this.radius));
+        }
+    }
     private int height = 10;
     public int getHeight() { return MathUtil.clamp(this.height, minHeight(), maxHeight()); }
-    public void setHeight(int newHeight) { if(this.isInfiniteRange()) return; this.height = MathUtil.clamp(newHeight, minHeight(), maxHeight()); this.markAreaDirty(); }
+    public void setHeight(int newHeight) {
+        if(this.isInfiniteRange())
+            return;
+        newHeight = MathUtil.clamp(newHeight, minHeight(), maxHeight());
+        if(this.height != newHeight)
+        {
+            this.height = newHeight;
+            this.setChanged(builder -> builder.setInt("Height",this.height));
+        }
+    }
     private int vertOffset = 0;
     public int getVertOffset() { return MathUtil.clamp(this.vertOffset, minVertOffset(), maxVertOffset()); }
-    public void setVertOffset(int newVertOffset) { if(this.isInfiniteRange()) return; this.vertOffset = MathUtil.clamp(newVertOffset, minVertOffset(), maxVertOffset()); this.markAreaDirty(); }
+    public void setVertOffset(int newVertOffset) {
+        if(this.isInfiniteRange())
+            return;
+        newVertOffset = MathUtil.clamp(newVertOffset, minVertOffset(), maxVertOffset());
+        if(this.vertOffset != newVertOffset)
+        {
+            this.vertOffset = newVertOffset;
+            this.setChanged(builder -> builder.setInt("VertOffset",this.vertOffset));
+        }
+    }
 
     /**
      * Render Modes:
@@ -97,7 +130,14 @@ public class TaxEntry implements ITaxCollector {
      */
     private int renderMode = 1;
     public int getRenderMode() { if(this.isInfiniteRange()) return 0; return this.renderMode; }
-    public void setRenderMode(int newRenderMode) { this.renderMode = newRenderMode % 3; this.markRenderModeDirty(); }
+    public void setRenderMode(int newRenderMode) {
+        newRenderMode = newRenderMode % 3;
+        if(this.renderMode != newRenderMode)
+        {
+            this.renderMode = newRenderMode;
+            this.setChanged(builder -> builder.setInt("RenderMode",this.renderMode));
+        }
+    }
     public boolean shouldRender(Player player)
     {
         //Don't renderBG the area if there is no area to draw (because infinite range)
@@ -135,7 +175,14 @@ public class TaxEntry implements ITaxCollector {
 
     private int taxRate = 1;
     public int getTaxRate() { return MathUtil.clamp(this.taxRate, 0, maxTaxRate()); }
-    public void setTaxRate(int newPercentage) { this.taxRate = MathUtil.clamp(newPercentage, 1, maxTaxRate()); this.markTaxPercentageDirty(); }
+    public void setTaxRate(int newPercentage) {
+        newPercentage = MathUtil.clamp(newPercentage, 1, maxTaxRate());
+        if(this.taxRate != newPercentage)
+        {
+            this.taxRate = newPercentage;
+            this.setChanged(builder -> builder.setInt("TaxRate",this.taxRate));
+        }
+    }
 
     private String name = "";
     public boolean hasCustomName() { return !this.name.isBlank(); }
@@ -143,17 +190,25 @@ public class TaxEntry implements ITaxCollector {
     @Override
     
     public MutableComponent getName() { if(this.name.isBlank()) return this.getDefaultName(); return EasyText.literal(this.name); }
-    public void setName(String name) { this.name = name; this.markNameDirty(); }
+    public void setName(String name) {
+        if(this.name.equals(name))
+            return;
+        this.name = name;
+        this.setChanged(builder -> builder.setString("Name",this.name));
+    }
     protected MutableComponent getDefaultName() { return LCText.GUI_TAX_COLLECTOR_DEFAULT_NAME.get(this.isServerEntry() ? LCText.GUI_TAX_COLLECTOR_DEFAULT_NAME_SERVER.get() : this.owner.getName()); }
 
-    private final OwnerData owner = new OwnerData(this, this::markOwnerDirty);
+    private final OwnerData owner = new OwnerData(this,this::setOwnerChanged);
     @Override
-    
     public OwnerData getOwner() { return this.owner; }
     public final boolean canAccess(Player player) { if(this.isServerEntry()) return player.hasPermissions(2); return this.owner.isMember(player); }
 
+    private void setOwnerChanged() {
+        this.setChanged(builder -> builder.setCustom("Owner",this.owner,ModLazyPackets.OWNER_DATA));
+    }
+
     //Stored Money
-    private final MoneyStorage storedMoney = new MoneyStorage(this::markStoredMoneyDirty);
+    private final MoneyStorage storedMoney = new MoneyStorage().withListener(this::setStoredMoneyChanged);
     public MoneyStorage getStoredMoney() { return this.storedMoney; }
     public void depositMoney(MoneyValue amount) {
         IBankAccount account = this.getBankAccount();
@@ -166,8 +221,10 @@ public class TaxEntry implements ITaxCollector {
         this.storedMoney.addValue(amount);
     }
     public void clearStoredMoney() { this.storedMoney.clear(); }
+    private void setStoredMoneyChanged() {
+        this.setChanged(builder -> builder.setList("StoredMoney",this.storedMoney.allValues(),ModLazyPackets.MONEY_VALUE));
+    }
 
-    
     public final MoneyValue CalculateAndPayTaxes(ITaxable taxable, MoneyValue taxableAmount)
     {
         MoneyValue amountToPay = taxableAmount.percentageOfValue(this.getTaxRate());
@@ -195,7 +252,13 @@ public class TaxEntry implements ITaxCollector {
 
     //Linked Bank Account?
     private boolean linkToBank = false;
-    public void setLinkedToBank(boolean newState) { this.linkToBank = newState; this.markBankStateDirty(); }
+    public void setLinkedToBank(boolean newState) {
+        if(this.linkToBank != newState)
+        {
+            this.linkToBank = newState;
+            this.setChanged(builder -> builder.setBoolean("BankLink",this.linkToBank));
+        }
+    }
     public boolean isLinkedToBank() { return this.linkToBank && !this.isServerEntry(); }
     @Nullable
     public final IBankAccount getBankAccount()
@@ -216,7 +279,7 @@ public class TaxEntry implements ITaxCollector {
             return;
 
         this.logger.addNotification(notification.get());
-        this.markNotificationsDirty();
+        this.setChanged(builder -> builder.addToList("AddNotification",notification.get(),ModLazyPackets.NOTIFICATION));
     }
 
     //Accepted Entries
@@ -229,7 +292,7 @@ public class TaxEntry implements ITaxCollector {
         if(!this.acceptedEntries.contains(reference) && reference != null)
         {
             this.acceptedEntries.add(reference);
-            this.markAcceptedEntriesDirty();
+            this.setChanged(builder -> builder.setList("AcceptedEntries",this.acceptedEntries,ModLazyPackets.TAXABLE_REFERENCE));
         }
     }
     public final void TaxableWasRemoved(ITaxable entry)
@@ -238,7 +301,7 @@ public class TaxEntry implements ITaxCollector {
         if(this.acceptedEntries.contains(reference))
         {
             this.acceptedEntries.remove(reference);
-            this.markAcceptedEntriesDirty();
+            this.setChanged(builder -> builder.setList("AcceptedEntries",this.acceptedEntries,ModLazyPackets.TAXABLE_REFERENCE));
         }
     }
 
@@ -269,21 +332,49 @@ public class TaxEntry implements ITaxCollector {
             return;
         }
         this.active = newState;
-        this.markActiveStateDirty();
+        this.setChanged(builder -> builder.setBoolean("Active",this.active));
     }
     private boolean forceAcceptance = false;
     public boolean forcesAcceptance() { return this.forceAcceptance || this.isServerEntry(); }
-    public void setForceAcceptance(boolean isAdmin) { if(this.isServerEntry()) return; this.forceAcceptance = isAdmin; this.markAdminStateDirty(); }
+    public void setForceAcceptance(boolean forceAcceptance) {
+        if(this.isServerEntry() || this.forceAcceptance == forceAcceptance)
+            return;
+        this.forceAcceptance = forceAcceptance;
+        this.setChanged(builder -> builder.setBoolean("ForceAcceptance",this.forceAcceptance));
+    }
     private boolean infiniteRange = false;
     public boolean isInfiniteRange() { return this.infiniteRange || this.isServerEntry(); }
-    public void setInfiniteRange(boolean infiniteRange) { if(this.isServerEntry()) return; this.infiniteRange = infiniteRange; this.markAdminStateDirty(); }
+    public void setInfiniteRange(boolean infiniteRange) {
+        if(this.isServerEntry() || this.infiniteRange == infiniteRange)
+            return;
+        this.infiniteRange = infiniteRange;
+        this.setChanged(builder -> builder.setBoolean("InfiniteRange",this.infiniteRange));
+    }
     private boolean onlyTargetNetwork = false;
     public boolean isOnlyTargetingNetwork() { return this.isServerEntry() && this.onlyTargetNetwork; }
-    public void setOnlyTargetingNetwork(boolean newValue) { if(this.isServerEntry()) { this.onlyTargetNetwork = newValue; this.markServerOptionsDirty(); } }
+    public void setOnlyTargetingNetwork(boolean newValue) {
+        if(this.isServerEntry() && this.onlyTargetNetwork != newValue)
+        {
+            this.onlyTargetNetwork = newValue;
+            this.setChanged(builder -> builder.setBoolean("OnlyNetwork",this.onlyTargetNetwork));
+        }
+    }
 
-    protected final void markDirty(CompoundTag packet) { if(this.locked || this.isClient) return; TaxDataCache.TYPE.get(false).markEntryDirty(this.id,packet); }
-    protected final void markDirty(Function<CompoundTag,CompoundTag> packet) { this.markDirty(packet.apply(new CompoundTag()));}
-    protected final void markDirty(BiFunction<CompoundTag,HolderLookup.Provider,CompoundTag> packet) { this.markDirty(packet.apply(new CompoundTag(),LookupHelper.getRegistryAccess()));}
+    @Nullable
+    private LazyPacketData.Builder changedData = null;
+
+    protected final void setChanged(Consumer<LazyPacketData.Builder> dataWriter) {
+        if(this.locked || this.isClient)
+            return;
+        TaxDataCache.TYPE.get(false).setEntryChanged(this.id);
+        if(this.changedData != null)
+            this.changedData = this.builder();
+    }
+    public LazyPacketData clean() {
+        LazyPacketData result = this.changedData == null ? this.builder().build() : this.changedData.build();
+        this.changedData = null;
+        return result;
+    }
 
     public TaxEntry() { }
     public TaxEntry(long id, @Nullable BlockEntity core, @Nullable Player owner)
@@ -300,17 +391,17 @@ public class TaxEntry implements ITaxCollector {
             player.openMenu(new TaxCollectorMenuProvider(this.id, validator), EasyMenu.encoder(d -> d.writeLong(this.id), validator));
     }
 
-    public CompoundTag save(HolderLookup.Provider lookup)
+    public CompoundTag save(DataContext<Tag> context)
     {
         CompoundTag tag = new CompoundTag();
         tag.putLong("ID", this.id);
 
         this.saveTaxRate(tag);
-        this.saveStoredMoney(tag, lookup);
+        this.saveStoredMoney(tag,context);
         this.saveActiveState(tag);
         this.saveName(tag);
-        this.saveNotifications(tag, lookup);
-        this.saveStats(tag, lookup);
+        this.saveNotifications(tag,context);
+        this.saveStats(tag,context);
 
         if(!this.isServerEntry())
         {
@@ -318,7 +409,7 @@ public class TaxEntry implements ITaxCollector {
             this.saveCenter(tag);
             this.saveArea(tag);
             this.saveRenderMode(tag);
-            this.saveOwner(tag,lookup);
+            this.saveOwner(tag,context);
             this.saveAdminState(tag);
             this.saveAcceptedEntries(tag);
             this.saveBankState(tag);
@@ -329,108 +420,74 @@ public class TaxEntry implements ITaxCollector {
         return tag;
     }
 
-    public final void markAreaDirty() { this.markDirty(this::saveArea);}
-
-    protected final CompoundTag saveArea(CompoundTag tag) {
+    protected final void saveArea(CompoundTag tag) {
         tag.putInt("HorizRadius", this.radius);
         tag.putInt("VertSize", this.height);
         tag.putInt("VertOffset", this.vertOffset);
-        return tag;
     }
 
-    public final void markRenderModeDirty() { this.markDirty(this::saveRenderMode); }
-
-    protected final CompoundTag saveRenderMode(CompoundTag tag) {
+    protected final void saveRenderMode(CompoundTag tag) {
         tag.putInt("RenderMode", this.renderMode);
-        return tag;
     }
 
-    public final void markCenterDirty() { this.markDirty(this::saveCenter); }
-
-    protected final CompoundTag saveCenter(CompoundTag tag) {
+    protected final void saveCenter(CompoundTag tag) {
         tag.put("Center", this.center.save());
-        return tag;
     }
 
-    public final void markTaxPercentageDirty() { this.markDirty(this::saveTaxRate); }
-    protected final CompoundTag saveTaxRate(CompoundTag tag) {
+    protected final void saveTaxRate(CompoundTag tag) {
         tag.putInt("TaxRate", this.taxRate);
-        return tag;
     }
 
-    public final void markNameDirty() { this.markDirty(this::saveName); }
-    protected final CompoundTag saveName(CompoundTag tag) {
+    protected final void saveName(CompoundTag tag) {
         tag.putString("CustomName", this.name);
-        return tag;
     }
 
-    public final void markOwnerDirty() { this.markDirty(this::saveOwner); }
-
-    protected final CompoundTag saveOwner(CompoundTag tag, HolderLookup.Provider lookup) {
-        tag.put("Owner", this.owner.save(lookup));
-        return tag;
+    protected final void saveOwner(CompoundTag tag,DataContext<Tag> context) {
+        tag.put("Owner",this.owner.save(context));
     }
 
-    public final void markStoredMoneyDirty() { this.markDirty(this::saveStoredMoney); }
-    protected final CompoundTag saveStoredMoney(CompoundTag tag, HolderLookup.Provider lookup) {
+    protected final void saveStoredMoney(CompoundTag tag,DataContext<Tag> context) {
         tag.put("StoredMoney", this.storedMoney.save());
-        return tag;
     }
 
-    public final void markAdminStateDirty() { this.markDirty(this::saveAdminState); }
-
-    protected final CompoundTag saveAdminState(CompoundTag tag) {
+    protected final void saveAdminState(CompoundTag tag) {
         tag.putBoolean("ForceAcceptance",this.forceAcceptance);
         tag.putBoolean("IsInfiniteRange",this.infiniteRange);
-        return tag;
     }
 
-    public final void markActiveStateDirty() { this.markDirty(this::saveActiveState); }
-    protected final CompoundTag saveActiveState(CompoundTag tag) {
+    protected final void saveActiveState(CompoundTag tag) {
         tag.putBoolean("IsActivated", this.active);
-        return tag;
     }
 
-    public final void markAcceptedEntriesDirty() { this.markDirty(this::saveAcceptedEntries); }
-
-    protected final CompoundTag saveAcceptedEntries(CompoundTag tag)
+    protected final void saveAcceptedEntries(CompoundTag tag)
     {
         ListTag acceptedEntriesList = new ListTag();
         for(TaxableReference entry : this.acceptedEntries)
             acceptedEntriesList.add(entry.save());
-        tag.put("AcceptedEntries", acceptedEntriesList);
-        return tag;
+        tag.put("AcceptedEntries",acceptedEntriesList);
     }
 
-    public final void markNotificationsDirty() { this.markDirty(this::saveNotifications); }
-    protected final CompoundTag saveNotifications(CompoundTag tag, HolderLookup.Provider lookup)
+    protected final void saveNotifications(CompoundTag tag,DataContext<Tag> context)
     {
-        tag.put("Notifications", this.logger.save(lookup));
-        return tag;
+        tag.put("Notifications",context.write(this.logger,NotificationData.CODEC));
     }
 
-    public final void markStatsDirty() { this.markDirty(this::saveStats); }
-    protected final CompoundTag saveStats(CompoundTag tag, HolderLookup.Provider lookup)
+    protected final void saveStats(CompoundTag tag,DataContext<Tag> context)
     {
-        tag.put("Statistics", this.stats.save(lookup));
-        return tag;
+        tag.put("Statistics",this.stats.save(context));
     }
 
-    public final void markBankStateDirty() { this.markDirty(this::saveBankState); }
-    protected final CompoundTag saveBankState(CompoundTag tag)
+    protected final void saveBankState(CompoundTag tag)
     {
         tag.putBoolean("LinkedToBank", this.linkToBank);
-        return tag;
     }
 
-    public final void markServerOptionsDirty() { this.markDirty(this::saveServerOptions); }
-    protected final CompoundTag saveServerOptions(CompoundTag tag)
+    protected final void saveServerOptions(CompoundTag tag)
     {
         tag.putBoolean("OnlyTargetNetwork",this.onlyTargetNetwork);
-        return tag;
     }
 
-    public void load(CompoundTag tag, HolderLookup.Provider lookup)
+    public void load(CompoundTag tag,DataContext<Tag> context)
     {
         if(tag.contains("ID"))
             this.id = tag.getLong("ID");
@@ -449,9 +506,9 @@ public class TaxEntry implements ITaxCollector {
         if(tag.contains("CustomName"))
             this.name = tag.getString("CustomName");
         if(tag.contains("Owner"))
-            this.owner.load(tag.getCompound("Owner"),lookup);
+            this.owner.copyFrom(context.read(tag.get("Owner"),OwnerData.CODEC));
         if(tag.contains("StoredMoney"))
-            this.storedMoney.safeLoad(tag, "StoredMoney");
+            this.storedMoney.load(context.read(tag.get("StoredMoney"),MoneyStorage.CODEC).allValues());
         if(tag.contains("ForceAcceptance"))
             this.forceAcceptance = tag.getBoolean("ForceAcceptance");
         if(tag.contains("IsInfiniteRange"))
@@ -472,11 +529,55 @@ public class TaxEntry implements ITaxCollector {
             }
         }
         if(tag.contains("Notifications"))
-            this.logger.load(tag.getCompound("Notifications"), lookup);
+            this.logger.copyFrom(context.read(tag.get("Notifications"),NotificationData.CODEC));
         if(tag.contains("Statistics"))
-            this.stats.load(tag.getCompound("Statistics"), lookup);
+            this.stats.load(tag.getCompound("Statistics"),context);
         if(tag.contains("LinkedToBank"))
             this.linkToBank = tag.getBoolean("LinkedToBank");
+    }
+
+    public void handleSyncPacket(LazyPacketData data)
+    {
+        if(data.contains("Stats"))
+            this.stats.load(data.getTag("Stats"),DataContext.createNBT(this.registryAccess()));
+        if(data.contains("Center"))
+            this.center = data.getCustom("Center",ModLazyPackets.WORLD_POS,this.center);
+        if(data.contains("Radius"))
+            this.radius = data.getInt("Radius");
+        if(data.contains("Height"))
+            this.height = data.getInt("Height");
+        if(data.contains("VertOffset"))
+            this.vertOffset = data.getInt("VertOffset");
+        if(data.contains("RenderMode"))
+            this.renderMode = data.getInt("RenderMode");
+        if(data.contains("TaxRate"))
+            this.taxRate = data.getInt("TaxRate");
+        if(data.contains("Name"))
+            this.name = data.getString("Name");
+        if(data.contains("Owner"))
+            this.owner.copyFrom(data.getCustom("Owner",ModLazyPackets.OWNER_DATA,this.owner));
+        if(data.contains("StoredMoney"))
+            this.storedMoney.load(data.getList("StoredMoney",ModLazyPackets.MONEY_VALUE));
+        if(data.contains("BankLink"))
+            this.linkToBank = data.getBoolean("BankLink");
+        if(data.contains("AddNotification"))
+        {
+            for(Notification n : data.getList("AddNotification",ModLazyPackets.NOTIFICATION))
+                this.logger.addNotification(n);
+        }
+        if(data.contains("AcceptedEntries"))
+        {
+            this.acceptedEntries.clear();
+            this.acceptedEntries.addAll(data.getList("AcceptedEntries",ModLazyPackets.TAXABLE_REFERENCE));
+        }
+        if(data.contains("Active"))
+            this.active = data.getBoolean("Active");
+        if(data.contains("ForceAcceptance"))
+            this.forceAcceptance = data.getBoolean("ForceAcceptance");
+        if(data.contains("InfiniteRange"))
+            this.infiniteRange = data.getBoolean("InfiniteRange");
+        if(data.contains("OnlyNetwork"))
+            this.onlyTargetNetwork = data.getBoolean("OnlyNetwork");
     }
 
 }

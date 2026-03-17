@@ -1,7 +1,5 @@
 package io.github.lightman314.lightmanscurrency.api.traders.terminal;
 
-import com.google.common.base.Predicates;
-
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.function.Supplier;

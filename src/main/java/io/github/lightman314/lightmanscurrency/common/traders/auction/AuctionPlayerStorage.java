@@ -12,7 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.builtin.MoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.OldDataHelper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -72,6 +72,7 @@ public class AuctionPlayerStorage {
 
     public static AuctionPlayerStorage load(CompoundTag tag, DataContext<Tag> context) { return CODEC.decode(context.ops(),tag).getOrThrow().getFirst(); }
 
+    @SuppressWarnings("deprecation")
 	private static AuctionPlayerStorage loadOldData(CompoundTag compound,HolderLookup.Provider lookup) {
 
         PlayerReference owner = PlayerReference.load(compound.getCompound("Owner"));
@@ -81,12 +82,7 @@ public class AuctionPlayerStorage {
 
         List<ItemStack> items = new ArrayList<>();
 		ListTag itemList = compound.getList("StoredItems", Tag.TAG_COMPOUND);
-		for(int i = 0; i < itemList.size(); ++i)
-		{
-			ItemStack stack = InventoryUtil.loadItemNoLimits(itemList.getCompound(i),lookup);
-			if(!stack.isEmpty())
-                items.add(stack);
-		}
+        items = OldDataHelper.loadNonEmptyList(itemList,lookup);
 
         int pendingStats = 0;
         if(compound.contains("PendingStats"))

@@ -8,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_tr
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.ItemPositionManager;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantProperty;
 import io.github.lightman314.lightmanscurrency.datagen.client.builders.ItemPositionBuilder;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -35,7 +34,7 @@ public abstract class ItemPositionDataEntry {
             String elementName = this.getID().toString();
             if(element.isJsonPrimitive())
             {
-                ResourceLocation dataID = VersionUtil.parseResource(GsonHelper.convertToString(element,elementName));
+                ResourceLocation dataID = ResourceLocation.parse(GsonHelper.convertToString(element,elementName));
                 return new IDEntry(dataID);
             }
             else

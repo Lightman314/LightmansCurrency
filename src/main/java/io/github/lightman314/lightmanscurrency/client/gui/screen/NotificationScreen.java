@@ -6,6 +6,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.client.gui.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyTextButton;
@@ -26,8 +27,6 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationDat
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-
-import javax.annotation.Nonnull;
 
 public class NotificationScreen extends EasyMenuScreen<NotificationMenu> {
 
@@ -51,7 +50,7 @@ public class NotificationScreen extends EasyMenuScreen<NotificationMenu> {
 	
 	EasyButton buttonMarkAsSeen;
 	
-	public NotificationScreen(@Nonnull NotificationMenu menu, @Nonnull Inventory inventory, @Nonnull Component title) { super(menu,inventory,title); this.resize(SCREEN_WIDTH, SCREEN_HEIGHT); }
+	public NotificationScreen(NotificationMenu menu, Inventory inventory, Component title) { super(menu,inventory,title); this.resize(SCREEN_WIDTH, SCREEN_HEIGHT); }
 	
 	public List<NotificationCategory> getCategories() {
 		List<NotificationCategory> categories = Lists.newArrayList(NotificationCategory.GENERAL);
@@ -141,7 +140,7 @@ public class NotificationScreen extends EasyMenuScreen<NotificationMenu> {
 	}
 
 	@Override
-	protected void renderBG(@Nonnull EasyGuiGraphics gui) {
+	protected void renderBG(EasyGuiGraphics gui) {
 
 		//Render the background
 		gui.resetColor();

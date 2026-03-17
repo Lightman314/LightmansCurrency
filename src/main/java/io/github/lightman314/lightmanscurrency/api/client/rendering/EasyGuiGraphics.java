@@ -14,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -47,9 +46,9 @@ public final class EasyGuiGraphics {
     private static final List<ModelResourceLocation> debuggedModels = new ArrayList<>();
 
     public static final WidgetSprites BUTTON_SPRITES = new WidgetSprites(
-            VersionUtil.vanillaResource("widget/button"),
-            VersionUtil.vanillaResource("widget/button_disabled"),
-            VersionUtil.vanillaResource("widget/button_highlighted")
+            ResourceLocation.withDefaultNamespace("widget/button"),
+            ResourceLocation.withDefaultNamespace("widget/button_disabled"),
+            ResourceLocation.withDefaultNamespace("widget/button_highlighted")
     );
 
     private final GuiGraphics gui;

@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_t
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -41,7 +40,7 @@ public abstract class CustomModelTest {
     public static CustomModelTest parse(JsonObject json) throws JsonSyntaxException, ResourceLocationException
     {
         String typeString = GsonHelper.getAsString(json,"type");
-        ResourceLocation type = VersionUtil.parseResource(typeString);
+        ResourceLocation type = ResourceLocation.parse(typeString);
         if(TYPES.containsKey(type))
             return TYPES.get(type).apply(json);
         else

@@ -1,11 +1,15 @@
 package io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.builtin.settings;
 
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNode;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.ITraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.api.client.gui.EasyTab;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.builtin.TraderSettingsTab;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +36,11 @@ public abstract class SettingsSubTab extends EasyTab {
     public final void sendMessage(LazyPacketData.Builder message) { this.menu.SendMessage(message); }
 
     public boolean shouldRenderInventoryText() { return true; }
+
+    @Nullable
+    public TraderData getTrader() { return this.menu.getTrader(); }
+    @Nullable
+    public <N extends TraderNode> N getNode(TraderNodeType<N> type) { return this.menu.getTraderNode(type); }
 
     @Override
     public <T> T addChild(T child)

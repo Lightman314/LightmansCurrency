@@ -24,7 +24,6 @@ import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PostTradeEv
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.PreTradeEvent;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent.TradeCostEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -121,7 +120,7 @@ public abstract class TradeRule {
     @Deprecated
     private static TradeRule loadOldData(CompoundTag tag, HolderLookup.Provider lookup)
     {
-        ResourceLocation typeName = VersionUtil.parseResource(tag.getString("Type"));
+        ResourceLocation typeName = ResourceLocation.parse(tag.getString("Type"));
         TradeRuleType<?> type = LCRegistries.TRADE_RULE.get(typeName);
         if(type != null)
             return type.loadOldData(tag,lookup);
@@ -337,7 +336,7 @@ public abstract class TradeRule {
 	
 	public static TradeRule Deserialize(JsonObject json, DataContext<JsonElement> context) throws JsonSyntaxException, ResourceLocationException {
 		String thisType = GsonHelper.getAsString(json, "Type");
-		TradeRuleType<?> ruleType = LCRegistries.TRADE_RULE.get(VersionUtil.parseResource(thisType));
+		TradeRuleType<?> ruleType = LCRegistries.TRADE_RULE.get(ResourceLocation.parse(thisType));
 		if(ruleType != null)
 		{
             TradeRule rule = ruleType.create();
@@ -366,7 +365,7 @@ public abstract class TradeRule {
 	public static MoneyValue getBaseCost(TradeData trade, TradeContext context)
 	{
 		//Don't run the query if no trader is given for context
-		if(!context.hasTrader() || !trade.validCost() || !(trade instanceof RuleSupportingTradeData ruleTrade))
+		if(!trade.validCost() || !(trade instanceof RuleSupportingTradeData ruleTrade))
 			return trade.getCost();
 
 		InternalPriceEvent event = new InternalPriceEvent(trade,context);

@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.*;
 import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.VariantPropertyWithDefault;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
@@ -48,12 +47,12 @@ public record ShowInCreative(boolean show, boolean locked, List<ResourceLocation
             if(object.has("targets"))
             {
                 if(object.get("targets").isJsonPrimitive())
-                    targets.add(VersionUtil.parseResource(GsonHelper.getAsString(object,"targets")));
+                    targets.add(ResourceLocation.parse(GsonHelper.getAsString(object,"targets")));
                 else
                 {
                     JsonArray targetList = GsonHelper.getAsJsonArray(object,"targets");
                     for(int i = 0; i < targetList.size(); ++i)
-                        targets.add(VersionUtil.parseResource(GsonHelper.convertToString(targetList.get(i),"targets[" + i + "]")));
+                        targets.add(ResourceLocation.parse(GsonHelper.convertToString(targetList.get(i),"targets[" + i + "]")));
                 }
             }
             return new ShowInCreative(true,locked,ImmutableList.copyOf(targets));

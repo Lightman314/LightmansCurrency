@@ -70,7 +70,7 @@ public class PaygateTradeNodeMethods extends TradeOfferNodeMethods<PaygateTradeD
             entry.put("Timer",data.timer());
             for(Direction side : data.sides())
             {
-                table.putTable(side.toString(),entry);
+                table.put(side.toString(),entry);
                 unusedSides.remove(side);
             }
         }

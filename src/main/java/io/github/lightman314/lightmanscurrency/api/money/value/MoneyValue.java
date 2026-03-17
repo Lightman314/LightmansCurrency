@@ -18,7 +18,6 @@ import io.github.lightman314.lightmanscurrency.api.money.value.holder.builtin.Mo
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -316,7 +315,7 @@ public abstract class MoneyValue {
         if(tag.contains("type", Tag.TAG_STRING))
         {
             ResourceLocation valueType;
-            try { valueType = VersionUtil.parseResource(tag.getString("type"));
+            try { valueType = ResourceLocation.parse(tag.getString("type"));
             } catch (ResourceLocationException e) {
                 //LightmansCurrency.LogError("Error loading CoinValue type " + tag.getString("type"));
                 return empty();

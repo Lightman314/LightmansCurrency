@@ -3,14 +3,13 @@ package io.github.lightman314.lightmanscurrency.client.util;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
 public class LCRenderTypes extends RenderStateShard {
 
-    public static final ResourceLocation AREA_TEXTURE = VersionUtil.vanillaResource("textures/misc/forcefield.png");
+    public static final ResourceLocation AREA_TEXTURE = ResourceLocation.withDefaultNamespace("textures/misc/forcefield.png");
 
     private LCRenderTypes() { super(null, null, null); }
 

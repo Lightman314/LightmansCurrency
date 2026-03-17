@@ -5,13 +5,11 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.npc.VillagerTrades.ItemListing;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -21,7 +19,7 @@ import java.util.Map;
 
 public class CustomVillagerTradeData {
 
-    private static final ResourceLocation WANDERING_TRADER_ID = VersionUtil.vanillaResource( "wandering_trader");
+    private static final ResourceLocation WANDERING_TRADER_ID = ResourceLocation.withDefaultNamespace( "wandering_trader");
 
     private static final Map<ResourceLocation,Map<Integer,List<ItemListing>>> defaultValues = new HashMap<>();
 
@@ -32,11 +30,11 @@ public class CustomVillagerTradeData {
         return map;
     }
 
-    private static Map<Integer,List<ItemListing>> getDefaultVillagerData(@Nonnull ResourceLocation villager) {
+    private static Map<Integer,List<ItemListing>> getDefaultVillagerData(ResourceLocation villager) {
         return defaultValues.getOrDefault(villager, getEmptyMap());
     }
 
-    public static void registerDefaultWanderingTrades(@Nonnull List<ItemListing> genericValues, @Nonnull List<ItemListing> rareValues)
+    public static void registerDefaultWanderingTrades(List<ItemListing> genericValues, List<ItemListing> rareValues)
     {
         Map<Integer,List<ItemListing>> valueMap = new HashMap<>();
         valueMap.put(1,genericValues);
@@ -44,7 +42,7 @@ public class CustomVillagerTradeData {
         registerDefaultFile(WANDERING_TRADER_ID, valueMap);
     }
 
-    public static void registerDefaultFile(@Nonnull ResourceLocation villager, @Nonnull Map<Integer,List<ItemListing>> value) {
+    public static void registerDefaultFile(ResourceLocation villager, Map<Integer,List<ItemListing>> value) {
         if(defaultValues.containsKey(villager))
             LightmansCurrency.LogWarning("Attempted to register default villager data of type '" + villager + "' twice!");
         else
@@ -64,8 +62,7 @@ public class CustomVillagerTradeData {
         return Pair.of(value.getOrDefault(1, new ArrayList<>()),value.getOrDefault(2, new ArrayList<>()));
     }
 
-    @Nonnull
-    public static Map<Integer,List<ItemListing>> getVillagerData(@Nonnull ResourceLocation villager) {
+    public static Map<Integer,List<ItemListing>> getVillagerData(ResourceLocation villager) {
         File file = getVillagerDataFile(villager);
         HolderLookup.Provider lookup = LookupHelper.getRegistryAccess();
         if(file.exists())
@@ -90,7 +87,7 @@ public class CustomVillagerTradeData {
         return getDefaultVillagerData(villager);
     }
 
-    public static @Nonnull File getVillagerDataFile(@Nonnull ResourceLocation villager) {
+    public static File getVillagerDataFile(ResourceLocation villager) {
         String filePath = "config/trades/" + villager.getNamespace() + "/custom_" + villager.getPath() + "_trades.json";
         return new File(filePath);
     }

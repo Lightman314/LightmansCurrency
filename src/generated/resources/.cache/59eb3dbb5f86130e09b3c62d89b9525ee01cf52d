@@ -1,4 +1,4 @@
-// 1.21.1	2025-12-12T22:05:03.7856222	Loot Tables
+// 1.21.1	2026-03-17T14:48:38.0020296	Loot Tables
 d7534c33bd13a339f06b76f3e5653f357107b178 data/lightmanscurrency/loot_table/archaeology/ancient_city/ancient_ruins.json
 ebf9093f13aafd339146c33501a59a2109cde8a1 data/lightmanscurrency/loot_table/archaeology/village/desert_banker.json
 0a4cec2c5fb2638555245a7d41c3e1ec4d187fc1 data/lightmanscurrency/loot_table/archaeology/village/desert_shop.json
@@ -59,6 +59,8 @@ b7a345c7a60a2bd5588ae5a93b91874545f6c956 data/lightmanscurrency/loot_table/block
 5fed16692d4905e39730d7c7438e6a55874b0b61 data/lightmanscurrency/loot_table/blocks/gem_terminal.json
 f06291c9269c922bff43ed6daaf007ae4290de54 data/lightmanscurrency/loot_table/blocks/terminal.json
 58e37b521c69567e2a3402e84f38f7f92453a17f data/lightmanscurrency/loot_table/blocks/ticket_machine.json
+d11614a3ca085b0754443005853e82d0b355aebc data/lightmanscurrency/loot_table/chests/additions/bastion_treasure.json
+af646dfca6cb3e3f4b2e88aa3e0a2355cdefb24a data/lightmanscurrency/loot_table/chests/additions/end_city_treasure.json
 4ee1d82726205071a40a56a50b9f241600203223 data/lightmanscurrency/loot_table/loot_addons/boss/tier1.json
 edcf59d3313f7e481899bf4cb46958af82c74fc8 data/lightmanscurrency/loot_table/loot_addons/boss/tier2.json
 2db987cc7490c1a3fe197c613e6f00236243147d data/lightmanscurrency/loot_table/loot_addons/boss/tier3.json

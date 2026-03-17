@@ -43,8 +43,6 @@ import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.server.ServerStoppingEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
@@ -425,6 +423,7 @@ public class TraderDataCache extends CustomData implements IServerTicker {
     {
         //Set Trader ID
         trader.setID(traderID);
+        trader.setRegistryAccess(this);
         //Add to storage
         this.traderData.put(traderID,trader.flagAsClient(this));
         trader.initialize();
@@ -635,7 +634,6 @@ public class TraderDataCache extends CustomData implements IServerTicker {
             return;
         this.validateAuctionHouse();
         this.loadPersistentTraders();
-        NeoForge.EVENT_BUS.register(this);
     }
 
     @Override
@@ -657,9 +655,8 @@ public class TraderDataCache extends CustomData implements IServerTicker {
             this.sendCreateTraderPacket(trader);
     }
 
-    @SubscribeEvent
-    private void onServerTick(ServerTickEvent.Post event)
-    {
+    @Override
+    public void syncTick() {
         Set<Long> changed = this.changedTraders;
         this.changedTraders = new HashSet<>();
         for(long id : changed)
@@ -676,12 +673,6 @@ public class TraderDataCache extends CustomData implements IServerTicker {
         //Clear the tracking cache
         for(TraderData trader : new ArrayList<>(this.traderData.values()))
             trader.onPlayerLeave(event.getEntity());
-    }
-
-    @SubscribeEvent
-    private void onServerShutdown(ServerStoppingEvent event)
-    {
-        NeoForge.EVENT_BUS.unregister(this);
     }
 
     private static class PersistentData

@@ -8,7 +8,6 @@ import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesColl
 import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesPaidNotification;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.builtin.*;
-import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeResult;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.MachineAccessNode;
 import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.types.*;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
@@ -609,9 +608,6 @@ public class LCText {
     public static final TextEntry TOOLTIP_INTERFACE_TRADE_SELECT = TextEntry.tooltip(MODID,"interface.trade");
     public static final TextEntry TOOLTIP_INTERFACE_STORAGE = TextEntry.tooltip(MODID,"interface.storage");
     public static final TextEntry TOOLTIP_INTERFACE_STATS = TextEntry.tooltip(MODID,"interface.stats");
-
-    //Trade Result
-    public static final TextEntryBundle<TradeResult> GUI_TRADE_RESULT = TextEntryBundle.of(TradeResult.ALL_WITH_MESSAGES,"gui.lightmanscurrency.trade_result",TradeResult::getKey);
 
     //Trade Comparison
     public static final TextEntry GUI_TRADE_DIFFERENCE_MISSING = TextEntry.gui(MODID,"interface.difference.missing");

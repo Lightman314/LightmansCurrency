@@ -9,19 +9,20 @@ import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IColoredBlock;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 
-import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNode;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.WorldStateNode;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.interfaces.IPersistentNode;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.templates.SyncedTraderNode;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 
 import javax.annotation.Nullable;
 
-public class TraderColorNode extends TraderNode implements IPersistentNode {
+public class TraderColorNode extends SyncedTraderNode implements IPersistentNode {
 
     private static final MapCodec<TraderColorNode> MAP_CODEC = Codec.INT.fieldOf("color")
             .xmap(TraderColorNode::new,TraderColorNode::getColor);
@@ -45,13 +46,10 @@ public class TraderColorNode extends TraderNode implements IPersistentNode {
     private TraderColorNode(int color) { this.color = color; }
 
     @Override
-    public TraderTrackingLevel getRelevantSyncLevel() { return TraderTrackingLevel.CUSTOMER; }
-
-    @Override
     public TraderNodeType<?> getType() { return TYPE; }
 
     @Override
-    public void createSyncPacket(LazyPacketData.Builder builder) {
+    public void createSyncPacket(LazyPacketData.Builder builder, Player player) {
         builder.setInt("color",this.color);
     }
 

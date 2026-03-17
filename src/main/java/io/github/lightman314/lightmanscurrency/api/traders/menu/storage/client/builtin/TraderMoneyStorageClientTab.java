@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraph
 import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.MoneySlot;
 import io.github.lightman314.lightmanscurrency.api.money.client.input.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.MoneyStorageNode;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.screen.inventory.TraderScreen;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
@@ -18,7 +18,6 @@ import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class TraderMoneyStorageClientTab extends TraderStorageClientTab<TraderMoneyStorageTab> {
@@ -58,13 +57,13 @@ public class TraderMoneyStorageClientTab extends TraderStorageClientTab<TraderMo
     }
 
     @Override
-    public void renderBG(@Nonnull EasyGuiGraphics gui) {
+    public void renderBG(EasyGuiGraphics gui) {
 
-        TraderData trader = this.menu.getTrader();
-        if(trader != null)
+        MoneyStorageNode node = this.commonTab.getNode();
+        if(node != null)
         {
             //Render current balance
-            TextRenderUtil.drawCenteredText(gui,LCText.GUI_TRADER_MONEY_STORAGE_CONTENTS.get(trader.getInternalStoredMoney().getRandomValueText()), TraderScreen.WIDTH / 2, 110, 0x404040);
+            TextRenderUtil.drawCenteredText(gui,LCText.GUI_TRADER_MONEY_STORAGE_CONTENTS.get(node.getStorage().getRandomValueText()), TraderScreen.WIDTH / 2, 110, 0x404040);
         }
 
         //Render Coin Slots
@@ -85,11 +84,10 @@ public class TraderMoneyStorageClientTab extends TraderStorageClientTab<TraderMo
     {
         if(!this.commonTab.canCollectMoney())
             return false;
-        TraderData trader = this.menu.getTrader();
-        return trader != null && !trader.getInternalStoredMoney().isEmpty();
+        MoneyStorageNode node = this.commonTab.getNode();
+        return node != null && !node.getStorage().isEmpty();
     }
 
-    @Nonnull
     @Override
     public IconData getIcon() { return IconUtil.ICON_STORE_COINS; }
 

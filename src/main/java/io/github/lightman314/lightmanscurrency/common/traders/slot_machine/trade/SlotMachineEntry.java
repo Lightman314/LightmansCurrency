@@ -24,9 +24,9 @@ import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.Mo
 import io.github.lightman314.lightmanscurrency.common.traders.item.nodes.ItemStorageNode;
 import io.github.lightman314.lightmanscurrency.common.traders.slot_machine.nodes.SlotMachineNode;
 import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
-import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
+import io.github.lightman314.lightmanscurrency.util.OldDataHelper;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
@@ -155,7 +155,7 @@ public final class SlotMachineEntry {
     private SlotMachineEntry(List<ItemStack> items, double odds, boolean useCustomIcons, List<IconData> icons) { this(-1,items,odds,useCustomIcons,icons); }
     private SlotMachineEntry(int syncID,List<ItemStack> items, double odds, boolean useCustomIcons, List<IconData> icons) {
         this.syncID = syncID;
-        this.items = InventoryUtil.copyList(items);
+        this.items = ItemHandlerUtil.copyList(items);
         while(this.items.size() >= ITEM_LIMIT)
             this.items.removeLast();
         this.setOdds(odds);
@@ -224,7 +224,7 @@ public final class SlotMachineEntry {
             if(value instanceof IItemBasedValue itemValue)
                 return itemValue.getAsSeperatedItemList();
         }
-        return InventoryUtil.copyList(this.items);
+        return ItemHandlerUtil.copyList(this.items);
     }
     
     public static List<ItemStack> splitDisplayItems(List<ItemStack> displayItems)
@@ -234,7 +234,7 @@ public final class SlotMachineEntry {
         int totalCount = 0;
         for(ItemStack s : displayItems)
             totalCount+= s.getCount();
-        List<ItemStack> result = InventoryUtil.copyList(displayItems);
+        List<ItemStack> result = ItemHandlerUtil.copyList(displayItems);
         Random random = new Random();
         while(result.size() < ITEM_LIMIT && result.size() < totalCount)
         {
@@ -324,7 +324,7 @@ public final class SlotMachineEntry {
             if(node == null)
                 return 0;
             int minStock = Integer.MAX_VALUE;
-            for(ItemStack item : InventoryUtil.combineQueryItems(this.items))
+            for(ItemStack item : ItemHandlerUtil.combineStacks(this.items))
             {
                 int count = node.getStorage().getItemCount(item);
                 int stock = count / item.getCount();
@@ -341,39 +341,7 @@ public final class SlotMachineEntry {
     {
         if(this.isMoney())
             return false;
-        return this.items.stream().anyMatch(i -> InventoryUtil.ItemMatches(i, item));
-    }
-
-    public CompoundTag save(HolderLookup.Provider lookup)
-    {
-        CompoundTag compound = new CompoundTag();
-        ListTag itemList = new ListTag();
-        for(ItemStack item : this.items)
-            itemList.add(InventoryUtil.saveItemNoLimits(item,lookup));
-        compound.put("Items",itemList);
-        compound.putDouble("Odds",this.odds);
-
-        compound.putBoolean("CustomIcons",this.useCustomIcons);
-        compound.put("Icons",TagUtil.writeIconList(this.customIcons,lookup));
-        return compound;
-    }
-    
-    public JsonObject toJson(HolderLookup.Provider lookup)
-    {
-        JsonObject json = new JsonObject();
-        JsonArray itemList = new JsonArray();
-        for(ItemStack item : this.items)
-            itemList.add(FileUtil.convertItemStack(item,lookup));
-        json.add("Items", itemList);
-        json.addProperty("Odds",this.odds);
-        if(this.useCustomIcons)
-        {
-            JsonArray iconList = new JsonArray();
-            for(IconData icon : this.customIcons)
-                iconList.add(icon.write(lookup));
-            json.add("Icons",iconList);
-        }
-        return json;
+        return this.items.stream().anyMatch(i -> ItemStack.isSameItemSameComponents(i, item));
     }
 
     public static SlotMachineEntry create() { return new SlotMachineEntry(new ArrayList<>(), 1,false,new ArrayList<>()); }
@@ -383,7 +351,8 @@ public final class SlotMachineEntry {
         return entry;
     }
 
-    public static SlotMachineEntry load(CompoundTag compound, HolderLookup.Provider lookup)
+    @Deprecated
+    public static SlotMachineEntry loadOldData(CompoundTag compound, HolderLookup.Provider lookup)
     {
         List<ItemStack> items = new ArrayList<>();
         if(compound.contains("Items"))
@@ -391,7 +360,7 @@ public final class SlotMachineEntry {
             ListTag itemList = compound.getList("Items", Tag.TAG_COMPOUND);
             for(int i = 0; i < itemList.size(); ++i)
             {
-                ItemStack stack = InventoryUtil.loadItemNoLimits(itemList.getCompound(i),lookup);
+                ItemStack stack = OldDataHelper.loadItem(itemList.getCompound(i),lookup);
                 if(!stack.isEmpty())
                     items.add(stack);
             }

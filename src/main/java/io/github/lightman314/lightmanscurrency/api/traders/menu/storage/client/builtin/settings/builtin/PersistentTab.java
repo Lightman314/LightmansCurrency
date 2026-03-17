@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.interfaces.IPersistentTrader;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.builtin.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.builtin.settings.TraderSettingsClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
@@ -19,14 +20,12 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class PersistentTab extends SettingsSubTab {
 
-    public PersistentTab(@Nonnull TraderSettingsClientTab parent) { super(parent); }
+    public PersistentTab(TraderSettingsClientTab parent) { super(parent); }
 
-    @Nonnull
     @Override
     public IconData getIcon() { return ItemIcon.ofItem(Items.COMMAND_BLOCK); }
 
@@ -39,12 +38,7 @@ public class PersistentTab extends SettingsSubTab {
     EditBox persistentTraderOwnerInput;
 
     @Override
-    public boolean canOpen() {
-        TraderData trader = this.menu.getTrader();
-        if(trader != null)
-            return trader.canMakePersistent() && LCAdminMode.isAdminPlayer(this.menu.getPlayer());
-        return false;
-    }
+    public boolean canOpen() { return this.menu.getTrader() instanceof IPersistentTrader && LCAdminMode.isAdminPlayer(this.menu.getPlayer()); }
 
     @Override
     protected void initialize(ScreenArea screenArea, boolean firstOpen) {
@@ -77,7 +71,7 @@ public class PersistentTab extends SettingsSubTab {
     }
 
     @Override
-    public void renderBG(@Nonnull EasyGuiGraphics gui) {
+    public void renderBG(EasyGuiGraphics gui) {
         if(this.persistentTraderIDInput != null)
         {
             //Draw ID input label
@@ -90,7 +84,7 @@ public class PersistentTab extends SettingsSubTab {
     private void SavePersistentTraderData(EasyButton button)
     {
         TraderData trader = this.menu.getTrader();
-        if(trader != null && trader.canMakePersistent())
+        if(trader instanceof IPersistentTrader)
             new CPacketCreatePersistentTrader(trader.getID(), this.persistentTraderIDInput.getValue(), this.persistentTraderOwnerInput.getValue()).sendToServer();
     }
 }

@@ -11,18 +11,16 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.common.menus.EjectionRecoveryMenu;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
 public class EjectionRecoveryScreen extends EasyMenuScreen<EjectionRecoveryMenu> {
 
-	public static final ResourceLocation GUI_TEXTURE = VersionUtil.vanillaResource("textures/gui/container/generic_54.png");
+	public static final ResourceLocation GUI_TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/container/generic_54.png");
 	
 	public EjectionRecoveryScreen(EjectionRecoveryMenu menu, Inventory inventory, Component title) {
 		super(menu, inventory, title);
@@ -61,7 +59,7 @@ public class EjectionRecoveryScreen extends EasyMenuScreen<EjectionRecoveryMenu>
 	}
 	
 	@Override
-	protected void renderBG(@Nonnull EasyGuiGraphics gui)
+	protected void renderBG(EasyGuiGraphics gui)
 	{
 		gui.renderNormalBackground(GUI_TEXTURE, this);
 		gui.drawString(this.getTraderTitle(), this.titleLabelX, this.titleLabelY, 0x404040);

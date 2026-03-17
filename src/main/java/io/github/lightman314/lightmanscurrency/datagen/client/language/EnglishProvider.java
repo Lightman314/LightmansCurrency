@@ -642,15 +642,15 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_INTERFACE_STATS,"Interface Stats");
 
         //Trade Result
-        this.translate(LCText.GUI_TRADE_RESULT.get(TradeResult.FAIL_OUT_OF_STOCK),"Trader is out of stock");
-        this.translate(LCText.GUI_TRADE_RESULT.get(TradeResult.FAIL_CANNOT_AFFORD),"You can no longer afford this trade");
-        this.translate(LCText.GUI_TRADE_RESULT.get(TradeResult.FAIL_NO_OUTPUT_SPACE),"Insufficient space to output the purchased product");
-        this.translate(LCText.GUI_TRADE_RESULT.get(TradeResult.FAIL_NO_INPUT_SPACE),"Trader has insufficient space to store the collected product");
-        this.translate(LCText.GUI_TRADE_RESULT.get(TradeResult.FAIL_TRADE_RULE_DENIAL),"A Trade Rule has denied your ability to interact with the trade");
-        this.translate(LCText.GUI_TRADE_RESULT.get(TradeResult.FAIL_TAX_EXCEEDED_LIMIT),"This Trader's Tax Collection exceeds its defined limits, and has locked the trader until it can be resolved");
-        this.translate(LCText.GUI_TRADE_RESULT.get(TradeResult.FAIL_INVALID_TRADE),"The trade is no longer a valid trade");
-        this.translate(LCText.GUI_TRADE_RESULT.get(TradeResult.FAIL_NOT_SUPPORTED),"This trader does not support this type of trade interaction");
-        this.translate(LCText.GUI_TRADE_RESULT.get(TradeResult.FAIL_NULL),"The trade or trader no longer exists");
+        this.translate(TradeResult.FAIL_OUT_OF_STOCK,"Trader is out of stock");
+        this.translate(TradeResult.FAIL_CANNOT_AFFORD,"You can no longer afford this trade");
+        this.translate(TradeResult.FAIL_NO_OUTPUT_SPACE,"Insufficient space to output the purchased product");
+        this.translate(TradeResult.FAIL_NO_INPUT_SPACE,"Trader has insufficient space to store the collected product");
+        this.translate(TradeResult.FAIL_TRADE_RULE_DENIAL,"A Trade Rule has denied your ability to interact with the trade");
+        this.translate(TradeResult.FAIL_TAX_EXCEEDED_LIMIT,"This Trader's Tax Collection exceeds its defined limits, and has locked the trader until it can be resolved");
+        this.translate(TradeResult.FAIL_INVALID_TRADE,"The trade is no longer a valid trade");
+        this.translate(TradeResult.FAIL_NOT_SUPPORTED,"This trader does not support this type of trade interaction");
+        this.translate(TradeResult.FAIL_NULL,"The trade or trader no longer exists");
 
         //Trade Comparison
         this.translate(LCText.GUI_TRADE_DIFFERENCE_MISSING,"Trade or Trader no longer exists");

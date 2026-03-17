@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.client.gui.EasyMenuScreen;
+import io.github.lightman314.lightmanscurrency.api.variants.item.data.VariantData;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ModelVariantButton;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
@@ -162,7 +163,7 @@ public abstract class VariantSelectScreen<T extends VariantSelectMenu> extends E
             {
                 item = new ItemStack(this.getTargetAsItem());
                 if(this.viewingVariant.getFirst() != null)
-                    item.set(ModDataComponents.MODEL_VARIANT,this.viewingVariant.getFirst());
+                    item.set(ModDataComponents.MODEL_VARIANT,new VariantData(this.viewingVariant.getFirst()));
             }
             gui.renderScaledItem(item, ScreenPosition.of(8,18), 70f/16f);
         }

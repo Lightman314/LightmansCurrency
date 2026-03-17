@@ -9,7 +9,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.trading.ItemCost;
 import net.minecraft.world.item.trading.MerchantOffer;
 
-import javax.annotation.Nonnull;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -26,13 +25,13 @@ public class ConfiguredItemListing implements VillagerTrades.ItemListing
      * @param tradeSource The Item Listing to modify.
      * @param modSupplier A supplier of the {@link VillagerTradeMod} that should be used to modify the item listing.
      */
-    public ConfiguredItemListing(@Nonnull VillagerTrades.ItemListing tradeSource, @Nonnull Supplier<VillagerTradeMod> modSupplier) {
+    public ConfiguredItemListing(VillagerTrades.ItemListing tradeSource, Supplier<VillagerTradeMod> modSupplier) {
         this.tradeSource = tradeSource;
         this.modSupplier = modSupplier;
     }
 
     @Override
-    public MerchantOffer getOffer(@Nonnull Entity trader, @Nonnull RandomSource random) {
+    public MerchantOffer getOffer(Entity trader, RandomSource random) {
         try {
             int attempts = 0;
             MerchantOffer offer = this.tradeSource.getOffer(trader, random);

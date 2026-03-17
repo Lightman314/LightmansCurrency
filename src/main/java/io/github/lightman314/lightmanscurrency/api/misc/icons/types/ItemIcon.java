@@ -7,7 +7,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconType;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
+import io.github.lightman314.lightmanscurrency.util.OldDataHelper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -50,9 +50,10 @@ public class ItemIcon extends IconData
     @Override
     public IconType<?> getType() { return TYPE; }
 
+    @SuppressWarnings("deprecation")
     private static ItemIcon loadItem(CompoundTag tag, HolderLookup.Provider lookup)
     {
-        ItemStack stack = InventoryUtil.loadItemNoLimits(tag.getCompound("Item"),lookup);
+        ItemStack stack = OldDataHelper.loadItem(tag.getCompound("Item"),lookup);
         String countText = null;
         if(tag.contains("Text"))
             countText = tag.getString("Text");

@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting;
 
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.function.Supplier;
@@ -41,7 +40,7 @@ public record SortTypeKey(ResourceLocation id, boolean inverted) {
             inverted = true;
             input = input.substring(1);
         }
-        return new SortTypeKey(VersionUtil.parseResource(input),inverted);
+        return new SortTypeKey(ResourceLocation.parse(input),inverted);
     }
 
 }

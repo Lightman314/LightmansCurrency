@@ -1,4 +1,4 @@
-// 1.21.1	2025-12-19T17:57:30.4231021	Tags for minecraft:item mod id lightmanscurrency
+// 1.21.1	2026-03-17T14:48:38.0140283	Tags for minecraft:item mod id lightmanscurrency
 5e3560274085dced8f699713cf86bfee931b45c1 data/curios/tags/item/charm.json
 f50311c506e1b643b28dec06d9307e3436c63df2 data/curios/tags/item/wallet.json
 80e6296d3cc7a06dad1982ecf30816a9d01cd796 data/lightmanscurrency/tags/item/atm.json
@@ -28,7 +28,7 @@ f8b0738fb0a3831b80f8ca933f9806a5d35e6353 data/lightmanscurrency/tags/item/trader
 2da46dfe7e393af6b3c95f40ec2f929e4004daf3 data/lightmanscurrency/tags/item/traders/display_case.json
 29a0fb5ed5c79e57a4d63cadeec5f6a1ac831643 data/lightmanscurrency/tags/item/traders/freezer.json
 51e5c6b518957951f7626efb01134b0f8ecaf918 data/lightmanscurrency/tags/item/traders/large_vending_machine.json
-68296b1c635da24bfccf3671285fcb8906166a82 data/lightmanscurrency/tags/item/traders/network/item.json
+0cab4512acf9baa504d374ccc2b46c64c98c56d9 data/lightmanscurrency/tags/item/traders/network/item.json
 f083a53b25699acc2945160199dc0ae0c771df31 data/lightmanscurrency/tags/item/traders/shelf.json
 728b0f053358aa999564a503a09b0b61bf82093c data/lightmanscurrency/tags/item/traders/shelf_2x2.json
 7549f4251d5fe32516b6008805e4d30de904e302 data/lightmanscurrency/tags/item/traders/special/armor_display.json

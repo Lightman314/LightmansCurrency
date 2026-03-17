@@ -18,8 +18,6 @@ import io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs.Te
 import io.github.lightman314.lightmanscurrency.api.client.widgets.text_inputs.TextInputUtil;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.configured.ConfiguredTradeModOption;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.mods.ConfiguredTradeMod;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -30,13 +28,10 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class ConfiguredTradeModConfigScreen extends ConfigScreen {
 
     private final ConfigFileOption file;
@@ -269,7 +264,7 @@ public class ConfiguredTradeModConfigScreen extends ConfigScreen {
                 newItem = null;
             else
             {
-                ResourceLocation itemID = VersionUtil.parseResource(textInput);
+                ResourceLocation itemID = ResourceLocation.parse(textInput);
                 if(BuiltInRegistries.ITEM.containsKey(itemID))
                 {
                     newItem = BuiltInRegistries.ITEM.get(itemID);

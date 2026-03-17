@@ -53,6 +53,7 @@ public class WalletHandler extends MoneyHandler implements IClientTracker, IComm
 
     //Visibility
     boolean visible;
+    boolean wasVisible;
 
     @Override
     public boolean isClient() { return this.entity.level().isClientSide; }
@@ -61,12 +62,7 @@ public class WalletHandler extends MoneyHandler implements IClientTracker, IComm
         this.entity = entity;
         this.backupWallet = ItemStack.EMPTY;
         this.walletItem = ItemStack.EMPTY;
-        this.visible = true;
-    }
-
-    private void setChanged() {
-        this.backupWallet = this.walletItem.copy();
-        this.entity.setData(ModAttachmentTypes.WALLET_HANDLER.get(), this);
+        this.visible = this.wasVisible = true;
     }
 
     private Consumer<ItemStack> overflowHandler(boolean simulation)
@@ -108,12 +104,7 @@ public class WalletHandler extends MoneyHandler implements IClientTracker, IComm
         this.walletItem = walletStack;
         if(!(walletStack.getItem() instanceof WalletItem) && !walletStack.isEmpty())
             LightmansCurrency.LogWarning("Equipped a non-wallet to the players wallet slot.");
-
-        this.setChanged();
-
     }
-
-    public void syncWallet(ItemStack walletStack) { this.walletItem = walletStack; this.setChanged(); }
 
     public boolean visible() {
         if(LCCurios.hasWalletSlot(this.entity))
@@ -121,7 +112,7 @@ public class WalletHandler extends MoneyHandler implements IClientTracker, IComm
         return this.visible;
     }
 
-    public void setVisible(boolean visible) { this.visible = visible; this.setChanged(); }
+    public void setVisible(boolean visible) { this.visible = visible; }
 
     public LivingEntity entity() { return this.entity; }
 
@@ -152,10 +143,15 @@ public class WalletHandler extends MoneyHandler implements IClientTracker, IComm
             LightmansCurrency.LogInfo("Curios detected. Moving wallet from Lightman's Currency wallet slot into the curios wallet slot.");
             LCCurios.setCuriosWalletItem(this.entity, this.walletItem);
             this.walletItem = ItemStack.EMPTY;
-            this.setChanged();
+        }
+        if(!ItemStack.isSameItemSameComponents(this.backupWallet,this.walletItem) || this.visible != this.wasVisible)
+        {
+            this.wasVisible = this.visible;
+            this.backupWallet = this.walletItem.copy();
+            //Tell the entity to sync the wallet data
+            this.entity.syncData(ModAttachmentTypes.WALLET_HANDLER);
         }
     }
-
     
     @Override
     public MoneyValue insertMoney(MoneyValue insertAmount, boolean simulation) {
@@ -170,7 +166,6 @@ public class WalletHandler extends MoneyHandler implements IClientTracker, IComm
             this.updateWalletContents(contents);
         return result;
     }
-
     
     @Override
     public MoneyValue extractMoney(MoneyValue extractAmount, boolean simulation) {
@@ -194,7 +189,6 @@ public class WalletHandler extends MoneyHandler implements IClientTracker, IComm
             CoinAPI.getApi().SortCoinsByValue(contents);
         }
         WalletItem.putWalletInventory(this.walletItem,contents);
-        this.setChanged();
     }
 
     @Override
@@ -214,15 +208,7 @@ public class WalletHandler extends MoneyHandler implements IClientTracker, IComm
     }
 
     
-    public ItemStack PickupCoins(ItemStack stack)
-    {
-        if(LCCurios.isLoaded()) //Don't need to check for data change if the wallet is in a curios slot
-            return WalletItem.PickupCoin(this.getWallet(),stack);
-        ItemStack result = WalletItem.PickupCoin(this.walletItem,stack);
-        if(!ItemStack.isSameItemSameComponents(stack,result) || stack.getCount() != result.getCount())
-            this.setChanged();
-        return result;
-    }
+    public ItemStack PickupCoins(ItemStack stack) { return WalletItem.PickupCoin(this.getWallet(),stack); }
 
     public static AttachmentType.Builder<WalletHandler> buildType() {
         return AttachmentType.builder(WalletHandler::create)

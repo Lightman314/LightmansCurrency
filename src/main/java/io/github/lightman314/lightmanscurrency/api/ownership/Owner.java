@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
 import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -114,7 +113,7 @@ public abstract class Owner implements IClientTracker {
     @Nullable
     private static Owner loadOld(CompoundTag tag, HolderLookup.Provider lookup)
     {
-        ResourceLocation id = VersionUtil.parseResource(tag.getString("Type"));
+        ResourceLocation id = ResourceLocation.parse(tag.getString("Type"));
         OwnerType<?> type = LCRegistries.OWNER_TYPES.get(id);
         if(type != null)
             return type.loadOldData(tag,lookup);

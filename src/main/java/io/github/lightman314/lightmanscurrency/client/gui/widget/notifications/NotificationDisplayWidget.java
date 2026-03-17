@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 import com.google.common.collect.ImmutableList;
 
 import io.github.lightman314.lightmanscurrency.LCText;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.ITooltipWidget;
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.IconButton;
@@ -19,16 +20,12 @@ import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import io.github.lightman314.lightmanscurrency.common.util.TooltipHelper;
 import io.github.lightman314.lightmanscurrency.util.ListUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class NotificationDisplayWidget extends EasyWidgetWithChildren implements IScrollable, ITooltipWidget {
 
 	public static final ResourceLocation GUI_TEXTURE =  LightmansCurrency.id( "textures/gui/notifications.png");
@@ -163,7 +160,7 @@ public class NotificationDisplayWidget extends EasyWidgetWithChildren implements
 				if(n.hasTimeStamp())
 					this.tooltip.add(n.getTimeStampMessage());
 				if(lines.size() > 2)
-					this.tooltip.addAll(TooltipHelper.splitTooltips(ListUtil.convertList(message)));
+					this.tooltip.addAll(TooltipHelper.splitTooltips(ListUtil.castList(message)));
 			}
 		}
 

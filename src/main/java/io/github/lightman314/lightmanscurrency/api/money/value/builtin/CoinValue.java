@@ -23,7 +23,6 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -33,6 +32,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -150,7 +150,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 			for(int i = 0; i < valueList.size(); ++i)
 			{
 				CompoundTag entry = valueList.getCompound(i);
-				Item coin = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(entry.getString("Coin")));
+				Item coin = BuiltInRegistries.ITEM.get(ResourceLocation.parse(entry.getString("Coin")));
 				int amount = entry.getInt("Amount");
 				if(chainData == null)
 					chainData = CoinAPI.getApi().ChainDataOfCoin(coin);
@@ -182,7 +182,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 			for(int i = 0; i < listNBT.size(); i++)
 			{
 				CompoundTag thisCompound = listNBT.getCompound(i);
-				Item coin = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(thisCompound.getString("id")));
+				Item coin = BuiltInRegistries.ITEM.get(ResourceLocation.parse(thisCompound.getString("id")));
 				int amount = thisCompound.getInt("amount");
 				if(chainData == null)
 					chainData = CoinAPI.getApi().ChainDataOfCoin(coin);
@@ -516,7 +516,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 				try {
 					JsonObject coinData = list.get(i).getAsJsonObject();
 					//Parse coin
-					Item coin = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(GsonHelper.getAsString(coinData, "Coin")));
+					Item coin = BuiltInRegistries.ITEM.get(ResourceLocation.parse(GsonHelper.getAsString(coinData, "Coin")));
 					if(chainData == null)
 						chainData = CoinAPI.getApi().ChainDataOfCoin(coin);
 					//Parse count
@@ -559,7 +559,7 @@ public final class CoinValue extends MoneyValue implements IItemBasedValue
 					try {
 						JsonObject coinData = valueList.get(i).getAsJsonObject();
 						//Parse coin
-						Item coin = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(GsonHelper.getAsString(coinData, "Coin")));
+						Item coin = BuiltInRegistries.ITEM.get(ResourceLocation.parse(GsonHelper.getAsString(coinData, "Coin")));
 						if(chainData == null)
 							chainData = CoinAPI.getApi().ChainDataOfCoin(coin);
 						//Parse count

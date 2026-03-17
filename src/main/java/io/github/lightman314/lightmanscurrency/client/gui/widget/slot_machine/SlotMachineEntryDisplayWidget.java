@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.client.IconRenderer;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.client.gui.EasyScreenHelper;
 import io.github.lightman314.lightmanscurrency.api.client.gui.interfaces.ITooltipSource;
@@ -72,9 +73,9 @@ public class SlotMachineEntryDisplayWidget extends EasyWidget implements IToolti
                 for(int i = 0; i < SlotMachineEntry.ITEM_LIMIT; ++i)
                 {
                     if(i < customIcons.size())
-                        customIcons.get(i).render(gui,18 * i, ITEM_POSY);
+                        IconRenderer.renderIcon(customIcons.get(i),gui,18 * i, ITEM_POSY);
                     else
-                        SlotMachineEntry.DEFAULT_ICON.render(gui,18 * i, ITEM_POSY);
+                        IconRenderer.renderIcon(SlotMachineEntry.DEFAULT_ICON,gui,18 * i, ITEM_POSY);
                 }
                 SpriteUtil.SMALL_ARROW_RIGHT.render(gui,72,ITEM_POSY + 4);
             }

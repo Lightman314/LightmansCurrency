@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.data.ModelVariant;
 import io.github.lightman314.lightmanscurrency.api.variants.block.IVariantBlock;
 import io.github.lightman314.lightmanscurrency.api.variants.item.IVariantItem;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.renderer.block.model.BlockModel;
@@ -223,7 +222,7 @@ public class VariantModelBakery {
         {
             //Cache the variant as it's relevant to the model key
             cacheVariant = variantID;
-            ResourceLocation newModelID = VersionUtil.modResource(variantID.getNamespace(), "lc_model_variants/" + variantID.getPath() + "/" + modelIndex);
+            ResourceLocation newModelID = ResourceLocation.fromNamespaceAndPath(variantID.getNamespace(), "lc_model_variants/" + variantID.getPath() + "/" + modelIndex);
             //Create new BlockModel for the given target
             VariantModelHelper.createCustomBlockModel(model,this.modelResources,variant.getTextureOverrides(),newModelID);
             model = newModelID;

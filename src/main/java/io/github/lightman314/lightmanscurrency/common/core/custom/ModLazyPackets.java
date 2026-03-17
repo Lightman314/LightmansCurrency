@@ -18,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.api.stats.StatType;
+import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableReference;
 import io.github.lightman314.lightmanscurrency.common.bank.BankAccount;
 import io.github.lightman314.lightmanscurrency.common.menus.slot_machine.ResultHolder;
 import io.github.lightman314.lightmanscurrency.common.teams.Team;
@@ -86,6 +87,8 @@ public class ModLazyPackets {
     public static final Supplier<LazyPacketType<SalaryData>> SALARY_DATA = register("salary_data",() -> SalaryData.STREAM_CODEC);
 
     public static final Supplier<LazyPacketType<Team>> TEAM = register("team",() -> Team.STREAM_CODEC);
+
+    public static final Supplier<LazyPacketType<TaxableReference>> TAXABLE_REFERENCE = register("taxable_reference",() -> TaxableReference.STREAM_CODEC);
 
     public static <T> Supplier<LazyPacketType<T>> register(String id, StreamCodec<? super RegistryFriendlyByteBuf,T> codec) { return register(id,() -> codec); }
     public static <T> Supplier<LazyPacketType<T>> register(String id, Supplier<StreamCodec<? super RegistryFriendlyByteBuf,T>> codec) {

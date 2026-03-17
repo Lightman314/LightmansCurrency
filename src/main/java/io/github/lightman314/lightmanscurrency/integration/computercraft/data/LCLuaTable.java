@@ -61,6 +61,18 @@ public class LCLuaTable implements LuaTable<Object, Object> {
         return codec.encodeStart(ops,value).getOrThrow(LuaException::new);
     }
 
+    public static <T> LCLuaTable fromValueAsTable(T value,Codec<T> codec) throws LuaException
+    {
+        Object result = fromValue(value,codec);
+        if(result instanceof LCLuaTable table)
+            return table;
+        if(result instanceof Map<?,?> map)
+            return new LCLuaTable(map);
+        LCLuaTable table = new LCLuaTable();
+        table.put("data",result);
+        return table;
+    }
+
     public static CompoundTag toTag(Map<?,?> table)
     {
         CompoundTag tag = new CompoundTag();

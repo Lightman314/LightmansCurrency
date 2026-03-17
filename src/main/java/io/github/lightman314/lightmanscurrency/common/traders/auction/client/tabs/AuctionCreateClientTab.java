@@ -86,7 +86,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 			this.locked = false;
 			this.successTime = 0;
 			this.startingBidMode = true;
-			this.commonTab.getAuctionItems().addListener(c -> this.UpdateAuctionItems());
+			this.commonTab.getAuctionItems().withListener(this.updateItemsListener);
 		}
 		
 		this.tradeDisplay = this.addChild(TradeButton.builder()
@@ -158,7 +158,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 	}
 	
 	@Override
-	public void closeAction() { this.commonTab.getAuctionItems().removeListener(c -> this.UpdateAuctionItems()); }
+	public void closeAction() { this.commonTab.getAuctionItems().removeListener(this.updateItemsListener); }
 	
 	@Override
 	public void renderBG(EasyGuiGraphics gui) {
@@ -265,6 +265,8 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 			this.buttonSubmitPersistentAuction.visible = this.persistentAuctionIDInput.visible = false;
 		
 	}
+
+    private final Runnable updateItemsListener = this::UpdateAuctionItems;
 	
 	private void UpdateAuctionItems() {
 		this.pendingAuction.setAuctionItems(this.commonTab.getAuctionItems());
@@ -303,7 +305,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 		this.commonTab.createAuction(this.pendingAuction);
 		this.locked = true;
 		for(EasySlot slot : this.commonTab.getSlots())
-			slot.locked = true;
+			slot.setLocked(true);
 	}
 	
 	private void submitPersistentAuction(EasyButton button) {
@@ -321,7 +323,7 @@ public class AuctionCreateClientTab extends TraderStorageClientTab<AuctionCreate
 			{
 				this.locked = false;
 				for(EasySlot slot : this.commonTab.getSlots())
-					slot.locked = false;
+					slot.setLocked(false);
 			}
 		}
 	}

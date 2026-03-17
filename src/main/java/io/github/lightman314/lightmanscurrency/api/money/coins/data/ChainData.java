@@ -26,7 +26,6 @@ import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -127,7 +126,7 @@ public class ChainData {
 
         this.isEvent = GsonHelper.getAsBoolean(json, "EventChain", false);
 
-        ResourceLocation displayType = VersionUtil.parseResource(GsonHelper.getAsString(json, "displayType"));
+        ResourceLocation displayType = ResourceLocation.parse(GsonHelper.getAsString(json, "displayType"));
         ValueDisplaySerializer displaySerializer = ValueDisplayAPI.get(displayType);
         if(displaySerializer == null)
             throw new JsonSyntaxException(displayType + " is not a valid displayType");

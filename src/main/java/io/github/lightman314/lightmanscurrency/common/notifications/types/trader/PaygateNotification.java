@@ -29,7 +29,7 @@ public class PaygateNotification extends SingleLineTaxableNotification {
 
 	public static final NotificationType<PaygateNotification> TYPE = new Type();
 	
-	TraderCategory traderData = TraderCategory.NULL;
+	TraderCategory traderData = TraderCategory.getEmpty();
 
     MoneyValue cost = MoneyValue.empty();
 
@@ -106,7 +106,7 @@ public class PaygateNotification extends SingleLineTaxableNotification {
 	@Override
 	protected void loadNormal(CompoundTag compound, HolderLookup.Provider lookup) {
 		
-		this.traderData = new TraderCategory(compound.getCompound("TraderInfo"),lookup);
+		this.traderData = TraderCategory.loadOldData(compound.getCompound("TraderInfo"),lookup);
 		this.duration = compound.getInt("Duration");
 		if(compound.contains("TicketID"))
 			this.ticketID = compound.getLong("TicketID");

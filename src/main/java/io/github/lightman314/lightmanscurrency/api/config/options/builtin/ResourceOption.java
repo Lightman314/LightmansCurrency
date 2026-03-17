@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.StringOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -39,7 +38,7 @@ public class ResourceOption extends ConfigOption<ResourceLocation> {
         @Override
         public ResourceLocation tryParse(String cleanLine) throws ConfigParsingException {
             String s = StringOption.PARSER.tryParse(cleanLine);
-            try { return VersionUtil.parseResource(s);
+            try { return ResourceLocation.parse(s);
             } catch (ResourceLocationException e) { throw new ConfigParsingException(s + " is not a valid Resource Location!", e); }
         }
 

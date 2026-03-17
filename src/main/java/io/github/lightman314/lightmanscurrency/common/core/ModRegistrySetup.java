@@ -46,7 +46,8 @@ public class ModRegistrySetup {
 		//Loot Pool Entry Types
 		ModLootPoolEntryTypes.REGISTER.register(bus);
 
-		ModLootFunctionTypes.init();
+        //Loot Function Types
+		ModLootFunctionTypes.REGISTER.register(bus);
 
 		//Attachment Types
 		ModAttachmentTypes.REGISTER.register(bus);

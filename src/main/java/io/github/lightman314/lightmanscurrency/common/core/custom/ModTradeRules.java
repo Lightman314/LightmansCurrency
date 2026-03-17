@@ -19,7 +19,7 @@ public class ModTradeRules {
         REGISTER.register("free_sample", () -> FreeSample.TYPE);
         REGISTER.register("discount_list", () -> PlayerDiscounts.TYPE);
         REGISTER.register("player_list", () -> PlayerListing.TYPE);
-        REGISTER.register("player_trade_limit", () -> PlayerListing.TYPE);
+        REGISTER.register("player_trade_limit", () -> PlayerTradeLimit.TYPE);
         REGISTER.register("price_fluctuation", () -> PriceFluctuation.TYPE);
         REGISTER.register("timed_sale", () -> TimedSale.TYPE);
         REGISTER.register("trade_limit", () -> TradeLimit.TYPE);

@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.item_trader.item_positions.rotation.*;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
@@ -78,7 +77,7 @@ public abstract class RotationHandler
         else
         {
             JsonObject json = GsonHelper.convertToJsonObject(element,memberName);
-            ResourceLocation type = VersionUtil.parseResource(GsonHelper.getAsString(json,"type"));
+            ResourceLocation type = ResourceLocation.parse(GsonHelper.getAsString(json,"type"));
             RotationHandlerType parser = ROTATION_HANDLERS.get(type);
             if(parser == null)
                 throw new JsonSyntaxException("Unknown rotation handler type " + type);

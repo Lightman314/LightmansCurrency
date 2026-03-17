@@ -12,8 +12,8 @@ import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
 import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.common.blockentity.handler.ICanCopy;
-import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
+import io.github.lightman314.lightmanscurrency.util.OldDataHelper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -80,7 +80,7 @@ public class TraderItemStorage implements IItemHandler, ICanCopy<TraderItemStora
         for(int i = 0; i < list.size(); ++i)
         {
             CompoundTag itemTag = list.getCompound(i);
-            ItemStack item = InventoryUtil.loadItemNoLimits(itemTag,lookup);
+            ItemStack item = OldDataHelper.loadItem(itemTag,lookup);
             if(!item.isEmpty())
                 storage.add(item);
         }

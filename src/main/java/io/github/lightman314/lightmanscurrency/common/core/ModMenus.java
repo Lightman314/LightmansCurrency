@@ -60,7 +60,7 @@ public class ModMenus {
 	
 	public static final Supplier<MenuType<EjectionRecoveryMenu>> EJECTION_RECOVERY = registerSimple("trader_recovery",EjectionRecoveryMenu::new);
 
-	public static final Supplier<MenuType<PlayerTradeMenu>> PLAYER_TRADE = register("player_trading",(id, inventory, data) -> new PlayerTradeMenu(id, inventory, data.readInt(), ClientPlayerTrade.decode(data)));
+	public static final Supplier<MenuType<PlayerTradeMenu>> PLAYER_TRADE = register("player_trading",(id, inventory, data) -> new PlayerTradeMenu(id, inventory, data.readInt(), ClientPlayerTrade.STREAM_CODEC.decode(data)));
 
 	public static final Supplier<MenuType<CoinChestMenu>> COIN_CHEST = registerBE("coin_chest",CoinChestBlockEntity.class,CoinChestMenu::new);
 

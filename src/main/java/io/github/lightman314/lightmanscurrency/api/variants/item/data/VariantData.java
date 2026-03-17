@@ -19,6 +19,8 @@ import java.util.function.Consumer;
 
 public record VariantData(ResourceLocation variant) implements TooltipProvider {
 
+    public static final VariantData NULL = new VariantData(null);
+
     public static final Codec<VariantData> CODEC = ResourceLocation.CODEC.xmap(VariantData::new,VariantData::variant);
     public static final StreamCodec<ByteBuf,VariantData> STREAM_CODEC = ResourceLocation.STREAM_CODEC.map(VariantData::new,VariantData::variant);
 

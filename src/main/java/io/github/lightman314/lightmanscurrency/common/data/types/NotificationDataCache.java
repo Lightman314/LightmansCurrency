@@ -1,16 +1,18 @@
 package io.github.lightman314.lightmanscurrency.common.data.types;
 
+import com.mojang.serialization.Codec;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomData;
 import io.github.lightman314.lightmanscurrency.api.misc.data.CustomDataType;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
-import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
+import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets;
 import io.github.lightman314.lightmanscurrency.network.message.notifications.SPacketChatNotification;
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -20,17 +22,15 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@MethodsReturnNonnullByDefault
-@FieldsAreNonnullByDefault
-@ParametersAreNonnullByDefault
 public class NotificationDataCache extends CustomData {
 
     public static final CustomDataType<NotificationDataCache> TYPE = new CustomDataType<>("lightmanscurrency_notification_data",NotificationDataCache::new);
+    private static final Codec<Map<UUID,NotificationData>> DATA_CODEC = Codec.unboundedMap(UUIDUtil.STRING_CODEC,NotificationData.CODEC);
 
     private final Map<UUID, NotificationData> playerNotifications = new HashMap<>();
 
@@ -40,26 +40,30 @@ public class NotificationDataCache extends CustomData {
     public CustomDataType<?> getType() { return TYPE; }
 
     @Override
-    public void save(CompoundTag tag, HolderLookup.Provider lookup) {
-        ListTag notificationData = new ListTag();
-        this.playerNotifications.forEach((id,data) -> {
-            CompoundTag entry = data.save(lookup);
-            entry.putUUID("Player", id);
-            notificationData.add(entry);
-        });
-        tag.put("PlayerNotifications", notificationData);
+    public void save(CompoundTag tag,DataContext<Tag> context) {
+        tag.put("notifications",context.write(this.playerNotifications,DATA_CODEC));
     }
 
     @Override
-    protected void load(CompoundTag tag, HolderLookup.Provider lookup) {
-        ListTag notificationData = tag.getList("PlayerNotifications", Tag.TAG_COMPOUND);
-        for(int i = 0; i < notificationData.size(); ++i)
+    protected void load(CompoundTag tag,DataContext<Tag> context) {
+        //Load old data
+        if(tag.contains("PlayerNotifications"))
         {
-            CompoundTag entry = notificationData.getCompound(i);
-            UUID id = entry.getUUID("Player");
-            NotificationData data = NotificationData.loadFrom(entry,lookup);
-            if(id != null && data != null)
-                this.playerNotifications.put(id, data);
+            ListTag notificationData = tag.getList("PlayerNotifications", Tag.TAG_COMPOUND);
+            for(int i = 0; i < notificationData.size(); ++i)
+            {
+                CompoundTag entry = notificationData.getCompound(i);
+                UUID id = entry.getUUID("Player");
+                NotificationData data = context.read(tag,NotificationData.CODEC);
+                if(id != null && data != null)
+                    this.playerNotifications.put(id,data);
+            }
+        }
+        else
+        {
+            this.playerNotifications.clear();
+            this.playerNotifications.putAll(context.safeReadMap(tag.get("notifications"),UUIDUtil.STRING_CODEC,NotificationData.CODEC,
+                    s -> LightmansCurrency.LogError("Error loading Player Notification Data: " + s)));
         }
     }
 
@@ -78,16 +82,21 @@ public class NotificationDataCache extends CustomData {
     public void markNotificationsDirty(UUID player)
     {
         this.setChanged();
-        if(this.isServer() && this.playerNotifications.containsKey(player))
         {
-            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-            if(server == null)
-                return;
-            ServerPlayer sp = server.getPlayerList().getPlayer(player);
+            ServerPlayer sp = this.checkForPlayer(player);
             if(sp == null)
                 return;
-            this.syncNotifications(sp);
+            this.fullSyncNotifications(sp);
         }
+    }
+
+    @Nullable
+    private ServerPlayer checkForPlayer(UUID player)
+    {
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if(server == null)
+            return null;
+        return server.getPlayerList().getPlayer(player);
     }
 
     public void pushNotification(UUID player, Notification notification) { this.pushNotification(player,notification,true); }
@@ -100,7 +109,8 @@ public class NotificationDataCache extends CustomData {
         //Passed the pre event, add the notification to the notification data
         data.addNotification(event.getNotification());
         //Mark the data as dirty
-        this.markNotificationsDirty(player);
+        this.setChanged();
+        this.syncNotification(player,notification);
         //Run the post event to notify anyone who cares that the notification was created.
         NeoForge.EVENT_BUS.post(new NotificationEvent.NotificationSent.Post(player, data, event.getNotification()));
 
@@ -117,24 +127,44 @@ public class NotificationDataCache extends CustomData {
         }
     }
 
-    private void syncNotifications(ServerPlayer player)
+    private void fullSyncNotifications(ServerPlayer player)
     {
-        this.sendSyncPacket(this.builder().setTag("UpdateNotifications",this.getNotifications(player).save(LookupHelper.getRegistryAccess())).setUUID("Player",player.getUUID()),player);
+        this.sendSyncPacket(this.builder()
+                .setCustom("UpdateNotifications",this.getNotifications(player),ModLazyPackets.NOTIFICATION_DATA)
+                .setUUID("Player",player.getUUID()),player);
+    }
+
+    private void syncNotification(UUID player,Notification notification) {
+
+        ServerPlayer sp = this.checkForPlayer(player);
+        if(sp != null)
+        {
+            this.sendSyncPacket(this.builder()
+                    .setCustom("AddNotification",notification,ModLazyPackets.NOTIFICATION)
+                    .setUUID("Player",player),
+                    sp);
+        }
     }
 
     @Override
     protected void parseSyncPacket(LazyPacketData message, HolderLookup.Provider lookup) {
         if(message.contains("UpdateNotifications"))
         {
-            NotificationData data = NotificationData.loadFrom(message.getTag("UpdateNotifications"),lookup).flagAsClient(this);
+            NotificationData data = message.getCustom("UpdateNotifications",ModLazyPackets.NOTIFICATION_DATA).flagAsClient(this);
             UUID player = message.getUUID("Player");
             this.playerNotifications.put(player,data);
+        }
+        if(message.contains("AddNotification"))
+        {
+            UUID player = message.getUUID("Player");
+            Notification notification = message.getCustom("AddNotification",ModLazyPackets.NOTIFICATION);
+            this.getNotifications(player).addNotification(notification.flagAsClient(this));
         }
     }
 
     @Override
     public void onPlayerJoin(ServerPlayer player) {
-        this.syncNotifications(player);
+        this.fullSyncNotifications(player);
     }
 
 }

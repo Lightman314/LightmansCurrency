@@ -1,12 +1,12 @@
 package io.github.lightman314.lightmanscurrency.common.util;
 
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.*;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,10 +87,10 @@ public class TagUtil {
         if(modelID.contains("#"))
         {
             String[] split = modelID.split("#",2);
-            return new ModelResourceLocation(VersionUtil.parseResource(split[0]),split[1]);
+            return new ModelResourceLocation(ResourceLocation.parse(split[0]),split[1]);
         }
         else
-            return ModelResourceLocation.standalone(VersionUtil.parseResource(modelID));
+            return ModelResourceLocation.standalone(ResourceLocation.parse(modelID));
     }
 
 }

@@ -4,15 +4,15 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.*;
 import io.github.lightman314.lightmanscurrency.api.variants.VariantProvider;
 import io.github.lightman314.lightmanscurrency.api.variants.block.block_entity.IVariantDataStorage;
+import io.github.lightman314.lightmanscurrency.api.variants.item.data.VariantData;
+import io.github.lightman314.lightmanscurrency.api.variants.item.data.VariantLock;
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.ModelVariantDataManager;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.menus.variant.BlockVariantSelectMenu;
 import net.minecraft.ChatFormatting;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Unit;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
@@ -22,11 +22,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public interface IVariantBlock {
 
     BooleanProperty VARIANT = BooleanProperty.create("variant");
@@ -120,12 +117,12 @@ public interface IVariantBlock {
     static void copyDataToItem(@Nullable ResourceLocation variant, boolean variantLocked, ItemStack item)
     {
         if(variant != null)
-            item.set(ModDataComponents.MODEL_VARIANT,variant);
+            item.set(ModDataComponents.MODEL_VARIANT,new VariantData(variant));
         if(variantLocked)
-            item.set(ModDataComponents.VARIANT_LOCK, Unit.INSTANCE);
+            item.set(ModDataComponents.VARIANT_LOCK,VariantLock.INSTANCE);
     }
 
-    static void copyDataFromItem(@Nullable IVariantDataStorage data, ItemStack item) { if(data == null) return; data.setVariant(item.getOrDefault(ModDataComponents.MODEL_VARIANT.get(),null),item.has(ModDataComponents.VARIANT_LOCK)); }
+    static void copyDataFromItem(@Nullable IVariantDataStorage data, ItemStack item) { if(data == null) return; data.setVariant(item.getOrDefault(ModDataComponents.MODEL_VARIANT.get(),VariantData.NULL).variant(),item.has(ModDataComponents.VARIANT_LOCK)); }
 
 
 }

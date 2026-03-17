@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.client.sprites.FixedSizeSprit
 import io.github.lightman314.lightmanscurrency.api.client.sprites.SpriteUtil;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.TaxesNode;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.button.PlainButton;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyAddonHelper;
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyButton;
@@ -12,17 +13,12 @@ import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyTextB
 import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyWidgetWithChildren;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class TaxInfoWidget extends EasyWidgetWithChildren {
 
     public static final FixedSizeSprite SPRITE_IGNORE_TC = SpriteUtil.BUTTON_GREEN_X;
@@ -40,17 +36,26 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
         this.parent = Objects.requireNonNull(builder.parent);
     }
 
+    @Nullable
+    private TaxesNode getNode() {
+        TraderData trader = this.parent.getTrader();
+        if(trader != null)
+            return trader.getNode(TaxesNode.TYPE);
+        return null;
+    }
+
     @Override
     protected void renderWidget(EasyGuiGraphics gui) {
         ITaxCollector entry = this.entrySource.get();
         TraderData trader = this.parent.getTrader();
-        if(entry != null && trader != null)
+        TaxesNode node = trader == null ? null : trader.getNode(TaxesNode.TYPE);
+        if(trader != null && entry != null && node != null)
         {
             //Get status color
             int statusColor = 0x404040;
-            if(trader.ShouldIgnoreTaxEntryOnly(entry))
+            if(node.IsEntryDirectlyIgnored(entry))
                 statusColor = 0xFF0000;
-            else if(trader.ShouldIgnoreAllTaxes())
+            else if(node.IgnoresAllTaxes())
                 statusColor = 0xFF7F00;
             else if(entry.ShouldTax(trader))
             {
@@ -95,9 +100,9 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
 
     private boolean isCurrentlyIgnored() {
         ITaxCollector entry = this.entrySource.get();
-        TraderData trader = this.parent.getTrader();
-        if(entry != null && trader != null)
-            return trader.ShouldIgnoreTaxEntryOnly(entry);
+        TaxesNode node = this.getNode();
+        if(entry != null && node != null)
+            return node.IsEntryDirectlyIgnored(entry);
         return false;
     }
 
@@ -115,10 +120,10 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
     private void ToggleIgnoreState(EasyButton button)
     {
         ITaxCollector entry = this.entrySource.get();
-        TraderData trader = this.parent.getTrader();
-        if(entry != null && trader != null)
+        TaxesNode node = this.getNode();
+        if(entry != null && node != null)
         {
-            if(trader.ShouldIgnoreTaxEntryOnly(entry))
+            if(node.IsEntryDirectlyIgnored(entry))
                 this.parent.PardonIgnoredTaxCollector(entry.getID());
             else
                 this.parent.ForceIgnoreTaxCollector(entry.getID());
@@ -127,7 +132,6 @@ public class TaxInfoWidget extends EasyWidgetWithChildren {
 
     public static Builder builder() { return new Builder(); }
 
-    @FieldsAreNonnullByDefault
     public static class Builder extends EasyBuilder<Builder>
     {
         private Builder() { super(WIDTH,HEIGHT); }

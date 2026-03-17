@@ -9,17 +9,17 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderState;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.templates.SyncedTraderNode;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNodeType;
+import io.github.lightman314.lightmanscurrency.api.variants.item.data.VariantData;
+import io.github.lightman314.lightmanscurrency.api.variants.item.data.VariantLock;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets;
 import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
 import io.github.lightman314.lightmanscurrency.util.EnumUtil;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Unit;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -77,9 +77,9 @@ public class WorldStateNode extends SyncedTraderNode {
     public void addVariantToStack(ItemStack stack)
     {
         if(this.variant.isPresent())
-            stack.set(ModDataComponents.MODEL_VARIANT,this.variant.get());
+            stack.set(ModDataComponents.MODEL_VARIANT,new VariantData(this.variant.get()));
         if(this.variantLocked)
-            stack.set(ModDataComponents.VARIANT_LOCK,Unit.INSTANCE);
+            stack.set(ModDataComponents.VARIANT_LOCK,VariantLock.INSTANCE);
     }
     public void setTraderBlock(@Nullable Item traderBlock) {
         this.traderBlock = Optional.ofNullable(traderBlock == Items.AIR ? null : traderBlock);
@@ -149,13 +149,13 @@ public class WorldStateNode extends SyncedTraderNode {
         if(tag.contains("TraderBlock"))
         {
             try {
-                this.traderBlock = Optional.of(BuiltInRegistries.ITEM.get(VersionUtil.parseResource(tag.getString("TraderBlock"))));
+                this.traderBlock = Optional.of(BuiltInRegistries.ITEM.get(ResourceLocation.parse(tag.getString("TraderBlock"))));
             }catch (Throwable ignored) {}
         }
         //Model Variant
         if(tag.contains("TraderVariant"))
         {
-            try { this.variant = Optional.of(VersionUtil.parseResource(tag.getString("TraderVariant")));
+            try { this.variant = Optional.of(ResourceLocation.parse(tag.getString("TraderVariant")));
             } catch (Throwable ignored) {}
         }
         if(tag.contains("TraderVariantLocked"))

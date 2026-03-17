@@ -17,7 +17,7 @@
       "tag": "c:ingots/iron"
     },
     "x": {
-      "item": "lightmanscurrency:item_trader_server_sml"
+      "item": "lightmanscurrency:item_network_trader_1"
     }
   },
   "pattern": [
@@ -27,6 +27,6 @@
   ],
   "result": {
     "count": 1,
-    "id": "lightmanscurrency:item_trader_server_med"
+    "id": "lightmanscurrency:item_network_trader_2"
   }
 }

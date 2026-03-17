@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCat
 import io.github.lightman314.lightmanscurrency.common.core.ModBlocks;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.core.variants.Color;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -22,15 +21,18 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
+import net.neoforged.jarjar.nio.util.Lazy;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
 
 public class TraderCategory extends NotificationCategory {
 
-    public static final TraderCategory NULL = new TraderCategory(ModBlocks.DISPLAY_CASE.get(Color.WHITE),EasyText.empty(),-1,Optional.empty());
+    private static final Lazy<TraderCategory> EMPTY = Lazy.of(() -> new TraderCategory(ModBlocks.DISPLAY_CASE.get(Color.WHITE),EasyText.empty(),-1,Optional.empty()));
+    public static TraderCategory getEmpty() { return EMPTY.get(); }
 
 	public static final NotificationCategoryType<TraderCategory> TYPE = new Type();
 	
@@ -48,11 +50,12 @@ public class TraderCategory extends NotificationCategory {
 		this.traderID = traderID;
         this.traderIcon = icon;
 	}
-	
-	public TraderCategory(CompoundTag compound, HolderLookup.Provider lookup) {
+
+    @Deprecated
+	private TraderCategory(CompoundTag compound, HolderLookup.Provider lookup) {
 		
 		if(compound.contains("Icon"))
-			this.trader = BuiltInRegistries.ITEM.get(VersionUtil.parseResource(compound.getString("Icon")));
+			this.trader = BuiltInRegistries.ITEM.get(ResourceLocation.parse(compound.getString("Icon")));
 		else
 			this.trader = ModItems.TRADING_CORE.get();
 		
@@ -70,8 +73,11 @@ public class TraderCategory extends NotificationCategory {
             this.traderIcon = Optional.ofNullable(IconData.loadOldData(compound.getCompound("CustomIcon"),lookup));
         else
             this.traderIcon = Optional.empty();
-		
+
 	}
+
+    @Deprecated
+    public static TraderCategory loadOldData(CompoundTag compoundTag, HolderLookup.Provider lookup) { return new TraderCategory(compoundTag,lookup); }
 
 	@Override
 	public IconData getIcon() {

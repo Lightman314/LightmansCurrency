@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.api.money.types.builtin;
 
-import com.google.gson.JsonObject;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
@@ -20,7 +19,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -55,9 +53,7 @@ public final class NullCurrencyType extends CurrencyType<NullValue> {
             return MoneyValue.free();
         return MoneyValue.empty();
     }
-    @Override
-    public MoneyValue loadMoneyValueJson(JsonObject json) { return GsonHelper.getAsBoolean(json, "Free", false) ? MoneyValue.free() : MoneyValue.empty(); }
-    
+
     @Override
     public MoneyValueParser getValueParser() { return DefaultValueParser.INSTANCE; }
 

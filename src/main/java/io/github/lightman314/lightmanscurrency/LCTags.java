@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency;
 
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -112,7 +112,7 @@ public class LCTags {
         public static final TagKey<Enchantment> WALLET_ENCHANTMENT = tag("wallet_enchantment");
         public static final TagKey<Enchantment> MONEY_MENDING = tag("money_mending");
 
-        private static TagKey<Enchantment> common(String id) { return TagKey.create(Registries.ENCHANTMENT,VersionUtil.modResource("c",id)); }
+        private static TagKey<Enchantment> common(String id) { return TagKey.create(Registries.ENCHANTMENT, ResourceLocation.fromNamespaceAndPath("c",id)); }
         private static TagKey<Enchantment> tag(String id) { return TagKey.create(Registries.ENCHANTMENT,LightmansCurrency.id(id)); }
 
     }

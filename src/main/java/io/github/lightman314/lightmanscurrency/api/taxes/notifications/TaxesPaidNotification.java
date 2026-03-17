@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.codecs.StreamHelper;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.*;
+import io.github.lightman314.lightmanscurrency.util.OldDataHelper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -46,7 +47,7 @@ public class TaxesPaidNotification extends SingleLineNotification {
     protected void loadAdditional(CompoundTag compound, HolderLookup.Provider lookup)
     {
         this.amount = MoneyValue.load(compound.getCompound("Amount"));
-        this.category = NotificationAPI.getApi().LoadCategory(compound.getCompound("Category"),lookup);
+        this.category = OldDataHelper.decode(compound.getCompound("Category"),NotificationCategory.CODEC,lookup);
     }
 
     @Override
@@ -75,7 +76,7 @@ public class TaxesPaidNotification extends SingleLineNotification {
         @Override
         public MapCodec<TaxesPaidNotification> codec() { return CODEC; }
         @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, TaxesPaidNotification> streamCodec() { return STREAM_CODEC; }
+        public StreamCodec<RegistryFriendlyByteBuf,TaxesPaidNotification> streamCodec() { return STREAM_CODEC; }
 
     }
 

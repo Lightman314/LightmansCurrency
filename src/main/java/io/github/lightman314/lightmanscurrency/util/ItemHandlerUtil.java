@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.util;
 
+import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.api.misc.item_handlers.LCItemStackHandler;
 import net.minecraft.core.BlockPos;
@@ -19,12 +20,18 @@ public class ItemHandlerUtil {
 
     public static LCItemStackHandler fromList(List<ItemStack> list) { return new LCItemStackHandler(list); }
 
-    public static List<ItemStack> toList(IItemHandler inventory) {
+    public static List<ItemStack> toList(IItemHandler inventory) { return toList(inventory, Predicates.alwaysTrue()); }
+    public static List<ItemStack> toList(IItemHandler inventory,Predicate<ItemStack> filter) {
         List<ItemStack> list = new ArrayList<>(inventory.getSlots());
-        for(int i = 0; i < inventory.getSlots();++i)
-            list.add(inventory.getStackInSlot(i).copy());
+        for(int i = 0; i < inventory.getSlots();++i) {
+            ItemStack s = inventory.getStackInSlot(i);
+            if (filter.test(s))
+                list.add(s);
+        }
         return list;
     }
+
+    public static List<ItemStack> toNonEmptyList(IItemHandler inventory) { return toList(inventory,s -> !s.isEmpty()); }
 
     public static List<ItemStack> extractItem(IItemHandler handler, Predicate<ItemStack> test, int count, boolean simulate)
     {

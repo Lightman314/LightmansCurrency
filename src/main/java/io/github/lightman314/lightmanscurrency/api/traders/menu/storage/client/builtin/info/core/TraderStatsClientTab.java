@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.
 
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
-import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.LoggerNode;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.builtin.info.InfoSubTab;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.builtin.info.TraderInfoClientTab;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.ScrollListener;
@@ -18,9 +18,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissio
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconUtil;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +34,6 @@ public class TraderStatsClientTab extends InfoSubTab implements IScrollable {
     private int scroll = 0;
     private EasyButton buttonClear;
 
-    @Nonnull
     @Override
     public IconData getIcon() { return IconUtil.ICON_PRICE_FLUCTUATION; }
     @Nullable
@@ -74,10 +71,10 @@ public class TraderStatsClientTab extends InfoSubTab implements IScrollable {
     }
 
     @Override
-    public void renderBG(@Nonnull EasyGuiGraphics gui) {
+    public void renderBG(EasyGuiGraphics gui) {
         this.validateScroll();
         int yPos = START_POS;
-        List<MutableComponent> lines = this.getLines();
+        List<Component> lines = this.getLines();
         if(lines.isEmpty())
         {
             TextRenderUtil.drawVerticallyCenteredMultilineText(gui, LCText.GUI_TRADER_STATS_EMPTY.get(), 10, this.screen.getXSize() - 20, yPos, LINE_COUNT * LINE_SIZE, 0x404040);
@@ -92,12 +89,12 @@ public class TraderStatsClientTab extends InfoSubTab implements IScrollable {
         }
     }
 
-    private List<MutableComponent> getLines()
+    private List<Component> getLines()
     {
-        TraderData trader = this.menu.getTrader();
-        if(trader == null)
+        LoggerNode node = this.getNode(LoggerNode.TYPE);
+        if(node == null)
             return new ArrayList<>();
-        return trader.statTracker.getDisplayLines();
+        return node.statTracker.getDisplayLines();
     }
 
     @Override
