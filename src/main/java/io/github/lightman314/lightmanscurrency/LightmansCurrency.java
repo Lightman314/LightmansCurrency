@@ -120,7 +120,11 @@ public class LightmansCurrency {
 		//Init the proxy
 		PROXY = side.isClient() ? new ClientProxy() : new CommonProxy();
 
-		LootManager.registerDroplistListeners();
+        //Setup Wood Compatibilities super-early so we don't accidentally load items before they're initialized
+        IntegrationUtil.SafeRunIfLoaded("biomesoplenty", BOPCustomWoodTypes::setupWoodTypes, "Error setting up BOP wood types! BOP has probably changed their API!");
+        //IntegrationUtil.SafeRunIfLoaded("quark", QuarkCustomWoodTypes::setupWoodTypes, "Error setting up Quark wood types! Quark has probably changed their API!");
+
+        LootManager.registerDroplistListeners();
 
 		eventBus.addListener(this::commonSetup);
 		eventBus.addListener(this::clientSetup);
@@ -131,11 +135,6 @@ public class LightmansCurrency {
 
         // Register ourselves for server and other game events we are interested in
 		NeoForge.EVENT_BUS.register(this);
-
-		//Setup Wood Compatibilities before registering blocks/items
-		IntegrationUtil.SafeRunIfLoaded("biomesoplenty", BOPCustomWoodTypes::setupWoodTypes, "Error setting up BOP wood types! BOP has probably changed their API!");
-		//IntegrationUtil.SafeRunIfLoaded("quark", QuarkCustomWoodTypes::setupWoodTypes, "Error setting up Quark wood types! Quark has probably changed their API!");
-
         //Setup Deferred Registries
         ModRegistries.register(eventBus);
         
