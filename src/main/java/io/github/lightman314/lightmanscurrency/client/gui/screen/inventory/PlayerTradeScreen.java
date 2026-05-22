@@ -214,7 +214,7 @@ public class PlayerTradeScreen extends EasyMenuScreen<PlayerTradeMenu> implement
                 return true;
             }
         }
-        //Manually block closing by inventory key, to allow usage of all letters while typing player names, etc.
+        //Manually block closing by items key, to allow usage of all letters while typing player names, etc.
         if (this.minecraft.options.keyInventory.isActiveAndMatches(InputConstants.getKey(keyCode, scanCode))) {
             return true;
         }

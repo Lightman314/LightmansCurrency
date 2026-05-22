@@ -4,6 +4,10 @@ import java.util.Map;
 
 public interface ISortableTab {
 
+    /**
+     * The sorting order of this tab to be displayed in the tab button display<br>
+     * Lower values will appear first, while higher values will appear later
+     */
     int getSortPriority();
 
     static int sortEntries(Map.Entry<Integer,?> entryA, Map.Entry<Integer,?> entryB)

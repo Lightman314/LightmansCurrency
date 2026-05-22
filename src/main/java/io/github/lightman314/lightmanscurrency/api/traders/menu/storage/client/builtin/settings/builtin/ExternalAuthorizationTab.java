@@ -89,7 +89,7 @@ public class ExternalAuthorizationTab extends SettingsSubTab implements IScrolla
         this.accessSelection = this.addChild(DropdownWidget.builder()
                 .position(screenArea.pos.offset(20,40 + (20 * ROWS)))
                 .width(screenArea.width - 40)
-                .enumOptions(LCText.GUI_TRADER_SETTINGS_EXTERNAL_AUTH_ACCESS_LEVEL,AccessLevel.values())
+                .enumOptions(LCText.GUI_TRADER_SETTINGS_EXTERNAL_AUTH_ACCESS_LEVEL,AccessLevel.class)
                 .addon(EasyAddonHelper.visibleCheck(() -> this.selectedMachine != null))
                 .selected(this.getSelectedAccessLevel().ordinal())
                 .selectAction(this::changeAccessLevel)
@@ -147,8 +147,8 @@ public class ExternalAuthorizationTab extends SettingsSubTab implements IScrolla
         if(this.getSelectedAccessLevel().ordinal() == ordinal)
             return;
         this.menu.SendMessage(this.builder()
-                .setString(MachineAccessNode.TYPE + "-ChangeAuthorization",this.selectedMachine)
-                .setInt(MachineAccessNode.TYPE + "-NewLevel",ordinal));
+                .setString(MachineAccessNode.KEY + "-ChangeAuthorization",this.selectedMachine)
+                .setInt(MachineAccessNode.KEY + "-NewLevel",ordinal));
     }
 
     @Override

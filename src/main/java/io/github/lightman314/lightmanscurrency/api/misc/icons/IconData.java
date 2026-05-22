@@ -9,6 +9,7 @@ import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
@@ -59,7 +60,10 @@ public abstract class IconData {
 		}
 		return null;
 	}
-    public static IconData safeLoad(CompoundTag tag, HolderLookup.Provider lookup, IconData defaultIcon) { return Objects.requireNonNullElse(loadOldData(tag,lookup),defaultIcon); }
+    public static IconData safeLoad(CompoundTag tag, HolderLookup.Provider lookup, IconData defaultIcon) {
+        IconData result = DataContext.createNBT(lookup).read(tag,CODEC);
+        return result == null ? defaultIcon : result;
+    }
 
     @Deprecated
     protected static IconData parseOld(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException

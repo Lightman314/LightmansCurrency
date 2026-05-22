@@ -17,7 +17,6 @@ import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.WidgetRot
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class LazyWidgetPositioner implements IPreRender, IWidgetPositioner {
@@ -27,10 +26,8 @@ public class LazyWidgetPositioner implements IPreRender, IWidgetPositioner {
 	@Deprecated
 	public static final ISimplePositionerMode MODE_BOTTOMUP = positioner -> positioner.startPos().offset(0, -positioner.widgetSize * positioner.getPositionIndex());
 
-	@Nonnull
-	public static IPositionerMode createClockwiseWraparound(@Nonnull ScreenArea edges,@Nonnull WidgetRotation startingEdge) { return new WraparoundMode(edges,startingEdge,true); }
-	@Nonnull
-	public static IPositionerMode createCounterClockwiseWraparound(@Nonnull ScreenArea edges, @Nonnull WidgetRotation startingEdge)  { return new WraparoundMode(edges,startingEdge,false); }
+	public static IPositionerMode createClockwiseWraparound(ScreenArea edges,WidgetRotation startingEdge) { return new WraparoundMode(edges,startingEdge,true); }
+	public static IPositionerMode createCounterClockwiseWraparound(ScreenArea edges, WidgetRotation startingEdge)  { return new WraparoundMode(edges,startingEdge,false); }
 
 	public static IPositionerMode createTopdown() { return createTopdown(null); }
 	public static IPositionerMode createTopdown(@Nullable WidgetRotation rotation) { return new StraightMode(0,1,rotation); }
@@ -66,19 +63,19 @@ public class LazyWidgetPositioner implements IPreRender, IWidgetPositioner {
 	}
 
 	@Override
-	public void addWidget(@Nonnull EasyWidget widget) {
+	public void addWidget(EasyWidget widget) {
 		if(widget != null && !this.widgetList.contains(widget))
 			this.widgetList.add(widget);
 	}
 
 	@Override
-	public void removeWidget(@Nonnull EasyWidget widget) {
+	public void removeWidget(EasyWidget widget) {
 		if(widget != null)
 			this.widgetList.remove(widget);
 	}
 
 	@Override
-	public void preRender(@Nonnull EasyGuiGraphics gui) {
+	public void preRender(EasyGuiGraphics gui) {
 		this.posIndex = 0;
 		for (EasyWidget w : this.widgetList) {
 			if (w.isVisible()) {
@@ -89,24 +86,24 @@ public class LazyWidgetPositioner implements IPreRender, IWidgetPositioner {
 		}
 	}
 
-	public void clear() { this.widgetList.clear(); }
+	public IWidgetPositioner clear() { this.widgetList.clear(); return this; }
 
 	public interface IPositionerMode
 	{
-		void moveWidget(@Nonnull LazyWidgetPositioner positioner,@Nonnull EasyWidget widget);
+		void moveWidget(LazyWidgetPositioner positioner,EasyWidget widget);
 
-		@Nonnull
-		default IPositionerMode andThen(@Nonnull Consumer<EasyWidget> action) { return this.andThen((p,w) -> action.accept(w)); }
-		default IPositionerMode andThen(@Nonnull BiConsumer<LazyWidgetPositioner,EasyWidget> action) { return new CombinedMode(this,action); }
+		
+		default IPositionerMode andThen(Consumer<EasyWidget> action) { return this.andThen((p,w) -> action.accept(w)); }
+		default IPositionerMode andThen(BiConsumer<LazyWidgetPositioner,EasyWidget> action) { return new CombinedMode(this,action); }
 
 	}
 
 	@Deprecated
 	public interface ISimplePositionerMode extends IPositionerMode {
 		@Override
-		default void moveWidget(@Nonnull LazyWidgetPositioner positioner, @Nonnull EasyWidget widget) { widget.setPosition(this.getPosition(positioner)); }
-		@Nonnull
-		ScreenPosition getPosition(@Nonnull LazyWidgetPositioner positioner);
+		default void moveWidget(LazyWidgetPositioner positioner, EasyWidget widget) { widget.setPosition(this.getPosition(positioner)); }
+		
+		ScreenPosition getPosition(LazyWidgetPositioner positioner);
 	}
 
 	private static class WraparoundMode implements IPositionerMode
@@ -114,14 +111,14 @@ public class LazyWidgetPositioner implements IPreRender, IWidgetPositioner {
 		private final ScreenArea area;
 		private final WidgetRotation startingEdge;
 		private final boolean clockwise;
-		private WraparoundMode(@Nonnull ScreenArea area, WidgetRotation startingEdge, boolean clockwise)
+		private WraparoundMode(ScreenArea area, WidgetRotation startingEdge, boolean clockwise)
 		{
 			this.area = area;
 			this.startingEdge = startingEdge;
 			this.clockwise = clockwise;
 		}
 		@Override
-		public void moveWidget(@Nonnull LazyWidgetPositioner positioner, @Nonnull EasyWidget widget) {
+		public void moveWidget(LazyWidgetPositioner positioner, EasyWidget widget) {
 
 			Pair<WidgetRotation,Integer> edgeAndSlot = this.edgeAndPosForSlot(positioner.widgetSize,positioner.getPositionIndex());
 			//Get the corner
@@ -192,7 +189,7 @@ public class LazyWidgetPositioner implements IPreRender, IWidgetPositioner {
 		}
 
 		@Override
-		public void moveWidget(@Nonnull LazyWidgetPositioner positioner, @Nonnull EasyWidget widget) {
+		public void moveWidget(LazyWidgetPositioner positioner, EasyWidget widget) {
 			widget.setPosition(positioner.startPos().offset(positioner.widgetSize * this.xMult * positioner.getPositionIndex(),positioner.widgetSize * this.yMult * positioner.getPositionIndex()));
 			if(this.rotation != null && widget instanceof IRotatableWidget w)
 				w.setRotation(this.rotation);
@@ -204,14 +201,14 @@ public class LazyWidgetPositioner implements IPreRender, IWidgetPositioner {
 	{
 		private final IPositionerMode mode;
 		private final BiConsumer<LazyWidgetPositioner,EasyWidget> extraAction;
-		CombinedMode(@Nonnull IPositionerMode mode, @Nonnull BiConsumer<LazyWidgetPositioner,EasyWidget> extraAction)
+		CombinedMode(IPositionerMode mode, BiConsumer<LazyWidgetPositioner,EasyWidget> extraAction)
 		{
 			this.mode = mode;
 			this.extraAction = extraAction;
 		}
 
 		@Override
-		public void moveWidget(@Nonnull LazyWidgetPositioner positioner, @Nonnull EasyWidget widget) {
+		public void moveWidget(LazyWidgetPositioner positioner, EasyWidget widget) {
 			this.mode.moveWidget(positioner,widget);
 			this.extraAction.accept(positioner,widget);
 		}

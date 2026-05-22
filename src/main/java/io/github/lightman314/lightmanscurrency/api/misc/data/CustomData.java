@@ -32,6 +32,7 @@ public abstract class CustomData implements IClientTracker, IBuilderProvider {
     public DataContext<Tag> dataContext() { return DataContext.createNBT(this.registryAccess()); }
 
     private boolean initialized = false;
+    protected final boolean isInitialized() { return this.initialized; }
     private boolean isClient = false;
     private boolean loaded = false;
     private Runnable setChanged = () -> {};

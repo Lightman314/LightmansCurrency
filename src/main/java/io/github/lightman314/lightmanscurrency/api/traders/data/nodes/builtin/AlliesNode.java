@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.settings.SettingsNode;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.data.interfaces.IPersistentTrader;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.templates.SyncedTraderNode;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNode;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNodeType;
@@ -140,7 +141,7 @@ public class AlliesNode extends SyncedTraderNode implements IPermissionProvider 
     public TraderNodeType<?> getType() { return TYPE; }
 
     @Override
-    public void createSyncPacket(LazyPacketData.Builder builder,Player player) {
+    public void createSyncPacket(LazyPacketData.Builder builder,ISyncingContext context) {
         builder.setList("allies",this.allies,ModLazyPackets.PLAYER_REFERENCE);
         LazyPacketData.Builder permBuilder = this.builder();
         this.allyPermissions.forEach(permBuilder::setInt);

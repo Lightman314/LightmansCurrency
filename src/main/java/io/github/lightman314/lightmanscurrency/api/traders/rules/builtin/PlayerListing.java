@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.ICopySupportingRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRule;
@@ -53,7 +54,7 @@ public class PlayerListing extends TradeRule implements ICopySupportingRule {
     public TradeRuleType<?> getType() { return TYPE; }
 
     @Override
-    protected void encodeInternal(Supplier<LazyPacketData.Builder> source, LazyPacketData.Builder builder, Player player) {
+    protected void encodeInternal(Supplier<LazyPacketData.Builder> source,LazyPacketData.Builder builder,ISyncingContext contextr) {
         builder.setBoolean("whitelist",this.whitelistMode)
                 .setList("players",this.playerList,ModLazyPackets.PLAYER_REFERENCE);
     }

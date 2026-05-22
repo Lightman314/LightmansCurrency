@@ -174,7 +174,7 @@ public abstract class WalletMenuBase extends LazyMessageMenu {
 	{
 		if(this.validateHasWallet())
 			return;
-		//Write the bag contents back into the item stack
+		//Write the bag items back into the item stack
 
         WalletItem.putWalletInventory(this.getWallet(),this.walletInventory);
 		

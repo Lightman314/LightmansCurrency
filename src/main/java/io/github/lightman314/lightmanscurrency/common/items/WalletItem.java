@@ -86,7 +86,7 @@ public class WalletItem extends Item implements IVariantItem {
 	public WalletItem(int storageSize, ResourceLocation model, Properties properties) { this(storageSize, model, false, 0, DEFAULT_UPGRADE_LIMIT, SoundEntry.WALLET_DEFAULT, properties); }
 	/**
 	 * Default constructor
-	 * @param storageSize The number of coin slots included in this wallets inventory
+	 * @param storageSize The number of coin slots included in this wallet's items
 	 * @param model The wallets model location<br>
 	 *              See {@link #lazyModel(ResourceLocation)} or {@link #lazyModel(String)} for easy constructors to properly locate a model in the <code>item/wallet_hip/</code> path
 	 * @param properties The items properties. Will be automatically limited to a stack size of 1.
@@ -94,7 +94,7 @@ public class WalletItem extends Item implements IVariantItem {
 	public WalletItem(int storageSize, ResourceLocation model, boolean indestructible, int bonusMagnet, int upgradeLimit, Properties properties) { this(storageSize,model,indestructible,bonusMagnet,upgradeLimit,SoundEntry.WALLET_DEFAULT,properties); }
 	/**
 	 * Default constructor
-	 * @param storageSize The number of coin slots included in this wallets inventory
+	 * @param storageSize The number of coin slots included in this wallet's items
 	 * @param model The wallets model location<br>
 	 *              See {@link #lazyModel(ResourceLocation)} or {@link #lazyModel(String)} for easy constructors to properly locate a model in the <code>item/wallet_hip/</code> path
 	 * @param properties The items properties. Will be automatically limited to a stack size of 1.
@@ -247,7 +247,7 @@ public class WalletItem extends Item implements IVariantItem {
 	}
 
 	/**
-	 * The number of inventory slots the Wallet Stack has.<br>
+	 * The number of items slots the Wallet Stack has.<br>
 	 * Returns 0 if the item is not a valid wallet.<br>
 	 * Factors in added bonus slots in the stacks present {@link io.github.lightman314.lightmanscurrency.common.items.data.WalletData#bonusSlots() WalletData#bonusSlots()} value
 	 */
@@ -350,7 +350,7 @@ public class WalletItem extends Item implements IVariantItem {
 						{
 							walletHandler.setWallet(wallet);
 							player.setItemInHand(hand, ItemStack.EMPTY);
-							//Manually sync the equipped wallet so that the client container will initialize with the correct number of inventory slots
+							//Manually sync the equipped wallet so that the client container will initialize with the correct number of items slots
 							//This is now done automatically by the wallet handler
 							//Flag the interaction as a success so that the wallet menu will open with the wallet in the correct slot.
 							walletSlot = -1;
@@ -361,7 +361,7 @@ public class WalletItem extends Item implements IVariantItem {
 			}
 				
 			else
-				LightmansCurrency.LogError("Could not find the wallet in the players inventory!");
+				LightmansCurrency.LogError("Could not find the wallet in the players items!");
 			
 		}
 		else
@@ -376,7 +376,7 @@ public class WalletItem extends Item implements IVariantItem {
 	}
 	
 	/**
-	 * Whether the Wallet Stacks inventory contents are empty.
+	 * Whether the Wallet Stacks items items are empty.
 	 */
 	public static boolean isEmpty(ItemStack wallet)
 	{
@@ -424,7 +424,7 @@ public class WalletItem extends Item implements IVariantItem {
             return new WalletInventory(0);
 
         WalletData data = wallet.getOrDefault(ModDataComponents.WALLET_DATA,WalletData.createFor(wallet));
-        return data.inventory().copy();
+        return data.inventory();
     }
 
     public static void putWalletInventory(ItemStack wallet,IItemHandler inventory) {

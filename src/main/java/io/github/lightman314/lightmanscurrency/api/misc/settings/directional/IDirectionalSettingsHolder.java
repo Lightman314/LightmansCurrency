@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface IDirectionalSettingsHolder {
 
+    IDirectionalSettingsHolder DEFAULT = new IDirectionalSettingsHolder() {};
+
     default List<Direction> getIgnoredSides() { return ImmutableList.of(); }
 
     default boolean allowInputs() { return true; }

@@ -3,6 +3,8 @@ package io.github.lightman314.lightmanscurrency.api.traders.data.nodes.templates
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.DummyTrade;
 import net.minecraft.world.entity.player.Player;
 
@@ -38,12 +40,17 @@ public abstract class DummyTradeOfferNode<T extends DummyTrade> extends TradeOff
     public final boolean canUpgradeChangeQuantity() { return super.canUpgradeChangeQuantity(); }
 
     @Override
-    public void createSyncPacket(LazyPacketData.Builder builder,Player player) {
+    public void createSyncPacket(LazyPacketData.Builder builder,ISyncingContext context) {
         //Don't call the super method, but otherwise don't do anything weird
     }
 
     @Override
     public void onDataSync(LazyPacketData data) {
+        //Don't call the super method, but otherwise don't do anything weird
+    }
+
+    @Override
+    public void applyStorageTabs(ITraderStorageMenu menu) {
         //Don't call the super method, but otherwise don't do anything weird
     }
 

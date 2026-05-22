@@ -325,11 +325,11 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_ATM_KEY_BIND,"Press [%s] while equipped to access the ATM");
         this.translate(LCText.TOOLTIP_TICKET_STATION, "Can be used to print unique Master and Slave tickets","Tickets can be used with the Paygate, or used as coupons for barter trades");
         this.translate(LCText.TOOLTIP_CASH_REGISTER, "Can be used to link and interact with multiple local traders from the same menu");
-        this.translate(LCText.TOOLTIP_COIN_JAR,"Coin Jar:","When placed, up to 64 coins can be inserted by interacting with the jar while holding a coin","If mined with silk touch the jar will drop with the coins still inside","If mined without silk touch the jar will break and its contents will be dropped instead");
+        this.translate(LCText.TOOLTIP_COIN_JAR,"Coin Jar:","When placed, up to 64 coins can be inserted by interacting with the jar while holding a coin","If mined with silk touch the jar will drop with the coins still inside","If mined without silk touch the jar will break and its items will be dropped instead");
         this.translate(LCText.TOOLTIP_COIN_JAR_COLORED,"Can be dyed in a crafting table");
         this.translate(LCText.TOOLTIP_MONEY_BAG,"When placed, up to 576 coins can be inserted by interacting with the bag while holding a coin","Interacting with the bag with an empty hand will extract a random coin from the bag","When mined the bag will drop with the coins still inside","Bag increases in size the more coins are contained within","In a pinch a sufficiently full bag can be used as a blunt weapon");
         this.translate(LCText.TOOLTIP_COLORED_ITEM, "Color: %s");
-        this.translate(LCText.TOOLTIP_VARIANT_WAND, "Right click on most Lightman's Currency blocks to select a model variant","Not all blocks have variants by default, but more can be added via resource pack","Right click on the air or a non-variant block to change the variant of items in your inventory");
+        this.translate(LCText.TOOLTIP_VARIANT_WAND, "Right click on most Lightman's Currency blocks to select a model variant","Not all blocks have variants by default, but more can be added via resource pack","Right click on the air or a non-variant block to change the variant of items in your items");
         this.translate(LCText.TOOLTIP_MODEL_VARIANT_NAME, "Variant: %s");
         this.translate(LCText.TOOLTIP_MODEL_VARIANT_ID, "Variant ID: %s");
         this.translate(LCText.TOOLTIP_MODEL_VARIANT_LOCKED, "Variant is Locked");
@@ -349,7 +349,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_WALLET_KEY_BIND, "Press [%s] while equipped to access your wallet");
         this.translate(LCText.TOOLTIP_WALLET_STORED_MONEY, "Contains:");
         this.translate(LCText.TOOLTIP_WALLET_CAPACITY, "Has %s coin slots");
-        this.translate(LCText.TOOLTIP_WALLET_UPGRADEABLE_CAPACITY, "Use a [%1$s] on this in your inventory to increase the wallets capacity by %2$s");
+        this.translate(LCText.TOOLTIP_WALLET_UPGRADEABLE_CAPACITY, "Use a [%1$s] on this in your items to increase the wallets capacity by %2$s");
         this.translate(LCText.TOOLTIP_WALLET_PICKUP, "Automatically collects any coins that you pick up");
         this.translate(LCText.TOOLTIP_WALLET_PICKUP_MAGNET, "Can collect coins up to %sm away");
         this.translate(LCText.TOOLTIP_WALLET_EXCHANGE_MANUAL, "Can exchange coins manually in the UI");
@@ -366,7 +366,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_CASH_REGISTER_DETAILS,"Trader %1$s at %2$s %3$s %4$s");
 
         //Coin Jar
-        this.translate(LCText.TOOLTIP_COIN_JAR_HOLD_CTRL, "Hold CTRL to view contents");
+        this.translate(LCText.TOOLTIP_COIN_JAR_HOLD_CTRL, "Hold CTRL to view items");
         this.translate(LCText.TOOLTIP_COIN_JAR_CONTENTS_SINGLE, "Contains a %s");
         this.translate(LCText.TOOLTIP_COIN_JAR_CONTENTS_MULTIPLE, "Contains %1$sx %2$s");
         this.translate(LCText.TOOLTIP_MONEY_BAG_SIZE, "Bag Size: %s");
@@ -554,7 +554,7 @@ public class EnglishProvider extends TranslationProvider {
 
         //Ejection Menu
         this.translate(LCText.GUI_EJECTION_NO_DATA,"No Ejection Data Available");
-        this.translate(LCText.TOOLTIP_EJECTION_SPLIT_GENERIC,"Dismantle Object into internal contents");
+        this.translate(LCText.TOOLTIP_EJECTION_SPLIT_GENERIC,"Dismantle Object into internal items");
         this.translate(LCText.TOOLTIP_EJECTION_SPLIT_TRADER,"Dismantle %s into it's stored items");
 
         //Coin Mint Menu
@@ -791,7 +791,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.GUI_TRADER_AUCTION_STORAGE_MONEY_NONE,"No money stored");
         this.translate(LCText.GUI_TRADER_AUCTION_CANCEL,"Cancel Auction and...");
         this.translate(LCText.BUTTON_TRADER_AUCTION_CANCEL_SELF,"Return Items to Self");
-        this.translate(LCText.TOOLTIP_TRADER_AUCTION_CANCEL_SELF,"Will cancel the auction. The latest bid will be refunded, and your items will be returned to your inventory");
+        this.translate(LCText.TOOLTIP_TRADER_AUCTION_CANCEL_SELF,"Will cancel the auction. The latest bid will be refunded, and your items will be returned to your items");
         this.translate(LCText.BUTTON_TRADER_AUCTION_CANCEL_STORAGE,"Send Items to Storage");
         this.translate(LCText.TOOLTIP_TRADER_AUCTION_CANCEL_STORAGE,"Will cancel the auction. The latest bid will be refunded, and your items will be sent to your storage");
         this.translate(LCText.TOOLTIP_TRADER_AUCTION_CREATE,"Setup an auction");
@@ -1110,8 +1110,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.NOTIFICATION_BANK_SALARY_PAYMENT,"%1$s paid %4$s accounts %2$s each for a total of %3$s","Accounts Paid: ");
         //Ejection Notifications
         this.translate(LCText.NOTIFICATION_EJECTION_ANARCHY,"%s was robbed or destroyed by another player");
-        this.translate(LCText.NOTIFICATION_EJECTION_EJECTED,"%s was destroyed by unpreventable means, but its contents were safely ejected");
-        this.translate(LCText.NOTIFICATION_EJECTION_DROPPED,"%s was destroyed by unpreventable means, and its contents were dropped");
+        this.translate(LCText.NOTIFICATION_EJECTION_EJECTED,"%s was destroyed by unpreventable means, but its items were safely ejected");
+        this.translate(LCText.NOTIFICATION_EJECTION_DROPPED,"%s was destroyed by unpreventable means, and its items were dropped");
         //Settings Notifications
         this.translate(LCText.NOTIFICATION_SETTINGS_ADD_REMOVE_ALLY,"%1$s %2$s %3$s %4$s the list of allies");
         this.translate(LCText.NOTIFICATION_SETTINGS_CHANGE_ALLY_PERMISSIONS,"%1$s changed allies %2$s value from %3$s to %4$s");
@@ -1517,21 +1517,21 @@ public class EnglishProvider extends TranslationProvider {
                 "Enabling will double the number of items being rendered, and can cause FPS issues near Gacha Machines if their fancy graphics are enabled");
         this.translateConfigOption(LCConfig.CLIENT.gachaMachineFancyGraphics,"Gacha Machine Fancy Graphics",
                 "Whether the Gacha Machine will render each Gacha Ball individually",
-                "Disable if you're having FPS issues near the Gacha Machine, this will make the machine render a far more simplisitic representation of its contents.");
+                "Disable if you're having FPS issues near the Gacha Machine, this will make the machine render a far more simplisitic representation of its items.");
         //Time
         this.translateConfigSection(LCConfig.CLIENT,"time","Time Formatting Settings");
         this.translateConfigOption(LCConfig.CLIENT.timeFormat,"Time Formatting","How Notification Timestamps are displayed.","Follows SimpleDateFormat formatting: https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html");
         //Wallet Slot
         this.translateConfigSection(LCConfig.CLIENT,"wallet_slot","Wallet Slot Settings","Does nothing when Curios is installed.","0 0 is the top-left corner of the menu, with x moving it further right and y moving it further down");
-        this.translateConfigOption(LCConfig.CLIENT.walletSlot,"Wallet Slot Position","The position of the wallet slot in the players inventory menu.");
-        this.translateConfigOption(LCConfig.CLIENT.walletSlotCreative,"Creative Wallet Slot Position","The position of the wallet slot in the players creative inventory menu.");
+        this.translateConfigOption(LCConfig.CLIENT.walletSlot,"Wallet Slot Position","The position of the wallet slot in the players items menu.");
+        this.translateConfigOption(LCConfig.CLIENT.walletSlotCreative,"Creative Wallet Slot Position","The position of the wallet slot in the players creative items menu.");
         this.translateConfigOption(LCConfig.CLIENT.walletButtonOffset,"Wallet Button Offset","The position of \"Open Wallet\" button relative to the wallet slot.");
         //Wallet Overlay
         this.translateConfigSection(LCConfig.CLIENT,"wallet_hud","Wallet Overlay Settings");
-        this.translateConfigOption(LCConfig.CLIENT.walletOverlayEnabled,"Enabled","Whether an overlay should be drawn on your HUD displaying your equipped wallets current contents.");
+        this.translateConfigOption(LCConfig.CLIENT.walletOverlayEnabled,"Enabled","Whether an overlay should be drawn on your HUD displaying your equipped wallets current items.");
         this.translateConfigOption(LCConfig.CLIENT.walletOverlayCorner,"Overlay Corner","The corner of the screen that the overlay should be drawn on.");
         this.translateConfigOption(LCConfig.CLIENT.walletOverlayPosition,"Overlay Offset","The distance/offset from the corner that the overlay will be drawn at.");
-        this.translateConfigOption(LCConfig.CLIENT.walletOverlayType,"Overlay Type","The method that should be used to draw the contents.");
+        this.translateConfigOption(LCConfig.CLIENT.walletOverlayType,"Overlay Type","The method that should be used to draw the items.");
         //Network Terminal
         this.translateConfigSection(LCConfig.CLIENT,"network_terminal","Network Terminal Settings");
         this.translateConfigOption(LCConfig.CLIENT.terminalColumnLimit,"Column Limit","The maximum number of columns the Network Terminal is allowed to display");
@@ -1541,8 +1541,8 @@ public class EnglishProvider extends TranslationProvider {
                 "Note: The game will remember your last selection option within the same session, so editing this after the screen has been opened will not change anything until you close and re-open your game.");
         //Inventory Button
         this.translateConfigSection(LCConfig.CLIENT,"inventory_buttons","Inventory Button Settings");
-        this.translateConfigOption(LCConfig.CLIENT.notificationAndTeamButtonPosition,"Normal Position","The position that the notification & team manager buttons will be placed at in the players inventory.");
-        this.translateConfigOption(LCConfig.CLIENT.notificationAndTeamButtonCreativePosition,"Creative Position","The position that the notification & team manager buttons will be placed at in the creative players inventory.");
+        this.translateConfigOption(LCConfig.CLIENT.notificationAndTeamButtonPosition,"Normal Position","The position that the notification & team manager buttons will be placed at in the players items.");
+        this.translateConfigOption(LCConfig.CLIENT.notificationAndTeamButtonCreativePosition,"Creative Position","The position that the notification & team manager buttons will be placed at in the creative players items.");
         //Chest Button
         this.translateConfigSection(LCConfig.CLIENT,"chest_buttons","Chest Button Settings");
         this.translateConfigOption(LCConfig.CLIENT.chestButtonVisible,"Enabled","Whether the 'Move Coins into Wallet' button will appear in the top-right corner of the Chest Screen if there are coins in the chest that can be collected.");
@@ -1696,7 +1696,7 @@ public class EnglishProvider extends TranslationProvider {
         //Machine Protection
         this.translateConfigSection(LCConfig.SERVER,"machine_protection","Machine Protection Settings");
         this.translateConfigOption(LCConfig.SERVER.safelyEjectMachineContents,"Safe Ejection",
-                "Whether illegally broken traders (such as being replaced with /setblock, or modded machines that break blocks) will safely eject their block/contents into a temporary storage area for the owner to collect safely.",
+                "Whether illegally broken traders (such as being replaced with /setblock, or modded machines that break blocks) will safely eject their block/items into a temporary storage area for the owner to collect safely.",
                 "If disabled, illegally broken traders will throw their items on the ground, and can thus be griefed by modded machines.",
                 "Value ignored if anarchyMode is enabled!");
         this.translateConfigOption(LCConfig.SERVER.anarchyMode,"Anarchy Mode",
@@ -1705,7 +1705,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translateConfigOption(LCConfig.SERVER.quarantinedDimensions,"Quarantined Dimensions",
                 "A list of dimension ids that are quarantined from all cross-dimensional interactions.",
                 "This includes disabling Trader Interfaces, Network Traders & Terminals (personal trader interactions & cash registers will still function), and all Bank Account access.",
-                "Mostly intended to be used to allow the existence of 'Creative Dimensions' where money can be cheated in by your average player, but should not affect a players inventory/bank balance in the 'normal' dimensions.");
+                "Mostly intended to be used to allow the existence of 'Creative Dimensions' where money can be cheated in by your average player, but should not affect a players items/bank balance in the 'normal' dimensions.");
         //Coin Mint
         this.translateConfigSection(LCConfig.SERVER,"coin_mint","Coin Mint Settings");
         this.translateConfigOption(LCConfig.SERVER.coinMintDefaultDuration,"Mint Duration",
@@ -1720,7 +1720,7 @@ public class EnglishProvider extends TranslationProvider {
         this.translateConfigOption(LCConfig.SERVER.walletCanBank,"Bank Ability List",
                 "The lowest level wallet capable of allowing transfers to/from your bank account.");
         this.translateConfigOption(LCConfig.SERVER.walletCapacityUpgradeable,"Capacity is Upgradeable",
-                "Whether wallets can have additional slots added by using an upgrade item on them from their inventory",
+                "Whether wallets can have additional slots added by using an upgrade item on them from their items",
                 "By default diamonds are the only valid upgrade item, but this can be changed by a datapack");
         this.translateConfigOption(LCConfig.SERVER.walletDropsManualSpawn,"Manully Spawn Drops",
                 "Whether Wallet Drops should be manually spawned into the world instead of the default behaviour of being passed to the PlayerDropsEvent",

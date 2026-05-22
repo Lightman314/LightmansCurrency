@@ -73,7 +73,7 @@ public class WalletUpgradeRecipe implements CraftingRecipe {
 	public NonNullList<Ingredient> getIngredients() { return this.ingredients; }
 
 	/**
-	 * Used to check if a recipe matches current crafting inventory
+	 * Used to check if a recipe matches current crafting items
 	 */
 	@Override
 	public boolean matches(CraftingInput container, Level level) {

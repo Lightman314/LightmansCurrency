@@ -122,7 +122,7 @@ public class ItemTradeRestriction {
         if(node == null)
             return null;
         List<ItemStack> randomItems = ItemRequirement.getRandomItemsMatchingRequirements(node.getStorage(), requirements.stream().map(RequirementWithContext::requirement).toList(),trader.hasInfiniteStock());
-        if(randomItems == null && trader.hasInfiniteStock()) //If creative, return nbt enforced version if no random items are present in the inventory.
+        if(randomItems == null && trader.hasInfiniteStock()) //If creative, return nbt enforced version if no random items are present in the items.
         {
             randomItems = new ArrayList<>();
             for(RequirementWithContext context : requirements)

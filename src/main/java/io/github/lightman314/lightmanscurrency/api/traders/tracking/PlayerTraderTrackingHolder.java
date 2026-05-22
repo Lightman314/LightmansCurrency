@@ -93,6 +93,4 @@ public final class PlayerTraderTrackingHolder {
         this.trackingCache.clear();
     }
 
-    private record TraderTracking(long traderID,long trackingKey) { }
-
 }

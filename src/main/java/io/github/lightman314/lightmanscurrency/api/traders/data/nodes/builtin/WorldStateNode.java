@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderState;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.templates.SyncedTraderNode;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.variants.item.data.VariantData;
@@ -113,7 +114,7 @@ public class WorldStateNode extends SyncedTraderNode {
     @Override
     public TraderNodeType<?> getType() { return TYPE; }
     @Override
-    public void createSyncPacket(LazyPacketData.Builder builder,Player player) {
+    public void createSyncPacket(LazyPacketData.Builder builder,ISyncingContext context) {
         builder.setInt("state",this.state.ordinal())
                 .setCustom("position",this.position,ModLazyPackets.WORLD_POS)
                 .setCustom("block",this.traderBlock,ModLazyPackets.ITEM_OPTIONAL)

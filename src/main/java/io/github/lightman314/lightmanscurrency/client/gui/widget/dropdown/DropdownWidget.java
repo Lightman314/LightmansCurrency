@@ -173,6 +173,7 @@ public class DropdownWidget extends EasyWidgetWithChildren implements IMouseList
 		public Builder option(TextEntry option) { this.options.add(option.get()); return this; }
 		public Builder options(List<Component> options) { this.options.addAll(options); return this; }
 
+        public <T extends Enum<T>> Builder enumOptions(TextEntryBundle<T> bundle,Class<T> type) { return this.enumOptions(bundle,type.getEnumConstants()); }
         public <T> Builder enumOptions(TextEntryBundle<T> bundle, T[] values)
         {
             for(T val : values)

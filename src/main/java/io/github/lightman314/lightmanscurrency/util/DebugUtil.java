@@ -72,4 +72,20 @@ public class DebugUtil {
 		return string.append("]").toString();
 	}
 
+    public static String debugMapKeys(Map<?,?> map) { return debugMapKeys(map,Object::toString); }
+    public static <A> String debugMapKeys(Map<A,?> map,Function<A,String> writer) {
+        StringBuilder string = new StringBuilder("[");
+        for(A key : map.keySet())
+        {
+            if(string.length() > 1)
+                string.append(",");
+            if(key == null)
+                string.append("null");
+            else
+                string.append(writer.apply(key));
+        }
+        return string.append("]").toString();
+
+    }
+
 }

@@ -52,7 +52,7 @@ public class CoinJarItem extends BlockItem {
 	public boolean canDye(ItemStack stack) { return stack.is(ItemTags.DYEABLE); }
 
 	/**
-	 * Gets the contents of the Coin Jar<br>
+	 * Gets the items of the Coin Jar<br>
 	 * Note: List returned is immutable and cannot be edited as Coin Jars cannot be interacted with in item form<br>
 	 * Returns an empty list of the given item stack is not for a Coin Jar item, even if it does contain the relevant data component.
 	 */
@@ -71,7 +71,7 @@ public class CoinJarItem extends BlockItem {
 			return;
 		if(jarContents.isEmpty())
 			stack.remove(ModDataComponents.COIN_JAR_CONTENTS);
-		//Copy list & contents and then make them immutable just in case someone tries to edit the result of getJarContents later.
+		//Copy list & items and then make them immutable just in case someone tries to edit the result of getJarContents later.
 		stack.set(ModDataComponents.COIN_JAR_CONTENTS,ImmutableList.copyOf(ItemHandlerUtil.copyList(jarContents)));
 	}
 

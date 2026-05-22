@@ -35,10 +35,14 @@ public class ItemStorageTab extends TraderStorageNodeTab<ItemStorageNode> {
     public ResourceLocation tabKey() { return KEY; }
 
     @Override
+    public int getSortPriority() { return SORT_STORAGE; }
+
+    @Override
     public Object createClientTab(Object screen) { return new ItemStorageClientTab(screen, this); }
 
     List<EasySlot> slots = new ArrayList<>();
     public List<? extends Slot> getSlots() { return this.slots; }
+
 
     @Override
     public void addStorageMenuSlots(Function<Slot, Slot> addSlot) {
@@ -120,9 +124,9 @@ public class ItemStorageTab extends TraderStorageNodeTab<ItemStorageNode> {
 
                     if(isShiftHeld)
                     {
-                        //Put the item in the players inventory. Will not throw overflow on the ground, so it will safely stop if the players inventory is full
+                        //Put the item in the players items. Will not throw overflow on the ground, so it will safely stop if the players items is full
                         this.menu.getPlayer().getInventory().add(stackToRemove);
-                        //Determine the amount actually added to the players inventory
+                        //Determine the amount actually added to the players items
                         removedAmount = tempAmount - stackToRemove.getCount();
                     }
                     else
@@ -191,7 +195,7 @@ public class ItemStorageTab extends TraderStorageNodeTab<ItemStorageNode> {
                     int fillAmount = storage.getFittableAmount(stack);
                     if(fillAmount > 0)
                     {
-                        //Remove the item from the players inventory
+                        //Remove the item from the players items
                         ItemStack fillStack = inv.removeItem(i, fillAmount);
                         //Put the item into storage
                         storage.forceAddItem(fillStack);
@@ -211,7 +215,7 @@ public class ItemStorageTab extends TraderStorageNodeTab<ItemStorageNode> {
                         ItemStack transferStack = stack.copy();
                         int transferCount = Math.min(storage.getItemCount(stack),stack.getMaxStackSize());
                         transferStack.setCount(transferCount);
-                        //Attempt to move the stack into the players inventory
+                        //Attempt to move the stack into the players items
                         ItemStack remainder = ItemHandlerHelper.insertItemStacked(mainInventory,transferStack,false);
                         int removedCount = transferCount - remainder.getCount();
                         if(removedCount > 0)

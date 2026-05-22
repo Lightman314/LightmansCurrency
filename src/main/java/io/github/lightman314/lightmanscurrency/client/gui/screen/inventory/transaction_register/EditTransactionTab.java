@@ -52,7 +52,7 @@ public class EditTransactionTab extends TransactionRegisterTab {
         this.addChild(DropdownWidget.builder()
                 .position(screenArea.pos.offset(40,70))
                 .width(screenArea.width - 80)
-                .enumOptions(LCText.GUI_TRANSACTION_REGISTER_TYPE_NAME,TransactionType.values())
+                .enumOptions(LCText.GUI_TRANSACTION_REGISTER_TYPE_NAME,TransactionType.class)
                 .selected(data.type.ordinal())
                 .selectAction(this::changeType)
                 .build());

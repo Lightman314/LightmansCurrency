@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.templates.SyncedTraderNode;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNode;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNodeType;
@@ -89,7 +90,7 @@ public class TicketStubNode extends SyncedTraderNode implements IContentProvider
     public TraderNodeType<?> getType() { return TYPE; }
 
     @Override
-    public void createSyncPacket(LazyPacketData.Builder builder,Player player) {
+    public void createSyncPacket(LazyPacketData.Builder builder,ISyncingContext context) {
         builder.setList("stubs",this.storedTicketStubs,ModLazyPackets.ITEM_STACK);
     }
 

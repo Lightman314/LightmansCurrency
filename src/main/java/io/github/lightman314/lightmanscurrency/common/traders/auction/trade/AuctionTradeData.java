@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import com.mojang.serialization.Codec;
@@ -39,7 +40,6 @@ import io.github.lightman314.lightmanscurrency.api.events.AuctionHouseEvent.Auct
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.builtin.BasicTradeEditTab;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.nodes.AuctionStorageNode;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.nodes.AuctionTradesNode;
-import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.core.HolderLookup;
@@ -409,10 +409,10 @@ public class AuctionTradeData extends TradeData {
 			
 	}
 
-	public JsonObject saveToJson(JsonObject json, HolderLookup.Provider lookup) {
+	public JsonObject saveToJson(JsonObject json, DataContext<JsonElement> context) {
 		
 		for(int i = 0; i < this.auctionItems.size(); ++i)
-			json.add("Item" + (i + 1), FileUtil.convertItemStack(this.auctionItems.get(i),lookup));
+			json.add("Item" + (i + 1), context.write(this.auctionItems.get(i),ItemStack.CODEC));
 		json.addProperty("Duration", this.duration);
 		json.add("StartingBid", this.lastBidAmount.toJson());
 		json.add("MinimumBid", this.minBidDifference.toJson());

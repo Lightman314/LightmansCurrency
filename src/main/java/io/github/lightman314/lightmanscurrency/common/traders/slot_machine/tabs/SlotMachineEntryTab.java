@@ -22,10 +22,8 @@ public class SlotMachineEntryTab extends TraderStorageNodeTab<SlotMachineNode> {
 
     @Override
     public ResourceLocation tabKey() { return BasicTradeEditTab.KEY; }
-
     @Override
     protected boolean isDefaultTab() { return true; }
-
     @Override
     public Object createClientTab(Object screen) { return new SlotMachineEntryClientTab(screen, this); }
 

@@ -28,7 +28,7 @@ public class AuctionPlayerStorage {
 
     public static final Codec<AuctionPlayerStorage> CODEC = Codec.withAlternative(
             RecordCodecBuilder.create(builder -> builder.group(
-            PlayerReference.CODEC.fieldOf("owner").forGetter(AuctionPlayerStorage::getOwner),
+            UUIDUtil.CODEC.fieldOf("owner").forGetter(AuctionPlayerStorage::getOwner),
             MoneyStorage.CODEC.fieldOf("money").forGetter(AuctionPlayerStorage::getStoredCoins),
             ItemStack.OPTIONAL_CODEC.listOf().fieldOf("items").forGetter(AuctionPlayerStorage::getStoredItems),
             Codec.INT.fieldOf("winStats").forGetter(s -> s.pendingWinStats)
@@ -37,15 +37,15 @@ public class AuctionPlayerStorage {
     public static final Codec<Map<UUID,AuctionPlayerStorage>> SET_CODEC = Codec.unboundedMap(UUIDUtil.STRING_CODEC,AuctionPlayerStorage.CODEC);
 
     public static final StreamCodec<RegistryFriendlyByteBuf,AuctionPlayerStorage> STREAM_CODEC = StreamCodec.composite(
-            PlayerReference.STREAM_CODEC,AuctionPlayerStorage::getOwner,
+            UUIDUtil.STREAM_CODEC,AuctionPlayerStorage::getOwner,
             MoneyStorage.STREAM_CODEC,AuctionPlayerStorage::getStoredCoins,
             ItemStack.LIST_STREAM_CODEC,AuctionPlayerStorage::getStoredItems,
             AuctionPlayerStorage::new);
 
     private Runnable listener = () -> {};
 
-	PlayerReference owner;
-	public PlayerReference getOwner() { return this.owner; }
+	UUID owner;
+	public UUID getOwner() { return this.owner; }
 	
 	private final MoneyStorage storedCoins;
 	public MoneyStorage getStoredCoins() { return this.storedCoins; }
@@ -53,10 +53,10 @@ public class AuctionPlayerStorage {
 	public List<ItemStack> getStoredItems() { return this.storedItems; }
     public int pendingWinStats;
 	
-	public AuctionPlayerStorage(PlayerReference player) { this(player,new MoneyStorage(),new ArrayList<>(),0); }
+	public AuctionPlayerStorage(UUID player) { this(player,new MoneyStorage(),new ArrayList<>(),0); }
 
-    private AuctionPlayerStorage(PlayerReference player, MoneyStorage moneyStorage, List<ItemStack> items) { this(player,moneyStorage,items,0); }
-    private AuctionPlayerStorage(PlayerReference player, MoneyStorage moneyStorage, List<ItemStack> items, int pendingWinStats)
+    private AuctionPlayerStorage(UUID player, MoneyStorage moneyStorage, List<ItemStack> items) { this(player,moneyStorage,items,0); }
+    private AuctionPlayerStorage(UUID player, MoneyStorage moneyStorage, List<ItemStack> items, int pendingWinStats)
     {
         this.owner = player;
         this.storedCoins = moneyStorage.withListener(() -> this.listener.run());
@@ -80,15 +80,14 @@ public class AuctionPlayerStorage {
 		MoneyStorage money = new MoneyStorage();
         money.load(compound.getList("StoredMoney",Tag.TAG_COMPOUND));
 
-        List<ItemStack> items = new ArrayList<>();
 		ListTag itemList = compound.getList("StoredItems", Tag.TAG_COMPOUND);
-        items = OldDataHelper.loadNonEmptyList(itemList,lookup);
+        List<ItemStack> items = OldDataHelper.loadNonEmptyList(itemList,lookup);
 
         int pendingStats = 0;
         if(compound.contains("PendingStats"))
             pendingStats = compound.getInt("PendingStats");
 
-        return new AuctionPlayerStorage(owner,money,items,pendingStats);
+        return new AuctionPlayerStorage(owner.id,money,items,pendingStats);
 	}
 	
 	public void giveMoney(MoneyValue amount) { this.storedCoins.addValue(amount); }

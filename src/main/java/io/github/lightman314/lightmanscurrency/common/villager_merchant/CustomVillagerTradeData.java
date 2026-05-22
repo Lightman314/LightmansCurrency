@@ -1,8 +1,10 @@
 package io.github.lightman314.lightmanscurrency.common.villager_merchant;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.core.HolderLookup;
@@ -65,12 +67,13 @@ public class CustomVillagerTradeData {
     public static Map<Integer,List<ItemListing>> getVillagerData(ResourceLocation villager) {
         File file = getVillagerDataFile(villager);
         HolderLookup.Provider lookup = LookupHelper.getRegistryAccess();
+        DataContext<JsonElement> context = DataContext.createJson(lookup);
         if(file.exists())
         {
             try{
                 String text = Files.readString(file.toPath());
                 JsonObject json = GsonHelper.parse(text);
-                return ItemListingSerializer.deserialize(json,lookup);
+                return ItemListingSerializer.deserialize(json,context);
             } catch(Throwable t) { LightmansCurrency.LogError("Error loading villager data file '" + file.getName() + "'!", t); }
         }
         else
@@ -80,7 +83,7 @@ public class CustomVillagerTradeData {
                 File dir = file.getParentFile();
                 dir.mkdirs();
                 Map<Integer,List<ItemListing>> defaultValues = getDefaultVillagerData(villager);
-                FileUtil.writeStringToFile(file, FileUtil.GSON.toJson(ItemListingSerializer.serialize(defaultValues, villager.equals(WANDERING_TRADER_ID) ? 2 : 5,lookup)));
+                FileUtil.writeStringToFile(file, FileUtil.GSON.toJson(ItemListingSerializer.serialize(defaultValues, villager.equals(WANDERING_TRADER_ID) ? 2 : 5,context)));
             } catch(Throwable t) { LightmansCurrency.LogError("Error creating default villager data file '" + file.getName() + "'!", t); }
         }
 

@@ -16,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.ICopySupportingRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.IPersistentRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
@@ -62,7 +63,7 @@ public class PriceFluctuation extends PriceTweakingTradeRule implements ICopySup
     public TradeRuleType<?> getType() { return TYPE; }
 
     @Override
-    protected void encodeInternal(Supplier<LazyPacketData.Builder> source, LazyPacketData.Builder builder, Player player) {
+    protected void encodeInternal(Supplier<LazyPacketData.Builder> source,LazyPacketData.Builder builder,ISyncingContext context) {
         builder.setLong("duration",this.duration)
                 .setInt("fluctuation",this.fluctuation);
     }

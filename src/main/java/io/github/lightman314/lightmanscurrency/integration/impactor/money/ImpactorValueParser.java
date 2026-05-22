@@ -12,7 +12,6 @@ import net.impactdev.impactor.api.economy.currency.Currency;
 import net.kyori.adventure.key.InvalidKeyException;
 import net.kyori.adventure.key.Key;
 
-import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 
 public class ImpactorValueParser extends MoneyValueParser {
@@ -27,7 +26,7 @@ public class ImpactorValueParser extends MoneyValueParser {
     private ImpactorValueParser() { super("impactor"); }
 
     @Override
-    protected MoneyValue parseValueArgument(@Nonnull StringReader reader) throws CommandSyntaxException {
+    protected MoneyValue parseValueArgument(StringReader reader) throws CommandSyntaxException {
         try {
             String currencyType = readStringUntil(reader,';');
             try {
@@ -54,7 +53,12 @@ public class ImpactorValueParser extends MoneyValueParser {
     }
 
     @Override
-    protected String writeValueArgument(@Nonnull MoneyValue value) {
-        return "";
+    protected String writeValueArgument(MoneyValue value) {
+        if(value instanceof ImpactorMoneyValue val)
+        {
+            Currency c = val.getImpactorCurrency();
+            return c.key().asString() + ";" + val.getValue();
+        }
+        return null;
     }
 }

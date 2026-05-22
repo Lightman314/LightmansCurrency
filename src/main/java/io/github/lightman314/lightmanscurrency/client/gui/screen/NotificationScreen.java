@@ -21,6 +21,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
+import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets;
 import io.github.lightman314.lightmanscurrency.common.data.types.NotificationDataCache;
 import io.github.lightman314.lightmanscurrency.common.menus.NotificationMenu;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
@@ -197,7 +198,7 @@ public class NotificationScreen extends EasyMenuScreen<NotificationMenu> {
 	}
 
 	public void markAsRead(EasyButton button) {
-		this.menu.SendMessage(this.builder().setTag("MarkAsRead", this.selectedCategory.save(this.registryAccess())));
+		this.menu.SendMessage(this.builder().setCustom("MarkAsRead",this.selectedCategory,ModLazyPackets.NOTIFICATION_CATEGORY));
 	}
 	
 	@Override
@@ -216,7 +217,7 @@ public class NotificationScreen extends EasyMenuScreen<NotificationMenu> {
 	}
 
 	private void deleteNotification(int notificationIndex) {
-		this.menu.SendMessage(this.builder().setInt("DeleteNotification",notificationIndex).setTag("Category",this.selectedCategory.save(this.registryAccess())));
+		this.menu.SendMessage(this.builder().setInt("DeleteNotification",notificationIndex).setCustom("Category",this.selectedCategory,ModLazyPackets.NOTIFICATION_CATEGORY));
 
 	}
 	

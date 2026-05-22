@@ -61,7 +61,7 @@ public class SlotMachineMenu extends AbstractTraderMenu {
 
         this.addValidator(() -> this.getTrader() != null);
 
-        //Player inventory
+        //Player items
         for(int y = 0; y < 3; y++)
         {
             for(int x = 0; x < 9; x++)
@@ -104,7 +104,7 @@ public class SlotMachineMenu extends AbstractTraderMenu {
             clickedStack = slotStack.copy();
             if(index < 36)
             {
-                //Move from inventory to coin slots
+                //Move from items to coin slots
                 if(!this.moveItemStackTo(slotStack, 36, this.slots.size(), false))
                 {
                     return ItemStack.EMPTY;
@@ -112,7 +112,7 @@ public class SlotMachineMenu extends AbstractTraderMenu {
             }
             else if(index < this.slots.size())
             {
-                //Move from coin slots to inventory
+                //Move from coin slots to items
                 if(!this.moveItemStackTo(slotStack, 0, 36, false))
                 {
                     return ItemStack.EMPTY;

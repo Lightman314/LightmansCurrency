@@ -459,7 +459,7 @@ public final class CoinAPIImpl extends CoinAPI {
                     ItemHandlerHelper.insertItemStacked(handler,s,false);
                 return;
             }
-            //Put the new coin into the inventory
+            //Put the new coin into the items
             if(!ItemHandlerHelper.insertItem(handler,new ItemStack(largeCoin),false).isEmpty())
             {
                 //If the new coin doesn't fit, put the small coins back in

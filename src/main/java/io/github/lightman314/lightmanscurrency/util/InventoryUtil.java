@@ -15,7 +15,7 @@ import net.neoforged.neoforge.items.wrapper.InvWrapper;
 public class InventoryUtil {
 
 	/**
-	 * Gets the quantity of a matching item in the given inventory
+	 * Gets the quantity of a matching item in the given items
 	 */
 	public static int GetItemCount(Container inventory, Predicate<ItemStack> filter)
 	{

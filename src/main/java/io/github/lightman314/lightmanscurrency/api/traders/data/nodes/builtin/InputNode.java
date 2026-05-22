@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.settings.SettingsNode;
 
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.templates.SyncedTraderNode;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets;
@@ -75,7 +76,7 @@ public class InputNode extends SyncedTraderNode implements IDirectionalSettingsO
     public boolean isStorageOnly() { return true; }
 
     @Override
-    public void createSyncPacket(LazyPacketData.Builder builder,Player player) {
+    public void createSyncPacket(LazyPacketData.Builder builder,ISyncingContext context) {
         for(Direction side : Direction.values())
         {
             if(!this.data.ignores(side))

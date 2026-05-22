@@ -124,7 +124,7 @@ public class PlayerTradeMenu extends LazyMessageMenu {
         if(this.isClient() || this.trade.isCompleted())
             return;
         LightmansCurrency.LogWarning("Player Trade Menu was closed by the " + (this.isHost() ? "host" : "guest") + ", but the trade was not completed!");
-        //Give items in inventory back to player
+        //Give items in items back to player
         this.clearContainer(player, this.trade.isHost(this.player) ? this.trade.getHostItems() : this.trade.getGuestItems());
     }
 

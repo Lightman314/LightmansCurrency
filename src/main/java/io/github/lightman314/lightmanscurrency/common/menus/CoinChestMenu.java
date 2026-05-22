@@ -60,7 +60,7 @@ public class CoinChestMenu extends LazyMessageMenu {
         }
         this.upgradeSlots = ImmutableList.copyOf(uSlots);
 
-        //Player inventory
+        //Player items
         List<ClassicEasySlot> iSlots = new ArrayList<>();
         for(int y = 0; y < 3; y++)
         {
@@ -100,7 +100,7 @@ public class CoinChestMenu extends LazyMessageMenu {
         {
             ItemStack slotStack = slot.getItem();
             clickedStack = slotStack.copy();
-            //Move items from coin/upgrade slots into the inventory
+            //Move items from coin/upgrade slots into the items
             if(index < CoinChestBlockEntity.STORAGE_SIZE + CoinChestBlockEntity.UPGRADE_SIZE)
             {
                 if(!this.moveItemStackTo(slotStack, CoinChestBlockEntity.STORAGE_SIZE + CoinChestBlockEntity.UPGRADE_SIZE, this.slots.size(), true))
@@ -108,7 +108,7 @@ public class CoinChestMenu extends LazyMessageMenu {
                     return ItemStack.EMPTY;
                 }
             }
-            //Move items from the inventory into the coin/upgrade slots
+            //Move items from the items into the coin/upgrade slots
             else if(!this.moveItemStackTo(slotStack, 0, CoinChestBlockEntity.STORAGE_SIZE + CoinChestBlockEntity.UPGRADE_SIZE, false))
             {
                 return ItemStack.EMPTY;

@@ -110,9 +110,9 @@ public class ItemStorageTab extends TraderInterfaceTab {
 
                     if(isShiftHeld)
                     {
-                        //Put the item in the players inventory. Will not throw overflow on the ground, so it will safely stop if the players inventory is full
+                        //Put the item in the players items. Will not throw overflow on the ground, so it will safely stop if the players items is full
                         this.menu.player.getInventory().add(stackToRemove);
-                        //Determine the amount actually added to the players inventory
+                        //Determine the amount actually added to the players items
                         removedAmount = tempAmount - stackToRemove.getCount();
                     }
                     else
@@ -176,7 +176,7 @@ public class ItemStorageTab extends TraderInterfaceTab {
                     int fillAmount = storage.getFittableAmount(stack);
                     if(fillAmount > 0)
                     {
-                        //Remove the item from the players inventory
+                        //Remove the item from the players items
                         ItemStack fillStack = inv.removeItem(i, fillAmount);
                         //Put the item into storage
                         storage.forceAddItem(fillStack);
@@ -195,7 +195,7 @@ public class ItemStorageTab extends TraderInterfaceTab {
                         ItemStack transferStack = stack.copy();
                         int transferCount = Math.min(storage.getItemCount(stack), stack.getMaxStackSize());
                         transferStack.setCount(transferCount);
-                        //Attempt to move the stack into the players inventory
+                        //Attempt to move the stack into the players items
                         ItemStack result = InventoryUtil.insertItem(inv,transferStack,false);
                         int removedCount = transferStack.getCount() - result.getCount();
                         if(removedCount > 0)

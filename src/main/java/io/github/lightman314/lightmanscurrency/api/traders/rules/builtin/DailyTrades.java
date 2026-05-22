@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.*;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
@@ -60,23 +61,32 @@ public class DailyTrades extends TradeRule implements ICopySupportingRule, IPers
     public TradeRuleType<?> getType() { return TYPE; }
 
     @Override
-    protected void encodeInternal(Supplier<LazyPacketData.Builder> source, LazyPacketData.Builder builder, Player player) {
+    protected void encodeInternal(Supplier<LazyPacketData.Builder> source, LazyPacketData.Builder builder, ISyncingContext context) {
         builder.setLong("delay",this.interactionDelay);
-        if(this.data.containsKey(player.getUUID()))
+        for(UUID entry : context.getCustomerSet())
         {
-            Data d = this.data.get(player.getUUID());
-            builder.setUUID("player",player.getUUID());
-            builder.setInt("nextIndex",d.nextIndex);
-            builder.setLong("timestamp",d.lastTimeStamp);
+            if(this.data.containsKey(entry))
+            {
+                LazyPacketData.Builder b = source.get();
+                Data d = this.data.get(entry);
+                b.setUUID("player",entry);
+                b.setInt("nextIndex",d.nextIndex);
+                b.setLong("timestamp",d.lastTimeStamp);
+                builder.addToList("data",b,LazyPacketData.BUILDER_FACTORY);
+            }
         }
     }
 
     @Override
     protected void decodeInternal(LazyPacketData data) {
         this.interactionDelay = data.getLong("delay");
-        UUID player = data.getUUID("player");
-        if(player != null)
-            this.data.put(player,new Data(data.getInt("nextIndex"),data.getLong("timestamp")));
+        this.data.clear();
+        for(LazyPacketData entry : data.getList("data",LazyPacketData.class))
+        {
+            UUID player = entry.getUUID("player");
+            if(player != null)
+                this.data.put(player,new Data(entry.getInt("nextIndex"),entry.getLong("timestamp")));
+        }
     }
 
     @Override

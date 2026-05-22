@@ -43,7 +43,7 @@ public class MoneyMendingEnchantment {
 	
 	public static void runEntityTick(@Nonnull LivingEntity entity, @Nonnull IMoneyHandler handler)
 	{
-		//Go through the players inventory searching for items with the money mending enchantment
+		//Go through the players items searching for items with the money mending enchantment
 		Optional<EnchantedItemInUse> entry = EnchantmentHelper.getRandomItemWith(ModEnchantments.REPAIR_WITH_MONEY.get(), entity, ItemStack::isDamaged);
 		ItemStack item = null;
 		if(entry.isEmpty())

@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.*;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
@@ -60,7 +61,7 @@ public class DemandPricing extends PriceTweakingTradeRule implements ICopySuppor
     public TradeRuleType<?> getType() { return TYPE; }
 
     @Override
-    public void encodeInternal(Supplier<LazyPacketData.Builder> source, LazyPacketData.Builder builder, Player player) {
+    public void encodeInternal(Supplier<LazyPacketData.Builder> source, LazyPacketData.Builder builder, ISyncingContext context) {
         builder.setMoneyValue("price",this.otherPrice)
                 .setInt("smallStock",this.smallStock)
                 .setInt("largeStock",this.largeStock);

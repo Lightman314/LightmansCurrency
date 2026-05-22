@@ -25,7 +25,7 @@ public class MintMenu extends EasyMenu {
 		this.addSlot(new EasySlot(this.blockEntity.getStorage(),0,56,21));
 		this.addSlot(new EasySlot(this.blockEntity.getStorage(),1,116,21));
 		
-		//Player inventory
+		//Player items
 		for(int y = 0; y < 3; y++)
 		{
 			for(int x = 0; x < 9; x++)

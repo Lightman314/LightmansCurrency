@@ -4,6 +4,7 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.api.misc.item_handlers.LCItemStackHandler;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.NonNullList;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -28,6 +29,13 @@ public class ItemHandlerUtil {
             if (filter.test(s))
                 list.add(s);
         }
+        return list;
+    }
+
+    public static NonNullList<ItemStack> loadList(List<ItemStack> items) {
+        NonNullList<ItemStack> list = NonNullList.withSize(items.size(),ItemStack.EMPTY);
+        for(int i = 0; i < list.size(); ++i)
+            list.set(i,items.get(i).copy());
         return list;
     }
 

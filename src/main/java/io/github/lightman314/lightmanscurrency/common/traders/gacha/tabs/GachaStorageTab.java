@@ -27,7 +27,6 @@ public class GachaStorageTab extends TraderStorageNodeTab<GachaStorageNode> {
 
     @Override
     protected boolean isDefaultTab() { return true; }
-
     @Override
     public ResourceLocation tabKey() { return KEY; }
 
@@ -111,9 +110,9 @@ public class GachaStorageTab extends TraderStorageNodeTab<GachaStorageNode> {
 
                     if(isShiftHeld)
                     {
-                        //Put the item in the players inventory. Will not throw overflow on the ground, so it will safely stop if the players inventory is full
+                        //Put the item in the players items. Will not throw overflow on the ground, so it will safely stop if the players items is full
                         this.menu.getPlayer().getInventory().add(stackToRemove);
-                        //Determine the amount actually added to the players inventory
+                        //Determine the amount actually added to the players items
                         removedAmount = tempAmount - stackToRemove.getCount();
                     }
                     else

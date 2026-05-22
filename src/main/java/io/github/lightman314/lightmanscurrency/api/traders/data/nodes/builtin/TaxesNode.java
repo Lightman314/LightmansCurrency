@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxCollector;
 import io.github.lightman314.lightmanscurrency.api.taxes.ITaxableContext;
 import io.github.lightman314.lightmanscurrency.api.taxes.TaxAPI;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.templates.SyncedTraderNode;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.interfaces.ITradeListener;
@@ -92,7 +93,7 @@ public class TaxesNode extends SyncedTraderNode implements ITradeListener {
     public TraderNodeType<?> getType() { return TYPE; }
 
     @Override
-    public void createSyncPacket(LazyPacketData.Builder builder,Player player) {
+    public void createSyncPacket(LazyPacketData.Builder builder,ISyncingContext context) {
         builder.setInt("acceptableTaxRate",this.acceptableTaxRate)
                 .setBoolean("ignoreAllTaxes",this.ignoreAllTaxes)
                 .setList("ignoredList",this.ignoredTaxCollectors,LazyPacketData.LONG_FACTORY);

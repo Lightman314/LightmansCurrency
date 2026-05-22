@@ -109,7 +109,7 @@ public final class LCConfig {
                     .add("gachaBallFullRender",this.drawGachaBallItem);
 
             builder.comment("Whether the Gacha Machine will render each Gacha Ball individually",
-                            "Disable if you're having FPS issues near the Gacha Machine, this will make the machine render a far more simplisitic representation of its contents.")
+                            "Disable if you're having FPS issues near the Gacha Machine, this will make the machine render a far more simplisitic representation of its items.")
                     .add("gachaMachineFancyGraphics",this.gachaMachineFancyGraphics);
 
             builder.pop();
@@ -123,10 +123,10 @@ public final class LCConfig {
 
             builder.comment("Wallet Slot Settings").push("wallet_slot");
 
-            builder.comment("The position that the wallet slot will be placed at in the players inventory.")
+            builder.comment("The position that the wallet slot will be placed at in the players items.")
                     .add("slot", this.walletSlot);
 
-            builder.comment("The position that the wallet slot will be placed at in the players creative inventory.")
+            builder.comment("The position that the wallet slot will be placed at in the players creative items.")
                     .add("creativeSlot", this.walletSlotCreative);
 
             builder.comment("The offset that the wallet button should be placed at relative to the wallet slot position.")
@@ -145,7 +145,7 @@ public final class LCConfig {
             builder.comment("The position offset from the defined corner.")
                     .add("displayOffset", this.walletOverlayPosition);
 
-            builder.comment("Whether the wallets contents should be displayed as a coin item, or as value text.")
+            builder.comment("Whether the wallets items should be displayed as a coin item, or as value text.")
                     .add("displayType", this.walletOverlayType);
 
             builder.pop();
@@ -170,10 +170,10 @@ public final class LCConfig {
 
             builder.comment("Inventory Button Settings").push("inventory_buttons");
 
-            builder.comment("The position that the notification & team manager buttons will be placed at in the players inventory.")
+            builder.comment("The position that the notification & team manager buttons will be placed at in the players items.")
                     .add("button", this.notificationAndTeamButtonPosition);
 
-            builder.comment("The position that the notification & team manager buttons will be placed at in the players creative inventory.")
+            builder.comment("The position that the notification & team manager buttons will be placed at in the players creative items.")
                     .add("buttonCreative", this.notificationAndTeamButtonCreativePosition);
 
             builder.pop();
@@ -801,7 +801,7 @@ public final class LCConfig {
                     .pop();
 
             builder.comment("Machine Protection Settings").push("machine_protection")
-                    .comment("Whether illegally broken traders (such as being replaced with /setblock, or modded machines that break blocks) will safely eject their block/contents into a temporary storage area for the owner to collect safely.",
+                    .comment("Whether illegally broken traders (such as being replaced with /setblock, or modded machines that break blocks) will safely eject their block/items into a temporary storage area for the owner to collect safely.",
                             "If disabled, illegally broken traders will throw their items on the ground, and can thus be griefed by modded machines.",
                             "Value ignored if anarchyMode is enabled!")
                     .add("safeEjection", this.safelyEjectMachineContents);
@@ -813,7 +813,7 @@ public final class LCConfig {
 
             builder.comment("A list of dimension ids that are quarantined from all cross-dimensional interactions.",
                             "This includes disabling Trader Interfaces, Network Traders & Terminals (personal trader interactions & cash registers will still function), and all Bank Account access.",
-                            "Mostly intended to be used to allow the existence of 'Creative Dimensions' where money can be cheated in by your average player, but should not affect a players inventory/bank balance in the 'normal' dimensions.")
+                            "Mostly intended to be used to allow the existence of 'Creative Dimensions' where money can be cheated in by your average player, but should not affect a players items/bank balance in the 'normal' dimensions.")
                     .add("quarantinedDimensions", this.quarantinedDimensions);
 
             builder.pop();
@@ -840,7 +840,7 @@ public final class LCConfig {
             builder.comment("A list of wallets that are capable of allowing transfers to/from your bank account.")
                     .add("bankAbility", this.walletCanBank);
 
-            builder.comment("Whether wallets can have additional slots added by using an upgrade item on them from their inventory",
+            builder.comment("Whether wallets can have additional slots added by using an upgrade item on them from their items",
                             "By default diamonds are the only valid upgrade item, but this can be changed by a datapack")
                     .add("allowCapacityUpgrade", this.walletCapacityUpgradeable);
 

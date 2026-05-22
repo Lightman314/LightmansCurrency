@@ -580,7 +580,7 @@ public abstract class TraderInterfaceBlockEntity<T extends TradeData> extends Ea
 				contents.add(this.upgradeSlots.getStackInSlot(i));
 		}
 		
-		//Dump contents
+		//Dump items
 		this.getAdditionalContents(contents);
 		return contents;
 		

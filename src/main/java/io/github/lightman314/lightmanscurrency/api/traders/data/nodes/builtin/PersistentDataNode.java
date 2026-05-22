@@ -8,6 +8,7 @@ import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.templates.SyncedTraderNode;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.interfaces.IBaseRuleModifier;
@@ -18,7 +19,6 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -46,7 +46,7 @@ public class PersistentDataNode extends SyncedTraderNode implements IPersistentN
     public TraderNodeType<?> getType() { return TYPE; }
 
     @Override
-    public void createSyncPacket(LazyPacketData.Builder builder, Player player) {
+    public void createSyncPacket(LazyPacketData.Builder builder,ISyncingContext context) {
         this.getPacket(builder,false);
     }
 

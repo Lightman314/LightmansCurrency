@@ -1,17 +1,16 @@
 package io.github.lightman314.lightmanscurrency.common.villager_merchant.listings;
 
 import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
-import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
@@ -106,11 +105,11 @@ public class SimpleTrade extends ItemsForXTradeTemplate
         @Override
         public ResourceLocation getType() { return TYPE; }
         @Override
-        public JsonObject serializeInternal(JsonObject json, VillagerTrades.ItemListing trade, HolderLookup.Provider lookup) {
+        public JsonObject serializeInternal(JsonObject json, VillagerTrades.ItemListing trade, DataContext<JsonElement> context) {
             if(trade instanceof SimpleTrade t)
             {
-                t.serializeData(json,lookup);
-                json.add("Sell", FileUtil.convertItemStack(t.forSale,lookup));
+                t.serializeData(json,context);
+                json.add("Sell",context.write(t.forSale,ItemStack.CODEC));
 
                 return json;
             }
@@ -118,10 +117,10 @@ public class SimpleTrade extends ItemsForXTradeTemplate
         }
         
         @Override
-        public VillagerTrades.ItemListing deserialize(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
+        public VillagerTrades.ItemListing deserialize(JsonObject json, DataContext<JsonElement> context) throws JsonSyntaxException, ResourceLocationException {
 
-            DeserializedData data = deserializeData(json,lookup);
-            ItemStack forSale = FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json,"Sell"),lookup);
+            DeserializedData data = deserializeData(json,context);
+            ItemStack forSale = context.readOrThrow(json.get("Sell"),ItemStack.CODEC);
 
             return new SimpleTrade(data, forSale);
         }

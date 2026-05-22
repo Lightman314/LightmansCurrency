@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.misc.item_handlers;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.data.DataContext;
+import io.github.lightman314.lightmanscurrency.common.items.data.ImmutableInventory;
 import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import io.github.lightman314.lightmanscurrency.util.OldDataHelper;
 import net.minecraft.core.NonNullList;
@@ -22,10 +23,14 @@ import java.util.function.Function;
 
 public class LCItemStackHandler extends ItemStackHandler {
 
+    @Deprecated
     public static <T extends LCItemStackHandler> Codec<T> createCodec(Function<List<ItemStack>,T> factory) { return ItemStack.OPTIONAL_CODEC.listOf().xmap(factory,s -> s.stacks); }
+    @Deprecated
     public static <T extends LCItemStackHandler> StreamCodec<RegistryFriendlyByteBuf,T> createStreamCodec(Function<List<ItemStack>,T> factory) { return ItemStack.OPTIONAL_LIST_STREAM_CODEC.map(factory, s -> s.stacks); }
 
+    @Deprecated
     public static final Codec<LCItemStackHandler> CODEC = createCodec(LCItemStackHandler::new);
+    @Deprecated
     public static final StreamCodec<RegistryFriendlyByteBuf,LCItemStackHandler> STREAM_CODEC = createStreamCodec(LCItemStackHandler::new);
 
     private final List<Runnable> listeners = new ArrayList<>();
@@ -149,5 +154,7 @@ public class LCItemStackHandler extends ItemStackHandler {
             return ItemHandlerUtil.equals(this,handler);
         return false;
     }
+
+    public final ImmutableInventory immutable() { return ImmutableInventory.ofList(this.stacks); }
 
 }

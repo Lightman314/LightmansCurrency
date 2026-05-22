@@ -28,7 +28,8 @@ public class UpgradesTab extends TraderStorageTab {
 
     @Override
     public ResourceLocation tabKey() { return KEY; }
-
+    @Override
+    public int getSortPriority() { return SORT_UPGRADES; }
 
     List<EasySlot> slots = new ArrayList<>();
     public List<? extends Slot> getSlots() { return this.slots; }

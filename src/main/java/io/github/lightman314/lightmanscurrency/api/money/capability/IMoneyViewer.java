@@ -4,7 +4,7 @@ import io.github.lightman314.lightmanscurrency.api.money.value.MoneyView;
 
 /**
  * Base for the {@link IMoneyHandler IMoneyHandler} and {@link IMoneyHolder} interfaces.<br>
- * Only used for read-only access to a money containers contents.<br>
+ * Only used for read-only access to a money containers items.<br>
  * Use {@link MoneyViewer} for a template implementation of this interface that caches money results to avoid unnecessary calculations.
  */
 public interface IMoneyViewer {

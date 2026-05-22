@@ -39,7 +39,7 @@ public abstract class CurrencyType<T extends MoneyValue> {
     /**
      * A quick method to sum a list of money values for {@link MoneyView} purposes
      * Can be modified by the {@link CurrencyType} to make the math more efficient, as this often requires adding 20-30 values
-     * together when querying the contents of a container.
+     * together when querying the items of a container.
      */
     public final MoneyValue sumValues(List<MoneyValue> values)
     {
@@ -80,7 +80,7 @@ public abstract class CurrencyType<T extends MoneyValue> {
 
     /**
      * Method used by {@link io.github.lightman314.lightmanscurrency.api.money.MoneyAPI#GetPlayersMoneyHandlerUnsafe(Player) MoneyAPI#GetPlayersMoneyHandlerUnsafe(Player)} to create a universal {@link io.github.lightman314.lightmanscurrency.common.impl.PlayerMoneyHolder PlayerMoneyHolder} for said player.<br>
-     * The {@link IPlayerMoneyHandler} returned should not utilize the players inventory as an item overflow if the money-related items did not fit in their wallet, etc.<br>
+     * The {@link IPlayerMoneyHandler} returned should not utilize the players items as an item overflow if the money-related items did not fit in their wallet, etc.<br>
      * Method is {@link Nullable} and should return null if it is not possible for the player to <b>ever</b> handle money of this type.
      */
     @Nullable

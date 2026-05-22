@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketType;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.builtin.TradeRulesTab;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRule;
@@ -102,7 +103,7 @@ public abstract class TradeOfferSourceNode<T extends TradeData> extends PlayerSy
     {
         this.setChanged(builder -> builder.modifyMap(tradeKey(tradeIndex),consumer));
     }
-    protected final void setTradeChanged(int tradeIndex,BiConsumer<Player,LazyPacketData.Builder> consumer)
+    protected final void setTradeChanged(int tradeIndex,BiConsumer<ISyncingContext,LazyPacketData.Builder> consumer)
     {
         this.setChanged((player,builder) -> builder.modifyMap(tradeKey(tradeIndex),entry -> consumer.accept(player,entry)));
     }
@@ -238,7 +239,7 @@ public abstract class TradeOfferSourceNode<T extends TradeData> extends PlayerSy
     public Predicate<TradeData> getTradeStorageFilter(ITraderStorageMenu menu) { return Predicates.alwaysTrue(); }
 
     @Override
-    public void createSyncPacket(LazyPacketData.Builder builder,Player player) {
+    public void createSyncPacket(LazyPacketData.Builder builder,ISyncingContext context) {
         List<T> trades = this.getEditableList();
         for(int i = 0; i < trades.size(); ++i)
         {
@@ -246,7 +247,7 @@ public abstract class TradeOfferSourceNode<T extends TradeData> extends PlayerSy
             T trade = trades.get(i);
             entry.setCustom("edit",trades.get(i),this.getPacketType());
             if(this.supportsTradeRules() && trade instanceof RuleSupportingTradeData rt)
-                entry.setMap("rules",TradeRule.encodeRules(this::builder,rt,player));
+                entry.setMap("rules",TradeRule.encodeRules(this::builder,rt,context));
             builder.setMap(tradeKey(i),entry);
         }
     }

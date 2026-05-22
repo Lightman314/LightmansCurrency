@@ -138,7 +138,7 @@ public class PaygateTraderData extends NormalTraderData {
 			//Abort if we don't have a valid ticket to extract
 			if(!trade.canAfford(context))
 			{
-				LightmansCurrency.LogDebug("Ticket ID " + trade.getTicketID() + " could not be found in the players inventory to pay for trade " + tradeIndex + ". Cannot execute trade.");
+				LightmansCurrency.LogDebug("Ticket ID " + trade.getTicketID() + " could not be found in the players items to pay for trade " + tradeIndex + ". Cannot execute trade.");
 				return TradeResult.FAIL_CANNOT_AFFORD;
 			}
 

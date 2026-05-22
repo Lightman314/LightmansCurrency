@@ -46,7 +46,7 @@ public class WalletBankMenu extends WalletMenuBase implements IBankAccountMenu {
 	public void onDepositOrWithdraw() {
 		if(this.getAutoExchange()) //Don't need to save if exchanging coins, as the ExchangeCoins function auto-saves.
 			this.ExchangeCoins();
-		else //Save the wallet contents on bank interaction.
+		else //Save the wallet items on bank interaction.
 			this.saveWalletContents();
 	}
 

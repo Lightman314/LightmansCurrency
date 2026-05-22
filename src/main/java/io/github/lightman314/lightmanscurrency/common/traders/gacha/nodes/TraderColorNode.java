@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.misc.blocks.IColoredBlock;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.WorldStateNode;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.interfaces.IPersistentNode;
@@ -17,7 +18,6 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 
 import javax.annotation.Nullable;
@@ -49,7 +49,7 @@ public class TraderColorNode extends SyncedTraderNode implements IPersistentNode
     public TraderNodeType<?> getType() { return TYPE; }
 
     @Override
-    public void createSyncPacket(LazyPacketData.Builder builder, Player player) {
+    public void createSyncPacket(LazyPacketData.Builder builder,ISyncingContext context) {
         builder.setInt("color",this.color);
     }
 

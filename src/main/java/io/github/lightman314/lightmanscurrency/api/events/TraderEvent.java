@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.api.events;
 
-import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
@@ -26,7 +25,7 @@ public abstract class TraderEvent extends Event {
     {
         private final TraderData trader;
         private final Map<TraderNodeType<?>,Object> nodes;
-        public Map<TraderNodeType<?>,Object> getNodes() { return ImmutableMap.copyOf(this.nodes); }
+        public Map<TraderNodeType<?>,Object> getNodes() { return this.nodes; }
         public RegisterNodesEvent(TraderData trader,Map<TraderNodeType<?>,Object> nodes)
         {
             super(trader.getID());

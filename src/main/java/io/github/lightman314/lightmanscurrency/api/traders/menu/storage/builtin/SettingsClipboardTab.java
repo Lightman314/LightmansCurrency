@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderS
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.client.builtin.SettingsClipboardClientTab;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
+import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.SettingsCopySlot;
 import io.github.lightman314.lightmanscurrency.api.misc.menus.slots.EasySlot;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
@@ -41,6 +42,9 @@ public class SettingsClipboardTab extends TraderStorageTab {
 
     @Override
     public ResourceLocation tabKey() { return KEY; }
+
+    @Override
+    public int getSortPriority() { return SORT_SETINGS_CLIPBOARD; }
 
     private Consumer<String> copyResultConsumer = s -> {};
     private final IItemHandlerModifiable container = new LCItemStackHandler(1);
@@ -86,7 +90,7 @@ public class SettingsClipboardTab extends TraderStorageTab {
     public void copySettingsToStack(NodeSelections selections)
     {
         if(this.isClient())
-            this.menu.SendMessage(this.builder().setTag("CopySettings",selections.write()));
+            this.menu.SendMessage(this.builder().setCustom("CopySettings",selections,ModLazyPackets.SETTINGS_NODE_SELECTIONS));
         else
         {
             if(!this.canWriteSettingsToStack())
@@ -108,7 +112,7 @@ public class SettingsClipboardTab extends TraderStorageTab {
     public void copySettingsDirectly(NodeSelections selections)
     {
         if(this.isClient())
-            this.menu.SendMessage(this.builder().setTag("CopySettingsDirectly",selections.write()));
+            this.menu.SendMessage(this.builder().setCustom("CopySettingsDirectly",selections,ModLazyPackets.SETTINGS_NODE_SELECTIONS));
         else
         {
             TraderData trader = this.menu.getTrader();
@@ -122,7 +126,7 @@ public class SettingsClipboardTab extends TraderStorageTab {
     public void loadSettingsFromStack(NodeSelections selections)
     {
         if(this.isClient())
-            this.menu.SendMessage(this.builder().setTag("ReadSettings",selections.write()));
+            this.menu.SendMessage(this.builder().setCustom("ReadSettings",selections,ModLazyPackets.SETTINGS_NODE_SELECTIONS));
         else
         {
             if(!this.canReadSettingsFromStack())
@@ -141,7 +145,7 @@ public class SettingsClipboardTab extends TraderStorageTab {
         if(this.isClient())
         {
             this.menu.SendMessage(this.builder()
-                    .setTag("ReadSettingsDirectly",selections.write())
+                    .setCustom("ReadSettingsDirectly",selections,ModLazyPackets.SETTINGS_NODE_SELECTIONS)
                     .setString("Data",clipboard));
         }
         else
@@ -160,13 +164,13 @@ public class SettingsClipboardTab extends TraderStorageTab {
     @Override
     public void receiveMessage(LazyPacketData message) {
         if(message.contains("CopySettings"))
-            this.copySettingsToStack(NodeSelections.read(message.getTag("CopySettings")));
+            this.copySettingsToStack(message.getCustom("CopySettings",ModLazyPackets.SETTINGS_NODE_SELECTIONS));
         if(message.contains("ReadSettings"))
-            this.loadSettingsFromStack(NodeSelections.read(message.getTag("ReadSettings")));
+            this.loadSettingsFromStack(message.getCustom("ReadSettings",ModLazyPackets.SETTINGS_NODE_SELECTIONS));
         if(message.contains("CopySettingsDirectly"))
-            this.copySettingsDirectly(NodeSelections.read(message.getTag("CopySettingsDirectly")));
+            this.copySettingsDirectly(message.getCustom("CopySettingsDirectly",ModLazyPackets.SETTINGS_NODE_SELECTIONS));
         if(message.contains("ReadSettingsDirectly") && message.contains("Data"))
-            this.loadSettingsDirectly(NodeSelections.read(message.getTag("ReadSettingsDirectly")),message.getString("Data"));
+            this.loadSettingsDirectly(message.getCustom("ReadSettingsDirectly",ModLazyPackets.SETTINGS_NODE_SELECTIONS),message.getString("Data"));
         if(message.contains("CopyDataResult"))
             this.copyResultConsumer.accept(message.getString("CopyDataResult"));
     }

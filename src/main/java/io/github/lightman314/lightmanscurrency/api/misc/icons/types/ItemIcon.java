@@ -4,9 +4,9 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconType;
-import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.OldDataHelper;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -18,6 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -38,13 +39,16 @@ public class ItemIcon extends IconData
 
     public final ItemStack iconStack;
     public final Optional<String> countTextOverride;
-    private ItemIcon(ItemStack iconStack, Optional<String> countTextOverride) { this.iconStack = iconStack; this.countTextOverride = countTextOverride; }
+    private ItemIcon(ItemStack iconStack,Optional<String> countTextOverride) {
+        this.iconStack = iconStack;
+        this.countTextOverride = Objects.requireNonNull(countTextOverride);
+    }
 
     public static IconData ofItem(Supplier<? extends ItemLike> item) { return ofItem(item.get()); }
     public static IconData ofItem(Supplier<? extends ItemLike> item, @Nullable String countTextOverride) { return ofItem(item.get(), countTextOverride); }
     public static IconData ofItem(ItemLike item) { return ofItem(new ItemStack(item)); }
     public static IconData ofItem(ItemLike item, @Nullable String countTextOverride) { return ofItem(new ItemStack(item),countTextOverride); }
-    public static IconData ofItem(ItemStack item) { return new ItemIcon(item,null); }
+    public static IconData ofItem(ItemStack item) { return ofItem(item,null); }
     public static IconData ofItem(ItemStack item, @Nullable String countTextOverride) { return new ItemIcon(item,Optional.ofNullable(countTextOverride)); }
 
     @Override
@@ -62,7 +66,7 @@ public class ItemIcon extends IconData
 
     private static ItemIcon parseItem(JsonObject json, HolderLookup.Provider lookup)
     {
-        ItemStack stack = FileUtil.parseItemStack(GsonHelper.getAsJsonObject(json,"Item"),lookup);
+        ItemStack stack = DataContext.createJson(lookup).readOrThrow(GsonHelper.getAsJsonObject(json,"Item"),ItemStack.CODEC);
         String countText = GsonHelper.getAsString(json,"Text",null);
         return new ItemIcon(stack,Optional.ofNullable(countText));
     }

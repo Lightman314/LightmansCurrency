@@ -2,9 +2,12 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.trader_interface.blockentity.TraderInterfaceBlockEntity.ActiveMode;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.tracking.OwnerTraderTrackingHolder;
+import io.github.lightman314.lightmanscurrency.api.traders.tracking.TrackingLevel;
 import io.github.lightman314.lightmanscurrency.common.menus.tabbed.EasyTabbedMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.traderinterface.base.*;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.BlockEntityValidator;
@@ -15,15 +18,26 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class TraderInterfaceMenu extends EasyTabbedMenu<TraderInterfaceMenu,TraderInterfaceTab> {
 
 	private final TraderInterfaceBlockEntity<?> blockEntity;
 	public final TraderInterfaceBlockEntity<?> getBE() { return this.blockEntity; }
-	
-	public static final int SLOT_OFFSET = 15;
 
-    public TraderInterfaceMenu(int windowID, Inventory inventory, TraderInterfaceBlockEntity<?> blockEntity) {
+    private final OwnerTraderTrackingHolder trackingHolder = new OwnerTraderTrackingHolder(this,TrackingLevel.CUSTOMER);
+    private Set<Long> trackingCache = new HashSet<>();
+
+
+    public static final int SLOT_OFFSET = 15;
+
+    public TraderInterfaceMenu(int windowID,Inventory inventory,TraderInterfaceBlockEntity<?> blockEntity) {
 		super(ModMenus.TRADER_INTERFACE.get(), windowID, inventory);
 		this.blockEntity = blockEntity;
 
@@ -31,7 +45,7 @@ public class TraderInterfaceMenu extends EasyTabbedMenu<TraderInterfaceMenu,Trad
 		this.addValidator(this.blockEntity::canAccess);
 		this.addValidator(() -> !QuarantineAPI.IsDimensionQuarantined(this.blockEntity));
 		
-		//Player inventory
+		//Player items
 		for(int y = 0; y < 3; y++)
 		{
 			for(int x = 0; x < 9; x++)
@@ -46,6 +60,9 @@ public class TraderInterfaceMenu extends EasyTabbedMenu<TraderInterfaceMenu,Trad
 		}
 
 		this.initializeTabs();
+
+        //Initialize the tracking
+        NeoForge.EVENT_BUS.register(this);
 		
 	}
 
@@ -58,10 +75,35 @@ public class TraderInterfaceMenu extends EasyTabbedMenu<TraderInterfaceMenu,Trad
 		this.setTab(TraderInterfaceTab.TAB_OWNERSHIP, new OwnershipTab(this));
 		if(this.blockEntity != null)
 			this.blockEntity.initMenuTabs(this);
-
 	}
 
-	public TradeContext getTradeContext(TraderData trader) {
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    private void serverTick(ServerTickEvent.Post event)
+    {
+        if(this.isClient())
+            return;
+        Set<Long> found = new HashSet<>();
+        OwnerData owner = this.blockEntity.owner;
+        for(TraderData trader : this.blockEntity.targets.getTraders())
+        {
+            this.trackingHolder.requestTracking(trader,this.player,owner);
+            found.add(trader.getID());
+        }
+        for(long wasTracking : this.trackingCache)
+        {
+            if(!found.contains(wasTracking))
+                this.trackingHolder.endTracking(wasTracking,this.player);
+        }
+        this.trackingCache = found;
+    }
+
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+        NeoForge.EVENT_BUS.unregister(this);
+    }
+
+    public TradeContext getTradeContext(TraderData trader) {
 		return this.blockEntity.getTradeContext(trader);
 	}
 
@@ -79,10 +121,10 @@ public class TraderInterfaceMenu extends EasyTabbedMenu<TraderInterfaceMenu,Trad
 			clickedStack = slotStack.copy();
 			if(index < 36)
 			{
-				//Move from inventory to current tab
+				//Move from items to current tab
 				if(!this.currentTab().quickMoveStack(slotStack))
 				{
-					//Else, move from inventory to additional slots
+					//Else, move from items to additional slots
 					if(!this.moveItemStackTo(slotStack, 36, this.slots.size(), false))
 					{
 						return ItemStack.EMPTY;
@@ -91,7 +133,7 @@ public class TraderInterfaceMenu extends EasyTabbedMenu<TraderInterfaceMenu,Trad
 			}
 			else if(index < this.slots.size())
 			{
-				//Move from coin/interaction slots to inventory
+				//Move from coin/interaction slots to items
 				if(!this.moveItemStackTo(slotStack, 0, 36, false))
 				{
 					return ItemStack.EMPTY;

@@ -248,9 +248,7 @@ public abstract class MoneyValue {
      * @param multiplier The amount to multiply this value by.
      * @return The mathematical result of multiplying this value by the given number.
      */
-    
     public abstract MoneyValue multiplyValue(double multiplier);
-
 
     public boolean allowInterest() { return !(this instanceof NullValue); }
 
@@ -259,13 +257,11 @@ public abstract class MoneyValue {
      * @param owner Data about the blocks' owner, so that any non-item based money can instead be given to the player directly.
      * @return List of items to drop/eject. Leave empty if money is given to the owner manually.
      */
-    
     public abstract List<ItemStack> onBlockBroken(OwnerData owner);
 
     /**
      * Returns the smallest non-zero value of this money value type.
      */
-    
     public abstract MoneyValue getSmallestValue();
 
     /**
@@ -278,7 +274,7 @@ public abstract class MoneyValue {
 
     /**
      * Saves this {@link MoneyValue} data into an NBT tag.
-     * @see #loadOldData(CompoundTag)
+     * @see #CODEC
      * @see #safeLoad(CompoundTag,String)
      */
     public final CompoundTag save() { return (CompoundTag)CODEC.encodeStart(NbtOps.INSTANCE,this).getOrThrow(); }
@@ -341,7 +337,7 @@ public abstract class MoneyValue {
     
     public static MoneyValue safeLoad(CompoundTag parentTag, String tagName)
     {
-        if(parentTag.contains(tagName, Tag.TAG_COMPOUND))
+        if(parentTag.contains(tagName,Tag.TAG_COMPOUND))
         {
             MoneyValue result = loadOldData(parentTag.getCompound(tagName));
             return result == null ? empty() : result;

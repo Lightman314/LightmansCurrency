@@ -12,8 +12,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -140,11 +138,6 @@ public class TaxDataCache extends CustomData {
     }
 
     @Override
-    protected void serverInit() {
-        NeoForge.EVENT_BUS.register(this);
-    }
-
-    @Override
     public void syncTick() {
         Set<Long> changed = this.changedEntries;
         this.changedEntries = new HashSet<>();
@@ -159,7 +152,5 @@ public class TaxDataCache extends CustomData {
             }
         }
     }
-
-    private void serverClosed(ServerStoppingEvent event) { NeoForge.EVENT_BUS.unregister(this); }
 
 }

@@ -1,12 +1,13 @@
 package io.github.lightman314.lightmanscurrency.common.villager_merchant;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.*;
 import net.minecraft.ResourceLocationException;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.npc.VillagerTrades.ItemListing;
@@ -39,63 +40,63 @@ public class ItemListingSerializer {
     }
 
 
-    public static JsonObject serialize(Map<Integer, List<ItemListing>> trades, int count, HolderLookup.Provider lookup) {
+    public static JsonObject serialize(Map<Integer, List<ItemListing>> trades, int count, DataContext<JsonElement> context) {
         JsonObject json = new JsonObject();
         for(int i = 1; i <= count; ++i)
-            json.add("TradesLevel" + i, serializeList(trades.getOrDefault(i,new ArrayList<>()),lookup));
+            json.add("TradesLevel" + i, serializeList(trades.getOrDefault(i,new ArrayList<>()),context));
         return json;
     }
 
-    public static Map<Integer,List<ItemListing>> deserialize(JsonObject json, HolderLookup.Provider lookup) {
+    public static Map<Integer,List<ItemListing>> deserialize(JsonObject json, DataContext<JsonElement> context) {
         Map<Integer,List<ItemListing>> result = new HashMap<>();
         for(int i = 1; i <= 5; ++i)
         {
             if(json.has("TradesLevel" + i) && json.get("TradesLevel" + i) instanceof JsonArray jsonList)
-                result.put(i, deserializeList(jsonList,lookup));
+                result.put(i, deserializeList(jsonList,context));
             else
                 result.put(i, new ArrayList<>());
         }
         return result;
     }
 
-    public static JsonArray serializeList(List<ItemListing> trades, HolderLookup.Provider lookup) {
+    public static JsonArray serializeList(List<ItemListing> trades, DataContext<JsonElement> context) {
         JsonArray list = new JsonArray();
         for(ItemListing trade : trades)
         {
-            JsonObject tj = serializeTrade(trade,lookup);
+            JsonObject tj = serializeTrade(trade,context);
             if(tj != null)
                 list.add(tj);
         }
         return list;
     }
 
-    public static List<ItemListing> deserializeList(JsonArray jsonList, HolderLookup.Provider lookup) {
+    public static List<ItemListing> deserializeList(JsonArray jsonList, DataContext<JsonElement> context) {
         List<ItemListing> list = new ArrayList<>();
         for(int i = 0; i < jsonList.size(); ++i)
         {
             try{
-                ItemListing trade = deserializeTrade(jsonList.get(i).getAsJsonObject(),lookup);
+                ItemListing trade = deserializeTrade(jsonList.get(i).getAsJsonObject(),context);
                 list.add(trade);
             } catch(Throwable t) { LightmansCurrency.LogError("Error deserializing item listing at index " + i + "!", t); }
         }
         return list;
     }
 
-    public static <T extends ItemListing> JsonObject serializeTrade(T listing, HolderLookup.Provider lookup) {
+    public static <T extends ItemListing> JsonObject serializeTrade(T listing, DataContext<JsonElement> context) {
         if(listing == null)
             return null;
         IItemListingSerializer serializer = serializers.get(listing.getClass());
         if(serializer == null)
             return null;
-        return serializer.serialize(listing,lookup);
+        return serializer.serialize(listing,context);
     }
 
-    public static ItemListing deserializeTrade(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException{
+    public static ItemListing deserializeTrade(JsonObject json, DataContext<JsonElement> context) throws JsonSyntaxException, ResourceLocationException{
         ResourceLocation type = ResourceLocation.parse(GsonHelper.getAsString(json,"Type"));
         IItemListingDeserializer deserializer = deserializers.get(type);
         if(deserializer == null)
             throw new JsonSyntaxException("Could not deserialize entry as no deserializer was found of type '" + type + "'!");
-        ItemListing trade = deserializer.deserialize(json,lookup);
+        ItemListing trade = deserializer.deserialize(json,context);
         if(trade == null)
             throw new JsonSyntaxException("An unknown error occurred while deserializing entry!");
         return trade;
@@ -104,16 +105,16 @@ public class ItemListingSerializer {
     public interface IItemListingSerializer {
         ResourceLocation getType();
         @Nullable
-        default JsonObject serialize(ItemListing trade, HolderLookup.Provider lookup) {
+        default JsonObject serialize(ItemListing trade, DataContext<JsonElement> context) {
             JsonObject json = new JsonObject();
             json.addProperty("Type", this.getType().toString());
-            return serializeInternal(json, trade,lookup);
+            return serializeInternal(json, trade,context);
         }
         @Nullable
-        JsonObject serializeInternal(JsonObject json, ItemListing trade, HolderLookup.Provider lookup);
+        JsonObject serializeInternal(JsonObject json, ItemListing trade, DataContext<JsonElement> context);
     }
 
-    public interface IItemListingDeserializer { ItemListing deserialize(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException; }
+    public interface IItemListingDeserializer { ItemListing deserialize(JsonObject json, DataContext<JsonElement> context) throws JsonSyntaxException, ResourceLocationException; }
 
 
     public static void registerDefaultSerializers() {

@@ -68,7 +68,7 @@ public class MoneyBagItem extends BlockItem {
             ItemStack droppedCoin = contents.removeRandomItem(random);
             if(!droppedCoin.isEmpty())
             {
-                //Update the money bags contents
+                //Update the money bags items
                 setContents(stack,contents);
                 //Spawn the dropped coin
                 Level level = attacker.level();
@@ -88,7 +88,7 @@ public class MoneyBagItem extends BlockItem {
     public static MoneyBagInventory getContents(ItemStack moneybag)
     {
         if(moneybag.getItem() instanceof MoneyBagItem)
-            return moneybag.getOrDefault(ModDataComponents.MONEY_BAG_CONTENTS, MoneyBagData.EMPTY).contents().copy();
+            return moneybag.getOrDefault(ModDataComponents.MONEY_BAG_CONTENTS, MoneyBagData.EMPTY).items().makeMutable(MoneyBagInventory::new);
         return new MoneyBagInventory();
     }
 
@@ -105,11 +105,11 @@ public class MoneyBagItem extends BlockItem {
         return 0;
     }
 
-    public static ItemStack createItem(ItemLike item, List<ItemStack> contents, int size) { return createItem(item,new MoneyBagData(new MoneyBagInventory(contents),size)); }
+    public static ItemStack createItem(ItemLike item, List<ItemStack> contents, int size) { return createItem(item,new MoneyBagData(new MoneyBagInventory(contents).immutable(),size)); }
     public static ItemStack createItem(ItemLike item, MoneyBagData data)
     {
         ItemStack stack = new ItemStack(item);
-        if(data.contents().isEmpty())
+        if(data.items().isEmpty())
             return stack;
         stack.set(ModDataComponents.MONEY_BAG_CONTENTS,data);
         return stack;

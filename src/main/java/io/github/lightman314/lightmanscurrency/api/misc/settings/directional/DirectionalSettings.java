@@ -28,9 +28,9 @@ public class DirectionalSettings {
 
     private Runnable listener = () -> {};
 
-    public DirectionalSettings() {}
+    public DirectionalSettings() { this(IDirectionalSettingsHolder.DEFAULT); }
     public DirectionalSettings(IDirectionalSettingsHolder parent) { this.parent = parent; }
-    private DirectionalSettings(Map<Direction,DirectionalSettingsState> data) { this.data.putAll(data); }
+    private DirectionalSettings(Map<Direction,DirectionalSettingsState> data) { this(); this.data.putAll(data); }
 
     public DirectionalSettings withParent(IDirectionalSettingsHolder parent) {
         this.parent = parent;
@@ -88,7 +88,7 @@ public class DirectionalSettings {
         {
             if(this.parent.getIgnoredSides().contains(side))
                 continue;
-            this.setState(side,other.getState(side));
+            this.data.put(side,other.data.getOrDefault(side,DirectionalSettingsState.NONE));
         }
     }
 

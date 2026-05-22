@@ -14,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.common.data.types.TraderDataCache
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.traders.auction.trade.AuctionTradeData;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -42,10 +41,10 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 		this.id = id;
 	}
     
-	private JsonObject getAuctionJson(String id, HolderLookup.Provider lookup) {
+	private JsonObject getAuctionJson(String id,DataContext<JsonElement> context) {
 		JsonObject json = new JsonObject();
 		json.addProperty("id", id);
-		json = this.auction.saveToJson(json,lookup);
+		json = this.auction.saveToJson(json,context);
 		return json;
 	}
 
@@ -67,7 +66,7 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 
 				if(!generateID) {
 
-					JsonObject auctionJson = message.getAuctionJson(message.id,lookup);
+					JsonObject auctionJson = message.getAuctionJson(message.id,dataContext);
 
 					JsonArray persistentAuctions = data.getPersistentTraderJson(TraderDataCache.PERSISTENT_AUCTION_SECTION);
 					//Check for auctions with the same id, and replace any entries that match
@@ -107,7 +106,7 @@ public class CPacketCreatePersistentAuction extends ClientToServerPacket {
 						String genID = GENERATE_ID_FORMAT + i;
 						if(knownIDs.stream().noneMatch(id -> id.equals(genID)))
 						{
-							persistentAuctions.add(message.getAuctionJson(genID,lookup));
+							persistentAuctions.add(message.getAuctionJson(genID,dataContext));
 							data.setPersistentTraderSection(TraderDataCache.PERSISTENT_AUCTION_SECTION,persistentAuctions,dataContext);
 							player.sendSystemMessage(LCText.MESSAGE_PERSISTENT_AUCTION_ADD.get(genID));
 							return;

@@ -25,7 +25,6 @@ import io.github.lightman314.lightmanscurrency.common.blocks.CoinBlock;
 import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.MenuValidatorType;
 import io.github.lightman314.lightmanscurrency.common.menus.validation.types.*;
-import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.builtin.TaxableTraderReference;
 import io.github.lightman314.lightmanscurrency.api.ticket.TicketGroupData;
 import io.github.lightman314.lightmanscurrency.common.traders.search_filters.AuctionSearchFilter;
@@ -78,7 +77,7 @@ public class LightmansCurrency {
 	
 	public static final String MODID = "lightmanscurrency";
 
-	private static CommonProxy PROXY;
+	private static CommonProxy PROXY = new CommonProxy();
 	public static CommonProxy getProxy() { return Objects.requireNonNull(PROXY,"Attempted to get the proxy before the mod was initialized!"); }
 
     public static ResourceLocation id(String path) { return ResourceLocation.fromNamespaceAndPath(MODID,path); }
@@ -87,10 +86,11 @@ public class LightmansCurrency {
 	public LightmansCurrency(ModContainer modContainer, IEventBus eventBus, Dist side) {
 
 		//Init the proxy
-		PROXY = side.isClient() ? new ClientProxy() : new CommonProxy();
+        if(side.isClient())
+            PROXY = new ClientProxy();
 
         //Setup Wood Compatibilities super-early so we don't accidentally load items before they're initialized
-        IntegrationUtil.SafeRunIfLoaded("biomesoplenty", BOPCustomWoodTypes::setupWoodTypes, "Error setting up BOP wood types! BOP has probably changed their API!");
+        IntegrationUtil.SafeRunIfLoaded("biomesoplenty",BOPCustomWoodTypes::setupWoodTypes,"Error setting up BOP wood types! BOP has probably changed their API!");
         //IntegrationUtil.SafeRunIfLoaded("quark", QuarkCustomWoodTypes::setupWoodTypes, "Error setting up Quark wood types! Quark has probably changed their API!");
 
 		LootManager.registerDroplistListeners();
@@ -196,7 +196,7 @@ public class LightmansCurrency {
         //Delay of 1000 so that it loads after server/money configs
         ConfigAPI.getApi().registerCustomReloadable(ConfigReloadable.simpleReloader(LightmansCurrency.id("persistent_traders"),ConfigReloadable.PRIORITY_AFTER_ALL,stack -> TraderDataCache.TYPE.get(false).reloadPersistentTraders()));
         //Seasonal events don't care about money or other such nonsense, so default priority is fine :)
-        ConfigAPI.getApi().registerCustomReloadable(ConfigReloadable.simpleReloader(LightmansCurrency.id("seasonal_events"),stack -> SeasonalEventManager.reload()));
+        ConfigAPI.getApi().registerCustomReloadable(ConfigReloadable.simpleReloader(LightmansCurrency.id("seasonal_events"),stack -> SeasonalEventManager.reload(stack.registryAccess())));
 
 	}
     
@@ -209,8 +209,6 @@ public class LightmansCurrency {
 		Player target = event.getEntity();
     	//Sync time
 		SPacketSyncTime.syncWith(target);
-    	//Sync admin list
-		LCAdminMode.sendSyncPacket(target);
     }
 
     public static void LogDebug(String message) { LOGGER.debug(message); }

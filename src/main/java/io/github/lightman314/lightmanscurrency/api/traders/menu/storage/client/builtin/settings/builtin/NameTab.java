@@ -18,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.api.client.widgets.easy.EasyTextB
 import io.github.lightman314.lightmanscurrency.client.util.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.client.util.TextRenderUtil;
+import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets;
 import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
@@ -180,7 +181,7 @@ public class NameTab extends NodeSettingsSubTab<DisplayNode> implements IMouseLi
         {
             IconData icon = trader.getIconForItem(iconItem);
             if(icon != null)
-                this.sendMessage(this.builder().setTag("ChangeIcon",icon.save(this.registryAccess())));
+                this.sendMessage(this.builder().setCustom("ChangeIcon",icon,ModLazyPackets.ICON));
         }
     }
 

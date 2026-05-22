@@ -1,19 +1,21 @@
 package io.github.lightman314.lightmanscurrency.common.seasonal_events;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.common.data.types.EventRewardDataCache;
 import io.github.lightman314.lightmanscurrency.common.seasonal_events.chocolate.ChocolateEventCoins;
 import io.github.lightman314.lightmanscurrency.common.seasonal_events.data.EventData;
 import io.github.lightman314.lightmanscurrency.common.seasonal_events.data.EventRange;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.loot.LootManager;
-import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.GsonHelper;
 import net.neoforged.bus.api.EventPriority;
@@ -38,9 +40,9 @@ public class SeasonalEventManager {
     public static final String EVENTS_FILENAME = "config/lightmanscurrency/SeasonalEvents.json";
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    private static void onServerStart(ServerStartedEvent event) { reload(); }
+    private static void onServerStart(ServerStartedEvent event) { reload(event.getServer().registryAccess()); }
 
-    public static void reload() {
+    public static void reload(HolderLookup.Provider lookup) {
 
         //Unregister all currently loaded events
         for(EventData event : loadedEvents)
@@ -55,7 +57,7 @@ public class SeasonalEventManager {
             //Register the events as a loot modifier
             for(EventData event : loadedEvents)
                 LootManager.addLootModifier(event);
-            saveCurrentEvents();
+            saveCurrentEvents(lookup);
         }
         else
         {
@@ -63,11 +65,12 @@ public class SeasonalEventManager {
                 JsonObject json = GsonHelper.parse(Files.readString(file.toPath()));
                 JsonArray events = GsonHelper.getAsJsonArray(json,"Events");
                 List<String> loadedEventIDS = new ArrayList<>();
+                DataContext<JsonElement> context = DataContext.createJson(lookup);
                 for(int i = 0; i < events.size(); ++i)
                 {
                     try {
                         JsonObject entry = GsonHelper.convertToJsonObject(events.get(i),"Events[" + i + "]");
-                        EventData event = EventData.fromJson(entry,LookupHelper.getRegistryAccess());
+                        EventData event = EventData.fromJson(entry,context);
                         //Confirm that the new event doesn't have a duplicate id
                         if(loadedEventIDS.contains(event.eventID))
                             throw new JsonSyntaxException("Cannot have two events with the ID of '" + event.eventID + "'!");
@@ -83,12 +86,13 @@ public class SeasonalEventManager {
         }
     }
 
-    private static void saveCurrentEvents()
+    private static void saveCurrentEvents(HolderLookup.Provider lookup)
     {
         JsonObject json = new JsonObject();
         JsonArray events = new JsonArray();
+        DataContext<JsonElement> context = DataContext.createJson(lookup);
         for(EventData event : loadedEvents)
-            events.add(event.toJson(LookupHelper.getRegistryAccess()));
+            events.add(event.toJson(context));
         json.add("Events",events);
         try {
             File file = new File(EVENTS_FILENAME);

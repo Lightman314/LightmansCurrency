@@ -31,7 +31,7 @@ public class BasicEjectionData extends EjectionData {
     public static final EjectionDataType<BasicEjectionData> TYPE = new Type();
     private static final MapCodec<BasicEjectionData> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
             OwnerData.CODEC.fieldOf("owner").forGetter(n -> n.owner),
-            NonEmptyHandler.CODEC.fieldOf("contents").forGetter(n -> n.contents),
+            NonEmptyHandler.CODEC.fieldOf("items").forGetter(n -> n.contents),
             ComponentSerialization.CODEC.fieldOf("name").forGetter(n -> n.name),
             baseFields()
     ).apply(builder,BasicEjectionData::new));

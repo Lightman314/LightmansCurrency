@@ -61,17 +61,20 @@ public class CustomSaveData extends SavedData {
         if(overworld == null)
             return;
         serverDataCache.clear();
+        Map<ResourceLocation,Runnable> listeners = new HashMap<>();
         LCRegistries.CUSTOM_DATA.forEach(type -> {
             ResourceLocation id = LCRegistries.CUSTOM_DATA.getKey(type);
             CustomSaveData data = overworld.getDataStorage().computeIfAbsent(factory(type,server), type.fileName);
             serverDataCache.put(id,data.data);
+            listeners.put(id,data::setDirty);
         });
+        //Run server-init **after** all data is fully loaded so that any cross-data will function properly
+        serverDataCache.forEach((key,data) -> data.initServer(listeners.get(key),server.registryAccess()));
     }
 
     private final CustomData data;
     private CustomSaveData(CustomData data,HolderLookup.Provider lookup) {
         this.data = data;
-        this.data.initServer(this::setDirty,lookup);
     }
 
     private static Factory<CustomSaveData> factory(CustomDataType<?> type,MinecraftServer server) { return new Factory<>(() ->

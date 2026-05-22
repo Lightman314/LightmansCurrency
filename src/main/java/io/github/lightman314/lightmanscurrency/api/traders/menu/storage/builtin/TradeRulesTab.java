@@ -57,13 +57,12 @@ public abstract class TradeRulesTab extends TraderStorageTab {
     public static class Trader extends TradeRulesTab {
 
         public Trader(ITraderStorageMenu menu) { super(menu); }
-
         @Override
         public ResourceLocation tabKey() { return TRADER_KEY; }
-
+        @Override
+        public int getSortPriority() { return SORT_TRADER_RULES; }
         @Override
         public Object createClientTab(Object screen) { return new TradeRulesClientTab.Trader(screen, this); }
-
         @Nullable
         @Override
         public ITradeRuleHost getHost() { return this.menu.getTrader(); }

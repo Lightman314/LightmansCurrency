@@ -39,7 +39,7 @@ public abstract class EasyMenuTab<M extends IEasyTabbedMenu<T>,T extends EasyMen
     public void onTabClose() { }
 
     /**
-     * Called when the menu is closed. Use this to clear the contents of any slots connected to temporary inventories.
+     * Called when the menu is closed. Use this to clear the items of any slots connected to temporary inventories.
      */
     public void onMenuClose() { }
 

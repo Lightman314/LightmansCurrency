@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.templates.SyncedTraderNode;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNodeType;
 
@@ -24,6 +25,8 @@ public class MachineAccessNode extends SyncedTraderNode {
     private static final MapCodec<MachineAccessNode> MAP_CODEC = Codec.unboundedMap(Codec.STRING,EnumUtil.buildCodec(AccessLevel.class,"Access Level"))
             .fieldOf("access_rules")
             .xmap(MachineAccessNode::new,MachineAccessNode::getAccessLevels);
+
+    public static final String KEY = "lightmanscurrency:external_authorization";
 
     public static final TraderNodeType<MachineAccessNode> TYPE = TraderNodeType.simple(MachineAccessNode::new,MAP_CODEC);
 
@@ -54,15 +57,15 @@ public class MachineAccessNode extends SyncedTraderNode {
     public boolean isStorageOnly() { return true; }
 
     @Override
-    public void createSyncPacket(LazyPacketData.Builder builder,Player player) {
-        this.accessLevels.forEach((key,l) -> builder.setInt(key,l.ordinal()));
+    public void createSyncPacket(LazyPacketData.Builder builder,ISyncingContext context) {
+        this.accessLevels.forEach(builder::setEnum);
     }
 
     @Override
     public void onDataSync(LazyPacketData data) {
         this.accessLevels.clear();
         for(String key : data.keySet())
-            this.accessLevels.put(key,EnumUtil.enumFromOrdinal(data.getInt(key),AccessLevel.values(),AccessLevel.NONE));
+            this.accessLevels.put(key,data.getEnum(key,AccessLevel.class,AccessLevel.NONE));
     }
 
     @Override
@@ -97,12 +100,12 @@ public class MachineAccessNode extends SyncedTraderNode {
 
     @Override
     public void handleSettingsChange(Player player, LazyPacketData message) {
-        if(message.contains(this.getType() + "-ChangeAuthorization"))
+        if(message.contains(KEY + "-ChangeAuthorization"))
         {
             if(!this.trader.hasPermission(player,EDIT_AUTHORIZATION_PERMISSION))
                 return;
-            String entry = message.getString(this.getType() + "-ChangeAuthorization");
-            AccessLevel newLevel = EnumUtil.enumFromOrdinal(message.getInt(this.getType() + "-NewLevel"),AccessLevel.values(),AccessLevel.NONE);
+            String entry = message.getString(KEY + "-ChangeAuthorization");
+            AccessLevel newLevel = message.getEnum(KEY + "-NewLevel",AccessLevel.class,AccessLevel.NONE);
             if(this.getAccessLevel(entry) != newLevel)
             {
                 this.accessLevels.put(entry,newLevel);

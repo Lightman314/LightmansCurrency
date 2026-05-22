@@ -112,13 +112,13 @@ public class CoinContainerMoneyHandler extends MoneyHandler {
             return value;
         List<CoinEntry> coinList = chainData.getAllEntries(true);
         coinList.sort(ChainData.SORT_HIGHEST_VALUE_FIRST);
-        //Remove objects from the inventory.
+        //Remove objects from the items.
         for(CoinEntry coinEntry : coinList)
         {
             long coinValue = coinEntry.getCoreValue();
             if(coinValue <= value)
             {
-                //Search the inventory for this coin
+                //Search the items for this coin
                 for(int i = 0; i < container.getSlots() && coinValue <= value; i++)
                 {
                     boolean loop = true;
@@ -142,7 +142,7 @@ public class CoinContainerMoneyHandler extends MoneyHandler {
         //Took all we could without over-taking, so we'll just go through the items and take whatever we can find
         if(value > 0)
         {
-            //Search the inventory for any coin
+            //Search the items for any coin
             for(int i = 0; i < container.getSlots() && value > 0; i++)
             {
                 boolean loop = true;

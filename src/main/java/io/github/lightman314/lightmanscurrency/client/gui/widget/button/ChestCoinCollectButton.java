@@ -46,7 +46,7 @@ public class ChestCoinCollectButton extends IconButton {
             if(WalletItem.isWallet(wallet))
             {
                 final boolean allowSideChains = LCConfig.CLIENT.chestButtonAllowSideChains.get();
-                //Check menu inventory for coins
+                //Check menu items for coins
                 Container container = this.screen.getMenu().getContainer();
                 for(int i = 0; i < container.getContainerSize(); ++i)
                 {

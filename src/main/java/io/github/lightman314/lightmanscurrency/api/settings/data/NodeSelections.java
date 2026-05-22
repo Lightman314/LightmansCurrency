@@ -1,16 +1,22 @@
 package io.github.lightman314.lightmanscurrency.api.settings.data;
 
-import io.github.lightman314.lightmanscurrency.common.util.TagUtil;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import io.github.lightman314.lightmanscurrency.api.codecs.StreamHelper;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
 import java.util.*;
 
 public final class NodeSelections {
 
+    public static final StreamCodec<ByteBuf,NodeSelections> STREAM_CODEC = StreamHelper
+            .unboundedMap(ByteBufCodecs.STRING_UTF8,StreamHelper.setCodec(ByteBufCodecs.STRING_UTF8))
+            .map(NodeSelections::new,s -> s.data);
+
     Map<String,Set<String>> data = new HashMap<>();
 
     public NodeSelections() { }
+    private NodeSelections(Map<String,Set<String>> data) { this.data = data; }
 
     public boolean nodeSelected(String node) { return this.data.containsKey(node); }
 
@@ -59,30 +65,6 @@ public final class NodeSelections {
         Set<String> set = new HashSet<>(subNodes.size());
         set.addAll(subNodes);
         this.data.put(node,set);
-    }
-
-    public CompoundTag write()
-    {
-        CompoundTag tag = new CompoundTag();
-        this.data.forEach((node,subNodes) -> {
-            List<String> list = new ArrayList<>(subNodes);
-            tag.put(node,TagUtil.writeStringList(list));
-        });
-        return tag;
-    }
-
-    public static NodeSelections read(CompoundTag tag)
-    {
-        NodeSelections selections = new NodeSelections();
-        for(String node : tag.getAllKeys())
-        {
-            if(tag.getTagType(node) == Tag.TAG_LIST)
-            {
-                selections.setNodeSelected(node,true);
-                selections.setSubNodes(node,TagUtil.loadStringList(tag.getList(node,Tag.TAG_STRING)));
-            }
-        }
-        return selections;
     }
 
 }

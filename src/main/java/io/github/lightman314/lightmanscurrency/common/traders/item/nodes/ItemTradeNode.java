@@ -382,6 +382,7 @@ public class ItemTradeNode extends TradeOfferSourceNode<ItemTradeData> implement
 
     @Override
     public void applyStorageTabs(ITraderStorageMenu menu) {
+        super.applyStorageTabs(menu);
         menu.addTab(new ItemTradeEditTab(menu));
     }
 

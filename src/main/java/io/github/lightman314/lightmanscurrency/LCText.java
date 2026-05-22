@@ -689,7 +689,7 @@ public class LCText {
     public static final TextEntry GUI_TRADER_TAXES_NO_TAX_COLLECTORS = TextEntry.gui(MODID,"trade.tax_info.no_tax_collectors");
     public static final TextEntry TOOLTIP_TRADER_STORAGE = TextEntry.tooltip(MODID,"trader.storage");
     public static final TextEntry TOOLTIP_TRADER_MONEY_STORAGE = TextEntry.tooltip(MODID,"trader.money_storage");
-    public static final TextEntry GUI_TRADER_MONEY_STORAGE_CONTENTS = TextEntry.gui(MODID,"trader.money_storage.contents");
+    public static final TextEntry GUI_TRADER_MONEY_STORAGE_CONTENTS = TextEntry.gui(MODID,"trader.money_storage.items");
     public static final TextEntry BUTTON_TRADER_STORE_MONEY = TextEntry.button(MODID,"trader.money_storage.store");
     public static final TextEntry BUTTON_TRADER_COLLECT_MONEY = TextEntry.button(MODID,"trader.money_storage.collect");
     public static final TextEntry MESSAGE_TRADER_WARNING_MISSING_DATA = TextEntry.message(MODID,"trader.warning.missing_data");
@@ -786,8 +786,8 @@ public class LCText {
     public static final TextEntry GUI_TRADER_SETTINGS_COMMAND_PERMISSION_LEVEL = TextEntry.gui(MODID,"trader.settings.command.permission_level");
 
     //Gacha Machine Specific
-    public static final TextEntry TOOLTIP_TRADER_GACHA_CONTENTS_LABEL = TextEntry.tooltip(MODID,"trader.gacha.contents.label");
-    public static final TextEntry TOOLTIP_TRADER_GACHA_CONTENTS = TextEntry.tooltip(MODID,"trader.gacha.contents");
+    public static final TextEntry TOOLTIP_TRADER_GACHA_CONTENTS_LABEL = TextEntry.tooltip(MODID,"trader.gacha.items.label");
+    public static final TextEntry TOOLTIP_TRADER_GACHA_CONTENTS = TextEntry.tooltip(MODID,"trader.gacha.items");
     public static final TextEntry TOOLTIP_TRADER_GACHA_EDIT_PRICE = TextEntry.tooltip(MODID,"trader.gacha.edit_price");
     public static final TextEntry GUI_TRADER_GACHA_STORAGE_CAPACITY = TextEntry.tooltip(MODID,"trader.gacha.storage.capacity");
     public static final MultiLineTextEntry TOOLTIP_GACHA_MACHINE_ROLL_ONCE = MultiLineTextEntry.tooltip(MODID,"gacha_machine.roll.once");

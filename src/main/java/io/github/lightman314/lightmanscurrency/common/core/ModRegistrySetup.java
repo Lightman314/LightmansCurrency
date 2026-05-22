@@ -62,6 +62,7 @@ public class ModRegistrySetup {
 		ModAdvancementTriggers.REGISTER.register(bus);
 
         //Stats
+        ModStatTypes.REGISTER.register(bus);
         ModStats.REGISTER.register(bus);
 
         //Neoforge Custom Registries

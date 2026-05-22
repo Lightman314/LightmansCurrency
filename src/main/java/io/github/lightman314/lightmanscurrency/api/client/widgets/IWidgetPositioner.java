@@ -16,6 +16,6 @@ public interface IWidgetPositioner {
         for(EasyWidget w : widgets)
             this.removeWidget(w);
     }
-    void clear();
+    IWidgetPositioner clear();
 
 }

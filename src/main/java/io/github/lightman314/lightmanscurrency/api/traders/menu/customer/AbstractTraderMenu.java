@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.traders.menu.customer;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.traders.ITraderSource;
 import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
@@ -101,6 +102,12 @@ public abstract class AbstractTraderMenu extends LazyMessageMenu implements ITra
             TraderData trader = source.getSingleTrader();
             if(trader != null)
                 trader.openStorageMenu(this.player,this.validator);
+            else
+                LightmansCurrency.LogWarning("Error opening storage menu!\nTrader source is present, but the trader could not be found!");
+        }
+        else
+        {
+            LightmansCurrency.LogWarning("Error opening storage menu!\nEither the source is null, or not a single trader!");
         }
     }
 

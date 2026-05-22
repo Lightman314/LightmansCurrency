@@ -64,7 +64,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 		}
 		this.coinSlots = ImmutableList.copyOf(temp);
 		
-		//Player inventory
+		//Player items
 		for(int y = 0; y < 3; y++)
 		{
 			for(int x = 0; x < 9; x++)
@@ -115,7 +115,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 		{
 			ItemStack slotStack = slot.getItem();
 			clickedStack = slotStack.copy();
-			//Move items from the coin slots into the inventory
+			//Move items from the coin slots into the items
 			if(index < this.coinInput.getSlots())
 			{
 				if(!this.moveItemStackTo(slotStack,  this.coinInput.getSlots(), this.slots.size(), true))
@@ -123,7 +123,7 @@ public class ATMMenu extends LazyMessageMenu implements IBankAccountAdvancedMenu
 					return ItemStack.EMPTY;
 				}
 			}
-			//Move items from the inventory into the coin slots
+			//Move items from the items into the coin slots
 			else if(!this.moveItemStackTo(slotStack, 0, this.coinInput.getSlots(), false))
 			{
 				return ItemStack.EMPTY;

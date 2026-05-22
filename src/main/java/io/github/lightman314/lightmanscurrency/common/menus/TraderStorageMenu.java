@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.traders.TraderAPI;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.tabbed.EasyTabbedMenu;
@@ -73,10 +74,10 @@ public class TraderStorageMenu extends EasyTabbedMenu<ITraderStorageMenu,TraderS
 		this.validator = validator;
 		this.traderSource = traderSource;
 
-		this.addValidator(() -> this.hasPermission(Permissions.OPEN_STORAGE));
+		this.addValidator(() -> this.hasPermission(Permissions.OPEN_STORAGE),() -> LightmansCurrency.LogWarning("Player no longer has storage access permissions, closing the menu!"));
 		this.addValidator(this.validator);
 		
-		//Player inventory
+		//Player items
 		for(int y = 0; y < 3; y++)
 		{
 			for(int x = 0; x < 9; x++)
@@ -98,7 +99,10 @@ public class TraderStorageMenu extends EasyTabbedMenu<ITraderStorageMenu,TraderS
 	}
 
     @Override
-    public void addTab(TraderStorageTab tab) { this.setTab(tab.getTabSlot(),tab); }
+    public void addTab(TraderStorageTab tab) {
+        this.setTab(tab.getTabSlot(),tab);
+        LightmansCurrency.LogDebug("Registered tab " + tab.tabKey() + " to slot " + tab.getTabSlot());
+    }
     @Override
     public void clearTab(ResourceLocation tabKey) { this.clearTab(this.getTabSlot(tabKey)); }
 
@@ -162,10 +166,10 @@ public class TraderStorageMenu extends EasyTabbedMenu<ITraderStorageMenu,TraderS
 			clickedStack = slotStack.copy();
 			if(index < 36)
 			{
-				//Move from inventory to current tab
+				//Move from items to current tab
 				if(!this.currentTab().quickMoveStack(slotStack))
 				{
-					//Else, move from inventory to additional slots
+					//Else, move from items to additional slots
 					if(!this.moveItemStackTo(slotStack, 36, this.slots.size(), false))
 					{
 						return ItemStack.EMPTY;
@@ -174,7 +178,7 @@ public class TraderStorageMenu extends EasyTabbedMenu<ITraderStorageMenu,TraderS
 			}
 			else if(index < this.slots.size())
 			{
-				//Move from coin/additional slots to inventory
+				//Move from coin/additional slots to items
 				if(!this.moveItemStackTo(slotStack, 0, 36, false))
 				{
 					return ItemStack.EMPTY;

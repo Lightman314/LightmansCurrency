@@ -4,15 +4,16 @@ import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.util.TimeUtil;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 public class PlayerMemory {
 
@@ -27,28 +28,42 @@ public class PlayerMemory {
         memory.forEach((key,list) -> this.memory.put(key,new ArrayList<>(list)));
     }
 
-    public LazyPacketData encode(LazyPacketData.Builder builder,Player player)
+    public List<LazyPacketData> encode(Supplier<LazyPacketData.Builder> source, ISyncingContext context)
     {
-        if(this.memory.containsKey(player.getUUID()))
+        List<LazyPacketData> result = new ArrayList<>();
+        for(UUID entry : context.getCustomerSet())
         {
-            builder.setUUID("player",player.getUUID());
-            builder.setList("memory",this.memory.get(player.getUUID()),LazyPacketData.LONG_FACTORY);
+            if(this.memory.containsKey(entry))
+            {
+                LazyPacketData.Builder builder = source.get();
+                builder.setUUID("player",entry);
+                builder.setList("memory",this.memory.get(entry),LazyPacketData.LONG_FACTORY);
+                result.add(builder.build());
+            }
         }
-        return builder.build();
+        return result;
     }
 
-    public static PlayerMemory decode(LazyPacketData data)
+    public static PlayerMemory decode(List<LazyPacketData> data)
     {
         Map<UUID,List<Long>> memory = new HashMap<>();
-        UUID id = data.getUUID("player");
-        if(id != null)
-            memory.put(id,data.getList("memory",Long.class));
+        for(LazyPacketData entry : data)
+        {
+            UUID id = entry.getUUID("player");
+            if(id != null)
+                memory.put(id,entry.getList("memory",Long.class));
+        }
         return new PlayerMemory(memory);
     }
 
     public void copyFrom(PlayerMemory other) {
         this.memory.clear();
         other.memory.forEach((key,list) -> this.memory.put(key, new ArrayList<>(list)));
+    }
+
+    public void decode(LazyPacketData data,String key)
+    {
+        this.copyFrom(decode(data.getList(key,LazyPacketData.class)));
     }
 
     public int getCount(TradeEvent event, long timeLimit) {

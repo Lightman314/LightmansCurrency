@@ -45,7 +45,7 @@ public abstract class InventoryMenuMixin {
         //Ignored if curios is installed
         if(LCCurios.isLoaded())
             return;
-        //Only quick move from the inventory slots
+        //Only quick move from the items slots
         if(slotIndex >= 9 && slotIndex < 45 && this.lightmanscurrency$walletSlot != null)
         {
             Slot slot = this.lightmanscurrency$self().slots.get(slotIndex);

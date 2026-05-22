@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.proxy;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 import com.google.common.base.Suppliers;
@@ -48,7 +47,6 @@ import io.github.lightman314.lightmanscurrency.common.items.MoneyBagItem;
 import io.github.lightman314.lightmanscurrency.common.items.TicketItem;
 import io.github.lightman314.lightmanscurrency.common.items.ancient_coins.AncientCoinType;
 import io.github.lightman314.lightmanscurrency.common.money.ancient_money.client.ClientAncientType;
-import io.github.lightman314.lightmanscurrency.common.player.LCAdminMode;
 import io.github.lightman314.lightmanscurrency.common.playertrading.ClientPlayerTrade;
 import io.github.lightman314.lightmanscurrency.api.events.NotificationEvent;
 import io.github.lightman314.lightmanscurrency.common.menus.PlayerTradeMenu;
@@ -266,9 +264,6 @@ public class ClientProxy extends CommonProxy{
 		if(this.timeOffset < 10000) //Ignore offset if less than 10s, as it's likely due to ping
 			this.timeOffset = 0;
 	}
-	
-	@Override
-	public void loadAdminPlayers(List<UUID> serverAdminList) { LCAdminMode.loadAdminPlayers(serverAdminList); }
 	
 	@Override
 	public void playCoinSound() {

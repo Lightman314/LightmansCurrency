@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.templates.PlayerSyncedTraderNode;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 
@@ -58,20 +59,21 @@ public class AuctionStorageNode extends PlayerSyncedTraderNode implements IPermi
         }
     }
 
-    public AuctionPlayerStorage getStorage(Player player) { return getStorage(PlayerReference.of(player)); }
-    public AuctionPlayerStorage getStorage(PlayerReference player) {
-        if(player == null)
+    public AuctionPlayerStorage getStorage(Player player) { return this.getStorage(player.getUUID()); }
+    public AuctionPlayerStorage getStorage(PlayerReference player) { return this.getStorage(player.id); }
+    public AuctionPlayerStorage getStorage(UUID playerID) {
+        if(playerID == null)
             return null;
-        if(!this.storage.containsKey(player.id))
+        if(!this.storage.containsKey(playerID))
         {
             //Create new storage entry for the player
-            this.storage.put(player.id, new AuctionPlayerStorage(player));
-            this.setStorageChanged(player);
+            this.storage.put(playerID, new AuctionPlayerStorage(playerID));
+            this.setStorageChanged(playerID);
         }
-        return this.storage.get(player.id);
+        return this.storage.get(playerID);
     }
 
-    private void setStorageChanged(PlayerReference player)
+    private void setStorageChanged(UUID player)
     {
         if(this.isClient())
             return;
@@ -79,8 +81,8 @@ public class AuctionStorageNode extends PlayerSyncedTraderNode implements IPermi
     }
 
     @Override
-    public void createSyncPacket(LazyPacketData.Builder builder,Player player) {
-        builder.setCustom("storage",this.getStorage(player),ModLazyPackets.AUCTION_STORAGE);
+    public void createSyncPacket(LazyPacketData.Builder builder,ISyncingContext context) {
+        builder.setCustom("storage",this.getStorage(context.getPlayerID()),ModLazyPackets.AUCTION_STORAGE);
     }
 
     @Override
@@ -88,7 +90,7 @@ public class AuctionStorageNode extends PlayerSyncedTraderNode implements IPermi
         if(data.contains("storage"))
         {
             AuctionPlayerStorage storage = data.getCustom("storage",ModLazyPackets.AUCTION_STORAGE);
-            this.storage.put(storage.getOwner().id,storage);
+            this.storage.put(storage.getOwner(),storage);
             storage.withListener(() -> this.setStorageChanged(storage.getOwner()));
         }
     }
@@ -106,7 +108,7 @@ public class AuctionStorageNode extends PlayerSyncedTraderNode implements IPermi
                 AuctionPlayerStorage storageEntry = AuctionPlayerStorage.load(storageList.getCompound(i),context);
                 if(storageEntry.getOwner() != null)
                 {
-                    this.storage.put(storageEntry.getOwner().id, storageEntry);
+                    this.storage.put(storageEntry.getOwner(), storageEntry);
                     storageEntry.withListener(() -> this.setStorageChanged(storageEntry.getOwner()));
                 }
             }

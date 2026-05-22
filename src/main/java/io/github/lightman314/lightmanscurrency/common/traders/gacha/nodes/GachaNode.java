@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketType;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.permissions.Permissions;
 
@@ -63,7 +64,7 @@ public class GachaNode extends DummyTradeOfferNode<GachaDummyTrade> implements I
     protected Supplier<LazyPacketType<GachaDummyTrade>> getPacketType() { return ModLazyPackets.GACHA_MACHINE_DUMMY; }
 
     @Override
-    public void createSyncPacket(LazyPacketData.Builder builder,Player player) {
+    public void createSyncPacket(LazyPacketData.Builder builder,ISyncingContext context) {
         builder.setMoneyValue("price",this.price);
     }
 
@@ -94,6 +95,7 @@ public class GachaNode extends DummyTradeOfferNode<GachaDummyTrade> implements I
 
     @Override
     public void applyStorageTabs(ITraderStorageMenu menu) {
+        //Don't need to call super here, as the gacha machine uses the storage tab as the default tab
         menu.addTab(new GachaPriceTab(menu));
     }
 }

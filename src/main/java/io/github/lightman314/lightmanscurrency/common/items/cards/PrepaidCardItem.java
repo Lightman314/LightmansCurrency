@@ -38,7 +38,7 @@ public class PrepaidCardItem extends Item implements IVariantItem {
     public void inventoryTick(@Nonnull ItemStack stack, @Nonnull Level level, @Nonnull Entity player, int slot, boolean isSelected) {
         if(stack.getOrDefault(ModDataComponents.MONEY_VALUE,MoneyValue.empty()).isEmpty())
         {
-            //Remove the empty pre-paid card from the players inventory
+            //Remove the empty pre-paid card from the players items
             stack.setCount(0);
         }
     }

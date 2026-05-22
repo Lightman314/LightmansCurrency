@@ -14,7 +14,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /**
  * Packet to request the terminal menu be opened via a key-bind<br>
- * Included is the "Terminal" item that must be present in the players inventory or curios slot in order for the menu to remain open
+ * Included is the "Terminal" item that must be present in the players items or curios slot in order for the menu to remain open
  */
 public class CPacketOpenNetworkTerminal extends ClientToServerPacket {
 

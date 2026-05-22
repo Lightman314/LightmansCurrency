@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.menus;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.notifications.*;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
+import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets;
 import io.github.lightman314.lightmanscurrency.common.data.types.NotificationDataCache;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.EasyMenuProvider;
 import net.minecraft.world.MenuProvider;
@@ -23,7 +24,7 @@ public class NotificationMenu extends LazyMessageMenu {
     public void processMessage(LazyPacketData message) {
         if(message.contains("MarkAsRead"))
         {
-            NotificationCategory category = message.decodeObject("MarkAsRead",NotificationCategory.CODEC);
+            NotificationCategory category = message.getCustom("MarkAsRead",ModLazyPackets.NOTIFICATION_CATEGORY);
             if(category == null)
                 return;
             NotificationDataCache d = NotificationDataCache.TYPE.get(false);
@@ -42,7 +43,7 @@ public class NotificationMenu extends LazyMessageMenu {
         }
         if(message.contains("DeleteNotification"))
         {
-            NotificationCategory category = message.decodeObject("Category",NotificationCategory.CODEC);
+            NotificationCategory category = message.getCustom("Category",ModLazyPackets.NOTIFICATION_CATEGORY);
             if(category == null)
                 return;
             NotificationDataCache d = NotificationDataCache.TYPE.get(false);

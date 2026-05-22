@@ -75,7 +75,6 @@ public abstract class BankAPI {
      * @param amount The amount of money to take.
      * @param notifyPlayers Whether the owner of the bank account should have the withdrawl notification pushed to their personal notifications.
      */
-    
     public abstract Pair<Boolean, MoneyValue> BankWithdrawFromServer(IBankAccount account, MoneyValue amount, boolean notifyPlayers);
     /**
      * Executes a bank withdraw interaction.

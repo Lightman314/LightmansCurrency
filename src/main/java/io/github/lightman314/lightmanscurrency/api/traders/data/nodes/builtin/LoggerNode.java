@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationDat
 import io.github.lightman314.lightmanscurrency.api.settings.SettingsNode;
 import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.api.stats.StatType;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.templates.SyncedTraderNode;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.builtin.TraderInfoTab;
@@ -146,7 +147,7 @@ public class LoggerNode extends SyncedTraderNode implements ISidedListener {
     public boolean isStorageOnly() { return true; }
 
     @Override
-    public void createSyncPacket(LazyPacketData.Builder builder,Player player) {
+    public void createSyncPacket(LazyPacketData.Builder builder,ISyncingContext context) {
         builder.setCustom("notifications",this.logger,ModLazyPackets.NOTIFICATION_DATA)
                 .setBoolean("notificationsEnabled",this.notificationsEnabled)
                 .setInt("teamNotificationLevel",this.teamNotificationLevel)

@@ -15,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.IPersistentRule;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.ICopySupportingRule;
@@ -66,10 +67,10 @@ public class DiscountCodes extends PriceTweakingTradeRule implements ICopySuppor
     public TradeRuleType<?> getType() { return TYPE; }
 
     @Override
-    public void encodeInternal(Supplier<LazyPacketData.Builder> source, LazyPacketData.Builder builder, Player player) {
+    public void encodeInternal(Supplier<LazyPacketData.Builder> source, LazyPacketData.Builder builder, ISyncingContext context) {
         this.rules.forEach((code,rule) -> {
             LazyPacketData.Builder entry = source.get();
-            builder.setMap(code,rule.encode(source,source.get(),player));
+            builder.setMap(code,rule.encode(source,source.get(),context));
         });
     }
 
@@ -313,12 +314,12 @@ public class DiscountCodes extends PriceTweakingTradeRule implements ICopySuppor
 
         public boolean validLimit(TradeEvent event) { return this.limit <= 0 || this.memory.getCount(event,this.timeLimit) < this.limit; }
 
-        public LazyPacketData encode(Supplier<LazyPacketData.Builder> source, LazyPacketData.Builder builder,Player player)
+        public LazyPacketData encode(Supplier<LazyPacketData.Builder> source, LazyPacketData.Builder builder,ISyncingContext context)
         {
             builder.setInt("disount",this.discount);
             builder.setInt("limit",this.limit);
             builder.setLong("timeLimit",this.timeLimit);
-            builder.setMap("memory",this.memory.encode(source.get(),player));
+            builder.setList("memory",this.memory.encode(source,context),LazyPacketData.MAP_FACTORY);
             return builder.build();
         }
 
@@ -327,7 +328,7 @@ public class DiscountCodes extends PriceTweakingTradeRule implements ICopySuppor
             return new DiscountRules(data.getInt("discount"),
                     data.getInt("limit"),
                     data.getLong("timeLimit"),
-                    PlayerMemory.decode(data.getMap("memory")));
+                    PlayerMemory.decode(data.getList("memory",LazyPacketData.class)));
         }
 
         @SuppressWarnings("deprecation")

@@ -3,20 +3,23 @@ package io.github.lightman314.lightmanscurrency.api.network;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets;
+import io.github.lightman314.lightmanscurrency.util.DebugUtil;
+import io.github.lightman314.lightmanscurrency.util.EnumUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
@@ -46,7 +49,6 @@ public final class LazyPacketData {
     public static final byte TYPE_UUID = 32;
 
     //Minecraft Types
-    public static final byte TYPE_TEXT = 64;
     public static final byte TYPE_NBT = 65;
     //Nested LazyPacketData
     public static final byte TYPE_CUSTOM = 125;
@@ -62,7 +64,6 @@ public final class LazyPacketData {
     public static final Function<String,Data> STRING_FACTORY = Data::ofString;
     public static final Function<UUID,Data> UUID_FACTORY = Data::ofUUID;
     public static final Function<ResourceLocation,Data> RL_FACTORY = Data::ofResourceLocation;
-    public static final Function<Component,Data> TEXT_FACTORY = Data::ofText;
     public static final Function<CompoundTag,Data> TAG_FACTORY = Data::ofNBT;
     public static final Function<LazyPacketData,Data> MAP_FACTORY = Data::ofPacketData;
     public static final Function<Builder,Data> BUILDER_FACTORY = b -> Data.ofPacketData(b.build());
@@ -144,6 +145,17 @@ public final class LazyPacketData {
         return defaultValue;
     }
 
+    @Nullable
+    public <T extends Enum<T>> T getEnum(String key,Class<T> clazz) { return this.getEnum(key,clazz,null); }
+    @Nullable
+    public <T extends Enum<T>> T getEnum(String key,Class<T> type,@Nullable T defaultValue)
+    {
+        Data d = this.getData(key);
+        if(d.type == TYPE_INT)
+            return EnumUtil.enumFromOrdinal((int)d.value,type.getEnumConstants(),defaultValue);
+        return defaultValue;
+    }
+
     public ResourceLocation getResourceLocation(String key) { return this.getResourceLocation(key, null); }
     public ResourceLocation getResourceLocation(String key, ResourceLocation defaultValue)
     {
@@ -157,16 +169,10 @@ public final class LazyPacketData {
     }
 
     public Component getText(String key) { return this.getText(key, EasyText.empty()); }
-    public Component getText(String key, Component defaultValue)
-    {
-        Data d = this.getData(key);
-        if(d.type == TYPE_TEXT)
-            return (Component)d.value;
-        return defaultValue;
-    }
+    public Component getText(String key, Component defaultValue) { return this.getCustom(key,ModLazyPackets.TEXT,defaultValue); }
 
-    public <T> T decodeObject(String key, Codec<T> codec) { return this.decodeObject(key,codec,null); }
-    public <T> T decodeObject(String key, Codec<T> codec, T defaultValue)
+    public <T> T decodeObject(String key,Codec<T> codec) { return this.decodeObject(key,codec,null); }
+    public <T> T decodeObject(String key,Codec<T> codec, T defaultValue)
     {
         CompoundTag tag = this.getTag(key);
         try { return codec.decode(RegistryOps.create(NbtOps.INSTANCE,this.lookup),tag).getOrThrow().getFirst();
@@ -282,9 +288,9 @@ public final class LazyPacketData {
         //Write each entry
         this.dataMap.forEach((key,data) -> {
             buffer.writeUtf(key,100);
-            buffer.writeByte(data.type);
-            data.encode(buffer);
+            data.encodeFull(buffer);
         });
+        //LightmansCurrency.LogDebug("Encoding LazyPacketData:\n" + this);
     }
 
     public static LazyPacketData decode(RegistryFriendlyByteBuf buffer) {
@@ -296,7 +302,7 @@ public final class LazyPacketData {
             Data data = Data.decode(buffer);
             dataMap.put(key, data);
         }
-        return new LazyPacketData(dataMap, buffer.registryAccess());
+        return new LazyPacketData(dataMap,buffer.registryAccess());
     }
 
     public Builder copyToBuilder()
@@ -337,9 +343,11 @@ public final class LazyPacketData {
         public Builder setString(String key, String value) { this.data.put(key, Data.ofString(value)); return this; }
 
         public Builder setUUID(String key, UUID uuid) { this.data.put(key,Data.ofUUID(uuid)); return this; }
+        public <T extends Enum<T>> Builder setEnum(String key,T value) { return this.setInt(key,value.ordinal()); }
 
         public Builder setResourceLocation(String key, ResourceLocation value) { this.data.put(key, Data.ofString(value.toString())); return this; }
-        public Builder setText(String key, Component value) { this.data.put(key, Data.ofText(value)); return this; }
+        public Builder setText(String key, Component value) { return this.setCustom(key,value,ModLazyPackets.TEXT); }
+        @Deprecated
         public Builder setTag(String key, CompoundTag value) { this.data.put(key, Data.ofNBT(value)); return this; }
         public Builder setBlockPos(String key, BlockPos value) { return this.setCustom(key,value,ModLazyPackets.BLOCK_POS); }
         public Builder setItem(String key, ItemStack value) { return this.setCustom(key,value,ModLazyPackets.ITEM_STACK); }
@@ -363,7 +371,7 @@ public final class LazyPacketData {
         public Builder setMap(String key, LazyPacketData.Builder value) { return this.setMap(key,value == null ? null : value.build()); }
 
         //The only real "get" needed in the builder tbh
-        public Builder modifyMap(String key, Consumer<Builder> consumer) {
+        public Builder modifyMap(String key,Consumer<Builder> consumer) {
             Data d = this.data.get(key);
             if(d == null || !(d.value instanceof LazyPacketData map))
             {
@@ -399,9 +407,9 @@ public final class LazyPacketData {
             return this;
         }
 
-        public <T> Builder addToList(String key, T entry,Supplier<LazyPacketType<T>> type) { return this.addToList(key,entry,type.get()); }
-        public <T> Builder addToList(String key, T entry,LazyPacketType<T> type) { return this.addToList(key,entry,e -> Data.ofCustom(type,e)); }
-        public <T> Builder addToList(String key, T entry,Function<T,Data> factory)
+        public <T> Builder addToList(String key,T entry,Supplier<LazyPacketType<T>> type) { return this.addToList(key,entry,type.get()); }
+        public <T> Builder addToList(String key,T entry,LazyPacketType<T> type) { return this.addToList(key,entry,e -> Data.ofCustom(type,e)); }
+        public <T> Builder addToList(String key,T entry,Function<T,Data> factory)
         {
             if(this.data.containsKey(key))
             {
@@ -410,13 +418,33 @@ public final class LazyPacketData {
                 {
                     try {
                         List<Data> list = (List<Data>)d.value;
-                        list.add(factory.apply(entry));
+                        tryAddToList(list,factory.apply(entry));
                         return this;
                     } catch (ClassCastException ignored) {}
                 }
             }
             //If the exception was thrown and caught (or the list doesn't exist at all), instead set the data to the list directly
             return this.setList(key,ImmutableList.of(entry),factory);
+        }
+
+        static void tryAddToList(List<Data> list,Data newEntry)
+        {
+            if(list.isEmpty())
+                list.add(newEntry);
+            else
+            {
+                if(newEntry.type != list.getFirst().type())
+                    LightmansCurrency.LogError("Attempted to add a mismatching data entry to a list!",new Throwable());
+                else
+                    list.add(newEntry);
+            }
+        }
+
+        static byte getListType(List<Data> list)
+        {
+            if(list.isEmpty())
+                return TYPE_NULL;
+            return list.getFirst().type();
         }
 
         public Builder clear() { this.data.clear(); return this; }
@@ -468,7 +496,6 @@ public final class LazyPacketData {
         private static Data ofString(@Nullable String value) { return value == null ? NULL : new Data(TYPE_STRING, value); }
         private static Data ofUUID(@Nullable UUID value) { return value == null ? NULL : new Data(TYPE_UUID, value); }
         private static Data ofResourceLocation(@Nullable ResourceLocation value) { return value == null ? NULL : new Data(TYPE_STRING, value.toString()); }
-        private static Data ofText(@Nullable Component value) { return value == null ? NULL : new Data(TYPE_TEXT, value); }
         private static Data ofNBT(@Nullable CompoundTag value) { return value == null ? NULL : new Data(TYPE_NBT, value); }
         private static <T> Data ofCustom(LazyPacketType<T> type,@Nullable T value) {
             if(value == null)
@@ -476,14 +503,21 @@ public final class LazyPacketData {
             return ofCustom(new CustomData<>(type,value));
         }
         private static Data ofCustom(@Nullable CustomData<?> value) { return value == null || value.value == null ? NULL : new Data(TYPE_CUSTOM,value); }
-        private static Data ofList(@Nullable List<Data> value) { return value == null ? NULL : new Data(TYPE_LPD,value); }
+        private static Data ofList(@Nullable List<Data> value) { return value == null ? NULL : new Data(TYPE_LIST,value); }
         private static Data ofPacketData(@Nullable LazyPacketData value) { return value == null ? NULL : new Data(TYPE_LPD,value); }
 
-        void encode(RegistryFriendlyByteBuf buffer)
+        void encodeFull(RegistryFriendlyByteBuf buffer)
+        {
+            //Encode the type byte
+            buffer.writeByte(this.type);
+            this.encodePartial(buffer);
+        }
+
+        void encodePartial(RegistryFriendlyByteBuf buffer)
         {
             //Normal Values
             if(this.type == TYPE_BOOLEAN)
-                buffer.writeBoolean((boolean) this.value);
+                buffer.writeBoolean((boolean)this.value);
             if(this.type == TYPE_INT)
                 buffer.writeInt((int)this.value);
             if(this.type == TYPE_LONG)
@@ -502,8 +536,6 @@ public final class LazyPacketData {
                 buffer.writeUUID((UUID)this.value);
 
             //MC values
-            if(this.type == TYPE_TEXT)
-                ComponentSerialization.STREAM_CODEC.encode(buffer,(Component)this.value);
             if(this.type == TYPE_NBT)
                 buffer.writeNbt((CompoundTag)this.value);
 
@@ -517,10 +549,15 @@ public final class LazyPacketData {
             if(this.type == TYPE_LIST)
             {
                 List<Data> data = (List<Data>)this.value;
+                //Encode the list type
+                buffer.writeByte(Builder.getListType(data));
+                //Then encode the list size
                 buffer.writeInt(data.size());
+                //THEN encode the "partial" data for each entry (as the type is already encoded)
                 for(Data d : data)
-                    d.encode(buffer);
+                    d.encodePartial(buffer);
             }
+            //Nested Packet Data
             if(this.type == TYPE_LPD)
                 ((LazyPacketData)this.value).encode(buffer);
         }
@@ -528,6 +565,10 @@ public final class LazyPacketData {
         static Data decode(RegistryFriendlyByteBuf buffer)
         {
             byte type = buffer.readByte();
+            return decodeKnownType(buffer,type);
+        }
+        static Data decodeKnownType(RegistryFriendlyByteBuf buffer,byte type)
+        {
             //Normal Values
             if(type == TYPE_NULL)
                 return ofNull();
@@ -550,30 +591,71 @@ public final class LazyPacketData {
                 return ofUUID(buffer.readUUID());
 
             //Minecraft Values
-            if(type == TYPE_TEXT)
-                return ofText(ComponentSerialization.STREAM_CODEC.decode(buffer));
             if(type == TYPE_NBT)
                 return ofNBT((CompoundTag)buffer.readNbt(NbtAccounter.unlimitedHeap()));
             if(type == TYPE_CUSTOM)
             {
                 int codecID = buffer.readInt();
-                LCRegistries.LAZY_PACKETS.getHolder(codecID).ifPresent(holder ->
-                    ofCustom(new CustomData<>((LazyPacketType<Object>)holder.value(),holder.value().codec().decode(buffer))));
+                //Get the lazy packet type
+                Holder<LazyPacketType<?>> holder = LCRegistries.LAZY_PACKETS.getHolder(codecID).orElse(null);
+                if(holder == null)
+                    throw new IllegalStateException("Could not decode custom packet type " + codecID + " as it's not registered on the receiving end!");
+                LazyPacketType<Object> lpt = (LazyPacketType<Object>)holder.value();
+                return ofCustom(new CustomData<>(lpt,lpt.codec().decode(buffer)));
             }
             if(type == TYPE_LIST)
             {
+                byte listType = buffer.readByte();
                 int size = buffer.readInt();
                 List<Data> result = new ArrayList<>();
-
+                for(int i = 0; i < size; ++i)
+                    result.add(decodeKnownType(buffer,listType));
+                return ofList(result);
             }
             if(type == TYPE_LPD)
                 return ofPacketData(LazyPacketData.decode(buffer));
 
-            throw new RuntimeException("Could not decode entry of type " + type + "as it is not a valid data entry type!");
+            throw new IllegalStateException("Could not decode entry of type " + type + " as it is not a valid data entry type!");
         }
 
         @Override
-        public String toString() { return String.valueOf(this.value); }
+        public String toString() {
+            String valueString;
+            if(this.value instanceof List<?> list)
+                valueString = DebugUtil.debugList(list);
+            else
+                valueString = String.valueOf(this.value);
+            return "LazyPacketData$Data[" + this.stringifyType() + "," + valueString + "]";
+        }
+
+        private String stringifyType()
+        {
+            if(this.type == TYPE_NULL)
+                return "NULL";
+            if(this.type == TYPE_BOOLEAN)
+                return "BOOL";
+            if(this.type == TYPE_INT)
+                return "INT";
+            if(this.type == TYPE_LONG)
+                return "LONG";
+            if(this.type == TYPE_FLOAT)
+                return "FLOAT";
+            if(this.type == TYPE_DOUBLE)
+                return "DOUBLE";
+            if(this.type == TYPE_STRING)
+                return "STRING";
+            if(this.type == TYPE_UUID)
+                return "UUID";
+            if(this.type == TYPE_NBT)
+                return "NBT";
+            if(this.type == TYPE_CUSTOM)
+                return "CUSTOM";
+            if(this.type == TYPE_LIST)
+                return "LIST";
+            if(this.type == TYPE_LPD)
+                return "MAP";
+            return "???" + this.type;
+        }
 
     }
 
@@ -583,6 +665,9 @@ public final class LazyPacketData {
             buffer.writeInt(LCRegistries.LAZY_PACKETS.getId(this.type));
             this.type.codec().encode(buffer,this.value);
         }
+
+        @Override
+        public String toString() { return "CustomData[" + LCRegistries.LAZY_PACKETS.getKey(this.type) + "," + this.value + "]"; }
     }
 
 }

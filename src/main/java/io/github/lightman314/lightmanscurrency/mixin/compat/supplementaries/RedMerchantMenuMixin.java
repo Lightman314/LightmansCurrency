@@ -47,7 +47,7 @@ public abstract class RedMerchantMenuMixin {
     @Inject(at = @At("HEAD"), method = "tryMoveItems", remap = false)
     private void tryMoveItemsEarly(int trade, CallbackInfo info)
     {
-        //Clear coin items into the wallet instead of their inventory
+        //Clear coin items into the wallet instead of their items
         try {
             RedMerchantMenu self = this.lightmanscurrency$self();
             if(trade >= 0 && trade < self.getOffers().size())

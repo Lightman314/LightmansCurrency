@@ -18,4 +18,10 @@ public class VariantLock implements TooltipProvider {
     public void addToTooltip(Item.TooltipContext context, Consumer<Component> adder, TooltipFlag flag) {
         adder.accept(LCText.TOOLTIP_MODEL_VARIANT_LOCKED.getWithStyle(ChatFormatting.GRAY));
     }
+
+    @Override
+    public boolean equals(Object obj) { return obj instanceof VariantLock; }
+    @Override
+    public int hashCode() { return 0; }
+
 }

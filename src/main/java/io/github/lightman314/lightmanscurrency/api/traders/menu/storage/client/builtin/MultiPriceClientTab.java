@@ -17,7 +17,6 @@ import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.builtin.
 import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +32,6 @@ public class MultiPriceClientTab extends TraderStorageClientTab<MultiPriceTab> {
     @Override
     public boolean tabVisible() { return false; }
 
-    @Nonnull
     @Override
     public IconData getIcon() { return IconData.Null(); }
 
@@ -113,7 +111,6 @@ public class MultiPriceClientTab extends TraderStorageClientTab<MultiPriceTab> {
         return false;
     }
 
-    @Nonnull
     private MoneyValue getCommonPrice()
     {
         TraderData trader = this.menu.getTrader();
@@ -168,7 +165,7 @@ public class MultiPriceClientTab extends TraderStorageClientTab<MultiPriceTab> {
     }
 
     @Override
-    public void renderBG(@Nonnull EasyGuiGraphics gui) { }
+    public void renderBG(EasyGuiGraphics gui) { }
 
     private boolean canSetPrice()
     {

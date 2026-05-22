@@ -19,6 +19,8 @@ public class GachaPriceTab extends TraderStorageNodeTab<GachaNode> {
 
     @Override
     public ResourceLocation tabKey() { return KEY; }
+    @Override
+    public int getSortPriority() { return SORT_STORAGE; }
 
     @Override
     public Object createClientTab(Object screen) { return new GachaPriceClientTab(screen,this); }

@@ -1,9 +1,6 @@
 package io.github.lightman314.lightmanscurrency.common.commands;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -113,7 +110,7 @@ public class CommandLCAdmin {
 						.then(Commands.argument("entity",EntityArgument.entity())
 								.executes(CommandLCAdmin::viewWalletSlot)))
 				.then(Commands.literal("replaceWallet")
-						.then(Commands.argument("entity", EntityArgument.entities())
+						.then(Commands.argument("entity",EntityArgument.entities())
 								.then(Commands.argument("wallet", ItemArgument.item(context))
 										.executes(CommandLCAdmin::replaceWalletSlotWithDefault)
 										.then(Commands.argument("keepWalletContents", BoolArgumentType.bool())
@@ -155,7 +152,7 @@ public class CommandLCAdmin {
 				.then(Commands.literal("debug")
 						.then(Commands.literal("makeGachaBall")
 								.then(Commands.argument("player",EntityArgument.players())
-									.then(Commands.argument("contents",ItemArgument.item(context))
+									.then(Commands.argument("items",ItemArgument.item(context))
 											.executes(c -> createGachaBall(c, -1))
 											.then(Commands.argument("color",ColorArgument.argument())
 															.executes(c -> createGachaBall(c,ColorArgument.getColor(c,"color"))))))))
@@ -590,7 +587,7 @@ public class CommandLCAdmin {
 		Player player = EntityArgument.getPlayer(commandContext, "player");
 
 		EventUnlocks eventUnlocks = player.getData(ModAttachmentTypes.EVENT_UNLOCKS);
-		List<String> unlocks = eventUnlocks.getUnlockedList();
+		Set<String> unlocks = eventUnlocks.getUnlockedList();
 		if(!unlocks.isEmpty())
 		{
 			StringBuilder list = new StringBuilder();
@@ -664,7 +661,7 @@ public class CommandLCAdmin {
 
 	static int createGachaBall(CommandContext<CommandSourceStack> commandContext, int color) throws CommandSyntaxException
 	{
-		ItemStack item = ItemArgument.getItem(commandContext,"contents").createItemStack(1,false);
+		ItemStack item = ItemArgument.getItem(commandContext,"items").createItemStack(1,false);
 		int count = 0;
 		for(ServerPlayer player : EntityArgument.getPlayers(commandContext,"player"))
 		{

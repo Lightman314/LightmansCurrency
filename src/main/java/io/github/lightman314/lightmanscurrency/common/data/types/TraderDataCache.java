@@ -426,17 +426,24 @@ public class TraderDataCache extends CustomData implements IServerTicker {
         trader.setRegistryAccess(this);
         //Add to storage
         this.traderData.put(traderID,trader.flagAsClient(this));
-        trader.initialize();
         this.setChanged();
-        //Trigger OnRegisteration listener
-        try{ trader.OnRegisteredToOffice();
-        } catch(Throwable t) { LightmansCurrency.LogError("Error handling Trader-OnRegistration function!", t); }
+        //Initialize the Trader
+        //Only flag as registered to the office if the entire data cache is initialized
+        //Otherwise this will be delayed until #serverInit
+        if(this.isInitialized())
+        {
+            trader.initialize();
+            try{ trader.OnRegisteredToOffice();
+            } catch(Throwable t) { LightmansCurrency.LogError("Error handling Trader-OnRegistration function!", t); }
+        }
         //Send update packet to all relevant clients
         this.sendCreateTraderPacket(trader);
         //Register tick listeners (if applicable)
         if(trader instanceof ICommonTicker t)
             this.tickers.add(t);
     }
+
+
 
     public void markTraderDirty(TraderData trader)
     {
@@ -630,8 +637,11 @@ public class TraderDataCache extends CustomData implements IServerTicker {
 
     @Override
     protected void serverInit() {
-        if(this.isClient())
-            return;
+        for(TraderData trader : this.traderData.values())
+        {
+            trader.initialize();
+            trader.OnRegisteredToOffice();
+        }
         this.validateAuctionHouse();
         this.loadPersistentTraders();
     }

@@ -91,6 +91,8 @@ public class ItemTraderBlockEntityRenderer implements BlockEntityRenderer<ItemTr
             if(renderLimit <= 0)
                 return;
             TraderData trader = blockEntity.getTraderData();
+            if(trader == null)
+                return;
             ItemTradeNode tradeNode = trader.getNode(ItemTradeNode.TYPE);
             ItemStorageNode storageNode = trader.getNode(ItemStorageNode.TYPE);
             if(tradeNode == null || storageNode == null)

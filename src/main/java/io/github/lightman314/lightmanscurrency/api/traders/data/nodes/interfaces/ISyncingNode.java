@@ -1,17 +1,18 @@
 package io.github.lightman314.lightmanscurrency.api.traders.data.nodes.interfaces;
 
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.tracking.TrackingLevel;
-import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.ApiStatus;
-
-import java.util.UUID;
 
 public interface ISyncingNode {
 
-    LazyPacketData.Builder getChangedData(Player player);
-    default boolean sendTo(Player player,TrackingLevel level) {
-        return this.isStorageOnly() ? level.isLevel(TrackingLevel.STORAGE) : level.isLevel(TrackingLevel.CUSTOMER);
+    default boolean isSyncReady(TraderData trader) { return trader != null && trader.isInitialized(); }
+
+    LazyPacketData.Builder getChangedData(ISyncingContext context);
+    default boolean sendTo(ISyncingContext context,TrackingLevel oldLevel) {
+        return this.isStorageOnly() ? context.isLevel(TrackingLevel.STORAGE) : context.isLevel(TrackingLevel.CUSTOMER);
     }
     default boolean isStorageOnly() { return false; }
     void clean();
@@ -20,8 +21,8 @@ public interface ISyncingNode {
      */
     @ApiStatus.Internal
     void onDataSync(LazyPacketData data);
-    void createSyncPacket(LazyPacketData.Builder builder,Player player);
-    default void afterTrackingChange(Player player,TrackingLevel oldLevel,TrackingLevel newLevel) {}
-    default void afterTrackingEnded(UUID playerID) {}
+    void createSyncPacket(LazyPacketData.Builder builder,ISyncingContext context);
+    default void afterTrackingChange(ISyncingContext context,TrackingLevel oldLevel) {}
+    default void afterTrackingEnded(ISyncingContext playerID) {}
 
 }

@@ -66,7 +66,7 @@ public class TaxBlockEntity extends EasyBlockEntity {
         TaxEntry entry = this.getTaxEntry();
         if(entry != null)
         {
-            //Eject the tax contents for safekeeping
+            //Eject the tax items for safekeeping
             if(!this.validBreak)
             {
                 EjectionData data = new BasicEjectionData(entry.getOwner(),this.getContents(true),entry.getName());

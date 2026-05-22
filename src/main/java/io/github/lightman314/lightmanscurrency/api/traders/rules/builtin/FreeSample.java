@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.*;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.data.PlayerMemory;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeDirection;
@@ -76,10 +77,10 @@ public class FreeSample extends PriceTweakingTradeRule implements ICopySupportin
     public TradeRuleType<?> getType() { return TYPE; }
 
     @Override
-    protected void encodeInternal(Supplier<LazyPacketData.Builder> source, LazyPacketData.Builder builder, Player player) {
+    protected void encodeInternal(Supplier<LazyPacketData.Builder> source, LazyPacketData.Builder builder, ISyncingContext context) {
         builder.setInt("limit",this.limit)
                 .setLong("timeLimit",this.timeLimit)
-                .setMap("memory",this.memory.encode(source.get(),player))
+                .setList("memory",this.memory.encode(source,context),LazyPacketData.MAP_FACTORY)
                 .setInt("totalCount",this.totalCount);
     }
 
@@ -87,7 +88,7 @@ public class FreeSample extends PriceTweakingTradeRule implements ICopySupportin
     protected void decodeInternal(LazyPacketData data) {
         this.limit = data.getInt("limit");
         this.timeLimit = data.getLong("timeLimit");
-        this.memory.copyFrom(PlayerMemory.decode(data.getMap("memory")));
+        this.memory.decode(data,"memory");
         this.totalCount = data.getInt("totalCount");
     }
 

@@ -18,10 +18,10 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
  * Is {@link net.neoforged.bus.api.ICancellableEvent}. Cancelling will result in the players wallet being unchanged, and nothing will be dropped.<br>
  * {@link #keepWallet} is the current value of the <code>keepWallet</code> || <code>keepInventory</code> game rules.<br>
  * {@link #coinDropPercent} is the current value of the <code>coinDropPercent</code> game rule.<br>
- * Can use {@link #getWalletInventory()} to access the wallets inventory and add or remove coins.
+ * Can use {@link #getWalletInventory()} to access the wallets items and add or remove coins.
  * Can use {@link #setDrops(List)} to manually set the list of items to be dropped,<br>
  * or {@link #addDrop(ItemStack)} or {@link #addDrops(Collection)} to add items to be dropped.<br>
- * Use {@link #getWalletInventory()} to get a container of the wallets contents that can be modified at will (container will become invalid if {@link #setWalletStack(ItemStack)} is called while you're using this container)<br>
+ * Use {@link #getWalletInventory()} to get a container of the wallets items that can be modified at will (container will become invalid if {@link #setWalletStack(ItemStack)} is called while you're using this container)<br>
  * Use {@link #getWalletStack()} to get a safe copy of the wallet stack. Note, changes made to this wallet stack will not be reflected in the final results, as this is only a copy.<br>
  * Use {@link #setWalletStack(ItemStack)} to replace the players equipped wallet completely. Set to {@link ItemStack#EMPTY} to unequip it entirely.<br>
  * Note: Default behaviour is done in {@link net.neoforged.bus.api.EventPriority#LOW}

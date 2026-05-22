@@ -15,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.api.misc.icons.types.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketType;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
@@ -41,7 +42,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.GsonHelper;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
@@ -70,7 +70,6 @@ public class SlotMachineNode extends DummyTradeOfferNode<SlotMachineDummyTrade> 
     public List<IconData> getLastIcons() { return ImmutableList.copyOf(this.lastIcons); }
     public final void setLastIcons(List<IconData> icons) {
         this.lastIcons.clear();
-        this.lastIcons.addAll(SlotMachineEntry.createDefaultIcons());
         for(int i = 0; i < this.lastIcons.size() && i < icons.size();i++)
             this.lastIcons.set(i,icons.get(i));
         this.setChanged(builder -> builder.setList("last_icons",this.lastIcons,ModLazyPackets.ICON));
@@ -159,7 +158,7 @@ public class SlotMachineNode extends DummyTradeOfferNode<SlotMachineDummyTrade> 
     public TraderNodeType<?> getType() { return TYPE; }
 
     @Override
-    public void createSyncPacket(LazyPacketData.Builder builder,Player player) {
+    public void createSyncPacket(LazyPacketData.Builder builder,ISyncingContext context) {
         builder.setList("last_icons",this.lastIcons,ModLazyPackets.ICON)
                 .setMoneyValue("price",this.price)
                 .setList("entries",this.entries,ModLazyPackets.SLOT_MACHINE_ENTRY);
@@ -175,7 +174,6 @@ public class SlotMachineNode extends DummyTradeOfferNode<SlotMachineDummyTrade> 
         {
             List<IconData> list = data.getList("last_icons",ModLazyPackets.ICON);
             this.lastIcons.clear();
-            this.lastIcons.addAll(SlotMachineEntry.createDefaultIcons());
             for(int i = 0; i < this.lastIcons.size() && i < list.size(); ++i)
                 this.lastIcons.set(i,list.get(i));
         }
@@ -332,7 +330,6 @@ public class SlotMachineNode extends DummyTradeOfferNode<SlotMachineDummyTrade> 
 
     @Override
     public void applyStorageTabs(ITraderStorageMenu menu) {
-        //Don't call super, as normal trade-related tabs aren't relevant here
         menu.addTab(new SlotMachineEntryTab(menu));
         menu.addTab(new SlotMachinePriceTab(menu));
     }

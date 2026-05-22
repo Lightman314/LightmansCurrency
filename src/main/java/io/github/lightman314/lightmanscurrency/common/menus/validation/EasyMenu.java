@@ -15,9 +15,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public abstract class EasyMenu extends AbstractContainerMenu implements IClientTracker {
 
@@ -38,8 +38,10 @@ public abstract class EasyMenu extends AbstractContainerMenu implements IClientT
             this.addValidator(validator);
     }
 
-    public final void addValidator(Supplier<Boolean> stillValid) { this.addValidator(SimpleValidator.of(stillValid)); }
+    public final void addValidator(BooleanSupplier stillValid) { this.addValidator(SimpleValidator.of(stillValid)); }
+    public final void addValidator(BooleanSupplier stillValid,Runnable onFailure) { this.addValidator(SimpleValidator.of(stillValid,onFailure)); }
     public final void addValidator(Function<Player,Boolean> stillValid) { this.addValidator(SimpleValidator.of(stillValid)); }
+    public final void addValidator(Function<Player,Boolean> stillValid,Runnable onFailure) { this.addValidator(SimpleValidator.of(stillValid,onFailure)); }
     public final void addValidator(MenuValidator validator) {
         if(!this.validators.contains(validator))
             this.validators.add(validator);

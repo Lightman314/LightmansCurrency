@@ -46,7 +46,7 @@ public abstract class EasyTabbedMenu<M extends IEasyTabbedMenu<T>,T extends Easy
         this.menuTabs = new HashMap<>();
         this.registerTabs();
         if(!this.menuTabs.containsKey(0))
-            throw new IllegalArgumentException("EasyTabbedMenu#registerTabs did not register a tab for key 0!");
+            throw new IllegalArgumentException("EasyTabbedMenu#registerTabs did not register a tab for key 0!\nCurrent Keys: " + DebugUtil.debugMapKeys(this.menuTabs));
         this.tabsLocked = true;
         //Add all slots added by the tabs
         for(T tab : this.menuTabs.values())

@@ -78,6 +78,11 @@ public class AuctionStandBlockEntity extends EasyBlockEntity {
             return;
         }
         TraderData trader = data.getAuctionHouse();
+        if(trader == null)
+        {
+            setDefaultDisplayItem();
+            return;
+        }
         AuctionTradesNode node = trader.getNode(AuctionTradesNode.TYPE);
         if(node != null && node.getTradeCount() > 0)
         {

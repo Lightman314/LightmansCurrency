@@ -21,6 +21,9 @@ public class SlotMachinePriceTab extends TraderStorageNodeTab<SlotMachineNode> {
     public ResourceLocation tabKey() { return KEY; }
 
     @Override
+    public int getSortPriority() { return SORT_STORAGE - 100; }
+
+    @Override
     public Object createClientTab(Object screen) { return new SlotMachinePriceClientTab(screen, this); }
 
     @Override

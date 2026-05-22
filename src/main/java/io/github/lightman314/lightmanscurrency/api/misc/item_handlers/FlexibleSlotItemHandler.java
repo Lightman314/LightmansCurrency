@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.misc.item_handlers;
 
 import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
+import io.github.lightman314.lightmanscurrency.common.items.data.ImmutableInventory;
 import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -48,7 +49,7 @@ public class FlexibleSlotItemHandler implements IItemHandler {
 
     public final void load(List<ItemStack> items) {
         this.stacks.clear();
-        this.stacks.addAll(ItemHandlerUtil.combineStacks(stacks));
+        this.stacks.addAll(ItemHandlerUtil.combineStacks(items));
         this.stacks.removeIf(ItemStack::isEmpty);
     }
 
@@ -56,6 +57,8 @@ public class FlexibleSlotItemHandler implements IItemHandler {
         this.stacks.clear();
         this.stacks.addAll(ItemHandlerUtil.copyList(inventory.stacks));
     }
+
+    public final void load(ImmutableInventory items) { this.load(items.getStacks()); }
 
     public FlexibleSlotItemHandler withListener(Runnable listener) {
         if(!this.listeners.contains(listener))
@@ -171,5 +174,7 @@ public class FlexibleSlotItemHandler implements IItemHandler {
         for(Runnable l : new ArrayList<>(this.listeners))
             l.run();
     }
+
+    public ImmutableInventory immutable() { return ImmutableInventory.ofList(this.stacks); }
 
 }

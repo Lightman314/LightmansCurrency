@@ -51,7 +51,7 @@ public class DisplaySettings extends EasyTraderNodeSettings<TraderData, DisplayN
         lineWriter.accept(formatEntry(LCText.DATA_ENTRY_TRADER_NAME.get(),data.getStringValue("custom_name")));
         if(data.hasCompoundValue("custom_icon"))
         {
-            IconData icon = IconData.loadOldData(data.getCompoundValue("custom_icon"),this.registryAccess());
+            IconData icon = IconData.safeLoad(data.getCompoundValue("custom_icon"),this.registryAccess(),IconData.Null());
             if(icon != null && !icon.isNull())
                 lineWriter.accept(LCText.DATA_ENTRY_TRADER_ICON.get());
         }

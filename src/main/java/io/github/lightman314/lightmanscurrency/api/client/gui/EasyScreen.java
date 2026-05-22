@@ -286,7 +286,7 @@ public abstract class EasyScreen extends Screen implements IEasyScreen {
                 return true;
         }
         InputConstants.Key mouseKey = InputConstants.getKey(keyCode, scanCode);
-        //Manually block closing by inventory key, to allow usage of all letters while typing player names, etc.
+        //Manually block closing by items key, to allow usage of all letters while typing player names, etc.
         if (this.minecraft.options.keyInventory.isActiveAndMatches(mouseKey) && this.blockInventoryClosing()) {
             return true;
         }

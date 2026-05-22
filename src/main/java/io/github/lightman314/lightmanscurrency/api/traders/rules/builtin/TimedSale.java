@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.settings.data.SavedSettingData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.ICopySupportingRule;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.traders.rules.PriceTweakingTradeRule;
@@ -58,7 +59,7 @@ public class TimedSale extends PriceTweakingTradeRule implements ICopySupporting
     public TradeRuleType<?> getType() { return TYPE; }
 
     @Override
-    protected void encodeInternal(Supplier<LazyPacketData.Builder> source, LazyPacketData.Builder builder, Player player) {
+    protected void encodeInternal(Supplier<LazyPacketData.Builder> source,LazyPacketData.Builder builder,ISyncingContext context) {
         builder.setLong("startTime",this.startTime)
                 .setLong("duration",this.duration)
                 .setInt("discount",this.discount);

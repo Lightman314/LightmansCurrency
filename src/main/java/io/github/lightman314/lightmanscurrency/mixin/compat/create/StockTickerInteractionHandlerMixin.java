@@ -60,7 +60,7 @@ public class StockTickerInteractionHandlerMixin {
             else
                 return;
         }
-        //Check for items already in the players inventory
+        //Check for items already in the players items
         Inventory inventory = player.getInventory();
         for(int i = 0; i < inventory.items.size(); ++i)
         {
@@ -69,7 +69,7 @@ public class StockTickerInteractionHandlerMixin {
                 map.put(item.getItem(),map.get(item.getItem()) - item.getCount());
         }
 
-        //Get the total cost requirement excluding the amount of money in the players inventory
+        //Get the total cost requirement excluding the amount of money in the players items
         MoneyStorage cost = new MoneyStorage();
         for(Item coin : map.keySet())
         {
@@ -101,7 +101,7 @@ public class StockTickerInteractionHandlerMixin {
         if(player.level().isClientSide)
             return next.call(player);
         lightmanscurrency$clearWrapper(false);
-        //If no wallet equipped, don't wrap the inventory
+        //If no wallet equipped, don't wrap the items
         WalletHandler walletHandler = WalletHandler.get(player);
         ItemStack wallet = walletHandler == null ? ItemStack.EMPTY : walletHandler.getWallet();
         if(!WalletItem.isWallet(wallet))

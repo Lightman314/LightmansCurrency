@@ -28,6 +28,9 @@ public class AuctionCreateTab extends TraderStorageNodeTab<AuctionTradesNode> {
     public ResourceLocation tabKey() { return KEY; }
 
     @Override
+    public int getSortPriority() { return SORT_STORAGE + 10; }
+
+    @Override
 	public Object createClientTab(Object screen) { return new AuctionCreateClientTab(screen, this); }
 	
 	List<EasySlot> slots = new ArrayList<>();
@@ -84,7 +87,7 @@ public class AuctionCreateTab extends TraderStorageNodeTab<AuctionTradesNode> {
 			boolean success = node.addTrade(trade,this.menu.getPlayer(),false);
 			if(success)
 			{
-				//Delete the contents of the auctionItems
+				//Delete the items of the auctionItems
 				this.auctionItems.clear();
 			}
 			//Send response message to the client

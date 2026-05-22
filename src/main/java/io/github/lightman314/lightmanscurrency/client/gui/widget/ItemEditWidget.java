@@ -163,7 +163,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		//Will hopefully not encounter any errors that normally happen during the PlayerLoginEvent call
 		ConfirmItemListLoaded();
 
-		//Set the search to the default value to initialize the inventory
+		//Set the search to the default value to initialize the items
 		this.modifySearch(this.getOldSearchString());
 		if(this.oldItemEdit != null)
 			this.setScroll(this.oldItemEdit.scroll);
@@ -209,7 +209,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		//Force Creative Tab content rebuild
 		if(!CreativeModeTabs.tryRebuildTabContents(flagSet, hasPermissions, lookup) && !allItems.isEmpty())
 		{
-			//Ignore if we have existing results, and the tab contents have not been changed.
+			//Ignore if we have existing results, and the tab items have not been changed.
 			LightmansCurrency.LogDebug("Creative Tab Contents have not changed. Used existing filtered results.");
 			return;
 		}
@@ -350,7 +350,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 		//LightmansCurrency.LogInfo("Refreshing page " + this.page + ". Max Page: " + maxPage());
 
 		int startIndex = this.scroll * this.columns;
-		//Define the display inventories contents
+		//Define the display inventories items
 		for(int i = 0; i < this.rows * this.columns; i++)
 		{
 			int thisIndex = startIndex + i;
@@ -406,7 +406,7 @@ public class ItemEditWidget extends EasyWidgetWithChildren implements IScrollabl
 			this.searchResultItems = this.getFilteredItems();
 		}
 
-		//Run refresh page code to validate the page # and repopulate the display inventory
+		//Run refresh page code to validate the page # and repopulate the display items
 		this.refreshPage();
 
 	}

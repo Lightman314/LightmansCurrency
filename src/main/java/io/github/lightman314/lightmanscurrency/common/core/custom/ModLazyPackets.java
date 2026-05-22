@@ -10,12 +10,14 @@ import io.github.lightman314.lightmanscurrency.api.money.bank.reference.BankRefe
 import io.github.lightman314.lightmanscurrency.api.money.bank.salary.SalaryData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketType;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationCategory;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationData;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerData;
 import io.github.lightman314.lightmanscurrency.api.misc.player.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.misc.world.WorldPosition;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
+import io.github.lightman314.lightmanscurrency.api.settings.data.NodeSelections;
 import io.github.lightman314.lightmanscurrency.api.stats.StatTracker;
 import io.github.lightman314.lightmanscurrency.api.stats.StatType;
 import io.github.lightman314.lightmanscurrency.api.taxes.reference.TaxableReference;
@@ -62,12 +64,14 @@ public class ModLazyPackets {
     public static final Supplier<LazyPacketType<BankReference>> BANK_REFERENCE = register("bank_reference",() -> BankReference.STREAM_CODEC);
 
     public static final Supplier<LazyPacketType<Notification>> NOTIFICATION = register("notification",() -> Notification.STREAM_CODEC);
+    public static final Supplier<LazyPacketType<NotificationCategory>> NOTIFICATION_CATEGORY = register("notification_category",() -> NotificationCategory.STREAM_CODEC);
     public static final Supplier<LazyPacketType<NotificationData>> NOTIFICATION_DATA = register("notification_data",() -> NotificationData.STREAM_CODEC);
 
     public static final Supplier<LazyPacketType<IconData>> ICON = register("icon",() -> IconData.STREAM_CODEC);
     public static final Supplier<LazyPacketType<Map<String,StatType.Instance<?,?>>>> STAT_TRACKER = register("stats",() -> StatTracker.STREAM_CODEC);
     public static final Supplier<LazyPacketType<EjectionData>> EJECTION_DATA = register("ejection_data",() -> EjectionData.STREAM_CODEC);
     public static final Supplier<LazyPacketType<DirectionalSettingsState>> DIRECTIONAL_SETTINGS = register("directional_settings",() -> DirectionalSettingsState.STREAM_CODEC);
+    public static final Supplier<LazyPacketType<NodeSelections>> SETTINGS_NODE_SELECTIONS = register("settings_node_selections",() -> NodeSelections.STREAM_CODEC);
 
     public static final Supplier<LazyPacketType<AuctionTradeData>> AUCTION_TRADE = register("auction_trade",() -> AuctionTradeData.STREAM_CODEC);
     public static final Supplier<LazyPacketType<AuctionPlayerStorage>> AUCTION_STORAGE = register("auction_storage",() -> AuctionPlayerStorage.STREAM_CODEC);

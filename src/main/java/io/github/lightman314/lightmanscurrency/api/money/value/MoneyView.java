@@ -55,9 +55,9 @@ public final class MoneyView {
     public boolean containsValue(MoneyValue value) { return this.valueOf(value.getUniqueName()).containsValue(value); }
 
     /**
-     * Returns the maximum amount of money that can be taken
+     * Returns the value given if {@link #containsValue(MoneyValue)} is true<br>
+     * Otherwise returns the value currently available value of the given type
      */
-    
     public MoneyValue capValue(MoneyValue value) { return this.containsValue(value) ? value : this.valueOf(value.getUniqueName()); }
 
     public boolean isEmpty() { return this.values.isEmpty() || this.values.values().stream().allMatch(MoneyValue::isEmpty); }

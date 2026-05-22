@@ -49,6 +49,7 @@ public abstract class NormalTraderData extends TraderData {
         collector.addNode(TraderRulesNode.TYPE);
         collector.addNode(BankNode.TYPE);
         collector.addNode(TaxesNode.TYPE);
+        collector.addNode(NormalTraderNode.TYPE);
         this.addCustomNodes(collector);
     }
 

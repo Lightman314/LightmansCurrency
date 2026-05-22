@@ -175,7 +175,7 @@ public class MoneyBagBlockEntity extends EasyBlockEntity implements IServerTicke
         //Clear components that were copied from the item by vanilla means
         MoneyBagData data = moneybag.getOrDefault(ModDataComponents.MONEY_BAG_CONTENTS,MoneyBagData.EMPTY);
         this.contents.clear();
-        this.contents.load(data.contents());
+        this.contents.load(data.items());
         this.onContentsChanged();
         //Load loot table
         if(moneybag.has(ModDataComponents.LOOT_TABLE_ENTRY))
@@ -247,7 +247,7 @@ public class MoneyBagBlockEntity extends EasyBlockEntity implements IServerTicke
 
         if(!this.contents.isEmpty())
         {
-            MoneyBagData data = new MoneyBagData(this.contents.copy(),this.getBlockSize());
+            MoneyBagData data = new MoneyBagData(this.contents.immutable(),this.getBlockSize());
             item.set(ModDataComponents.MONEY_BAG_CONTENTS,data);
         }
 

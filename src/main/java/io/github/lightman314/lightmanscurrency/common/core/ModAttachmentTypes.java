@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.common.core;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.variants.block.builtin.VariantChunkDataStorageAttachment;
 import io.github.lightman314.lightmanscurrency.api.variants.block.builtin.VariantDataStorageAttachment;
+import io.github.lightman314.lightmanscurrency.common.attachments.EasyAttachment;
 import io.github.lightman314.lightmanscurrency.common.attachments.EventUnlocks;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -16,8 +17,16 @@ public class ModAttachmentTypes {
 
     public static final DeferredRegister<AttachmentType<?>> REGISTER = DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES,LightmansCurrency.MODID);
 
-    public static final Supplier<AttachmentType<WalletHandler>> WALLET_HANDLER = register("wallet", WalletHandler::buildType);
-    public static final Supplier<AttachmentType<EventUnlocks>> EVENT_UNLOCKS = register("event_unlocks",EventUnlocks::buildType);
+    public static final Supplier<AttachmentType<WalletHandler>> WALLET_HANDLER = register("wallet",() -> EasyAttachment.buildType(
+            WalletHandler::new,
+            WalletHandler.CODEC,
+            WalletHandler.STREAM_CODEC,
+            WalletHandler.COPIER));
+    public static final Supplier<AttachmentType<EventUnlocks>> EVENT_UNLOCKS = register("event_unlocks",() -> EasyAttachment.buildType(
+            EventUnlocks::new,
+            EventUnlocks.CODEC,
+            EventUnlocks.STREAM_CODEC,
+            EventUnlocks.COPIER));
 
     public static final Supplier<AttachmentType<VariantDataStorageAttachment>> VARIANT_BLOCK_DATA = register("variant_block_data",() ->
             AttachmentType.builder(VariantDataStorageAttachment::new)

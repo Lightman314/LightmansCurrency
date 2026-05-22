@@ -56,13 +56,13 @@ public abstract class MoneyAPI {
 
     /**
      * Creates a {@link IMoneyHandler} for the given container that will allow the handling of all applicable {@link CurrencyType CurrencyTypes}.<br>
-     * Uses the players inventory as the item overflow handler so that the transactions can more easily be processed without having to worry about container slot limits.
+     * Uses the players items as the item overflow handler so that the transactions can more easily be processed without having to worry about container slot limits.
      * @see #GetContainersMoneyHandler(Container,Consumer,IClientTracker)
      */
     public final IMoneyHandler GetContainersMoneyHandler(Container container, Player player)  { return this.CreateContainersMoneyHandler(new InvWrapper(container), s -> ItemHandlerHelper.giveItemToPlayer(player,s), IClientTracker.entityWrapper(player)); }
     /**
      * Creates a {@link IMoneyHandler} for the given item handler that will allow the handling of all applicable {@link CurrencyType CurrencyTypes}.<br>
-     * Uses the players inventory as the item overflow handler so that the transactions can more easily be processed without having to worry about container slot limits.
+     * Uses the players items as the item overflow handler so that the transactions can more easily be processed without having to worry about container slot limits.
      * @see #GetContainersMoneyHandler(Container,Consumer,IClientTracker)
      */
     public final IMoneyHandler GetContainersMoneyHandler(IItemHandler container, Player player)  { return this.CreateContainersMoneyHandler(container, s -> ItemHandlerHelper.giveItemToPlayer(player,s), IClientTracker.entityWrapper(player)); }

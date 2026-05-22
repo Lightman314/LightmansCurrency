@@ -1,14 +1,14 @@
 package io.github.lightman314.lightmanscurrency.common.villager_merchant.listings;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
-import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -99,15 +99,15 @@ public class RandomTrade extends ItemsForXTradeTemplate
         public ResourceLocation getType() { return TYPE; }
 
         @Override
-        public JsonObject serializeInternal(JsonObject json, ItemListing trade, HolderLookup.Provider lookup) {
+        public JsonObject serializeInternal(JsonObject json, ItemListing trade, DataContext<JsonElement> context) {
             if(trade instanceof RandomTrade t)
             {
-                t.serializeData(json,lookup);
+                t.serializeData(json,context);
                 if(t.sellItemOptions != null)
                 {
                     JsonArray sellItems = new JsonArray();
                     for(ItemStack item : t.sellItemOptions)
-                        sellItems.add(FileUtil.convertItemStack(item,lookup));
+                        sellItems.add(context.write(item,ItemStack.CODEC));
                     json.add("Sell", sellItems);
                 }
                 else if(t.sellItemTag != null)
@@ -118,15 +118,15 @@ public class RandomTrade extends ItemsForXTradeTemplate
         }
 
         @Override
-        public ItemListing deserialize(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
-            var data = deserializeData(json,lookup);
+        public ItemListing deserialize(JsonObject json, DataContext<JsonElement> context) throws JsonSyntaxException, ResourceLocationException {
+            var data = deserializeData(json,context);
             List<ItemStack> sellItems = null;
             if(json.has("Sell"))
             {
                 sellItems = new ArrayList<>();
                 JsonArray sellItemsArray = GsonHelper.getAsJsonArray(json, "Sell");
                 for(int i = 0; i < sellItemsArray.size(); ++i)
-                    sellItems.add(FileUtil.parseItemStack(sellItemsArray.get(i).getAsJsonObject(),lookup));
+                    sellItems.add(context.readOrThrow(sellItemsArray.get(i),ItemStack.CODEC));
             }
             TagKey<Item> sellTag = null;
             if(json.has("SellTag"))

@@ -127,7 +127,7 @@ public class ItemTraderData extends PersistentSupportingTraderData {
 
 			//Randomize the items to be sold
 			List<ItemStack> soldItems = trade.getRandomSellItems(this);
-			//Abort if not enough items in inventory
+			//Abort if not enough items in items
 			if(soldItems == null)
 			{
                 LightmansCurrency.LogWarning("Trade failed to collect items being sold from storage, in spite of the trade claiming to have items in stock!");
@@ -276,7 +276,7 @@ public class ItemTraderData extends PersistentSupportingTraderData {
 			}
 
 			List<ItemStack> soldItems = trade.getRandomSellItems(this);
-			//Abort if not enough items in inventory
+			//Abort if not enough items in items
 			if(soldItems == null)
 			{
 				//LightmansCurrency.LogDebug("Not enough items in storage to carry out the trade at index " + tradeIndex + ". Cannot execute trade.");

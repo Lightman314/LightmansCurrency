@@ -27,10 +27,10 @@ public class ModCommandArguments {
 	public static final Supplier<SingletonArgumentInfo<MoneyValueArgument>> COIN_VALUE_ARGUMENT = registerContextAware("coin_value_argument",MoneyValueArgument.class,MoneyValueArgument::argument);
 
     public static <A extends ArgumentType<?>> DeferredHolder<ArgumentTypeInfo<?,?>,SingletonArgumentInfo<A>> registerContextAware(String id, Class<A> infoClass, Function<CommandBuildContext,A> factory) {
-        return REGISTER.register(id,() -> SingletonArgumentInfo.contextAware(factory));
+        return REGISTER.register(id,() -> ArgumentTypeInfos.registerByClass(infoClass,SingletonArgumentInfo.contextAware(factory)));
     }
     public static <A extends ArgumentType<?>> DeferredHolder<ArgumentTypeInfo<?,?>,SingletonArgumentInfo<A>> registerContextFree(String id,Class<A> infoClass,Supplier<A> factory) {
-        return REGISTER.register(id,() -> SingletonArgumentInfo.contextFree(factory));
+        return REGISTER.register(id,() -> ArgumentTypeInfos.registerByClass(infoClass,SingletonArgumentInfo.contextFree(factory)));
     }
     public static <A extends ArgumentType<?>,T extends ArgumentTypeInfo.Template<A>,I extends ArgumentTypeInfo<A,T>> DeferredHolder<ArgumentTypeInfo<?,?>,I> register(String id, Class<A> infoClass, Supplier<I> factory) {
         return REGISTER.register(id,() -> ArgumentTypeInfos.registerByClass(infoClass,factory.get()));

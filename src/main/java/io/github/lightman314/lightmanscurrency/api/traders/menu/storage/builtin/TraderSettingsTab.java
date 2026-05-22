@@ -18,7 +18,8 @@ public class TraderSettingsTab extends TraderStorageTab {
 
     @Override
     public ResourceLocation tabKey() { return KEY; }
-
+    @Override
+    public int getSortPriority() { return SORT_SETTINGS; }
     @Override
     public Object createClientTab(Object screen) { return new TraderSettingsClientTab(screen, this); }
 

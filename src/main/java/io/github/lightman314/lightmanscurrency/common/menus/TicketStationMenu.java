@@ -73,7 +73,7 @@ public class TicketStationMenu extends LazyMessageMenu {
 		
 		this.addSlot(new OutputSlot(this.output, 0, 116, 21));
 		
-		//Player inventory
+		//Player items
 		for(int y = 0; y < 3; y++)
 		{
 			for(int x = 0; x < 9; x++)

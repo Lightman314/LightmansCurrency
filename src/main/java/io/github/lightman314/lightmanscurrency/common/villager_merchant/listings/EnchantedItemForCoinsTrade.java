@@ -1,8 +1,10 @@
 package io.github.lightman314.lightmanscurrency.common.villager_merchant.listings;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
@@ -10,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ItemListingSerializer;
 import io.github.lightman314.lightmanscurrency.common.villager_merchant.ListingUtil;
 import net.minecraft.ResourceLocationException;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
@@ -88,7 +89,7 @@ public class EnchantedItemForCoinsTrade implements ItemListing
         @Override
         public ResourceLocation getType() { return TYPE; }
         @Override
-        public JsonObject serializeInternal(JsonObject json, ItemListing trade, HolderLookup.Provider lookup) {
+        public JsonObject serializeInternal(JsonObject json, ItemListing trade, DataContext<JsonElement> context) {
             if(trade instanceof EnchantedItemForCoinsTrade t)
             {
                 json.addProperty("Coin", BuiltInRegistries.ITEM.getKey(t.baseCoin).toString());
@@ -104,7 +105,7 @@ public class EnchantedItemForCoinsTrade implements ItemListing
         }
 
         @Override
-        public ItemListing deserialize(JsonObject json, HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException {
+        public ItemListing deserialize(JsonObject json, DataContext<JsonElement> context) throws JsonSyntaxException, ResourceLocationException {
             Item coin = BuiltInRegistries.ITEM.get(ResourceLocation.parse(GsonHelper.getAsString(json,"Coin")));
             int baseCoinCount = GsonHelper.getAsInt(json,"BaseCoinCount");
             double basePriceModifier = GsonHelper.getAsDouble(json,"EnchantmentValueModifier");

@@ -37,7 +37,7 @@ public class GachaBallRenderer {
         if(!LCConfig.CLIENT.drawGachaBallItem.get())
             return;
 
-        //Render the balls contents
+        //Render the balls items
         ItemStack contents = ball.getOrDefault(ModDataComponents.GACHA_ITEM,ItemStackData.EMPTY).stack();
         if(contents.isEmpty())
             return;

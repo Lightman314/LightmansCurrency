@@ -69,6 +69,7 @@ import io.github.lightman314.lightmanscurrency.api.taxes.reference.builtin.Taxab
 import io.github.lightman314.lightmanscurrency.api.traders.rules.ITradeRuleHost;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
+import io.github.lightman314.lightmanscurrency.util.DebugUtil;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
 
@@ -154,17 +155,36 @@ public abstract class TraderData extends IRegistryAccess.Holder implements ISide
         if(level.ordinal() > oldLevel.ordinal())
         {
             //Don't send a fresh packet if we only just removed them from this level
+            ISyncingContext context = this.trackingData.getContext(player);
             Set<UUID> set = this.getRemovedPlayerSet(level);
             if(set.contains(player.getUUID()))
                 set.remove(player.getUUID());
             else
-            {
-                TraderDataCache.TYPE.get(false).sendUpdatePacket(player,this,this.fullSyncPacket(player,oldLevel,level,result.changedNodes()));
-            }
+                TraderDataCache.TYPE.get(false).sendUpdatePacket(player,this,this.fullSyncPacket(context,oldLevel,result.changedNodes()));
             for(TraderNode node : this.getNodeIterable())
             {
                 if(node instanceof ISyncingNode sn)
-                    sn.afterTrackingChange(player,oldLevel,level);
+                    sn.afterTrackingChange(context,oldLevel);
+            }
+        }
+        return result.key();
+    }
+    public long requestSpecialTracking(Player player,TrackingLevel level,UUID target)
+    {
+        if(this.isClient || level == TrackingLevel.NONE)
+            return -1;
+        TrackingLevel oldLevel = this.trackingData.getSpecialLevel(player,target);
+        TraderTrackingData.Result result = this.trackingData.requestSpecialTracking(player,level,target);
+        if(level.ordinal() > oldLevel.ordinal())
+        {
+            ISyncingContext context = this.trackingData.getSpecialContext(player,target);
+            //Send a fresh packet with **exclusively** the targeted trader info
+            TraderDataCache.TYPE.get(false).sendUpdatePacket(player,this,this.fullSyncPacket(context,oldLevel));
+            //Inform nodes about the tracking change
+            for(TraderNode node : this.getNodeIterable())
+            {
+                if(node instanceof ISyncingNode sn)
+                    sn.afterTrackingChange(context,oldLevel);
             }
         }
         return result.key();
@@ -174,45 +194,48 @@ public abstract class TraderData extends IRegistryAccess.Holder implements ISide
         if(this.isClient)
             return;
         TrackingLevel oldLevel = this.getTrackingLevel(player);
-        this.trackingData.endTracking(player,key);
+        boolean wasSpecial = this.trackingData.endTracking(player,key);
+        if(wasSpecial)
+            return; //Don't perform any special actions when disabling special tracking
         TrackingLevel newLevel = this.trackingData.getLevel(player);
         if(newLevel.ordinal() < oldLevel.ordinal())
         {
             Set<UUID> set = this.getRemovedPlayerSet(oldLevel);
             set.add(player.getUUID());
+            ISyncingContext context = this.trackingData.getContext(player);
             for(TraderNode node : this.getNodeIterable())
             {
                 if(node instanceof ISyncingNode n)
-                    n.afterTrackingChange(player,oldLevel,newLevel);
+                    n.afterTrackingChange(context,oldLevel);
             }
         }
     }
     public void onPlayerLeave(Player player) {
         this.trackingData.clearPlayer(player.getUUID());
+        ISyncingContext context = new ISyncingContext.Simple(player);
         for(TraderNode node : this.getNodeIterable())
         {
             if(node instanceof ISyncingNode n)
-                n.afterTrackingEnded(player.getUUID());
+                n.afterTrackingEnded(context);
         }
     }
 
-    public final LazyPacketData.Builder fullSyncPacket(Player player) {
-        return this.fullSyncPacket(player,TrackingLevel.NONE,this.getTrackingLevel(player),null);
-    }
-    public final LazyPacketData.Builder fullSyncPacket(Player player,TrackingLevel oldLevel,TrackingLevel newLevel) { return this.fullSyncPacket(player,oldLevel,newLevel,null); }
-    public final LazyPacketData.Builder fullSyncPacket(Player player,TrackingLevel oldLevel,TrackingLevel newLevel,@Nullable Set<TraderNodeType<?>> changedNodes)
+    public final LazyPacketData.Builder fullSyncPacket(Player player) { return this.fullSyncPacket(this.trackingData.getContext(player)); }
+    public final LazyPacketData.Builder fullSyncPacket(ISyncingContext context) { return this.fullSyncPacket(context,TrackingLevel.NONE,null); }
+    public final LazyPacketData.Builder fullSyncPacket(ISyncingContext context,TrackingLevel oldLevel) { return this.fullSyncPacket(context,oldLevel,null); }
+    public final LazyPacketData.Builder fullSyncPacket(ISyncingContext context,TrackingLevel oldLevel,@Nullable Set<TraderNodeType<?>> changedNodes)
     {
-        if(newLevel == TrackingLevel.NONE)
+        if(context.getPlayerTrackingLevel() == TrackingLevel.NONE && context.getSpecialCustomerSet().isEmpty())
             return this.builder();
         LazyPacketData.Builder builder = this.builder();
         for(TraderNode n : this.nodes.values())
         {
             if(n instanceof ISyncingNode node && (changedNodes == null || changedNodes.contains(n.getType())))
             {
-                if(node.sendTo(player,newLevel) && !node.sendTo(player,oldLevel))
+                if(node.sendTo(context,oldLevel) && !node.sendTo(context,oldLevel))
                 {
                     LazyPacketData.Builder entry = this.builder();
-                    node.createSyncPacket(entry,player);
+                    node.createSyncPacket(entry,context);
                     builder.setMap(LCRegistries.TRADER_NODE.getKey(n.getType()).toString(),entry);
                 }
             }
@@ -252,6 +275,7 @@ public abstract class TraderData extends IRegistryAccess.Holder implements ISide
     }
 
     private boolean canMarkDirty = false;
+    public final boolean isInitialized() { return this.canMarkDirty; }
 	public final void initialize() {
         this.canMarkDirty = true;
         for(TraderNode node : this.nodes.values())
@@ -268,11 +292,12 @@ public abstract class TraderData extends IRegistryAccess.Holder implements ISide
     public LazyPacketData getChangedData(Player player)
     {
         LazyPacketData.Builder builder = LazyPacketData.builder(this.registryAccess());
+        ISyncingContext context = this.trackingData.getContext(player);
         for(var type : new HashSet<>(this.changedNodes))
         {
             TraderNode node = this.getNode(type);
             if(node instanceof ISyncingNode n)
-                builder.setMap(LCRegistries.TRADER_NODE.getKey(type).toString(),n.getChangedData(player));
+                builder.setMap(LCRegistries.TRADER_NODE.getKey(type).toString(),n.getChangedData(context));
         }
         return builder.build();
     }
@@ -655,6 +680,8 @@ public abstract class TraderData extends IRegistryAccess.Holder implements ISide
 	public TraderBlockEntity<?> getBlockEntity()
 	{
         WorldPosition pos = this.getWorldPosition();
+        if(pos.isVoid())
+            return null;
 		Level level = LightmansCurrency.getProxy().getDimension(this.isClient,pos.getDimension());
 		if(level != null && level.isLoaded(pos.getPos()) && level.getBlockEntity(pos.getPos()) instanceof TraderBlockEntity<?> be && be.getTraderID() == this.id)
 			return be;
@@ -717,15 +744,15 @@ public abstract class TraderData extends IRegistryAccess.Holder implements ISide
             node.registerSettingsNodes(this,builder);
 	}
 
-    protected final ImmutableMap<TraderNodeType<?>, TraderNode> registerTraderNodes(Map<TraderNodeType<?>, TraderNode> loadedMap, Map<TraderNodeType<?>,Object> arguments)
+    protected final ImmutableMap<TraderNodeType<?>, TraderNode> registerTraderNodes(Map<TraderNodeType<?>,TraderNode> loadedMap, Map<TraderNodeType<?>,Object> arguments)
     {
         //Post node event
         Map<TraderNodeType<?>,Object> nodes = new HashMap<>();
         NodeCollector c = NodeCollector.forMap(nodes,arguments);
         this.addDefaultNodes(c);
         TraderEvent.RegisterNodesEvent event = NeoForge.EVENT_BUS.post(new TraderEvent.RegisterNodesEvent(this,nodes));
-        //Assemble attachments
-        Map<TraderNodeType<?>, TraderNode> temp = new HashMap<>();
+        //Assemble nodes
+        Map<TraderNodeType<?>, TraderNode> result = new HashMap<>();
         event.getNodes().forEach((type,argument) -> {
             //Put loaded node in if present
             TraderNode node;
@@ -737,10 +764,11 @@ public abstract class TraderData extends IRegistryAccess.Holder implements ISide
             //Otherwise, create a new node
             else
                 node = type.create(argument);
-            if(node.hasNoConflicts(this,temp))
-                temp.put(type,node);
+            if(node.hasNoConflicts(this,result))
+                result.put(type,node);
         });
-        return ImmutableMap.copyOf(temp);
+        LightmansCurrency.LogDebug("Trader of type " + LCRegistries.TRADER_TYPES.getKey(this.getType()) + " has the following nodes:\n" + DebugUtil.debugMapKeys(result));
+        return ImmutableMap.copyOf(result);
     }
 
     public abstract void addDefaultNodes(NodeCollector collector);
@@ -1105,7 +1133,11 @@ public abstract class TraderData extends IRegistryAccess.Holder implements ISide
     public final void initStorageTabs(ITraderStorageMenu menu)
     {
         for(TraderNode node : this.nodes.values())
+        {
+            LightmansCurrency.LogDebug("Adding storage tabs for the " + node.getType() + " node!");
             node.applyStorageTabs(menu);
+        }
+
         //Second pass for cases where a node wants to override the tab provided by a different node
         for(TraderNode node : this.nodes.values())
             node.applyLateStorageTabs(menu);
@@ -1140,9 +1172,8 @@ public abstract class TraderData extends IRegistryAccess.Holder implements ISide
 		return new TraderCategory(this.findNodeValue(WorldStateNode.TYPE,WorldStateNode::getTraderCategoryBlock,ModItems.TRADING_CORE.get()), this.getName(), this.id, this.findNodeValue(DisplayNode.TYPE,DisplayNode::getCustomIcon));
 	}
 
-	
 	public final List<TraderData> getTraders() { return this.allowAccess() ? Lists.newArrayList(this) : new ArrayList<>(); }
-	public final boolean isSingleTrader() { return true; }
+	public final boolean isSingleTrader() { return this.allowAccess(); }
 	
 	public static MenuProvider getTraderMenuProvider(BlockPos traderSourcePosition, MenuValidator validator) { return new TraderMenuProviderBlock(traderSourcePosition, validator); }
 

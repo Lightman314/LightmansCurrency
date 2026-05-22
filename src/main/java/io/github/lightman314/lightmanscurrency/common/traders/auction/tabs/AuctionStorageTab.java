@@ -20,6 +20,9 @@ public class AuctionStorageTab extends TraderStorageNodeTab<AuctionStorageNode> 
     public ResourceLocation tabKey() { return KEY; }
 
     @Override
+    public int getSortPriority() { return SORT_STORAGE; }
+
+    @Override
 	public Object createClientTab(Object screen) { return new AuctionStorageClientTab(screen, this); }
 	
 	public void clickedOnSlot(int storageSlot, boolean isShiftHeld) 
@@ -41,7 +44,7 @@ public class AuctionStorageTab extends TraderStorageNodeTab<AuctionStorageNode> 
 					ItemStack heldItem = this.menu.getHeldItem();
 					if(isShiftHeld)
 					{
-						//Move as much of the stored item from the slot into the players inventory
+						//Move as much of the stored item from the slot into the players items
 						this.menu.getPlayer().getInventory().add(storedItem);
 						if(storedItem.isEmpty())
 							storage.getStoredItems().remove(storageSlot);

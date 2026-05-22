@@ -31,11 +31,11 @@ public class ItemValidator extends MenuValidator {
 
     @Override
     public boolean stillValid(Player player) {
-        //Check their inventory
+        //Check their items
         int count = InventoryUtil.GetItemCount(player.getInventory(),s -> s.is(this.item));
         if(count > 0)
             return true;
-        //If not in their inventory, check curios
+        //If not in their items, check curios
         return LCCurios.hasItem(player, s -> s.is(this.item));
     }
 

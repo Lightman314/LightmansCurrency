@@ -30,7 +30,7 @@ import java.util.function.UnaryOperator;
 
 public class ModDataComponents {
 
-    public static final DeferredRegister<DataComponentType<?>> REGISTER = DeferredRegister.create(BuiltInRegistries.DATA_COMPONENT_TYPE, LightmansCurrency.MODID);
+    public static final DeferredRegister<DataComponentType<?>> REGISTER = DeferredRegister.create(BuiltInRegistries.DATA_COMPONENT_TYPE,LightmansCurrency.MODID);
 
     //Active Data
     public static final Supplier<DataComponentType<WalletData>> WALLET_DATA = register("wallet_data", builder -> builder

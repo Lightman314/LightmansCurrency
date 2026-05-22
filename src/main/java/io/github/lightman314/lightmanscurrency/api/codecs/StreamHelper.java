@@ -6,7 +6,6 @@ import com.mojang.datafixers.util.*;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -15,7 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
 import java.math.BigDecimal;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -27,8 +26,6 @@ public final class StreamHelper {
     public static final StreamCodec<RegistryFriendlyByteBuf,Optional<Item>> OPTIONAL_ITEM_STREAM = ByteBufCodecs.optional(ByteBufCodecs.registry(Registries.ITEM));
 
     public static final StreamCodec<ByteBuf,BigDecimal> BIG_DECIMAL = ByteBufCodecs.STRING_UTF8.map(BigDecimal::new,BigDecimal::toString);
-
-    public static final StreamCodec<ByteBuf, CompoundTag> COMPOUND_TAG = StreamCodec.of(FriendlyByteBuf::writeNbt,FriendlyByteBuf::readNbt);
 
     public static <T> StreamCodec<FriendlyByteBuf,T> mapBufFriendly(StreamCodec<ByteBuf,T> codec) { return codec.mapStream(Function.identity()); }
     public static <T> StreamCodec<RegistryFriendlyByteBuf,T> mapBufReg(StreamCodec<ByteBuf,T> codec) { return codec.mapStream(Function.identity()); }
@@ -54,6 +51,32 @@ public final class StreamHelper {
     public static <B,T1,T2> StreamCodec<B,Pair<T1,T2>> pair(StreamCodec<? super B,T1> codec1,StreamCodec<? super B,T2> codec2)
     {
         return StreamCodec.composite(codec1,Pair::getFirst,codec2,Pair::getSecond,Pair::of);
+    }
+
+    public static <B extends ByteBuf,T> StreamCodec<B,Set<T>> setCodec(StreamCodec<B,T> codec)
+    {
+        return codec.apply(ByteBufCodecs.list()).map(HashSet::new,ArrayList::new);
+    }
+
+    public static <B extends ByteBuf,K,V> StreamCodec<B, Map<K,V>> unboundedMap(StreamCodec<? super B,K> keyCodec, StreamCodec<? super B,V> valueCodec)
+    {
+        return StreamCodec.of((buf,map) -> {
+            buf.writeInt(map.size());
+            map.forEach((key,value) -> {
+                keyCodec.encode(buf,key);
+                valueCodec.encode(buf,value);
+            });
+        },(buf) -> {
+            Map<K,V> result = new HashMap<>();
+            int count = buf.readInt();
+            for(int i = 0; i < count; ++i)
+            {
+                K key = keyCodec.decode(buf);
+                V value = valueCodec.decode(buf);
+                result.put(key,value);
+            }
+            return result;
+        });
     }
 
     /// Expanded StreamCodec#composite methods for up to 12 arguments

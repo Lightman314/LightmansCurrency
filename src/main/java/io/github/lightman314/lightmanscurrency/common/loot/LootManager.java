@@ -50,7 +50,7 @@ public class LootManager {
 
 	public static void init()
 	{
-		//Have the loot manager validate the entity loot contents
+		//Have the loot manager validate the entity loot items
 		LCConfig.COMMON.addListener(LootManager::debugLootConfigs);
 		//Register our custom param set to the map, so they can be saved and loaded
 		LootContextParamSets.REGISTRY.put(LightmansCurrency.id("entity_addon"), ENTITY_PARAMS);

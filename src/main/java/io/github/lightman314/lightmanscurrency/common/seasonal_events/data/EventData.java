@@ -3,11 +3,14 @@ package io.github.lightman314.lightmanscurrency.common.seasonal_events.data;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.serialization.JsonOps;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
+import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationAPI;
 import io.github.lightman314.lightmanscurrency.common.advancements.date.DatePredicate;
@@ -15,11 +18,9 @@ import io.github.lightman314.lightmanscurrency.common.loot.ConfigItemTier;
 import io.github.lightman314.lightmanscurrency.common.loot.modifier.SimpleLootModifier;
 import io.github.lightman314.lightmanscurrency.common.notifications.categories.EventCategory;
 import io.github.lightman314.lightmanscurrency.common.notifications.types.TextNotification;
-import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ResourceLocationException;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -47,7 +48,7 @@ public class EventData extends SimpleLootModifier {
     @Nullable
     private Component startingRewardMessage;
 
-    private EventData(JsonObject json,HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException
+    private EventData(JsonObject json,DataContext<JsonElement> context) throws JsonSyntaxException, ResourceLocationException
     {
         this.eventID = GsonHelper.getAsString(json,"ID");
         this.range = EventRange.fromJson(GsonHelper.getAsJsonObject(json,"dates"));
@@ -67,7 +68,7 @@ public class EventData extends SimpleLootModifier {
         for(int i = 0; i < rewardsList.size(); ++i)
         {
             try {
-                temp2.add(FileUtil.parseItemStack(GsonHelper.convertToJsonObject(rewardsList.get(i),"startingRewards[" + i + "]"),lookup));
+                temp2.add(context.readOrThrow(GsonHelper.convertToJsonObject(rewardsList.get(i),"startingRewards[" + i + "]"),CodecHelper.UNLIMITED_ITEM));
             }catch (JsonSyntaxException e) {
                 LightmansCurrency.LogWarning("Error loading startingRewards[" + i + "]",e);
             }
@@ -92,7 +93,7 @@ public class EventData extends SimpleLootModifier {
         this.startingRewardMessage = builder.startingRewardMessage;
     }
 
-    public JsonObject toJson(HolderLookup.Provider lookup)
+    public JsonObject toJson(DataContext<JsonElement> context)
     {
         JsonObject json = new JsonObject();
         json.addProperty("ID",this.eventID);
@@ -113,7 +114,7 @@ public class EventData extends SimpleLootModifier {
         {
             JsonArray rewardsList = new JsonArray();
             for(ItemStack item : this.startingRewards)
-                rewardsList.add(FileUtil.convertItemStack(item,lookup));
+                rewardsList.add(context.write(item,CodecHelper.UNLIMITED_ITEM));
             json.add("startingRewards",rewardsList);
             if(this.startingRewardMessage != null)
                 json.add("startingRewardMessage",ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE,this.startingRewardMessage).getOrThrow(JsonSyntaxException::new));
@@ -123,7 +124,7 @@ public class EventData extends SimpleLootModifier {
 
     private static String replacementItemKey(ConfigItemTier tier) { return "replacementItem" + tier; }
 
-    public static EventData fromJson(JsonObject json,HolderLookup.Provider lookup) throws JsonSyntaxException, ResourceLocationException { return new EventData(json,lookup); }
+    public static EventData fromJson(JsonObject json,DataContext<JsonElement> context) throws JsonSyntaxException, ResourceLocationException { return new EventData(json,context); }
 
     public void giveStartingReward(ServerPlayer player)
     {

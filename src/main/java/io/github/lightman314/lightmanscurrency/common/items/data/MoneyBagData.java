@@ -18,33 +18,35 @@ import org.jetbrains.annotations.Range;
 
 import java.util.function.Consumer;
 
-public record MoneyBagData(MoneyBagInventory contents, @Range(from = 0,to = 3) int size) implements TooltipProvider {
+public record MoneyBagData(ImmutableInventory items, @Range(from = 0,to = 3) int size) implements TooltipProvider {
 
     public static final Codec<MoneyBagData> CODEC = RecordCodecBuilder.create(builder ->
-            builder.group(MoneyBagInventory.CODEC.fieldOf("contents").forGetter(MoneyBagData::contents),
+            builder.group(ImmutableInventory.CODEC.fieldOf("items").forGetter(MoneyBagData::items),
                             Codec.INT.fieldOf("size").forGetter(MoneyBagData::size))
                     .apply(builder,MoneyBagData::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf,MoneyBagData> STREAM_CODEC = StreamCodec.composite(
-            MoneyBagInventory.STREAM_CODEC,MoneyBagData::contents,
+            ImmutableInventory.STREAM_CODEC,MoneyBagData::items,
             ByteBufCodecs.INT,MoneyBagData::size,
             MoneyBagData::new);
 
-    public static final MoneyBagData EMPTY = new MoneyBagData(new MoneyBagInventory(),0);
+    public static final MoneyBagData EMPTY = new MoneyBagData(ImmutableInventory.EMPTY,0);
+
+    public MoneyBagInventory contents() { return this.items.makeMutable(MoneyBagInventory::new); }
 
     public static MoneyBagData of(MoneyBagInventory contents)
     {
         int size = MoneyBagBlockEntity.getBlockSize(contents);
-        return new MoneyBagData(contents.copy(),size);
+        return new MoneyBagData(contents.immutable(),size);
     }
 
     @Override
     public void addToTooltip(Item.TooltipContext context, Consumer<Component> adder, TooltipFlag flag) {
-        if(!this.contents.isEmpty())
+        if(!this.items.isEmpty())
         {
             if(flag.hasControlDown())
             {
-                for (ItemStack coin : this.contents.getStacks()) {
+                for (ItemStack coin : this.items.getStacks()) {
                     if (coin.getCount() > 1)
                         adder.accept(LCText.TOOLTIP_COIN_JAR_CONTENTS_MULTIPLE.get(coin.getCount(), coin.getHoverName()));
                     else

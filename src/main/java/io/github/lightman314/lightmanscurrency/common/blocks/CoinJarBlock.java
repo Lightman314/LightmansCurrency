@@ -90,7 +90,7 @@ public class CoinJarBlock extends RotatableBlock implements IEasyEntityBlock {
 	@Override
 	public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player)
 	{
-		//Drop the jar item with its contents if silk-touch was used
+		//Drop the jar item with its items if silk-touch was used
 		if(level.getBlockEntity(pos) instanceof CoinJarBlockEntity jarEntity)
 		{
 			Holder<Enchantment> silkTouch = LookupHelper.lookupEnchantment(player.registryAccess(),Enchantments.SILK_TOUCH);
@@ -114,7 +114,7 @@ public class CoinJarBlock extends RotatableBlock implements IEasyEntityBlock {
 			super.onRemove(state, level, pos, newState, flag);
 			return;
 		}
-		//Drop the jars contents
+		//Drop the jars items
 		if(level.getBlockEntity(pos) instanceof CoinJarBlockEntity jarEntity)
 		{
 			jarEntity.getStorage().forEach(coin -> Block.popResource(level, pos, coin));

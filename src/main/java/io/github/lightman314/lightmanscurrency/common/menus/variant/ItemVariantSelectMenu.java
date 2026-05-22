@@ -28,7 +28,7 @@ public class ItemVariantSelectMenu extends VariantSelectMenu {
         this.addSlot(new EasySlot(this.variantHolder,0,155,72));
 
         //Add Inventory Slots
-        //Player inventory
+        //Player items
         for(int y = 0; y < 3; y++)
         {
             for(int x = 0; x < 9; x++)
@@ -86,13 +86,13 @@ public class ItemVariantSelectMenu extends VariantSelectMenu {
             clickedStack = slotStack.copy();
             if(index < 1)
             {
-                //Move from variant slot back into inventory
+                //Move from variant slot back into items
                 if(!this.moveItemStackTo(slotStack, 1, this.slots.size(), true))
                     return ItemStack.EMPTY;
             }
             else
             {
-                //Move from inventory to item variant slot
+                //Move from items to item variant slot
                 if(!this.moveItemStackTo(slotStack, 0, 1, false))
                 {
                     return ItemStack.EMPTY;

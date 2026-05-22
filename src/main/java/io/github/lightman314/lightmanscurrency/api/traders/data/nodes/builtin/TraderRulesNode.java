@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.settings.SettingsNode;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.templates.PlayerSyncedTraderNode;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.builtin.TradeRulesTab;
@@ -74,8 +75,8 @@ public class TraderRulesNode extends PlayerSyncedTraderNode implements ITradeLis
     public TraderNodeType<?> getType() { return TYPE; }
 
     @Override
-    public void createSyncPacket(LazyPacketData.Builder builder,Player player) {
-        builder.setMap("rules",TradeRule.encodeRules(this::builder,this.trader,player));
+    public void createSyncPacket(LazyPacketData.Builder builder,ISyncingContext context) {
+        builder.setMap("rules",TradeRule.encodeRules(this::builder,this.trader,context));
     }
 
     @Override

@@ -39,6 +39,8 @@ public class TraderMoneyStorageTab extends TraderStorageNodeTab<MoneyStorageNode
 
     @Override
     public ResourceLocation tabKey() { return KEY; }
+    @Override
+    public int getSortPriority() { return SORT_MONEY_STORAGE; }
 
     private final MoneyInventory coinSlotContainer;
     private final List<MoneySlot> coinSlots = new ArrayList<>();

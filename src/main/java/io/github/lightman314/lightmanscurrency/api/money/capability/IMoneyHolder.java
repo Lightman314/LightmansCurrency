@@ -31,7 +31,7 @@ public interface IMoneyHolder extends IMoneyHandler {
     default int inversePriority() { return this.priority() * -1; }
 
     /**
-     * Adds text to the tooltip detailing the contents of this money holder.<br>
+     * Adds text to the tooltip detailing the items of this money holder.<br>
      * Typically formatted as:<code><br>Title<br>Contents 1<br>Contents 2<br>etc.</code><br>
      */
     default void formatTooltip(List<Component> tooltip)

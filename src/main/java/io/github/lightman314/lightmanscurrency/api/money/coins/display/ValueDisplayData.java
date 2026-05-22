@@ -41,7 +41,7 @@ public abstract class ValueDisplayData {
 
     /**
      * Return a formatted text component of the given value
-     * Used for most text displays such as price tooltips, wallet contents, etc.
+     * Used for most text displays such as price tooltips, wallet items, etc.
      */
     
     public abstract Component formatValue(CoinValue value, Component empty);

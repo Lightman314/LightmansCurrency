@@ -1,9 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.attachments;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.money.capability.IMoneyHandler;
-import io.github.lightman314.lightmanscurrency.api.money.capability.MoneyHandler;
-import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.misc.ticker.ICommonTicker;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
@@ -15,38 +15,62 @@ import io.github.lightman314.lightmanscurrency.api.money.capability.implementati
 import io.github.lightman314.lightmanscurrency.common.core.ModAttachmentTypes;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.items.data.WalletInventory;
-import io.github.lightman314.lightmanscurrency.api.misc.IClientTracker;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCurios;
 import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.attachment.*;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
-public class WalletHandler extends MoneyHandler implements IClientTracker, ICommonTicker
+public class WalletHandler extends EasyAttachment<WalletHandler> implements IMoneyHandler, ICommonTicker
 {
+
+    public static final Codec<WalletHandler> CODEC = Codec.withAlternative(
+            RecordCodecBuilder.create(builder -> builder.group(
+                    ItemStack.OPTIONAL_CODEC.fieldOf("wallet").forGetter(WalletHandler::getWalletInternal),
+                    Codec.BOOL.fieldOf("visible").forGetter(WalletHandler::visibleInternal)
+            ).apply(builder,WalletHandler::new)),
+            RecordCodecBuilder.create(builder -> builder.group(
+                    ItemStack.OPTIONAL_CODEC.fieldOf("Wallet").forGetter(WalletHandler::getWalletInternal),
+                    Codec.BOOL.fieldOf("Visible").forGetter(WalletHandler::visibleInternal)
+            ).apply(builder,WalletHandler::new)));
+    public static final StreamCodec<RegistryFriendlyByteBuf,WalletHandler> STREAM_CODEC = StreamCodec.composite(
+            ItemStack.OPTIONAL_STREAM_CODEC,WalletHandler::getWalletInternal,
+            ByteBufCodecs.BOOL,WalletHandler::visibleInternal,
+            WalletHandler::new);
+    public static final UnaryOperator<WalletHandler> COPIER = data -> {
+        WalletHandler h = new WalletHandler();
+        h.walletItem = data.walletItem.copy();
+        h.visible = data.visible;
+        return h;
+    };
 
     public static WalletHandler get(LivingEntity entity) { return entity.getData(ModAttachmentTypes.WALLET_HANDLER); }
 
-    private static WalletHandler create(IAttachmentHolder holder) {
-        if(holder instanceof LivingEntity entity)
-            return new WalletHandler(entity);
+    private LivingEntity entity;
+
+    @Override
+    protected void afterHolderAssigned() {
+        if(this.getHolder() instanceof LivingEntity e)
+            this.entity = e;
         else
-            throw new IllegalStateException("Cannot create a WalletHandler for a " + holder.getClass().getName() + "!");
+            throw new IllegalStateException("Wallet Handlers can only be attached to living entities!");
     }
 
-    final LivingEntity entity;
+    @Override
+    protected AttachmentType<WalletHandler> getType() { return ModAttachmentTypes.WALLET_HANDLER.get(); }
+
     //Wallet
     ItemStack walletItem;
     ItemStack backupWallet;
@@ -55,14 +79,16 @@ public class WalletHandler extends MoneyHandler implements IClientTracker, IComm
     boolean visible;
     boolean wasVisible;
 
-    @Override
-    public boolean isClient() { return this.entity.level().isClientSide; }
-
-    private WalletHandler(LivingEntity entity) {
-        this.entity = entity;
+    public WalletHandler() {
         this.backupWallet = ItemStack.EMPTY;
         this.walletItem = ItemStack.EMPTY;
         this.visible = this.wasVisible = true;
+    }
+    private WalletHandler(ItemStack wallet,boolean visible)
+    {
+        this.backupWallet = wallet.copy();
+        this.walletItem = wallet;
+        this.visible = this.wasVisible = visible;
     }
 
     private Consumer<ItemStack> overflowHandler(boolean simulation)
@@ -70,15 +96,24 @@ public class WalletHandler extends MoneyHandler implements IClientTracker, IComm
         if(simulation)
             return i -> {};
         return overflow -> {
-            if(this.entity instanceof Player player)
+            IAttachmentHolder holder = this.getHolder();
+            if(holder instanceof Player player)
                 ItemHandlerHelper.giveItemToPlayer(player, overflow);
-            else if(this.entity != null)
+            else if(holder instanceof Entity e)
             {
-                IItemHandler handler = this.entity.getCapability(Capabilities.ItemHandler.ENTITY,null);
+                IItemHandler handler = e.getCapability(Capabilities.ItemHandler.ENTITY,null);
                 if(handler != null)
                     overflow = ItemHandlerHelper.insertItem(handler,overflow,false);
                 if(!overflow.isEmpty())
-                    ItemHandlerUtil.dropContents(this.entity.level(), this.entity.blockPosition(),overflow);
+                    ItemHandlerUtil.dropContents(e.level(), e.blockPosition(),overflow);
+            }
+            else if(holder instanceof BlockEntity be)
+            {
+                IItemHandler handler = be.getLevel().getCapability(Capabilities.ItemHandler.BLOCK,be.getBlockPos(),null);
+                if(handler != null)
+                    overflow = ItemHandlerHelper.insertItem(handler,overflow,false);
+                if(!overflow.isEmpty())
+                    ItemHandlerUtil.dropContents(be.getLevel(),be.getBlockPos(),overflow);
             }
         };
     }
@@ -88,6 +123,8 @@ public class WalletHandler extends MoneyHandler implements IClientTracker, IComm
             return LCCurios.getCuriosWalletItem(this.entity);
         return this.walletItem;
     }
+
+    private ItemStack getWalletInternal() { return this.walletItem; }
 
     public ItemStack getVisibleWallet() {
         if(LCCurios.isLoaded())
@@ -112,29 +149,11 @@ public class WalletHandler extends MoneyHandler implements IClientTracker, IComm
         return this.visible;
     }
 
+    private boolean visibleInternal() { return this.visible; }
+
     public void setVisible(boolean visible) { this.visible = visible; }
 
     public LivingEntity entity() { return this.entity; }
-
-    protected CompoundTag write(DataContext<Tag> context)
-    {
-        CompoundTag tag = new CompoundTag();
-        tag.put("wallet",context.write(this.walletItem,ItemStack.OPTIONAL_CODEC));
-        tag.putBoolean("visible",this.visible);
-        return tag;
-    }
-
-    private void read(CompoundTag tag,DataContext<Tag> context)
-    {
-        if(tag.contains("Wallet"))
-            this.walletItem = context.readOrDefault(tag.get("Wallet"),ItemStack.OPTIONAL_CODEC,ItemStack.EMPTY);
-        else
-            this.walletItem = context.readOrDefault(tag.get("wallet"),ItemStack.OPTIONAL_CODEC,ItemStack.EMPTY);
-        if(tag.contains("Visible"))
-            this.visible = tag.getBoolean("Visible");
-        else
-            this.visible = tag.getBoolean("visible");
-    }
 
     @Override
     public void tick() {
@@ -199,64 +218,14 @@ public class WalletHandler extends MoneyHandler implements IClientTracker, IComm
     }
 
     @Override
-    protected void collectStoredMoney(MoneyView.Builder builder) {
+    public MoneyView getStoredMoney() {
         if(!WalletItem.isWallet(this.walletItem))
-            return;
+            return MoneyView.empty();
         WalletInventory contents = WalletItem.getWalletInventory(this.walletItem);
         IMoneyViewer viewer = MoneyViewWrapper.forInventory(contents,this);
-        builder.merge(viewer.getStoredMoney());
+        return viewer.getStoredMoney();
     }
-
     
     public ItemStack PickupCoins(ItemStack stack) { return WalletItem.PickupCoin(this.getWallet(),stack); }
-
-    public static AttachmentType.Builder<WalletHandler> buildType() {
-        return AttachmentType.builder(WalletHandler::create)
-                .serialize(new Serializer())
-                .sync(new Syncer())
-                .copyHandler(new CopyHandler())
-                .copyOnDeath();
-    }
-
-    private static class Serializer implements IAttachmentSerializer<CompoundTag,WalletHandler>
-    {
-        @Override
-        public WalletHandler read(IAttachmentHolder holder,CompoundTag tag, HolderLookup.Provider lookup) {
-            WalletHandler handler = WalletHandler.create(holder);
-            handler.read(tag,DataContext.createNBT(lookup));
-            return handler;
-        }
-        @Override
-        @Nullable
-        public CompoundTag write(WalletHandler handler,HolderLookup.Provider lookup) { return handler.write(DataContext.createNBT(lookup)); }
-    }
-
-    private static class Syncer implements AttachmentSyncHandler<WalletHandler>
-    {
-        @Override
-        public void write(RegistryFriendlyByteBuf buf, WalletHandler handler, boolean initialSync) {
-            ItemStack.OPTIONAL_STREAM_CODEC.encode(buf,handler.walletItem);
-            buf.writeBoolean(handler.visible);
-        }
-
-        @Override
-        public @Nullable WalletHandler read(IAttachmentHolder holder, RegistryFriendlyByteBuf buf, @Nullable WalletHandler previousValue) {
-            WalletHandler handler = Objects.requireNonNullElseGet(previousValue,() -> create(holder));
-            handler.walletItem = ItemStack.OPTIONAL_STREAM_CODEC.decode(buf);
-            handler.visible = buf.readBoolean();
-            return handler;
-        }
-    }
-
-    private static class CopyHandler implements IAttachmentCopyHandler<WalletHandler>
-    {
-        @Override
-        public @Nullable WalletHandler copy(WalletHandler oldHandler, IAttachmentHolder holder, HolderLookup.Provider lookup) {
-            WalletHandler newHandler = create(holder);
-            newHandler.walletItem = oldHandler.walletItem.copy();
-            newHandler.visible = oldHandler.visible;
-            return newHandler;
-        }
-    }
 
 }

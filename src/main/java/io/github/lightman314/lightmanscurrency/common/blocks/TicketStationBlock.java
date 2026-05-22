@@ -57,7 +57,7 @@ public class TicketStationBlock extends RotatableBlock implements EntityBlock, I
 
 	@Override
 	protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-		//Drop the ticket stations contents
+		//Drop the ticket stations items
 		if(!state.is(newState.getBlock()) && level.getBlockEntity(pos) instanceof TicketStationBlockEntity be)
 			ItemHandlerUtil.dropContents(level,pos,be.getStorage());
 		super.onRemove(state, level, pos, newState, movedByPiston);

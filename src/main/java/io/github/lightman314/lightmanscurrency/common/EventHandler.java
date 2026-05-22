@@ -180,7 +180,7 @@ public class EventHandler {
 			SyncedConfigFile.playerJoined(player);
 	}
 	
-	//Drop the wallet if keep inventory isn't on.
+	//Drop the wallet if keep items isn't on.
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void playerDrops(LivingDropsEvent event)
 	{
@@ -263,7 +263,7 @@ public class EventHandler {
             event.setDrops(new ArrayList<>());
             return;
         }
-		if(event.keepWallet) //Keep the wallet, but drop the wallets contents
+		if(event.keepWallet) //Keep the wallet, but drop the wallets items
 		{
 			//Spawn the coin drops
 			event.addDrops(getWalletDrops(event, event.coinDropPercent));

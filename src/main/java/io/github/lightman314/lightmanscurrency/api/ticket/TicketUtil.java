@@ -103,7 +103,7 @@ public class TicketUtil {
                                 leftovers = overflowHandler.apply(leftovers);
                             if(!leftovers.isEmpty())
                             {
-                                //Force the undamaged ticket back into the inventory
+                                //Force the undamaged ticket back into the items
                                 leftovers = handler.insertItem(i,extracted.copyWithCount(1),false);
                                 if(!leftovers.isEmpty() && overflowHandler != null)
                                     overflowHandler.apply(leftovers);

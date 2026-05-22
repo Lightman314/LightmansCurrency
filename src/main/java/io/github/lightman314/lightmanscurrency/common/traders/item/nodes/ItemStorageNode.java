@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
 import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.templates.SyncedTraderNode;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNode;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.TraderNodeType;
@@ -15,11 +16,13 @@ import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.builtin.Up
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.interfaces.IContentProvider;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.interfaces.IPersistentNode;
 import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.interfaces.IUpgradeHandler;
+import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.common.core.custom.ModLazyPackets;
 import io.github.lightman314.lightmanscurrency.common.traders.item.ItemTraderData;
 import io.github.lightman314.lightmanscurrency.common.traders.item.storage.IItemInsertionFilter;
 import io.github.lightman314.lightmanscurrency.common.traders.item.storage.TraderItemStorage;
+import io.github.lightman314.lightmanscurrency.common.traders.item.tabs.ItemStorageTab;
 import io.github.lightman314.lightmanscurrency.common.traders.item.trade.ItemTradeData;
 import io.github.lightman314.lightmanscurrency.common.upgrades.Upgrades;
 import io.github.lightman314.lightmanscurrency.api.upgrades.types.CapacityUpgrade;
@@ -27,7 +30,6 @@ import net.minecraft.ResourceLocationException;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
@@ -79,7 +81,7 @@ public class ItemStorageNode extends SyncedTraderNode implements IUpgradeHandler
     public TraderNodeType<?> getType() { return TYPE; }
 
     @Override
-    public void createSyncPacket(LazyPacketData.Builder builder, Player player) {
+    public void createSyncPacket(LazyPacketData.Builder builder,ISyncingContext context) {
         builder.setList("storage",this.storage.getContents(),ModLazyPackets.ITEM_STACK);
     }
 
@@ -135,6 +137,11 @@ public class ItemStorageNode extends SyncedTraderNode implements IUpgradeHandler
     @Override
     public List<ItemStack> getContents() {
         return this.storage.getSplitContents();
+    }
+
+    @Override
+    public void applyStorageTabs(ITraderStorageMenu menu) {
+        menu.addTab(new ItemStorageTab(menu));
     }
 
 }

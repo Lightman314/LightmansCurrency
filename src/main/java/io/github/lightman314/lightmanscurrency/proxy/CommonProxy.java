@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.proxy;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import com.mojang.authlib.GameProfile;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
@@ -39,10 +38,8 @@ public class CommonProxy {
 	public void playCoinSound() {}
 	
 	public long getTimeDesync() { return 0; }
-	
+
 	public void setTimeDesync(long currentTime) { }
-	
-	public void loadAdminPlayers(List<UUID> serverAdminList) { }
 
 	@Nullable
 	public Level getDimension(boolean isClient, ResourceKey<Level> type)

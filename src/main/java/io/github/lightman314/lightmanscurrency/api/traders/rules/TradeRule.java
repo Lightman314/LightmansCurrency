@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
 import io.github.lightman314.lightmanscurrency.api.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.RuleSupportingTradeData;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
@@ -101,13 +102,13 @@ public abstract class TradeRule {
 
     public static TradeRule load(CompoundTag tag, DataContext<Tag> context) { return CODEC.decode(context.ops(),tag).getOrThrow().getFirst(); }
 
-    public final void encode(Supplier<LazyPacketData.Builder> source, LazyPacketData.Builder builder,Player player)
+    public final void encode(Supplier<LazyPacketData.Builder> source, LazyPacketData.Builder builder,ISyncingContext context)
     {
-        this.encodeInternal(source,builder,player);
+        this.encodeInternal(source,builder,context);
         builder.setBoolean("active",this.isActive);
     }
 
-    protected abstract void encodeInternal(Supplier<LazyPacketData.Builder> source, LazyPacketData.Builder builder, Player player);
+    protected abstract void encodeInternal(Supplier<LazyPacketData.Builder> source,LazyPacketData.Builder builder,ISyncingContext context);
 
     public final void decode(LazyPacketData data)
     {
@@ -399,24 +400,24 @@ public abstract class TradeRule {
         return Codec.BOOL.fieldOf("active").forGetter(TradeRule::isActive);
     }
 
-    public static LazyPacketData encodeRules(Supplier<LazyPacketData.Builder> source,ITradeRuleHost host,Player player)
+    public static LazyPacketData encodeRules(Supplier<LazyPacketData.Builder> source, ITradeRuleHost host,ISyncingContext context)
     {
         LazyPacketData.Builder builder = source.get();
         for(TradeRuleType<?> type : host.getRuleMap().keySet())
         {
             LazyPacketData.Builder entry = source.get();
-            encodeRule(builder,source,host,type,player);
+            encodeRule(builder,source,host,type,context);
         }
         return builder.build();
     }
 
-    public static void encodeRule(LazyPacketData.Builder builder,Supplier<LazyPacketData.Builder> source,ITradeRuleHost host,TradeRuleType<?> type,Player player)
+    public static void encodeRule(LazyPacketData.Builder builder,Supplier<LazyPacketData.Builder> source,ITradeRuleHost host,TradeRuleType<?> type,ISyncingContext context)
     {
         TradeRule rule = host.getRuleOfType(type);
         if(rule != null)
         {
             LazyPacketData.Builder entry = source.get();
-            rule.encode(source,entry,player);
+            rule.encode(source,entry,context);
             builder.setMap(LCRegistries.TRADE_RULE.getKey(type).toString(),entry);
         }
     }

@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.client.widgets.IWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.api.events.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.api.client.sprites.FixedSizeSprite;
@@ -81,7 +82,7 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
 
     IconButton buttonOpenTerminal;
 
-    public final LazyWidgetPositioner rightEdgePositioner = LazyWidgetPositioner.create(this, LazyWidgetPositioner.createTopdown(), WIDTH, 0, 20);
+    public final IWidgetPositioner rightEdgePositioner = LazyWidgetPositioner.create(this, LazyWidgetPositioner.createTopdown(), WIDTH, 0, 20);
 
     private static final ScreenPosition INFO_WIDGET_POSITION = ScreenPosition.of(160, HEIGHT - 96);
 
@@ -95,14 +96,14 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
     @Override
     protected void initialize(ScreenArea screenArea) {
 
-        this.addChild(this.rightEdgePositioner);
+        this.addChild(this.rightEdgePositioner.clear());
         this.buttonOpenStorage = this.addChild(IconButton.builder()
                 .pressAction(this::OpenStorage)
                 .icon(IconUtil.ICON_STORAGE)
                 .addon(EasyAddonHelper.visibleCheck(() -> this.menu.getTrader() != null && this.menu.getTrader().hasPermission(this.menu.player, Permissions.OPEN_STORAGE)))
                 .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_OPEN_STORAGE))
                 .build());
-        this.buttonCollectCoins = this.addChild(ButtonUtil.finishCollectCoinButton(IconButton.builder().pressAction(this::CollectCoins), this.menu.player, this.menu::getTrader));
+        this.buttonCollectCoins = this.addChild(ButtonUtil.finishCollectCoinButton(IconButton.builder().pressAction(this::CollectCoins),this.menu.player,this.menu::getTrader));
         this.buttonOpenTerminal = this.addChild(IconButton.builder()
                 .pressAction(this::OpenTerminal)
                 .icon(IconUtil.ICON_BACK)
@@ -110,9 +111,7 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
                 .addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_TRADER_NETWORK_BACK))
                 .build());
 
-        this.rightEdgePositioner.clear();
-        this.rightEdgePositioner.addWidgets(this.buttonOpenTerminal, this.buttonOpenStorage, this.buttonCollectCoins);
-        this.addChild(this.rightEdgePositioner);
+        this.rightEdgePositioner.addWidgets(this.buttonOpenTerminal,this.buttonOpenStorage,this.buttonCollectCoins);
 
         this.buttonInteract = this.addChild(PlainButton.builder()
                 .position(screenArea.pos.offset(7,107))
@@ -324,15 +323,15 @@ public class GachaMachineScreen extends EasyMenuScreen<GachaMachineMenu> {
         this.menu.SendMessageToServer(this.builder().setInt("ExecuteTrade",this.tradeMultiplier));
     }
 
-    private void OpenStorage(EasyButton button) {
+    private void OpenStorage() {
         this.menu.openStorage();
     }
 
-    private void CollectCoins(EasyButton button) {
+    private void CollectCoins() {
         this.menu.openStorage();
     }
 
-    private void OpenTerminal(EasyButton button) {
+    private void OpenTerminal() {
         this.menu.openTerminal();
     }
 

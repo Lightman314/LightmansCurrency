@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.api.network.LazyPacketType;
+import io.github.lightman314.lightmanscurrency.api.traders.data.nodes.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.traders.menu.storage.ITraderStorageMenu;
 
 import io.github.lightman314.lightmanscurrency.api.traders.trade.TradeData;
@@ -113,16 +114,16 @@ public class PaygateTradeNode extends TradeOfferSourceNode<PaygateTradeData> {
     public boolean supportsTradeRules() { return true; }
 
     @Override
-    public void createSyncPacket(LazyPacketData.Builder builder,Player player) {
-        super.createSyncPacket(builder,player);
-        builder.setInt("conflict_handling",this.conflictHandling.ordinal());
+    public void createSyncPacket(LazyPacketData.Builder builder,ISyncingContext context) {
+        super.createSyncPacket(builder,context);
+        builder.setEnum("conflict_handling",this.conflictHandling);
     }
 
     @Override
     public void onDataSync(LazyPacketData data) {
         super.onDataSync(data);
         if(data.contains("conflict_handling"))
-            this.conflictHandling = EnumUtil.enumFromOrdinal(data.getInt("conflict_handling"),OutputConflictHandling.values(),OutputConflictHandling.DENY_ANY);
+            this.conflictHandling = data.getEnum("conflict_handling", OutputConflictHandling.class,OutputConflictHandling.DENY_ANY);
     }
 
     @Override
@@ -156,6 +157,7 @@ public class PaygateTradeNode extends TradeOfferSourceNode<PaygateTradeData> {
 
     @Override
     public void applyStorageTabs(ITraderStorageMenu menu) {
+        super.applyStorageTabs(menu);
         menu.addTab(new PaygateTradeEditTab(menu));
     }
 }

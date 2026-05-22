@@ -238,7 +238,7 @@ public class TraderEjectionData extends EjectionData {
 
         private static final MapCodec<SplitData> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
                 OwnerData.CODEC.fieldOf("owner").forGetter(d -> d.tempOwner),
-                NonEmptyHandler.CODEC.fieldOf("contents").forGetter(d -> d.contents),
+                NonEmptyHandler.CODEC.fieldOf("items").forGetter(d -> d.contents),
                 ComponentSerialization.CODEC.fieldOf("name").forGetter(d -> d.name)
         ).apply(builder,SplitData::new));
         private static final StreamCodec<RegistryFriendlyByteBuf,SplitData> STREAM_CODEC = StreamCodec.composite(

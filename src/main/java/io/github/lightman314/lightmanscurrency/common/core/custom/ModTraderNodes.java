@@ -26,6 +26,7 @@ public class ModTraderNodes {
         REGISTER.register("money_storage", () -> MoneyStorageNode.TYPE);
         REGISTER.register("bank", () -> BankNode.TYPE);
         REGISTER.register("upgrades", () -> UpgradesNode.TYPE);
+        REGISTER.register("input", () -> InputNode.TYPE);
         REGISTER.register("interaction", () -> InteractionNode.TYPE);
         REGISTER.register("logger", () -> LoggerNode.TYPE);
         REGISTER.register("rules", () -> TraderRulesNode.TYPE);
@@ -38,6 +39,7 @@ public class ModTraderNodes {
 
         //Optional Node for addons/integration
         REGISTER.register("fake_owner",() -> FakeOwnerNode.TYPE);
+        REGISTER.register("color",() -> TraderColorNode.TYPE);
         REGISTER.register("machine_access", () -> MachineAccessNode.TYPE);
 
         //Auction House Nodes

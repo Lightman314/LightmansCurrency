@@ -98,7 +98,7 @@ public class InventoryPeripheral extends AccessTrackingPeripheral {
         else {
             IItemHandler to = extractHandler(location);
             if(to == null)
-                throw new LuaException("Source '" + toName + "' is not an inventory");
+                throw new LuaException("Source '" + toName + "' is not an items");
             else
             {
                 int actualLimit = limit.orElse(Integer.MAX_VALUE);
@@ -127,7 +127,7 @@ public class InventoryPeripheral extends AccessTrackingPeripheral {
         {
             IItemHandler from = extractHandler(location);
             if(from == null)
-                throw new LuaException("Source '" + fromName + "' is not an inventory");
+                throw new LuaException("Source '" + fromName + "' is not an items");
             else
             {
                 int actualLimit = limit.orElse(Integer.MAX_VALUE);
@@ -140,7 +140,7 @@ public class InventoryPeripheral extends AccessTrackingPeripheral {
     }
 
     @Override
-    public String getType() { return "inventory"; }
+    public String getType() { return "items"; }
 
     @Override
     public boolean equals(@Nullable IPeripheral peripheral) {

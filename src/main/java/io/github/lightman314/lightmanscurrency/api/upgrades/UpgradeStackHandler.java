@@ -4,6 +4,8 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.misc.item_handlers.LCItemStackHandler;
 import io.github.lightman314.lightmanscurrency.common.items.UpgradeItem;
+import io.github.lightman314.lightmanscurrency.util.ItemHandlerUtil;
+import io.github.lightman314.lightmanscurrency.util.ListUtil;
 import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
 
@@ -36,7 +38,7 @@ public class UpgradeStackHandler extends LCItemStackHandler implements Iterable<
     @Override
     public UpgradeStackHandler withListener(Runnable listener) { super.withListener(listener); return this; }
 
-    public final void load(List<ItemStack> items) { this.stacks.clear(); this.stacks.addAll(items); }
+    public final void load(List<ItemStack> items) { this.stacks = ItemHandlerUtil.loadList(items); }
 
     @Override
     public int getSlotLimit(int slot) { return 1; }

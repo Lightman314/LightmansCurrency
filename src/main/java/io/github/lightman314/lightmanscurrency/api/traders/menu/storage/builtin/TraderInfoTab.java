@@ -18,10 +18,10 @@ public class TraderInfoTab extends TraderStorageTab {
 
     @Override
     public ResourceLocation tabKey() { return KEY; }
-
+    @Override
+    public int getSortPriority() { return SORT_INFO; }
     @Override
     public Object createClientTab(Object screen) { return new TraderInfoClientTab(screen,this); }
-
     @Override
     public boolean canOpen(Player player) { return this.menu.hasPermission(Permissions.VIEW_LOGS) || this.menu.hasPermission(Permissions.EDIT_SETTINGS); }
 
