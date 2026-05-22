@@ -124,7 +124,13 @@ public class LightmansCurrency {
 
 	public LightmansCurrency() {
 
-		LootManager.registerDroplistListeners();
+        //Setup Wood Compatibilities super-early so we don't accidentally load items before they're initialized
+        IntegrationUtil.SafeRunIfLoaded("biomesoplenty",BOPCustomWoodTypes::setupWoodTypes, "Error setting up BOP wood types! BOP has probably changed their API!");
+        IntegrationUtil.SafeRunIfLoaded("quark",QuarkCustomWoodTypes::setupWoodTypes, "Error setting up Quark wood types! Quark has probably changed their API!");
+        IntegrationUtil.SafeRunIfLoaded("biomeswevegone",BWGCustomWoodTypes::setupWoodTypes, "Error setting up BWG wood types! BWG has probably changed their API!");
+        //IntegrationUtil.SafeRunIfLoaded("tconstruct", TinkersCustomWoodTypes::setupWoodTypes, "Error setting up Tinkers' Construct wood types! Tinkers has probably changed their API!");
+
+        LootManager.registerDroplistListeners();
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
@@ -136,13 +142,6 @@ public class LightmansCurrency {
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
-
-		//Setup Wood Compatibilities before registering blocks/items
-		IntegrationUtil.SafeRunIfLoaded("biomesoplenty", BOPCustomWoodTypes::setupWoodTypes, "Error setting up BOP wood types! BOP has probably changed their API!");
-		IntegrationUtil.SafeRunIfLoaded("quark", QuarkCustomWoodTypes::setupWoodTypes, "Error setting up Quark wood types! Quark has probably changed their API!");
-		IntegrationUtil.SafeRunIfLoaded("biomeswevegone", BWGCustomWoodTypes::setupWoodTypes, "Error setting up BWG wood types! BWG has probably changed their API!");
-		//IntegrationUtil.SafeRunIfLoaded("tconstruct", TinkersCustomWoodTypes::setupWoodTypes, "Error setting up Tinkers' Construct wood types! Tinkers has probably changed their API!");
-
         //Setup Deferred Registries
         ModRegistries.register(FMLJavaModLoadingContext.get().getModEventBus());
 
