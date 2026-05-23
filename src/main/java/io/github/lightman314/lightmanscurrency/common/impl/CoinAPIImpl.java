@@ -24,7 +24,6 @@ import io.github.lightman314.lightmanscurrency.common.core.ModItems;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.util.LookupHelper;
 import io.github.lightman314.lightmanscurrency.network.message.data.SPacketSyncCoinData;
-import io.github.lightman314.lightmanscurrency.proxy.ClientProxy;
 import io.github.lightman314.lightmanscurrency.util.FileUtil;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import net.minecraft.MethodsReturnNonnullByDefault;
@@ -88,7 +87,7 @@ public final class CoinAPIImpl extends CoinAPI {
     }
 
     @Override
-    public void ReloadCoinDataFromFile() {
+    public void ReloadCoinDataFromFile(boolean sync) {
         LightmansCurrency.LogInfo("Reloading Money Data");
         File mcl = new File(MONEY_FILE_LOCATION);
         if(!mcl.exists())
@@ -106,7 +105,8 @@ public final class CoinAPIImpl extends CoinAPI {
             LightmansCurrency.LogError("Error loading the Master Coin List. Using default values for now.", e);
             loadData(generateDefaultMoneyData());
         }
-        this.SyncCoinDataWith(null);
+        if(sync)
+            this.SyncCoinDataWith(null);
     }
 
     public static void LoadEditedData(String customJson) {
@@ -547,13 +547,13 @@ public final class CoinAPIImpl extends CoinAPI {
     }
 
     //Reload
-    private void onServerStart(ServerAboutToStartEvent event) { this.ReloadCoinDataFromFile(); }
+    private void onServerStart(ServerAboutToStartEvent event) { this.ReloadCoinDataFromFile(false); }
 
     private void onJoinServer(PlayerEvent.PlayerLoggedInEvent event)
     {
         LightmansCurrency.LogDebug("PlayerLoggedInEvent was called!");
         if(this.NoDataAvailable())
-            this.ReloadCoinDataFromFile();
+            this.ReloadCoinDataFromFile(false);
         this.SyncCoinDataWith(event.getEntity());
     }
 
@@ -561,7 +561,7 @@ public final class CoinAPIImpl extends CoinAPI {
     @Override
     public SPacketSyncCoinData getSyncPacket() {
         if(this.NoDataAvailable())
-            this.ReloadCoinDataFromFile();
+            this.ReloadCoinDataFromFile(false);
         return new SPacketSyncCoinData(getDataJson(this.loadedChains, false));
     }
 

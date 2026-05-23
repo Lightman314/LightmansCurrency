@@ -29,7 +29,7 @@ public class MutableMasterCoinList {
     public MutableMasterCoinList() {
         //Forcibly load the coin data (since it doesn't need any lookup helpers or anything else)
         if(CoinAPI.getApi().NoDataAvailable())
-            CoinAPI.getApi().ReloadCoinDataFromFile();
+            CoinAPI.getApi().ReloadCoinDataFromFile(false);
         //Copy the ChainData map from the Coin API
         this.data = new HashMap<>();
         for(ChainData chain : CoinAPI.getApi().AllChainData())
