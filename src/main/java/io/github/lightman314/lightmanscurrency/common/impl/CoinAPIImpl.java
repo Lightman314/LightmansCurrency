@@ -553,8 +553,9 @@ public final class CoinAPIImpl extends CoinAPI {
     {
         LightmansCurrency.LogDebug("PlayerLoggedInEvent was called!");
         if(this.NoDataAvailable())
-            this.ReloadCoinDataFromFile(false);
-        this.SyncCoinDataWith(event.getEntity());
+            this.ReloadCoinDataFromFile(true);
+        else //Only send the sync packet if data was available, otherwise it'll get sent to all players when reloaded
+            this.SyncCoinDataWith(event.getEntity());
     }
 
     
