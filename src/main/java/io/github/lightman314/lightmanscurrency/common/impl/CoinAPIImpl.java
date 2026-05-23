@@ -88,7 +88,7 @@ public final class CoinAPIImpl extends CoinAPI {
     }
 
     @Override
-    public void ReloadCoinDataFromFile() {
+    public void ReloadCoinDataFromFile(boolean sync) {
         LightmansCurrency.LogInfo("Reloading Money Data");
         File mcl = new File(MONEY_FILE_LOCATION);
         if(!mcl.exists())
@@ -106,7 +106,8 @@ public final class CoinAPIImpl extends CoinAPI {
             LightmansCurrency.LogError("Error loading the Master Coin List. Using default values for now.", e);
             loadData(generateDefaultMoneyData());
         }
-        this.SyncCoinDataWith(PacketDistributor.ALL.noArg());
+        if(sync)
+            this.SyncCoinDataWith(PacketDistributor.ALL.noArg());
     }
 
     public static void LoadEditedData(String customJson) {
@@ -552,14 +553,15 @@ public final class CoinAPIImpl extends CoinAPI {
     }
 
     //Reload
-    private void onServerStart(ServerAboutToStartEvent event) { this.ReloadCoinDataFromFile(); }
+    private void onServerStart(ServerAboutToStartEvent event) { this.ReloadCoinDataFromFile(false); }
 
     private void onJoinServer(PlayerEvent.PlayerLoggedInEvent event)
     {
         LightmansCurrency.LogDebug("PlayerLoggedInEvent was called!");
         if(this.NoDataAvailable())
-            this.ReloadCoinDataFromFile();
-        this.SyncCoinDataWith(LightmansCurrencyPacketHandler.getTarget(event.getEntity()));
+            this.ReloadCoinDataFromFile(true);
+        else //Only send the sync packet if data was available, otherwise it'll get sent to all players when reloaded
+            this.SyncCoinDataWith(LightmansCurrencyPacketHandler.getTarget(event.getEntity()));
     }
 
     @Override

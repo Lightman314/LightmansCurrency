@@ -48,7 +48,7 @@ public abstract class CoinAPI {
     /**
      * Reloads the <code>MasterCoinList.json</code> config file, and sends it to all connected players.
      */
-    public abstract void ReloadCoinDataFromFile();
+    public abstract void ReloadCoinDataFromFile(boolean sync);
 
     public abstract ItemStack getEquippedWallet(Player player);
 

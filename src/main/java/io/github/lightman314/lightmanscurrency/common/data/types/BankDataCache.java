@@ -88,7 +88,7 @@ public class BankDataCache extends CustomData {
 
     public List<BankReference> getPlayerBankAccounts() {
         List<BankReference> results = new ArrayList<>();
-        for(UUID player : this.playerBankData.keySet())
+        for(UUID player : new HashSet<>(this.playerBankData.keySet()))
             results.add(PlayerBankReference.of(player).flagAsClient(this));
         return results;
     }
