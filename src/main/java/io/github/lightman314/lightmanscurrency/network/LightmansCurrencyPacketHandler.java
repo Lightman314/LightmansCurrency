@@ -1,168 +1,56 @@
 package io.github.lightman314.lightmanscurrency.network;
 
-import io.github.lightman314.lightmanscurrency.network.message.*;
-import io.github.lightman314.lightmanscurrency.network.message.auction.*;
-import io.github.lightman314.lightmanscurrency.network.message.bank.*;
-import io.github.lightman314.lightmanscurrency.network.message.command.*;
-import io.github.lightman314.lightmanscurrency.network.message.config.*;
 import io.github.lightman314.lightmanscurrency.network.message.data.*;
-import io.github.lightman314.lightmanscurrency.network.message.emergencyejection.*;
-import io.github.lightman314.lightmanscurrency.network.message.event.*;
-import io.github.lightman314.lightmanscurrency.network.message.interfacebe.*;
-import io.github.lightman314.lightmanscurrency.network.message.menu.*;
-import io.github.lightman314.lightmanscurrency.network.message.notifications.*;
-import io.github.lightman314.lightmanscurrency.network.message.paygate.*;
-import io.github.lightman314.lightmanscurrency.network.message.persistentdata.*;
-import io.github.lightman314.lightmanscurrency.network.message.player.CPacketRequestID;
-import io.github.lightman314.lightmanscurrency.network.message.player.CPacketRequestName;
-import io.github.lightman314.lightmanscurrency.network.message.player.SPacketUpdatePlayerCache;
-import io.github.lightman314.lightmanscurrency.network.message.playertrading.*;
-import io.github.lightman314.lightmanscurrency.network.message.teams.*;
-import io.github.lightman314.lightmanscurrency.network.message.trader.*;
-import io.github.lightman314.lightmanscurrency.network.message.wallet.*;
-import io.github.lightman314.lightmanscurrency.network.message.walletslot.*;
-import io.github.lightman314.lightmanscurrency.network.message.time.*;
+import io.github.lightman314.lightmanscurrency.network.packet.BiDirectionalPacket;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
 import io.github.lightman314.lightmanscurrency.network.packet.CustomPacket;
 import io.github.lightman314.lightmanscurrency.network.packet.ServerToClientPacket;
-
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
-@EventBusSubscriber(modid = LightmansCurrency.MODID)
+@EventBusSubscriber
 public class LightmansCurrencyPacketHandler {
-	
-	public static final String PROTOCOL_VERSION = "1";
 
-	private static PayloadRegistrar registrar = null;
+    public static final String PROTOCOL_VERSION = "2";
 
-	@SubscribeEvent
-	public static void onPayloadRegister(RegisterPayloadHandlersEvent event) {
+    private static PayloadRegistrar registrar = null;
 
-		registrar = event.registrar(PROTOCOL_VERSION);
+    @SubscribeEvent
+    private static void onPayloadRegister(RegisterPayloadHandlersEvent event)
+    {
+        registrar = event.registrar(PROTOCOL_VERSION);
 
-		//ATM & Bank
-		registerC2S(CPacketOpenATM.HANDLER);
-		registerC2S(CPacketSelectBankAccount.HANDLER);
-		registerC2S(CPacketBankInteraction.HANDLER);
-		registerC2S(CPacketBankTransferAccount.HANDLER);
-		registerC2S(CPacketBankTransferPlayer.HANDLER);
-		registerS2C(SPacketBankTransferResponse.HANDLER);
-		registerC2S(CPacketATMSetPlayerAccount.HANDLER);
-		registerS2C(SPacketATMPlayerAccountResponse.HANDLER);
-		
-		//Trader
-		registerC2S(CPacketExecuteTrade.HANDLER);
-		registerC2S(CPacketCollectCoins.HANDLER);
-		registerC2S(CPacketOpenStorage.HANDLER);
-		registerC2S(CPacketOpenTrades.HANDLER);
-		registerC2S(CPacketOpenNetworkTerminal.HANDLER);
-		registerS2C(SPacketSyncUsers.HANDLER);
-		registerC2S(CPacketAddOrRemoveTrade.HANDLER);
-		registerS2C(SPacketTaxInfo.HANDLER);
+        //Coin Data
+        registerS2C(SPacketSyncCoinData.HANDLER);
 
-		//Paygate
-		registerC2S(CPacketCollectTicketStubs.HANDLER);
+        //Menus
+        registerBi(BPacketMenuMessage.HANDLER);
 
-		//Wallet
-		registerS2C(SPacketPlayCoinSound.HANDLER);
-		registerC2S(CPacketWalletExchangeCoins.HANDLER);
-		registerC2S(CPacketWalletToggleAutoExchange.HANDLER);
-		registerC2S(CPacketOpenWallet.HANDLER);
-		registerC2S(CPacketOpenWalletBank.HANDLER);
-		registerC2S(CPacketWalletQuickCollect.HANDLER);
-		registerC2S(CPacketChestQuickCollect.HANDLER);
+        //Fancy Data
+        registerS2C(SPacketSyncFancyData.HANDLER);
 
-		//Wallet Inventory Slot
-		registerS2C(SPacketSyncWallet.HANDLER);
-		registerC2S(CPacketSetVisible.HANDLER);
-		registerC2S(CPacketCreativeWalletEdit.HANDLER);
-		
-		//Auction House
-		registerS2C(SPacketStartBid.HANDLER);
-		registerC2S(CPacketSubmitBid.HANDLER);
-		registerS2C(SPacketSyncAuctionStandDisplay.HANDLER);
-		
-		//Trader Interfaces
-		registerC2S(CPacketInterfaceHandlerMessage.HANDLER);
-		
-		//Teams
-		registerC2S(CPacketOpenTeamManager.HANDLER);
+    }
 
-		//Lazy Menu Interaction
-		registerS2C(SPacketLazyMenu.HANDLER);
-		registerC2S(CPacketLazyMenu.HANDLER);
+    private static <T extends ServerToClientPacket> void registerS2C(CustomPacket.AbstractHandler<T> handler)
+    {
+        registrar.playToClient(handler.type,handler.codec,handler);
+    }
 
-		//Notifications
-		registerS2C(SPacketChatNotification.HANDLER);
-		registerC2S(CPacketOpenNotifications.HANDLER);
+    private static <T extends ClientToServerPacket> void registerC2S(CustomPacket.AbstractHandler<T> handler)
+    {
+        registrar.playToServer(handler.type,handler.codec,handler);
+    }
 
-		//Core
-		registerC2S(CPacketRequestNBT.HANDLER);
-		registerS2C(SPacketSyncTime.HANDLER);
-		
-		//Command/Admin
-		registerS2C(SPacketSyncAdminList.HANDLER);
-		registerS2C(SPacketDebugTrader.HANDLER);
-		
-		//Coin Data
-		registerConfigS2C(SPacketSyncCoinData.HANDLER);
-		registerS2C(SPacketSyncCoinData.HANDLER);
-		registerC2S(CPacketAcknowledgeCoinData.HANDLER);
-		
-		//Persistent Data
-		registerC2S(CPacketCreatePersistentTrader.HANDLER);
-		registerC2S(CPacketCreatePersistentAuction.HANDLER);
-		
-		//Ejection data
-		registerC2S(CPacketOpenEjectionMenu.HANDLER);
+    private static <T extends BiDirectionalPacket> void registerBi(CustomPacket.AbstractHandler<T> handler)
+    {
+        registrar.playBidirectional(handler.type,handler.codec,handler,handler);
+    }
 
-		//Player Trading
-		registerS2C(SPacketSyncPlayerTrade.HANDLER);
-		registerC2S(CPacketPlayerTradeInteraction.HANDLER);
+    private static <T extends ServerToClientPacket> void registerConfigS2C(CustomPacket.ConfigHandler<T> handler)
+    {
+        registrar.configurationToClient(handler.type,handler.configCodec,handler);
+    }
 
-		//Event Tracker Syncing
-		registerS2C(SPacketSyncEventUnlocks.HANDLER);
-
-		//Config System
-        registerC2S(CPacketEditConfig.HANDLER);
-        registerC2S(CPacketTrackServerFile.HANDLER);
-		registerS2C(SPacketSyncConfig.HANDLER);
-		registerS2C(SPacketReloadConfig.HANDLER);
-		registerS2C(SPacketEditConfig.HANDLER);
-		registerS2C(SPacketEditListConfig.HANDLER);
-		registerS2C(SPacketEditMapConfig.HANDLER);
-		registerS2C(SPacketResetConfig.HANDLER);
-		registerS2C(SPacketViewConfig.HANDLER);
-
-		//Player Syncing
-		registerC2S(CPacketRequestName.HANDLER);
-		registerC2S(CPacketRequestID.HANDLER);
-		registerS2C(SPacketUpdatePlayerCache.HANDLER);
-
-		//Custom Data Syncing
-		registerS2C(SPacketSyncCustomData.HANDLER);
-
-		registrar = null;
-
-	}
-
-	private static <T extends ServerToClientPacket> void registerS2C(CustomPacket.AbstractHandler<T> handler)
-	{
-		registrar.playToClient(handler.type, handler.codec, handler);
-	}
-
-	private static <T extends ClientToServerPacket> void registerC2S(CustomPacket.AbstractHandler<T> handler)
-	{
-		registrar.playToServer(handler.type, handler.codec, handler);
-	}
-
-	private static <T extends ServerToClientPacket> void registerConfigS2C(CustomPacket.ConfigHandler<T> handler)
-	{
-		registrar.configurationToClient(handler.type,handler.configCodec,handler);
-	}
-	
 }

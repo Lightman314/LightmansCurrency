@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "lightmanscurrency:block/diamond_coin_block"
+    }
+  }
+}

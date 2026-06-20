@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "g": {
-      "tag": "c:glass_blocks/colorless"
-    },
-    "w": {
-      "item": "minecraft:lime_wool"
-    },
-    "x": {
-      "item": "lightmanscurrency:trading_core"
-    }
+    "g": "#c:glass_blocks/colorless",
+    "w": "minecraft:lime_wool",
+    "x": "lightmanscurrency:trading_core"
   },
   "pattern": [
     "g",
@@ -18,7 +12,6 @@
     "w"
   ],
   "result": {
-    "count": 1,
     "id": "lightmanscurrency:display_case_lime"
   }
 }

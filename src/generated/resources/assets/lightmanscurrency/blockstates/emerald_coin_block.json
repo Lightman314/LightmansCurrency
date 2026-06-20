@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "lightmanscurrency:block/emerald_coin_block"
+    }
+  }
+}

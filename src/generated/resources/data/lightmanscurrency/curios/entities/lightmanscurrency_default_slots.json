@@ -1,9 +1,0 @@
-{
-  "entities": [
-    "minecraft:player"
-  ],
-  "slots": [
-    "wallet",
-    "charm"
-  ]
-}

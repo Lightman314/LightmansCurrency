@@ -1,27 +1,21 @@
 package io.github.lightman314.lightmanscurrency.api.ownership.listing;
 
-import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
+import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
-import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
-import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
-public abstract class PotentialOwner implements IClientTracker {
+public abstract class PotentialOwner implements ISidedContext.Mutable<PotentialOwner> {
 
     private final Owner owner;
 
-    private boolean isClient;
+    ISidedContext context;
 
     @Override
-    public final boolean isClient() { return this.isClient; }
+    public final boolean isClient() { return this.context.isClient(); }
 
-    public final void flagAsClient() { this.isClient = true; }
+    public final PotentialOwner setSidedContext(ISidedContext context) { this.context = context; return this; }
     private int priority;
     private boolean currentOwner;
     protected final void setPriority(int priority) { this.priority = priority; }
@@ -32,14 +26,14 @@ public abstract class PotentialOwner implements IClientTracker {
     public final void setAsCurrentOwner(boolean isCurrentOwner) { this.currentOwner = isCurrentOwner; }
 
     protected PotentialOwner(Owner owner) { this(owner,0); }
-    protected PotentialOwner(Owner owner, int priority) { this.owner = owner; this.owner.setParent(this); this.priority = priority; }
+    protected PotentialOwner(Owner owner, int priority) { this.owner = owner.setSidedContext(this); this.priority = priority; }
 
     public final Owner asOwner() { return this.owner; }
     public boolean failedFilter(String searchFilter) { return !this.getName().getString().toLowerCase().contains(searchFilter.toLowerCase()); }
 
-    public MutableComponent getName() { return this.asOwner().getName(); }
+    public Component getName() { return this.asOwner().getName(); }
 
-    public abstract IconData getIcon();
+    //public abstract IconData getIcon();
 
     public abstract void appendTooltip(List<Component> tooltip);
 

@@ -1,8 +1,0 @@
-{
-  "parent": "lightmanscurrency:card_display/outer_corner/biomesoplenty/umbran/base",
-  "optional": true,
-  "target": "lightmanscurrency:card_display_biomesoplenty_umbran_purple",
-  "textures": {
-    "wool": "minecraft:block/purple_wool"
-  }
-}

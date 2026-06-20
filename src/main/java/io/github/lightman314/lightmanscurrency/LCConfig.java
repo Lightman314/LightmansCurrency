@@ -1,37 +1,14 @@
 package io.github.lightman314.lightmanscurrency;
 
-import com.google.common.collect.Lists;
-import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.api.LCApi;
+import io.github.lightman314.lightmanscurrency.api.coins.value.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.config.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.builtin.*;
-import io.github.lightman314.lightmanscurrency.api.events.DroplistConfigGenerator;
-import io.github.lightman314.lightmanscurrency.api.money.value.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.money.value.builtin.CoinValue;
-import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.SortTypeKey;
-import io.github.lightman314.lightmanscurrency.api.traders.terminal.sorting.types.SortByName;
-import io.github.lightman314.lightmanscurrency.client.config.CustomItemScaleConfigOption;
-import io.github.lightman314.lightmanscurrency.client.config.CustomItemScaleData;
-import io.github.lightman314.lightmanscurrency.client.config.ItemTest;
-import io.github.lightman314.lightmanscurrency.client.config.ItemTestListOption;
-import io.github.lightman314.lightmanscurrency.client.gui.overlay.WalletDisplayOverlay;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenCorner;
-import io.github.lightman314.lightmanscurrency.common.config.VillagerTradeModsOption;
-import io.github.lightman314.lightmanscurrency.common.core.ModItems;
-import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
-import io.github.lightman314.lightmanscurrency.common.loot.tiers.ChestPoolLevel;
-import io.github.lightman314.lightmanscurrency.common.loot.tiers.EntityPoolLevel;
-import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.configured.ConfiguredTradeModOption;
-import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.mods.ConfiguredTradeMod;
-import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.mods.VillagerTradeMod;
-import io.github.lightman314.lightmanscurrency.common.villager_merchant.listings.mods.VillagerTradeMods;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.world.entity.npc.VillagerProfession;
-import net.minecraft.world.entity.npc.VillagerType;
+import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
+import io.github.lightman314.lightmanscurrency.core.LCItems;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
-import java.util.function.Supplier;
 
 public final class LCConfig {
 
@@ -49,11 +26,11 @@ public final class LCConfig {
 
     public static final class Client extends ClientConfigFile
     {
-        private Client() { super(VersionUtil.lcResource("client"),"lightmanscurrency-client"); }
+        private Client() { super(LCApi.id("client"),"lightmanscurrency-client"); }
 
         public final IntOption itemRenderLimit = IntOption.create(Integer.MAX_VALUE, 0);
-        public final CustomItemScaleConfigOption itemScaleOverrides = CustomItemScaleConfigOption.create(new CustomItemScaleData(Lists.newArrayList(Pair.of(ItemTest.create(LCTags.Items.DRAW_HALF_SIZE),0.5f))));
-        public final ItemTestListOption itemRenderBlacklist = ItemTestListOption.create(new ArrayList<>());
+        //public final CustomItemScaleConfigOption itemScaleOverrides = CustomItemScaleConfigOption.create(new CustomItemScaleData(Lists.newArrayList(Pair.of(ItemTest.create(LCTags.Items.DRAW_HALF_SIZE),0.5f))));
+        //public final ItemTestListOption itemRenderBlacklist = ItemTestListOption.create(new ArrayList<>());
         public final BooleanOption drawGachaBallItem = BooleanOption.createTrue();
         public final BooleanOption gachaMachineFancyGraphics = BooleanOption.createTrue();
 
@@ -64,9 +41,9 @@ public final class LCConfig {
         public final ScreenPositionOption walletButtonOffset = ScreenPositionOption.create(8,-10);
 
         public final BooleanOption walletOverlayEnabled = BooleanOption.createTrue();
-        public final EnumOption<ScreenCorner> walletOverlayCorner = EnumOption.create(ScreenCorner.BOTTOM_LEFT);
+        //public final EnumOption<ScreenCorner> walletOverlayCorner = EnumOption.create(ScreenCorner.BOTTOM_LEFT);
         public final ScreenPositionOption walletOverlayPosition = ScreenPositionOption.create(5,-5);
-        public final EnumOption<WalletDisplayOverlay.DisplayType> walletOverlayType = EnumOption.create(WalletDisplayOverlay.DisplayType.ITEMS_WIDE);
+        //public final EnumOption<WalletDisplayOverlay.DisplayType> walletOverlayType = EnumOption.create(WalletDisplayOverlay.DisplayType.ITEMS_WIDE);
 
         public final ScreenPositionOption notificationAndTeamButtonPosition = ScreenPositionOption.create(152,3);
         public final ScreenPositionOption notificationAndTeamButtonCreativePosition = ScreenPositionOption.create(171,3);
@@ -86,12 +63,12 @@ public final class LCConfig {
         public final IntOption terminalColumnLimit = IntOption.create(4,2,100);
         public final IntOption terminalRowLimit = IntOption.create(16,4,100);
         public final StringOption terminalBonusFilters = StringOption.create("ready:true");
-        public final StringOption terminalDefaultSorting = StringOption.create(SortByName.INSTANCE.getID().toString());
+        //public final StringOption terminalDefaultSorting = StringOption.create(SortByName.INSTANCE.getID().toString());
 
         public final BooleanOption debugScreens = BooleanOption.createFalse();
 
         @Override
-        protected void setup(@Nonnull ConfigBuilder builder) {
+        protected void setup(ConfigBuilder builder) {
 
             builder.comment("Quality Settings").push("quality");
 
@@ -99,19 +76,19 @@ public final class LCConfig {
                             "Setting to 0 will disable item rendering entirely, so use with caution.")
                     .add("itemTraderRenderLimit", this.itemRenderLimit);
 
-            builder.comment("A list of item ids or item tags that should be rendered by Item Traders at a different scale.")
+            /*builder.comment("A list of item ids or item tags that should be rendered by Item Traders at a different scale.")
                     .add("itemScaleOverrides",this.itemScaleOverrides);
 
             builder.comment("A list of item ids or item tags that should not be rendered by Item Traders at all",
                             "Use to hide high-poly item models from being rendered and lagging your game.")
-                    .add("itemRenderBlacklist",this.itemRenderBlacklist);
+                    .add("itemRenderBlacklist",this.itemRenderBlacklist);*/
 
             builder.comment("Whether the Gacha Ball should render the item inside",
                             "Enabling will double the number of items being rendered, and can cause FPS issues near Gacha Machines if their fancy graphics are enabled")
                     .add("gachaBallFullRender",this.drawGachaBallItem);
 
             builder.comment("Whether the Gacha Machine will render each Gacha Ball individually",
-                            "Disable if you're having FPS issues near the Gacha Machine, this will make the machine render a far more simplisitic representation of its contents.")
+                            "Disable if you're having FPS issues near the Gacha Machine, this will make the machine render a far more simplisitic representation of its items.")
                     .add("gachaMachineFancyGraphics",this.gachaMachineFancyGraphics);
 
             builder.pop();
@@ -125,10 +102,10 @@ public final class LCConfig {
 
             builder.comment("Wallet Slot Settings").push("wallet_slot");
 
-            builder.comment("The position that the wallet slot will be placed at in the players inventory.")
+            builder.comment("The position that the wallet slot will be placed at in the players items.")
                     .add("slot", this.walletSlot);
 
-            builder.comment("The position that the wallet slot will be placed at in the players creative inventory.")
+            builder.comment("The position that the wallet slot will be placed at in the players creative items.")
                     .add("creativeSlot", this.walletSlotCreative);
 
             builder.comment("The offset that the wallet button should be placed at relative to the wallet slot position.")
@@ -141,14 +118,14 @@ public final class LCConfig {
             builder.comment("Whether an overlay should be drawn on your HUD displaying your wallets current money amount.")
                     .add("enabled", this.walletOverlayEnabled);
 
-            builder.comment("The corner of the screen that the overlay should be drawn on.")
-                    .add("displayCorner", this.walletOverlayCorner);
+            //builder.comment("The corner of the screen that the overlay should be drawn on.")
+            //        .add("displayCorner", this.walletOverlayCorner);
 
             builder.comment("The position offset from the defined corner.")
                     .add("displayOffset", this.walletOverlayPosition);
 
-            builder.comment("Whether the wallets contents should be displayed as a coin item, or as value text.")
-                    .add("displayType", this.walletOverlayType);
+            //builder.comment("Whether the wallets items should be displayed as a coin item, or as value text.")
+            //        .add("displayType", this.walletOverlayType);
 
             builder.pop();
 
@@ -162,20 +139,20 @@ public final class LCConfig {
             builder.comment("A default search filter that will be automatically added to the search parameters")
                     .add("searchFilter",this.terminalBonusFilters);
 
-            builder.comment("The default sorting mode that will be automatically selected when you first open the terminal",
+            /*builder.comment("The default sorting mode that will be automatically selected when you first open the terminal",
                             "Note: The game will remember your last selection option within the same session, so editing this after the screen has been opened will not change anything until you close and re-open your game.",
                             "Options: ",
                             SortTypeKey.getExampleListSupplier(true))
-                    .add("defaultSortMode",this.terminalDefaultSorting);
+                    .add("defaultSortMode",this.terminalDefaultSorting);*/
 
             builder.pop();
 
             builder.comment("Inventory Button Settings").push("inventory_buttons");
 
-            builder.comment("The position that the notification & team manager buttons will be placed at in the players inventory.")
+            builder.comment("The position that the notification & team manager buttons will be placed at in the players items.")
                     .add("button", this.notificationAndTeamButtonPosition);
 
-            builder.comment("The position that the notification & team manager buttons will be placed at in the players creative inventory.")
+            builder.comment("The position that the notification & team manager buttons will be placed at in the players creative items.")
                     .add("buttonCreative", this.notificationAndTeamButtonCreativePosition);
 
             builder.pop();
@@ -252,10 +229,7 @@ public final class LCConfig {
 
     public static final class Common extends ConfigFile
     {
-        private Common() { super(VersionUtil.lcResource("common"),"lightmanscurrency-common", LoadPhase.SETUP); }
-
-        //Debug Level (in root)
-        public final IntOption debugLevel = IntOption.create(0,0,3);
+        private Common() { super(LCApi.id("common"),"lightmanscurrency-common", LoadPhase.SETUP); }
 
         //Crafting Options
         public final BooleanOption canCraftNetworkTraders = BooleanOption.createTrue();
@@ -297,55 +271,55 @@ public final class LCConfig {
         public final BooleanOption changeVanillaTrades = BooleanOption.createFalse();
         public final BooleanOption changeModdedTrades = BooleanOption.createFalse();
         public final BooleanOption changeWanderingTrades = BooleanOption.createFalse();
-        public final ConfiguredTradeModOption defaultEmeraldReplacementMod =
+        /*public final ConfiguredTradeModOption defaultEmeraldReplacementMod =
                 ConfiguredTradeMod.builder()
-                        .defaults(ModItems.COIN_EMERALD)
-                        .bothForRegion(VillagerType.SNOW,ModItems.COIN_CHOCOLATE_EMERALD)
+                        .defaults(LCItems.COIN_EMERALD)
+                        .bothForRegion(VillagerType.SNOW, LCItems.COIN_CHOCOLATE_EMERALD)
                         .buildOption();
         public final VillagerTradeModsOption professionEmeraldReplacementOverrides = VillagerTradeMods.builder()
                 .forProfession(VillagerProfession.BUTCHER)
-                    .defaults(ModItems.COIN_IRON)
-                    .bothForRegion(VillagerType.SNOW,ModItems.COIN_CHOCOLATE_IRON).back()
+                .defaults(LCItems.COIN_IRON)
+                .bothForRegion(VillagerType.SNOW, LCItems.COIN_CHOCOLATE_IRON).back()
                 .forProfession(VillagerProfession.CARTOGRAPHER)
-                    .defaults(ModItems.COIN_IRON)
-                    .bothForRegion(VillagerType.SNOW,ModItems.COIN_CHOCOLATE_IRON).back()
+                .defaults(LCItems.COIN_IRON)
+                .bothForRegion(VillagerType.SNOW, LCItems.COIN_CHOCOLATE_IRON).back()
                 .forProfession(VillagerProfession.FARMER)
-                    .defaults(ModItems.COIN_IRON)
-                    .bothForRegion(VillagerType.SNOW,ModItems.COIN_CHOCOLATE_IRON).back()
+                .defaults(LCItems.COIN_IRON)
+                .bothForRegion(VillagerType.SNOW, LCItems.COIN_CHOCOLATE_IRON).back()
                 .forProfession(VillagerProfession.FISHERMAN)
-                    .defaults(ModItems.COIN_IRON)
-                    .bothForRegion(VillagerType.SNOW,ModItems.COIN_CHOCOLATE_IRON).back()
+                .defaults(LCItems.COIN_IRON)
+                .bothForRegion(VillagerType.SNOW, LCItems.COIN_CHOCOLATE_IRON).back()
                 //Fletcher will cost iron, but pay copper because stick trades are OP
                 .forProfession(VillagerProfession.FLETCHER)
-                    .defaultCost(ModItems.COIN_IRON)
-                    .defaultResult(ModItems.COIN_COPPER)
-                    .costForRegion(VillagerType.SNOW,ModItems.COIN_CHOCOLATE_IRON)
-                    .resultForRegion(VillagerType.SNOW, ModItems.COIN_CHOCOLATE_COPPER).back()
+                .defaultCost(LCItems.COIN_IRON)
+                .defaultResult(LCItems.COIN_COPPER)
+                .costForRegion(VillagerType.SNOW, LCItems.COIN_CHOCOLATE_IRON)
+                .resultForRegion(VillagerType.SNOW, LCItems.COIN_CHOCOLATE_COPPER).back()
                 .forProfession(VillagerProfession.LEATHERWORKER)
-                    .defaults(ModItems.COIN_IRON)
-                    .bothForRegion(VillagerType.SNOW,ModItems.COIN_CHOCOLATE_IRON).back()
+                .defaults(LCItems.COIN_IRON)
+                .bothForRegion(VillagerType.SNOW, LCItems.COIN_CHOCOLATE_IRON).back()
                 .forProfession(VillagerProfession.MASON)
-                    .defaults(ModItems.COIN_IRON)
-                    .bothForRegion(VillagerType.SNOW,ModItems.COIN_CHOCOLATE_IRON).back()
+                .defaults(LCItems.COIN_IRON)
+                .bothForRegion(VillagerType.SNOW, LCItems.COIN_CHOCOLATE_IRON).back()
                 .forProfession(VillagerProfession.SHEPHERD)
-                    .defaults(ModItems.COIN_IRON)
-                    .bothForRegion(VillagerType.SNOW,ModItems.COIN_CHOCOLATE_IRON).back()
-                .buildOption();
+                .defaults(LCItems.COIN_IRON)
+                .bothForRegion(VillagerType.SNOW, LCItems.COIN_CHOCOLATE_IRON).back()
+                .buildOption();*/
 
         //Loot Items
-        public final ItemOption lootItem1 = ItemOption.create(ModItems.COIN_COPPER);
-        public final ItemOption lootItem2 = ItemOption.create(ModItems.COIN_IRON);
-        public final ItemOption lootItem3 = ItemOption.create(ModItems.COIN_GOLD);
-        public final ItemOption lootItem4 = ItemOption.create(ModItems.COIN_EMERALD);
-        public final ItemOption lootItem5 = ItemOption.create(ModItems.COIN_DIAMOND);
-        public final ItemOption lootItem6 = ItemOption.create(ModItems.COIN_NETHERITE);
+        public final ItemOption lootItem1 = ItemOption.create(LCItems.COIN_COPPER);
+        public final ItemOption lootItem2 = ItemOption.create(LCItems.COIN_IRON);
+        public final ItemOption lootItem3 = ItemOption.create(LCItems.COIN_GOLD);
+        public final ItemOption lootItem4 = ItemOption.create(LCItems.COIN_EMERALD);
+        public final ItemOption lootItem5 = ItemOption.create(LCItems.COIN_DIAMOND);
+        public final ItemOption lootItem6 = ItemOption.create(LCItems.COIN_NETHERITE);
 
         //Entity Loot
         public final BooleanOption enableEntityDrops = BooleanOption.createTrue();
         public final BooleanOption allowSpawnerEntityDrops = BooleanOption.createFalse();
         public final BooleanOption allowFakePlayerCoinDrops = BooleanOption.createTrue();
 
-        public final StringListOption entityDropsT1 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T1));
+        /*public final StringListOption entityDropsT1 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T1));
         public final StringListOption entityDropsT2 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T2));
         public final StringListOption entityDropsT3 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T3));
         public final StringListOption entityDropsT4 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T4));
@@ -367,7 +341,7 @@ public final class LCConfig {
         public final StringListOption chestDropsT3 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T3));
         public final StringListOption chestDropsT4 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T4));
         public final StringListOption chestDropsT5 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T5));
-        public final StringListOption chestDropsT6 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T6));
+        public final StringListOption chestDropsT6 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T6));*/
 
         //Event Options
         public final BooleanOption chocolateEventCoins = BooleanOption.createTrue();
@@ -387,10 +361,7 @@ public final class LCConfig {
         public final BooleanOption compatImpactor = BooleanOption.createTrue();
 
         @Override
-        protected void setup(@Nonnull ConfigBuilder builder) {
-
-            builder.comment("Level of debug messages to be shown in the logs.","0-All debug messages. 1-Warnings/Errors only. 2-Errors only. 3-No debug messages.","Note: All debug messages will still be sent debug.log regardless of settings.")
-                    .add("debugLevel", this.debugLevel);
+        protected void setup(ConfigBuilder builder) {
 
             builder.comment("Crafting Settings","/reload required for any changes made to take effect.").push("crafting");
 
@@ -529,7 +500,7 @@ public final class LCConfig {
             builder.comment("Whether the wandering trader should have the emeralds from their trades replaced with the default replacement coin.")
                     .add("changeWanderingTrades", this.changeWanderingTrades);
 
-            builder.comment("The default coin to replace a trades emeralds with.",
+            /*builder.comment("The default coin to replace a trades emeralds with.",
                             "May seperate and define villager type specific entries by adding multiple items seperated by '-' with region")
                     .add("defaultEmeraldReplacementItem", this.defaultEmeraldReplacementMod);
 
@@ -543,7 +514,7 @@ public final class LCConfig {
                             "Each item-entry is either 1 or 2 item ids (e.g. \"mod:coin_item\" or \"mod:coin_item_1;mod:coin_item_2\".",
                             "When two are given, the first will replace the cost items (items the player must pay the villager) and the second will replace the result (items the player will be paid by the villager)",
                             "Every trader not on this list will use the default trader coin defined above.")
-                    .add("professionEmeraldReplacementOverrides", this.professionEmeraldReplacementOverrides);
+                    .add("professionEmeraldReplacementOverrides", this.professionEmeraldReplacementOverrides);*/
 
             builder.pop().pop();
 
@@ -574,7 +545,7 @@ public final class LCConfig {
                             "Set to false to help prevent autmated coin farming.")
                     .add("allowFakePlayerDrops", this.allowFakePlayerCoinDrops);
 
-            builder.comment("Entity Drop Lists. Accepts the following inputs:",
+            /*builder.comment("Entity Drop Lists. Accepts the following inputs:",
                             "Entity IDs. e.g. \"minecraft:cow\"",
                             "Entity Tags. e.g. \"#minecraft:skeletons\"",
                             "Every entity provided by a mod. e.g. \"minecraft:*\"",
@@ -631,7 +602,7 @@ public final class LCConfig {
                     .add("T6", this.chestDropsT6);
 
             //Pop lists -> chests -> loot
-            builder.pop().pop().pop();
+            builder.pop().pop().pop();*/
 
             builder.comment("Structure Settings","Requires a /reload command to be applied correctly").push("structures");
 
@@ -670,14 +641,13 @@ public final class LCConfig {
 
         }
 
-        @Nonnull
-        public Supplier<VillagerTradeMod> getVillagerMod(@Nonnull String trader) { return () -> this.professionEmeraldReplacementOverrides.get().getModFor(trader); }
+        //public Supplier<VillagerTradeMod> getVillagerMod(String trader) { return () -> this.professionEmeraldReplacementOverrides.get().getModFor(trader); }
 
     }
 
     public static final class Server extends SyncedConfigFile {
         private Server() {
-            super("lightmanscurrency-server", VersionUtil.lcResource("server"));
+            super("lightmanscurrency-server", LCApi.id("server"));
         }
         //Delay of 200 so that it gets reloaded **after** coins are reloaded
         @Override
@@ -688,16 +658,16 @@ public final class LCConfig {
 
         public final BooleanOption safelyEjectMachineContents = BooleanOption.createTrue();
         public final BooleanOption anarchyMode = BooleanOption.createFalse();
-        public final ResourceListOption quarantinedDimensions = ResourceListOption.create(new ArrayList<>());
+        public final IdentifierListOption quarantinedDimensions = IdentifierListOption.create(new ArrayList<>());
 
         //Coin Mint
         public final IntOption coinMintDefaultDuration = IntOption.create(100, 1, 72000);
         public final FloatOption coinMintSoundVolume = FloatOption.create(0.5f, 0f, 1f);
 
         //Wallet Settings
-        public final ItemListOption walletCanExchange = ItemListOption.create(() -> Lists.newArrayList(ModItems.WALLET_IRON.get(),ModItems.WALLET_GOLD.get(),ModItems.WALLET_EMERALD.get(),ModItems.WALLET_DIAMOND.get(),ModItems.WALLET_NETHERITE.get(),ModItems.WALLET_NETHER_STAR.get(),ModItems.WALLET_ENDER_DRAGON.get()),i -> i instanceof WalletItem);
-        public final ItemListOption walletCanPickup = ItemListOption.create(() -> Lists.newArrayList(ModItems.WALLET_GOLD.get(),ModItems.WALLET_EMERALD.get(),ModItems.WALLET_DIAMOND.get(),ModItems.WALLET_NETHERITE.get(),ModItems.WALLET_NETHER_STAR.get(),ModItems.WALLET_ENDER_DRAGON.get()),i -> i instanceof WalletItem);
-        public final ItemListOption walletCanBank = ItemListOption.create(() -> Lists.newArrayList(ModItems.WALLET_NETHERITE.get(),ModItems.WALLET_NETHER_STAR.get(),ModItems.WALLET_ENDER_DRAGON.get()),i -> i instanceof WalletItem);
+        //public final ItemListOption walletCanExchange = ItemListOption.create(() -> Lists.newArrayList(LCItems.WALLET_IRON.get(), LCItems.WALLET_GOLD.get(), LCItems.WALLET_EMERALD.get(), LCItems.WALLET_DIAMOND.get(), LCItems.WALLET_NETHERITE.get(), LCItems.WALLET_NETHER_STAR.get(), LCItems.WALLET_ENDER_DRAGON.get()), i -> i instanceof WalletItem);
+        //public final ItemListOption walletCanPickup = ItemListOption.create(() -> Lists.newArrayList(LCItems.WALLET_GOLD.get(), LCItems.WALLET_EMERALD.get(), LCItems.WALLET_DIAMOND.get(), LCItems.WALLET_NETHERITE.get(), LCItems.WALLET_NETHER_STAR.get(), LCItems.WALLET_ENDER_DRAGON.get()), i -> i instanceof WalletItem);
+        //public final ItemListOption walletCanBank = ItemListOption.create(() -> Lists.newArrayList(LCItems.WALLET_NETHERITE.get(), LCItems.WALLET_NETHER_STAR.get(), LCItems.WALLET_ENDER_DRAGON.get()), i -> i instanceof WalletItem);
         public final BooleanOption walletCapacityUpgradeable = BooleanOption.createTrue();
         public final BooleanOption walletDropsManualSpawn = BooleanOption.createFalse();
 
@@ -733,7 +703,7 @@ public final class LCConfig {
         //Enchantment Settings
         public final IntOption enchantmentTickDelay = IntOption.create(20, 1);
         public final MoneyValueOption moneyMendingRepairCost = MoneyValueOption.createNonEmpty(() -> CoinValue.fromNumber("main", 1));
-        public final MoneyValueOption moneyMendingInfinityCost = MoneyValueOption.create(() -> CoinValue.fromNumber("main", 4), v -> v.sameType(this.moneyMendingRepairCost.get()));
+        public final MoneyValueOption moneyMendingInfinityCost = MoneyValueOption.create(() -> CoinValue.fromNumber("main", 4), v -> v.compatibleTypes(this.moneyMendingRepairCost.get()));
         public final IntOption coinMagnetBaseRange = IntOption.create(5, 1, 50);
         public final IntOption coinMagnetLeveledRange = IntOption.create(2, 1, 50);
         public final IntOption coinMagnetCalculationCap = IntOption.create(10, 3, Integer.MAX_VALUE);
@@ -786,16 +756,16 @@ public final class LCConfig {
 
         //Claim Purchasing
         public final BooleanOption claimingAllowClaimPurchase = BooleanOption.createFalse();
-        public final MoneyValueOption claimingClaimPrice = MoneyValueOption.createNonEmpty(() -> CoinValue.fromItemOrValue(ModItems.COIN_GOLD.get(), 100));
+        public final MoneyValueOption claimingClaimPrice = MoneyValueOption.createNonEmpty(() -> CoinValue.fromItemOrValue(LCItems.COIN_GOLD.get(), 100));
         public final IntOption claimingMaxClaimCount = IntOption.create(1000000, 1);
 
         public final BooleanOption claimingAllowForceloadPurchase = BooleanOption.createFalse();
-        public final MoneyValueOption claimingForceloadPrice = MoneyValueOption.createNonEmpty(() -> CoinValue.fromItemOrValue(ModItems.COIN_NETHERITE.get(), 1000000));
+        public final MoneyValueOption claimingForceloadPrice = MoneyValueOption.createNonEmpty(() -> CoinValue.fromItemOrValue(LCItems.COIN_NETHERITE.get(), 1000000));
         public final IntOption claimingMaxForceloadCount = IntOption.create(100, 1);
         public final IntOption flanClaimingBlocksPerChunk = IntOption.create(256, 1, 256);
 
         @Override
-        protected void setup(@Nonnull ConfigBuilder builder) {
+        protected void setup(ConfigBuilder builder) {
 
             builder.comment("Notification Settings").push("notifications")
                     .comment("The maximum number of notifications each player and/or machine can have before old entries are deleted.",
@@ -804,7 +774,7 @@ public final class LCConfig {
                     .pop();
 
             builder.comment("Machine Protection Settings").push("machine_protection")
-                    .comment("Whether illegally broken traders (such as being replaced with /setblock, or modded machines that break blocks) will safely eject their block/contents into a temporary storage area for the owner to collect safely.",
+                    .comment("Whether illegally broken traders (such as being replaced with /setblock, or modded machines that break blocks) will safely eject their block/items into a temporary storage area for the owner to collect safely.",
                             "If disabled, illegally broken traders will throw their items on the ground, and can thus be griefed by modded machines.",
                             "Value ignored if anarchyMode is enabled!")
                     .add("safeEjection", this.safelyEjectMachineContents);
@@ -816,7 +786,7 @@ public final class LCConfig {
 
             builder.comment("A list of dimension ids that are quarantined from all cross-dimensional interactions.",
                             "This includes disabling Trader Interfaces, Network Traders & Terminals (personal trader interactions & cash registers will still function), and all Bank Account access.",
-                            "Mostly intended to be used to allow the existence of 'Creative Dimensions' where money can be cheated in by your average player, but should not affect a players inventory/bank balance in the 'normal' dimensions.")
+                            "Mostly intended to be used to allow the existence of 'Creative Dimensions' where money can be cheated in by your average player, but should not affect a players items/bank balance in the 'normal' dimensions.")
                     .add("quarantinedDimensions", this.quarantinedDimensions);
 
             builder.pop();
@@ -834,16 +804,16 @@ public final class LCConfig {
 
             builder.comment("Wallet Settings").push("wallet");
 
-            builder.comment("A list of wallets that are capable of exchanging coins.")
+            /*builder.comment("A list of wallets that are capable of exchanging coins.")
                     .add("exchangeAbility", this.walletCanExchange);
 
             builder.comment("A list of wallets that are capable of automatically collecting coins while equipped.")
                     .add("pickupAbility", this.walletCanPickup);
 
             builder.comment("A list of wallets that are capable of allowing transfers to/from your bank account.")
-                    .add("bankAbility", this.walletCanBank);
+                    .add("bankAbility", this.walletCanBank);*/
 
-            builder.comment("Whether wallets can have additional slots added by using an upgrade item on them from their inventory",
+            builder.comment("Whether wallets can have additional slots added by using an upgrade item on them from their items",
                             "By default diamonds are the only valid upgrade item, but this can be changed by a datapack")
                     .add("allowCapacityUpgrade", this.walletCapacityUpgradeable);
 

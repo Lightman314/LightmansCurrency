@@ -7,21 +7,16 @@ import io.github.lightman314.lightmanscurrency.api.config.ConfigComments;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.common.text.MultiLineTextEntry;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.text.MultiLineTextEntry;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class ConfigOption<T> implements Supplier<T> {
 
     public enum LoadSource { FILE, COMMAND, SYNC }
@@ -44,7 +39,7 @@ public abstract class ConfigOption<T> implements Supplier<T> {
     @Nullable
     public final ConfigFile getFile() { return this.parent; }
     private String name = "null";
-    
+
     public String getName() { return this.name; }
     @Nullable
     public String getFullName()
@@ -70,14 +65,14 @@ public abstract class ConfigOption<T> implements Supplier<T> {
         else
             LightmansCurrency.LogWarning("Attempted to define an options parent twice!");
     }
-    
+
     public final List<String> getComments() {
         List<String> list = this.comments.getComments();
         list.addAll(this.bonusComments());
         return list;
     }
 
-    public Component getDisplayName() { return EasyText.translatable(ConfigFile.translationForOption(this.parent.getFileID(),this.getFullName())); }
+    public Component getDisplayName() { return Component.translatable(ConfigFile.translationForOption(this.parent.getFileID(),this.getFullName())); }
     public final List<Component> getCommentTooltips() {
         List<Component> list = new MultiLineTextEntry(ConfigFile.translationForComment(this.parent.getFileID(),this.getFullName())).get();
         list.addAll(this.bonusCommentTooltips());
@@ -89,7 +84,7 @@ public abstract class ConfigOption<T> implements Supplier<T> {
     private T syncedValue = null;
 
     protected ConfigOption(Supplier<T> defaultValue) { this.defaultValue = defaultValue; }
-    
+
     protected List<String> bonusComments() {
         String bonus = this.bonusComment();
         if(bonus == null)
@@ -108,7 +103,7 @@ public abstract class ConfigOption<T> implements Supplier<T> {
     @Nullable
     protected Component bonusCommentTooltip() { return null; }
 
-    
+
     protected abstract ConfigParser<T> getParser();
 
     private void alertListeners(boolean includingFile)
@@ -148,7 +143,7 @@ public abstract class ConfigOption<T> implements Supplier<T> {
     public final void loadDefault() { this.currentValue = this.getDefaultValue(); }
     public final void clearSyncedData() { this.syncedValue = null; }
 
-    
+
     public final String write() { return this.getParser().write(this.getCurrentValue()); }
     @Nullable
     public final String writeUnsafe(Object object)
@@ -162,7 +157,7 @@ public abstract class ConfigOption<T> implements Supplier<T> {
         writer.accept(name + "=" + this.write());
     }
 
-    
+
     public static String cleanWhitespace(String line) {
         StringBuilder result = new StringBuilder();
         boolean start = true;
@@ -191,7 +186,7 @@ public abstract class ConfigOption<T> implements Supplier<T> {
     }
 
     @Override
-    
+
     public final T get() {
         if(this.syncedValue != null)
             return this.syncedValue;

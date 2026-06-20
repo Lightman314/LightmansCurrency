@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "lightmanscurrency:block/netherite_coin_block"
+    }
+  }
+}

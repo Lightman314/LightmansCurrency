@@ -1,16 +1,11 @@
 package io.github.lightman314.lightmanscurrency.api.config;
 
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
-import net.minecraft.MethodsReturnNonnullByDefault;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.HashMap;
 import java.util.Map;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class SyncedConfigFile extends ConfigFile {
 
     @Override
@@ -32,7 +27,7 @@ public abstract class SyncedConfigFile extends ConfigFile {
         }
     }
 
-    protected SyncedConfigFile(String fileName, ResourceLocation id) {
+    protected SyncedConfigFile(String fileName, Identifier id) {
         super(id, fileName, LoadPhase.GAME_START); //Lock load phase as game start to ensure the packet can be sent correctly.
     }
 

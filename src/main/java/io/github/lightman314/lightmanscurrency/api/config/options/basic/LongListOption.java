@@ -1,18 +1,14 @@
 package io.github.lightman314.lightmanscurrency.api.config.options.basic;
 
-import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.config.options.ListOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.text.LCText;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class LongListOption extends ListOption<Long> {
 
     public final long lowerLimit;
@@ -35,7 +31,7 @@ public class LongListOption extends ListOption<Long> {
     protected String bonusComment() { return "Range: " + this.lowerLimit + " -> " + this.upperLimit; }
     @Nullable
     @Override
-    protected Component bonusCommentTooltip() { return LCText.CONFIG_OPTION_RANGE.get(this.lowerLimit,this.upperLimit); }
+    protected Component bonusCommentTooltip() { return LCText.Config.CONFIG_OPTION_RANGE.get(this.lowerLimit,this.upperLimit); }
 
     public static LongListOption create(List<Long> defaultValue) { return new LongListOption(() -> defaultValue, Long.MIN_VALUE, Long.MAX_VALUE); }
     public static LongListOption create(List<Long> defaultValue, long lowerLimit) { return new LongListOption(() -> defaultValue, lowerLimit, Long.MAX_VALUE); }
@@ -43,5 +39,8 @@ public class LongListOption extends ListOption<Long> {
     public static LongListOption create(Supplier<List<Long>> defaultValue) { return new LongListOption(defaultValue, Long.MIN_VALUE, Long.MAX_VALUE); }
     public static LongListOption create(Supplier<List<Long>> defaultValue, long lowerLimit) { return new LongListOption(defaultValue, lowerLimit, Long.MAX_VALUE); }
     public static LongListOption create(Supplier<List<Long>> defaultValue, long lowerLimit, long upperLimit) { return new LongListOption(defaultValue, lowerLimit, upperLimit); }
+
+    @Override
+    public boolean isValidEntryType(Class<?> clazz) { return clazz == Long.class; }
 
 }

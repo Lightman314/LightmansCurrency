@@ -1,6 +1,0 @@
-{
-  "parent": "lightmanscurrency:block/freezer/doors/base",
-  "textures": {
-    "concrete": "minecraft:block/cyan_concrete_powder"
-  }
-}

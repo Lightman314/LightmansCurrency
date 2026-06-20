@@ -1,6 +1,0 @@
-{
-  "parent": "lightmanscurrency:block/shelf2/base",
-  "textures": {
-    "main": "biomesoplenty:block/umbran_planks"
-  }
-}

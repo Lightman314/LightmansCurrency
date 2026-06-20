@@ -2,50 +2,43 @@ package io.github.lightman314.lightmanscurrency.api.config;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.config.event.ConfigEvent;
-import io.github.lightman314.lightmanscurrency.api.config.event.ConfigReloadAllEvent;
+import io.github.lightman314.lightmanscurrency.api.config.events.ConfigEvent;
+import io.github.lightman314.lightmanscurrency.api.config.events.ConfigReloadAllEvent;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
-import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
-import io.github.lightman314.lightmanscurrency.common.text.MultiLineTextEntry;
-import io.github.lightman314.lightmanscurrency.network.message.config.SPacketReloadConfig;
-import io.github.lightman314.lightmanscurrency.network.message.config.SPacketSyncConfig;
-import io.github.lightman314.lightmanscurrency.util.VersionUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.text.MultiLineTextEntry;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class ConfigFile implements ConfigReloadable {
 
-    private static final Map<ResourceLocation,ConfigFile> loadableFiles = new HashMap<>();
+    private static final Map<Identifier,ConfigFile> loadableFiles = new HashMap<>();
     public static List<ConfigFile> getAvailableFiles() { return ImmutableList.copyOf(loadableFiles.values()); }
     @Nullable
-    public static ConfigFile lookupFile(ResourceLocation file) { return loadableFiles.get(file); }
+    public static ConfigFile lookupFile(Identifier file) { return loadableFiles.get(file); }
     private static void registerConfig(ConfigFile file) { loadableFiles.put(file.fileID,file); }
 
-    public static String translationForFile(ResourceLocation fileID) { return "config." + fileID.getNamespace() + "." + fileID.getPath() + ".file"; }
-    public static String translationForSection(ResourceLocation fileID, String section) { return "config." + fileID.getNamespace() + "." + fileID.getPath() + ".section." + section; }
-    public static String translationForOption(ResourceLocation fileID, String optionKey) { return "config." + fileID.getNamespace() + "." + fileID.getPath() + ".option." + optionKey; }
-    public static String translationForComment(ResourceLocation fileID, String sectionOrOptionKey) { return "config." + fileID.getNamespace() + "." + fileID.getPath() + ".comment." + sectionOrOptionKey; }
+    public static String translationForFile(Identifier fileID) { return "config." + fileID.getNamespace() + "." + fileID.getPath() + ".file"; }
+    public static String translationForSection(Identifier fileID, String section) { return "config." + fileID.getNamespace() + "." + fileID.getPath() + ".section." + section; }
+    public static String translationForOption(Identifier fileID, String optionKey) { return "config." + fileID.getNamespace() + "." + fileID.getPath() + ".option." + optionKey; }
+    public static String translationForComment(Identifier fileID, String sectionOrOptionKey) { return "config." + fileID.getNamespace() + "." + fileID.getPath() + ".comment." + sectionOrOptionKey; }
 
     /**
      * Load flag to ensure the configs are loaded at the correct times.
@@ -87,7 +80,7 @@ public abstract class ConfigFile implements ConfigReloadable {
 
     private static void reloadFiles(boolean logicalClient)
     {
-        VersionUtil.postEvent(new ConfigReloadAllEvent.Pre(logicalClient));
+        NeoForge.EVENT_BUS.post(new ConfigReloadAllEvent.Pre(logicalClient));
         for(ConfigFile file : loadableFiles.values())
         {
             try {
@@ -95,24 +88,24 @@ public abstract class ConfigFile implements ConfigReloadable {
                     file.reload();
             } catch (IllegalArgumentException | NullPointerException e) { LightmansCurrency.LogError("Error reloading config file!", e); }
         }
-        VersionUtil.postEvent(new ConfigReloadAllEvent.Post(logicalClient));
+        NeoForge.EVENT_BUS.post(new ConfigReloadAllEvent.Post(logicalClient));
     }
 
-    public static void handleSyncData(ResourceLocation configID, Map<String,String> data)
+    public static void handleSyncData(Identifier configID, Map<String,String> data)
     {
         if(loadableFiles.containsKey(configID))
             loadableFiles.get(configID).loadSyncData(data);
         else
             LightmansCurrency.LogError("Received config data for '" + configID + "' from the server, however this config is not present on the client!");
     }
-    
+
     protected String getConfigFolder() { return "config"; }
 
-    private final ResourceLocation fileID;
-    public ResourceLocation getFileID() { return this.fileID; }
+    private final Identifier fileID;
+    public Identifier getFileID() { return this.fileID; }
     private final String fileName;
     public String getFileName() { return this.fileName; }
-    public Component getDisplayName() { return EasyText.translatable(translationForFile(this.fileID)); }
+    public Component getDisplayName() { return Component.translatable(translationForFile(this.fileID)); }
 
     private final List<Runnable> reloadListeners = new ArrayList<>();
     public final void addListener(Runnable listener) {
@@ -130,26 +123,26 @@ public abstract class ConfigFile implements ConfigReloadable {
     public final void removeTrackingPlayer(Player player) { this.trackingPlayers.remove(player.getUUID()); }
 
     @Override
-    public ResourceLocation getID() { return this.fileID; }
+    public Identifier getID() { return this.fileID; }
     @Override
-    public boolean canReload(CommandSourceStack stack) { return this.isClientOnly() ? stack.isPlayer() : stack.hasPermission(2); }
+    public boolean canReload(CommandSourceStack stack) { return this.isClientOnly() ? stack.isPlayer() : stack.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.ADMINS)); }
     @Override
-    public void onCommandReload(CommandSourceStack stack) throws CommandSyntaxException {
+    public void onCommandReload(CommandSourceStack stack) {
         //Reload Pack
         if(!this.isClientOnly())
             this.reload();
-        else
-            new SPacketReloadConfig(this.fileID).sendTo(stack.getPlayerOrException());
+        /*else
+            new SPacketReloadConfig(this.fileID).sendTo(stack.getPlayerOrException());*/
     }
     @Override
     public boolean alertAdmins() { return !this.isClientOnly(); }
 
     public String getFilePath() { return this.getConfigFolder() + "/" + this.fileName + ".txt"; }
-    
+
     private String getOldFilePath() { return this.getFilePath().replace(".txt",".lcconfig"); }
-    
+
     protected final File getFile() { return new File(this.getFilePath()); }
-    
+
     private File getOldFile() { return new File(this.getOldFilePath()); }
 
     private ConfigSection root = null;
@@ -174,7 +167,7 @@ public abstract class ConfigFile implements ConfigReloadable {
     {
         this.confirmSetup();
         Map<String,ConfigOption<?>> results = new HashMap<>();
-        this.collectOptionsFrom(this.root, results);
+        this.collectOptionsFrom(this.root,results);
         return ImmutableMap.copyOf(results);
     }
 
@@ -203,25 +196,25 @@ public abstract class ConfigFile implements ConfigReloadable {
 
     @Deprecated(since = "2.2.5.2")
     protected ConfigFile(String fileName) { this(forceGenerateID(fileName),fileName); }
-    protected ConfigFile(ResourceLocation fileID, String fileName) { this(fileID, fileName, LoadPhase.SETUP); }
+    protected ConfigFile(Identifier fileID, String fileName) { this(fileID, fileName, LoadPhase.SETUP); }
     @Deprecated(since = "2.2.5.2")
     protected ConfigFile(String fileName, LoadPhase loadPhase) { this(forceGenerateID(fileName),fileName,loadPhase); }
-    protected ConfigFile(ResourceLocation fileID, String fileName, LoadPhase loadPhase) {
+    protected ConfigFile(Identifier fileID, String fileName, LoadPhase loadPhase) {
         this.fileID = fileID;
         this.fileName = fileName;
         this.loadPhase = loadPhase;
         registerConfig(this);
     }
 
-    public static ResourceLocation forceGenerateID(String fileName)
+    public static Identifier forceGenerateID(String fileName)
     {
         if(fileName.contains("-"))
         {
             String[] split = fileName.split("-",2);
-            return VersionUtil.modResource(forceValidNamespace(split[0]),forceValidPath(split[1]));
+            return Identifier.fromNamespaceAndPath(forceValidNamespace(split[0]),forceValidPath(split[1]));
         }
         else
-            return VersionUtil.modResource("unknown",forceValidPath(fileName));
+            return Identifier.fromNamespaceAndPath("unknown",forceValidPath(fileName));
     }
 
     private static String forceValidNamespace(String string)
@@ -229,7 +222,7 @@ public abstract class ConfigFile implements ConfigReloadable {
         String namespace = string.toLowerCase(Locale.ENGLISH);
         for(int i = 0; i < namespace.length(); ++i)
         {
-            if(!ResourceLocation.validNamespaceChar(namespace.charAt(i)))
+            if(!Identifier.validNamespaceChar(namespace.charAt(i)))
             {
                 if(i == 0)
                     namespace = namespace.substring(1);
@@ -246,7 +239,7 @@ public abstract class ConfigFile implements ConfigReloadable {
         String namespace = string.toLowerCase(Locale.ENGLISH);
         for(int i = 0; i < namespace.length(); ++i)
         {
-            if(!ResourceLocation.validPathChar(namespace.charAt(i)))
+            if(!Identifier.validPathChar(namespace.charAt(i)))
             {
                 if(i == 0)
                     namespace = namespace.substring(1);
@@ -292,7 +285,7 @@ public abstract class ConfigFile implements ConfigReloadable {
         this.reloading = true;
         final boolean isFirstLoad = !this.isLoaded();
         //Pre reload event
-        VersionUtil.postEvent(new ConfigEvent.ConfigReloadedEvent.Pre(this,isFirstLoad));
+        NeoForge.EVENT_BUS.post(new ConfigEvent.ConfigReloadedEvent.Pre(this,isFirstLoad));
 
         try {
             LightmansCurrency.LogInfo("Reloading " + this.getFilePath());
@@ -368,11 +361,11 @@ public abstract class ConfigFile implements ConfigReloadable {
 
         this.reloading = false;
         //Post reload event
-        VersionUtil.postEvent(new ConfigEvent.ConfigReloadedEvent.Post(this,isFirstLoad));
+        NeoForge.EVENT_BUS.post(new ConfigEvent.ConfigReloadedEvent.Post(this,isFirstLoad));
 
     }
 
-    
+
     public static String cleanStartingWhitespace(String line)
     {
         for(int i = 0; i < line.length(); ++i)
@@ -505,10 +498,10 @@ public abstract class ConfigFile implements ConfigReloadable {
     }
 
     public void sendSyncPacket(@Nullable Player target) {
-        if(target != null)
+        /*if(target != null)
             new SPacketSyncConfig(this.getFileID(),this.getSyncData()).sendTo(target);
         else
-            new SPacketSyncConfig(this.getFileID(),this.getSyncData()).sendToAll();
+            new SPacketSyncConfig(this.getFileID(),this.getSyncData()).sendToAll();*/
     }
 
     private Map<String,String> getSyncData()
@@ -535,8 +528,6 @@ public abstract class ConfigFile implements ConfigReloadable {
 
     public void clearSyncedData() { this.forEach(ConfigOption::clearSyncedData); }
 
-    @ParametersAreNonnullByDefault
-    @MethodsReturnNonnullByDefault
     protected static final class ConfigBuilder
     {
 
@@ -618,8 +609,8 @@ public abstract class ConfigFile implements ConfigReloadable {
         private final ConfigSection parent;
         private final int depth;
         private final String name;
-        public Component getDisplayName(ResourceLocation fileID) { return EasyText.translatable(translationForSection(fileID,this.fullName())); }
-        public List<Component> getTooltips(ResourceLocation fileID) { return new MultiLineTextEntry(translationForComment(fileID,this.fullName())).get(); }
+        public Component getDisplayName(Identifier fileID) { return Component.translatable(translationForSection(fileID,this.fullName())); }
+        public List<Component> getTooltips(Identifier fileID) { return new MultiLineTextEntry(translationForComment(fileID,this.fullName())).get(); }
 
         private String fullName()
         {

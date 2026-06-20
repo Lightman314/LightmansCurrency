@@ -1,8 +1,0 @@
-{
-  "parent": "lightmanscurrency:card_display/outer_corner/biomesoplenty/hellbark/base",
-  "optional": true,
-  "target": "lightmanscurrency:card_display_biomesoplenty_hellbark_yellow",
-  "textures": {
-    "wool": "minecraft:block/yellow_wool"
-  }
-}

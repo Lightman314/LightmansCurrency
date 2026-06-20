@@ -1,0 +1,230 @@
+package io.github.lightman314.lightmanscurrency.api.coins.display.builtin;
+
+import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.JsonOps;
+import io.github.lightman314.lightmanscurrency.api.coins.data.coin.CoinEntry;
+import io.github.lightman314.lightmanscurrency.api.coins.data.ChainData;
+import io.github.lightman314.lightmanscurrency.api.coins.display.ValueDisplayData;
+import io.github.lightman314.lightmanscurrency.api.coins.display.ValueDisplaySerializer;
+import io.github.lightman314.lightmanscurrency.api.coins.value.CoinValue;
+import io.github.lightman314.lightmanscurrency.api.coins.value.CoinValuePair;
+import io.github.lightman314.lightmanscurrency.api.text.LCText;
+import net.minecraft.ChatFormatting;
+import net.minecraft.IdentifierException;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
+
+import javax.annotation.Nullable;
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+public class CoinDisplay extends ValueDisplayData {
+
+    public static final ValueDisplaySerializer SERIALIZER = new Serializer();
+
+    public ValueDisplaySerializer getSerializer() { return SERIALIZER; }
+
+    private final List<ItemData> displayData;
+
+    private ItemData getDataForCoin(CoinEntry entry)
+    {
+        for(ItemData data : this.displayData)
+        {
+            if(entry.matches(data.coin))
+                return data;
+        }
+        return new ItemData(entry.getCoin());
+    }
+
+    @Nullable
+    private ItemData getDataForItem(ItemStack item)
+    {
+        for(ItemData data : this.displayData)
+        {
+            if(item.getItem() == data.coin)
+                return data;
+        }
+        return null;
+    }
+
+    protected CoinDisplay(List<ItemData> displayData)  { this.displayData = displayData; }
+
+
+    @Override
+    public Component formatValue(CoinValue value, Component emptyText)
+    {
+        if(value.getEntries().isEmpty())
+            return emptyText;
+        MutableComponent result = Component.empty();
+        for(CoinValuePair pair : value.getEntries())
+        {
+            long amount = pair.amount;
+            ItemData data = this.getDataForCoin(this.getParent().findEntry(pair.coin));
+            result.append(Component.literal(Long.toString(amount))).append(data.getInitial());
+        }
+        return result;
+    }
+
+    @Override
+    public void formatCoinTooltip(ItemStack stack, List<Component> tooltip)
+    {
+        ChainData parent = this.getParent();
+        if(parent == null)
+            return;
+
+        ItemData data = this.getDataForItem(stack);
+        if(data == null)
+            return;
+
+        Pair<CoinEntry,Integer> lowerExchange = parent.getLowerExchange(data.coin);
+        if(lowerExchange != null)
+        {
+            ItemData otherData = this.getDataForCoin(lowerExchange.getFirst());
+            tooltip.add(LCText.Coins.TOOLTIP_COIN_WORTH_DOWN.get(lowerExchange.getSecond(), otherData.getPlural()).withStyle(ChatFormatting.YELLOW));
+        }
+        Pair<CoinEntry,Integer> upperExchange = parent.getUpperExchange(data.coin);
+        if(upperExchange != null)
+        {
+            tooltip.add(LCText.Coins.TOOLTIP_COIN_WORTH_UP.get(upperExchange.getSecond(), LCText.Coins.TOOLTIP_COIN_DISPLAY_WORTH.get(upperExchange.getFirst().getName(),getIcon(upperExchange.getFirst().getCoin()))).withStyle(ChatFormatting.YELLOW));
+        }
+
+    }
+
+    protected static class Serializer extends ValueDisplaySerializer
+    {
+
+        private final List<ItemData> displayData = new ArrayList<>();
+
+        @Override
+        public void resetBuilder() { this.displayData.clear(); }
+        @Override
+        public void parseAdditional(JsonObject chainJson) { }
+        @Override
+        public void writeAdditional(ValueDisplayData data, JsonObject chainJson) throws JsonSyntaxException, IdentifierException { }
+
+        @Override
+        public void parseAdditionalFromCoin(CoinEntry coin, JsonObject coinEntry) throws JsonSyntaxException, IdentifierException {
+            ItemData data = new ItemData(coin.getCoin());
+            if(coinEntry.has("initial"))
+                data.initial = ComponentSerialization.CODEC.parse(JsonOps.INSTANCE,coinEntry.get("initial")).getOrThrow(JsonSyntaxException::new);
+            if(coinEntry.has("plural"))
+                data.plural = ComponentSerialization.CODEC.parse(JsonOps.INSTANCE,coinEntry.get("plural")).getOrThrow(JsonSyntaxException::new);
+            this.displayData.add(data);
+        }
+
+        @Override
+        public void writeAdditionalToCoin(ValueDisplayData data, CoinEntry coin, JsonObject coinEntry) {
+            if(data instanceof CoinDisplay display)
+            {
+                ItemData d = display.getDataForCoin(coin);
+                if(d.initial != null)
+                    coinEntry.add("initial", ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE,d.initial).getOrThrow());
+                if(d.plural != null)
+                    coinEntry.add("plural", ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE,d.plural).getOrThrow());
+            }
+        }
+
+
+        @Override
+        public CoinDisplay build() { return new CoinDisplay(ImmutableList.copyOf(this.displayData)); }
+    }
+
+    public static class ItemData
+    {
+        private final Item coin;
+
+        @Nullable
+        protected Component initial = null;
+        @Nullable
+        protected Component plural = null;
+
+        public Component getInitial()
+        {
+            return LCText.Coins.TOOLTIP_COIN_DISPLAY.get(Objects.requireNonNullElseGet(this.initial, () -> {
+                String name = new ItemStack(this.coin).getHoverName().getString();
+                if(!name.isEmpty())
+                    return Component.literal(name.substring(0,1).toLowerCase());
+                return Component.literal("X");
+            }),this.getIcon());
+        }
+
+        public Component getPlural() { return LCText.Coins.TOOLTIP_COIN_DISPLAY_WORTH.get(Objects.requireNonNullElseGet(this.plural, () -> LCText.Misc.GENERIC_PLURAL.get(new ItemStack(this.coin).getHoverName())),this.getIcon()); }
+        private Component getIcon() { return ValueDisplayData.getIcon(this.coin); }
+        ItemData(Item coin) { this.coin = coin; }
+    }
+
+    public static CoinDisplay easyDefine()
+    {
+        return easyDefine(coin -> {
+            String type = "item.";
+            if(coin instanceof BlockItem)
+                type = "block.";
+            Identifier itemID = BuiltInRegistries.ITEM.getKey(coin);
+            return Component.translatable(type + itemID.getNamespace() + "." + itemID.getPath() + ".initial");
+        }, coin -> {
+            String type = "item.";
+            if(coin instanceof BlockItem)
+                type = "block.";
+            Identifier itemID = BuiltInRegistries.ITEM.getKey(coin);
+            return Component.translatable(type + itemID.getNamespace() + "." + itemID.getPath() + ".plural");
+        });
+    }
+    public static CoinDisplay easyDefine(Function<Item,Component> initialGenerator, Function<Item,Component> pluralGenerator)
+    {
+        Builder builder = builder();
+        for(CoinEntry entry : builder.possibleCoinEntries())
+        {
+            Item coin = entry.getCoin();
+            builder.defineFor(entry, initialGenerator.apply(coin), pluralGenerator.apply(coin));
+        }
+        return builder.build();
+    }
+
+    public static Builder builder() { return new Builder(); }
+
+    public static class Builder
+    {
+        private final ChainData.Builder parent = ChainData.Builder.getLatest();
+        private Builder() { }
+
+        List<ItemData> displayData = new ArrayList<>();
+
+        protected List<CoinEntry> possibleCoinEntries()
+        {
+            List<CoinEntry> entries = new ArrayList<>();
+            if(this.parent == null)
+                return entries;
+            entries.addAll(this.parent.getCoreChain().getEntries());
+            for(ChainData.Builder.ChainBuilder sideChain : this.parent.getSideChains())
+                entries.addAll(sideChain.getEntries());
+            return entries;
+        }
+
+        public Builder defineFor(Supplier<? extends ItemLike> coin, Component initial, Component plural) { return defineFor(coin.get(), initial, plural); }
+        private void defineFor(@Nullable CoinEntry coin, Component initial, Component plural) { defineFor(coin.getCoin(), initial, plural); }
+        public Builder defineFor(@Nullable ItemLike coin, Component initial, Component plural)
+        {
+            if(coin == null)
+                return this;
+            ItemData data = new ItemData(coin.asItem());
+            data.initial = initial;
+            data.plural = plural;
+            this.displayData.add(data);
+            return this;
+        }
+        public CoinDisplay build() { return new CoinDisplay(this.displayData); }
+
+    }
+
+}

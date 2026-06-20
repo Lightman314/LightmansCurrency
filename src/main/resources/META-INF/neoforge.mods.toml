@@ -1,5 +1,3 @@
-modLoader="javafml"
-loaderVersion="${loader_version_range}"
 license="${mod_license}"
 issueTrackerURL="https://github.com/Lightman314/LightmansCurrency/issues"
 
@@ -11,8 +9,10 @@ displayName="${mod_name}"
 #displayURL="https://change.me.to.your.mods.homepage.example.invalid/"
 logoFile="lightman_icon.png"
 #credits="Thanks for this example mod goes to Java"
-authors="${mod_authors}" #optional
-description='''${mod_description}'''
+authors="Lightman314" #optional
+description='''
+Adds a heavily configurable item-based money & shop system to the game.
+'''
 displayTest="MATCH_VERSION"
 
 [[mixins]]
@@ -21,7 +21,7 @@ config = "${mod_id}.mixins.json"
 [[dependencies.${mod_id}]]
     modId="neoforge"
     mandatory=true
-    versionRange="${neo_version_range}"
+    versionRange="[${neo_version},)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.${mod_id}]]

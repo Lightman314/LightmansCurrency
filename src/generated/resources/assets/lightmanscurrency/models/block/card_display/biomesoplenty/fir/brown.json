@@ -1,9 +1,0 @@
-{
-  "parent": "lightmanscurrency:block/card_display/base",
-  "textures": {
-    "log": "biomesoplenty:block/fir_log",
-    "logtop": "biomesoplenty:block/fir_log_top",
-    "plank": "biomesoplenty:block/fir_planks",
-    "wool": "minecraft:block/brown_wool"
-  }
-}

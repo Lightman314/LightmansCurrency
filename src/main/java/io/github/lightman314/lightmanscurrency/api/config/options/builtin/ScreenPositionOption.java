@@ -1,18 +1,14 @@
 package io.github.lightman314.lightmanscurrency.api.config.options.builtin;
 
+import io.github.lightman314.lightmanscurrency.api.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.IntOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
-import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
-import net.minecraft.MethodsReturnNonnullByDefault;
 
 import javax.annotation.Nullable;
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class ScreenPositionOption extends ConfigOption<ScreenPosition> {
 
     public static final ConfigParser<ScreenPosition> PARSER = new Parser();
@@ -33,7 +29,7 @@ public class ScreenPositionOption extends ConfigOption<ScreenPosition> {
 
     private static class Parser implements ConfigParser<ScreenPosition>
     {
-        
+
         @Override
         public ScreenPosition tryParse(String cleanLine) throws ConfigParsingException {
             String[] split = cleanLine.split(",",2);
@@ -41,7 +37,7 @@ public class ScreenPositionOption extends ConfigOption<ScreenPosition> {
                 throw new ConfigParsingException("Extra or missing comma(s)!");
             return ScreenPosition.of(INT_PARSER.tryParse(split[0]),INT_PARSER.tryParse(split[1]));
         }
-        
+
         @Override
         public String write(ScreenPosition value) { return value.x + "," + value.y; }
     }

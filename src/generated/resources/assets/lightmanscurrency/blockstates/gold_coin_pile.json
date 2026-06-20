@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "lightmanscurrency:block/gold_coin_pile",
+      "y": 270
+    },
+    "facing=north": {
+      "model": "lightmanscurrency:block/gold_coin_pile",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/gold_coin_pile"
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/gold_coin_pile",
+      "y": 90
+    }
+  }
+}

@@ -1,0 +1,559 @@
+package io.github.lightman314.lightmanscurrency.api.coins.data;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.JsonOps;
+import io.github.lightman314.lightmanscurrency.api.LCApi;
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
+import io.github.lightman314.lightmanscurrency.api.coins.atm.ATMData;
+import io.github.lightman314.lightmanscurrency.api.coins.data.coin.*;
+import io.github.lightman314.lightmanscurrency.api.coins.display.*;
+import io.github.lightman314.lightmanscurrency.api.coins.display.builtin.NullDisplay;
+import io.github.lightman314.lightmanscurrency.api.coins.value.CoinValue;
+import io.github.lightman314.lightmanscurrency.api.coins.events.BuildDefaultCoinDataEvent;
+import io.github.lightman314.lightmanscurrency.api.helpers.EnumHelper;
+import io.github.lightman314.lightmanscurrency.api.helpers.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.text.LCText;
+import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
+import net.minecraft.ChatFormatting;
+import net.minecraft.IdentifierException;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemInstance;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.ItemLike;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+
+import javax.annotation.Nullable;
+import java.text.DecimalFormat;
+import java.util.*;
+import java.util.function.Supplier;
+
+public class ChainData {
+
+    public static final Comparator<CoinEntry> SORT_HIGHEST_VALUE_FIRST = Comparator.comparingLong(CoinEntry::getInternalValue).reversed();
+    public static final Comparator<CoinEntry> SORT_LOWEST_VALUE_FIRST = Comparator.comparingLong(CoinEntry::getInternalValue);
+
+    public final boolean isEvent;
+    public final String chain;
+    private final Component displayName;
+    public Component getDisplayName() { return this.displayName; }
+
+    private final CoinInputType inputType;
+    public CoinInputType getInputType() { return this.inputType; }
+
+    private final ValueDisplayData displayData;
+    public ValueDisplayData getDisplayData() { return this.displayData; }
+
+    public boolean isVisibleTo(Player player) { return true; /*!this.isEvent || EventUnlocks.isUnlocked(player, this.chain) || LCApi.isInAdminMode(player);*/ }
+
+    private final ATMData atmData;
+    public boolean hasATMData() { return this.atmData != null && !this.atmData.getExchangeButtons().isEmpty(); }
+    public ATMData getAtmData() { return this.atmData; }
+
+    public Component formatValue(CoinValue value, Component empty) { return this.displayData.formatValue(value, empty); }
+    public void formatCoinTooltip(ItemStack stack, List<Component> tooltip, TooltipFlag flag) {
+        this.displayData.formatCoinTooltip(stack, tooltip);
+        if(flag.isAdvanced())
+        {
+            CoinEntry entry = this.findEntry(stack);
+            if(entry != null)
+            {
+                tooltip.add(LCText.Coins.TOOLTIP_COIN_ADVANCED_CHAIN.get(this.chain).withStyle(ChatFormatting.DARK_GRAY));
+                tooltip.add(LCText.Coins.TOOLTIP_COIN_ADVANCED_VALUE.get(DecimalFormat.getIntegerInstance().format(entry.getInternalValue())).withStyle(ChatFormatting.DARK_GRAY));
+                if(entry.isSideChain())
+                    tooltip.add(LCText.Coins.TOOLTIP_COIN_ADVANCED_SIDE_CHAIN.get().withStyle(ChatFormatting.DARK_GRAY));
+                else
+                    tooltip.add(LCText.Coins.TOOLTIP_COIN_ADVANCED_CORE_CHAIN.get().withStyle(ChatFormatting.DARK_GRAY));
+            }
+        }
+    }
+
+    private final List<CoinEntry> coreChain;
+    private final List<List<CoinEntry>> sideChains;
+    private final Map<Identifier,CoinEntry> itemIdToEntryMap;
+    private final List<CoinEntry> allEntryList;
+
+    protected ChainData(Builder builder)
+    {
+        this.chain = builder.chain;
+        this.displayName = builder.displayName;
+        this.displayData = builder.displayData;
+        this.displayData.setParent(this);
+        this.inputType = builder.inputType;
+        this.coreChain = ImmutableList.copyOf(builder.coreChain.entries);
+        this.isEvent = builder.isEvent;
+        List<List<CoinEntry>> temp = new ArrayList<>();
+        builder.sideChains.forEach(chain -> temp.add(ImmutableList.copyOf(chain.entries)));
+        this.sideChains = ImmutableList.copyOf(temp);
+        this.atmData = builder.atmDataBuilder.build(this);
+        this.defineEntryCoreValues();
+        //Store pre-built list of all entries
+        this.allEntryList = new ArrayList<>(this.coreChain);
+        for(List<CoinEntry> sideChain : this.sideChains)
+            this.allEntryList.addAll(sideChain);
+        //Store coin entries as a map for easier acces so that we don't have to constantly search through lists for matching items.
+        Map<Identifier,CoinEntry> temp2 = new HashMap<>();
+        for(CoinEntry entry : this.allEntryList)
+            temp2.put(BuiltInRegistries.ITEM.getKey(entry.getCoin()), entry);
+        this.itemIdToEntryMap = ImmutableMap.copyOf(temp2);
+        //Cache coin exchange rates in the CoinEntry data
+        this.cacheCoinExchanges();
+    }
+
+    protected ChainData(String chain,List<CoinEntry> existingEntries,JsonObject json,DataContext<JsonElement> context) throws JsonSyntaxException, IdentifierException
+    {
+        this.chain = chain;
+        this.displayName = ComponentSerialization.CODEC.decode(JsonOps.INSTANCE,json.get("name")).getOrThrow(JsonSyntaxException::new).getFirst();
+
+        this.isEvent = GsonHelper.getAsBoolean(json, "EventChain", false);
+
+        Identifier displayType = Identifier.parse(GsonHelper.getAsString(json, "displayType"));
+        ValueDisplaySerializer displaySerializer = LCRegistries.Coins.VALUE_DISPLAY_SERIALIZER.getValue(displayType);
+        if(displaySerializer == null)
+            throw new JsonSyntaxException(displayType + " is not a valid displayType");
+        //Reset the builder for a fresh load
+        displaySerializer.resetBuilder();
+        displaySerializer.parseAdditional(json);
+
+        this.inputType = EnumHelper.enumFromString(GsonHelper.getAsString(json, "InputType"), CoinInputType.values(), null);
+        if(this.inputType == null)
+            throw new JsonSyntaxException("InputType is not valid!");
+
+        JsonArray coreChainArray = GsonHelper.getAsJsonArray(json, "CoreChain");
+        if(coreChainArray.isEmpty())
+            throw new JsonSyntaxException("CoreChain must have at least 1 entry!");
+        List<CoinEntry> coreChainTemp = new ArrayList<>();
+        try { //Load first entry manually
+            JsonObject baseEntry = coreChainArray.get(0).getAsJsonObject();
+            CoinEntry temp = CoinEntry.parse(baseEntry);
+            validateNoDuplicateCoins(temp, existingEntries);
+            coreChainTemp.add(temp);
+            displaySerializer.parseAdditionalFromCoin(temp, baseEntry);
+        } catch(JsonSyntaxException | IdentifierException e) { throw new JsonSyntaxException("Error parsing core chain entry #1 in the " + this.chain + " chain!", e); }
+        //Load the rest of the entries
+        for(int i = 1; i < coreChainArray.size(); ++i)
+        {
+            try {
+                JsonObject entry = coreChainArray.get(i).getAsJsonObject();
+                CoinEntry temp = MainCoinEntry.parseMain(entry);
+                validateNoDuplicateCoins(temp, existingEntries);
+                displaySerializer.parseAdditionalFromCoin(temp, entry);
+                coreChainTemp.add(temp);
+            } catch(JsonSyntaxException | IdentifierException e) { throw new JsonSyntaxException("Error parsing core chain entry #" + (i + 1) + " in the " + this.chain + " chain!", e); }
+        }
+        //Make results immutable
+        this.coreChain = ImmutableList.copyOf(coreChainTemp);
+
+        List<List<CoinEntry>> sideChainsTemp = new ArrayList<>();
+        JsonArray sideChainsArray = GsonHelper.getAsJsonArray(json, "SideChains", new JsonArray());
+        for(int c = 0; c < sideChainsArray.size(); ++c)
+        {
+            try {
+                JsonArray chainArray = sideChainsArray.get(c).getAsJsonArray();
+                if(!chainArray.isEmpty()) //Do not throw error if size is 0 as empty side-chains can simply be ignored.
+                {
+                    List<CoinEntry> tempList = new ArrayList<>();
+                    //Load the first entry manually
+                    try {
+                        JsonObject baseEntry = chainArray.get(0).getAsJsonObject();
+                        CoinEntry temp = SideBaseCoinEntry.parseSub(baseEntry, this.coreChain);
+                        validateNoDuplicateCoins(temp, existingEntries);
+                        displaySerializer.parseAdditionalFromCoin(temp, baseEntry);
+                        tempList.add(temp);
+                    } catch (JsonSyntaxException | IdentifierException e) { throw new JsonSyntaxException("Error parsing entry #1 in side chain #" + (c + 1) + " in the " + this.chain + " chain!", e); }
+                    for(int i = 1; i < chainArray.size(); ++i)
+                    {
+                        try {
+                            JsonObject entry = chainArray.get(i).getAsJsonObject();
+                            CoinEntry temp = MainCoinEntry.parseMain(entry, true);
+                            validateNoDuplicateCoins(temp, existingEntries);
+                            displaySerializer.parseAdditionalFromCoin(temp, entry);
+                            tempList.add(temp);
+                        } catch (JsonSyntaxException | IdentifierException e) { throw new JsonSyntaxException("Error parsing entry #" + (i + 1) + " in side chain #" + (c + 1) + " in the " + this.chain + " chain!", e); }
+                    }
+                    sideChainsTemp.add(ImmutableList.copyOf(tempList));
+                }
+            } catch (JsonSyntaxException | IdentifierException e) { throw new JsonSyntaxException("Error parsing side chain #" + (c + 1)  + " in the " + this.chain + " chain!", e); }
+        }
+
+        this.sideChains = ImmutableList.copyOf(sideChainsTemp);
+
+        this.displayData = displaySerializer.build();
+        this.displayData.setParent(this);
+
+        //Load ATM Data
+        if(json.has("ATMData"))
+            this.atmData = ATMData.parse(GsonHelper.getAsJsonObject(json, "ATMData"),this,context);
+        else
+            this.atmData = ATMData.builder(null).build(this);
+
+        this.defineEntryCoreValues();
+
+        //Store pre-built list of all entries
+        this.allEntryList = new ArrayList<>(this.coreChain);
+        for(List<CoinEntry> sideChain : this.sideChains)
+            this.allEntryList.addAll(sideChain);
+        //Store coin entries as a map for easier acces so that we don't have to constantly search through lists for matching items.
+        Map<Identifier,CoinEntry> temp2 = new HashMap<>();
+        for(CoinEntry entry : this.allEntryList)
+            temp2.put(BuiltInRegistries.ITEM.getKey(entry.getCoin()), entry);
+        this.itemIdToEntryMap = ImmutableMap.copyOf(temp2);
+
+        //Cache coin exchange rates in the CoinEntry data
+        this.cacheCoinExchanges();
+
+    }
+
+
+
+    private void defineEntryCoreValues()
+    {
+        long coreValue = 1;
+        for(int i = 0; i < this.coreChain.size(); ++i)
+        {
+            CoinEntry entry = this.coreChain.get(i);
+            if(i == 0)
+                entry.setInternalValue(coreValue);
+            else
+            {
+                coreValue *= entry.getExchangeRate();
+                entry.setInternalValue(coreValue);
+            }
+        }
+        for(List<CoinEntry> sideChain : this.sideChains)
+        {
+            coreValue = 0;
+            for(int i = 0; i < sideChain.size(); ++i)
+            {
+                CoinEntry entry = sideChain.get(i);
+                if(i == 0 && entry instanceof SideBaseCoinEntry e)
+                    coreValue = e.parentCoin.getInternalValue();
+                coreValue *= entry.getExchangeRate();
+                entry.setInternalValue(coreValue);
+            }
+        }
+    }
+
+    public JsonObject getAsJson(DataContext<JsonElement> context)
+    {
+        JsonObject json = new JsonObject();
+        //Write base data
+        json.add("name", ComponentSerialization.CODEC.encodeStart(JsonOps.INSTANCE, this.displayName).getOrThrow(JsonSyntaxException::new));
+        json.addProperty("displayType", LCRegistries.Coins.VALUE_DISPLAY_SERIALIZER.getKey(this.displayData.getSerializer()).toString());
+        this.displayData.getSerializer().writeAdditional(this.displayData, json);
+        json.addProperty("InputType", this.inputType.name());
+
+        if(this.isEvent)
+            json.addProperty("EventChain",true);
+
+        //Write core chain
+        JsonArray coreChainArray = new JsonArray();
+        for(CoinEntry entry : this.coreChain)
+            coreChainArray.add(entry.serialize(this.displayData));
+        json.add("CoreChain", coreChainArray);
+
+        //Write side chains
+        if(!this.sideChains.isEmpty())
+        {
+            JsonArray sideChainArray = new JsonArray();
+            for(List<CoinEntry> sideChain : this.sideChains)
+            {
+                JsonArray chainArray = new JsonArray();
+                for(CoinEntry entry : sideChain)
+                    chainArray.add(entry.serialize(this.displayData));
+                sideChainArray.add(chainArray);
+            }
+            json.add("SideChains", sideChainArray);
+        }
+
+        //Write ATM Data
+        if(!this.atmData.getExchangeButtons().isEmpty())
+            json.add("ATMData", this.atmData.save(context));
+
+        return json;
+    }
+
+    public boolean containsEntry(ItemInstance item)  { return findEntry(item) != null; }
+    public boolean containsEntry(ItemResource resource) { return findEntry(resource) != null; }
+    public boolean containsEntry(Item item)  { return findEntry(item) != null; }
+
+    @Nullable
+    public CoinEntry findMatchingEntry(CoinEntry entry)
+    {
+        for(CoinEntry e : this.getAllEntries(true))
+        {
+            if(e.matches(entry))
+                return e;
+        }
+        return null;
+    }
+
+    @Nullable
+    public CoinEntry findEntry(ItemInstance item) { return this.findEntry(item.typeHolder().value()); }
+    @Nullable
+    public CoinEntry findEntry(ItemResource item) { return this.findEntry(item.getItem()); }
+    @Nullable
+    public CoinEntry findEntry(Item item) { return this.itemIdToEntryMap.get(BuiltInRegistries.ITEM.getKey(item)); }
+
+    /**
+     * Returns a list of all entries.
+     * @param includeSideChains Whether coins from side-chains should be included in the list.
+     * @param sorter How you'd like the list to be sorted.
+     * @return Array List copy of the coin entry list. Not immutable so that it can be sorted again later.
+     */
+
+    public List<CoinEntry> getAllEntries(boolean includeSideChains, Comparator<CoinEntry> sorter)
+    {
+        List<CoinEntry> list = this.getAllEntries(includeSideChains);
+        list.sort(sorter);
+        return list;
+    }
+
+    /**
+     * Returns a list of all coin entries in this chain.
+     * @param includeSideChains Whether coins from side-chains should be included in the list.
+     * @return Array List copy of the coin entry list. Not immutable so that it can be sorted later.
+     */
+
+    public List<CoinEntry> getAllEntries(boolean includeSideChains)
+    {
+        if(includeSideChains)
+            return new ArrayList<>(this.allEntryList);
+        return new ArrayList<>(this.coreChain);
+    }
+
+    /**
+     * Used by {@link io.github.lightman314.lightmanscurrency.client.gui.screen.config.master_coin_list.data.MutableChainData MutableChainData} to copy the core chains data into an editable format.<br>
+     * Result is Immutable and cannot be edited or sorted.
+     */
+    public List<CoinEntry> getCoreChain() { return this.coreChain; }
+    /**
+     * Used by {@link io.github.lightman314.lightmanscurrency.client.gui.screen.config.master_coin_list.data.MutableChainData MutableChainData} to copy the side chains data into an editable format.<br>
+     * Result is Immutable and cannot be edited or sorted.
+     */
+
+    public List<List<CoinEntry>> getSideChains() { return this.sideChains; }
+
+    /**
+     * Returns the internal value of the given item stack
+     * Ignores the items count when doing this calculation.
+     */
+    public long getInternalValue(ItemStack item) { return this.getInternalValue(item.getItem()); }
+    /**
+     * Returns the internal value of the given item
+     */
+    public long getInternalValue(Item item)
+    {
+        CoinEntry entry = this.findEntry(item);
+        if(entry == null)
+            return 0;
+        return entry.getInternalValue();
+    }
+
+    private void cacheCoinExchanges()
+    {
+        for(int i = 0; i < this.coreChain.size(); ++i)
+        {
+            CoinEntry entry = this.coreChain.get(i);
+            //Get Lower Exchange for this entry
+            Pair<CoinEntry,Integer> down = null;
+            if(i > 0)
+                down = Pair.of(this.coreChain.get(i - 1), entry.getExchangeRate());
+            Pair<CoinEntry,Integer> up = null;
+            if(i < this.coreChain.size() - 1)
+            {
+                CoinEntry nextEntry = this.coreChain.get(i + 1);
+                up = Pair.of(nextEntry, nextEntry.getExchangeRate());
+            }
+            entry.defineExchanges(down, up);
+        }
+        for(List<CoinEntry> sideChain : this.sideChains)
+        {
+            for(int i = 0; i < sideChain.size(); ++i)
+            {
+                CoinEntry entry = sideChain.get(i);
+                Pair<CoinEntry,Integer> down = null;
+                if(i == 0)
+                {
+                    if(entry instanceof SideBaseCoinEntry e)
+                        down = Pair.of(e.parentCoin, e.getExchangeRate());
+                }
+                else
+                    down = Pair.of(sideChain.get(i - 1), entry.getExchangeRate());
+                Pair<CoinEntry,Integer> up = null;
+                if(i < sideChain.size() - 1)
+                {
+                    CoinEntry nextEntry = sideChain.get(i + 1);
+                    up = Pair.of(nextEntry, nextEntry.getExchangeRate());
+                }
+                entry.defineExchanges(down,up);
+            }
+        }
+    }
+
+    @Nullable
+    public Pair<CoinEntry,Integer> getLowerExchange(Item item)
+    {
+        CoinEntry entry = this.findEntry(item);
+        if(entry == null)
+            return null;
+        return entry.getLowerExchange();
+    }
+
+    /**
+     * @deprecated Redundant, use {@link CoinEntry#getLowerExchange()} instead.
+     */
+    @Nullable
+    @Deprecated(since = "2.2.0.4")
+    public Pair<CoinEntry,Integer> getLowerExchange(CoinEntry entry) { return entry.getLowerExchange(); }
+
+    @Nullable
+    public Pair<CoinEntry,Integer> getUpperExchange(Item item)
+    {
+        CoinEntry entry = this.findEntry(item);
+        if(entry == null)
+            return null;
+        return entry.getUpperExchange();
+    }
+
+    /**
+     * @deprecated Redundant, use {@link CoinEntry#getUpperExchange()} instead.
+     */
+    @Nullable
+    @Deprecated(since = "2.2.0.4")
+    public Pair<CoinEntry,Integer> getUpperExchange(CoinEntry entry) { return entry.getUpperExchange(); }
+
+    private static void validateNoDuplicateCoins(CoinEntry newEntry, List<CoinEntry> existingEntries)
+    {
+        for(CoinEntry entry : existingEntries)
+        {
+            if(entry.matches(newEntry.getCoin()) || newEntry.matches(entry))
+                throw new JsonSyntaxException("Matching coin entry for " + BuiltInRegistries.ITEM.getKey(newEntry.getCoin()) + " is already present");
+        }
+        existingEntries.add(newEntry);
+    }
+
+    public static Builder builder(String chain) { return new Builder(BuildDefaultCoinDataEvent.getExistingEntries(), chain, Component.translatable("lightmanscurrency.money.chain." + chain)); }
+    public static Builder builder(String chain, Component displayName) { return new Builder(BuildDefaultCoinDataEvent.getExistingEntries(), chain, displayName); }
+    public static Builder builder(String chain, TextEntry displayName) { return new Builder(BuildDefaultCoinDataEvent.getExistingEntries(), chain, displayName.get()); }
+
+    public static ChainData fromJson(String chain,List<CoinEntry> existingEntries, JsonObject json, DataContext<JsonElement> context) throws JsonSyntaxException, IdentifierException { return new ChainData(chain,existingEntries,Objects.requireNonNull(json),context); }
+
+    public static class Builder
+    {
+        private static Builder latest = null;
+        public static Builder getLatest() { return latest; }
+
+        public final String chain;
+        private final Component displayName;
+        private boolean isEvent = false;
+        private ValueDisplayData displayData = NullDisplay.INSTANCE;
+        private CoinInputType inputType = CoinInputType.DEFAULT;
+
+        private ChainBuilder coreChain = null;
+        private final List<ChainBuilder> sideChains = new ArrayList<>();
+
+        private final List<CoinEntry> existingEntries;
+
+        private final ATMData.Builder atmDataBuilder = ATMData.builder(this);
+
+        private void validateNoDuplicateEntries(CoinEntry newEntry) { validateNoDuplicateCoins(newEntry, this.existingEntries); }
+
+        private Builder(List<CoinEntry> existingEntries, String chain, Component displayName) { this.chain = chain; this.displayName = displayName; this.existingEntries = existingEntries; latest = this; }
+
+        public Builder withDisplay(ValueDisplayData display) { this.displayData = display; return this; }
+        public Builder withInputType(CoinInputType inputType) { this.inputType = inputType; return this; }
+
+        public Builder asEvent() { this.isEvent = true; return this; }
+
+        //public ChainBuilder withCoreChain(Supplier<? extends ItemLike> baseCoin) { return this.withCoreChain(baseCoin.get()); }
+        public ChainBuilder withCoreChain(ItemLike baseCoin)
+        {
+            if(this.coreChain != null)
+                throw new IllegalArgumentException("Core Chain has already been built!");
+            this.coreChain = new ChainBuilder(this, new CoinEntry(baseCoin.asItem()));
+            return this.coreChain;
+        }
+
+        public ChainBuilder getCoreChain() { if(this.coreChain == null) throw new IllegalArgumentException("Core Chain has not yet been built!"); return this.coreChain; }
+
+        //public ChainBuilder withSideChain(Supplier<? extends ItemLike> baseCoin, int exchangeRate, Supplier<? extends ItemLike> parentCoin) { return this.withSideChain(baseCoin.get(), exchangeRate, parentCoin.get()); }
+        public ChainBuilder withSideChain(ItemLike baseCoin, int exchangeRate, ItemLike parentCoin) {
+            if(this.coreChain == null)
+                throw new IllegalArgumentException("Cannot build a side chain until the core chain has been built!");
+
+            CoinEntry parentEntry = null;
+            for(CoinEntry entry : this.coreChain.entries)
+            {
+                if(entry.matches(parentCoin.asItem()))
+                {
+                    parentEntry = entry;
+                    break;
+                }
+            }
+            if(parentEntry == null)
+                throw new IllegalArgumentException("Coin is not in the core chain!");
+            ChainBuilder subChain = new ChainBuilder(this, new SideBaseCoinEntry(baseCoin.asItem(), parentEntry, exchangeRate));
+            this.sideChains.add(subChain);
+            return subChain;
+        }
+
+        public List<ChainBuilder> getSideChains() { return ImmutableList.copyOf(this.sideChains); }
+
+        public ATMData.Builder atmBuilder() { return this.atmDataBuilder; }
+
+        public void apply(BuildDefaultCoinDataEvent event) { event.addDefault(this);}
+        public void apply(BuildDefaultCoinDataEvent event, boolean allowOverride) { event.addDefault(this, allowOverride);}
+
+        public ChainData build() { return new ChainData(this); }
+
+        public static final class ChainBuilder
+        {
+            private final Builder parent;
+            private final List<CoinEntry> entries = new ArrayList<>();
+
+            private ChainBuilder(Builder parent, CoinEntry baseCoin)
+            {
+                this.parent = parent;
+                this.parent.validateNoDuplicateEntries(baseCoin);
+                this.entries.add(baseCoin);
+            }
+            //public ChainBuilder withCoin(Supplier<? extends ItemLike> coin, int exchangeRate) { return this.withCoin(coin.get(), exchangeRate); }
+            public ChainBuilder withCoin(ItemLike coin, int exchangeRate) {
+                CoinEntry newEntry = new MainCoinEntry(coin.asItem(), exchangeRate);
+                this.parent.validateNoDuplicateEntries(newEntry);
+                this.entries.add(newEntry);
+                return this;
+            }
+            public Builder back() { return this.parent; }
+
+            public List<CoinEntry> getEntries() { return ImmutableList.copyOf(this.entries); }
+        }
+
+    }
+
+    public static void addCoinTooltips(ItemStack stack, List<Component> tooltip, TooltipFlag flag, @Nullable Player player)
+    {
+        ChainData chain = LCApi.getCoinAPI().lookupChain(stack);
+        if(chain != null)
+        {
+            List<Component> lines = new ArrayList<>();
+            if(player == null || flag.isAdvanced() || flag.isCreative() || chain.isVisibleTo(player))
+                chain.formatCoinTooltip(stack, lines, flag);
+            //TooltipItem.insertTooltip(tooltip,lines);
+        }
+    }
+
+}

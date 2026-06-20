@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "lightmanscurrency:item/gold_coin_pile"
+  }
+}

@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "lightmanscurrency:item/coupon",
-    "layer1": "lightmanscurrency:item/coupon_overlay"
-  }
-}

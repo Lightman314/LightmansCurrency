@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "lightmanscurrency:item/item_capacity_upgrade",
-    "layer1": "lightmanscurrency:item/upgrade_tier/netherite"
-  }
-}

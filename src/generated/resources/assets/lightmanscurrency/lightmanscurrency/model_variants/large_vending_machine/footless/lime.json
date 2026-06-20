@@ -1,8 +1,0 @@
-{
-  "parent": "lightmanscurrency:large_vending_machine/footless",
-  "target": "lightmanscurrency:vending_machine_large_lime",
-  "textures": {
-    "exterior": "lightmanscurrency:block/large_vending_machine/footless/lime_exterior",
-    "interior": "lightmanscurrency:block/large_vending_machine/footless/lime_interior"
-  }
-}

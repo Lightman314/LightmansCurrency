@@ -4,15 +4,10 @@ import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
-import net.minecraft.MethodsReturnNonnullByDefault;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class ListOption<T> extends ListLikeOption<List<T>> {
 
     protected ListOption(Supplier<List<T>> defaultValue) { super(defaultValue); }
@@ -35,7 +30,7 @@ public abstract class ListOption<T> extends ListLikeOption<List<T>> {
     public boolean allowedListValue(T newValue) { return true; }
 
     protected abstract ConfigParser<T> getPartialParser();
-    
+
     public final Pair<Boolean,ConfigParsingException> editList(String value, int index, boolean isEdit) {
         if(index < 0 && isEdit)
         {
@@ -81,7 +76,7 @@ public abstract class ListOption<T> extends ListLikeOption<List<T>> {
     {
         private final ConfigParser<T> parser;
         private ListParser(ConfigParser<T> parser) { this.parser = parser; }
-        
+
         @Override
         public List<T> tryParse(String cleanLine) throws ConfigParsingException {
             if(cleanLine.isEmpty())
@@ -141,7 +136,7 @@ public abstract class ListOption<T> extends ListLikeOption<List<T>> {
             return results;
         }
 
-        
+
         @Override
         public String write(List<T> value) {
             StringBuilder builder = new StringBuilder("[");
@@ -157,6 +152,5 @@ public abstract class ListOption<T> extends ListLikeOption<List<T>> {
             return builder.toString();
         }
     }
-
 
 }

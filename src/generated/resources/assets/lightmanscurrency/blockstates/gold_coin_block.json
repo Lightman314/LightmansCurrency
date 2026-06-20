@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "lightmanscurrency:block/gold_coin_block"
+    }
+  }
+}

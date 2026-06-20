@@ -1,20 +1,16 @@
 package io.github.lightman314.lightmanscurrency.api.config.options.basic;
 
 import com.google.common.collect.Lists;
-import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
-import io.github.lightman314.lightmanscurrency.util.EnumUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.helpers.EnumHelper;
+import io.github.lightman314.lightmanscurrency.api.text.LCText;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class EnumOption<T extends Enum<T>> extends ConfigOption<T> {
 
     public static <T extends Enum<T>> ConfigParser<T> buildParser(Class<T> clazz) { return new EnumParser<>(clazz); }
@@ -33,8 +29,8 @@ public class EnumOption<T extends Enum<T>> extends ConfigOption<T> {
     @Override
     protected List<Component> bonusCommentTooltips() {
         return Lists.newArrayList(
-                LCText.CONFIG_OPTION_OPTIONS.get(this.options()),
-                LCText.CONFIG_OPTION_DEFAULT.get(this.getDefaultValue().toString()));
+                LCText.Config.CONFIG_OPTION_OPTIONS.get(this.options()),
+                LCText.Config.CONFIG_OPTION_DEFAULT.get(this.getDefaultValue().toString()));
     }
 
     private String options() {
@@ -56,15 +52,14 @@ public class EnumOption<T extends Enum<T>> extends ConfigOption<T> {
         private final Class<T> clazz;
         private EnumParser(Class<T> clazz) { this.clazz = clazz; }
 
-        
         @Override
         public T tryParse(String cleanLine) throws ConfigParsingException {
-            T result = EnumUtil.enumFromString(cleanLine, this.clazz.getEnumConstants(), null);
+            T result = EnumHelper.enumFromString(cleanLine,this.clazz.getEnumConstants(),null);
             if(result == null)
                 throw new ConfigParsingException(cleanLine + " is not a valid enum option!");
             return result;
         }
-        
+
         @Override
         public String write(T value) { return value.name(); }
     }

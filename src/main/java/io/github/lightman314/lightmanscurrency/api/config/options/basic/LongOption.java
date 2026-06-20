@@ -1,20 +1,15 @@
 package io.github.lightman314.lightmanscurrency.api.config.options.basic;
 
 import com.google.common.collect.Lists;
-import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
-import io.github.lightman314.lightmanscurrency.util.MathUtil;
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.text.LCText;
 import net.minecraft.network.chat.Component;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 import java.util.function.Supplier;
 
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public class LongOption extends ConfigOption<Long> {
 
     public static ConfigParser<Long> makeParser(long lowerLimit, long upperLimit) { return new Parser(lowerLimit, upperLimit); }
@@ -46,8 +41,8 @@ public class LongOption extends ConfigOption<Long> {
     @Override
     protected List<Component> bonusCommentTooltips() {
         return Lists.newArrayList(
-                LCText.CONFIG_OPTION_RANGE.get(this.lowerLimit,this.upperLimit),
-                LCText.CONFIG_OPTION_DEFAULT.get(this.getDefaultValue())
+                LCText.Config.CONFIG_OPTION_RANGE.get(this.lowerLimit,this.upperLimit),
+                LCText.Config.CONFIG_OPTION_DEFAULT.get(this.getDefaultValue())
         );
     }
 
@@ -70,13 +65,13 @@ public class LongOption extends ConfigOption<Long> {
             this.upperLimit = upperLimit;
         }
 
-        
+
         @Override
         public Long tryParse(String cleanLine) throws ConfigParsingException {
-            try { return MathUtil.clamp(Long.parseLong(cleanLine), this.lowerLimit, this.upperLimit);
+            try { return Math.clamp(Long.parseLong(cleanLine), this.lowerLimit, this.upperLimit);
             } catch (NumberFormatException e) { throw new ConfigParsingException("Error parsing long!", e); }
         }
-        
+
         @Override
         public String write(Long value) { return Long.toString(value); }
     }

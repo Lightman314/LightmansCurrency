@@ -1,25 +1,26 @@
 package io.github.lightman314.lightmanscurrency.network.packet;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
+import io.github.lightman314.lightmanscurrency.api.LCApi;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
-import javax.annotation.Nonnull;
-import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-
-@MethodsReturnNonnullByDefault
-@ParametersAreNonnullByDefault
 public abstract class CustomPacket implements CustomPacketPayload {
+
+    public static <T extends CustomPacket> Type<T> bType(String id) { return bType(LCApi.MODID,id); }
+    public static <T extends CustomPacket> Type<T> bType(String modid,String id) { return new Type<>(Identifier.fromNamespaceAndPath(modid,"b_" + id)); }
+    public static <T extends CustomPacket> Type<T> cType(String id) { return cType(LCApi.MODID,id); }
+    public static <T extends CustomPacket> Type<T> cType(String modid,String id) { return new Type<>(Identifier.fromNamespaceAndPath(modid,"c_" + id)); }
+    public static <T extends CustomPacket> Type<T> sType(String id) { return sType(LCApi.MODID,id); }
+    public static <T extends CustomPacket> Type<T> sType(String modid,String id) { return new Type<>(Identifier.fromNamespaceAndPath(modid,"s_" + id)); }
 
     private final Type<?> type;
     protected CustomPacket(Type<?> type) { this.type = type;}
@@ -51,11 +52,6 @@ public abstract class CustomPacket implements CustomPacketPayload {
         }
     }
 
-    public static <T extends CustomPacket> StreamCodec<FriendlyByteBuf,T> easyCodec(BiConsumer<FriendlyByteBuf,T> encoder, Function<FriendlyByteBuf, T> decoder) { return StreamCodec.of(encoder::accept,decoder::apply); }
-    public static <T extends CustomPacket> StreamCodec<? super RegistryFriendlyByteBuf,T> fancyCodec(BiConsumer<RegistryFriendlyByteBuf,T> encoder, Function<RegistryFriendlyByteBuf,T> decoder) { return StreamCodec.of(encoder::accept,decoder::apply); }
-
-    public static <T extends CustomPacket> StreamCodec<FriendlyByteBuf,T> simpleCodec(T instance) { return easyCodec((b,p) -> {},b -> instance); }
-
     public static abstract class AbstractHandler<T extends CustomPacket> implements IPayloadHandler<T>
     {
         public final Type<T> type;
@@ -79,7 +75,7 @@ public abstract class CustomPacket implements CustomPacketPayload {
 
     public static abstract class SimpleHandler<T extends CustomPacket> extends Handler<T>
     {
-        protected SimpleHandler(Type<T> type, T instance) { super(type, simpleCodec(instance)); }
+        protected SimpleHandler(Type<T> type, T instance) { super(type, StreamCodec.unit(instance)); }
     }
 
 }

@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.config.options.parsing;
 
-public class ConfigParsingException extends Exception{
+public class ConfigParsingException extends Exception {
 
     public ConfigParsingException(String message) { super(message); }
     public ConfigParsingException(String message, Throwable cause) { super(message, cause); }

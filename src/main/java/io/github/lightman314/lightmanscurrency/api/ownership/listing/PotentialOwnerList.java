@@ -1,12 +1,10 @@
 package io.github.lightman314.lightmanscurrency.api.ownership.listing;
 
 import com.google.common.collect.ImmutableList;
-import io.github.lightman314.lightmanscurrency.api.misc.player.OwnerData;
+import io.github.lightman314.lightmanscurrency.api.ownership.OwnerHolder;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
-import io.github.lightman314.lightmanscurrency.api.ownership.OwnershipAPI;
 import net.minecraft.world.entity.player.Player;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -16,14 +14,14 @@ import java.util.function.Supplier;
 public class PotentialOwnerList {
 
     private final Player player;
-    private final Supplier<OwnerData> currentOwner;
+    private final Supplier<OwnerHolder> currentOwner;
     private final Predicate<PotentialOwner> filter;
     private Owner oldOwner;
     private String lastSearch = "";
     private List<PotentialOwner> allOwners = null;
     private List<PotentialOwner> cache = new ArrayList<>();
 
-    public PotentialOwnerList(@Nonnull Player player, @Nonnull Supplier<OwnerData> currentOwner, @Nonnull Predicate<PotentialOwner> filter)
+    public PotentialOwnerList(Player player, Supplier<OwnerHolder> currentOwner, Predicate<PotentialOwner> filter)
     {
         this.player = player;
         this.currentOwner = currentOwner;
@@ -33,21 +31,21 @@ public class PotentialOwnerList {
 
     public void tick()
     {
-        OwnerData data = this.currentOwner.get();
+        OwnerHolder data = this.currentOwner.get();
         if(data == null)
             return;
         if(this.oldOwner == null || !this.oldOwner.matches(data.getValidOwner()))
             this.updateCache(this.lastSearch);
     }
 
-    public void updateCache(@Nonnull String searchFilter)
+    public void updateCache(String searchFilter)
     {
         if(this.allOwners == null)
-            this.allOwners = ImmutableList.copyOf(OwnershipAPI.getApi().getPotentialOwners(this.player).stream().filter(this.filter).toList());
+            this.allOwners = PotentialOwnerProvider.getPotentialOwners(this.player).stream().filter(this.filter).toList();
         this.lastSearch = searchFilter;
         //Re-do the sorting whenever the search is updated
         List<PotentialOwner> temp = new ArrayList<>(this.allOwners);
-        OwnerData data = this.currentOwner.get();
+        OwnerHolder data = this.currentOwner.get();
         if(data == null)
             return;
         this.oldOwner = data.getValidOwner();
@@ -62,7 +60,6 @@ public class PotentialOwnerList {
         this.cache = ImmutableList.copyOf(temp);
     }
 
-    @Nonnull
     public List<PotentialOwner> getOwners() { return this.cache; }
 
 }

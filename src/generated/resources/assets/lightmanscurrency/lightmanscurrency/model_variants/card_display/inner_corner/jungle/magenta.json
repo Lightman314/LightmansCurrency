@@ -1,7 +1,0 @@
-{
-  "parent": "lightmanscurrency:card_display/inner_corner/jungle/base",
-  "target": "lightmanscurrency:card_display_jungle_magenta",
-  "textures": {
-    "wool": "minecraft:block/magenta_wool"
-  }
-}

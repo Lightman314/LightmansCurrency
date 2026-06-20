@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "lightmanscurrency:block/copper_coin_pile",
+      "y": 270
+    },
+    "facing=north": {
+      "model": "lightmanscurrency:block/copper_coin_pile",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/copper_coin_pile"
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/copper_coin_pile",
+      "y": 90
+    }
+  }
+}

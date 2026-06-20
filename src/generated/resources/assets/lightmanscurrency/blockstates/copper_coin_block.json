@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "lightmanscurrency:block/copper_coin_block"
+    }
+  }
+}

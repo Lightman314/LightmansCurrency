@@ -1,0 +1,47 @@
+package io.github.lightman314.lightmanscurrency.api.coins.data.coin;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+
+import java.util.List;
+
+public class SideBaseCoinEntry extends MainCoinEntry {
+
+    public final CoinEntry parentCoin;
+
+    public SideBaseCoinEntry(Item coin, CoinEntry parentCoin, int exchangeRate) {
+        super(coin, exchangeRate, true);
+        this.parentCoin = parentCoin;
+    }
+
+    @Override
+    protected void writeAdditional(JsonObject json) {
+        super.writeAdditional(json);
+        json.addProperty("ParentCoin", BuiltInRegistries.ITEM.getKey(this.parentCoin.getCoin()).toString());
+    }
+
+    public static CoinEntry parseSub(JsonObject json, List<CoinEntry> coreChain)
+    {
+        Item coin = parseBase(json);
+        int exchangeRate = GsonHelper.getAsInt(json, "exchangeRate");
+        Identifier itemID = Identifier.parse(GsonHelper.getAsString(json, "ParentCoin"));
+        Item parentCoin = BuiltInRegistries.ITEM.getValue(itemID);
+        if(parentCoin == null || parentCoin == Items.AIR)
+            throw new JsonSyntaxException(itemID + " is not a valid item!");
+        CoinEntry parentEntry = null;
+        for(int i = 0; parentEntry == null && i < coreChain.size(); ++i)
+        {
+            CoinEntry e = coreChain.get(i);
+            if(e.matches(parentCoin))
+                parentEntry = e;
+        }
+        if(parentEntry == null)
+            throw new JsonSyntaxException(itemID + " does not match any coins in the core chain!");
+        return new SideBaseCoinEntry(coin, parentEntry, exchangeRate);
+    }
+}
