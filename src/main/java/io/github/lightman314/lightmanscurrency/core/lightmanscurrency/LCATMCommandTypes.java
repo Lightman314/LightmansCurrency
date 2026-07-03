@@ -14,7 +14,7 @@ public final class LCATMCommandTypes {
 
     static {
         register("exchange_all",ExchangeAllCommand.TYPE);
-        register("exchange", ExchangeCommand.TYPE);
+        register("exchange",ExchangeCommand.TYPE);
     }
 
     private static void register(String name,ATMCommandType<?> type) {

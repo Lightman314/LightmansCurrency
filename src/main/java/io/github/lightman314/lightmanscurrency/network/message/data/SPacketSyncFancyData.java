@@ -15,7 +15,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class SPacketSyncFancyData extends ServerToClientPacket {
 
-    private static final Type<SPacketSyncFancyData> TYPE = sType("s_sync_fancy_data");
+    private static final Type<SPacketSyncFancyData> TYPE = sType("sync_fancy_data");
     private static final StreamCodec<RegistryFriendlyByteBuf,SPacketSyncFancyData> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.registry(LCRegistries.Data.FANCY_DATA_KEY),p -> p.type,
             FancyPacketMap.STREAM_CODEC,p -> p.data,

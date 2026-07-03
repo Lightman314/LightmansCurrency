@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.api.trader.trade.message;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import net.minecraft.network.chat.Component;
 
-import java.awt.*;
 import java.util.Comparator;
 
 public final class TradeMessage {

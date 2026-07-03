@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces;
 
 import com.google.common.collect.ImmutableList;
-import io.github.lightman314.lightmanscurrency.api.client.gui.widget.EasyWidget;
-import io.github.lightman314.lightmanscurrency.api.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.api.client.gui.widget.FancyWidget;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
@@ -12,7 +12,7 @@ public interface TooltipSource {
 
     TooltipSource EMPTY = (w,m) -> null;
 
-    List<Component> collectToolips(EasyWidget widget, ScreenPosition mouse);
+    List<Component> collectToolips(FancyWidget widget, ScreenPosition mouse);
 
     static TooltipSource simple(Component tooltip) { return simple(ImmutableList.of(tooltip)); }
     static TooltipSource simple(List<Component> tooltip) { return simple(tooltip,false); }

@@ -40,7 +40,7 @@ public final class TraderDataCache extends FancyData implements ITickerServer, I
     private TraderDataCache(long nextID,Map<Long,TraderData> traders) {
         this.nextID = nextID;
         this.traders = new HashMap<>(traders);
-        this.traders.forEach((id,t) -> t.setSidedContext(this));
+        this.traders.forEach((id,t) -> this.pairTrader(t));
     }
 
     private Map<Long,TraderData> getWritableTraders()
@@ -65,15 +65,20 @@ public final class TraderDataCache extends FancyData implements ITickerServer, I
         this.addTraderInternal(newTrader);
         //Send created trader packet
         this.sendPacketToAll(FancyPacketMap.newMutable()
-                .setList("CreatedTraders",LCFancyPacketTypes.MAP,ImmutableList.of(asCreatedTraderPackkey(newTrader))));
+                .setList("CreatedTraders",LCFancyPacketTypes.MAP,ImmutableList.of(asCreatedTraderPacket(newTrader))));
         //Return the new trader ID
         return nextID;
     }
 
-    private void addTraderInternal(TraderData trader)
-    {
+    private void pairTrader(TraderData trader) {
         //Make sure the trader is on the same logical side as the cache
         trader.setSidedContext(this);
+        trader.setRegistryAccess(this);
+    }
+
+    private void addTraderInternal(TraderData trader)
+    {
+        this.pairTrader(trader);
         //Add the trader to the map
         this.traders.put(trader.getID(),trader);
         //Initialize the trader
@@ -96,12 +101,8 @@ public final class TraderDataCache extends FancyData implements ITickerServer, I
         FancyPacketMap.Mutable packet = FancyPacketMap.newMutable();
         List<FancyPacketMap> list = new ArrayList<>();
         for(TraderData trader : this.getAllTraders())
-        {
-            list.add(FancyPacketMap.newMutable()
-                    .setLong("id",trader.getID())
-                    .setRegistryEntry("type",LCRegistries.Trader.TRADER_TYPES,trader.getType()));
-        }
-        packet.setList("CreatedTraders", LCFancyPacketTypes.MAP,list);
+            list.add(asCreatedTraderPacket(trader));
+        packet.setList("CreatedTraders",LCFancyPacketTypes.MAP,list);
         this.sendPacketToTarget(player,packet);
     }
 
@@ -142,11 +143,12 @@ public final class TraderDataCache extends FancyData implements ITickerServer, I
                         .setMap("data",packet).immutable()).immutable();
     }
 
-    private static FancyPacketMap asCreatedTraderPackkey(TraderData trader)
+    private static FancyPacketMap asCreatedTraderPacket(TraderData trader)
     {
         return FancyPacketMap.newMutable()
                 .setLong("id",trader.getID())
                 .setRegistryEntry("type",LCRegistries.Trader.TRADER_TYPES,trader.getType())
+                .setMap("data",trader.createTraderPacket())
                 .immutable();
     }
 
@@ -179,6 +181,8 @@ public final class TraderDataCache extends FancyData implements ITickerServer, I
             TraderData trader = this.getTrader(traderID);
             if(trader != null)
                 trader.handleSyncPacket(update);
+            else
+                LightmansCurrency.LogError("Received a trader update packet for a trader not present on the client!");
         }
     }
 

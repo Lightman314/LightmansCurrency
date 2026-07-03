@@ -3,21 +3,26 @@ package io.github.lightman314.lightmanscurrency.api.client.gui.helpers;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
-import io.github.lightman314.lightmanscurrency.api.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.api.client.gui.sprites.SizedSprite;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.WidgetSprites;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.util.Mth;
+import net.minecraft.util.Util;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix3x2fStack;
@@ -26,6 +31,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public final class FancyGuiExtractor {
 
@@ -49,6 +55,8 @@ public final class FancyGuiExtractor {
     public ScreenPosition getMousePos() { return this.mousePos; }
     private final float partial;
     public float getPartialTicks() { return this.partial; }
+    private final Minecraft mc = Minecraft.getInstance();
+    public Minecraft minecraft() { return this.mc; }
 
     private final List<ScreenPosition> offset = new ArrayList<>();
     public ScreenPosition getOffset() { return this.offset.isEmpty() ? ScreenPosition.ZERO : this.offset.getLast(); }
@@ -121,6 +129,34 @@ public final class FancyGuiExtractor {
             yOff += this.font.lineHeight;
         }
     }
+    public void scrollingText(Component text,int x, int y, int width, int height, int color) { this.scrollingText(text,x,y,width,height,color,true); }
+    public void scrollingText(Component text,int x, int y, int width, int height, int color,boolean shadow) {
+
+        //Calculate the text position
+        int textTop = (y + (y + height) - this.font.lineHeight) / 2 + 1;
+        int lineWidth = this.font.width(text);
+        if(lineWidth > width)
+        {
+            //Enable scissor for the area
+            this.enableScissor(x,y,width,height);
+            //Calculate the scrolling
+            int maxPosition = lineWidth - width;
+            double time = Util.getMillis() / 1000.0;
+            double period = Math.max(maxPosition * 0.5, 3.0);
+            double alpha = Math.sin((Math.PI / 2) * Math.cos((Math.PI * 2) * time / period)) / 2.0 + 0.5;
+            double pos = Mth.lerp(alpha,0.0,maxPosition);
+            //Render the text
+            this.text(text,x - (int)pos,textTop,color,shadow);
+            //Disable scissor
+            this.disableScissor();
+        }
+        else
+        {
+            //Otherwise just draw the text centered
+            this.centeredText(text,x + (width / 2),textTop,color,shadow);
+        }
+    }
+
     public ActiveTextCollector textRendererForWidget(AbstractWidget owner,GuiGraphicsExtractor.HoveredTextEffects effects) { return this.gui.textRendererForWidget(owner,effects); }
     public ActiveTextCollector textRenderer() { return this.gui.textRenderer(); }
     public ActiveTextCollector textRenderer(GuiGraphicsExtractor.HoveredTextEffects effects) { return this.gui.textRenderer(effects); }
@@ -140,10 +176,23 @@ public final class FancyGuiExtractor {
         ScreenPosition p = this.getPosition(x,y);
         this.gui.blitSprite(pipeline,sprite,p.x,p.y,width,height);
     }
+    public void blitSprite(Identifier sprite,int x,int y,int width,int height,int color) { this.blitSprite(RenderPipelines.GUI_TEXTURED,sprite,x,y,width,height,color); }
+    public void blitSprite(RenderPipeline pipeline,Identifier sprite,int x,int y,int width,int height,int color) {
+        ScreenPosition p = this.getPosition(x,y);
+        this.gui.blitSprite(pipeline,sprite,p.x,p.y,width,height,color);
+    }
     public void blitSprite(TextureAtlasSprite sprite, int x, int y, int width, int height) { this.blitSprite(RenderPipelines.GUI_TEXTURED,sprite,x,y,width,height); }
     public void blitSprite(RenderPipeline pipeline,TextureAtlasSprite sprite,int x,int y,int width,int height) {
         ScreenPosition p = this.getPosition(x,y);
         this.gui.blitSprite(pipeline,sprite,p.x,p.y,width,height);
+    }
+    public void blitSprite(SizedSprite sprite,int x,int y) { this.blitSprite(RenderPipelines.GUI_TEXTURED,sprite,x,y); }
+    public void blitSprite(RenderPipeline pipeline,SizedSprite sprite,int x,int y) {
+        this.blitSprite(pipeline,sprite.sprite(),x,y,sprite.width(),sprite.height());
+    }
+    public void blitSprite(SizedSprite sprite,int x,int y,int color) { this.blitSprite(RenderPipelines.GUI_TEXTURED,sprite,x,y,color); }
+    public void blitSprite(RenderPipeline pipeline,SizedSprite sprite,int x,int y,int color) {
+        this.blitSprite(pipeline,sprite.sprite(),x,y,sprite.width(),sprite.height(),color);
     }
 
     public void blitBackground(Identifier texture, ScreenArea area) {
@@ -192,6 +241,12 @@ public final class FancyGuiExtractor {
     public void renderItemTooltipAtMouse(ItemStack item) {
         this.gui.setTooltipForNextFrame(this.font,item,this.mousePos.x,this.mousePos.y);
     }
+    public void renderItemTooltipAtMouse(ItemStack item,Consumer<List<Component>> modifier) {
+        List<Component> tooltips = Screen.getTooltipFromItem(this.mc,item);
+        modifier.accept(tooltips);
+        this.gui.setTooltipForNextFrame(this.font,tooltips,item.getTooltipImage(),this.mousePos.x,this.mousePos.y,item.get(DataComponents.TOOLTIP_STYLE));
+    }
+
     public void renderTooltipAtMouse(Component tooltip) { this.renderTooltipAtMouse(ImmutableList.of(tooltip)); }
     public void renderTooltipAtMouse(List<Component> tooltip)
     {

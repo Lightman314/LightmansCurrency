@@ -1,13 +1,15 @@
 package io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.builtin;
 
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
+import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeData;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeSet;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.ITradeInteractionHandler;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.TradeEditContext;
-import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.TradeSlotType;
+import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.TradeSlot;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.TraderStorageTab;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
@@ -28,43 +30,57 @@ public abstract class TradeInteractionTab extends TraderStorageTab implements IT
         return trades;
     }
 
-    public final void onTradeSlotClick(TradeData trade,TradeSlotType type,int slotIndex,int mouseButton,TradeEditContext context)
+    protected final boolean canInteract(TradeData trade) { return this.editableTrades().contains(trade) && this.getPermission(BuiltInPermissions.EDIT_TRADES); }
+
+    @Override
+    public final void onTradeSlotClick(TradeData trade,TradeSlot slot,int mouseButton,TradeEditContext context)
     {
-        if(!this.editableTrades().contains(trade))
+        if(!this.canInteract(trade))
             return;
         ItemStack heldItem = this.getMenu().getCarried();
-        if(this.processTradeClick(trade,type,slotIndex,mouseButton,heldItem,context) && this.isClient())
+        if(this.processTradeClick(this.getPlayer(),trade,slot,mouseButton,heldItem,context) && this.isClient())
         {
             FancyPacketMap.Mutable packet = FancyPacketMap.newMutable();
             this.writeTargetTrade(packet,trade);
             this.sendToServer(FancyPacketMap.newMutable()
                     .setMap("tradeClick",packet
-                            .setEnum("type",type)
-                            .setInt("slot",slotIndex)
+                            .action(slot.encode())
                             .setInt("mouse",mouseButton)
                             .setMap("context",context.encode())));
         }
     }
-    protected abstract boolean processTradeClick(TradeData trade, TradeSlotType type, int slotIndex, int mouseButton, ItemStack heldItem, TradeEditContext context);
+    protected abstract boolean processTradeClick(Player player,TradeData trade,TradeSlot slot,int mouseButton,ItemStack heldItem,TradeEditContext context);
 
     @Override
-    public void onTradeSlotScroll(TradeData trade,TradeSlotType type,int slotIndex,float deltaY,TradeEditContext context) {
+    public void onTradeSlotScroll(TradeData trade,TradeSlot slot, float deltaY, TradeEditContext context) {
+        if(!this.canInteract(trade))
+            return;
         ItemStack heldItem = this.getMenu().getCarried();
-        if(this.processTradeScroll(trade,type,slotIndex,deltaY,heldItem,context))
+        if(this.processTradeScroll(this.getPlayer(),trade,slot,deltaY,heldItem,context))
         {
             FancyPacketMap.Mutable packet = FancyPacketMap.newMutable();
             this.writeTargetTrade(packet,trade);
             this.sendToServer(FancyPacketMap.newMutable()
                     .setMap("tradeScroll",packet
-                            .setEnum("type",type)
-                            .setInt("slot",slotIndex)
+                            .setEnum("type",slot.type())
+                            .setInt("slot",slot.slot())
                             .setFloat("scroll",deltaY)
                             .setMap("context",context.encode())));
         }
     }
-    protected abstract boolean processTradeScroll(TradeData trade,TradeSlotType type,int slotIndex,float deltaY,ItemStack heldItem,TradeEditContext context);
+    protected abstract boolean processTradeScroll(Player player, TradeData trade, TradeSlot slot, float deltaY, ItemStack heldItem, TradeEditContext context);
 
-    protected void writeTargetTrade(FancyPacketMap.Mutable edit,TradeData trade)
+    @Override
+    public void sendPriceEditPacket(TradeData trade,FancyPacketMap packet) {
+        //Make it mutable and write the target trade
+        FancyPacketMap.Mutable edit = packet.mutable();
+        this.writeTargetTrade(edit,trade);
+        //Send the packet
+        this.sendToServer(FancyPacketMap.newMutable()
+                .setMap("priceEdit",edit));
+    }
+
+    protected void writeTargetTrade(FancyPacketMap.Mutable edit, TradeData trade)
     {
         if(!this.isSingleTrade())
         {
@@ -117,10 +133,9 @@ public abstract class TradeInteractionTab extends TraderStorageTab implements IT
             if(trade != null)
             {
                 this.onTradeSlotClick(trade,
-                        edit.getEnum("type",TradeSlotType.class),
-                        edit.getInt("slot"),
+                        TradeSlot.decode(edit),
                         edit.getInt("mouse"),
-                        TradeEditContext.decode(edit.getMap("context")));
+                        TradeEditContext.decode(edit.getMap("context"),this));
             }
         }
         if(packet.contains("tradeScroll"))
@@ -130,11 +145,17 @@ public abstract class TradeInteractionTab extends TraderStorageTab implements IT
             if(trade != null)
             {
                 this.onTradeSlotScroll(trade,
-                        edit.getEnum("type", TradeSlotType.class),
-                        edit.getInt("slot"),
+                        TradeSlot.decode(edit),
                         edit.getFloat("scroll"),
-                        TradeEditContext.decode(edit.getMap("context")));
+                        TradeEditContext.decode(edit.getMap("context"),this));
             }
+        }
+        if(packet.contains("priceEdit"))
+        {
+            FancyPacketMap edit = packet.getMap("priceEdit");
+            TradeData trade = this.getTargetTrade(edit);
+            if(trade != null)
+                trade.getPrice().handleCustomEditMessage(edit);
         }
     }
 

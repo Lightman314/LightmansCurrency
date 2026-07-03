@@ -1,8 +1,8 @@
 package io.github.lightman314.lightmanscurrency.api.client.gui.widget.scrolling;
 
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.IScrollListener;
-import io.github.lightman314.lightmanscurrency.api.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.helpers.system.Consumer4;
 
 import java.util.function.BiConsumer;

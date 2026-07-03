@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.ResourceSource;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.ResourceType;
+import net.minecraft.util.RandomSource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
@@ -38,6 +39,9 @@ public final class TradeContext implements AutoCloseable, INodeAccess {
     @Override
     public List<TraderNode> getAllNodes() { return this.trader.getAllNodes(); }
 
+    private final RandomSource random;
+    public RandomSource getRandom() { return this.random; }
+
     private final TradeCustomer customer;
     public TradeCustomer getCustomer() { return this.customer; }
     public PlayerReference getPlayer() { return this.customer.getPlayer(); }
@@ -59,6 +63,7 @@ public final class TradeContext implements AutoCloseable, INodeAccess {
     {
         this.trader = builder.trader;
         this.customer = builder.customer;
+        this.random = builder.random;
         this.traderResources = combineResources(builder.traderResources);
         this.customerResources = combineResources(builder.customerResources);
         this.transaction = Transaction.open(transaction);
@@ -71,14 +76,14 @@ public final class TradeContext implements AutoCloseable, INodeAccess {
         return builder.build();
     }
 
-    public static Builder builder(TraderData trader) { return builder(trader,TradeCustomer.DISPLAY); }
-    public static Builder builder(TraderData trader,TradeCustomer customer) { return new Builder(trader,customer); }
+    public static Builder builder(TraderData trader) { return builder(trader,TradeCustomer.EDITING,RandomSource.create(-1)); }
+    public static Builder builder(TraderData trader,TradeCustomer customer,RandomSource random) { return new Builder(trader,customer,random); }
 
     @Override
     public void close() { this.transaction.close(); }
 
     public void commit() {
-        if(this.customer.isDisplay())
+        if(this.customer.isEditing())
             this.close();
         this.transaction.commit();
     }
@@ -88,13 +93,15 @@ public final class TradeContext implements AutoCloseable, INodeAccess {
 
         private final TraderData trader;
         private final TradeCustomer customer;
+        private final RandomSource random;
 
         private final Map<ResourceType<?,?>,List<?>> traderResources = new HashMap<>();
         private final Map<ResourceType<?,?>,List<?>> customerResources = new HashMap<>();
 
-        private Builder(TraderData trader,TradeCustomer customer) {
+        private Builder(TraderData trader,TradeCustomer customer,RandomSource random) {
             this.trader = trader;
             this.customer = customer;
+            this.random = random;
             this.trader.collectResources(this::addTraderResource);
         }
 

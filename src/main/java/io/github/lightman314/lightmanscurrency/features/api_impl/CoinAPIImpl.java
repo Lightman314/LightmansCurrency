@@ -16,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.api.coins.events.BuildDefaultCoin
 import io.github.lightman314.lightmanscurrency.api.coins.events.ChainDataReloadedEvent;
 import io.github.lightman314.lightmanscurrency.api.helpers.FileHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.ItemHelper;
+import io.github.lightman314.lightmanscurrency.api.helpers.JsonHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.ResourceHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.text.LCText;
@@ -58,8 +59,6 @@ import java.util.function.Predicate;
 public final class CoinAPIImpl implements CoinAPI {
 
     public static final CoinAPIImpl INSTANCE = new CoinAPIImpl();
-
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     private final Comparator<ItemStack> coinSorter = new CoinSorter();
 
@@ -205,7 +204,7 @@ public final class CoinAPIImpl implements CoinAPI {
             try {
                 file.createNewFile();
                 JsonObject json = chain.getAsJson(context);
-                FileHelper.writeStringToFile(file,GSON.toJson(json));
+                FileHelper.writeStringToFile(file,JsonHelper.PRETTY_GSON.toJson(json));
             } catch (IOException e) { LightmansCurrency.LogError("Error attmpting to create '" + file.getPath() + " file.",e); }
         }
     }
@@ -366,7 +365,7 @@ public final class CoinAPIImpl implements CoinAPI {
             boolean success = false;
             try(Transaction tx = Transaction.open(transaction)) {
                 //Remove the smaller coins
-                if(ResourceHelper.extractFirstToTarget(container,filter,smallCoinCount,tx) == smallCoinCount)
+                if(ResourceHelper.extractFirstToTarget(container,filter,smallCoinCount,tx).totalCount() == smallCoinCount)
                 {
                     //Insert the large coin
                     if(ResourceHandlerUtil.insertStacking(container,ItemResource.of(largeCoin),1,tx) == 1)

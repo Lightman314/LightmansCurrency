@@ -14,6 +14,7 @@ public final class LCPermissions {
     static {
         register("open_storage",BuiltInPermissions.OPEN_STORAGE);
         register("edit_display",BuiltInPermissions.EDIT_DISPLAY);
+        register("edit_trades",BuiltInPermissions.EDIT_TRADES);
         register("add_remove_allies",BuiltInPermissions.ADD_REMOVE_ALLIES);
         register("edit_ally_perms",BuiltInPermissions.EDIT_ALLY_PERMS);
         register("break_trader",BuiltInPermissions.BREAK_TRADER);

@@ -5,12 +5,12 @@ import io.github.lightman314.lightmanscurrency.api.codecs.partial.*;
 import com.mojang.datafixers.util.*;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -26,9 +26,7 @@ public final class StreamHelper {
 
     public static final StreamCodec<ByteBuf,BigDecimal> BIG_DECIMAL = ByteBufCodecs.STRING_UTF8.map(BigDecimal::new,BigDecimal::toString);
 
-    public static <T> StreamCodec<FriendlyByteBuf,T> mapBufFriendly(StreamCodec<ByteBuf,T> codec) { return codec.mapStream(Function.identity()); }
-    public static <T> StreamCodec<RegistryFriendlyByteBuf,T> mapBufReg(StreamCodec<ByteBuf,T> codec) { return codec.mapStream(Function.identity()); }
-    public static <T> StreamCodec<RegistryFriendlyByteBuf,T> mapFriendReg(StreamCodec<FriendlyByteBuf,T> codec) { return codec.mapStream(Function.identity()); }
+    public static final StreamCodec<RegistryFriendlyByteBuf,ItemStack> C2S_ITEM_STACK = ItemStack.validatedStreamCodec(ItemStack.OPTIONAL_STREAM_CODEC);
 
     public static <B,T> StreamCodec<B,T> uncheckedUnit(T instance) { return uncheckedUnit(() -> instance); }
     public static <B,T> StreamCodec<B,T> uncheckedUnit(Supplier<T> supplier)

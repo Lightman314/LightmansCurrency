@@ -92,4 +92,7 @@ public final class OwnerHolder implements ISidedContext.Mutable<OwnerHolder> {
     @Override
     public int hashCode() { return Objects.hash(this.currentOwner,this.backupOwner); }
 
+    @Override
+    public String toString() { return "OwnerHolder[" + this.backupOwner.toString() + ";" + this.currentOwner.toString() + "]"; }
+
 }

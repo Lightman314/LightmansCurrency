@@ -11,9 +11,9 @@ import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public final class MoneyDisplayHelper {
-
     private MoneyDisplayHelper() {}
 
     /**
@@ -30,6 +30,17 @@ public final class MoneyDisplayHelper {
             builder.append(line.getString());
         }
         return builder.toString();
+    }
+
+    /**
+     * Takes the result of {@link #contentsAsMultiLineText(MoneyResourceHandler, ChatFormatting...)} and adds them to the current tooltip builder
+     * @param handler The Money Resource Handler whose contents should be added to the tooltip
+     * @param builder The tooltip builder available for context
+     * @param style Any Chat Formatting Styles that should be applied
+     * @see #contentsAsMultiLineText(MoneyResourceHandler, ChatFormatting...)
+     */
+    public static void contentsAsTooltip(MoneyResourceHandler handler, Consumer<Component> builder, ChatFormatting... style) {
+        ListHelper.consumeAll(builder,contentsAsMultiLineText(handler,style));
     }
 
     /**
@@ -63,7 +74,7 @@ public final class MoneyDisplayHelper {
      * @see #getCyclingValueText(MoneyResourceHandler,String)
      * @see #getCyclingValueText(MoneyResourceHandler,Component)
      */
-    public static Component getCyclingValueText(MoneyResourceHandler handler) { return getCyclingValueText(handler, LCText.Money.GUI_MONEY_STORAGE_EMPTY.get()); }
+    public static Component getCyclingValueText(MoneyResourceHandler handler) { return getCyclingValueText(handler,LCText.Money.GUI_MONEY_STORAGE_EMPTY.get()); }
     /**
      * Gets the text of a time-based cycling value from the Money Resource Handlers available money<br>
      * Will return the given emptyText if no money is available to display

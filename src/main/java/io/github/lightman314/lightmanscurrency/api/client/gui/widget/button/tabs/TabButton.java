@@ -3,20 +3,20 @@ package io.github.lightman314.lightmanscurrency.api.client.gui.widget.button.tab
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.FancyGuiExtractor;
 import io.github.lightman314.lightmanscurrency.api.client.gui.screen.menu.tabbed.ClientMenuTab;
-import io.github.lightman314.lightmanscurrency.api.client.gui.widget.button.EasyButton;
+import io.github.lightman314.lightmanscurrency.api.client.gui.widget.button.FancyButton;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.TooltipSource;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.positioner.IMoveableWidget;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.positioner.WidgetFacing;
-import io.github.lightman314.lightmanscurrency.api.client.gui.widget.sprites.FaceSensitiveSprites;
-import io.github.lightman314.lightmanscurrency.api.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.api.client.gui.sprites.FaceSensitiveSprites;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.icon.IconData;
 import io.github.lightman314.lightmanscurrency.api.icon.client.IconRenderer;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class TabButton extends EasyButton implements IMoveableWidget {
+public class TabButton extends FancyButton implements IMoveableWidget {
 
     public static final int SIZE = 20;
 
@@ -65,7 +65,7 @@ public class TabButton extends EasyButton implements IMoveableWidget {
 
         public Builder forTab(ClientMenuTab<?,?,?,?> tab) {
             return this.withIcon(tab::getIcon)
-                    .tooltip(TooltipSource.deferredSingle(tab::getName))
+                    .tooltip(TooltipSource.deferredSingle(tab::getName,true))
                     .visible(tab::isVisible);
         }
 

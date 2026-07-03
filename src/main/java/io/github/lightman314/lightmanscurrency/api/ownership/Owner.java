@@ -36,7 +36,6 @@ public abstract class Owner implements ISidedContext.Mutable<Owner> {
     }
     public static final OwnerType<Owner> NULL_TYPE = new NullType();
 
-
     private ISidedContext parent = null;
     @Override
     public final boolean isClient() { return this.parent == null || this.parent.isClient(); }
@@ -66,7 +65,6 @@ public abstract class Owner implements ISidedContext.Mutable<Owner> {
     public abstract boolean isOnline();
     public abstract boolean isAdmin(PlayerReference player);
     public abstract boolean isMember(PlayerReference player);
-
 
     public abstract PlayerReference asPlayerReference();
     @Nullable
@@ -109,6 +107,9 @@ public abstract class Owner implements ISidedContext.Mutable<Owner> {
 
     @Override
     public final int hashCode() { return Objects.hash(LCRegistries.Ownership.OWNER_TYPE.getKey(this.getType()),this.hash()); }
+
+    @Override
+    public String toString() { return "Owner[" + LCRegistries.Ownership.OWNER_TYPE.getKey(this.getType()) + ";" + this.getName().getString() + "]"; }
 
     private static class NullOwner extends Owner {
 

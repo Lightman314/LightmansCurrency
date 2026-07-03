@@ -112,8 +112,11 @@ public abstract class TraderBlock extends EasyBlock implements EntityBlock, IPro
         TraderBlockEntity be = this.getBlockEntity(level,state,pos);
         if(be != null)
         {
+            //End the tracking regardless of whether the break is legal
+            be.tracking.clearAll();
+            //Do nothing else if the break is legal
             if(be.isLegalBreak())
-                return; //Do nothing if the break is legal
+                return;
             TraderData trader = be.getTrader();
             if(trader != null)
             {

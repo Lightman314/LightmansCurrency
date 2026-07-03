@@ -109,4 +109,11 @@ public final class ItemHelper {
         return null;
     }
 
+    public static int hashList(List<ItemStack> list) {
+        List<Integer> hashes = new ArrayList<>();
+        for(ItemStack s : list)
+            hashes.add(ItemStack.hashItemAndComponents(s));
+        return hashes.hashCode();
+    }
+
 }

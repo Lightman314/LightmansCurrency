@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency;
 
+import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.coins.value.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.config.*;
@@ -7,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.config.options.basic.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.core.LCItems;
+import io.github.lightman314.lightmanscurrency.features.wallet.WalletItem;
 
 import java.util.ArrayList;
 

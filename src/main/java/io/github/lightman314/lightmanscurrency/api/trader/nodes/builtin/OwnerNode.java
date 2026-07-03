@@ -52,12 +52,12 @@ public class OwnerNode extends SimpleSyncedNode implements IOwnerSource, IPermis
     @Override
     public void onDataSync(FancyPacketMap data) {
         if(data.contains("owner"))
-            this.owner.copyFrom(data.get("owner", LCFancyPacketTypes.OWNER_HOLDER,this.owner));
+            this.owner.copyFrom(data.get("owner",LCFancyPacketTypes.OWNER_HOLDER,this.owner));
     }
 
     @Override
     public void createSyncPacket(FancyPacketMap.Mutable builder, ISyncingContext context) {
-        builder.set("owner", LCFancyPacketTypes.OWNER_HOLDER,this.owner);
+        builder.set("owner",LCFancyPacketTypes.OWNER_HOLDER,this.owner);
     }
 
     @Override

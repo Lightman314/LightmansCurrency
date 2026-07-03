@@ -3,15 +3,15 @@ package io.github.lightman314.lightmanscurrency.api.client.gui.widget.button;
 import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.FancyGuiExtractor;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.positioner.IMoveableWidget;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.positioner.WidgetFacing;
-import io.github.lightman314.lightmanscurrency.api.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.icon.IconData;
 import io.github.lightman314.lightmanscurrency.api.icon.client.IconRenderer;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class IconButton extends EasyButton implements IMoveableWidget {
+public class IconButton extends FancyButton implements IMoveableWidget {
 
     private final Function<IconButton,IconData> icon;
     protected IconButton(Builder builder) {

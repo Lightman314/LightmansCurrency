@@ -6,11 +6,13 @@ import io.github.lightman314.lightmanscurrency.api.helpers.registry.RegistryHelp
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
-public record TradePriceType<T extends TradePrice>(MapCodec<T> codec, StreamCodec<? super RegistryFriendlyByteBuf,T> streamCodec) {
+import java.util.function.Supplier;
+
+public record TradePriceType<T extends TradePrice>(MapCodec<T> codec,StreamCodec<? super RegistryFriendlyByteBuf,T> streamCodec,Supplier<T> factory) {
 
     @Override
     public int hashCode() { return RegistryHelper.hash(LCRegistries.Trader.TRADE_PRICE_TYPE,this); }
-
     @Override
     public String toString() { return RegistryHelper.toString("TradePriceType",LCRegistries.Trader.TRADE_PRICE_TYPE,this); }
+
 }

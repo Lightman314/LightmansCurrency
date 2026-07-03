@@ -58,6 +58,10 @@ public final class LCText {
     public static final class Items {
         private Items() {}
 
+        public static final TextEntry TOOLTIP_WALLET_CAPACITY = TextEntry.tooltip(MODID,"wallet.capacity");
+        public static final MultiLineTextEntry TOOLTIP_WALLET_UPGRADEABLE = MultiLineTextEntry.tooltip(MODID,"wallet.upgradeable");
+        public static final TextEntry TOOLTIP_WALLET_STORED_MONEY = TextEntry.tooltip(MODID,"wallet.storedmoney");
+
         public static final TextEntry TOOLTIP_HEALING = TextEntry.tooltip(MODID,"healing");
 
         public static final TextEntry TOOLTIP_UPGRADE_TARGETS = TextEntry.tooltip(MODID,"upgrade.targets");
@@ -104,15 +108,14 @@ public final class LCText {
         public static final TextEntry ARGUMENT_MONEY_VALUE_DIFFERENT_CHAIN = TextEntry.argument("money_value.different_chain");
         //public static final TextEntry ARGUMENT_MONEY_VALUE_NOT_AN_ANCIENT_COIN = TextEntry.argument("money_value.not_an_ancient_coin");
         public static final TextEntry ARGUMENT_MONEY_VALUE_NO_VALUE = TextEntry.argument("money_value.no_value");
-        //public static final TextEntry ARGUMENT_MONEY_VALUE_NOT_EMPTY_OR_FREE = TextEntry.argument("money_value.not_free_or_empty");
         //public static final TextEntry ARGUMENT_MONEY_VALUE_IMPACTOR_INVALID_KEY = TextEntry.argument("money_value.impactor.invalid_key");
         //public static final TextEntry ARGUMENT_MONEY_VALUE_IMPACTOR_INVALID_CURRENCY = TextEntry.argument("money_value.impactor.invalid_currency");
         //public static final TextEntry ARGUMENT_MONEY_VALUE_IMPACTOR_INVALID_AMOUNT = TextEntry.argument("money_value.impactor.invalid_amount");
         //public static final TextEntry ARGUMENT_MONEY_VALUE_IMPACTOR_ERROR = TextEntry.argument("money_value.impactor.error");
         //public static final TextEntry ARGUMENT_COLOR_INVALID = TextEntry.argument("color.invalid");
         //public static final TextEntry ARGUMENT_TRADEID_INVALID = TextEntry.argument("tradeid.invalid");
-        //public static final TextEntry ARGUMENT_TRADER_NOT_FOUND = TextEntry.argument("trader.not_found");
-        //public static final TextEntry ARGUMENT_TRADER_NOT_RECOVERABLE = TextEntry.argument("trader.not_recoverable");
+        public static final TextEntry ARGUMENT_TRADER_NOT_FOUND = TextEntry.argument("trader.not_found");
+        public static final TextEntry ARGUMENT_TRADER_NOT_RECOVERABLE = TextEntry.argument("trader.not_recoverable");
 
     }
 
@@ -120,6 +123,7 @@ public final class LCText {
         private Misc() { }
 
         public static final TextEntry GENERIC_PLURAL = new TextEntry("item.lightmanscurrency.generic.plural");
+        public static final TextEntry TOOLTIP_ITEM_COUNT = new TextEntry("item.lightmanscurrency.generic.plural");
 
     }
 

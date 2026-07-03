@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.sto
 
 import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.FancyGuiExtractor;
 import io.github.lightman314.lightmanscurrency.api.client.gui.screen.menu.tabbed.ClientMenuTab;
-import io.github.lightman314.lightmanscurrency.api.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.icon.IconData;
 import io.github.lightman314.lightmanscurrency.api.icon.builtin.ItemIcon;

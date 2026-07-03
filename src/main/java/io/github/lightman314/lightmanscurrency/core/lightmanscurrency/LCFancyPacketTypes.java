@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.permissions.Permission
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.PermissionValue;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePrice;
 import io.github.lightman314.lightmanscurrency.api.world.data.WorldPosition;
+import io.github.lightman314.lightmanscurrency.features.trader.item.TradeItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -60,6 +61,7 @@ public final class LCFancyPacketTypes {
     public static final DeferredHolder<FancyPacketType<?>,FancyPacketType<WorldPosition>> WORLD_POSITION = register("world_position",WorldPosition.STREAM_CODEC);
     public static final DeferredHolder<FancyPacketType<?>,FancyPacketType<MoneyValue>> MONEY = register("money",MoneyValue.STREAM_CODEC);
     public static final DeferredHolder<FancyPacketType<?>,FancyPacketType<TradePrice>> TRADE_PRICE = register("trade_price",TradePrice.STREAM_CODEC);
+    public static final DeferredHolder<FancyPacketType<?>,FancyPacketType<TradeItem>> ITEM_REQUIREMENT = register("item_requirement", TradeItem.STREAM_CODEC);
 
 
     private static <T> DeferredHolder<FancyPacketType<?>,FancyPacketType<T>> register(String name, StreamCodec<? super RegistryFriendlyByteBuf,T> codec) { return REGISTER.register(name,() -> new FancyPacketType<>(codec)); }

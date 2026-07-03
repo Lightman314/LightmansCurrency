@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.trader.permissions;
 
 import com.mojang.serialization.Codec;
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
@@ -19,7 +20,6 @@ public final class PermissionValue<T> {
     });
 
     private static final Map<PermissionType<?>,Codec<PermissionValue<?>>> codecCache = new HashMap<>();
-    private static final Map<PermissionType<?>,Codec<PermissionValue<?>>> streamCodecCache = new HashMap<>();
 
     public static <T> Codec<PermissionValue<?>> getCodec(Permission<T> permission)
     {
@@ -33,6 +33,8 @@ public final class PermissionValue<T> {
     }
 
     private final Permission<T> permission;
+    public Permission<T> getPerm() { return this.permission; }
+    public String getKey() { return this.permission.getKey().toString(); }
     private T value;
     public PermissionValue(Permission<T> permission, T value)
     {
@@ -49,8 +51,13 @@ public final class PermissionValue<T> {
     public T get() { return this.value; }
     public void trySet(T value)
     {
-        if(this.permission.getType().allowedValue(value))
+        if(this.permission.allowedValue(value))
             this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return "PermissionValue[" + LCRegistries.Trader.PERMISSION.getKey(this.permission) + ";" + this.value + "]";
     }
 
 }

@@ -7,6 +7,7 @@ public final class BuiltInPermissions {
 
     public static final Permission<Boolean> OPEN_STORAGE = BooleanPermissionType.of(true);
     public static final Permission<Boolean> EDIT_DISPLAY = BooleanPermissionType.of(true);
+    public static final Permission<Boolean> EDIT_TRADES = BooleanPermissionType.of(true);
     public static final Permission<Boolean> ADD_REMOVE_ALLIES = BooleanPermissionType.of(false);
     public static final Permission<Boolean> EDIT_ALLY_PERMS = BooleanPermissionType.of(false);
     public static final Permission<Boolean> BREAK_TRADER = BooleanPermissionType.of(false);

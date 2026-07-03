@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.helpers.network;
 
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
+import io.github.lightman314.lightmanscurrency.api.helpers.debug.IIndentStringable;
 import io.netty.handler.codec.DecoderException;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -9,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public final class PacketList<T> implements Iterable<T> {
+public final class PacketList<T> implements Iterable<T>, IIndentStringable {
 
     public static final StreamCodec<RegistryFriendlyByteBuf,PacketList<?>> STREAM_CODEC = StreamCodec.of((buf,list) -> {
         buf.writeInt(list.list.size());
@@ -70,4 +71,27 @@ public final class PacketList<T> implements Iterable<T> {
         return newList;
     }
 
+    @Override
+    public String toString() {
+        return this.toString("");
+    }
+
+    @Override
+    public String toString(String indent) {
+        StringBuilder builder = new StringBuilder("(").append(LCRegistries.Network.PACKET_TYPE.getKey(this.listType)).append(")[");
+        if(this.list.isEmpty()) //If this is an empty list, just display the [] in a single line
+            return builder.append(']').toString();
+        builder.append('\n');
+        String spacing = indent + "  ";
+        for(T value : this.list)
+        {
+            builder.append(spacing);
+            if(value instanceof IIndentStringable s)
+                builder.append(s.toString(spacing));
+            else
+                builder.append(value.toString());
+            builder.append('\n');
+        }
+        return builder.append(indent).append(']').toString();
+    }
 }

@@ -18,6 +18,9 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * All events involved within the lifecycle of a customer trade interaction.
+ */
 public abstract class TradeEvent extends Event {
 
     private final TradeContext context;
@@ -36,6 +39,12 @@ public abstract class TradeEvent extends Event {
         this.trade = trade;
     }
 
+    /**
+     * This event is called on both the logical server and the logical client in order to determine if the customer is allowed to attempt the given trade interaction.<br>
+     * This event collects a set of {@link TradeMessage messages} that will be displayed on trade's button on the client, explaining why it failed (or if it didn't fail, other helpful info such as informing them of a discount).<br>
+     * Event is {@link ICancellableEvent cancellable}, and if cancelled the trade attempt will be aborted immediately.
+     * Calling {@link #addDenial(Component)} will automatically cancel the event in addition to collecting the given denial reason.
+     */
     public static final class Pre extends TradeEvent implements ICancellableEvent
     {
         private final List<TradeMessage> messages = new ArrayList<>();
@@ -63,6 +72,11 @@ public abstract class TradeEvent extends Event {
 
     }
 
+    /**
+     * This event is posted on both the logical server and the logical client in order to determine the trades intended price.<br>
+     * Automatically posted when {@link TradeData#getPrice(TradeContext)} is called.
+     * Allows outside sources to modify the price via percentage, or for the price to be directly overridden/replaced if you, but do so with caution.
+     */
     public static final class Cost extends TradeEvent
     {
         private boolean forceFree = false;
@@ -91,23 +105,29 @@ public abstract class TradeEvent extends Event {
 
     }
 
+    /**
+     * Posted on the logical server after a successful trade.<br>
+     * Contains information about the completed trade, such as the price paid, how many taxes were paid, and what product was actually given to the customer.<br>
+     * The product information is provided as a list of objects
+     */
     public static final class Post extends TradeEvent
     {
-        private final MoneyValue pricePaid;
-        public MoneyValue getPricePaid() { return this.pricePaid; }
-        private final MoneyValue taxesPaid;
-        public MoneyValue getTaxesPaid() { return this.taxesPaid; }
-        private final List<Object> product;
-        public List<Object> getProduct() { return this.product; }
+        private final TradePrice pricePaid;
+        public TradePrice getPricePaid() { return this.pricePaid; }
+        private final TradePrice.TransferResult priceResult;
+        public MoneyValue getTaxesPaid() { return this.priceResult.getTaxesPaid(); }
+        public List<?> getPriceTransferContext() { return this.priceResult.getAdditionalContext(); }
+        private final List<?> product;
+        public List<?> getProduct() { return this.product; }
 
         /**
-         * Should only be constructed via {@link TradingNode#finishSuccessfulTrade(TradeContext, TradeData, MoneyValue, MoneyValue,List)}
+         * Should only be constructed via {@link TradingNode#finishSuccessfulTrade(TradeContext, TradeData, TradePrice, MoneyValue,List)}
          */
         @ApiStatus.Internal
-        public Post(TradeContext context,TradingNode<?> activeNode,TradeData trade,MoneyValue pricePaid,MoneyValue taxesPaid,List<Object> product) {
+        public Post(TradeContext context,TradingNode<?> activeNode,TradeData trade,TradePrice pricePaid,TradePrice.TransferResult priceResult,List<?> product) {
             super(context,activeNode,trade);
             this.pricePaid = pricePaid;
-            this.taxesPaid = taxesPaid;
+            this.priceResult = priceResult;
             this.product = ImmutableList.copyOf(product);
         }
 

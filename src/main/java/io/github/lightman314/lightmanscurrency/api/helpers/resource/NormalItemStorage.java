@@ -7,6 +7,7 @@ import net.neoforged.neoforge.transfer.TransferPreconditions;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,17 +28,53 @@ public class NormalItemStorage extends ListBackedItemStorage {
         int newSize = Math.max(size,1);
         if(newSize == this.storage.size())
             return;
+        List<ItemStack> removed = new ArrayList<>();
         while(this.storage.size() > newSize)
-            this.storage.removeLast();
+        {
+            ItemStack r = this.storage.removeLast();
+            if(!r.isEmpty())
+                removed.add(r);
+        }
         while(this.storage.size() < newSize)
             this.storage.add(ItemStack.EMPTY);
+        //Attempt to forcibly fit the wallets contents within its storage
+        this.forceInsert(removed);
     }
     @Override
     public void copyFrom(List<ItemStack> list) {
-        //Since it's a list with size
+        //Since it's a list with size, it'll keep its current size
         this.storage.clear();
         for(int i = 0; i < this.storage.size() && i < list.size(); ++i)
             this.storage.set(i,list.get(i));
+    }
+
+    protected final void forceInsert(List<ItemStack> list) {
+        for(ItemStack item : ItemHelper.combineStacks(list))
+            this.forceInsert(item);
+    }
+
+    protected final void forceInsert(ItemStack stack) {
+        if(stack.isEmpty())
+            return;
+        for(int i = 0; i < this.storage.size() && !stack.isEmpty(); ++i)
+        {
+            ItemStack s = this.storage.get(i);
+            if(s.isEmpty())
+            {
+                int insert = Math.min(Math.min(stack.getMaxStackSize(),stack.getCount()),this.getCapacityAsInt(i,ItemResource.of(stack)));
+                if(insert > 0)
+                    this.storage.set(i,stack.split(insert));
+            }
+            else if(ItemStack.isSameItemSameComponents(s,stack))
+            {
+                int insert = Math.min(s.getMaxStackSize() - s.getCount(),stack.getCount());
+                if(insert > 0)
+                {
+                    s.grow(insert);
+                    stack.shrink(insert);
+                }
+            }
+        }
     }
 
     public final void setItem(int slot,ItemResource resource,int amount) { this.setItem(slot,resource.toStack(amount)); }
@@ -72,6 +109,7 @@ public class NormalItemStorage extends ListBackedItemStorage {
                 return 0;
             this.updateSnapshots(transaction);
             this.storage.set(index,resource.toStack(insertAmount));
+            this.afterChangeBeforeCommit(transaction);
             return insertAmount;
         }
         else if(ItemStack.isSameItemSameComponents(s,insertStack))
@@ -82,6 +120,7 @@ public class NormalItemStorage extends ListBackedItemStorage {
                 return 0;
             this.updateSnapshots(transaction);
             s.grow(insertAmount);
+            this.afterChangeBeforeCommit(transaction);
             return insertAmount;
         }
         return 0;
@@ -100,6 +139,7 @@ public class NormalItemStorage extends ListBackedItemStorage {
             int removeAmount = Math.min(amount,s.getCount());
             this.updateSnapshots(transaction);
             s.shrink(removeAmount);
+            this.afterChangeBeforeCommit(transaction);
             return removeAmount;
         }
         return 0;

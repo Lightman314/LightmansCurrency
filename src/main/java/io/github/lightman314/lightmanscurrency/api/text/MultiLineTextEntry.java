@@ -18,7 +18,7 @@ public final class MultiLineTextEntry {
     public MultiLineTextEntry(String key) { this.key = Lazy.of(() -> key); }
     public MultiLineTextEntry(Supplier<String> key) { this.key = Lazy.of(key); }
 
-    public String getKey(int index) { return this.key + "." + (index + 1); }
+    public String getKey(int index) { return this.key.get() + "." + (index + 1); }
 
     public Supplier<List<Component>> asSupplier(Object... objects) { return () -> this.get(objects); }
     //public Supplier<List<Component>> asTooltip(Object... objects) { return () -> TooltipHelper.splitTooltips(get(objects),ChatFormatting.GRAY); }

@@ -1,11 +1,13 @@
 package io.github.lightman314.lightmanscurrency.api.upgrades;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.text.LCText;
 import io.github.lightman314.lightmanscurrency.api.upgrades.event.UpgradeEvent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipProvider;
@@ -17,6 +19,8 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class UpgradeType implements TooltipProvider {
+
+    public static final Identifier EMPTY_SLOT_SPRITE = LCApi.id("container/slot/upgrade");
 
     private List<Component> targets = null;
 

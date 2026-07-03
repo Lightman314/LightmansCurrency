@@ -21,6 +21,8 @@ public final class LCModelTemplates {
     public static final ModelTemplate COIN_PILE = new ModelTemplate(Optional.of(LCApi.id("block/coin_pile")),Optional.empty(),LCTextureSlots.MAIN);
     public static final ModelTemplate DISPLAY_CASE = withPrefix(new ModelTemplate(Optional.of(LCApi.id("block/display_case/base")),Optional.empty(),LCTextureSlots.WOOL),"display_case/").withCustomBlockKey(LCModelTemplates::getColoredKey);
 
+    public static final ModelTemplate WALLET_HIP = withPrefix(new ModelTemplate(Optional.of(LCApi.id("item/wallet_hip/wallet_base")),Optional.empty(),LCTextureSlots.MAIN),"wallet_hip/");
+
     public static PrefixTemplate withPrefix(ModelTemplate template,String prefix) { return new PrefixTemplate(template,prefix); }
 
     public static Identifier getColoredKey(Item item) {

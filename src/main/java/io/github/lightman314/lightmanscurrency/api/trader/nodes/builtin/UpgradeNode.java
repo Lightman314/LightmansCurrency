@@ -51,12 +51,19 @@ public class UpgradeNode extends SimpleSyncedNode implements IUpgradeable {
     }
 
     @Override
+    public void traderCreatePacket(FancyPacketMap.Mutable builder) {
+        builder.setInt("upgrade_count",this.storage.size());
+    }
+
+    @Override
     public void createSyncPacket(FancyPacketMap.Mutable builder,ISyncingContext context) {
         builder.setList("storage",LCFancyPacketTypes.ITEM_STACK,this.storage.getContents());
     }
 
     @Override
     public void onDataSync(FancyPacketMap data) {
+        if(data.contains("upgrade_count"))
+            this.storage.overrideSize(data.getInt("upgrade_count"));
         if(data.contains("storage"))
             this.storage.copyFrom(data.getList("storage",LCFancyPacketTypes.ITEM_STACK));
         if(data.contains("storage_update"))

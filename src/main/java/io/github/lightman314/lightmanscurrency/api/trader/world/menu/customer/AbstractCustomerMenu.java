@@ -64,7 +64,7 @@ public abstract class AbstractCustomerMenu extends MessageMenu.Validated {
             trader.openStorageMenu(this.getPlayer(),this.getValidator());
     }
 
-    public final TradeContext.Builder buildContext(TraderData trader) { return this.buildContext(TradeContext.builder(trader,TradeCustomer.of(this.getPlayer()))); }
+    public final TradeContext.Builder buildContext(TraderData trader) { return this.buildContext(TradeContext.builder(trader,TradeCustomer.of(this.getPlayer()),this.getPlayer().getRandom())); }
     public abstract TradeContext.Builder buildContext(TradeContext.Builder builder);
 
     public void attemptSimpleTrade(int tradeIndex) { this.attemptTrade(0,tradeIndex); }

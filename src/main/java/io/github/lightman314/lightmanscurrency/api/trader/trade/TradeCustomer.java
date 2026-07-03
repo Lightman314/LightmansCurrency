@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public final class TradeCustomer {
 
-    public static final TradeCustomer DISPLAY = new TradeCustomer(PlayerReference.NULL,CustomerType.DISPLAY);
+    public static final TradeCustomer EDITING = new TradeCustomer(PlayerReference.NULL,CustomerType.EDITING);
 
     private final PlayerReference customer;
     private final CustomerType type;
@@ -35,8 +35,8 @@ public final class TradeCustomer {
     public boolean isPlayer() { return this.type == CustomerType.PLAYER; }
     public boolean isNPC() { return this.type == CustomerType.NPC; }
     public boolean isMachine() { return this.type == CustomerType.MACHINE; }
-    public boolean isDisplay() { return this.type == CustomerType.DISPLAY; }
+    public boolean isEditing() { return this.type == CustomerType.EDITING; }
 
-    public enum CustomerType { PLAYER,NPC,MACHINE, DISPLAY }
+    public enum CustomerType { PLAYER,NPC,MACHINE, EDITING }
 
 }

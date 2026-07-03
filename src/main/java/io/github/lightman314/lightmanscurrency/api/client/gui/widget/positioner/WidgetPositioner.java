@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.client.gui.widget.positioner
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.api.client.gui.screen.menu.IFancyScreen;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.scrolling.IScrollable;
-import io.github.lightman314.lightmanscurrency.api.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;

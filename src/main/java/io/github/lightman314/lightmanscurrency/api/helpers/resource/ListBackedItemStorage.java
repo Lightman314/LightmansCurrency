@@ -128,6 +128,10 @@ public abstract class ListBackedItemStorage implements ResourceHandler<ItemResou
         this.copyFrom(contents);
     }
 
+    protected void afterChangeBeforeCommit(TransactionContext transaction) {
+
+    }
+
     protected final void setChanged(List<ItemStack> oldState)
     {
         //Flag as changed after the commit

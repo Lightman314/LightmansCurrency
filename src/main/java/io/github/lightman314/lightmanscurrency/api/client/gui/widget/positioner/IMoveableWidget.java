@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.client.gui.widget.positioner;
 
-import io.github.lightman314.lightmanscurrency.api.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 
 public interface IMoveableWidget {
 

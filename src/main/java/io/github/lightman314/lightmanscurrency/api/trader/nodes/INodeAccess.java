@@ -12,20 +12,10 @@ import java.util.function.Predicate;
 
 public interface INodeAccess {
 
-
     default boolean hasNode(TraderNodeType<?> type) { return this.getNode(type) != null; }
+    default boolean hasNode(Class<? extends TraderNode> type) { return !this.getNodes(type).isEmpty(); }
     @Nullable
     <T extends TraderNode> T getNode(TraderNodeType<T> type);
-    @Nullable
-    default <T extends TraderNode> T getNode(TraderNodeGroup<T> group) {
-        for(TraderNodeType<? extends T> type : group.getTypes())
-        {
-            T result = this.getNode(type);
-            if(result != null)
-                return result;
-        }
-        return null;
-    }
     default <T extends TraderNode> void ifNodePresent(TraderNodeType<T> type, Consumer<T> action) {
         T node = this.getNode(type);
         if(node != null)
@@ -41,7 +31,7 @@ public interface INodeAccess {
     }
 
     List<TraderNode> getAllNodes();
-    default  <T> List<T> getNodes(Class<T> subclass)
+    default <T> List<T> getNodes(Class<T> subclass)
     {
         List<T> result = new ArrayList<>();
         for(TraderNode n : this.getAllNodes())
@@ -50,6 +40,12 @@ public interface INodeAccess {
                 result.add(subclass.cast(n));
         }
         return result;
+    }
+    @Nullable
+    default <T> T getFirstNode(Class<T> subclass)
+    {
+        List<T> allNodes = this.getNodes(subclass);
+        return allNodes.isEmpty() ? null : allNodes.getFirst();
     }
     default List<TradingNode<?>> getTradingNodes() {
         List<TradingNode<?>> list = new ArrayList<>();

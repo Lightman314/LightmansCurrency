@@ -4,8 +4,8 @@ import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.FancyGuiEx
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.scrolling.IScrollable;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.scrolling.ScrollArea;
-import io.github.lightman314.lightmanscurrency.api.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.helpers.ItemHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.icon.IconData;
@@ -19,10 +19,14 @@ import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.Tra
 import io.github.lightman314.lightmanscurrency.features.trader.misc.FlexibleItemStorage;
 import io.github.lightman314.lightmanscurrency.features.trader.misc.ItemStorageNode;
 import io.github.lightman314.lightmanscurrency.features.trader.misc.ItemStorageTab;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+
+import java.text.DecimalFormat;
 
 public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab> implements IScrollable, IMouseListener {
 
@@ -99,10 +103,30 @@ public class ItemStorageClientTab extends TraderStorageClientTab<ItemStorageTab>
                 //The item itself
                 gui.item(stack,slotPos.offset(1,1),ItemHelper.getBigStackText(stack));
                 if(hovered) //The slot hightlight after the item
+                {
                     gui.blitSlotHighlightFront(slotPos);
+                    //Also render the tooltip here if the stack isn't empty
+                    if(storage != null && !stack.isEmpty())
+                    {
+                        gui.renderItemTooltipAtMouse(stack,tooltip ->
+                            tooltip.add(formatItemCount(stack.getCount(),storage.getCapacity(),ChatFormatting.YELLOW))
+                        );
+                    }
+                }
+
             }
         }
         gui.pop(); //Undo our zero push
+    }
+
+    public static Component formatItemCount(int count, int maxCount, ChatFormatting... formatting) {
+        DecimalFormat format = new DecimalFormat();
+        MutableComponent c = Component.literal(format.format(count));
+        if(count == maxCount)
+            c.withStyle(ChatFormatting.GOLD);
+        else if(count > maxCount)
+            c.withStyle(ChatFormatting.DARK_RED);
+        return LCText.Misc.TOOLTIP_ITEM_COUNT.get(c,format.format(maxCount)).withStyle(formatting);
     }
 
     @Override

@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.api.client.gui.screen.menu;
 
 import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.FancyGuiExtractor;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.*;
-import io.github.lightman314.lightmanscurrency.api.client.util.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ITickerClient;
 import io.github.lightman314.lightmanscurrency.api.world.menu.FancyMenu;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -59,7 +59,6 @@ public abstract class FancyMenuScreen<M extends FancyMenu> extends AbstractConta
     public final int getWidth() { return this.area.width; }
     @Override
     public final int getHeight() { return this.area.height; }
-
 
     @Override
     protected final void init() {

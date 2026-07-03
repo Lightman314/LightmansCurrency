@@ -24,6 +24,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.function.Function;
 public class TraderStorageMenu extends TabbedMenu.Validated<TraderStorageMenu,TraderStorageTab> implements INodeAccess {
 
     public static final int SLOT_OFFSET = 15;
+    public static final int INVENTORY_SLOTS = 9 * 4;
 
     private final long traderID;
     @Nullable
@@ -47,9 +49,6 @@ public class TraderStorageMenu extends TabbedMenu.Validated<TraderStorageMenu,Tr
         this.traderID = traderID;
         super(LCMenuTypes.TRADER_STORAGE.get(),containerId,player,validator);
         this.addCheck(this::traderValid,this::openCustomerMenu);
-
-
-
     }
 
     @Override
@@ -121,6 +120,27 @@ public class TraderStorageMenu extends TabbedMenu.Validated<TraderStorageMenu,Tr
         TraderData trader = this.getTrader();
         if(trader != null)
             trader.openCustomerMenu(this.getPlayer(),this.getValidator());
+    }
+
+    @Override
+    protected ItemStack quickMoveAction(Player player, int slotIndex) {
+        ItemStack clicked = ItemStack.EMPTY;
+        Slot slot = this.slots.get(slotIndex);
+        if(slot != null && slot.hasItem())
+        {
+            ItemStack stack = slot.getItem();
+            clicked = stack.copy();
+            if(slotIndex < INVENTORY_SLOTS)
+            {
+                if(!this.moveItemStackTo(stack,INVENTORY_SLOTS,this.slots.size(),false))
+                    return ItemStack.EMPTY;
+            }
+            if(stack.isEmpty())
+                slot.setByPlayer(ItemStack.EMPTY);
+            else
+                slot.setChanged();
+        }
+        return clicked;
     }
 
     @Override

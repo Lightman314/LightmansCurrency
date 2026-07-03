@@ -2,12 +2,12 @@ package io.github.lightman314.lightmanscurrency.api.client.gui.widget;
 
 import io.github.lightman314.lightmanscurrency.api.client.gui.screen.menu.interfaces.IWidgetHolder;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.IMultiWidget;
-import io.github.lightman314.lightmanscurrency.api.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractMultiWidget extends EasyWidget implements IMultiWidget {
+public abstract class AbstractMultiWidget extends FancyWidget implements IMultiWidget {
 
     private IWidgetHolder parent = null;
     private final List<Object> children = new ArrayList<>();

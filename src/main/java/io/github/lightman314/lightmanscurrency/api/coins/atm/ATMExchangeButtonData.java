@@ -18,7 +18,7 @@ import io.github.lightman314.lightmanscurrency.api.coins.atm.commands.builtin.Ex
 import io.github.lightman314.lightmanscurrency.api.coins.atm.commands.builtin.ExchangeCommand;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.DataContext;
 import io.github.lightman314.lightmanscurrency.api.coins.atm.icons.ATMIconData;
-import io.github.lightman314.lightmanscurrency.api.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.coins.atm.icons.builtin.ATMItemIcon;
 import io.github.lightman314.lightmanscurrency.api.coins.atm.icons.builtin.ATMArrowIcon;
 import io.github.lightman314.lightmanscurrency.api.coins.atm.icons.builtin.ATMArrowIcon.ArrowType;

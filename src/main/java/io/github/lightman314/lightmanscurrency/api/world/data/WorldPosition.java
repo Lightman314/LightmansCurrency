@@ -65,11 +65,7 @@ public final class WorldPosition {
         this.pos = pos.immutable();
     }
 
-    private static WorldPosition parse(Optional<ResourceKey<Level>> dimension,BlockPos pos) {
-        if(dimension.isEmpty())
-            return VOID;
-        return new WorldPosition(dimension,pos);
-    }
+    private static WorldPosition parse(Optional<ResourceKey<Level>> dimension,BlockPos pos) { return of(dimension.orElse(null),pos); }
 
     public static WorldPosition of(@Nullable ResourceKey<Level> dimension,BlockPos pos) {
         if(dimension == null)
@@ -100,7 +96,7 @@ public final class WorldPosition {
 
     @Override
     public String toString() {
-        if(this.isVoid())
+        if(this.dimension == null)
             return "WorldPosition[VOID]";
         return "WorldPosition[" + this.dimension.identifier() + ";" + this.pos.toShortString() + "]";
     }

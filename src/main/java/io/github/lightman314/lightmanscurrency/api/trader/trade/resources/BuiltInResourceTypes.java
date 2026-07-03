@@ -13,6 +13,6 @@ public class BuiltInResourceTypes {
     public static final ResourceType.SimpleType<ResourceHandler<ItemResource>> ITEM = new ResourceType.ResourceHandlerType<>(Identifier.fromNamespaceAndPath("neoforge","items"));
     public static final ResourceType.SimpleType<ResourceHandler<FluidResource>> FLUID = new ResourceType.ResourceHandlerType<>(Identifier.fromNamespaceAndPath("neoforge","fluids"));
     public static final ResourceType.SimpleType<EnergyHandler> ENERGY = new ResourceType.EnergyResourceType();
-    public static final ResourceType<SortableMoneyResourceHandler, MoneyResourceHandler> MONEY = new ResourceType.MoneyResourceType();
+    public static final ResourceType<SortableMoneyResourceHandler,MoneyResourceHandler> MONEY = new ResourceType.MoneyResourceType();
 
 }

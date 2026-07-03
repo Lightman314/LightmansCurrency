@@ -36,6 +36,7 @@ public abstract class TraderNode implements ISidedContext, IRegistryAccess, INod
     public final void setChanged() { this.trader.setChanged(this); }
     public final void setChangedNoPacket() { this.trader.setChangedNoPacket(); }
 
+    public final String getKey() { return LCRegistries.Trader.TRADER_NODE_TYPE.getKey(this.getType()).toString(); }
     public abstract TraderNodeType<?> getType();
 
     /**

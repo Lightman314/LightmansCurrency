@@ -3,10 +3,13 @@
   "package": "io.github.lightman314.lightmanscurrency.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
-
+    "AbstractContainerMenuAccessor",
+    "InventoryMenuMixin"
   ],
   "client": [
-
+    "client.CreativeModeInventoryScreenAccessor",
+    "client.SlotWrapperAccessor",
+    "client.SlotWrapperMixin"
   ],
   "minVersion": "0.8"
 }

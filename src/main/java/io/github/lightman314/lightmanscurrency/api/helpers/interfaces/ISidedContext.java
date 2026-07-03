@@ -55,4 +55,6 @@ public interface ISidedContext {
         T setSidedContext(ISidedContext context);
     }
 
+    static String getDebugSideName(ISidedContext context) { return context.isClient() ? "client" : "server"; }
+
 }

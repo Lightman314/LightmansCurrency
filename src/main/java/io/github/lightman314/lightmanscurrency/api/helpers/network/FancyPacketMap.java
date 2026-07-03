@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.helpers.network;
 import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.EnumHelper;
+import io.github.lightman314.lightmanscurrency.api.helpers.debug.IIndentStringable;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -19,7 +20,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
-public sealed class FancyPacketMap permits FancyPacketMap.Mutable {
+public sealed class FancyPacketMap implements IIndentStringable permits FancyPacketMap.Mutable  {
 
     public static final StreamCodec<RegistryFriendlyByteBuf,FancyPacketMap> STREAM_CODEC = StreamCodec.of((buf,map) -> {
         buf.writeInt(map.dataMap.size());
@@ -135,6 +136,27 @@ public sealed class FancyPacketMap permits FancyPacketMap.Mutable {
 
     protected static <T> PacketList<T> castList(Entry<?> entry,FancyPacketType<T> type) { return ((PacketList<?>)entry.value).forceType(type); }
 
+    @Override
+    public String toString() { return this.toString(""); }
+
+    @Override
+    public String toString(String indent) {
+        StringBuilder builder = new StringBuilder("{\n");
+        final String spacing = indent + "  ";
+        this.dataMap.forEach((key,value) -> {
+            //Key
+            builder.append(spacing).append('"').append(key).append('"')
+                    //Packet Type
+                    .append("(").append(LCRegistries.Network.PACKET_TYPE.getKey(value.type)).append("): ");
+            if(value.value instanceof IIndentStringable fs)
+                builder.append(fs.toString(spacing));
+            else
+                builder.append(value.value.toString());
+            builder.append('\n');
+        });
+        return builder.append(indent).append("}").toString();
+    }
+
     public static final class Mutable extends FancyPacketMap
     {
         private Mutable() { this(new HashMap<>()); }
@@ -209,6 +231,11 @@ public sealed class FancyPacketMap permits FancyPacketMap.Mutable {
             Mutable map = this.getMap(key).mutable();
             action.accept(map);
             return this.setMap(key,map);
+        }
+
+        public Mutable action(Consumer<FancyPacketMap.Mutable> handler) {
+            handler.accept(this);
+            return this;
         }
 
         public Mutable clear() { this.dataMap.clear(); return this; }

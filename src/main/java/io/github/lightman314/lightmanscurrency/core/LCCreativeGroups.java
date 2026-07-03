@@ -7,6 +7,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.level.ItemLike;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -43,6 +44,15 @@ public final class LCCreativeGroups {
                         p.accept(LCItems.COIN_NETHERITE);
                         p.accept(LCBlocks.COIN_PILE_NETHERITE);
                         p.accept(LCBlocks.COIN_BLOCK_NETHERITE);
+                        //Wallets
+                        p.accept(LCItems.WALLET_COPPER);
+                        p.accept(LCItems.WALLET_IRON);
+                        p.accept(LCItems.WALLET_GOLD);
+                        p.accept(LCItems.WALLET_EMERALD);
+                        p.accept(LCItems.WALLET_DIAMOND);
+                        p.accept(LCItems.WALLET_NETHERITE);
+                        p.accept(LCItems.WALLET_NETHER_STAR);
+                        p.accept(LCItems.WALLET_ENDER_DRAGON);
                     }));
 
     public static final DeferredHolder<CreativeModeTab,CreativeModeTab> TRADERS = register("traders",builder ->
@@ -59,6 +69,7 @@ public final class LCCreativeGroups {
             output.accept(value);
     }
 
+    @SubscribeEvent
     private static void addToVanillaTabs(BuildCreativeModeTabContentsEvent event) {
         if(event.getTabKey() == CreativeModeTabs.COLORED_BLOCKS)
         {

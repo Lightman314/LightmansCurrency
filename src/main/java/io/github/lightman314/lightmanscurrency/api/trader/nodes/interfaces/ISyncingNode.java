@@ -19,6 +19,7 @@ public interface ISyncingNode {
     default boolean isStorageOnly() { return false; }
     void clean();
     void createSyncPacket(FancyPacketMap.Mutable builder,ISyncingContext context);
+    default void traderCreatePacket(FancyPacketMap.Mutable builder) {}
     void onDataSync(FancyPacketMap data);
 
     default void afterTrackingChange(ISyncingContext context,TrackingLevel oldLevel) {}

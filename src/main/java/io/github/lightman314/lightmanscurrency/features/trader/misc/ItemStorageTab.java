@@ -3,13 +3,14 @@ package io.github.lightman314.lightmanscurrency.features.trader.misc;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.UpgradeNode;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.api.upgrades.world.UpgradeStorage;
 import io.github.lightman314.lightmanscurrency.api.world.menu.slots.EasyResourceSlot;
 import io.github.lightman314.lightmanscurrency.api.world.menu.slots.IEasySlot;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -28,7 +29,7 @@ public class ItemStorageTab extends TraderStorageTab {
     @Override
     public Identifier getKey() { return KEY; }
     @Override
-    public boolean canOpen() { return this.getPermission(BuiltInPermissions.OPEN_STORAGE); }
+    public boolean canOpen() { return true; }
     @Override
     public int getTabSortPriority() { return -100; }
 
@@ -45,10 +46,28 @@ public class ItemStorageTab extends TraderStorageTab {
             {
                 EasyResourceSlot slot = new EasyResourceSlot(upgrades,upgrades::setItem,i,176,18 + 18 * i);
                 slot.setActive(false);
+                slot.setBackground(UpgradeType.EMPTY_SLOT_SPRITE);
                 builder.accept(slot);
                 this.slots.add(slot);
+
             }
         }
+    }
+
+    @Override
+    public boolean quickMoveStack(Player player,int slotIndex) {
+        TraderStorageMenu menu = this.getMenu();
+        if(slotIndex >= 0 && slotIndex < menu.slots.size())
+        {
+            Slot s = menu.getSlot(slotIndex);
+            if(this.slots.contains(s))
+            {
+                //Move item from upgrades to the players inventory
+                if(!menu.moveStackTo(s.getItem(),0,TraderStorageMenu.INVENTORY_SLOTS,true))
+                    return true;
+            }
+        }
+        return super.quickMoveStack(player,slotIndex);
     }
 
     public void onItemClick(int slot, int button) {

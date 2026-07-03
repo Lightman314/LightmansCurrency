@@ -329,6 +329,9 @@ public abstract class MoneyValue {
     protected abstract MoneyValue copyWithInternalValue(long value);
 
     @Override
+    public String toString() { return "MoneyValue[" + this.getKey() + ";" + this.getInternalValue() + "]"; }
+
+    @Override
     public boolean equals(Object obj) {
         if(obj instanceof MoneyValue otherVal)
             return this.getKey().equals(otherVal.getKey()) && this.getInternalValue() == otherVal.getInternalValue();

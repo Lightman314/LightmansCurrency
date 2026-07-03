@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
@@ -16,8 +15,6 @@ import io.github.lightman314.lightmanscurrency.api.trader.permissions.Permission
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.PermissionValue;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
-import net.minecraft.IdentifierException;
-import net.minecraft.resources.Identifier;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -37,7 +34,7 @@ public class AlliesNode extends SimpleSyncedNode implements IPermissionSource, I
     public final Map<Permission<?>,PermissionValue<?>> getPermissionData() { return ImmutableMap.copyOf(this.permissions); }
 
     private AlliesNode() { this(ImmutableList.of(),ImmutableMap.of()); }
-    private AlliesNode(List<PlayerReference> allies,Map<Permission<?>, PermissionValue<?>> permissions)
+    private AlliesNode(List<PlayerReference> allies,Map<Permission<?>,PermissionValue<?>> permissions)
     {
         this.allies = new ArrayList<>(allies);
         this.permissions = new HashMap<>(permissions);
@@ -59,6 +56,18 @@ public class AlliesNode extends SimpleSyncedNode implements IPermissionSource, I
         if(value != null)
             return value.get();
         return permission.getEmpty();
+    }
+
+    public void setAllyPermissionValue(PermissionValue<?> newValue) {
+        if(this.permissions.containsKey(newValue.getPerm()))
+        {
+            PermissionValue<?> oldValue = this.permissions.get(newValue.getPerm());
+            if(!oldValue.get().equals(newValue.get()))
+            {
+                this.permissions.put(newValue.getPerm(),newValue);
+                this.setChanged(builder -> builder.modifyMap("changePermission",map -> map.set(newValue.getKey(),LCFancyPacketTypes.PERMISSION_VALUE,newValue)));
+            }
+        }
     }
 
     //Collect the permission options from the other nodes
@@ -89,8 +98,8 @@ public class AlliesNode extends SimpleSyncedNode implements IPermissionSource, I
     public void createSyncPacket(FancyPacketMap.Mutable builder, ISyncingContext context) {
         builder.setList("allies", LCFancyPacketTypes.PLAYER_REFERENCE,this.allies);
         FancyPacketMap.Mutable permMap = FancyPacketMap.newMutable();
-        for(Permission<?> perm : new HashSet<>(this.permissions.keySet()))
-            permMap.set(perm.getKey().toString(), LCFancyPacketTypes.PERMISSION_VALUE,this.permissions.get(perm));
+        for(PermissionValue<?> perm : new HashSet<>(this.permissions.values()))
+            permMap.set(perm.getKey(),LCFancyPacketTypes.PERMISSION_VALUE,perm);
         builder.setMap("permissions",permMap);
     }
 
@@ -113,23 +122,20 @@ public class AlliesNode extends SimpleSyncedNode implements IPermissionSource, I
             FancyPacketMap map = data.getMap("permissions");
             for(String key : map.keySet())
             {
-                try{
-                    Permission<?> perm = LCRegistries.Trader.PERMISSION.getValue(Identifier.parse(key));
-                    if(perm == null)
-                        continue;
-                    PermissionValue<?> value = map.get(key, LCFancyPacketTypes.PERMISSION_VALUE);
-                    if(value != null && value.is(perm))
-                        this.permissions.put(perm,value);
-                } catch (IdentifierException ignored) {}
+                PermissionValue<?> value = map.get(key,LCFancyPacketTypes.PERMISSION_VALUE);
+                if(value != null)
+                    this.permissions.put(value.getPerm(),value);
             }
         }
         if(data.contains("changePermission"))
         {
             FancyPacketMap entry = data.getMap("changePermission");
-            Permission<?> perm = entry.get("type", LCFancyPacketTypes.PERMISSION);
-            PermissionValue<?> value = entry.get("value", LCFancyPacketTypes.PERMISSION_VALUE);
-            if(value != null && value.is(perm))
-                this.permissions.put(perm,value);
+            for(String key : entry.keySet())
+            {
+                PermissionValue<?> value = entry.get(key,LCFancyPacketTypes.PERMISSION_VALUE);
+                if(value != null)
+                    this.permissions.put(value.getPerm(),value);
+            }
         }
     }
 

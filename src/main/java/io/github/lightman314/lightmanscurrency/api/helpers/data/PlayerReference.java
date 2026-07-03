@@ -281,4 +281,7 @@ public class PlayerReference {
         return null;
     }
 
+    @Override
+    public String toString() { return "PlayerReference[" + this.id + ";" + this.name + "]"; }
+
 }

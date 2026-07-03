@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.client.gui.screen.menu.tabbed
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.button.tabs.TabButton;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.positioner.IWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.positioner.WidgetPositioner;
-import io.github.lightman314.lightmanscurrency.api.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.trader.client.nodes.ClientTraderNode;
 import io.github.lightman314.lightmanscurrency.api.trader.client.nodes.IStorageScreenListener;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;

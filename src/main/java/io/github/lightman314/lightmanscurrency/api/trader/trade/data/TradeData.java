@@ -12,10 +12,11 @@ import io.github.lightman314.lightmanscurrency.api.trader.event.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.TradeEditContext;
-import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.TradeSlotType;
+import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.TradeSlot;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePrice;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.builtin.MoneyPrice;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.NeoForge;
 
@@ -31,6 +32,7 @@ public abstract class TradeData implements ISidedContext {
     public abstract TradeDataType<?> getType();
 
     private TradingNode<?> parent;
+    public TradingNode<?> getHolder() { return this.parent; }
     public final void initialize(TradingNode<?> node) { this.parent = node; }
 
     @Override
@@ -73,7 +75,7 @@ public abstract class TradeData implements ISidedContext {
     public final boolean hasStock(TradeContext context) { return this.getStock(context) > 0; }
     public abstract long getStock(TradeContext context);
 
-    public abstract boolean processTradeClick(TradeSlotType type,int slot,int button,ItemStack heldItem,TradeEditContext context);
-    public abstract boolean processTradeScroll(TradeSlotType type,int slot,float deltaY,ItemStack heldItem,TradeEditContext context);
+    public abstract boolean processTradeClick(Player player,TradeSlot slot,int button,ItemStack heldItem,TradeEditContext context);
+    public abstract boolean processTradeScroll(Player player,TradeSlot slot,float deltaY,ItemStack heldItem,TradeEditContext context);
 
 }

@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.EnumHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.registry.DeferredHolderBundle;
 import io.github.lightman314.lightmanscurrency.api.text.LCText;
+import io.github.lightman314.lightmanscurrency.api.text.MultiLineTextEntry;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.core.LCBlocks;
 import io.github.lightman314.lightmanscurrency.core.LCItems;
@@ -63,6 +64,16 @@ public class LCLanguageProvider extends LanguageProvider {
         this.item(LCItems.COIN_CHOCOLATE_NETHERITE,"Chocolate Netherite Coin");
         this.itemPlural(LCItems.COIN_CHOCOLATE_NETHERITE,"Chocolate Netherite Coins");
 
+        //Wallets
+        this.item(LCItems.WALLET_COPPER,"Copper Wallet");
+        this.item(LCItems.WALLET_IRON,"Iron Wallet");
+        this.item(LCItems.WALLET_GOLD,"Gold Wallet");
+        this.item(LCItems.WALLET_EMERALD,"Emerald Wallet");
+        this.item(LCItems.WALLET_DIAMOND,"Diamond Wallet");
+        this.item(LCItems.WALLET_NETHERITE,"Netherite Wallet");
+        this.item(LCItems.WALLET_NETHER_STAR,"Nether Star Wallet");
+        this.item(LCItems.WALLET_ENDER_DRAGON,"Ender Dragon Wallet");
+
         //Coin Piles
         this.block(LCBlocks.COIN_PILE_COPPER,"Pile of Copper Coins");
         this.blockPlural(LCBlocks.COIN_PILE_COPPER,"Piles of Copper Coins");
@@ -97,10 +108,15 @@ public class LCLanguageProvider extends LanguageProvider {
         //Display Cases
         this.coloredBlock(LCBlocks.DISPLAY_CASE,color -> color + " Display Case");
 
+
+        //Wallet Tooltips
+        this.text(LCText.Items.TOOLTIP_WALLET_CAPACITY,"Has %s coin slots");
+        this.text(LCText.Items.TOOLTIP_WALLET_UPGRADEABLE,"Use a [%1$s] on this in your inventory to increase the wallets capacity by %2$s","Can by upgraded %3$s more times");
+        this.text(LCText.Items.TOOLTIP_WALLET_STORED_MONEY,"Contains:");
+
         //Trader Tooltips
         this.text(LCText.Trader.TOOLTIP_TRADE_EDIT_TAB,"Edit Trades");
         this.text(LCText.Trader.TOOLTIP_ITEM_STORAGE,"Item Storage");
-
 
     }
 
@@ -114,11 +130,15 @@ public class LCLanguageProvider extends LanguageProvider {
     protected final void blockInitial(Supplier<? extends Block> block, String translation) { this.add(block.get().getDescriptionId() + ".initial",translation); }
 
     protected final void coloredBlock(DeferredHolderBundle<DyeColor,Block,? extends Block> bundle, Function<String,String> translation) {
-        bundle.forEach((color,block) -> {
-            this.add(block,translation.apply(this.getColorName(color)));
-        });
+        bundle.forEach((color,block) ->
+            this.add(block,translation.apply(this.getColorName(color))));
     }
 
     protected final void text(TextEntry text,String translation) { this.add(text.getKey(),translation); }
+    protected final void text(MultiLineTextEntry text,String... translations) {
+        int index = 0;
+        for(String line : translations)
+            this.add(text.getKey(index++),line);
+    }
 
 }

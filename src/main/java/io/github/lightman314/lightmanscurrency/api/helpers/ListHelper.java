@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public final class ListHelper {
-
     private ListHelper() {}
 
     /**

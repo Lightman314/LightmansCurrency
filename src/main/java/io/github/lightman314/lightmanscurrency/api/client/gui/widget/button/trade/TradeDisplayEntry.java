@@ -11,6 +11,15 @@ public abstract class TradeDisplayEntry {
 
     public abstract void extractContents(FancyGuiExtractor gui, int x, int y);
 
-    public boolean appendTooltip(FancyGuiExtractor gui,List<Component> tooltip) { return false; }
+    public abstract void appendTooltip(List<Component> tooltip);
+
+    public static abstract class ManualTooltipRender extends TradeDisplayEntry {
+
+        @Override
+        public final void appendTooltip(List<Component> tooltip) {}
+
+        public abstract void renderCustomTooltip(FancyGuiExtractor gui, List<Component> tooltips);
+
+    }
 
 }

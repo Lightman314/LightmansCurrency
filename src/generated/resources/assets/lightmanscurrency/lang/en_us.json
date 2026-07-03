@@ -69,8 +69,20 @@
   "item.lightmanscurrency.coin_netherite": "Netherite Coin",
   "item.lightmanscurrency.coin_netherite.initial": "n",
   "item.lightmanscurrency.coin_netherite.plural": "Netherite Coins",
+  "item.lightmanscurrency.wallet_copper": "Copper Wallet",
+  "item.lightmanscurrency.wallet_diamond": "Diamond Wallet",
+  "item.lightmanscurrency.wallet_emerald": "Emerald Wallet",
+  "item.lightmanscurrency.wallet_ender_dragon": "Ender Dragon Wallet",
+  "item.lightmanscurrency.wallet_gold": "Gold Wallet",
+  "item.lightmanscurrency.wallet_iron": "Iron Wallet",
+  "item.lightmanscurrency.wallet_nether_star": "Nether Star Wallet",
+  "item.lightmanscurrency.wallet_netherite": "Netherite Wallet",
   "itemGroup.lightmanscurrency.coins": "Coins & Items",
   "itemGroup.lightmanscurrency.traders": "Traders",
   "tooltip.lightmanscurrency.trader.storage.item_storage": "Item Storage",
-  "tooltip.lightmanscurrency.trader.storage.trade_edit": "Edit Trades"
+  "tooltip.lightmanscurrency.trader.storage.trade_edit": "Edit Trades",
+  "tooltip.lightmanscurrency.wallet.capacity": "Has %s coin slots",
+  "tooltip.lightmanscurrency.wallet.storedmoney": "Contains:",
+  "tooltip.lightmanscurrency.wallet.upgradeable.1": "Use a [%1$s] on this in your inventory to increase the wallets capacity by %2$s",
+  "tooltip.lightmanscurrency.wallet.upgradeable.2": "Can by upgraded %3$s more times"
 }

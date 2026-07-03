@@ -25,8 +25,10 @@ public class FlexibleItemStorage extends ListBackedItemStorage {
     @Override
     public void copyFrom(List<ItemStack> contents) { super.copyFrom(ItemHelper.combineStacks(contents)); }
 
+    public final int getCapacity() { return this.capacity.get(); }
+
     @Override
-    public long getCapacityAsLong(int index, ItemResource resource) { return this.capacity.get(); }
+    public long getCapacityAsLong(int index, ItemResource resource) { return this.getCapacity(); }
 
     @Override
     public boolean isValid(int index,ItemResource resource) {
@@ -64,6 +66,7 @@ public class FlexibleItemStorage extends ListBackedItemStorage {
         this.updateSnapshots(transaction);
         int insertAmount = Math.min(insertedStack.getCount(),this.capacity.get());
         this.storage.add(insertedStack.copyWithCount(insertAmount));
+        this.afterChangeBeforeCommit(transaction);
         return insertAmount;
     }
 
@@ -81,6 +84,7 @@ public class FlexibleItemStorage extends ListBackedItemStorage {
                 s.shrink(removeAmount);
                 if(s.isEmpty())
                     this.storage.remove(i);
+                this.afterChangeBeforeCommit(transaction);
                 return removeAmount;
             }
         }
@@ -102,6 +106,7 @@ public class FlexibleItemStorage extends ListBackedItemStorage {
                 this.updateSnapshots(transaction);
                 int insertAmount = Math.min(space,amount);
                 s.grow(insertAmount);
+                this.afterChangeBeforeCommit(transaction);
                 return insertAmount;
             }
             //If space is <= 0, we cannot fit this item
@@ -124,6 +129,7 @@ public class FlexibleItemStorage extends ListBackedItemStorage {
             s.shrink(removeAmount);
             if(s.isEmpty())
                 this.storage.remove(index);
+            this.afterChangeBeforeCommit(transaction);
             return removeAmount;
         }
         //Cannot extract from this slot if the items aren't the same

@@ -17,7 +17,9 @@ import net.minecraft.server.permissions.Permission;
 import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
@@ -27,6 +29,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+@EventBusSubscriber
 public abstract class ConfigFile implements ConfigReloadable {
 
     private static final Map<Identifier,ConfigFile> loadableFiles = new HashMap<>();
@@ -693,6 +696,10 @@ public abstract class ConfigFile implements ConfigReloadable {
             return builder;
         }
         private ConfigSection build(@Nullable ConfigSection parent, ConfigFile file) { return new ConfigSection(this, parent, file); }
+    }
+
+    private static void onServerStart(ServerStartedEvent event) {
+        loadServerFiles(LoadPhase.GAME_START);
     }
 
 }

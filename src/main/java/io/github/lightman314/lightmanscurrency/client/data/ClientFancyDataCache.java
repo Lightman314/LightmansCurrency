@@ -41,7 +41,6 @@ public final class ClientFancyDataCache {
             //Initialize only **after** it's actually stored in the cache
             newInstance.initClient(Minecraft.getInstance().getConnection().registryAccess());
         }
-            clientDataCache.put(type,type.create());
         return (T)clientDataCache.get(type);
     }
 

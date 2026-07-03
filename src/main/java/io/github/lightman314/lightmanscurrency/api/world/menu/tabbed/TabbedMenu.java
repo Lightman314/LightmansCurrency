@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency.api.world.menu.tabbed;
 
 import com.google.common.collect.ImmutableMap;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.helpers.debug.DebugHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ITickerServer;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.world.menu.MessageMenu;
@@ -46,8 +48,15 @@ public abstract class TabbedMenu<X extends TabbedMenu<X,T>,T extends MenuTab<X>>
         for(MenuTab<?> tab : this.getTabs().values())
             tab.addMenuSlots(this::addSlot);
 
+        this.debugTabs();
+        this.debugSlotCount();
+
         //Flag the first tab as opened
         this.tabs.get(this.currentTab).onTabOpened(FancyPacketMap.EMPTY);
+    }
+
+    protected final void debugTabs() {
+        LightmansCurrency.LogDebug(this.getClass().getSimpleName() + " on the " + DebugHelper.sideName(this) + " has the following tabs:\n" + DebugHelper.debugMap(this.tabs,Object::toString,DebugHelper::simpleClassName));
     }
 
     protected abstract void addInventorySlots(Inventory inventory);

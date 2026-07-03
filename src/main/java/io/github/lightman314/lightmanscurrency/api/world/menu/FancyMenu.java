@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.world.menu;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.helpers.debug.DebugHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.ItemHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.IRegistryAccess;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
@@ -35,6 +37,10 @@ public abstract class FancyMenu extends AbstractContainerMenu implements ISidedC
         this.player = player;
     }
 
+    protected final void debugSlotCount() {
+        LightmansCurrency.LogDebug(this.getClass().getSimpleName() + " on the " + DebugHelper.sideName(this) + " has " + this.slots.size() + " slots!");
+    }
+
     //Assembles a simple container and calls the Container version of the clearContainer method
     public final void clearContainer(List<ItemStack> items)
     {
@@ -68,6 +74,8 @@ public abstract class FancyMenu extends AbstractContainerMenu implements ISidedC
         transaction.commit();
         this.clearContainer(drops);
     }
+
+    public final boolean moveStackTo(ItemStack stack,int startSlot,int endSlot,boolean backwards) { return this.moveItemStackTo(stack,startSlot,endSlot,backwards); }
 
     public abstract static class Validated extends FancyMenu implements IValidatedMenu
     {

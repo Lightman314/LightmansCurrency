@@ -10,10 +10,14 @@ import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.UpgradeNode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IPermissionUser;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IStorageMenuProvider;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.ITradeResourceProvider;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.SimpleSyncedNode;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.Permission;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
+import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.BuiltInResourceTypes;
+import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.ResourceCollector;
+import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.ResourceType;
 import io.github.lightman314.lightmanscurrency.api.upgrades.CapacityUpgradeType;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.api.upgrades.world.UpgradeStorage;
@@ -24,7 +28,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class ItemStorageNode extends SimpleSyncedNode implements IPermissionUser, IStorageMenuProvider {
+public class ItemStorageNode extends SimpleSyncedNode implements IPermissionUser,IStorageMenuProvider,ITradeResourceProvider {
 
     private static final MapCodec<ItemStorageNode> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
             CodecHelper.UNLIMITED_ITEM_LIST.fieldOf("storage").forGetter(ItemStorageNode::getContents)
@@ -97,6 +101,15 @@ public class ItemStorageNode extends SimpleSyncedNode implements IPermissionUser
     @Override
     public void addTabs(StorageTabBuilder builder) {
         builder.addTab(ItemStorageTab::new);
+    }
+
+
+    @Override
+    public boolean providesResource(ResourceType<?, ?> type) { return type == BuiltInResourceTypes.ITEM; }
+
+    @Override
+    public void attachResource(ResourceCollector collector) {
+        collector.addResource(BuiltInResourceTypes.ITEM,this.storage);
     }
 
 }

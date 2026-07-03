@@ -6,7 +6,8 @@ import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.FancyGuiEx
 import io.github.lightman314.lightmanscurrency.api.client.gui.screen.menu.MessageMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.button.tabs.TabButton;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.positioner.IWidgetPositioner;
-import io.github.lightman314.lightmanscurrency.api.client.util.ScreenArea;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
+import io.github.lightman314.lightmanscurrency.api.helpers.debug.DebugHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.world.menu.tabbed.ISortedTab;
 import io.github.lightman314.lightmanscurrency.api.world.menu.tabbed.MenuTab;
@@ -14,7 +15,6 @@ import io.github.lightman314.lightmanscurrency.api.world.menu.tabbed.TabbedMenu;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
-import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +52,13 @@ public abstract class TabbedMenuScreen<M extends TabbedMenu<M,T>,T extends MenuT
         this.clientTabs = builder.build();
         if(!this.clientTabs.containsKey(this.currentTab))
             throw new IllegalStateException("Screen did not properly construct the default client tab!");
+
+        this.debugTabs();
+
+    }
+
+    protected final void debugTabs() {
+        LightmansCurrency.LogDebug(this.getClass().getSimpleName() + " has the following tabs:\n" + DebugHelper.debugMap(this.clientTabs,Object::toString,DebugHelper::simpleClassName));
     }
 
     private void changeTab(C tab)
@@ -93,7 +100,7 @@ public abstract class TabbedMenuScreen<M extends TabbedMenu<M,T>,T extends MenuT
         {
             TabButton button = this.addChild(TabButton.builder()
                     .forTab(tab)
-                    .active(() -> tab == this.getCurrentTab())
+                    .active(() -> tab != this.getCurrentTab())
                     .onPress(() -> this.changeTab(tab))
                     .build());
             this.tabPositioner.addWidget(button);

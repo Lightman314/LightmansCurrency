@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency;
 
 import io.github.lightman314.lightmanscurrency.api.LCApi;
+import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.core.LCRegistrySetup;
 import net.neoforged.bus.api.IEventBus;
@@ -33,10 +34,10 @@ public class LightmansCurrency {
     @SubscribeEvent
     private void commonSetup(FMLCommonSetupEvent event)
     {
-        event.enqueueWork(() -> {
-            BuiltInPermissions.intialize();
-            //TODO other stuff
-        });
+        //Load Logical Server config files
+        ConfigFile.loadServerFiles(ConfigFile.LoadPhase.SETUP);
+
+        BuiltInPermissions.intialize();
     }
 
     public static void LogDebug(String message) { LOGGER.debug(message); }

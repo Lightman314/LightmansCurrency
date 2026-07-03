@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin;
 
 import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
+import io.github.lightman314.lightmanscurrency.api.money.resource.SortableMoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.builtin.UnlimitedMoneyStorage;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
@@ -11,8 +12,11 @@ import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.Simple
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.Permission;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
+import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.BuiltInResourceTypes;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.ResourceCollector;
+import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.ResourceType;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
+import net.minecraft.network.chat.Component;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -55,8 +59,11 @@ public class MoneyStorageNode extends SimpleSyncedNode implements IPermissionUse
     }
 
     @Override
-    public void attachResource(ResourceCollector collector) {
+    public boolean providesResource(ResourceType<?, ?> type) { return type == BuiltInResourceTypes.MONEY; }
 
+    @Override
+    public void attachResource(ResourceCollector collector) {
+        collector.addResource(BuiltInResourceTypes.MONEY,SortableMoneyResourceHandler.wrapHandler(this.storage,Component.literal("Internal Storage (WIP)")));
     }
 
 }

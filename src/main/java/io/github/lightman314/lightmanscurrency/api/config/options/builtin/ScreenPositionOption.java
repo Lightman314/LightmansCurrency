@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.config.options.builtin;
 
-import io.github.lightman314.lightmanscurrency.api.client.util.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.IntOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;

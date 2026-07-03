@@ -23,7 +23,7 @@ public abstract class MoneyValueParser<T extends MoneyValue> {
 
     public static final SimpleCommandExceptionType NO_VALUE_EXCEPTION = new SimpleCommandExceptionType(LCText.Commands.ARGUMENT_MONEY_VALUE_NO_VALUE.get());
 
-    private final String prefix;
+    public final String prefix;
 
     protected MoneyValueParser(String prefix) { this.prefix = prefix; }
 

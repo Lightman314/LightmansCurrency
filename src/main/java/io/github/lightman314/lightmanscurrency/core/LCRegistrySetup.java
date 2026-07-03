@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.core;
 
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.*;
+import io.github.lightman314.lightmanscurrency.core.neoforge.LCDataAttachments;
 import net.neoforged.bus.api.IEventBus;
 
 public final class LCRegistrySetup {
@@ -18,8 +19,10 @@ public final class LCRegistrySetup {
         LCCreativeGroups.REGISTER.register(bus);
         LCDataComponents.REGISTER.register(bus);
         LCMenuTypes.REGISTER.register(bus);
+        LCCommandArguments.REGISTER.register(bus);
 
-
+        //NeoForge Registries
+        LCDataAttachments.REGISTER.register(bus);
 
         //Lightman's Currency Registries
         //Money
@@ -35,6 +38,8 @@ public final class LCRegistrySetup {
         //Trader
         LCTraderTypes.REGISTER.register(bus);
         LCTraderNodeTypes.REGISTER.register(bus);
+        LCTradeTypes.REGISTER.register(bus);
+        LCTradePriceTypes.REGISTER.register(bus);
         LCPermissionTypes.REGISTER.register(bus);
         LCPermissions.REGISTER.register(bus);
         //Upgrades
