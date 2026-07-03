@@ -28,12 +28,7 @@ public abstract class MoneyAPI {
 
     public static final String MODID = "lightmanscurrency";
     private static MoneyAPI instance;
-    public static MoneyAPI getApi()
-    {
-        if(instance == null)
-            instance = new MoneyAPIImpl();
-        return instance;
-    }
+    public static MoneyAPI getApi() { return MoneyAPIImpl.INSTANCE; }
 
     protected MoneyAPI() { if(instance != null)  throw new IllegalCallerException("Cannot create a new MoneyAPI instance as one is already present!"); }
 

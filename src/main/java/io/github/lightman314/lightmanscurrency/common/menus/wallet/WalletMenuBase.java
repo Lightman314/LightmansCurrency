@@ -6,14 +6,15 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import io.github.lightman314.lightmanscurrency.common.items.data.WalletDataWrapper;
+import io.github.lightman314.lightmanscurrency.common.menus.LazyMessageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.WalletBankMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.WalletMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.BlacklistSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.CoinSlot;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.DisplaySlot;
-import io.github.lightman314.lightmanscurrency.common.menus.validation.EasyMenu;
 import io.github.lightman314.lightmanscurrency.util.InventoryUtil;
 import io.github.lightman314.lightmanscurrency.util.MathUtil;
 import net.minecraft.ChatFormatting;
@@ -33,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class WalletMenuBase extends EasyMenu {
+public abstract class WalletMenuBase extends LazyMessageMenu {
 	
 	protected final Container dummyInventory = new SimpleContainer(1);
 	
@@ -261,6 +262,9 @@ public abstract class WalletMenuBase extends EasyMenu {
 		public void accept(RegistryFriendlyByteBuf buffer) { buffer.writeInt(this.walletIndex); }
 	}
 
+    @Override
+    public void HandleMessage(LazyPacketData message) {
 
+    }
 
 }

@@ -14,6 +14,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -22,7 +25,10 @@ import java.util.function.Consumer;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
+@EventBusSubscriber
 public final class MoneyAPIImpl extends MoneyAPI {
+
+    public static final MoneyAPIImpl INSTANCE = new MoneyAPIImpl();
 
     private final Map<ResourceLocation, CurrencyType> registeredCurrencyTypes = new HashMap<>();
     private final Map<UUID,PlayerMoneyHolder> clientPlayerCache = new HashMap<>();
@@ -123,4 +129,17 @@ public final class MoneyAPIImpl extends MoneyAPI {
         }
         return false;
     }
+
+    @SubscribeEvent
+    public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        UUID id = event.getEntity().getUUID();
+        INSTANCE.serverPlayerCache.remove(id);
+        INSTANCE.serverPlayerUnsafeCache.remove(id);
+    }
+
+    public static void clearClientCache() {
+        INSTANCE.clientPlayerCache.clear();
+        INSTANCE.clientPlayerUnsafeCache.clear();
+    }
+
 }

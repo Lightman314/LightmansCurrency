@@ -896,7 +896,8 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
     public final void markUpgradesDirty() { this.upgradesChanged(this.upgrades); }
 	private void upgradesChanged(Container container)
 	{
-		if(container == this.upgrades)
+        //Only set the trades changed on the logical server
+		if(container == this.upgrades && this.isServer())
 		{
 			this.markDirty(this::saveUpgrades);
 			if(this instanceof IFlexibleOfferTrader fot)

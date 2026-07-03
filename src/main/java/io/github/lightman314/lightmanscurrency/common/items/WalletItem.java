@@ -37,6 +37,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Unit;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -484,6 +485,15 @@ public class WalletItem extends Item implements IVariantItem {
 		}
 	}
 
+    public static boolean getForcedDefaultSound(ItemStack wallet) { return wallet.has(ModDataComponents.WALLET_FORCED_DEFAULT_SOUND); }
+
+    public static void setForcedDefaultSound(ItemStack wallet,boolean newState) {
+        if(newState)
+            wallet.set(ModDataComponents.WALLET_FORCED_DEFAULT_SOUND,Unit.INSTANCE);
+        else
+            wallet.remove(ModDataComponents.WALLET_FORCED_DEFAULT_SOUND);
+    }
+
 	public static void playCollectSound(LivingEntity entity, ItemStack wallet)
 	{
 		Level level = entity.level();
@@ -494,10 +504,21 @@ public class WalletItem extends Item implements IVariantItem {
 	
 	public static ResourceLocation getCoinCollectSound(Level level, ItemStack wallet)
 	{
-		if(!isWallet(wallet))
+		if(!isWallet(wallet) || getForcedDefaultSound(wallet))
 			return DEFAULT_COIN_COLLECT_SOUND;
 		List<SoundEntry> soundEntries = wallet.getOrDefault(ModDataComponents.WALLET_COIN_SOUND,SoundEntry.WALLET_DEFAULT);
 		return SoundEntry.getRandomEntry(level.getRandom(),soundEntries,DEFAULT_COIN_COLLECT_SOUND);
 	}
+
+    public static boolean hasNonDefaultSound(ItemStack wallet) {
+        if(!isWallet(wallet))
+            return false;
+        for(SoundEntry entry : wallet.getOrDefault(ModDataComponents.WALLET_COIN_SOUND,SoundEntry.WALLET_DEFAULT))
+        {
+            if(!entry.sound().equals(DEFAULT_COIN_COLLECT_SOUND))
+                return true;
+        }
+        return false;
+    }
 	
 }

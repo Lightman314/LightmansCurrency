@@ -672,6 +672,8 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.TOOLTIP_WALLET_EXCHANGE, "Compress Coins to Highest Value Coinage");
         this.translate(LCText.TOOLTIP_WALLET_AUTO_EXCHANGE_ENABLE, "Enable Auto-Exchange");
         this.translate(LCText.TOOLTIP_WALLET_AUTO_EXCHANGE_DISABLE, "Disable Auto-Exchange");
+        this.translate(LCText.TOOLTIP_WALLET_FORCE_DEFAULT_SOUND_ENABLE, "Enable Fancy Sounds");
+        this.translate(LCText.TOOLTIP_WALLET_FORCE_DEFAULT_SOUND_DISABLE, "Disable Fancy Sounds");
         this.translate(LCText.TOOLTIP_WALLET_OPEN_BANK,"Access Bank Account");
         this.translate(LCText.TOOLTIP_WALLET_OPEN_WALLET,"Return to Wallet");
 
@@ -1298,6 +1300,9 @@ public class EnglishProvider extends TranslationProvider {
         this.translate(LCText.COMMAND_BANK_VIEW_EMPTY,"%1$s is empty");
         this.translate(LCText.COMMAND_BANK_VIEW_PLAYER_NO_ACCOUNT,"%1$s does not have a bank account yet!");
         this.translate(LCText.COMMAND_BANK_VIEW_DOESNT_EXIST,"Error accessing the bank account!");
+
+        this.translate(LCText.COMMAND_BANK_CHECK_SUCCESS,"%1$s does contain %2$s");
+        this.translate(LCText.COMMAND_BANK_CHECK_FAIL,"%1$s does not contain %2$s");
 
         this.translate(LCText.COMMAND_CONFIG_RELOAD, "Reloading config files");
         this.translate(LCText.COMMAND_CONFIG_RELOAD_FILE, "Reloaded %s");

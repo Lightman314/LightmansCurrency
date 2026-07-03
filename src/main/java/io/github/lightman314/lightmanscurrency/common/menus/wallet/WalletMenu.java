@@ -1,7 +1,9 @@
 package io.github.lightman314.lightmanscurrency.common.menus.wallet;
 
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.core.ModMenus;
+import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -93,5 +95,21 @@ public class WalletMenu extends WalletMenuBase {
 			}
 		}
 	}
-	
+
+    public boolean canToggleSoundSettings() { return WalletItem.hasNonDefaultSound(this.getWallet()); }
+
+    public boolean getForceDefaultSound() { return WalletItem.getForcedDefaultSound(this.getWallet()); }
+
+    public void setForceDefaultSound(boolean newState) {
+        WalletItem.setForcedDefaultSound(this.getWallet(),newState);
+        if(this.isClient())
+            this.SendMessage(this.builder()
+                    .setBoolean("forceDefaultSound",newState));
+    }
+
+    @Override
+    public void HandleMessage(LazyPacketData message) {
+        if(message.contains("forceDefaultSound"))
+            this.setForceDefaultSound(message.getBoolean("forceDefaultSound"));
+    }
 }

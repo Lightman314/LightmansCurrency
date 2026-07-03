@@ -27,6 +27,7 @@ import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.attachments.WalletHandler;
 import io.github.lightman314.lightmanscurrency.common.core.ModDataComponents;
 import io.github.lightman314.lightmanscurrency.common.enchantments.MoneyMendingEnchantment;
+import io.github.lightman314.lightmanscurrency.common.impl.MoneyAPIImpl;
 import io.github.lightman314.lightmanscurrency.common.items.PortableATMItem;
 import io.github.lightman314.lightmanscurrency.common.items.PortableTerminalItem;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
@@ -271,6 +272,7 @@ public class ClientEvents {
 	@SubscribeEvent
 	public static void playerLeavesServer(ClientPlayerNetworkEvent.LoggingOut event) {
 		SyncedConfigFile.onClientLeavesServer();
+        MoneyAPIImpl.clearClientCache();
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGH)

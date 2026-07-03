@@ -32,6 +32,7 @@ public class ModDataComponents {
 
     //Active Data
     public static final Supplier<DataComponentType<WalletData>> WALLET_DATA;
+    public static final Supplier<DataComponentType<Unit>> WALLET_FORCED_DEFAULT_SOUND;
     public static final Supplier<DataComponentType<List<BlockPos>>> CASH_REGISTER_TRADER_POSITIONS;
     public static final Supplier<DataComponentType<List<ItemStack>>> COIN_JAR_CONTENTS;
     /**
@@ -80,6 +81,7 @@ public class ModDataComponents {
 
         //Live Data
         WALLET_DATA = register("wallet_data", builder -> builder.persistent(WalletData.CODEC).networkSynchronized(WalletData.STREAM_CODEC));
+        WALLET_FORCED_DEFAULT_SOUND = registerUnit("wallet_force_default_sound");
         CASH_REGISTER_TRADER_POSITIONS = register("cash_register_trader_positions", builder -> builder.persistent(BlockPos.CODEC.listOf()));
         COIN_JAR_CONTENTS = register("coin_jar_contents", builder -> builder.persistent(ItemStack.OPTIONAL_CODEC.listOf()).cacheEncoding());
         TICKET_DATA = register("ticket_data", builder -> builder.persistent(TicketData.CODEC).networkSynchronized(TicketData.STREAM_CODEC).cacheEncoding());
