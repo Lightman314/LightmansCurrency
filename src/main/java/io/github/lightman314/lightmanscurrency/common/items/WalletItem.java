@@ -276,7 +276,7 @@ public class WalletItem extends Item implements IVariantItem {
 			return wallet.storageSize + BonusSlots(walletStack);
 		return 0;
 	}
-	
+
 	@Override
 	public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flagIn)
 	{
@@ -523,6 +523,19 @@ public class WalletItem extends Item implements IVariantItem {
 		}
 	}
 
+    public static boolean getForcedDefaultSound(ItemStack wallet) {
+        CompoundTag tag = wallet.getTag();
+        return tag != null && tag.getBoolean("ForceDefaultSound");
+    }
+
+    public static void setForcedDefaultSound(ItemStack wallet,boolean newState) {
+        CompoundTag tag = wallet.getOrCreateTag();
+        if(newState)
+            tag.putBoolean("ForceDefaultSound",newState);
+        else
+            tag.remove("ForceDefaultSound");
+    }
+
 	public static void playCollectSound(LivingEntity entity, ItemStack wallet)
 	{
 		Level level = entity.level();
@@ -530,14 +543,29 @@ public class WalletItem extends Item implements IVariantItem {
 		if(sound != null)
 			level.playSound(null,entity,sound,SoundSource.PLAYERS,0.4f,1f);
 	}
-
 	
 	public static ResourceLocation getCoinCollectSound(Level level, ItemStack wallet)
 	{
 		if(wallet.getItem() instanceof WalletItem item)
+        {
+            if(getForcedDefaultSound(wallet))
+                return DEFAULT_COIN_COLLECT_SOUND;
             return SoundEntry.getRandomEntry(level.getRandom(),item.coinCollectSound,DEFAULT_COIN_COLLECT_SOUND);
+        }
 		return DEFAULT_COIN_COLLECT_SOUND;
 	}
+
+    public static boolean hasNonDefaultSound(ItemStack wallet) {
+        if(wallet.getItem() instanceof WalletItem item) {
+            List<SoundEntry> sounds = item.coinCollectSound;
+            for(SoundEntry entry : item.coinCollectSound)
+            {
+                if(!entry.sound().equals(DEFAULT_COIN_COLLECT_SOUND))
+                    return true;
+            }
+        }
+        return false;
+    }
 
 	public static class Colored extends WalletItem implements DyeableLeatherItem
 	{

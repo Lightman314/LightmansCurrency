@@ -6,7 +6,9 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.misc.EasyText;
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.money.coins.CoinAPI;
+import io.github.lightman314.lightmanscurrency.api.network.LazyPacketData;
 import io.github.lightman314.lightmanscurrency.common.items.WalletItem;
+import io.github.lightman314.lightmanscurrency.common.menus.LazyMessageMenu;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.WalletBankMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.providers.WalletMenuProvider;
 import io.github.lightman314.lightmanscurrency.common.menus.slots.BlacklistSlot;
@@ -34,7 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public abstract class WalletMenuBase extends EasyMenu {
+public abstract class WalletMenuBase extends LazyMessageMenu {
 
 	protected final Container dummyInventory = new SimpleContainer(1);
 
@@ -263,6 +265,9 @@ public abstract class WalletMenuBase extends EasyMenu {
 		public void accept(FriendlyByteBuf buffer) { buffer.writeInt(this.walletIndex); }
 	}
 
+    @Override
+    protected void HandleMessage(LazyPacketData message) {
 
+    }
 
 }

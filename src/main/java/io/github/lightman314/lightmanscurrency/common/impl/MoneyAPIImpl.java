@@ -9,11 +9,14 @@ import io.github.lightman314.lightmanscurrency.api.money.types.CurrencyType;
 import io.github.lightman314.lightmanscurrency.api.money.types.IPlayerMoneyHandler;
 import io.github.lightman314.lightmanscurrency.api.money.value.holder.IMoneyHolder;
 import io.github.lightman314.lightmanscurrency.common.util.IClientTracker;
+import net.dv8tion.jda.api.hooks.SubscribeEvent;
 import net.minecraft.MethodsReturnNonnullByDefault;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.fml.common.Mod;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -22,7 +25,10 @@ import java.util.function.Consumer;
 
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
+@Mod.EventBusSubscriber
 public final class MoneyAPIImpl extends MoneyAPI {
+
+    public static final MoneyAPIImpl INSTANCE = new MoneyAPIImpl();
 
     private final Map<ResourceLocation, CurrencyType> registeredCurrencyTypes = new HashMap<>();
     private final Map<UUID,PlayerMoneyHolder> clientPlayerCache = new HashMap<>();
@@ -66,14 +72,14 @@ public final class MoneyAPIImpl extends MoneyAPI {
                 if(h != null)
                     handlers.add(h);
             }
-            cache.put(player.getUUID(), new PlayerMoneyHolder(handlers));
+            cache.put(player.getUUID(),new PlayerMoneyHolder(handlers));
         }
         return cache.get(player.getUUID()).updatePlayer(player);
     }
 
     @Override
     public IMoneyHolder GetPlayerMoneyHandlerUnsafe(Player player) {
-        Map<UUID, PlayerMoneyHolder> cache = player.level().isClientSide ? this.clientPlayerUnsafeCache : this.serverPlayerUnsafeCache;
+        Map<UUID,PlayerMoneyHolder> cache = player.level().isClientSide ? this.clientPlayerUnsafeCache : this.serverPlayerUnsafeCache;
         if (!cache.containsKey(player.getUUID())) {
             List<IPlayerMoneyHandler> handlers = new ArrayList<>();
             for (CurrencyType type : this.registeredCurrencyTypes.values()) {
@@ -81,7 +87,7 @@ public final class MoneyAPIImpl extends MoneyAPI {
                 if (h != null)
                     handlers.add(h);
             }
-            cache.put(player.getUUID(), new PlayerMoneyHolder(handlers));
+            cache.put(player.getUUID(),new PlayerMoneyHolder(handlers));
         }
         return cache.get(player.getUUID()).updatePlayer(player);
     }
@@ -118,6 +124,18 @@ public final class MoneyAPIImpl extends MoneyAPI {
                 return true;
         }
         return false;
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        UUID id = event.getEntity().getUUID();
+        INSTANCE.serverPlayerCache.remove(id);
+        INSTANCE.serverPlayerUnsafeCache.remove(id);
+    }
+
+    public static void clearClientCache() {
+        INSTANCE.clientPlayerCache.clear();
+        INSTANCE.clientPlayerUnsafeCache.clear();
     }
 
 }

@@ -3,10 +3,7 @@ package io.github.lightman314.lightmanscurrency.client.gui.screen.inventory;
 import io.github.lightman314.lightmanscurrency.LCText;
 import io.github.lightman314.lightmanscurrency.api.misc.QuarantineAPI;
 import io.github.lightman314.lightmanscurrency.api.misc.client.sprites.SpriteUtil;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.IconData;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.IconIcon;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.ItemIcon;
-import io.github.lightman314.lightmanscurrency.api.misc.icons.MultiIcon;
+import io.github.lightman314.lightmanscurrency.api.misc.icons.*;
 import io.github.lightman314.lightmanscurrency.client.gui.easy.EasyMenuScreen;
 import io.github.lightman314.lightmanscurrency.api.misc.client.rendering.EasyGuiGraphics;
 import io.github.lightman314.lightmanscurrency.client.gui.widget.easy.EasyAddonHelper;
@@ -38,10 +35,15 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
     private static final IconData AUTO_EXCHANGE_ICON_ON = IconIcon.ofIcon(VersionUtil.lcResource("wallet_auto_exchange"));
     private static final IconData AUTO_EXCHANGE_ICON_OFF = MultiIcon.ofMultiple(AUTO_EXCHANGE_ICON_ON, ItemIcon.ofItem(Items.BARRIER));
 
+    private static final IconData FORCED_DEFAULT_OFF = ItemIcon.ofItem(Items.DRAGON_HEAD);
+    private static final IconData FORCED_DEFAULT_ON = MultiIcon.ofMultiple(FORCED_DEFAULT_OFF,ItemIcon.ofItem(Items.BARRIER));
+
 	IconButton buttonToggleAutoExchange;
 	EasyButton buttonExchange;
 
 	EasyButton buttonOpenBank;
+
+    EasyButton buttonToggleDefaultSound;
 
 	EasyButton buttonQuickCollect;
 
@@ -76,13 +78,20 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 				.addon(EasyAddonHelper.visibleCheck(() -> this.menu.canExchange() && this.menu.canPickup()))
 				.build());
 
+        this.buttonToggleDefaultSound = this.addChild(IconButton.builder()
+                .pressAction(this::PressToggleDefaultSoundButton)
+                .icon(this::getDefaultSoundIcon)
+                .addon(EasyAddonHelper.tooltip(this::getDefaultSoundTooltip))
+                .addon(EasyAddonHelper.visibleCheck(this.menu::canToggleSoundSettings))
+                .build());
+
 		this.buttonOpenBank = this.addChild(IconButton.builder()
 				.pressAction(this::PressOpenBankButton)
 				.icon(ItemIcon.ofItem(ModBlocks.ATM))
 				.addon(EasyAddonHelper.tooltip(LCText.TOOLTIP_WALLET_OPEN_BANK))
 				.addon(EasyAddonHelper.visibleCheck(() -> this.menu.hasBankAccess() && !QuarantineAPI.IsDimensionQuarantined(this.menu.player)))
 				.build());
-		this.positioner.addWidgets(this.buttonExchange,this.buttonToggleAutoExchange,this.buttonOpenBank);
+		this.positioner.addWidgets(this.buttonExchange,this.buttonToggleAutoExchange,this.buttonToggleDefaultSound,this.buttonOpenBank);
 
 		this.buttonQuickCollect = this.addChild(PlainButton.builder()
 				.position(screenArea.pos.offset(159 + this.menu.halfBonusWidth,screenArea.height - 95))
@@ -119,6 +128,12 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 
 	private Component getAutoExchangeTooltip() { return this.menu.getAutoExchange() ? LCText.TOOLTIP_WALLET_AUTO_EXCHANGE_DISABLE.get() : LCText.TOOLTIP_WALLET_AUTO_EXCHANGE_ENABLE.get(); }
 
+    private IconData getDefaultSoundIcon() {
+        return this.menu.getForceDefaultSound() ? FORCED_DEFAULT_ON : FORCED_DEFAULT_OFF;
+    }
+
+    private Component getDefaultSoundTooltip() { return this.menu.getForceDefaultSound() ? LCText.TOOLTIP_WALLET_FORCE_DEFAULT_SOUND_ENABLE.get() : LCText.TOOLTIP_WALLET_FORCE_DEFAULT_SOUND_DISABLE.get(); }
+
 	private void PressExchangeButton(EasyButton button)
 	{
 		CPacketWalletExchangeCoins.sendToServer();
@@ -129,6 +144,10 @@ public class WalletScreen extends EasyMenuScreen<WalletMenu> {
 		this.menu.ToggleAutoExchange();
 		CPacketWalletToggleAutoExchange.sendToServer();
 	}
+
+    private void PressToggleDefaultSoundButton() {
+        this.menu.setForceDefaultSound(!this.menu.getForceDefaultSound());
+    }
 
 	private void PressOpenBankButton(EasyButton button)
 	{

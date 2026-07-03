@@ -634,6 +634,8 @@ public class LCText {
     public static final TextEntry TOOLTIP_WALLET_EXCHANGE = TextEntry.tooltip(MODID,"wallet.exchange");
     public static final TextEntry TOOLTIP_WALLET_AUTO_EXCHANGE_ENABLE = TextEntry.tooltip(MODID,"wallet.auto_exchange.enable");
     public static final TextEntry TOOLTIP_WALLET_AUTO_EXCHANGE_DISABLE = TextEntry.tooltip(MODID,"wallet.auto_exchange.disable");
+    public static final TextEntry TOOLTIP_WALLET_FORCE_DEFAULT_SOUND_ENABLE = TextEntry.tooltip(MODID,"wallet.default_sounds.enable");
+    public static final TextEntry TOOLTIP_WALLET_FORCE_DEFAULT_SOUND_DISABLE = TextEntry.tooltip(MODID,"wallet.default_sounds.disable");
     public static final TextEntry TOOLTIP_WALLET_OPEN_BANK = TextEntry.tooltip(MODID,"wallet.open_bank");
     public static final TextEntry TOOLTIP_WALLET_OPEN_WALLET = TextEntry.tooltip(MODID,"wallet.open_wallet");
 
@@ -1208,6 +1210,9 @@ public class LCText {
     public static final TextEntry COMMAND_BANK_VIEW_EMPTY = TextEntry.command(MODID,"lcbank.view.empty");
     public static final TextEntry COMMAND_BANK_VIEW_PLAYER_NO_ACCOUNT = TextEntry.command(MODID,"lcbank.view.player.no_account");
     public static final TextEntry COMMAND_BANK_VIEW_DOESNT_EXIST = TextEntry.command(MODID,"lcbank.view.doesnt_exist");
+
+    public static final TextEntry COMMAND_BANK_CHECK_SUCCESS = TextEntry.command(MODID,"lcbank.check.success");
+    public static final TextEntry COMMAND_BANK_CHECK_FAIL = TextEntry.command(MODID,"lcbank.check.fail");
 
     public static final TextEntry COMMAND_CONFIG_RELOAD = TextEntry.command(MODID,"lcconfig.reload");
     public static final TextEntry COMMAND_CONFIG_RELOAD_FILE = TextEntry.command(MODID,"lcconfig.reload.file");

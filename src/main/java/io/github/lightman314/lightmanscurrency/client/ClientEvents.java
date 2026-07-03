@@ -26,6 +26,7 @@ import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_v
 import io.github.lightman314.lightmanscurrency.client.resourcepacks.data.model_variants.properties.builtin.TooltipInfo;
 import io.github.lightman314.lightmanscurrency.client.util.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.common.enchantments.MoneyMendingEnchantment;
+import io.github.lightman314.lightmanscurrency.common.impl.MoneyAPIImpl;
 import io.github.lightman314.lightmanscurrency.common.items.PortableATMItem;
 import io.github.lightman314.lightmanscurrency.common.items.PortableTerminalItem;
 import io.github.lightman314.lightmanscurrency.common.items.TooltipItem;
@@ -97,9 +98,9 @@ import java.util.function.Consumer;
 @Mod.EventBusSubscriber(modid = LightmansCurrency.MODID, value = Dist.CLIENT)
 public class ClientEvents {
 
-	public static final KeyMapping KEY_WALLET = new KeyMapping(LCText.KEY_WALLET.getKey(), GLFW.GLFW_KEY_V, KeyMapping.CATEGORY_INVENTORY);
-	public static final KeyMapping KEY_PORTABLE_TERMINAL = new KeyMapping(LCText.KEY_PORTABLE_TERMINAL.getKey(), GLFW.GLFW_KEY_BACKSLASH, KeyMapping.CATEGORY_INVENTORY);
-	public static final KeyMapping KEY_PORTABLE_ATM = new KeyMapping(LCText.KEY_PORTABLE_ATM.getKey(), GLFW.GLFW_KEY_EQUAL, KeyMapping.CATEGORY_INVENTORY);
+	public static final KeyMapping KEY_WALLET = new KeyMapping(LCText.KEY_WALLET.getKey(),GLFW.GLFW_KEY_V,KeyMapping.CATEGORY_INVENTORY);
+	public static final KeyMapping KEY_PORTABLE_TERMINAL = new KeyMapping(LCText.KEY_PORTABLE_TERMINAL.getKey(), GLFW.GLFW_KEY_BACKSLASH,KeyMapping.CATEGORY_INVENTORY);
+	public static final KeyMapping KEY_PORTABLE_ATM = new KeyMapping(LCText.KEY_PORTABLE_ATM.getKey(), GLFW.GLFW_KEY_EQUAL,KeyMapping.CATEGORY_INVENTORY);
 	
 	@SubscribeEvent
 	public static void onKeyInput(InputEvent.Key event)
@@ -258,6 +259,7 @@ public class ClientEvents {
 	@SubscribeEvent
 	public static void playerLeavesServer(ClientPlayerNetworkEvent.LoggingOut event) {
 		SyncedConfigFile.onClientLeavesServer();
+        MoneyAPIImpl.clearClientCache();
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGH)

@@ -86,7 +86,7 @@ public class ModItems {
 		WALLET_NETHERITE = ModRegistries.ITEMS.register("wallet_netherite", () -> new WalletItem(36, WalletItem.lazyModel("wallet_netherite"), new Item.Properties().rarity(Rarity.RARE).fireResistant()));
 		WALLET_NETHER_STAR = ModRegistries.ITEMS.register("wallet_nether_star", () -> new WalletItem(54, WalletItem.lazyModel("wallet_nether_star"), true, 1, WalletItem.MAX_WALLET_SLOTS - 54, SoundEntry.WALLET_DEFAULT, new Item.Properties().rarity(Rarity.EPIC).fireResistant()));
 		WALLET_ENDER_DRAGON = ModRegistries.ITEMS.register("wallet_ender_dragon", () -> new WalletItem(42, WalletItem.lazyModel("wallet_ender_dragon"), false, 3, WalletItem.MAX_WALLET_SLOTS - 42, SoundEntry.builder()
-				.add(50,WalletItem.DEFAULT_COIN_COLLECT_SOUND)
+				.add(51,WalletItem.DEFAULT_COIN_COLLECT_SOUND)
 				.addVanilla(25,"entity.ender_dragon.growl")
 				.addVanilla(25,"entity.ender_dragon.ambient")
 				.addVanilla(1,"entity.player.burp")

@@ -81,7 +81,7 @@ public class BankDataCache extends CustomData {
         BankAccount bankAccount = new BankAccount(() -> this.markAccountDirty(player));
         try {
             bankAccount.setNotificationConsumer(BankAccount.generateNotificationAcceptor(player));
-            bankAccount.updateOwnersName(PlayerReference.of(player, bankAccount.getOwnersName()).getName(this.isClient()));
+            bankAccount.updateOwnersName(PlayerReference.of(player,bankAccount.getOwnersName()).getName(this.isClient()));
         } catch(Throwable ignored) { }
         return bankAccount;
     }

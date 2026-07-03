@@ -117,7 +117,21 @@ public class CommandBank {
                                                 .executes(CommandBank::viewOfflinePlayerAccount))))
                         .then(Commands.literal("team")
                                 .then(Commands.argument("teamID",LongArgumentType.longArg(0))
-                                        .executes(CommandBank::viewTeamAccount))));
+                                        .executes(CommandBank::viewTeamAccount))))
+                .then(Commands.literal("check")
+                        .then(Commands.literal("player")
+                                .then(Commands.literal("online")
+                                        .then(Commands.argument("player",EntityArgument.player())
+                                                .then(Commands.argument("amount",MoneyValueArgument.argument(context))
+                                                    .executes(CommandBank::checkPlayerAccount))))
+                                .then(Commands.literal("offline")
+                                        .then(Commands.argument("nameOrID",StringArgumentType.word())
+                                                .then(Commands.argument("amount",MoneyValueArgument.argument(context))
+                                                    .executes(CommandBank::checkOfflinePlayerAccount)))))
+                        .then(Commands.literal("team")
+                                .then(Commands.argument("teamID",LongArgumentType.longArg(0))
+                                        .then(Commands.argument("amount",MoneyValueArgument.argument(context))
+                                            .executes(CommandBank::checkTeamAccount)))));
 
         dispatcher.register(bankCommand);
 
@@ -352,7 +366,7 @@ public class CommandBank {
     private static int viewAccount(CommandContext<CommandSourceStack> context, BankReference reference)
     {
         IBankAccount account = reference.get();
-        if(account == null)
+        if(account != null)
         {
             if(account.getMoneyStorage().isEmpty())
             {
@@ -365,6 +379,69 @@ public class CommandBank {
                     EasyText.sendCommandSucess(context,value.getText(),false);
             }
             return 1;
+        }
+        EasyText.sendCommandFail(context,LCText.COMMAND_BANK_VIEW_DOESNT_EXIST.get());
+        return 0;
+    }
+
+    private static int checkPlayerAccount(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        Player player = EntityArgument.getPlayer(context,"player");
+        return checkAccount(context,PlayerBankReference.of(player));
+    }
+
+    private static int checkOfflinePlayerAccount(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        String input = StringArgumentType.getString(context,"nameOrID");
+        try {
+            UUID playerID = UUID.fromString(input);
+            PlayerReference pr = PlayerReference.of(playerID,"");
+            BankDataCache data = BankDataCache.TYPE.get(false);
+            if(!data.hasAccount(playerID))
+            {
+                //Just send the standard "fail" message if the account doesn't exist
+                EasyText.sendCommandFail(context,LCText.COMMAND_BANK_CHECK_FAIL.get(LCText.GUI_BANK_ACCOUNT_NAME.get(pr.getName(false)),MoneyValueArgument.getMoneyValue(context,"amount").getText()));
+                return 0;
+            }
+            return checkAccount(context,PlayerBankReference.of(playerID));
+        } catch (IllegalArgumentException e) {
+            PlayerReference pr = PlayerReference.of(false,input);
+            if(pr != null)
+                return checkAccount(context,PlayerBankReference.of(pr));
+            else
+                throw INVALID_PLAYER_INPUT_TYPE.create(input);
+        }
+    }
+
+    private static int checkTeamAccount(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        long teamID = LongArgumentType.getLong(context,"teamID");
+        ITeam team = TeamAPI.getApi().GetTeam(false,teamID);
+        if(team == null)
+        {
+            EasyText.sendCommandFail(context,LCText.COMMAND_BANK_TEAM_NULL.get(teamID));
+            return 0;
+        }
+        if(!team.hasBankAccount())
+        {
+            EasyText.sendCommandFail(context,LCText.COMMAND_BANK_TEAM_NO_BANK.get(teamID));
+            return 0;
+        }
+        return checkAccount(context, TeamBankReference.of(team));
+    }
+
+    private static int checkAccount(CommandContext<CommandSourceStack> context,BankReference reference) throws CommandSyntaxException{
+        MoneyValue value = MoneyValueArgument.getMoneyValue(context,"amount");
+        IBankAccount account = reference.get();
+        if(account != null)
+        {
+            if(account.getStoredMoney().containsValue(value))
+            {
+                EasyText.sendCommandSucess(context,LCText.COMMAND_BANK_CHECK_SUCCESS.get(account.getName(),value.getText()),false);
+                return 1;
+            }
+            else
+            {
+                EasyText.sendCommandSucess(context,LCText.COMMAND_BANK_CHECK_FAIL.get(account.getName(),value.getText()),false);
+                return 0;
+            }
         }
         EasyText.sendCommandFail(context,LCText.COMMAND_BANK_VIEW_DOESNT_EXIST.get());
         return 0;
