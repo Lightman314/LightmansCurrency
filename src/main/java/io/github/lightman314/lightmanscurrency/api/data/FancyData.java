@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.api.data;
 
-import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.IRegistryAccess;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
@@ -11,6 +10,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Objects;
 
 public abstract class FancyData implements ISidedContext, IRegistryAccess {
@@ -25,6 +25,9 @@ public abstract class FancyData implements ISidedContext, IRegistryAccess {
     public final boolean isClient() { return this.isClient; }
     @Override
     public final HolderLookup.Provider registryAccess() { return Objects.requireNonNull(this.registryAccess, "Attempted to get the registry access before the data was initialized!"); }
+
+    @Nullable
+    protected final MinecraftServer getServer() { return this.server; }
 
     public final void initClient(HolderLookup.Provider registryAccess) {
         this.initialize(true,() -> {},registryAccess);
@@ -60,11 +63,11 @@ public abstract class FancyData implements ISidedContext, IRegistryAccess {
 
     public void onServerShutdown() {}
 
-    protected final Iterable<ServerPlayer> getPossibleTargets() { return this.server == null ? ImmutableList.of() : this.server.getPlayerList().getPlayers(); }
+    protected final Iterable<ServerPlayer> getPossibleTargets() { return this.server == null ? List.of() : this.server.getPlayerList().getPlayers(); }
 
     protected final void sendPacketToAll(FancyPacketMap message) { this.sendPacket(null,message); }
     protected final void sendPacketToTarget(Player target, FancyPacketMap message) { this.sendPacket(target,message); }
-    private void sendPacket(@Nullable Player target, FancyPacketMap message)
+    protected final void sendPacket(@Nullable Player target, FancyPacketMap message)
     {
         if(this.server == null)
             return;

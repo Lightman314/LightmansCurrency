@@ -8,12 +8,14 @@ import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.coins.value.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.money.values.impl.EmptyValue;
 import io.github.lightman314.lightmanscurrency.api.money.values.parsing.MoneyValueParser;
-import io.github.lightman314.lightmanscurrency.api.ownership.OwnerHolder;
+import io.github.lightman314.lightmanscurrency.api.ownership.holder.OwnerHolder;
+import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRule;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.transfer.resource.Resource;
 import org.jetbrains.annotations.Range;
 
 import javax.annotation.Nullable;
@@ -26,7 +28,7 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 @Immutable
-public abstract class MoneyValue {
+public abstract class MoneyValue implements Resource {
 
     public static final Codec<MoneyValue> CODEC = LCRegistries.Money.VALUE_TYPE.byNameCodec().dispatch(MoneyValue::getType,MoneyValueType::codec);
     public static final Codec<MoneyValue> NON_EMPTY_CODEC = CODEC.validate(value -> {
@@ -193,8 +195,13 @@ public abstract class MoneyValue {
      */
     @Nullable
     public MoneyValue addValue(MoneyValue addedValue) {
-        if(this.compatibleTypes(addedValue))
+        if(this.compatibleTypes(addedValue)) {
+            if(this.isEmpty())
+                return addedValue;
+            if(addedValue.isEmpty())
+                return this;
             return this.fromInternalValue(this.getInternalValue() + addedValue.getInternalValue());
+        }
         return null;
     }
 
@@ -213,8 +220,13 @@ public abstract class MoneyValue {
      */
     @Nullable
     public MoneyValue subtractValue(MoneyValue removedValue) {
-        if(this.compatibleTypes(removedValue) && this.containsValue(removedValue))
+        if(this.compatibleTypes(removedValue) && this.containsValue(removedValue)) {
+            if(removedValue.isEmpty())
+                return this;
+            if(this.getInternalValue() == removedValue.getInternalValue())
+                return empty();
             return this.fromInternalValue(this.getInternalValue() - removedValue.getInternalValue());
+        }
         return null;
     }
 

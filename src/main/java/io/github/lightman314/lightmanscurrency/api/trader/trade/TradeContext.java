@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.trader.trade;
 import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.trader.TraderAdminSettings;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.INodeAccess;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNode;
@@ -39,16 +40,29 @@ public final class TradeContext implements AutoCloseable, INodeAccess {
     @Override
     public List<TraderNode> getAllNodes() { return this.trader.getAllNodes(); }
 
+    private TraderAdminSettings adminSettings = null;
+    public TraderAdminSettings getAdminSettings() {
+        if(this.adminSettings == null)
+            this.adminSettings = TraderAdminSettings.collect(this);
+        return this.adminSettings;
+    }
+
     private final RandomSource random;
     public RandomSource getRandom() { return this.random; }
 
     private final TradeCustomer customer;
     public TradeCustomer getCustomer() { return this.customer; }
-    public PlayerReference getPlayer() { return this.customer.getPlayer(); }
+    public PlayerReference getPlayer() { return this.customer.asReference(); }
+    public boolean isEditingView() { return this.customer.isEditing(); }
+
+    private final boolean networkAccess;
+    public boolean isNetworkAccess() { return this.networkAccess; }
 
     private final Map<ResourceType<?,?>,Object> traderResources;
     private final Map<ResourceType<?,?>,Object> customerResources;
-    public <T> T getResource(ResourceSource source,ResourceType<?,T> type)
+    public <T> T getCustomerResource(ResourceType<?,T> type) { return this.getResource(ResourceSource.CUSTOMER,type); }
+    public <T> T getTraderResource(ResourceType<?,T> type) { return this.getResource(ResourceSource.TRADER,type); }
+    private  <T> T getResource(ResourceSource source,ResourceType<?,T> type)
     {
         Map<ResourceType<?,?>,Object> map = source == ResourceSource.TRADER ? this.traderResources : this.customerResources;
         if(map.containsKey(type))
@@ -56,6 +70,7 @@ public final class TradeContext implements AutoCloseable, INodeAccess {
             try { return (T)map.get(type);
             } catch (ClassCastException e) { LightmansCurrency.LogError("Error attempting to obtain a resource!",e); }
         }
+        LightmansCurrency.LogDebug("Attempted to get a resource (" + type.getType() + ") that is not present in this trade context");
         return type.empty();
     }
 
@@ -64,6 +79,7 @@ public final class TradeContext implements AutoCloseable, INodeAccess {
         this.trader = builder.trader;
         this.customer = builder.customer;
         this.random = builder.random;
+        this.networkAccess = builder.networkAccess;
         this.traderResources = combineResources(builder.traderResources);
         this.customerResources = combineResources(builder.customerResources);
         this.transaction = Transaction.open(transaction);
@@ -76,8 +92,8 @@ public final class TradeContext implements AutoCloseable, INodeAccess {
         return builder.build();
     }
 
-    public static Builder builder(TraderData trader) { return builder(trader,TradeCustomer.EDITING,RandomSource.create(-1)); }
-    public static Builder builder(TraderData trader,TradeCustomer customer,RandomSource random) { return new Builder(trader,customer,random); }
+    public static Builder builder(TraderData trader) { return builder(trader,TradeCustomer.EDITING,RandomSource.create(-1),false); }
+    public static Builder builder(TraderData trader,TradeCustomer customer,RandomSource random,boolean networkAccess) { return new Builder(trader,customer,random,networkAccess); }
 
     @Override
     public void close() { this.transaction.close(); }
@@ -94,15 +110,18 @@ public final class TradeContext implements AutoCloseable, INodeAccess {
         private final TraderData trader;
         private final TradeCustomer customer;
         private final RandomSource random;
+        private final boolean networkAccess;
 
         private final Map<ResourceType<?,?>,List<?>> traderResources = new HashMap<>();
         private final Map<ResourceType<?,?>,List<?>> customerResources = new HashMap<>();
 
-        private Builder(TraderData trader,TradeCustomer customer,RandomSource random) {
+        private Builder(TraderData trader,TradeCustomer customer,RandomSource random,boolean networkAccess) {
             this.trader = trader;
             this.customer = customer;
             this.random = random;
-            this.trader.collectResources(this::addTraderResource);
+            this.networkAccess = networkAccess;
+            if(this.trader != null)
+                this.trader.collectResources(this::addTraderResource);
         }
 
         private <T> void addTraderResource(ResourceType<T,?> type,T resource) { this.addResource(this.traderResources,type,resource); }
@@ -110,7 +129,7 @@ public final class TradeContext implements AutoCloseable, INodeAccess {
         private <T> void addResource(Map<ResourceType<?,?>,List<?>> map,ResourceType<T,?> type,T resource)
         {
             try {
-                List<T> list = (List<T>)this.customerResources.computeIfAbsent(type,t -> new ArrayList<T>());
+                List<T> list = (List<T>)map.computeIfAbsent(type,t -> new ArrayList<T>());
                 list.add(resource);
             } catch (ClassCastException e) { LightmansCurrency.LogError("Error attempting to add a resource!",e); }
         }

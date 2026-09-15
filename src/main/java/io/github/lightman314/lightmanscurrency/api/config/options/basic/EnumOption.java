@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.api.helpers.EnumHelper;
-import io.github.lightman314.lightmanscurrency.api.text.LCText;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
@@ -29,8 +28,8 @@ public class EnumOption<T extends Enum<T>> extends ConfigOption<T> {
     @Override
     protected List<Component> bonusCommentTooltips() {
         return Lists.newArrayList(
-                LCText.Config.CONFIG_OPTION_OPTIONS.get(this.options()),
-                LCText.Config.CONFIG_OPTION_DEFAULT.get(this.getDefaultValue().toString()));
+                CONFIG_OPTION_OPTIONS.get(this.options()),
+                CONFIG_OPTION_DEFAULT.get(this.getDefaultValue().toString()));
     }
 
     private String options() {

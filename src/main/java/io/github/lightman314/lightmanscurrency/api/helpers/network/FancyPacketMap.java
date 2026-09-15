@@ -4,7 +4,9 @@ import com.google.common.collect.ImmutableMap;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.EnumHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.debug.IIndentStringable;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
+import io.github.lightman314.lightmanscurrency.mixin.ItemStackAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -36,7 +38,7 @@ public sealed class FancyPacketMap implements IIndentStringable permits FancyPac
         return new FancyPacketMap(map);
     });
 
-    public static final FancyPacketMap EMPTY = new FancyPacketMap(ImmutableMap.of());
+    public static final FancyPacketMap EMPTY = new FancyPacketMap(Map.of());
 
     protected final Map<String,Entry<?>> dataMap;
 
@@ -53,6 +55,7 @@ public sealed class FancyPacketMap implements IIndentStringable permits FancyPac
 
     public boolean isEmpty() { return this.dataMap.isEmpty(); }
     public Set<String> keySet() { return this.dataMap.keySet(); }
+    public int size() { return this.dataMap.size(); }
 
     public boolean contains(String key) { return this.dataMap.containsKey(key); }
     public boolean contains(String key,FancyPacketType<?> type) { return this.contains(key) && this.getData(key).type() == type; }
@@ -109,8 +112,22 @@ public sealed class FancyPacketMap implements IIndentStringable permits FancyPac
     public BlockPos getBlockPos(String key) { return this.getBlockPos(key,BlockPos.ZERO); }
     public BlockPos getBlockPos(String key,BlockPos defaultValue) { return this.get(key, LCFancyPacketTypes.BLOCK_POS,defaultValue); }
 
-    public ItemStack getItem(String key) { return this.getItem(key,ItemStack.EMPTY); }
-    public ItemStack getItem(String key,ItemStack defaultValue) { return this.get(key, LCFancyPacketTypes.ITEM_STACK,defaultValue); }
+    public ItemStack getItem(String key,boolean validate) { return this.getItem(key,ItemStack.EMPTY,validate); }
+    public ItemStack getItem(String key,ItemStack defaultValue,boolean validate) {
+        ItemStack stack = this.get(key,LCFancyPacketTypes.ITEM_STACK,defaultValue);
+        //Only validate the data components on the item stack
+        if(validate && ItemStackAccessor.validateComponents(stack.getComponents()).isError())
+            return defaultValue;
+        return stack;
+    }
+
+    public boolean containsScreenPos(String key) { return this.contains(key + "X") && this.contains(key + "Y"); }
+    public ScreenPosition getScreenPos(String key) { return this.getScreenPos(key,ScreenPosition.ZERO); }
+    public ScreenPosition getScreenPos(String key,ScreenPosition defaultValue) {
+        if(this.containsScreenPos(key))
+            return ScreenPosition.of(this.getInt(key + "X"),this.getInt(key + "Y"));
+        return defaultValue;
+    }
 
     @Nullable
     public <T> T getRegistryEntry(String key,Registry<T> registry) { return registry.byId(this.getInt(key)); }
@@ -132,7 +149,8 @@ public sealed class FancyPacketMap implements IIndentStringable permits FancyPac
     public FancyPacketMap immutable() { return this; }
     public FancyPacketMap.Mutable mutable() { return new Mutable(this.dataMap); }
 
-    public static Mutable newMutable() { return new Mutable(); }
+    public static Mutable map() { return new Mutable(); }
+    public static Mutable flag(String flag) { return map().setFlag(flag); }
 
     protected static <T> PacketList<T> castList(Entry<?> entry,FancyPacketType<T> type) { return ((PacketList<?>)entry.value).forceType(type); }
 
@@ -173,7 +191,7 @@ public sealed class FancyPacketMap implements IIndentStringable permits FancyPac
         public Mutable mutable() { return this; }
 
         public <T> Mutable set(String key, Supplier<FancyPacketType<T>> type, T value) { return this.set(key,type.get(),value); }
-        public <T> Mutable set(String key,FancyPacketType<T> type,T value) { this.dataMap.put(key,new Entry<>(type,value)); return this; }
+        public <T> Mutable set(String key,FancyPacketType<T> type,T value) { this.dataMap.put(key,new Entry<>(type,Objects.requireNonNull(value))); return this; }
         public Mutable setFlag(String key) { this.dataMap.put(key,Entry.NULL); return this; }
         public Mutable setBoolean(String key,boolean value) { return this.set(key, LCFancyPacketTypes.BOOLEAN,value); }
         public Mutable setInt(String key,int value) { return this.set(key, LCFancyPacketTypes.INT,value); }
@@ -190,7 +208,9 @@ public sealed class FancyPacketMap implements IIndentStringable permits FancyPac
         public Mutable setBlockPos(String key,BlockPos value) { return this.set(key, LCFancyPacketTypes.BLOCK_POS,value); }
         public Mutable setItem(String key,ItemStack value) { return this.set(key, LCFancyPacketTypes.ITEM_STACK,value.copy()); }
 
-        public <T> Mutable setRegistryEntry(String key,Registry<T> registry,T value) { return this.setInt(key,registry.getId(value)); }
+        public Mutable setScreenPos(String key,ScreenPosition value) { return this.setInt(key + "X",value.x) .setInt(key + "Y",value.y); }
+
+        public <T> Mutable setRegistryEntry(String key, Registry<T> registry, T value) { return this.setInt(key,registry.getId(value)); }
         public <T> Mutable setFullRegistryEntry(String key, Registry<T> registry, T value) { return this.setIdentifier(key,registry.getKey(value)); }
 
         public <T> Mutable setList(String key,Supplier<FancyPacketType<T>> listType,List<T> list) { return this.setList(key,listType.get(),list); }
@@ -222,6 +242,11 @@ public sealed class FancyPacketMap implements IIndentStringable permits FancyPac
         }
 
         public Mutable setMap(String key,FancyPacketMap value) { return this.set(key, LCFancyPacketTypes.MAP,value.immutable()); }
+        public Mutable setOptionalMap(String key, Optional<FancyPacketMap> value) {
+            if(value.isPresent())
+                this.setOptionalMap(key,value.get());
+            return this;
+        }
         public Mutable setOptionalMap(String key, FancyPacketMap value) {
             if(value.isEmpty())
                 return this;
@@ -238,6 +263,11 @@ public sealed class FancyPacketMap implements IIndentStringable permits FancyPac
             return this;
         }
 
+        public Mutable merge(FancyPacketMap map) {
+            this.dataMap.putAll(map.dataMap);
+            return this;
+        }
+
         public Mutable clear() { this.dataMap.clear(); return this; }
         public Mutable remove(String key) { this.dataMap.remove(key); return this; }
 
@@ -247,7 +277,7 @@ public sealed class FancyPacketMap implements IIndentStringable permits FancyPac
     {
         public Entry(Supplier<FancyPacketType<T>> type,T value) { this(type.get(),value); }
 
-        private static final Entry<Unit> NULL = new Entry<>(LCFancyPacketTypes.NULL,Unit.INSTANCE);
+        private static final Entry<Unit> NULL = new Entry<>(LCFancyPacketTypes.UNIT,Unit.INSTANCE);
 
         public boolean is(FancyPacketType<?> type) { return this.type == type; }
         //Copy PacketList entries for safety just in case the builder gets modified later

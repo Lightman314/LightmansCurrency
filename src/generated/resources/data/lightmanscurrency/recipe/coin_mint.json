@@ -1,0 +1,24 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.coin_mint.canCraftCoinMint"
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "i": "#c:ingots/iron",
+    "p": "minecraft:piston",
+    "s": "minecraft:smooth_stone"
+  },
+  "pattern": [
+    "ipi",
+    "i i",
+    "sss"
+  ],
+  "result": {
+    "id": "lightmanscurrency:coin_mint"
+  }
+}

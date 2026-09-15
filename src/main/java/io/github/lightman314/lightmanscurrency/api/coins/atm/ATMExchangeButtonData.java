@@ -16,7 +16,7 @@ import io.github.lightman314.lightmanscurrency.api.coins.atm.commands.ATMCommand
 import io.github.lightman314.lightmanscurrency.api.coins.atm.commands.ExchangeDirection;
 import io.github.lightman314.lightmanscurrency.api.coins.atm.commands.builtin.ExchangeAllCommand;
 import io.github.lightman314.lightmanscurrency.api.coins.atm.commands.builtin.ExchangeCommand;
-import io.github.lightman314.lightmanscurrency.api.helpers.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.helpers.data.CodecInteractionHelper;
 import io.github.lightman314.lightmanscurrency.api.coins.atm.icons.ATMIconData;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.coins.atm.icons.builtin.ATMItemIcon;
@@ -36,9 +36,9 @@ public class ATMExchangeButtonData {
     private final List<ATMIconData> icons;
     public ImmutableList<ATMIconData> getIcons() { return ImmutableList.copyOf(this.icons); }
 
-    public static ATMExchangeButtonData parse(JsonObject data,DataContext<JsonElement> context) throws JsonSyntaxException, IdentifierException { return new ATMExchangeButtonData(data,context); }
+    public static ATMExchangeButtonData parse(JsonObject data, CodecInteractionHelper<JsonElement> context) throws JsonSyntaxException, IdentifierException { return new ATMExchangeButtonData(data,context); }
 
-    private ATMExchangeButtonData(JsonObject data,DataContext<JsonElement> context) throws JsonSyntaxException, IdentifierException {
+    private ATMExchangeButtonData(JsonObject data, CodecInteractionHelper<JsonElement> context) throws JsonSyntaxException, IdentifierException {
         this.position = ScreenPosition.of(GsonHelper.getAsInt(data, "x"), GsonHelper.getAsInt(data,"y"));
         this.width = GsonHelper.getAsInt(data,"width");
         this.height = GsonHelper.getAsInt(data,"height",18);
@@ -73,7 +73,7 @@ public class ATMExchangeButtonData {
         this.icons = icons;
     }
 
-    public JsonObject save(DataContext<JsonElement> context) {
+    public JsonObject save(CodecInteractionHelper<JsonElement> context) {
         JsonObject data = new JsonObject();
 
         data.addProperty("x", this.position.x);
@@ -112,8 +112,9 @@ public class ATMExchangeButtonData {
     }
 
     public static void generateChocolate(ATMData.Builder builder) {
-        //builder.addButton(exchangeAllUpChocolate());
-        //builder.addButton(exchangeAllDownChocolate());
+        //Exchange All
+        builder.addButton(exchangeAllUpChocolate());
+        builder.addButton(exchangeAllDownChocolate());
         //Copper <-> Iron
         builder.addButton(exchangeSingle(6, 61, LCItems.COIN_CHOCOLATE_IRON, LCItems.COIN_CHOCOLATE_COPPER, new ExchangeCommand(ExchangeDirection.DOWN, LCItems.COIN_CHOCOLATE_IRON)));
         builder.addButton(exchangeSingle(6, 88, LCItems.COIN_CHOCOLATE_COPPER, LCItems.COIN_CHOCOLATE_IRON, new ExchangeCommand(ExchangeDirection.UP, LCItems.COIN_CHOCOLATE_COPPER)));

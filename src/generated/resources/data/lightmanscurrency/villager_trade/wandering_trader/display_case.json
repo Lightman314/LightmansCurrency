@@ -1,0 +1,17 @@
+{
+  "given_item_modifiers": [
+    {
+      "function": "lightmanscurrency:randomized_item",
+      "items": "#lightmanscurrency:groups/display_case"
+    }
+  ],
+  "gives": {
+    "id": "lightmanscurrency:display_case_white"
+  },
+  "max_uses": 12.0,
+  "reputation_discount": 0.05,
+  "wants": {
+    "count": 2.0,
+    "id": "lightmanscurrency:coin_gold"
+  }
+}

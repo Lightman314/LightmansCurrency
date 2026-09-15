@@ -11,10 +11,12 @@ import javax.annotation.Nullable;
 
 import java.util.function.Consumer;
 
-public record FancyMenuProvider(MenuConstructor constructor, Component name, boolean closeClientMenu,Consumer<RegistryFriendlyByteBuf> packet) implements MenuProvider {
+public record FancyMenuProvider(MenuConstructor constructor,Component name,boolean closeClientMenu,Consumer<RegistryFriendlyByteBuf> packet) implements MenuProvider {
 
     public FancyMenuProvider(MenuConstructor constructor,Component name,Consumer<RegistryFriendlyByteBuf> packet) { this(constructor,name,true,packet); }
+    public FancyMenuProvider(MenuConstructor constructor) { this(constructor,Component.empty(),true,p -> {}); }
     public FancyMenuProvider(MenuConstructor constructor,Consumer<RegistryFriendlyByteBuf> packet) { this(constructor,Component.empty(),true,packet); }
+    public FancyMenuProvider(MenuConstructor constructor,boolean closeClientMenu,Consumer<RegistryFriendlyByteBuf> packet) { this(constructor,Component.empty(),closeClientMenu,packet); }
 
     @Override
     public Component getDisplayName() { return this.name; }

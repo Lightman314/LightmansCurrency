@@ -22,7 +22,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.neoforged.neoforge.common.UsernameCache;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
@@ -82,9 +82,8 @@ public class PlayerReference {
             return n;
         }
     }
-    public Component getNameComponent(boolean isClient) { return this.getNameComponent(ISidedContext.known(isClient)); }
     public Component getNameComponent(ISidedContext context) { return Component.literal(this.getName(context)); }
-    public ItemStack getSkull() { return ItemHelper.skullForPlayer(this.id); }
+    public ItemStackTemplate getSkull() { return ItemHelper.skullForPlayer(this.id); }
 
     private PlayerReference(UUID playerID, String name, boolean forceName) { this.id = playerID; this.name = name; this.forceName = forceName; }
     private PlayerReference(UUID playerID, String name) { this(playerID,name,false); }
@@ -166,11 +165,11 @@ public class PlayerReference {
         return of(player.getGameProfile());
     }
 
-    public static PlayerReference of(boolean isClient, String playerName)
+    public static PlayerReference of(ISidedContext context, String playerName)
     {
         if(playerName.isBlank())
             return null;
-        if(isClient)
+        if(context.isClient())
         {
             /*UUID id = ClientPlayerNameCache.lookupID(playerName);
             if(id != null)
@@ -230,13 +229,6 @@ public class PlayerReference {
         return false;
     }
 
-    @Override
-    public int hashCode() {
-        if(this.forceName)
-            return Objects.hash(this.id,this.name);
-        return this.id.hashCode();
-    }
-
     /**
      * Only run on server.
      */
@@ -279,6 +271,20 @@ public class PlayerReference {
 
         } catch(Throwable t) { LightmansCurrency.LogError("Error getting player ID from name.", t); }
         return null;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == this)
+            return true;
+        return obj instanceof PlayerReference pr && pr.forceName == this.forceName && pr.id.equals(this.id) && (!this.forceName || this.name.equals(pr.name));
+    }
+
+    @Override
+    public int hashCode() {
+        if(this.forceName)
+            return Objects.hash(this.id,this.name);
+        return this.id.hashCode();
     }
 
     @Override

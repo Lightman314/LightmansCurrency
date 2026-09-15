@@ -1,0 +1,15 @@
+// 26.1.2	2026-09-10T19:03:15.5540894	Tags for minecraft:item mod id lightmanscurrency
+1bf31735ec9977500912b7669bce244d9b7e20c1 data/lightmanscurrency/tags/item/atm.json
+b13b1d2a54bcdda6e4766142d82b7b5baf245b2c data/lightmanscurrency/tags/item/coin_minting_material.json
+eab69f81f4c8f12618755243db77d30692d20b15 data/lightmanscurrency/tags/item/groups/card_display.json
+1723bc0183c181697067e639bf42ba46ba64ec2a data/lightmanscurrency/tags/item/groups/display_case.json
+7bd089355fba1cf8adc1d45fad4fa28f9c571ad4 data/lightmanscurrency/tags/item/money.json
+cc46318e498e0ff380110b240d5963fc3e1e3059 data/lightmanscurrency/tags/item/money/chocolate_coins.json
+496614f7bc1fa62fa070d3727bd1a8e77d968edf data/lightmanscurrency/tags/item/money/coins.json
+c64e59ade97ecccccb7b769c8e3856338623649e data/lightmanscurrency/tags/item/money/emeralds.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/lightmanscurrency/tags/item/network_terminal.json
+b9e069a31e2e6b01aad20fccb81ee431fd0ab64b data/lightmanscurrency/tags/item/traders.json
+ef2c79021924f2e7fd7d43f20f07e0bc9c7638ba data/lightmanscurrency/tags/item/traders/item.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/lightmanscurrency/tags/item/traders/network.json
+dd0000fda0c13ad2d9cbf7622e30d4e427c8fab0 data/lightmanscurrency/tags/item/wallet.json
+fdab8ddd5529ae14b26bc1853b004131135318a4 data/lightmanscurrency/tags/item/wallet_upgrade_material.json

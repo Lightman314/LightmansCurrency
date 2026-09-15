@@ -12,6 +12,8 @@ public abstract class ListOption<T> extends ListLikeOption<List<T>> {
 
     protected ListOption(Supplier<List<T>> defaultValue) { super(defaultValue); }
 
+    public boolean contains(T value) { return this.get().contains(value); }
+
     public static <T> ConfigParser<List<T>> makeParser(ConfigParser<T> partialParser) { return new ListParser<>(partialParser); }
 
     @Override

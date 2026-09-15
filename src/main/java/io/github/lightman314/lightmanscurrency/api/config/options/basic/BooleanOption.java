@@ -26,7 +26,7 @@ public class BooleanOption extends ConfigOption<Boolean> {
     protected String bonusComment() { return "Default: " + this.getDefaultValue(); }
     @Nullable
     @Override
-    protected Component bonusCommentTooltip() { return LCText.Config.CONFIG_OPTION_DEFAULT.get(LCText.GUI_SETTINGS_VALUE_TRUE_FALSE.get(this.getDefaultValue())); }
+    protected Component bonusCommentTooltip() { return CONFIG_OPTION_DEFAULT.get(LCText.GUI_SETTINGS_VALUE_TRUE_FALSE.get(this.getDefaultValue())); }
 
     private static class Parser implements ConfigParser<Boolean>
     {

@@ -18,4 +18,6 @@ public abstract class IconData {
 
     public abstract IconType<?> getType();
 
+    public final boolean isEmpty() { return this == EmptyIcon.INSTANCE; }
+
 }

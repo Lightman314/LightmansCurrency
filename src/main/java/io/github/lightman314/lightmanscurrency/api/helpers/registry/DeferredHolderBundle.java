@@ -8,11 +8,12 @@ import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public final class DeferredHolderBundle<K,R,T extends R> {
+public class DeferredHolderBundle<K,R,T extends R> {
 
     private final Comparator<K> sorter;
 
     private boolean locked = false;
+    protected final boolean isLocked() { return this.locked; }
     public DeferredHolderBundle<K,R,T> lock() { this.locked = true; return this; }
 
     public DeferredHolderBundle(Comparator<K> sorter) { this.sorter = sorter; }
@@ -21,12 +22,18 @@ public final class DeferredHolderBundle<K,R,T extends R> {
 
     public void put(K key,DeferredHolder<R,T> holder)
     {
+        this.checkNewKey(key);
+        this.values.put(key,holder);
+    }
+
+    protected final void checkNewKey(K key) throws IllegalStateException {
         if(this.locked)
             throw new IllegalStateException("Cannot add new values to the bundle after it's been locked!");
         if(this.values.containsKey(key))
             throw new IllegalStateException("Attempted to add an entry of key " + key + " when an entry is already present in the bundle!");
-        this.values.put(key,holder);
     }
+
+    protected final boolean containsKey(K key) { return this.values.containsKey(key); }
 
     public DeferredHolder<R,T> getHolder(K key) { return this.values.get(key); }
     public T get(K key) { return this.getHolder(key).get(); }

@@ -6,6 +6,9 @@ import io.github.lightman314.lightmanscurrency.api.coins.value.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.config.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.builtin.*;
+import io.github.lightman314.lightmanscurrency.api.loot.DefaultLootConfigEvent;
+import io.github.lightman314.lightmanscurrency.api.loot.tiers.ChestPoolLevel;
+import io.github.lightman314.lightmanscurrency.api.loot.tiers.EntityPoolLevel;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.core.LCItems;
 import io.github.lightman314.lightmanscurrency.features.wallet.WalletItem;
@@ -37,6 +40,8 @@ public final class LCConfig {
         public final BooleanOption gachaMachineFancyGraphics = BooleanOption.createTrue();
 
         public final StringOption timeFormat = StringOption.create("MM/dd/yy hh:mmaa");
+
+        public final FloatOption scrollMultiplier = FloatOption.create(10f,0.01f,1000f);
 
         public final ScreenPositionOption walletSlot = ScreenPositionOption.create(76, 43);
         public final ScreenPositionOption walletSlotCreative = ScreenPositionOption.create(126,19);
@@ -92,6 +97,9 @@ public final class LCConfig {
             builder.comment("Whether the Gacha Machine will render each Gacha Ball individually",
                             "Disable if you're having FPS issues near the Gacha Machine, this will make the machine render a far more simplisitic representation of its items.")
                     .add("gachaMachineFancyGraphics",this.gachaMachineFancyGraphics);
+
+            builder.comment("The scroll multiplier when scrolling widget areas")
+                    .add("scrollMult",this.scrollMultiplier);
 
             builder.pop();
 
@@ -321,29 +329,29 @@ public final class LCConfig {
         public final BooleanOption allowSpawnerEntityDrops = BooleanOption.createFalse();
         public final BooleanOption allowFakePlayerCoinDrops = BooleanOption.createTrue();
 
-        /*public final StringListOption entityDropsT1 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T1));
-        public final StringListOption entityDropsT2 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T2));
-        public final StringListOption entityDropsT3 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T3));
-        public final StringListOption entityDropsT4 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T4));
-        public final StringListOption entityDropsT5 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T5));
-        public final StringListOption entityDropsT6 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.T6));
+        public final StringListOption entityDropsT1 = StringListOption.create(DefaultLootConfigEvent.Entity.collect(EntityPoolLevel.T1));
+        public final StringListOption entityDropsT2 = StringListOption.create(DefaultLootConfigEvent.Entity.collect(EntityPoolLevel.T2));
+        public final StringListOption entityDropsT3 = StringListOption.create(DefaultLootConfigEvent.Entity.collect(EntityPoolLevel.T3));
+        public final StringListOption entityDropsT4 = StringListOption.create(DefaultLootConfigEvent.Entity.collect(EntityPoolLevel.T4));
+        public final StringListOption entityDropsT5 = StringListOption.create(DefaultLootConfigEvent.Entity.collect(EntityPoolLevel.T5));
+        public final StringListOption entityDropsT6 = StringListOption.create(DefaultLootConfigEvent.Entity.collect(EntityPoolLevel.T6));
 
-        public final StringListOption bossEntityDropsT1 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.BOSS_T1));
-        public final StringListOption bossEntityDropsT2 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.BOSS_T2));
-        public final StringListOption bossEntityDropsT3 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.BOSS_T3));
-        public final StringListOption bossEntityDropsT4 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.BOSS_T4));
-        public final StringListOption bossEntityDropsT5 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.BOSS_T5));
-        public final StringListOption bossEntityDropsT6 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultEntityDrops(EntityPoolLevel.BOSS_T6));
+        public final StringListOption bossEntityDropsT1 = StringListOption.create(DefaultLootConfigEvent.Entity.collect(EntityPoolLevel.BOSS_T1));
+        public final StringListOption bossEntityDropsT2 = StringListOption.create(DefaultLootConfigEvent.Entity.collect(EntityPoolLevel.BOSS_T2));
+        public final StringListOption bossEntityDropsT3 = StringListOption.create(DefaultLootConfigEvent.Entity.collect(EntityPoolLevel.BOSS_T3));
+        public final StringListOption bossEntityDropsT4 = StringListOption.create(DefaultLootConfigEvent.Entity.collect(EntityPoolLevel.BOSS_T4));
+        public final StringListOption bossEntityDropsT5 = StringListOption.create(DefaultLootConfigEvent.Entity.collect(EntityPoolLevel.BOSS_T5));
+        public final StringListOption bossEntityDropsT6 = StringListOption.create(DefaultLootConfigEvent.Entity.collect(EntityPoolLevel.BOSS_T6));
 
         //Chest Loot
         public final BooleanOption enableChestLoot = BooleanOption.createTrue();
 
-        public final StringListOption chestDropsT1 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T1));
-        public final StringListOption chestDropsT2 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T2));
-        public final StringListOption chestDropsT3 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T3));
-        public final StringListOption chestDropsT4 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T4));
-        public final StringListOption chestDropsT5 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T5));
-        public final StringListOption chestDropsT6 = StringListOption.create(() -> DroplistConfigGenerator.CollectDefaultChestDrops(ChestPoolLevel.T6));*/
+        public final StringListOption chestDropsT1 = StringListOption.create(DefaultLootConfigEvent.Chest.collect(ChestPoolLevel.T1));
+        public final StringListOption chestDropsT2 = StringListOption.create(DefaultLootConfigEvent.Chest.collect(ChestPoolLevel.T2));
+        public final StringListOption chestDropsT3 = StringListOption.create(DefaultLootConfigEvent.Chest.collect(ChestPoolLevel.T3));
+        public final StringListOption chestDropsT4 = StringListOption.create(DefaultLootConfigEvent.Chest.collect(ChestPoolLevel.T4));
+        public final StringListOption chestDropsT5 = StringListOption.create(DefaultLootConfigEvent.Chest.collect(ChestPoolLevel.T5));
+        public final StringListOption chestDropsT6 = StringListOption.create(DefaultLootConfigEvent.Chest.collect(ChestPoolLevel.T6));
 
         //Event Options
         public final BooleanOption chocolateEventCoins = BooleanOption.createTrue();
@@ -511,7 +519,7 @@ public final class LCConfig {
                             "You may use \"minecraft:wandering_trader\" as a profession id to override the vanilla Wandering Trader",
                             "",
                             "Each sub-entry must be formatted as either of the following: \"r;minecraft:villager_type;ITEM_ENTRY\" to define an entry specific to an in-game region (villagers from `mincraft:snow` or `minecraft:desert` regions, etc.)",
-                            "with the exception of a single 'default' entry with no defined villager type/region \"...-ITEM_ENTRY-...\"",
+                            "except for a single 'default' entry with no defined villager type/region \"...-ITEM_ENTRY-...\"",
                             "",
                             "Each item-entry is either 1 or 2 item ids (e.g. \"mod:coin_item\" or \"mod:coin_item_1;mod:coin_item_2\".",
                             "When two are given, the first will replace the cost items (items the player must pay the villager) and the second will replace the result (items the player will be paid by the villager)",
@@ -547,7 +555,7 @@ public final class LCConfig {
                             "Set to false to help prevent autmated coin farming.")
                     .add("allowFakePlayerDrops", this.allowFakePlayerCoinDrops);
 
-            /*builder.comment("Entity Drop Lists. Accepts the following inputs:",
+            builder.comment("Entity Drop Lists. Accepts the following inputs:",
                             "Entity IDs. e.g. \"minecraft:cow\"",
                             "Entity Tags. e.g. \"#minecraft:skeletons\"",
                             "Every entity provided by a mod. e.g. \"minecraft:*\"",
@@ -604,7 +612,7 @@ public final class LCConfig {
                     .add("T6", this.chestDropsT6);
 
             //Pop lists -> chests -> loot
-            builder.pop().pop().pop();*/
+            builder.pop().pop().pop();
 
             builder.comment("Structure Settings","Requires a /reload command to be applied correctly").push("structures");
 
@@ -667,9 +675,9 @@ public final class LCConfig {
         public final FloatOption coinMintSoundVolume = FloatOption.create(0.5f, 0f, 1f);
 
         //Wallet Settings
-        //public final ItemListOption walletCanExchange = ItemListOption.create(() -> Lists.newArrayList(LCItems.WALLET_IRON.get(), LCItems.WALLET_GOLD.get(), LCItems.WALLET_EMERALD.get(), LCItems.WALLET_DIAMOND.get(), LCItems.WALLET_NETHERITE.get(), LCItems.WALLET_NETHER_STAR.get(), LCItems.WALLET_ENDER_DRAGON.get()), i -> i instanceof WalletItem);
-        //public final ItemListOption walletCanPickup = ItemListOption.create(() -> Lists.newArrayList(LCItems.WALLET_GOLD.get(), LCItems.WALLET_EMERALD.get(), LCItems.WALLET_DIAMOND.get(), LCItems.WALLET_NETHERITE.get(), LCItems.WALLET_NETHER_STAR.get(), LCItems.WALLET_ENDER_DRAGON.get()), i -> i instanceof WalletItem);
-        //public final ItemListOption walletCanBank = ItemListOption.create(() -> Lists.newArrayList(LCItems.WALLET_NETHERITE.get(), LCItems.WALLET_NETHER_STAR.get(), LCItems.WALLET_ENDER_DRAGON.get()), i -> i instanceof WalletItem);
+        public final ItemListOption walletCanExchange = ItemListOption.create(() -> Lists.newArrayList(LCItems.WALLET_IRON.get(), LCItems.WALLET_GOLD.get(), LCItems.WALLET_EMERALD.get(), LCItems.WALLET_DIAMOND.get(), LCItems.WALLET_NETHERITE.get(), LCItems.WALLET_NETHER_STAR.get(), LCItems.WALLET_ENDER_DRAGON.get()), i -> i instanceof WalletItem);
+        public final ItemListOption walletCanPickup = ItemListOption.create(() -> Lists.newArrayList(LCItems.WALLET_GOLD.get(), LCItems.WALLET_EMERALD.get(), LCItems.WALLET_DIAMOND.get(), LCItems.WALLET_NETHERITE.get(), LCItems.WALLET_NETHER_STAR.get(), LCItems.WALLET_ENDER_DRAGON.get()), i -> i instanceof WalletItem);
+        public final ItemListOption walletCanBank = ItemListOption.create(() -> Lists.newArrayList(LCItems.WALLET_NETHERITE.get(), LCItems.WALLET_NETHER_STAR.get(), LCItems.WALLET_ENDER_DRAGON.get()), i -> i instanceof WalletItem);
         public final BooleanOption walletCapacityUpgradeable = BooleanOption.createTrue();
         public final BooleanOption walletDropsManualSpawn = BooleanOption.createFalse();
 
@@ -726,9 +734,9 @@ public final class LCConfig {
         public final DoubleOption bankAccountInterestRate = DoubleOption.create(0d, 0d, 1d);
         public final BooleanOption bankAccountForceInterest = BooleanOption.createTrue();
         public final BooleanOption bankAccountInterestNotification = BooleanOption.createTrue();
-        public final IntOption bankAccountInterestTime = IntOption.create(1728000, 1200, 630720000);
-        public final MoneyValueListOption bankAccountInterestLimits = MoneyValueListOption.create(ArrayList::new);
-        public final StringListOption bankAccountInterestBlacklist = StringListOption.create(ArrayList::new);
+        public final LongOption bankAccountInterestTime = LongOption.create(1440, 1, 525600);
+        public final MoneyValueMapOption bankAccountInterestLimits = MoneyValueMapOption.create();
+        public final StringListOption bankAccountInterestBlacklist = StringListOption.create();
 
         //Terminal Options
         public final BooleanOption openTerminalCommand = BooleanOption.createFalse();
@@ -806,14 +814,14 @@ public final class LCConfig {
 
             builder.comment("Wallet Settings").push("wallet");
 
-            /*builder.comment("A list of wallets that are capable of exchanging coins.")
+            builder.comment("A list of wallets that are capable of exchanging coins.")
                     .add("exchangeAbility", this.walletCanExchange);
 
             builder.comment("A list of wallets that are capable of automatically collecting coins while equipped.")
                     .add("pickupAbility", this.walletCanPickup);
 
             builder.comment("A list of wallets that are capable of allowing transfers to/from your bank account.")
-                    .add("bankAbility", this.walletCanBank);*/
+                    .add("bankAbility", this.walletCanBank);
 
             builder.comment("Whether wallets can have additional slots added by using an upgrade item on them from their items",
                             "By default diamonds are the only valid upgrade item, but this can be changed by a datapack")
@@ -982,15 +990,7 @@ public final class LCConfig {
                             "Regardless of this value, the bank accounts logs will always display the interest interaction.")
                     .add("interestNotification", this.bankAccountInterestNotification);
 
-            builder.comment("The number of minecraft ticks that will pass before interest is applied.",
-                            "Helpful Notes:",
-                            "1s = 20 ticks",
-                            "1m = 1200 ticks",
-                            "1h = 72000 ticks",
-                            "1 day = 1728000 ticks",
-                            "1 week = 12096000 ticks",
-                            "30 days = 51840000 ticks",
-                            "365 days = 630720000 ticks")
+            builder.comment("The number of minutes that will pass before interest is applied.")
                     .add("interestDelay", this.bankAccountInterestTime);
 
             builder.comment("A list of upper interest limits.",

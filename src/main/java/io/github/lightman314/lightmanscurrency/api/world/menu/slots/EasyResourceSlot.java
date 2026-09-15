@@ -14,9 +14,12 @@ public class EasyResourceSlot extends ResourceHandlerSlot implements IEasySlot {
     public EasyResourceSlot(ResourceHandler<ItemResource> handler,IndexModifier<ItemResource> slotModifier,int handlerSlot,int x,int y) {
         super(handler,slotModifier,handlerSlot,x,y);
     }
+    public <T extends ResourceHandler<ItemResource> & IndexModifier<ItemResource>> EasyResourceSlot(T handler,int handlerSlot,int x,int y) {
+        this(handler,handler,handlerSlot,x,y);
+    }
 
     @Override
-    public final boolean isActive() { return this.active; }
+    public boolean isActive() { return this.active; }
     @Override
     public final void setActive(boolean active) { this.active = active; }
     @Override
@@ -34,6 +37,17 @@ public class EasyResourceSlot extends ResourceHandlerSlot implements IEasySlot {
         if(!this.isActive() || this.isLocked())
             return false;
         return super.mayPickup(player);
+    }
+
+    public static class OutputOnly extends EasyResourceSlot {
+        public OutputOnly(ResourceHandler<ItemResource> handler, IndexModifier<ItemResource> slotModifier, int handlerSlot, int x, int y) {
+            super(handler, slotModifier, handlerSlot, x, y);
+        }
+        public <T extends ResourceHandler<ItemResource> & IndexModifier<ItemResource>> OutputOnly(T handler, int handlerSlot, int x, int y) {
+            super(handler, handlerSlot, x, y);
+        }
+        @Override
+        public boolean mayPlace(ItemStack stack) { return false; }
     }
 
 }

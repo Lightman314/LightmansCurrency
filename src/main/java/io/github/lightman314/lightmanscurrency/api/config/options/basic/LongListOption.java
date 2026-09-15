@@ -31,7 +31,7 @@ public class LongListOption extends ListOption<Long> {
     protected String bonusComment() { return "Range: " + this.lowerLimit + " -> " + this.upperLimit; }
     @Nullable
     @Override
-    protected Component bonusCommentTooltip() { return LCText.Config.CONFIG_OPTION_RANGE.get(this.lowerLimit,this.upperLimit); }
+    protected Component bonusCommentTooltip() { return CONFIG_OPTION_RANGE.get(this.lowerLimit,this.upperLimit); }
 
     public static LongListOption create(List<Long> defaultValue) { return new LongListOption(() -> defaultValue, Long.MIN_VALUE, Long.MAX_VALUE); }
     public static LongListOption create(List<Long> defaultValue, long lowerLimit) { return new LongListOption(() -> defaultValue, lowerLimit, Long.MAX_VALUE); }

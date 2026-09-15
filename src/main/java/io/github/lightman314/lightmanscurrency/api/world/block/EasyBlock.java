@@ -6,13 +6,10 @@ import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ITickerSer
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import javax.annotation.Nullable;
 
 public class EasyBlock extends Block {
@@ -23,16 +20,6 @@ public class EasyBlock extends Block {
     }
 
     protected BlockState initializeDefaultState(BlockState state) { return this.defaultBlockState(); }
-
-    protected boolean isBlockOpaque(BlockState state) { return this.isBlockOpaque(); }
-    protected boolean isBlockOpaque() { return true; }
-
-    @Override
-    protected VoxelShape getOcclusionShape(BlockState state) {
-        if(this.isBlockOpaque(state))
-            return super.getOcclusionShape(state);
-        return Shapes.empty();
-    }
 
     @Nullable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState blockState, BlockEntityType<T> type) { return createTickerFromInterfaces(level,blockState,type); }

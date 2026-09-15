@@ -11,6 +11,7 @@ public final class LCPermissionTypes {
     static {
         register("toggle",BooleanPermissionType.INSTANCE);
         register("level",IntegerPermissionType.INSTANCE);
+        register("tri_state",EnumPermissionType.INSTANCE);
     }
 
     private static void register(String name,PermissionType<?> type) {

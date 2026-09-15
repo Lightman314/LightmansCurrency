@@ -7,7 +7,6 @@ import net.minecraft.world.entity.player.Inventory;
 
 public abstract class MessageMenuScreen<T extends MessageMenu> extends FancyMenuScreen<T> {
 
-
     public MessageMenuScreen(T menu, Inventory inventory) { super(menu, inventory); this.menu.addClientListener(this::handleMessage); }
     public MessageMenuScreen(T menu, Inventory inventory, Component title) { super(menu, inventory, title); this.menu.addClientListener(this::handleMessage); }
     public MessageMenuScreen(T menu, Inventory inventory, int width, int height) { super(menu, inventory, width, height); this.menu.addClientListener(this::handleMessage); }

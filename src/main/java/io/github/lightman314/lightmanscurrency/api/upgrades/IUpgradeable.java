@@ -23,7 +23,7 @@ public interface IUpgradeable {
      * @return Whether the upgrade item can be inserted into the machines upgrade storage.<br>
      * Will return {@code false} without posting the vent if the new upgrade is unique and already present.
      */
-    static boolean isUpgradeAllowed(IUpgradeable host,UpgradeType type, DataComponentGetter itemState) {
+    static boolean isUpgradeAllowed(IUpgradeable host,UpgradeType type,DataComponentGetter itemState) {
         //Hard-code the unique upgrade conflict
         if(type.isUnique() && host.getStorage().hasUpgrade(type))
             return false;

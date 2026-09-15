@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.money.resource.builtin;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.helpers.debug.DebugHelper;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
@@ -18,7 +20,7 @@ public abstract class IterableMoneyResourceHandler implements MoneyResourceHandl
             //Create a sub-transaction so that we can abort if the math isn't mathing
             try(Transaction tx = Transaction.open(transaction))
             {
-                MoneyValue inserted = child.insert(value,transaction);
+                MoneyValue inserted = child.insert(value,tx);
                 if(!inserted.isEmpty())
                 {
                     //Subtract from the requested insertion, and add to the total inserted value
@@ -42,34 +44,40 @@ public abstract class IterableMoneyResourceHandler implements MoneyResourceHandl
     }
 
     @Override
-    public MoneyValue extract(MoneyValue value, TransactionContext transaction) {
+    public MoneyValue extract(MoneyValue toExtract, TransactionContext transaction) {
         MoneyValue totalExtracted = MoneyValue.empty();
         for(MoneyResourceHandler child : this.extractIterable())
         {
             //Create a sub-transaction so that we can abort if the math isn't mathing
             try(Transaction tx = Transaction.open(transaction))
             {
-                MoneyValue extracted = child.extract(value,transaction);
+                MoneyValue extracted = child.extract(toExtract,tx);
                 if(!extracted.isEmpty())
                 {
                     //Subtract from the requested extraction, and add to the total extracted value
-                    MoneyValue newValue = value.subtractValue(extracted);
+                    MoneyValue newValue = toExtract.subtractValue(extracted);
                     MoneyValue newTotal = totalExtracted.addValue(extracted);
                     //Confirm that the math succeeded
                     if(newValue != null && newTotal != null)
                     {
                         //Commit the sub-transaction
                         totalExtracted = newTotal;
-                        value = newValue;
+                        toExtract = newValue;
                         tx.commit();
                         //Check if we should close the loop (i.e. if there's nothing left to extract)
-                        if(value.isEmpty())
+                        if(toExtract.isEmpty())
                             return totalExtracted;
                     }
                 }
+                //else if(!child.getResource(toExtract.getKey()).isEmpty())
+                //    LightmansCurrency.LogDebug("Failed to extract " + toExtract.getString() + " from a money resource that has " + child.getResource(toExtract.getKey()).getString() + " available!\n" + this.getClass().getSimpleName() + "-> " + child.getClass().getSimpleName());
             }
         }
         return totalExtracted;
     }
 
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "[" + DebugHelper.debugList(this.insertIterable()) + "]";
+    }
 }

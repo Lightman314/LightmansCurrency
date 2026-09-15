@@ -1,8 +1,10 @@
 package io.github.lightman314.lightmanscurrency.api.world.menu.slots;
 
 import com.google.common.base.Predicates;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +38,13 @@ public interface IEasySlot {
             if(s instanceof IEasySlot easySlot && filter.test(easySlot))
                 easySlot.setLocked(locked);
         }
+    }
+
+    @Nullable
+    static Identifier getNoItemIcon(List<Identifier> options) {
+        if(options == null || options.isEmpty())
+            return null;
+        return options.get((int)((System.currentTimeMillis() / 1000) % options.size()));
     }
 
 }

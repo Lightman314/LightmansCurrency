@@ -9,10 +9,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.events.ConfigEvent;
 import io.github.lightman314.lightmanscurrency.api.config.options.builtin.ItemListOption;
+import io.github.lightman314.lightmanscurrency.api.helpers.registry.HolderSetHelper;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderOwner;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -78,14 +80,10 @@ public class ItemListOptionSet implements ICustomHolderSet<Item> {
 
     private final Identifier fileID;
     private final String option;
-    private ItemListOptionSet(Identifier fileID, String optionKey) { this.fileID = fileID; this.option = optionKey; }
+    private ItemListOptionSet(Pair<Identifier,String> key) { this.fileID = key.getFirst(); this.option = key.getSecond(); }
 
-    public static ItemListOptionSet create(Identifier fileID,String optionKey)
-    {
-        Pair<Identifier,String> key = Pair.of(fileID,optionKey);
-        if(!setCache.containsKey(key))
-            setCache.put(key,new ItemListOptionSet(fileID,optionKey));
-        return setCache.get(key);
+    public static ItemListOptionSet create(Identifier fileID,String optionKey) {
+        return setCache.computeIfAbsent(Pair.of(fileID,optionKey),ItemListOptionSet::new);
     }
     public static ItemListOptionSet create(ItemListOption option)
     {
@@ -137,7 +135,7 @@ public class ItemListOptionSet implements ICustomHolderSet<Item> {
 
     //Event Listeners to invalidate and recollect the item list when the config is reloaded
     @SubscribeEvent
-    public static void configReloaded(ConfigEvent.ConfigReloadedEvent.Post event)
+    private static void configReloaded(ConfigEvent.ConfigReloadedEvent.Post event)
     {
         for(ItemListOptionSet set : setCache.values())
         {
@@ -146,7 +144,7 @@ public class ItemListOptionSet implements ICustomHolderSet<Item> {
         }
     }
     @SubscribeEvent
-    public static void configSynced(ConfigEvent.ConfigReceivedSyncDataEvent.Post event)
+    private static void configSynced(ConfigEvent.ConfigReceivedSyncDataEvent.Post event)
     {
         for(ItemListOptionSet set : setCache.values())
         {
@@ -155,53 +153,24 @@ public class ItemListOptionSet implements ICustomHolderSet<Item> {
         }
     }
 
-    private static class Type implements HolderSetType
+    private static class Type extends HolderSetHelper.SingleRegistryType<Item>
     {
         private static final MapCodec<ItemListOptionSet> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
                         Identifier.CODEC.fieldOf("fileID").forGetter(s -> s.fileID),
                         Codec.STRING.fieldOf("option").forGetter(s -> s.option))
                 .apply(builder,ItemListOptionSet::create));
-        private MapCodec<? extends ICustomHolderSet<?>> unsafeCodec() { return CODEC; }
-        private static final StreamCodec<RegistryFriendlyByteBuf,ItemListOptionSet> STREAM_CODEC = StreamCodec.composite(Identifier.STREAM_CODEC,s -> s.fileID,ByteBufCodecs.STRING_UTF8,s -> s.option,ItemListOptionSet::create);
-        private StreamCodec<RegistryFriendlyByteBuf,? extends ICustomHolderSet<?>> unsafeStream() { return STREAM_CODEC; }
-        @Override
-        public <T> MapCodec<? extends ICustomHolderSet<T>> makeCodec(ResourceKey<? extends Registry<T>> registryKey, Codec<Holder<T>> holderCodec, boolean forceList) {
-            return isItem(registryKey) ? (MapCodec<? extends ICustomHolderSet<T>>)unsafeCodec() : MapCodec.unit(new EmptySet<>(this));
-        }
-        @Override
-        public <T> StreamCodec<RegistryFriendlyByteBuf, ? extends ICustomHolderSet<T>> makeStreamCodec(ResourceKey<? extends Registry<T>> registryKey) {
-            return isItem(registryKey) ? (StreamCodec<RegistryFriendlyByteBuf, ? extends ICustomHolderSet<T>>)unsafeStream() : StreamCodec.unit(new EmptySet<>(this));
-        }
-        private boolean isItem(ResourceKey<? extends Registry<?>> key) { return key == BuiltInRegistries.ITEM.key(); }
+        private static final StreamCodec<RegistryFriendlyByteBuf,ItemListOptionSet> STREAM_CODEC = StreamCodec.composite(
+                Identifier.STREAM_CODEC,s -> s.fileID,
+                ByteBufCodecs.STRING_UTF8,s -> s.option,
+                ItemListOptionSet::create);
 
-    }
+        @Override
+        protected ResourceKey<Registry<Item>> getTargetRegistry() { return Registries.ITEM; }
+        @Override
+        protected MapCodec<ItemListOptionSet> unsafeCodec() { return CODEC; }
+        @Override
+        protected StreamCodec<RegistryFriendlyByteBuf,ItemListOptionSet> unsafeStream() { return STREAM_CODEC; }
 
-    private static class EmptySet<T> implements ICustomHolderSet<T>
-    {
-        private final Type type;
-        private EmptySet(Type type) { this.type = type; }
-        @Override
-        public HolderSetType type() { return this.type; }
-        @Override
-        public Stream<Holder<T>> stream() { return Stream.empty(); }
-        @Override
-        public int size() { return 0; }
-        @Override
-        public boolean isBound() { return true; }
-        @Override
-        public Either<TagKey<T>, List<Holder<T>>> unwrap() { return Either.right(ImmutableList.of()); }
-        @Override
-        public Optional<Holder<T>> getRandomElement(RandomSource random) { return Optional.empty(); }
-        @Override
-        public Holder<T> get(int index) { return null; }
-        @Override
-        public boolean contains(Holder<T> holder) { return false; }
-        @Override
-        public boolean canSerializeIn(HolderOwner<T> owner) { return false; }
-        @Override
-        public Optional<TagKey<T>> unwrapKey() { return Optional.empty(); }
-        @Override
-        public Iterator<Holder<T>> iterator() { return this.stream().iterator(); }
     }
 
 }

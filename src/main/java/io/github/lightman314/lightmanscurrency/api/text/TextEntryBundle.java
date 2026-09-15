@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public final class TextEntryBundle<T> {
+public class TextEntryBundle<T> {
 
     private final Map<T,TextEntry> entryMap;
 

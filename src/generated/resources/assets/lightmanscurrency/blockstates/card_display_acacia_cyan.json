@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "lightmanscurrency:block/card_display/acacia/cyan",
+      "y": 270
+    },
+    "facing=north": {
+      "model": "lightmanscurrency:block/card_display/acacia/cyan",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/card_display/acacia/cyan"
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/card_display/acacia/cyan",
+      "y": 90
+    }
+  }
+}

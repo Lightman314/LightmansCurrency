@@ -7,7 +7,7 @@ import java.util.Objects;
 
 public class DirectNumberSource extends NumberSource {
 
-    public static final NumberSourceType<DirectNumberSource> TYPE = new NumberSourceType<>(Codec.DOUBLE.fieldOf("value").xmap(DirectNumberSource::new,DirectNumberSource::get),ByteBufCodecs.DOUBLE.map(DirectNumberSource::new,DirectNumberSource::get));
+    public static final NumberSourceType<DirectNumberSource> TYPE = new NumberSourceType<>(Codec.DOUBLE.fieldOf("value").xmap(DirectNumberSource::new,DirectNumberSource::getDouble),ByteBufCodecs.DOUBLE.map(DirectNumberSource::new,DirectNumberSource::getDouble));
 
     private final double value;
     public DirectNumberSource(double value) { this.value = value; }
@@ -16,7 +16,10 @@ public class DirectNumberSource extends NumberSource {
     public NumberSourceType<?> getType() { return TYPE; }
 
     @Override
-    public double get() { return this.value; }
+    public double getDouble() { return this.value; }
+
+    @Override
+    public String toString() { return "Direct[" + this.value + "]"; }
 
     @Override
     protected boolean equals(NumberSource source) { return source instanceof DirectNumberSource ds && ds.value == this.value; }

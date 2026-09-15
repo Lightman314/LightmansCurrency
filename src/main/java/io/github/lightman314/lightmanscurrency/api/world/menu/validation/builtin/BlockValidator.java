@@ -10,7 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
-public class BlockValidator implements MenuValidator {
+public class BlockValidator extends MenuValidator {
 
     public static final StreamCodec<RegistryFriendlyByteBuf,BlockValidator> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.registry(Registries.BLOCK),v -> v.block,
@@ -36,4 +36,5 @@ public class BlockValidator implements MenuValidator {
         Level level = player.level();
         return level.isLoaded(this.pos) && level.getBlockState(this.pos).getBlock() == this.block && player.isWithinBlockInteractionRange(this.pos,this.range);
     }
+
 }

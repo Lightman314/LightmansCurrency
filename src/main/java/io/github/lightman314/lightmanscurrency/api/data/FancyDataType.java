@@ -3,14 +3,15 @@ package io.github.lightman314.lightmanscurrency.api.data;
 import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
-import io.github.lightman314.lightmanscurrency.api.helpers.registry.RegistryHelper;
+import io.github.lightman314.lightmanscurrency.api.helpers.registry.AbstractType;
 import io.github.lightman314.lightmanscurrency.client.data.ClientFancyDataCache;
 import io.github.lightman314.lightmanscurrency.features.api_impl.data.FancySaveData;
+import net.minecraft.core.Registry;
 
 import javax.annotation.Nullable;
 import java.util.function.Supplier;
 
-public final class FancyDataType<T extends FancyData> {
+public final class FancyDataType<T extends FancyData> extends AbstractType<FancyDataType<?>> {
 
     public final String fileName;
     private final Supplier<T> factory;
@@ -44,7 +45,8 @@ public final class FancyDataType<T extends FancyData> {
     public boolean isLoaded(ISidedContext context) { return (context.isClient() && !this.serverOnly) || (context.isServer() && FancySaveData.isLoaded(this)); }
 
     @Override
-    public int hashCode() { return RegistryHelper.hash(LCRegistries.Data.FANCY_DATA,this); }
+    protected Registry<FancyDataType<?>> getRegistry() { return LCRegistries.Data.FANCY_DATA; }
     @Override
-    public String toString() { return RegistryHelper.toString("FancyDataType",LCRegistries.Data.FANCY_DATA,this); }
+    protected String getName() { return "FancyDataType"; }
+
 }

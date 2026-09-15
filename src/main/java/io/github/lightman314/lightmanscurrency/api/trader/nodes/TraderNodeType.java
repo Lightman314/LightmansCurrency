@@ -3,21 +3,24 @@ package io.github.lightman314.lightmanscurrency.api.trader.nodes;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
-import io.github.lightman314.lightmanscurrency.api.helpers.registry.RegistryHelper;
+import io.github.lightman314.lightmanscurrency.api.helpers.registry.AbstractType;
+import net.minecraft.core.Registry;
 
-import java.util.Optional;
 import java.util.function.Supplier;
 
-public abstract class TraderNodeType<T extends TraderNode> {
+public abstract class TraderNodeType<T extends TraderNode> extends AbstractType.WithCodec<T,TraderNodeType<?>> {
 
-    public abstract T create(Optional<Object> argument);
-    public final Codec<T> codec() { return this.mapCodec().codec(); }
-    public abstract MapCodec<T> mapCodec();
+    public TraderNodeType(MapCodec<T> codec) { super(codec); }
+
+    public abstract T create(TraderArguments arguments);
+    public final Codec<T> fullCodec() { return this.codec().codec(); }
 
     @Override
-    public int hashCode() { return RegistryHelper.hash(LCRegistries.Trader.TRADER_NODE_TYPE,this); }
+    protected final TraderNodeType<?> getEntry() { return super.getEntry(); }
     @Override
-    public String toString() { return RegistryHelper.toString("TraderNodeType",LCRegistries.Trader.TRADER_NODE_TYPE,this); }
+    protected final Registry<TraderNodeType<?>> getRegistry() { return LCRegistries.Trader.TRADER_NODE_TYPE; }
+    @Override
+    protected final String getName() { return "TraderNodeType"; }
 
     public static <T extends TraderNode> TraderNodeType<T> simple(Supplier<T> factory,MapCodec<T> codec) { return new SimpleType<>(factory,codec); }
     public static <T extends TraderNode> TraderNodeType<T> unit(Supplier<T> factory) { return new UnitType<>(factory); }
@@ -25,33 +28,27 @@ public abstract class TraderNodeType<T extends TraderNode> {
     private static class UnitType<T extends TraderNode> extends TraderNodeType<T>
     {
         private final Supplier<T> factory;
-        private final MapCodec<T> codec;
         private UnitType(Supplier<T> factory) {
+            super(MapCodec.unit(factory));
             this.factory = factory;
-            this.codec = MapCodec.unit(factory);
         }
         @Override
-        public T create(Optional<Object> argument) { return this.factory.get(); }
-        @Override
-        public MapCodec<T> mapCodec() { return this.codec; }
+        public T create(TraderArguments arguments) { return this.factory.get(); }
     }
 
     private static class SimpleType<T extends TraderNode> extends TraderNodeType<T>
     {
         private final Supplier<T> factory;
-        private final MapCodec<T> codec;
         private SimpleType(Supplier<T> factory,MapCodec<T> codec) {
+            super(codec);
             this.factory = factory;
-            this.codec = codec;
         }
         @Override
-        public T create(Optional<Object> argument) {
+        public T create(TraderArguments arguments) {
             T result = this.factory.get();
-            result.updateArgument(argument);
+            result.updateArgument(arguments);
             return result;
         }
-        @Override
-        public MapCodec<T> mapCodec() { return this.codec; }
     }
 
 }

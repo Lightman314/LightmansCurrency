@@ -1,17 +1,31 @@
 package io.github.lightman314.lightmanscurrency.core;
 
+import com.google.common.collect.Lists;
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
+import io.github.lightman314.lightmanscurrency.api.text.LCText;
+import io.github.lightman314.lightmanscurrency.api.upgrades.CapacityUpgradeType;
+import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeHolder;
+import io.github.lightman314.lightmanscurrency.api.upgrades.data.ConfigNumberSource;
+import io.github.lightman314.lightmanscurrency.client.features.atm.PortableATMItem;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCUpgrades;
 import io.github.lightman314.lightmanscurrency.features.chocolate_coins.ChocolateCoinItem;
 import io.github.lightman314.lightmanscurrency.features.wallet.WalletItem;
 import io.github.lightman314.lightmanscurrency.features.wallet.WalletUpgradeData;
+import net.minecraft.ChatFormatting;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Unit;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.SmithingTemplateItem;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
@@ -31,16 +45,16 @@ public final class LCItems {
     public static final DeferredItem<Item> COIN_NETHERITE = registerBasic("coin_netherite",Item.Properties::fireResistant);
 
     //Chocolate Coins
-    public static final DeferredItem<ChocolateCoinItem> COIN_CHOCOLATE_COPPER = register("coin_chocolate_copper",p -> new ChocolateCoinItem(p,1f));
-    public static final DeferredItem<ChocolateCoinItem> COIN_CHOCOLATE_IRON = register("coin_chocolate_iron", p ->
+    public static final DeferredItem<ChocolateCoinItem> COIN_CHOCOLATE_COPPER = register("chocolate_coin_copper",p -> new ChocolateCoinItem(p,1f));
+    public static final DeferredItem<ChocolateCoinItem> COIN_CHOCOLATE_IRON = register("chocolate_coin_iron", p ->
             new ChocolateCoinItem(p,new MobEffectInstance(MobEffects.HASTE, 600)));
-    public static final DeferredItem<ChocolateCoinItem> COIN_CHOCOLATE_GOLD = register("coin_chocolate_gold",p ->
+    public static final DeferredItem<ChocolateCoinItem> COIN_CHOCOLATE_GOLD = register("chocolate_coin_gold",p ->
             new ChocolateCoinItem(p,new MobEffectInstance(MobEffects.SPEED, 800)));
-    public static final DeferredItem<ChocolateCoinItem> COIN_CHOCOLATE_EMERALD = register("coin_chocolate_emerald", p ->
+    public static final DeferredItem<ChocolateCoinItem> COIN_CHOCOLATE_EMERALD = register("chocolate_coin_emerald", p ->
             new ChocolateCoinItem(p,new MobEffectInstance(MobEffects.LUCK, 1000)));
-    public static final DeferredItem<ChocolateCoinItem> COIN_CHOCOLATE_DIAMOND = register("coin_chocolate_diamond", p ->
+    public static final DeferredItem<ChocolateCoinItem> COIN_CHOCOLATE_DIAMOND = register("chocolate_coin_diamond", p ->
             new ChocolateCoinItem(p,new MobEffectInstance(MobEffects.RESISTANCE, 1200)));
-    public static final DeferredItem<ChocolateCoinItem> COIN_CHOCOLATE_NETHERITE = register("coin_chocolate_netherite", p ->
+    public static final DeferredItem<ChocolateCoinItem> COIN_CHOCOLATE_NETHERITE = register("chocolate_coin_netherite", p ->
             new ChocolateCoinItem(p.fireResistant(),
                     new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 2400),
                     new MobEffectInstance(MobEffects.ABSORPTION, 2400, 4),
@@ -59,12 +73,45 @@ public final class LCItems {
                     .component(LCDataComponents.WALLET_INVULNERABLE,Unit.INSTANCE));
     public static final DeferredItem<WalletItem> WALLET_ENDER_DRAGON = registerWallet("wallet_ender_dragon",36,p ->
             p.fireResistant() //TODO add dragon sounds
-                    .component(LCDataComponents.WALLET_MAGNET_BONUS,3));
+                    .component(LCDataComponents.WALLET_MAGNET_BONUS,3)
+                    .component(LCDataComponents.WALLET_PICKUP_SOUND,new WeightedList.Builder<Identifier>()
+                            .add(WalletItem.DEFAULT_SOUND,51)
+                            .add(Identifier.withDefaultNamespace("entity.ender_dragon.growl"),25)
+                            .add(Identifier.withDefaultNamespace("entity.ender_dragon.ambient"),25)
+                            .add(Identifier.withDefaultNamespace("entity.player.burp"),1)
+                            .build()
+                    ));
 
 
-    //Trading Code
+    //Trading Core
     public static final DeferredItem<Item> TRADING_CORE = registerBasic("trading_core");
+    public static final DeferredItem<SmithingTemplateItem> UPGRADE_SMITHING_TEMPLATE = register("upgrade_smithing_template",p -> new SmithingTemplateItem(
+            LCText.Resources.TOOLTIP_SMITHING_TEMPLATE_APPLIES_TO.getWithStyle(ChatFormatting.BLUE),
+            LCText.Resources.TOOLTIP_SMITHING_TEMPLATE_INGREDIENTS.getWithStyle(ChatFormatting.BLUE),
+            LCText.Resources.TOOLTIP_SMITHING_TEMPLATE_BASE_SLOT_DESCRIPTION.get(),
+            LCText.Resources.TOOLTIP_SMITHING_TEMPLATE_ADDTIONS_SLOT_DESCRIPTION.get(),
+            new ArrayList<>(),
+            List.of(SmithingTemplateItem.EMPTY_SLOT_INGOT,SmithingTemplateItem.EMPTY_SLOT_EMERALD,SmithingTemplateItem.EMPTY_SLOT_DIAMOND,SmithingTemplateItem.EMPTY_SLOT_REDSTONE_DUST),
+            p.rarity(Rarity.UNCOMMON)));
 
+    public static final DeferredItem<PortableATMItem> ATM_PORTABLE = register("atm_portable",PortableATMItem::new);
+
+    //Upgrades
+    public static final DeferredItem<Item> ITEM_CAPACITY_UPGRADE_1 = registerBasic("item_capacity_upgrade_1",
+            CapacityUpgradeType.buildProperties(LCUpgrades.ITEM_CAPACITY,
+                    () -> new ConfigNumberSource(LCConfig.SERVER.itemCapacityUpgrade1)));
+    public static final DeferredItem<Item> ITEM_CAPACITY_UPGRADE_2 = registerBasic("item_capacity_upgrade_2",
+            CapacityUpgradeType.buildProperties(LCUpgrades.ITEM_CAPACITY,
+                    () -> new ConfigNumberSource(LCConfig.SERVER.itemCapacityUpgrade2)));
+    public static final DeferredItem<Item> ITEM_CAPACITY_UPGRADE_3 = registerBasic("item_capacity_upgrade_3",
+            CapacityUpgradeType.buildProperties(LCUpgrades.ITEM_CAPACITY,
+                    () -> new ConfigNumberSource(LCConfig.SERVER.itemCapacityUpgrade3)));
+    public static final DeferredItem<Item> ITEM_CAPACITY_UPGRADE_4 = registerBasic("item_capacity_upgrade_4",
+            CapacityUpgradeType.buildProperties(LCUpgrades.ITEM_CAPACITY,
+                    () -> new ConfigNumberSource(LCConfig.SERVER.itemCapacityUpgrade4)));
+
+    public static final DeferredItem<Item> NETWORK_UPGRADE = registerBasic("network_upgrade",
+            p -> p.component(LCDataComponents.UPGRADE_TYPE,new UpgradeHolder(LCUpgrades.NETWORK)));
 
     public static DeferredItem<Item> registerBasic(String id) { return register(id,Item::new); }
     public static DeferredItem<Item> registerBasic(String id,UnaryOperator<Item.Properties> propertyBuilder) { return register(id,Item::new,propertyBuilder); }

@@ -29,7 +29,7 @@ public abstract class PlayerSyncedTraderNode extends TraderNode implements ISync
     }
     protected final void setChanged(BiConsumer<ISyncingContext,FancyPacketMap.Mutable> writer)
     {
-        if(this.isClient() || !this.isSyncReady(this.trader))
+        if(this.isClient() || !this.isSyncReady())
             return;
         this.changedData.add(writer);
         this.setChanged();
@@ -37,7 +37,7 @@ public abstract class PlayerSyncedTraderNode extends TraderNode implements ISync
 
     @Override
     public FancyPacketMap getChangedData(ISyncingContext context) {
-        FancyPacketMap.Mutable builder = FancyPacketMap.newMutable();
+        FancyPacketMap.Mutable builder = FancyPacketMap.map();
         for(var writer : new ArrayList<>(this.changedData))
             writer.accept(context,builder);
         return builder;

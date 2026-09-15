@@ -10,12 +10,13 @@ import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public abstract class FancyButton extends FancyWidget {
 
-    private final Consumer<FancyButton> pressAction;
-    private final Optional<Consumer<FancyButton>> altPressAction;
+    private final BiConsumer<FancyButton,MouseButtonEvent> pressAction;
+    private final Optional<BiConsumer<FancyButton,MouseButtonEvent>> altPressAction;
 
     protected FancyButton(ButtonBuilder<?,?> builder) {
         super(builder);
@@ -27,7 +28,8 @@ public abstract class FancyButton extends FancyWidget {
     @ApiStatus.Internal
     protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractWidgetRenderState(graphics, mouseX, mouseY, a);
-        this.handleCursor(graphics);
+        if(this.isVisible())
+            this.handleCursor(graphics);
     }
 
     @Override
@@ -47,26 +49,28 @@ public abstract class FancyButton extends FancyWidget {
         int button = event.button();
         //Normal Press
         if(button == 0)
-            this.pressAction.accept(this);
+            this.pressAction.accept(this,event);
         //Alt-Press
         else if(button == 1 && this.altPressAction.isPresent())
-            this.altPressAction.get().accept(this);
+            this.altPressAction.get().accept(this,event);
     }
 
-    public static abstract class ButtonBuilder<T extends ButtonBuilder<T,X>,X extends FancyButton> extends Builder<T,X>
+    public static abstract class ButtonBuilder<T extends ButtonBuilder<T,X>,X extends FancyButton> extends AbstractBuilder<T,X>
     {
-        private Consumer<FancyButton> pressAction = b -> {};
+        private BiConsumer<FancyButton,MouseButtonEvent> pressAction = (b,e) -> {};
         @Nullable
-        private Consumer<FancyButton> altPressAction = null;
+        private BiConsumer<FancyButton,MouseButtonEvent> altPressAction = null;
 
         protected ButtonBuilder() { }
         protected ButtonBuilder(int width,int height) { super(width,height); }
 
-        public T onPress(Runnable action) { return this.onPress(b -> action.run()); }
-        public T onPress(Consumer<FancyButton> action) { this.pressAction = action; return this.getSelf(); }
+        public T onPress(Runnable action) { return this.onPress((b,e) -> action.run()); }
+        public T onPress(Consumer<FancyButton> action) { return this.onPress((b,a) -> action.accept(b)); }
+        public T onPress(BiConsumer<FancyButton,MouseButtonEvent> action) { this.pressAction = action; return this.getSelf(); }
 
-        public T onAltPress(Runnable action) { return this.onAltPress(b -> action.run()); }
-        public T onAltPress(Consumer<FancyButton> action) { this.altPressAction = action; return this.getSelf(); }
+        public T onAltPress(Runnable action) { return this.onAltPress((b,e) -> action.run()); }
+        public T onAltPress(Consumer<FancyButton> action) { return this.onAltPress((b,e) -> action.accept(b)); }
+        public T onAltPress(BiConsumer<FancyButton,MouseButtonEvent> action) { this.altPressAction = action; return this.getSelf(); }
 
     }
 

@@ -5,7 +5,9 @@ import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMa
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public abstract class MenuTab<T extends TabbedMenu<?,?>> implements ISidedContext {
@@ -25,14 +27,16 @@ public abstract class MenuTab<T extends TabbedMenu<?,?>> implements ISidedContex
 
     public void onTabOpened(FancyPacketMap additional) {}
     public void onTabClosed() {}
+    public void onMenuClosed() {}
 
     public boolean canOpen() { return true; }
 
-    public boolean quickMoveStack(Player player, int slotIndex) { return false; }
+    public Optional<ItemStack> quickMoveStack(Player player, int slotIndex) { return Optional.empty(); }
 
     public final void send(FancyPacketMap message) { this.menu.send(message); }
     public final void sendToCient(FancyPacketMap message) { this.menu.sendToClient(message); }
     public final void sendToServer(FancyPacketMap message) { this.menu.sendToServer(message); }
-    public void handleMessage(FancyPacketMap packet) {}
+    public final void sendToSelf(FancyPacketMap message) { this.menu.sendToSelf(message); }
+    public void handleMessage(FancyPacketMap message) {}
 
 }

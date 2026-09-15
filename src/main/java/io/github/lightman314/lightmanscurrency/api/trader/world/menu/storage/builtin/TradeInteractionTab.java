@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.builtin;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.helpers.debug.DebugHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeData;
@@ -13,6 +15,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,9 +43,9 @@ public abstract class TradeInteractionTab extends TraderStorageTab implements IT
         ItemStack heldItem = this.getMenu().getCarried();
         if(this.processTradeClick(this.getPlayer(),trade,slot,mouseButton,heldItem,context) && this.isClient())
         {
-            FancyPacketMap.Mutable packet = FancyPacketMap.newMutable();
+            FancyPacketMap.Mutable packet = FancyPacketMap.map();
             this.writeTargetTrade(packet,trade);
-            this.sendToServer(FancyPacketMap.newMutable()
+            this.sendToServer(FancyPacketMap.map()
                     .setMap("tradeClick",packet
                             .action(slot.encode())
                             .setInt("mouse",mouseButton)
@@ -58,9 +61,9 @@ public abstract class TradeInteractionTab extends TraderStorageTab implements IT
         ItemStack heldItem = this.getMenu().getCarried();
         if(this.processTradeScroll(this.getPlayer(),trade,slot,deltaY,heldItem,context))
         {
-            FancyPacketMap.Mutable packet = FancyPacketMap.newMutable();
+            FancyPacketMap.Mutable packet = FancyPacketMap.map();
             this.writeTargetTrade(packet,trade);
-            this.sendToServer(FancyPacketMap.newMutable()
+            this.sendToServer(FancyPacketMap.map()
                     .setMap("tradeScroll",packet
                             .setEnum("type",slot.type())
                             .setInt("slot",slot.slot())
@@ -71,13 +74,18 @@ public abstract class TradeInteractionTab extends TraderStorageTab implements IT
     protected abstract boolean processTradeScroll(Player player, TradeData trade, TradeSlot slot, float deltaY, ItemStack heldItem, TradeEditContext context);
 
     @Override
-    public void sendPriceEditPacket(TradeData trade,FancyPacketMap packet) {
-        //Make it mutable and write the target trade
-        FancyPacketMap.Mutable edit = packet.mutable();
-        this.writeTargetTrade(edit,trade);
-        //Send the packet
-        this.sendToServer(FancyPacketMap.newMutable()
-                .setMap("priceEdit",edit));
+    public void handlePriceEditPacket(TradeData trade,FancyPacketMap packet) {
+        if(!this.editableTrades().contains(trade))
+            return;
+        //Handle it on this side as well so that we don't have visual lag
+        trade.getInternalPrice().handleCustomEditMessage(packet,this.getSelectedSlot());
+        if(this.isClient()) {
+            //Make it mutable and write the target trade
+            FancyPacketMap.Mutable edit = packet.mutable();
+            this.writeTargetTrade(edit,trade);
+            //Send the packet
+            this.sendToServer(FancyPacketMap.map().setMap("priceEdit",edit));
+        }
     }
 
     protected void writeTargetTrade(FancyPacketMap.Mutable edit, TradeData trade)
@@ -125,6 +133,7 @@ public abstract class TradeInteractionTab extends TraderStorageTab implements IT
     }
 
     @Override
+    @OverridingMethodsMustInvokeSuper
     public void handleMessage(FancyPacketMap packet) {
         if(packet.contains("tradeClick"))
         {
@@ -137,6 +146,8 @@ public abstract class TradeInteractionTab extends TraderStorageTab implements IT
                         edit.getInt("mouse"),
                         TradeEditContext.decode(edit.getMap("context"),this));
             }
+            else
+                LightmansCurrency.LogWarning("Could not locate the trade on the " + DebugHelper.sideName(this));
         }
         if(packet.contains("tradeScroll"))
         {
@@ -155,7 +166,7 @@ public abstract class TradeInteractionTab extends TraderStorageTab implements IT
             FancyPacketMap edit = packet.getMap("priceEdit");
             TradeData trade = this.getTargetTrade(edit);
             if(trade != null)
-                trade.getPrice().handleCustomEditMessage(edit);
+                this.handlePriceEditPacket(trade,edit);
         }
     }
 

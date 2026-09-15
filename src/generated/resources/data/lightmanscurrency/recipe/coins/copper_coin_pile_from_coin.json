@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "coin_pile_from_coin",
+  "ingredients": [
+    "lightmanscurrency:coin_copper",
+    "lightmanscurrency:coin_copper",
+    "lightmanscurrency:coin_copper",
+    "lightmanscurrency:coin_copper",
+    "lightmanscurrency:coin_copper",
+    "lightmanscurrency:coin_copper",
+    "lightmanscurrency:coin_copper",
+    "lightmanscurrency:coin_copper",
+    "lightmanscurrency:coin_copper"
+  ],
+  "result": {
+    "id": "lightmanscurrency:copper_coin_pile"
+  }
+}

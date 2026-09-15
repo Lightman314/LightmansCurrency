@@ -4,10 +4,13 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyAPI;
+import io.github.lightman314.lightmanscurrency.api.money.resource.SortableMoneyResourceHandler;
+import io.github.lightman314.lightmanscurrency.api.money.resource.builtin.ItemCapabilityResourceWrapper;
 import io.github.lightman314.lightmanscurrency.api.money.resource.player.PlayerMoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.builtin.UnsortedMoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValueHelper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -31,7 +34,7 @@ public final class MoneyAPIImpl implements MoneyAPI {
     private MoneyAPIImpl() {}
 
     @Override
-    public MoneyResourceHandler getPlayersMoneyHandler(Player player, boolean allowOverflow) {
+    public SortableMoneyResourceHandler getPlayersMoneyHandler(Player player, boolean allowOverflow) {
         Key key = new Key(player,allowOverflow);
         if(this.cache.containsKey(key))
         {
@@ -54,8 +57,10 @@ public final class MoneyAPIImpl implements MoneyAPI {
     }
 
     @Override
-    public MoneyResourceHandler getContainersMoneyHandler(ResourceHandler<ItemResource> itemResource,BiConsumer<ItemStack,TransactionContext> overflowHandler, ISidedContext context) {
+    public MoneyResourceHandler getContainersMoneyHandler(ResourceHandler<ItemResource> itemResource,BiConsumer<ItemStack,TransactionContext> overflowHandler,ISidedContext context,boolean wrapCapabilities) {
         List<MoneyResourceHandler> list = new ArrayList<>();
+        if(wrapCapabilities)
+            list.add(new ItemCapabilityResourceWrapper(itemResource,context));
         for(MoneyValueHelper helper : LCRegistries.Money.VALUE_HELPER)
         {
             MoneyResourceHandler handler = helper.wrapContainer(itemResource,overflowHandler,context);
@@ -83,7 +88,7 @@ public final class MoneyAPIImpl implements MoneyAPI {
         Key(Player player,boolean allowOverflow) { this(player.getUUID(),player.level().isClientSide(),allowOverflow); }
     }
 
-    private static class PlayerMoneyResourceWrapper extends UnsortedMoneyResourceHandler {
+    private static class PlayerMoneyResourceWrapper extends UnsortedMoneyResourceHandler implements SortableMoneyResourceHandler {
 
         private final List<PlayerMoneyResourceHandler> children;
 
@@ -97,6 +102,9 @@ public final class MoneyAPIImpl implements MoneyAPI {
             for(PlayerMoneyResourceHandler child : this.children)
                 child.updatePlayer(player);
         }
+
+        @Override
+        public Component getMoneyCategoryTitle() { return SortableMoneyResourceHandler.TOOLTIP_MONEY_SOURCE_PLAYER.get(); }
 
     }
 

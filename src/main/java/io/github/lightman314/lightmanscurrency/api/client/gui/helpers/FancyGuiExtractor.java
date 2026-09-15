@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.api.client.gui.helpers;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.client.gui.sprites.SizedSprite;
@@ -74,6 +73,15 @@ public final class FancyGuiExtractor {
         this.partial = partial;
     }
 
+    public String fitTextToWidth(Component text,int width) {
+        String shortenedText = text.getString();
+        if(this.font.width(shortenedText) <= width)
+            return text.getString();
+        while(!shortenedText.isEmpty() && this.font.width(shortenedText + "...") > width)
+            shortenedText = shortenedText.substring(0,shortenedText.length() - 1);
+        return shortenedText;
+    }
+
     //Offset push/pops
     public FancyGuiExtractor push(ScreenPosition position) { this.offset.add(position); return this; }
     public FancyGuiExtractor pushZero() { return this.push(ScreenPosition.ZERO); }
@@ -81,6 +89,7 @@ public final class FancyGuiExtractor {
     public FancyGuiExtractor pop() { this.offset.removeLast(); return this; }
 
     //Scissor
+    public void enableScissor(ScreenArea area) { this.enableScissor(area.x,area.y,area.width,area.height); }
     public void enableScissor(int x,int y,int width,int height) {
         ScreenPosition p = this.getPosition(x,y);
         this.gui.enableScissor(p.x,p.y,p.x + width,p.y + height);
@@ -92,17 +101,14 @@ public final class FancyGuiExtractor {
     }
 
     //Text
-    public void text(String text,int x,int y,int color) { this.text(text,x,y,color,true); }
     public void text(String text,int x,int y,int color,boolean shadow) {
         ScreenPosition p = this.getPosition(x,y);
         this.gui.text(this.font,text,p.x,p.y,color,shadow);
     }
-    public void text(FormattedCharSequence text, int x, int y, int color) { this.text(text,x,y,color,true); }
     public void text(FormattedCharSequence text,int x,int y,int color,boolean shadow) {
         ScreenPosition p = this.getPosition(x,y);
         this.gui.text(this.font,text,p.x,p.y,color,shadow);
     }
-    public void text(Component text, int x, int y, int color) { this.text(text,x,y,color,true); }
     public void text(Component text,int x,int y,int color,boolean shadow) {
         ScreenPosition p = this.getPosition(x,y);
         this.gui.text(this.font,text,p.x,p.y,color,shadow);
@@ -119,7 +125,16 @@ public final class FancyGuiExtractor {
         ScreenPosition p = this.getPosition(centerX,y);
         this.gui.text(this.font,text,p.x - (this.font.width(text) / 2),p.y,color,shadow);
     }
-    public void textWithWordWrap(FormattedText text,int x,int y,int width,int color) { this.textWithWordWrap(text,x,y,width,color,true); }
+
+    public void centeredTextWithWordWrap(String text,int centerX,int y,int width,int color,boolean shadow) {
+        this.centeredTextWithWordWrap(Component.literal(text),centerX,y,width,centerX,shadow);
+    }
+    public void centeredTextWithWordWrap(Component text,int centerX,int y,int width,int color,boolean shadow) {
+        for(FormattedCharSequence line : this.font.split(text,width)) {
+            this.centeredText(line,centerX,y,color,shadow);
+            y += 10;
+        }
+    }
     public void textWithWordWrap(FormattedText text,int x,int y,int width,int color,boolean shadow) {
         ScreenPosition p = this.getPosition(x,y);
         int yOff = 0;
@@ -129,7 +144,12 @@ public final class FancyGuiExtractor {
             yOff += this.font.lineHeight;
         }
     }
-    public void scrollingText(Component text,int x, int y, int width, int height, int color) { this.scrollingText(text,x,y,width,height,color,true); }
+    public void textWithScrollingOverflow(Component text,int x,int y,int width,int color,boolean shadow) {
+        if(this.font.width(text) > width) //Give a little extra space in the y-direction in case of sprites
+            this.scrollingText(text,x,y - 4,width,this.font.lineHeight + 8,color,shadow);
+        else
+            this.text(text,x,y,color,shadow);
+    }
     public void scrollingText(Component text,int x, int y, int width, int height, int color,boolean shadow) {
 
         //Calculate the text position
@@ -186,6 +206,8 @@ public final class FancyGuiExtractor {
         ScreenPosition p = this.getPosition(x,y);
         this.gui.blitSprite(pipeline,sprite,p.x,p.y,width,height);
     }
+
+    //Sized Sprite quick-blits
     public void blitSprite(SizedSprite sprite,int x,int y) { this.blitSprite(RenderPipelines.GUI_TEXTURED,sprite,x,y); }
     public void blitSprite(RenderPipeline pipeline,SizedSprite sprite,int x,int y) {
         this.blitSprite(pipeline,sprite.sprite(),x,y,sprite.width(),sprite.height());
@@ -193,6 +215,32 @@ public final class FancyGuiExtractor {
     public void blitSprite(SizedSprite sprite,int x,int y,int color) { this.blitSprite(RenderPipelines.GUI_TEXTURED,sprite,x,y,color); }
     public void blitSprite(RenderPipeline pipeline,SizedSprite sprite,int x,int y,int color) {
         this.blitSprite(pipeline,sprite.sprite(),x,y,sprite.width(),sprite.height(),color);
+    }
+    public void blitSprite(SizedSprite sprite,int x,int y,boolean active,boolean hovered) { this.blitSprite(RenderPipelines.GUI_TEXTURED,sprite,x,y,active,hovered); }
+    public void blitSprite(RenderPipeline pipeline,SizedSprite sprite,int x,int y,boolean active,boolean hovered) {
+        if(sprite instanceof SizedSprite.WithContext c)
+            c.defineContext(active,hovered);
+        this.blitSprite(pipeline,sprite.sprite(),x,y,sprite.width(),sprite.height());
+    }
+    public void blitSprite(SizedSprite sprite,int x,int y,int color,boolean active,boolean hovered) { this.blitSprite(RenderPipelines.GUI_TEXTURED,sprite,x,y,color,active,hovered); }
+    public void blitSprite(RenderPipeline pipeline,SizedSprite sprite,int x,int y,int color,boolean active,boolean hovered) {
+        if(sprite instanceof SizedSprite.WithContext c)
+            c.defineContext(active,hovered);
+        this.blitSprite(pipeline,sprite.sprite(),x,y,sprite.width(),sprite.height(),color);
+    }
+
+    public void blitSpriteFadeHoriz(SizedSprite sprite,int x,int y,float progress) { this.blitSpriteFadeHoriz(RenderPipelines.GUI_TEXTURED,sprite,x,y,progress); }
+    public void blitSpriteFadeHoriz(RenderPipeline pipeline,SizedSprite sprite,int x,int y,float progress) {
+        ScreenPosition p = this.getPosition(x,y);
+        int progressWidth = Mth.ceil(progress * (float)sprite.width());
+        this.gui.blitSprite(pipeline,sprite.sprite(),sprite.width(),sprite.height(),0,0,p.x,p.y,progressWidth,sprite.height());
+    }
+
+    public void blitSpriteFadeVert(SizedSprite sprite,int x,int y,float progress) { this.blitSpriteFadeVert(RenderPipelines.GUI,sprite,x,y,progress); }
+    public void blitSpriteFadeVert(RenderPipeline pipeline,SizedSprite sprite,int x,int y,float progress) {
+        ScreenPosition p = this.getPosition(x,y);
+        int height = Mth.ceil(progress * (float)sprite.height());
+        this.gui.blitSprite(pipeline,sprite.sprite(),sprite.width(),sprite.height(),0,0,p.x,p.y,sprite.width(),height);
     }
 
     public void blitBackground(Identifier texture, ScreenArea area) {
@@ -202,7 +250,7 @@ public final class FancyGuiExtractor {
     }
 
     public void blitSlot(Slot slot) { this.blitSlot(slot,SLOT_NORMAL);}
-    public void blitSlot(Slot slot,Identifier sprite) { this.blitSlot(slot.x - 1,slot.y - 1,sprite); }
+    public void blitSlot(Slot slot,Identifier sprite) { if(slot.isActive()) this.blitSlot(slot.x - 1,slot.y - 1,sprite); }
     public void blitSlot(int x,int y) { this.blitSlot(x,y,SLOT_NORMAL); }
     public void blitSlot(int x,int y,Identifier sprite) { this.blitSprite(sprite,x,y,18,18); }
     public void blitSlot(ScreenPosition position) { this.blitSlot(position,SLOT_NORMAL); }
@@ -244,16 +292,30 @@ public final class FancyGuiExtractor {
     public void renderItemTooltipAtMouse(ItemStack item,Consumer<List<Component>> modifier) {
         List<Component> tooltips = Screen.getTooltipFromItem(this.mc,item);
         modifier.accept(tooltips);
+        this.renderItemTooltipAtMouse(item,tooltips);
+    }
+    public void renderItemTooltipAtMouse(ItemStack item,List<Component> tooltips) {
         this.gui.setTooltipForNextFrame(this.font,tooltips,item.getTooltipImage(),this.mousePos.x,this.mousePos.y,item.get(DataComponents.TOOLTIP_STYLE));
     }
 
-    public void renderTooltipAtMouse(Component tooltip) { this.renderTooltipAtMouse(ImmutableList.of(tooltip)); }
-    public void renderTooltipAtMouse(List<Component> tooltip)
-    {
+    public void renderPositionedItemTooltip(ItemStack item,Consumer<List<Component>> modifier,ClientTooltipPositioner positioner) {
+        List<Component> tooltips = Screen.getTooltipFromItem(this.mc,item);
+        modifier.accept(tooltips);
+        this.renderPositionedItemTooltip(item,tooltips,positioner);
+    }
+    public void renderPositionedItemTooltip(ItemStack item,List<Component> tooltips,ClientTooltipPositioner positioner) {
+        List<FormattedCharSequence> list = tooltips.stream().map(Component::getVisualOrderText).toList();
+        this.gui.setTooltipForNextFrame(this.font,list,item.getTooltipImage(),positioner,this.mousePos.x,this.mousePos.y,true,item.get(DataComponents.TOOLTIP_STYLE));
+    }
+
+    public void renderTooltipAtMouse(Component tooltip) { this.renderTooltipAtMouse(List.of(tooltip)); }
+    public void renderTooltipAtMouse(List<Component> tooltip) {
+        if(tooltip.isEmpty())
+            return;
         this.gui.setComponentTooltipForNextFrame(this.font,tooltip,this.mousePos.x,this.mousePos.y);
     }
 
-    public void renderPositionedTooltip(List<Component> tooltip, ClientTooltipPositioner positioner)
+    public void renderPositionedTooltip(List<Component> tooltip,ClientTooltipPositioner positioner)
     {
         List<FormattedCharSequence> list = tooltip.stream().map(Component::getVisualOrderText).toList();
         this.gui.setTooltipForNextFrame(this.font,list, Optional.empty(),positioner,this.mousePos.x,this.mousePos.y,true,null);

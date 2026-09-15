@@ -6,16 +6,19 @@ import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.bank_account.BankAccount;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
+import io.github.lightman314.lightmanscurrency.api.icon.IconData;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.SortableMoneyResourceHandler;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
+import io.github.lightman314.lightmanscurrency.api.money.resource.builtin.EmptyMoneyResource;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public abstract class BankReference implements SortableMoneyResourceHandler.Deferred, ISidedContext.Mutable<BankReference> {
@@ -30,7 +33,6 @@ public abstract class BankReference implements SortableMoneyResourceHandler.Defe
     @Override
     public BankReference setSidedContext(ISidedContext parent) { this.isClient = parent::isClient; return this; }
 
-
     public abstract BankReferenceType<?> getType();
 
     public final boolean isValid() { return this.get() != null; }
@@ -43,13 +45,13 @@ public abstract class BankReference implements SortableMoneyResourceHandler.Defe
     public boolean isSalaryTarget(Player player) { return this.isSalaryTarget(PlayerReference.of(player)); }
 
     public abstract boolean allowedAccess(PlayerReference player);
-    public abstract boolean allowedAccess(Player player);
+    public boolean allowedAccess(Player player) { return LCApi.isInAdminMode(player) || this.allowedAccess(PlayerReference.of(player)); }
 
     /**
      * Permissions Levels:<br>
      * 0- Cannot view or edit any salaries
      * 1- Can view all salaries
-     * 3- Can edit all salaries
+     * 2- Can edit all salaries
      */
     public abstract int salaryPermission(PlayerReference player);
     /**
@@ -63,25 +65,50 @@ public abstract class BankReference implements SortableMoneyResourceHandler.Defe
 
     public boolean canPersist(Player player) { return true; }
 
-    public final CompoundTag save() { return (CompoundTag)CODEC.encodeStart(NbtOps.INSTANCE,this).getOrThrow(); }
-    public static BankReference load(CompoundTag tag) { return CODEC.decode(NbtOps.INSTANCE,tag).getOrThrow().getFirst(); }
+    @Nullable
+    public abstract IconData getIcon();
 
     @Override
-    public MoneyResourceHandler getMoneyResourceHandler() {
-        return null;
+    public final MoneyResourceHandler getMoneyResourceHandler() {
+        BankAccount account = this.get();
+        return account == null ? EmptyMoneyResource.INSTANCE : account;
+    }
+    @Override
+    public final int insertSortPriority() {
+        BankAccount account = this.get();
+        return account == null ? 0 : account.insertSortPriority();
+    }
+    @Override
+    public final int extractSortPriorty() {
+        BankAccount account = this.get();
+        return account == null ? 0 : account.extractSortPriorty();
+    }
+    @Override
+    public final Component getMoneyCategoryTitle() {
+        BankAccount account = this.get();
+        return account == null ? Component.empty() : account.getMoneyCategoryTitle();
+    }
+    @Override
+    public final void formatTooltip(Consumer<Component> builder) {
+        BankAccount account = this.get();
+        if(account != null)
+            account.formatTooltip(builder);
     }
 
-    //@Nullable
-    //public abstract IconData getIcon();
-
     @Override
-    public boolean equals(Object obj) {
+    public final boolean equals(Object obj) {
+        if(obj == this)
+            return true;
         if(obj instanceof BankReference br)
-            return br.save().equals(this.save());
+            return this.equals(br);
         return false;
     }
 
+    protected abstract boolean equals(BankReference other);
+
     @Override
-    public int hashCode() { return this.save().hashCode(); }
+    public final int hashCode() { return Objects.hash(this.getType(),this.hash()); }
+
+    protected abstract int hash();
 
 }

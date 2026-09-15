@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 /**
- * Event to get the default {@link ChainData} values for the <code>MasterCoinList.json</code><br>
+ * Event to get the default {@link ChainData} values for the <code>coin_data/*.json</code><br>
  * Only called if the <code>MasterCoinList.json</code> config file is missing (not yet been created) or unreadable (json syntax error, corrupted file, etc.)<br>
  * Can be run multiple times per session.
  */

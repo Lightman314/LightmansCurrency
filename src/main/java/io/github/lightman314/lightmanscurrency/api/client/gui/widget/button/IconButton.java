@@ -13,6 +13,8 @@ import java.util.function.Supplier;
 
 public class IconButton extends FancyButton implements IMoveableWidget {
 
+    public static final int SIZE = 20;
+
     private final Function<IconButton,IconData> icon;
     protected IconButton(Builder builder) {
         super(builder);
@@ -21,7 +23,7 @@ public class IconButton extends FancyButton implements IMoveableWidget {
 
     @Override
     protected void extractRenderState(FancyGuiExtractor gui, ScreenArea area) {
-        gui.blitButtonSprite(0,0,this.getWidth(),this.getHeight(),this.isActive(),this.isHoveredOrFocused());
+        gui.blitButtonSprite(0,0,this.getWidth(),this.getHeight(),this.isActive(),this.isHovered());
         //Render normal button background
         IconData i = this.icon.apply(this);
         if(i != null)
@@ -38,7 +40,7 @@ public class IconButton extends FancyButton implements IMoveableWidget {
 
         private Function<IconButton,IconData> icon = b -> IconData.empty();
 
-        private Builder() { super(20,20); }
+        private Builder() { super(SIZE,SIZE); }
 
         public Builder withIcon(IconData icon) { return this.withIcon(b -> icon); }
         public Builder withIcon(Supplier<IconData> icon) { return this.withIcon(b -> icon.get()); }

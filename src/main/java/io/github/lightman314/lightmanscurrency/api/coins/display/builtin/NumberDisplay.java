@@ -5,13 +5,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.coins.data.coin.CoinEntry;
 import io.github.lightman314.lightmanscurrency.api.coins.display.ValueDisplayData;
 import io.github.lightman314.lightmanscurrency.api.coins.display.ValueDisplaySerializer;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.coins.value.CoinValue;
-import io.github.lightman314.lightmanscurrency.api.text.LCText;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.IdentifierException;
@@ -19,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
@@ -27,6 +28,11 @@ import java.util.List;
 public class NumberDisplay extends ValueDisplayData {
 
     public static final ValueDisplaySerializer SERIALIZER = new Serializer();
+
+    public static final TextEntry TOOLTIP_COIN_DISPLAY_NUMBER = TextEntry.tooltip(LCApi.MODID,"coin.display.number");
+    public static final TextEntry TOOLTIP_COIN_DISPLAY_NUMBER_WORDY = TextEntry.tooltip(LCApi.MODID,"coin.display.number.wordy");
+    public static final TextEntry TOOLTIP_COIN_WORTH_VALUE = TextEntry.tooltip(LCApi.MODID,"coinworth.value");
+    public static final TextEntry TOOLTIP_COIN_WORTH_VALUE_STACK = TextEntry.tooltip(LCApi.MODID,"coinworth.value.stack");
 
     private final Pair<String,Boolean> format;
     private final Pair<String,Boolean> wordyFormat;
@@ -46,32 +52,32 @@ public class NumberDisplay extends ValueDisplayData {
         return this.baseEntry;
     }
 
-    public NumberDisplay(TextEntry format, Item baseItem) { this(Pair.of(format.getKey(),true),baseItem); }
-    public NumberDisplay(String literalFormat, Item baseItem) { this(Pair.of(literalFormat,false),baseItem); }
-    public NumberDisplay(Pair<String,Boolean> format, Item baseItem) {
+    public NumberDisplay(TextEntry format,ItemLike baseItem) { this(Pair.of(format.getKey(),true),baseItem); }
+    public NumberDisplay(String literalFormat,ItemLike baseItem) { this(Pair.of(literalFormat,false),baseItem); }
+    public NumberDisplay(Pair<String,Boolean> format,ItemLike baseItem) {
 
         this.format = format;
         this.wordyFormat = format;
-        this.baseItem = baseItem;
+        this.baseItem = baseItem.asItem();
     }
-    public NumberDisplay(TextEntry format, @Nullable TextEntry wordyFormat, Item baseItem) { this(Pair.of(format.getKey(),true),Pair.of(wordyFormat.getKey(),true),baseItem);}
-    public NumberDisplay(String literalFormat, @Nullable String literalWordyFormat, Item baseItem) { this(Pair.of(literalFormat,false),literalWordyFormat == null ? null : Pair.of(literalWordyFormat,false),baseItem); }
-    public NumberDisplay(Pair<String,Boolean> format, @Nullable Pair<String,Boolean> wordyFormat, Item baseItem)
+    public NumberDisplay(TextEntry format,@Nullable TextEntry wordyFormat,ItemLike baseItem) { this(Pair.of(format.getKey(),true),Pair.of(wordyFormat.getKey(),true),baseItem);}
+    public NumberDisplay(String literalFormat,@Nullable String literalWordyFormat,ItemLike baseItem) { this(Pair.of(literalFormat,false),literalWordyFormat == null ? null : Pair.of(literalWordyFormat,false),baseItem); }
+    public NumberDisplay(Pair<String,Boolean> format,@Nullable Pair<String,Boolean> wordyFormat,ItemLike baseItem)
     {
         this.format = format;
         this.wordyFormat = wordyFormat;
-        this.baseItem = baseItem;
+        this.baseItem = baseItem.asItem();
     }
 
     @Override
     public ValueDisplaySerializer getSerializer() { return SERIALIZER; }
 
-    public double getDisplayValue(long coreValue) {
+    public double getDisplayValue(long internalValue) {
         CoinEntry baseUnit = this.getBaseEntry();
         //Null & divide by zero check
         if(baseUnit == null || baseUnit.getInternalValue() <= 0)
             return 0d;
-        return (double)coreValue/(double)baseUnit.getInternalValue();
+        return (double)internalValue/(double)baseUnit.getInternalValue();
     }
     private double getDisplayValue(Item item)
     {
@@ -81,11 +87,11 @@ public class NumberDisplay extends ValueDisplayData {
         return getDisplayValue(parent.getInternalValue(item));
     }
 
-    private Component formatDisplay(double value) { return this.format(this.format, LCText.Coins.TOOLTIP_COIN_DISPLAY_NUMBER,this.formatDisplayNumber(value)); }
+    private Component formatDisplay(double value) { return this.format(this.format,TOOLTIP_COIN_DISPLAY_NUMBER,this.formatDisplayNumber(value)); }
     private Component formatWordyDisplay(double value) {
-        TextEntry format = LCText.Coins.TOOLTIP_COIN_DISPLAY_NUMBER;
+        TextEntry format = TOOLTIP_COIN_DISPLAY_NUMBER;
         if(this.wordyFormat != null)
-            format = LCText.Coins.TOOLTIP_COIN_DISPLAY_NUMBER_WORDY;
+            format = TOOLTIP_COIN_DISPLAY_NUMBER_WORDY;
         return this.format(this.getWordyFormat(),format,this.formatDisplayNumber(value));
     }
 
@@ -128,9 +134,9 @@ public class NumberDisplay extends ValueDisplayData {
     @Override
     public void formatCoinTooltip(ItemStack stack, List<Component> tooltip) {
         double value = this.getDisplayValue(stack.getItem());
-        tooltip.add(LCText.Coins.TOOLTIP_COIN_WORTH_VALUE.get(this.formatWordyDisplay(value)).withStyle(ChatFormatting.YELLOW));
+        tooltip.add(TOOLTIP_COIN_WORTH_VALUE.get(this.formatWordyDisplay(value)).withStyle(ChatFormatting.YELLOW));
         if (stack.getCount() > 1)
-            tooltip.add(LCText.Coins.TOOLTIP_COIN_WORTH_VALUE_STACK.get(this.formatWordyDisplay(value * stack.getCount())).withStyle(ChatFormatting.YELLOW));
+            tooltip.add(TOOLTIP_COIN_WORTH_VALUE_STACK.get(this.formatWordyDisplay(value * stack.getCount())).withStyle(ChatFormatting.YELLOW));
     }
 
 
@@ -148,12 +154,12 @@ public class NumberDisplay extends ValueDisplayData {
     }
 
 
-    public Pair<String,String> getSplitFormat() { return this.splitFormat(this.format,LCText.Coins.TOOLTIP_COIN_DISPLAY_NUMBER); }
+    public Pair<String,String> getSplitFormat() { return this.splitFormat(this.format,TOOLTIP_COIN_DISPLAY_NUMBER); }
 
     public Pair<String,String> getSplitWordyFormat() {
-        TextEntry format = LCText.Coins.TOOLTIP_COIN_DISPLAY_NUMBER;
+        TextEntry format = TOOLTIP_COIN_DISPLAY_NUMBER;
         if(this.wordyFormat != null)
-            format = LCText.Coins.TOOLTIP_COIN_DISPLAY_NUMBER_WORDY;
+            format = TOOLTIP_COIN_DISPLAY_NUMBER_WORDY;
         return this.splitFormat(this.getWordyFormat(),format);
     }
 
@@ -164,7 +170,7 @@ public class NumberDisplay extends ValueDisplayData {
         String[] splitFormat = formatString.split("`",2);
         if(splitFormat.length < 2)
         {
-            //Determine which is the prefix, and which is the postfix
+            //Determine which is the prefix, and which is the suffix
             if(formatString.startsWith("`"))
                 return Pair.of("",splitFormat[0]);
             else

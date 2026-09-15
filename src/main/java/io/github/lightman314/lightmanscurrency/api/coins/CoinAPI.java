@@ -8,7 +8,7 @@ import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -18,7 +18,7 @@ import java.util.function.BiPredicate;
 public interface CoinAPI {
 
     String DEFAULT_CHAIN = "main";
-    String DATA_LOCATION = "config/lightmanscurrency/coin_data";
+    String DATA_LOCATION = "config/lightmanscurrency_coin_data";
 
     /**
      * Whether the coin data has been loaded from file
@@ -101,21 +101,21 @@ public interface CoinAPI {
     /**
      * Exchanges all coins in the container to the largest value coin possible.
      */
-    void exchangeCoinsAllUp(ResourceHandler<ItemResource> container,@Nullable Transaction transaction);
+    void exchangeCoinsAllUp(ResourceHandler<ItemResource> container, @Nullable TransactionContext transaction);
     /**
      * Exchanges the small coin into as many of its next largest coin that will fit in the containers space.
      */
-    boolean exchangeCoinsUp(ResourceHandler<ItemResource> container,Item smallCoin,@Nullable Transaction transaction);
+    boolean exchangeCoinsUp(ResourceHandler<ItemResource> container,Item smallCoin,@Nullable TransactionContext transaction);
 
     /**
      * Exchanges the coin in the container into the smallest value possible that will fit in the containers space.
      */
-    void exchangeCoinsAllDown(ResourceHandler<ItemResource> container,@Nullable Transaction transaction);
+    void exchangeCoinsAllDown(ResourceHandler<ItemResource> container,@Nullable TransactionContext transaction);
 
     /**
      * Exchanges the large coin into as many of the next smallest value that will fit into the containers space.
      */
-    boolean exchangeCoinsDown(ResourceHandler<ItemResource> container,Item largeCoin,@Nullable Transaction transaction);
+    boolean exchangeCoinsDown(ResourceHandler<ItemResource> container,Item largeCoin,@Nullable TransactionContext transaction);
 
     /**
      * Obtains a {@link Comparator} that can properly sort coin items
@@ -131,6 +131,6 @@ public interface CoinAPI {
      * Sorts the coins within the container using the {@link #getCoinSorter()} sorter.
      * @see #registerCustomSorter(Comparator)
      */
-    void sortCoinsByValue(ResourceHandler<ItemResource> container,@Nullable Transaction transaction);
+    void sortCoinsByValue(ResourceHandler<ItemResource> container,@Nullable TransactionContext transaction);
 
 }

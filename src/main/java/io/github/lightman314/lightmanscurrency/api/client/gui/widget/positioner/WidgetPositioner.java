@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.client.gui.widget.positioner;
 
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.client.gui.screen.menu.IFancyScreen;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.scrolling.IScrollable;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
@@ -23,7 +24,15 @@ public final class WidgetPositioner implements IWidgetPositioner, IScrollable {
     }
 
     @Override
-    public void addWidget(IMoveableWidget widget) { this.widgets.add(widget); }
+    public void addWidgets(List<? extends IMoveableWidget> widgets) {
+        this.widgets.addAll(widgets);
+    }
+
+    @Override
+    public void removeWidget(IMoveableWidget widget) {
+        LightmansCurrency.LogDebug("Removing " + widget.getClass().getSimpleName() + " from the widget positioner!");
+        this.widgets.remove(widget);
+    }
 
     @Override
     public void clearWidgets() { this.widgets.clear(); }
@@ -36,7 +45,7 @@ public final class WidgetPositioner implements IWidgetPositioner, IScrollable {
     @Override
     public int getMaxScroll() { return IScrollable.calculateMaxScroll((int)this.widgets.stream().filter(IMoveableWidget::isVisible).count(),this.displayable.getAsInt()); }
     @Override
-    public void renderTick() {
+    public void renderTick(ScreenPosition mousePos) {
         //Validate the scroll count
         this.validateScroll();
         int index = 0;
@@ -67,11 +76,11 @@ public final class WidgetPositioner implements IWidgetPositioner, IScrollable {
     }
 
     public static WidgetPositioner leftEdge(IFancyScreen screen,int widgetSize) {
-        return new WidgetPositioner(index -> Pair.of(screen.getCorner().offset(widgetSize * -1,widgetSize * index),WidgetFacing.LEFT),vertialLimit(screen,widgetSize));
+        return new WidgetPositioner(index -> Pair.of(screen.getCorner().offset(widgetSize * -1,widgetSize * index),WidgetFacing.LEFT),verticalLimit(screen,widgetSize));
     }
 
     public static WidgetPositioner rightEdge(IFancyScreen screen,int widgetSize) {
-        return new WidgetPositioner(index -> Pair.of(screen.getCorner().offset(screen.getWidth(),widgetSize * index),WidgetFacing.RIGHT),vertialLimit(screen,widgetSize));
+        return new WidgetPositioner(index -> Pair.of(screen.getCorner().offset(screen.getWidth(),widgetSize * index),WidgetFacing.RIGHT),verticalLimit(screen,widgetSize));
     }
 
     public static WidgetPositioner topEdge(IFancyScreen screen,int widgetSize) {
@@ -82,7 +91,12 @@ public final class WidgetPositioner implements IWidgetPositioner, IScrollable {
         return new WidgetPositioner(index -> Pair.of(screen.getCorner().offset(widgetSize * index,screen.getHeight()),WidgetFacing.BOTTOM),horizontalLimit(screen,widgetSize));
     }
 
-    private static IntSupplier vertialLimit(IFancyScreen screen,int widgetSize) { return () -> screen.getHeight() / widgetSize; }
+    public static WidgetPositioner below(ScreenPosition startPos,int widgetSize) { return below(startPos,widgetSize,Integer.MAX_VALUE); }
+    public static WidgetPositioner below(ScreenPosition startPos,int widgetSize,int maxCount) {
+        return new WidgetPositioner(index -> Pair.of(startPos.offset(0,widgetSize * index),WidgetFacing.BOTTOM),() -> maxCount);
+    }
+
+    private static IntSupplier verticalLimit(IFancyScreen screen, int widgetSize) { return () -> screen.getHeight() / widgetSize; }
     private static IntSupplier horizontalLimit(IFancyScreen screen,int widgetSize) { return () -> screen.getWidth() / widgetSize; }
 
     public static WidgetPositioner allEdgesClockwise(IFancyScreen screen,int widgetSize,WidgetFacing start) {

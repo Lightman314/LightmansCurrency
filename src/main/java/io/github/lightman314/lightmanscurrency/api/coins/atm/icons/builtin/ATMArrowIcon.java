@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.helpers.EnumHelper;
-import io.github.lightman314.lightmanscurrency.api.helpers.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.helpers.data.CodecInteractionHelper;
 import io.github.lightman314.lightmanscurrency.api.coins.atm.icons.ATMIconType;
 import io.github.lightman314.lightmanscurrency.api.coins.atm.icons.ATMIconData;
 import net.minecraft.IdentifierException;
@@ -20,7 +20,6 @@ public class ATMArrowIcon extends ATMIconData {
         DOWN,
         LEFT,
         RIGHT;
-
         static ArrowType parse(String value) {
             for(ArrowType type : ArrowType.values())
             {
@@ -51,10 +50,8 @@ public class ATMArrowIcon extends ATMIconData {
     }
 
     @Override
-    protected void saveAdditional(JsonObject data, DataContext<JsonElement> context) {
-
+    protected void saveAdditional(JsonObject data, CodecInteractionHelper<JsonElement> context) {
         data.addProperty("direction", this.direction.name());
-
     }
 
     @Override

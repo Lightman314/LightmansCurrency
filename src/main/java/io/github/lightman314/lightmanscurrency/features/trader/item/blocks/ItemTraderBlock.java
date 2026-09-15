@@ -1,22 +1,20 @@
 package io.github.lightman314.lightmanscurrency.features.trader.item.blocks;
 
-import io.github.lightman314.lightmanscurrency.api.trader.world.block.TraderBlock;
 import io.github.lightman314.lightmanscurrency.api.trader.world.block_entity.TraderBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 
-public abstract class ItemTraderBlock extends TraderBlock {
+public interface ItemTraderBlock extends EntityBlock {
 
-    public ItemTraderBlock(Properties properties) { super(properties); }
+    int defaultTradeCount();
 
-    public abstract int defaultTradeCount();
-
-    public boolean defaultNetworkVisibility() { return false; }
+    default boolean defaultNetworkVisibility() { return false; }
 
     @Override
     @Nullable
-    public TraderBlockEntity newBlockEntity(BlockPos worldPosition, BlockState blockState) { return new ItemTraderBlockEntity(worldPosition,blockState); }
+    default TraderBlockEntity newBlockEntity(BlockPos worldPosition, BlockState blockState) { return new ItemTraderBlockEntity(worldPosition,blockState); }
 
 }

@@ -73,4 +73,5 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock {
         }
         return super.updateShape(state,level,ticks,pos,directionToNeighbour,neighbourPos,neighbourState,random);
     }
+
 }

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "g": "#c:glass_panes/colorless",
+    "i": "#c:ingots/iron",
+    "r": "#c:dusts/redstone"
+  },
+  "pattern": [
+    "igi",
+    "igi",
+    "iri"
+  ],
+  "result": {
+    "id": "lightmanscurrency:atm"
+  }
+}

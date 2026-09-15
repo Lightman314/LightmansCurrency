@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "c": "#c:chests/wooden",
+    "l": "minecraft:mangrove_log",
+    "w": "minecraft:magenta_wool",
+    "x": "lightmanscurrency:trading_core"
+  },
+  "pattern": [
+    "  w",
+    " xl",
+    "llc"
+  ],
+  "result": {
+    "id": "lightmanscurrency:card_display_mangrove_magenta"
+  }
+}

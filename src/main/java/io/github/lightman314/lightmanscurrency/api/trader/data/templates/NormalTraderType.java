@@ -12,7 +12,11 @@ public abstract class NormalTraderType extends TraderType {
         collector.addNode(WorldNode.TYPE);
         collector.addNode(DisplayNode.TYPE);
         collector.addNode(AlliesNode.TYPE);
-        collector.addNode(UpgradeNode.TYPE);
+        collector.addNode(NotificationNode.TYPE);
+        collector.addNode(MoneyStorageNode.TYPE);
+        collector.addNode(UpgradeNode.TYPE,5);
+        collector.addNode(TradeRulesNode.TYPE);
+        collector.addNode(SettingsNode.TYPE);
         this.addAdditionalNodes(collector);
     }
 

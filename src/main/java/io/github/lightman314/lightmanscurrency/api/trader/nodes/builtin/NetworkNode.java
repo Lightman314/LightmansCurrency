@@ -4,12 +4,14 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderArguments;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.INetworkController;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IUpgradeUser;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.SimpleSyncedNode;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCUpgrades;
 
 import java.util.Optional;
 
@@ -25,9 +27,10 @@ public class NetworkNode extends SimpleSyncedNode implements INetworkController,
     private NetworkNode(boolean alwaysShow) { this.alwaysShow = alwaysShow; }
 
     @Override
-    public void updateArgument(Optional<Object> argument) {
-        if(argument.isPresent() && argument.get() instanceof Boolean as)
-            this.alwaysShow = as;
+    public void updateArgument(TraderArguments arguments) {
+        Optional<Boolean> arg = arguments.tryGet(TYPE,Boolean.class);
+        if(arg.isPresent())
+            this.alwaysShow = arg.get();
     }
 
     @Override
@@ -38,7 +41,7 @@ public class NetworkNode extends SimpleSyncedNode implements INetworkController,
         if(this.alwaysShow)
             return true;
         //Check for network upgrade
-        return this.alwaysShow;
+        return this.getNodeValue(UpgradeNode.TYPE,n -> n.getStorage().hasUpgrade(LCUpgrades.NETWORK));
     }
 
     @Override
@@ -53,7 +56,10 @@ public class NetworkNode extends SimpleSyncedNode implements INetworkController,
 
     @Override
     public boolean allowUpgrade(UpgradeType type) {
-        //TODO, if not always visible, allow the network upgrade
-        return false;
+        if(this.alwaysShow)
+            return false;
+        //Allow network upgrades if we aren't permanently visible to the network
+        return type.is(LCUpgrades.NETWORK);
     }
+
 }

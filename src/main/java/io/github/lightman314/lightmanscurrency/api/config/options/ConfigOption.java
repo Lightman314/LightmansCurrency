@@ -3,11 +3,13 @@ package io.github.lightman314.lightmanscurrency.api.config.options;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigComments;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
 import io.github.lightman314.lightmanscurrency.api.text.MultiLineTextEntry;
+import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
@@ -18,6 +20,10 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public abstract class ConfigOption<T> implements Supplier<T> {
+
+    public static final TextEntry CONFIG_OPTION_DEFAULT = TextEntry.tooltip(LCApi.MODID,"config.option.default");
+    public static final TextEntry CONFIG_OPTION_RANGE = TextEntry.tooltip(LCApi.MODID,"config.option.range");
+    public static final TextEntry CONFIG_OPTION_OPTIONS = TextEntry.tooltip(LCApi.MODID,"config.option.options");
 
     public enum LoadSource { FILE, COMMAND, SYNC }
 

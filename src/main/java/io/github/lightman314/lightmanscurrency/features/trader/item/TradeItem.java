@@ -3,47 +3,88 @@ package io.github.lightman314.lightmanscurrency.features.trader.item;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.lightman314.lightmanscurrency.api.LCApi;
+import io.github.lightman314.lightmanscurrency.api.helpers.ResourceHelper;
+import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeContext;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.resource.ResourceStack;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import org.apache.commons.lang3.NotImplementedException;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 public class TradeItem implements Predicate<ItemResource> {
 
     public static final Codec<TradeItem> CODEC = RecordCodecBuilder.create(builder -> builder.group(
             ItemResource.OPTIONAL_CODEC.fieldOf("item").forGetter(r -> r.item),
-            Codec.intRange(0,Integer.MAX_VALUE).fieldOf("count").forGetter(r -> r.count),
-            Codec.STRING.optionalFieldOf("name").forGetter(r -> r.nameChange),
-            Codec.BOOL.fieldOf("strict").forGetter(r -> r.strict)
+            Codec.intRange(0,Integer.MAX_VALUE).fieldOf("count").forGetter(TradeItem::getCount),
+            Codec.STRING.optionalFieldOf("name").forGetter(TradeItem::getOptionalNameChange),
+            Codec.BOOL.fieldOf("strict").forGetter(TradeItem::isStrict)
     ).apply(builder, TradeItem::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, TradeItem> STREAM_CODEC = StreamCodec.composite(
             ItemResource.STREAM_CODEC,r -> r.item,
-            ByteBufCodecs.INT,r -> r.count,
-            ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8),r -> r.nameChange,
-            ByteBufCodecs.BOOL,r -> r.strict,
+            ByteBufCodecs.INT,TradeItem::getCount,
+            ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8),TradeItem::getOptionalNameChange,
+            ByteBufCodecs.BOOL,TradeItem::isStrict,
             TradeItem::new);
+
+    public static final int MAX_NAME_LENGTH = 32;
+
+    public static final TextEntry GUI_TRADE_ITEM_ENFORCE_DATA = TextEntry.gui(LCApi.MODID,"trade.item.enforce_data");
+    public static final TextEntry TOOLTIP_TRADE_ITEM_EDIT_EMPTY = TextEntry.tooltip(LCApi.MODID,"trade.item.edit_item");
+    public static final TextEntry TOOLTIP_TRADE_ITEM_EDIT_SHIFT = TextEntry.tooltip(LCApi.MODID,"trade.item.shift_edit_item");
+    public static final TextEntry TOOLTIP_TRADE_ITEM_DATA_WARNING_OUTPUT = TextEntry.tooltip(LCApi.MODID,"trade.item.data_warning.output");
+    public static final TextEntry TOOLTIP_TRADE_ITEM_DATA_WARNING_INPUT = TextEntry.tooltip(LCApi.MODID,"trade.item.data_warning.input");
+    public static final TextEntry TOOLTIP_TRADE_INFO_ORIGINAL_NAME = TextEntry.tooltip(LCApi.MODID,"trade.info.original_name");
+    public static final TextEntry GUI_ITEM_EDIT_SEARCH = TextEntry.gui(LCApi.MODID,"item_edit.search");
+    public static final TextEntry TOOLTIP_ITEM_EDIT_SCROLL = TextEntry.tooltip(LCApi.MODID,"item_edit.scroll");
+
+    private UnaryOperator<ItemResource> filter = UnaryOperator.identity();
+    public final TradeItem withFilter(UnaryOperator<ItemResource> filter) { this.filter = filter; return this; }
+    public static <T extends List<TradeItem>> T withFilter(T list,UnaryOperator<ItemResource> filter) { list.forEach(i -> i.withFilter(filter)); return list; }
 
     private ItemResource item;
 
     public ItemStack getStack() { return this.item.toStack(this.count); }
     public ItemStack getDisplayStack(TradeContext context) {
-        //TODO
+        if(this.isFilter()) {
+            //TODO display the cycling filter item
+        }
         return this.getStack();
     }
-    public void setResource(ItemResource resource) { this.item = resource; }
-    public void setStack(ItemStack stack) { this.item = ItemResource.of(stack); this.count = stack.getCount(); }
+
+    public ResourceStack<ItemResource> getDummyStack() {
+        if(this.isEmpty())
+            return new ResourceStack<>(ItemResource.EMPTY,0);
+        if(this.isFilter())
+            throw new NotImplementedException("Filter Items Not Yet Implemented!");
+        return new ResourceStack<>(this.item,this.count);
+    }
+
+    public void setResource(ItemResource resource) {
+        this.item = this.filter.apply(resource);
+        if(this.count > this.item.getMaxStackSize())
+            this.count = this.item.getMaxStackSize();
+    }
+    public void setStack(ItemStack stack) { this.setResource(ItemResource.of(stack)); this.setCount(stack.getCount()); }
 
     private int count;
     public int getCount() { return this.count; }
-    public void setCount(int count) { this.count = Math.max(0,count); }
+    public void setCount(int count) { this.count = Math.clamp(count,0,this.item.getMaxStackSize()); }
     public boolean grow(int amount) {
         ItemStack stack = this.item.toStack();
         if(this.count < stack.getMaxStackSize())
@@ -65,10 +106,14 @@ public class TradeItem implements Predicate<ItemResource> {
         return false;
     }
 
+    public boolean isValid() { return !this.isEmpty(); }
     public boolean isEmpty() { return this.item.isEmpty() || this.count <= 0; }
 
     private Optional<String> nameChange;
-    public Optional<String> getNameChange() { return this.nameChange; }
+    public boolean hasNameChange() { return this.nameChange.isPresent(); }
+    public Optional<String> getOptionalNameChange() { return this.nameChange; }
+    @Nullable
+    public String getNameChange() { return this.nameChange.orElse(null); }
     public void setNameChange(String name) {
         if(name.isBlank())
             this.nameChange = Optional.empty();
@@ -80,6 +125,8 @@ public class TradeItem implements Predicate<ItemResource> {
     public boolean isStrict() { return this.strict && !this.isFilter(); }
     public void setStrict(boolean strict) { this.strict = strict; }
 
+    public boolean allowStrictToggle() { return !this.isFilter(); }
+
     public boolean isFilter() { return false; }
 
     public static TradeItem create() { return new TradeItem(ItemResource.EMPTY,0,Optional.empty(),true); }
@@ -88,6 +135,9 @@ public class TradeItem implements Predicate<ItemResource> {
         for(int i = 0; i < size; ++i)
             builder.add(create());
         return builder.build();
+    }
+    public static ImmutableList<TradeItem> createList(int size,UnaryOperator<ItemResource> filter) {
+        return withFilter(createList(size),filter);
     }
     public static void loadList(List<TradeItem> list,List<TradeItem> data) {
         for(int i = 0; i < list.size() && i < data.size(); ++i)
@@ -101,14 +151,16 @@ public class TradeItem implements Predicate<ItemResource> {
         this.strict = strict;
     }
 
-    private void copyFrom(TradeItem other) {
-        this.item = ItemResource.of(other.getStack());
+    public void copyFrom(@Nullable TradeItem other) {
+        if(other == null)
+            return;
+        this.item = other.item;
         this.count = other.count;
         this.nameChange = other.nameChange;
         this.strict = other.strict;
     }
 
-    private TradeItem copy() {
+    public final TradeItem copy() {
         TradeItem copy = create();
         copy.copyFrom(this);
         return copy;
@@ -116,6 +168,8 @@ public class TradeItem implements Predicate<ItemResource> {
 
     @Override
     public boolean test(ItemResource resource) {
+        if(this.isEmpty())
+            return false;
         if(this.isFilter())
         {
             //Get Filter
@@ -157,6 +211,42 @@ public class TradeItem implements Predicate<ItemResource> {
                 list.add(item.copy());
         }
         return list;
+    }
+
+    public List<ResourceStack<ItemResource>> extractFromUnlimitedResources(ResourceHandler<ItemResource> potentialStorage,RandomSource random,@Nullable TransactionContext transaction) {
+        if(ResourceHelper.getResourceCount(potentialStorage,this,transaction) > 0) {
+            List<ResourceStack<ItemResource>> result = new ArrayList<>();
+            //If at least one item matches this filter, then simply get a random item X amount of times, but without actually consuming the items
+            for(int i = 0; i < this.count; ++i) {
+                try(Transaction tx = Transaction.open(transaction)) {
+                    ItemResource r = ResourceHelper.extractRandom(potentialStorage,this,random,transaction);
+                    if(r == null) {
+                        result = null;
+                        break;
+                    }
+                    else
+                        result.add(new ResourceStack<>(r,1));
+                }
+            }
+            if(result != null)
+                return ResourceHelper.mergeResources(result);
+        }
+        //Otherwise get a random default item
+        if(this.isFilter()) {
+            throw new NotImplementedException("Trade Item Filters not yet implemented!");
+        }else {
+            //If this is a simple trade item, then simply return the resource with count as defined locally
+            return List.of(new ResourceStack<>(this.item,this.count));
+        }
+    }
+
+    public static boolean allowedInStorage(List<TradeItem> tradeItems,ItemResource item) {
+        return tradeItems.stream().anyMatch(ti -> ti.test(item));
+    }
+
+    @Override
+    public String toString() {
+        return "TradeItem[" + this.item.toString() + "," + this.count + ",\"" + this.nameChange.orElse("") + "\"," + this.strict + "]";
     }
 
 }

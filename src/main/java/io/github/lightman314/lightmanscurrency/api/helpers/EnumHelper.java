@@ -94,8 +94,8 @@ public final class EnumHelper {
         throw new JsonSyntaxException("Missing " + entry + ", expected to find a " + enumName);
     }
 
-    public static String resourceSafeName(Enum<?> value) { return value.toString().toLowerCase(Locale.ENGLISH); }
-    public static String prettyName(Enum<?> value) {
+    public static String resourceSafeName(Object value) { return value.toString().toLowerCase(Locale.ENGLISH); }
+    public static String prettyName(Object value) {
         StringBuilder result = new StringBuilder();
         String uglyString = value.toString();
         boolean capitalize = true;

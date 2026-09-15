@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "coin_pile_from_coin",
+  "ingredients": [
+    "lightmanscurrency:coin_emerald",
+    "lightmanscurrency:coin_emerald",
+    "lightmanscurrency:coin_emerald",
+    "lightmanscurrency:coin_emerald",
+    "lightmanscurrency:coin_emerald",
+    "lightmanscurrency:coin_emerald",
+    "lightmanscurrency:coin_emerald",
+    "lightmanscurrency:coin_emerald",
+    "lightmanscurrency:coin_emerald"
+  ],
+  "result": {
+    "id": "lightmanscurrency:emerald_coin_pile"
+  }
+}

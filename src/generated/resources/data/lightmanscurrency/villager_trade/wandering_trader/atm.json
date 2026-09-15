@@ -1,0 +1,10 @@
+{
+  "gives": {
+    "id": "lightmanscurrency:atm"
+  },
+  "max_uses": 1.0,
+  "reputation_discount": 0.05,
+  "wants": {
+    "id": "lightmanscurrency:coin_gold"
+  }
+}

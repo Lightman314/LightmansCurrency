@@ -17,9 +17,9 @@ public abstract class NumberSource {
 
     public abstract NumberSourceType<?> getType();
 
-    public abstract double get();
+    public abstract double getDouble();
     public float getFloat() {
-        double value = this.get();
+        double value = this.getDouble();
         if(value > Float.MAX_VALUE)
             return Float.MAX_VALUE;
         if(value < Float.MAX_VALUE * -1)
@@ -27,7 +27,7 @@ public abstract class NumberSource {
         return (float)value;
     }
     public int getInt() { return Ints.checkedCast(this.getLong()); }
-    public long getLong() { return Math.round(this.get()); }
+    public long getLong() { return Math.round(this.getDouble()); }
 
     @Override
     public boolean equals(Object obj) {
@@ -41,6 +41,6 @@ public abstract class NumberSource {
     public abstract int hashCode();
 
     private static NumberSource parseSimple(double value) { return new DirectNumberSource(value); }
-    private static double writeSimple(NumberSource source) { return source.get(); }
+    private static double writeSimple(NumberSource source) { return source.getDouble(); }
 
 }

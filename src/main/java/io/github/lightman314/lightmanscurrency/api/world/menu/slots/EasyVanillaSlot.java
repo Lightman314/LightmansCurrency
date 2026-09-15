@@ -12,7 +12,7 @@ public class EasyVanillaSlot extends Slot implements IEasySlot {
     public EasyVanillaSlot(Container container,int slot, int x, int y) { super(container, slot, x, y); }
 
     @Override
-    public final boolean isActive() { return this.active; }
+    public boolean isActive() { return this.active; }
     @Override
     public final void setActive(boolean active) { this.active = active; }
 
@@ -33,6 +33,14 @@ public class EasyVanillaSlot extends Slot implements IEasySlot {
         if(this.isLocked() || !this.isActive())
             return false;
         return super.mayPickup(player);
+    }
+
+    public static class OutputOnly extends EasyVanillaSlot {
+        public OutputOnly(Container container, int slot, int x, int y) {
+            super(container, slot, x, y);
+        }
+        @Override
+        public boolean mayPlace(ItemStack stack) { return false; }
     }
 
 }

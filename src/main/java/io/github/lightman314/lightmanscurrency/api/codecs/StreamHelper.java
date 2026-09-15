@@ -46,9 +46,8 @@ public final class StreamHelper {
         return StreamCodec.composite(codec1,Pair::getFirst,codec2,Pair::getSecond,Pair::of);
     }
 
-    public static <B extends ByteBuf,T> StreamCodec<B,Set<T>> setCodec(StreamCodec<B,T> codec)
-    {
-        return codec.apply(ByteBufCodecs.list()).map(HashSet::new,ArrayList::new);
+    public static <B extends ByteBuf,T> StreamCodec<B,Set<T>> setCodec(StreamCodec<B,T> codec) {
+        return ByteBufCodecs.collection(HashSet::new,codec);
     }
 
     public static <B extends ByteBuf,K,V> StreamCodec<B, Map<K,V>> unboundedMap(StreamCodec<? super B,K> keyCodec, StreamCodec<? super B,V> valueCodec)
@@ -337,31 +336,32 @@ public final class StreamHelper {
     ///Combining SPart1 with normal "composite" stream codecs for up to 11 additional arguments (for a total of 12)
     public static <B,C,P1,T1> StreamCodec<B,C> combine(SPart1<? super B,C,P1> partial,
                                                        StreamCodec<? super B,T1> codec1, Function<C,T1> getter1,
-                                                       BiFunction<T1,P1,C> factory) {
+                                                       BiFunction<P1,T1,C> factory) {
         return StreamCodec.composite(
-                codec1,getter1,
-                partial.codec1(),partial.getter1(),factory);
+                partial.codec1(),partial.getter1(),
+                codec1,getter1,factory);
     }
     public static <B,C,P1,T1,T2> StreamCodec<B,C> combine(SPart1<? super B,C,P1> partial,
                                                           StreamCodec<? super B,T1> codec1, Function<C,T1> getter1,
                                                           StreamCodec<? super B,T2> codec2, Function<C,T2> getter2,
-                                                          Function3<T1,T2,P1,C> factory) {
+                                                          Function3<P1,T1,T2,C> factory) {
         return StreamCodec.composite(
+                partial.codec1(),partial.getter1(),
                 codec1,getter1,
-                codec2,getter2,
-                partial.codec1(),partial.getter1(),factory);
+                codec2,getter2,factory);
     }
-
     public static <B,C,P1,T1,T2,T3> StreamCodec<B,C> combine(SPart1<? super B,C,P1> partial,
-                                                             StreamCodec<? super B,T1> codec1, Function<C,T1> getter1,
+
+                                   StreamCodec<? super B,T1> codec1, Function<C,T1> getter1,
                                                              StreamCodec<? super B,T2> codec2, Function<C,T2> getter2,
                                                              StreamCodec<? super B,T3> codec3, Function<C,T3> getter3,
-                                                             Function4<T1,T2,T3,P1,C> factory) {
+                                                             Function4<P1,T1,T2,T3,C> factory) {
         return StreamCodec.composite(
+                partial.codec1(),partial.getter1(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
-                partial.codec1(),partial.getter1(),factory);
+                factory);
     }
 
     public static <B,C,P1,T1,T2,T3,T4> StreamCodec<B,C> combine(SPart1<? super B,C,P1> partial,
@@ -369,13 +369,14 @@ public final class StreamHelper {
                                                                 StreamCodec<? super B,T2> codec2, Function<C,T2> getter2,
                                                                 StreamCodec<? super B,T3> codec3, Function<C,T3> getter3,
                                                                 StreamCodec<? super B,T4> codec4, Function<C,T4> getter4,
-                                                                Function5<T1,T2,T3,T4,P1,C> factory) {
+                                                                Function5<P1,T1,T2,T3,T4,C> factory) {
         return StreamCodec.composite(
+                partial.codec1(),partial.getter1(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
                 codec4,getter4,
-                partial.codec1(),partial.getter1(),factory);
+                factory);
     }
 
     public static <B,C,P1,T1,T2,T3,T4,T5> StreamCodec<B,C> combine(SPart1<? super B,C,P1> partial,
@@ -384,14 +385,15 @@ public final class StreamHelper {
                                                                    StreamCodec<? super B,T3> codec3, Function<C,T3> getter3,
                                                                    StreamCodec<? super B,T4> codec4, Function<C,T4> getter4,
                                                                    StreamCodec<? super B,T5> codec5, Function<C,T5> getter5,
-                                                                   Function6<T1,T2,T3,T4,T5,P1,C> factory) {
+                                                                   Function6<P1,T1,T2,T3,T4,T5,C> factory) {
         return StreamCodec.composite(
+                partial.codec1(),partial.getter1(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
                 codec4,getter4,
                 codec5,getter5,
-                partial.codec1(),partial.getter1(),factory);
+                factory);
     }
 
     public static <B,C,P1,T1,T2,T3,T4,T5,T6> StreamCodec<B,C> combine(SPart1<? super B,C,P1> partial,
@@ -401,15 +403,16 @@ public final class StreamHelper {
                                                                       StreamCodec<? super B,T4> codec4, Function<C,T4> getter4,
                                                                       StreamCodec<? super B,T5> codec5, Function<C,T5> getter5,
                                                                       StreamCodec<? super B,T6> codec6, Function<C,T6> getter6,
-                                                                      Function7<T1,T2,T3,T4,T5,T6,P1,C> factory) {
+                                                                      Function7<P1,T1,T2,T3,T4,T5,T6,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
                 codec4,getter4,
                 codec5,getter5,
                 codec6,getter6,
-                partial.codec1(),partial.getter1(),factory);
+                factory);
     }
 
     public static <B,C,P1,T1,T2,T3,T4,T5,T6,T7> StreamCodec<B,C> combine(SPart1<? super B,C,P1> partial,
@@ -420,8 +423,9 @@ public final class StreamHelper {
                                                                          StreamCodec<? super B,T5> codec5, Function<C,T5> getter5,
                                                                          StreamCodec<? super B,T6> codec6, Function<C,T6> getter6,
                                                                          StreamCodec<? super B,T7> codec7, Function<C,T7> getter7,
-                                                                         Function8<T1,T2,T3,T4,T5,T6,T7,P1,C> factory) {
+                                                                         Function8<P1,T1,T2,T3,T4,T5,T6,T7,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
@@ -429,7 +433,7 @@ public final class StreamHelper {
                 codec5,getter5,
                 codec6,getter6,
                 codec7,getter7,
-                partial.codec1(),partial.getter1(),factory);
+                factory);
     }
 
     public static <B,C,P1,T1,T2,T3,T4,T5,T6,T7,T8> StreamCodec<B,C> combine(SPart1<? super B,C,P1> partial,
@@ -441,8 +445,9 @@ public final class StreamHelper {
                                                                             StreamCodec<? super B,T6> codec6, Function<C,T6> getter6,
                                                                             StreamCodec<? super B,T7> codec7, Function<C,T7> getter7,
                                                                             StreamCodec<? super B,T8> codec8, Function<C,T8> getter8,
-                                                                            Function9<T1,T2,T3,T4,T5,T6,T7,T8,P1,C> factory) {
+                                                                            Function9<P1,T1,T2,T3,T4,T5,T6,T7,T8,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
@@ -451,7 +456,7 @@ public final class StreamHelper {
                 codec6,getter6,
                 codec7,getter7,
                 codec8,getter8,
-                partial.codec1(),partial.getter1(),factory);
+                factory);
     }
 
     public static <B,C,P1,T1,T2,T3,T4,T5,T6,T7,T8,T9> StreamCodec<B,C> combine(SPart1<? super B,C,P1> partial,
@@ -464,8 +469,9 @@ public final class StreamHelper {
                                                                                StreamCodec<? super B,T7> codec7, Function<C,T7> getter7,
                                                                                StreamCodec<? super B,T8> codec8, Function<C,T8> getter8,
                                                                                StreamCodec<? super B,T9> codec9, Function<C,T9> getter9,
-                                                                               Function10<T1,T2,T3,T4,T5,T6,T7,T8,T9,P1,C> factory) {
+                                                                               Function10<P1,T1,T2,T3,T4,T5,T6,T7,T8,T9,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
@@ -475,7 +481,7 @@ public final class StreamHelper {
                 codec7,getter7,
                 codec8,getter8,
                 codec9,getter9,
-                partial.codec1(),partial.getter1(),factory);
+                factory);
     }
 
     public static <B,C,P1,T1,T2,T3,T4,T5,T6,T7,T8,T9,TA> StreamCodec<B,C> combine(SPart1<? super B,C,P1> partial,
@@ -489,8 +495,9 @@ public final class StreamHelper {
                                                                                   StreamCodec<? super B,T8> codec8, Function<C,T8> getter8,
                                                                                   StreamCodec<? super B,T9> codec9, Function<C,T9> getter9,
                                                                                   StreamCodec<? super B,TA> codecA, Function<C,TA> getterA,
-                                                                                  Function11<T1,T2,T3,T4,T5,T6,T7,T8,T9,TA,P1,C> factory) {
+                                                                                  Function11<P1,T1,T2,T3,T4,T5,T6,T7,T8,T9,TA,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
@@ -501,7 +508,7 @@ public final class StreamHelper {
                 codec8,getter8,
                 codec9,getter9,
                 codecA,getterA,
-                partial.codec1(),partial.getter1(),factory);
+                factory);
     }
 
     public static <B,C,P1,T1,T2,T3,T4,T5,T6,T7,T8,T9,TA,TB> StreamCodec<B,C> combine(SPart1<? super B,C,P1> partial,
@@ -516,8 +523,9 @@ public final class StreamHelper {
                                                                                      StreamCodec<? super B,T9> codec9, Function<C,T9> getter9,
                                                                                      StreamCodec<? super B,TA> codecA, Function<C,TA> getterA,
                                                                                      StreamCodec<? super B,TB> codecB, Function<C,TB> getterB,
-                                                                                     Function12<T1,T2,T3,T4,T5,T6,T7,T8,T9,TA,TB,P1,C> factory) {
+                                                                                     Function12<P1,T1,T2,T3,T4,T5,T6,T7,T8,T9,TA,TB,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
@@ -529,38 +537,40 @@ public final class StreamHelper {
                 codec9,getter9,
                 codecA,getterA,
                 codecB,getterB,
-                partial.codec1(),partial.getter1(),factory);
+                factory);
     }
 
     ///Combining SPart2 with normal "composite" stream codecs for up to 10 additional arguments (for a total of 12)
     public static <B,C,P1,P2,T1> StreamCodec<B,C> combine(SPart2<? super B,C,P1,P2> partial,
                                                           StreamCodec<? super B,T1> codec1, Function<C,T1> getter1,
-                                                          Function3<T1,P1,P2,C> factory) {
+                                                          Function3<P1,P2,T1,C> factory) {
         return StreamCodec.composite(
-                codec1,getter1,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),factory);
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),
+                codec1,getter1,factory);
     }
 
     public static <B,C,P1,P2,T1,T2> StreamCodec<B,C> combine(SPart2<? super B,C,P1,P2> partial,
                                                              StreamCodec<? super B,T1> codec1, Function<C,T1> getter1,
                                                              StreamCodec<? super B,T2> codec2, Function<C,T2> getter2,
-                                                             Function4<T1,T2,P1,P2,C> factory) {
+                                                             Function4<P1,P2,T1,T2,C> factory) {
         return StreamCodec.composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),
                 codec1,getter1,
                 codec2,getter2,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,T1,T2,T3> StreamCodec<B,C> combine(SPart2<? super B,C,P1,P2> partial,
                                                                 StreamCodec<? super B,T1> codec1, Function<C,T1> getter1,
                                                                 StreamCodec<? super B,T2> codec2, Function<C,T2> getter2,
                                                                 StreamCodec<? super B,T3> codec3, Function<C,T3> getter3,
-                                                                Function5<T1,T2,T3,P1,P2,C> factory) {
+                                                                Function5<P1,P2,T1,T2,T3,C> factory) {
         return StreamCodec.composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,T1,T2,T3,T4> StreamCodec<B,C> combine(SPart2<? super B,C,P1,P2> partial,
@@ -568,13 +578,14 @@ public final class StreamHelper {
                                                                    StreamCodec<? super B,T2> codec2, Function<C,T2> getter2,
                                                                    StreamCodec<? super B,T3> codec3, Function<C,T3> getter3,
                                                                    StreamCodec<? super B,T4> codec4, Function<C,T4> getter4,
-                                                                   Function6<T1,T2,T3,T4,P1,P2,C> factory) {
+                                                                   Function6<P1,P2,T1,T2,T3,T4,C> factory) {
         return StreamCodec.composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
                 codec4,getter4,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,T1,T2,T3,T4,T5> StreamCodec<B,C> combine(SPart2<? super B,C,P1,P2> partial,
@@ -583,14 +594,15 @@ public final class StreamHelper {
                                                                       StreamCodec<? super B,T3> codec3, Function<C,T3> getter3,
                                                                       StreamCodec<? super B,T4> codec4, Function<C,T4> getter4,
                                                                       StreamCodec<? super B,T5> codec5, Function<C,T5> getter5,
-                                                                      Function7<T1,T2,T3,T4,T5,P1,P2,C> factory) {
+                                                                      Function7<P1,P2,T1,T2,T3,T4,T5,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
                 codec4,getter4,
                 codec5,getter5,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,T1,T2,T3,T4,T5,T6> StreamCodec<B,C> combine(SPart2<? super B,C,P1,P2> partial,
@@ -600,15 +612,16 @@ public final class StreamHelper {
                                                                          StreamCodec<? super B,T4> codec4, Function<C,T4> getter4,
                                                                          StreamCodec<? super B,T5> codec5, Function<C,T5> getter5,
                                                                          StreamCodec<? super B,T6> codec6, Function<C,T6> getter6,
-                                                                         Function8<T1,T2,T3,T4,T5,T6,P1,P2,C> factory) {
+                                                                         Function8<P1,P2,T1,T2,T3,T4,T5,T6,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
                 codec4,getter4,
                 codec5,getter5,
                 codec6,getter6,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,T1,T2,T3,T4,T5,T6,T7> StreamCodec<B,C> combine(SPart2<? super B,C,P1,P2> partial,
@@ -619,8 +632,9 @@ public final class StreamHelper {
                                                                             StreamCodec<? super B,T5> codec5, Function<C,T5> getter5,
                                                                             StreamCodec<? super B,T6> codec6, Function<C,T6> getter6,
                                                                             StreamCodec<? super B,T7> codec7, Function<C,T7> getter7,
-                                                                            Function9<T1,T2,T3,T4,T5,T6,T7,P1,P2,C> factory) {
+                                                                            Function9<P1,P2,T1,T2,T3,T4,T5,T6,T7,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
@@ -628,7 +642,7 @@ public final class StreamHelper {
                 codec5,getter5,
                 codec6,getter6,
                 codec7,getter7,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,T1,T2,T3,T4,T5,T6,T7,T8> StreamCodec<B,C> combine(SPart2<? super B,C,P1,P2> partial,
@@ -640,8 +654,9 @@ public final class StreamHelper {
                                                                                StreamCodec<? super B,T6> codec6, Function<C,T6> getter6,
                                                                                StreamCodec<? super B,T7> codec7, Function<C,T7> getter7,
                                                                                StreamCodec<? super B,T8> codec8, Function<C,T8> getter8,
-                                                                               Function10<T1,T2,T3,T4,T5,T6,T7,T8,P1,P2,C> factory) {
+                                                                               Function10<P1,P2,T1,T2,T3,T4,T5,T6,T7,T8,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
@@ -650,7 +665,7 @@ public final class StreamHelper {
                 codec6,getter6,
                 codec7,getter7,
                 codec8,getter8,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,T1,T2,T3,T4,T5,T6,T7,T8,T9> StreamCodec<B,C> combine(SPart2<? super B,C,P1,P2> partial,
@@ -663,8 +678,9 @@ public final class StreamHelper {
                                                                                   StreamCodec<? super B,T7> codec7, Function<C,T7> getter7,
                                                                                   StreamCodec<? super B,T8> codec8, Function<C,T8> getter8,
                                                                                   StreamCodec<? super B,T9> codec9, Function<C,T9> getter9,
-                                                                                  Function11<T1,T2,T3,T4,T5,T6,T7,T8,T9,P1,P2,C> factory) {
+                                                                                  Function11<P1,P2,T1,T2,T3,T4,T5,T6,T7,T8,T9,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
@@ -674,7 +690,7 @@ public final class StreamHelper {
                 codec7,getter7,
                 codec8,getter8,
                 codec9,getter9,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,T1,T2,T3,T4,T5,T6,T7,T8,T9,TA> StreamCodec<B,C> combine(SPart2<? super B,C,P1,P2> partial,
@@ -688,8 +704,9 @@ public final class StreamHelper {
                                                                                      StreamCodec<? super B,T8> codec8, Function<C,T8> getter8,
                                                                                      StreamCodec<? super B,T9> codec9, Function<C,T9> getter9,
                                                                                      StreamCodec<? super B,TA> codecA, Function<C,TA> getterA,
-                                                                                     Function12<T1,T2,T3,T4,T5,T6,T7,T8,T9,TA,P1,P2,C> factory) {
+                                                                                     Function12<P1,P2,T1,T2,T3,T4,T5,T6,T7,T8,T9,TA,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
@@ -700,38 +717,41 @@ public final class StreamHelper {
                 codec8,getter8,
                 codec9,getter9,
                 codecA,getterA,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),factory);
+                factory);
     }
 
     ///Combining SPart3 with normal "composite" stream codecs for up to 9 additional arguments (for a total of 12)
     public static <B,C,P1,P2,P3,T1> StreamCodec<B,C> combine(SPart3<? super B,C,P1,P2,P3> partial,
                                                              StreamCodec<? super B,T1> codec1, Function<C,T1> getter1,
-                                                             Function4<T1,P1,P2,P3,C> factory) {
+                                                             Function4<P1,P2,P3,T1,C> factory) {
         return StreamCodec.composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),
                 codec1,getter1,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,T1,T2> StreamCodec<B,C> combine(SPart3<? super B,C,P1,P2,P3> partial,
                                                                 StreamCodec<? super B,T1> codec1, Function<C,T1> getter1,
                                                                 StreamCodec<? super B,T2> codec2, Function<C,T2> getter2,
-                                                                Function5<T1,T2,P1,P2,P3,C> factory) {
+                                                                Function5<P1,P2,P3,T1,T2,C> factory) {
         return StreamCodec.composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),
                 codec1,getter1,
                 codec2,getter2,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,T1,T2,T3> StreamCodec<B,C> combine(SPart3<? super B,C,P1,P2,P3> partial,
                                                                    StreamCodec<? super B,T1> codec1, Function<C,T1> getter1,
                                                                    StreamCodec<? super B,T2> codec2, Function<C,T2> getter2,
                                                                    StreamCodec<? super B,T3> codec3, Function<C,T3> getter3,
-                                                                   Function6<T1,T2,T3,P1,P2,P3,C> factory) {
+                                                                   Function6<P1,P2,P3,T1,T2,T3,C> factory) {
         return StreamCodec.composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,T1,T2,T3,T4> StreamCodec<B,C> combine(SPart3<? super B,C,P1,P2,P3> partial,
@@ -739,13 +759,14 @@ public final class StreamHelper {
                                                                       StreamCodec<? super B,T2> codec2, Function<C,T2> getter2,
                                                                       StreamCodec<? super B,T3> codec3, Function<C,T3> getter3,
                                                                       StreamCodec<? super B,T4> codec4, Function<C,T4> getter4,
-                                                                      Function7<T1,T2,T3,T4,P1,P2,P3,C> factory) {
+                                                                      Function7<P1,P2,P3,T1,T2,T3,T4,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
                 codec4,getter4,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,T1,T2,T3,T4,T5> StreamCodec<B,C> combine(SPart3<? super B,C,P1,P2,P3> partial,
@@ -754,15 +775,16 @@ public final class StreamHelper {
                                                                          StreamCodec<? super B,T3> codec3, Function<C,T3> getter3,
                                                                          StreamCodec<? super B,T4> codec4, Function<C,T4> getter4,
                                                                          StreamCodec<? super B,T5> codec5, Function<C,T5> getter5,
-                                                                         Function8<T1,T2,T3,T4,T5,P1,P2,P3,C> factory) {
+                                                                         Function8<P1,P2,P3,T1,T2,T3,T4,T5,C> factory) {
 
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
                 codec4,getter4,
                 codec5,getter5,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,T1,T2,T3,T4,T5,T6> StreamCodec<B,C> combine(SPart3<? super B,C,P1,P2,P3> partial,
@@ -772,15 +794,16 @@ public final class StreamHelper {
                                                                             StreamCodec<? super B,T4> codec4, Function<C,T4> getter4,
                                                                             StreamCodec<? super B,T5> codec5, Function<C,T5> getter5,
                                                                             StreamCodec<? super B,T6> codec6, Function<C,T6> getter6,
-                                                                            Function9<T1,T2,T3,T4,T5,T6,P1,P2,P3,C> factory) {
+                                                                            Function9<P1,P2,P3,T1,T2,T3,T4,T5,T6,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
                 codec4,getter4,
                 codec5,getter5,
                 codec6,getter6,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,T1,T2,T3,T4,T5,T6,T7> StreamCodec<B,C> combine(SPart3<? super B,C,P1,P2,P3> partial,
@@ -791,8 +814,9 @@ public final class StreamHelper {
                                                                                StreamCodec<? super B,T5> codec5, Function<C,T5> getter5,
                                                                                StreamCodec<? super B,T6> codec6, Function<C,T6> getter6,
                                                                                StreamCodec<? super B,T7> codec7, Function<C,T7> getter7,
-                                                                               Function10<T1,T2,T3,T4,T5,T6,T7,P1,P2,P3,C> factory) {
+                                                                               Function10<P1,P2,P3,T1,T2,T3,T4,T5,T6,T7,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
@@ -800,7 +824,7 @@ public final class StreamHelper {
                 codec5,getter5,
                 codec6,getter6,
                 codec7,getter7,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,T1,T2,T3,T4,T5,T6,T7,T8> StreamCodec<B,C> combine(SPart3<? super B,C,P1,P2,P3> partial,
@@ -812,8 +836,9 @@ public final class StreamHelper {
                                                                                   StreamCodec<? super B,T6> codec6, Function<C,T6> getter6,
                                                                                   StreamCodec<? super B,T7> codec7, Function<C,T7> getter7,
                                                                                   StreamCodec<? super B,T8> codec8, Function<C,T8> getter8,
-                                                                                  Function11<T1,T2,T3,T4,T5,T6,T7,T8,P1,P2,P3,C> factory) {
+                                                                                  Function11<P1,P2,P3,T1,T2,T3,T4,T5,T6,T7,T8,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
@@ -822,7 +847,7 @@ public final class StreamHelper {
                 codec6,getter6,
                 codec7,getter7,
                 codec8,getter8,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,T1,T2,T3,T4,T5,T6,T7,T8,T9> StreamCodec<B,C> combine(SPart3<? super B,C,P1,P2,P3> partial,
@@ -835,8 +860,9 @@ public final class StreamHelper {
                                                                                      StreamCodec<? super B,T7> codec7, Function<C,T7> getter7,
                                                                                      StreamCodec<? super B,T8> codec8, Function<C,T8> getter8,
                                                                                      StreamCodec<? super B,T9> codec9, Function<C,T9> getter9,
-                                                                                     Function12<T1,T2,T3,T4,T5,T6,T7,T8,T9,P1,P2,P3,C> factory) {
+                                                                                     Function12<P1,P2,P3,T1,T2,T3,T4,T5,T6,T7,T8,T9,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
@@ -846,38 +872,41 @@ public final class StreamHelper {
                 codec7,getter7,
                 codec8,getter8,
                 codec9,getter9,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),factory);
+                factory);
     }
 
     ///Combining SPart4 with normal "composite" stream codecs for up to 8 additional arguments (for a total of 12)
     public static <B,C,P1,P2,P3,P4,T1> StreamCodec<B,C> combine(SPart4<? super B,C,P1,P2,P3,P4> partial,
                                                                 StreamCodec<? super B,T1> codec1, Function<C,T1> getter1,
-                                                                Function5<T1,P1,P2,P3,P4,C> factory) {
+                                                                Function5<P1,P2,P3,P4,T1,C> factory) {
         return StreamCodec.composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),
                 codec1,getter1,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,P4,T1,T2> StreamCodec<B,C> combine(SPart4<? super B,C,P1,P2,P3,P4> partial,
                                                                    StreamCodec<? super B,T1> codec1, Function<C,T1> getter1,
                                                                    StreamCodec<? super B,T2> codec2, Function<C,T2> getter2,
-                                                                   Function6<T1,T2,P1,P2,P3,P4,C> factory) {
+                                                                   Function6<P1,P2,P3,P4,T1,T2,C> factory) {
         return StreamCodec.composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),
                 codec1,getter1,
                 codec2,getter2,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,P4,T1,T2,T3> StreamCodec<B,C> combine(SPart4<? super B,C,P1,P2,P3,P4> partial,
                                                                       StreamCodec<? super B,T1> codec1, Function<C,T1> getter1,
                                                                       StreamCodec<? super B,T2> codec2, Function<C,T2> getter2,
                                                                       StreamCodec<? super B,T3> codec3, Function<C,T3> getter3,
-                                                                      Function7<T1,T2,T3,P1,P2,P3,P4,C> factory) {
+                                                                      Function7<P1,P2,P3,P4,T1,T2,T3,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,P4,T1,T2,T3,T4> StreamCodec<B,C> combine(SPart4<? super B,C,P1,P2,P3,P4> partial,
@@ -885,13 +914,14 @@ public final class StreamHelper {
                                                                          StreamCodec<? super B,T2> codec2, Function<C,T2> getter2,
                                                                          StreamCodec<? super B,T3> codec3, Function<C,T3> getter3,
                                                                          StreamCodec<? super B,T4> codec4, Function<C,T4> getter4,
-                                                                         Function8<T1,T2,T3,T4,P1,P2,P3,P4,C> factory) {
+                                                                         Function8<P1,P2,P3,P4,T1,T2,T3,T4,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
                 codec4,getter4,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,P4,T1,T2,T3,T4,T5> StreamCodec<B,C> combine(SPart4<? super B,C,P1,P2,P3,P4> partial,
@@ -900,14 +930,15 @@ public final class StreamHelper {
                                                                             StreamCodec<? super B,T3> codec3, Function<C,T3> getter3,
                                                                             StreamCodec<? super B,T4> codec4, Function<C,T4> getter4,
                                                                             StreamCodec<? super B,T5> codec5, Function<C,T5> getter5,
-                                                                            Function9<T1,T2,T3,T4,T5,P1,P2,P3,P4,C> factory) {
+                                                                            Function9<P1,P2,P3,P4,T1,T2,T3,T4,T5,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
                 codec4,getter4,
                 codec5,getter5,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,P4,T1,T2,T3,T4,T5,T6> StreamCodec<B,C> combine(SPart4<? super B,C,P1,P2,P3,P4> partial,
@@ -917,15 +948,16 @@ public final class StreamHelper {
                                                                                StreamCodec<? super B,T4> codec4, Function<C,T4> getter4,
                                                                                StreamCodec<? super B,T5> codec5, Function<C,T5> getter5,
                                                                                StreamCodec<? super B,T6> codec6, Function<C,T6> getter6,
-                                                                               Function10<T1,T2,T3,T4,T5,T6,P1,P2,P3,P4,C> factory) {
+                                                                               Function10<P1,P2,P3,P4,T1,T2,T3,T4,T5,T6,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
                 codec4,getter4,
                 codec5,getter5,
                 codec6,getter6,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,P4,T1,T2,T3,T4,T5,T6,T7> StreamCodec<B,C> combine(SPart4<? super B,C,P1,P2,P3,P4> partial,
@@ -936,8 +968,9 @@ public final class StreamHelper {
                                                                                   StreamCodec<? super B,T5> codec5, Function<C,T5> getter5,
                                                                                   StreamCodec<? super B,T6> codec6, Function<C,T6> getter6,
                                                                                   StreamCodec<? super B,T7> codec7, Function<C,T7> getter7,
-                                                                                  Function11<T1,T2,T3,T4,T5,T6,T7,P1,P2,P3,P4,C> factory) {
+                                                                                  Function11<P1,P2,P3,P4,T1,T2,T3,T4,T5,T6,T7,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
@@ -945,7 +978,7 @@ public final class StreamHelper {
                 codec5,getter5,
                 codec6,getter6,
                 codec7,getter7,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,P4,T1,T2,T3,T4,T5,T6,T7,T8> StreamCodec<B,C> combine(SPart4<? super B,C,P1,P2,P3,P4> partial,
@@ -957,8 +990,9 @@ public final class StreamHelper {
                                                                                      StreamCodec<? super B,T6> codec6, Function<C,T6> getter6,
                                                                                      StreamCodec<? super B,T7> codec7, Function<C,T7> getter7,
                                                                                      StreamCodec<? super B,T8> codec8, Function<C,T8> getter8,
-                                                                                     Function12<T1,T2,T3,T4,T5,T6,T7,T8,P1,P2,P3,P4,C> factory) {
+                                                                                     Function12<P1,P2,P3,P4,T1,T2,T3,T4,T5,T6,T7,T8,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
@@ -967,38 +1001,41 @@ public final class StreamHelper {
                 codec6,getter6,
                 codec7,getter7,
                 codec8,getter8,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),factory);
+                factory);
     }
 
     ///Combining SPart5 with normal "composite" stream codecs for up to 7 additional arguments (for a total of 12)
     public static <B,C,P1,P2,P3,P4,P5,T1> StreamCodec<B,C> combine(SPart5<? super B,C,P1,P2,P3,P4,P5> partial,
                                                                    StreamCodec<? super B,T1> codec1, Function<C,T1> getter1,
-                                                                   Function6<T1,P1,P2,P3,P4,P5,C> factory) {
+                                                                   Function6<P1,P2,P3,P4,P5,T1,C> factory) {
         return StreamCodec.composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),
                 codec1,getter1,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,P4,P5,T1,T2> StreamCodec<B,C> combine(SPart5<? super B,C,P1,P2,P3,P4,P5> partial,
                                                                       StreamCodec<? super B,T1> codec1, Function<C,T1> getter1,
                                                                       StreamCodec<? super B,T2> codec2, Function<C,T2> getter2,
-                                                                      Function7<T1,T2,P1,P2,P3,P4,P5,C> factory) {
+                                                                      Function7<P1,P2,P3,P4,P5,T1,T2,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),
                 codec1,getter1,
                 codec2,getter2,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,P4,P5,T1,T2,T3> StreamCodec<B,C> combine(SPart5<? super B,C,P1,P2,P3,P4,P5> partial,
                                                                          StreamCodec<? super B,T1> codec1, Function<C,T1> getter1,
                                                                          StreamCodec<? super B,T2> codec2, Function<C,T2> getter2,
                                                                          StreamCodec<? super B,T3> codec3, Function<C,T3> getter3,
-                                                                         Function8<T1,T2,T3,P1,P2,P3,P4,P5,C> factory) {
+                                                                         Function8<P1,P2,P3,P4,P5,T1,T2,T3,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,P4,P5,T1,T2,T3,T4> StreamCodec<B,C> combine(SPart5<? super B,C,P1,P2,P3,P4,P5> partial,
@@ -1006,13 +1043,14 @@ public final class StreamHelper {
                                                                             StreamCodec<? super B,T2> codec2, Function<C,T2> getter2,
                                                                             StreamCodec<? super B,T3> codec3, Function<C,T3> getter3,
                                                                             StreamCodec<? super B,T4> codec4, Function<C,T4> getter4,
-                                                                            Function9<T1,T2,T3,T4,P1,P2,P3,P4,P5,C> factory) {
+                                                                            Function9<P1,P2,P3,P4,P5,T1,T2,T3,T4,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
                 codec4,getter4,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,P4,P5,T1,T2,T3,T4,T5> StreamCodec<B,C> combine(SPart5<? super B,C,P1,P2,P3,P4,P5> partial,
@@ -1021,14 +1059,15 @@ public final class StreamHelper {
                                                                                StreamCodec<? super B,T3> codec3, Function<C,T3> getter3,
                                                                                StreamCodec<? super B,T4> codec4, Function<C,T4> getter4,
                                                                                StreamCodec<? super B,T5> codec5, Function<C,T5> getter5,
-                                                                               Function10<T1,T2,T3,T4,T5,P1,P2,P3,P4,P5,C> factory) {
+                                                                               Function10<P1,P2,P3,P4,P5,T1,T2,T3,T4,T5,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
                 codec4,getter4,
                 codec5,getter5,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,P4,P5,T1,T2,T3,T4,T5,T6> StreamCodec<B,C> combine(SPart5<? super B,C,P1,P2,P3,P4,P5> partial,
@@ -1038,15 +1077,16 @@ public final class StreamHelper {
                                                                                   StreamCodec<? super B,T4> codec4, Function<C,T4> getter4,
                                                                                   StreamCodec<? super B,T5> codec5, Function<C,T5> getter5,
                                                                                   StreamCodec<? super B,T6> codec6, Function<C,T6> getter6,
-                                                                                  Function11<T1,T2,T3,T4,T5,T6,P1,P2,P3,P4,P5,C> factory) {
+                                                                                  Function11<P1,P2,P3,P4,P5,T1,T2,T3,T4,T5,T6,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
                 codec4,getter4,
                 codec5,getter5,
                 codec6,getter6,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,P4,P5,T1,T2,T3,T4,T5,T6,T7> StreamCodec<B,C> combine(SPart5<? super B,C,P1,P2,P3,P4,P5> partial,
@@ -1057,8 +1097,9 @@ public final class StreamHelper {
                                                                                      StreamCodec<? super B,T5> codec5, Function<C,T5> getter5,
                                                                                      StreamCodec<? super B,T6> codec6, Function<C,T6> getter6,
                                                                                      StreamCodec<? super B,T7> codec7, Function<C,T7> getter7,
-                                                                                     Function12<T1,T2,T3,T4,T5,T6,T7,P1,P2,P3,P4,P5,C> factory) {
+                                                                                     Function12<P1,P2,P3,P4,P5,T1,T2,T3,T4,T5,T6,T7,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
@@ -1066,38 +1107,41 @@ public final class StreamHelper {
                 codec5,getter5,
                 codec6,getter6,
                 codec7,getter7,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),factory);
+                factory);
     }
 
     ///Combining SPart6 with normal "composite" stream codecs for up to 6 additional arguments (for a total of 12)
     public static <B,C,P1,P2,P3,P4,P5,P6,T1> StreamCodec<B,C> combine(SPart6<? super B,C,P1,P2,P3,P4,P5,P6> partial,
                                                                       StreamCodec<? super B,T1> codec1, Function<C,T1> getter1,
-                                                                      Function7<T1,P1,P2,P3,P4,P5,P6,C> factory) {
+                                                                      Function7<P1,P2,P3,P4,P5,P6,T1,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),partial.codec6(),partial.getter6(),
                 codec1,getter1,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),partial.codec6(),partial.getter6(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,P4,P5,P6,T1,T2> StreamCodec<B,C> combine(SPart6<? super B,C,P1,P2,P3,P4,P5,P6> partial,
                                                                          StreamCodec<? super B,T1> codec1, Function<C,T1> getter1,
                                                                          StreamCodec<? super B,T2> codec2, Function<C,T2> getter2,
-                                                                         Function8<T1,T2,P1,P2,P3,P4,P5,P6,C> factory) {
+                                                                         Function8<P1,P2,P3,P4,P5,P6,T1,T2,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),partial.codec6(),partial.getter6(),
                 codec1,getter1,
                 codec2,getter2,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),partial.codec6(),partial.getter6(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,P4,P5,P6,T1,T2,T3> StreamCodec<B,C> combine(SPart6<? super B,C,P1,P2,P3,P4,P5,P6> partial,
                                                                             StreamCodec<? super B,T1> codec1, Function<C,T1> getter1,
                                                                             StreamCodec<? super B,T2> codec2, Function<C,T2> getter2,
                                                                             StreamCodec<? super B,T3> codec3, Function<C,T3> getter3,
-                                                                            Function9<T1,T2,T3,P1,P2,P3,P4,P5,P6,C> factory) {
+                                                                            Function9<P1,P2,P3,P4,P5,P6,T1,T2,T3,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),partial.codec6(),partial.getter6(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),partial.codec6(),partial.getter6(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,P4,P5,P6,T1,T2,T3,T4> StreamCodec<B,C> combine(SPart6<? super B,C,P1,P2,P3,P4,P5,P6> partial,
@@ -1105,13 +1149,14 @@ public final class StreamHelper {
                                                                                StreamCodec<? super B,T2> codec2, Function<C,T2> getter2,
                                                                                StreamCodec<? super B,T3> codec3, Function<C,T3> getter3,
                                                                                StreamCodec<? super B,T4> codec4, Function<C,T4> getter4,
-                                                                               Function10<T1,T2,T3,T4,P1,P2,P3,P4,P5,P6,C> factory) {
+                                                                               Function10<P1,P2,P3,P4,P5,P6,T1,T2,T3,T4,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),partial.codec6(),partial.getter6(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
                 codec4,getter4,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),partial.codec6(),partial.getter6(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,P4,P5,P6,T1,T2,T3,T4,T5> StreamCodec<B,C> combine(SPart6<? super B,C,P1,P2,P3,P4,P5,P6> partial,
@@ -1120,14 +1165,15 @@ public final class StreamHelper {
                                                                                   StreamCodec<? super B,T3> codec3, Function<C,T3> getter3,
                                                                                   StreamCodec<? super B,T4> codec4, Function<C,T4> getter4,
                                                                                   StreamCodec<? super B,T5> codec5, Function<C,T5> getter5,
-                                                                                  Function11<T1,T2,T3,T4,T5,P1,P2,P3,P4,P5,P6,C> factory) {
+                                                                                  Function11<P1,P2,P3,P4,P5,P6,T1,T2,T3,T4,T5,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),partial.codec6(),partial.getter6(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
                 codec4,getter4,
                 codec5,getter5,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),partial.codec6(),partial.getter6(),factory);
+                factory);
     }
 
     public static <B,C,P1,P2,P3,P4,P5,P6,T1,T2,T3,T4,T5,T6> StreamCodec<B,C> combine(SPart6<? super B,C,P1,P2,P3,P4,P5,P6> partial,
@@ -1137,15 +1183,16 @@ public final class StreamHelper {
                                                                                      StreamCodec<? super B,T4> codec4, Function<C,T4> getter4,
                                                                                      StreamCodec<? super B,T5> codec5, Function<C,T5> getter5,
                                                                                      StreamCodec<? super B,T6> codec6, Function<C,T6> getter6,
-                                                                                     Function12<T1,T2,T3,T4,T5,T6,P1,P2,P3,P4,P5,P6,C> factory) {
+                                                                                     Function12<P1,P2,P3,P4,P5,P6,T1,T2,T3,T4,T5,T6,C> factory) {
         return composite(
+                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),partial.codec6(),partial.getter6(),
                 codec1,getter1,
                 codec2,getter2,
                 codec3,getter3,
                 codec4,getter4,
                 codec5,getter5,
                 codec6,getter6,
-                partial.codec1(),partial.getter1(),partial.codec2(),partial.getter2(),partial.codec3(),partial.getter3(),partial.codec4(),partial.getter4(),partial.codec5(),partial.getter5(),partial.codec6(),partial.getter6(),factory);
+                factory);
     }
 
 

@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.api.config.options.builtin;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
-import io.github.lightman314.lightmanscurrency.api.text.LCText;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -38,7 +37,7 @@ public class ItemOption extends ConfigOption<Item> {
     protected String bonusComment() { return "Default: " + this.parser.write(this.getDefaultValue()); }
     @Nullable
     @Override
-    protected Component bonusCommentTooltip() { return LCText.Config.CONFIG_OPTION_DEFAULT.get(new ItemStack(this.getDefaultValue()).getHoverName()); }
+    protected Component bonusCommentTooltip() { return CONFIG_OPTION_DEFAULT.get(new ItemStack(this.getDefaultValue()).getHoverName()); }
 
     private static class Parser implements ConfigParser<Item>
     {

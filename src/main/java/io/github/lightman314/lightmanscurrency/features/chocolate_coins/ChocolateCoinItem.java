@@ -2,7 +2,8 @@ package io.github.lightman314.lightmanscurrency.features.chocolate_coins;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.LCConfig;
-import io.github.lightman314.lightmanscurrency.api.text.LCText;
+import io.github.lightman314.lightmanscurrency.api.LCApi;
+import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.core.LCDataComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -22,6 +23,8 @@ import java.util.function.Consumer;
 
 public class ChocolateCoinItem extends Item {
 
+    public static final TextEntry TOOLTIP_HEALING = TextEntry.tooltip(LCApi.MODID,"healing");
+
     public ChocolateCoinItem(Properties properties, MobEffectInstance... effects) { this(properties,0f,effects); }
     public ChocolateCoinItem(Properties properties, float healing,MobEffectInstance... effects) {
         super(properties
@@ -40,7 +43,7 @@ public class ChocolateCoinItem extends Item {
         {
             float healing = stack.getOrDefault(LCDataComponents.CHOCOLATE_HEALING,0f);
             if(healing > 0f)
-                builder.accept(LCText.Items.TOOLTIP_HEALING.get((int)healing).withStyle(ChatFormatting.BLUE));
+                builder.accept(TOOLTIP_HEALING.get((int)healing).withStyle(ChatFormatting.BLUE));
             List<MobEffectInstance> effects = stack.getOrDefault(LCDataComponents.CHOCOLATE_EFFECTS,ImmutableList.of());
             if(!effects.isEmpty()) //Add effects tooltips as though this was a potion
                 new PotionContents(Optional.empty(),Optional.empty(),effects,Optional.empty()).addToTooltip(context,builder,flag,stack);

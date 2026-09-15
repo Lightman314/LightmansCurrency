@@ -1,11 +1,12 @@
 package io.github.lightman314.lightmanscurrency.api.money;
 
+import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.ListHelper;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValueHelper;
-import io.github.lightman314.lightmanscurrency.api.text.LCText;
+import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
@@ -15,6 +16,9 @@ import java.util.function.Consumer;
 
 public final class MoneyDisplayHelper {
     private MoneyDisplayHelper() {}
+
+    public static final TextEntry GUI_MONEY_STORAGE_EMPTY = TextEntry.gui(LCApi.MODID,"stored_money.empty");
+
 
     /**
      * String variant of {@link #contentsAsMultiLineText(MoneyResourceHandler, ChatFormatting...)}<br>
@@ -45,7 +49,7 @@ public final class MoneyDisplayHelper {
 
     /**
      * Returns a list of {@link Component} entries for the contents of the given {@link MoneyResourceHandler}<br>
-     * Utilizes {@link } where relevant
+     * Utilizes {@link MoneyValueHelper#appendTextTooltips(Consumer, List)} where relevant
      * @param handler The Money Resource Handler whose contents should be displayed as text
      * @param style Any Chat Formatting Styles that should be applied
      */
@@ -74,7 +78,7 @@ public final class MoneyDisplayHelper {
      * @see #getCyclingValueText(MoneyResourceHandler,String)
      * @see #getCyclingValueText(MoneyResourceHandler,Component)
      */
-    public static Component getCyclingValueText(MoneyResourceHandler handler) { return getCyclingValueText(handler,LCText.Money.GUI_MONEY_STORAGE_EMPTY.get()); }
+    public static Component getCyclingValueText(MoneyResourceHandler handler) { return getCyclingValueText(handler,GUI_MONEY_STORAGE_EMPTY.get()); }
     /**
      * Gets the text of a time-based cycling value from the Money Resource Handlers available money<br>
      * Will return the given emptyText if no money is available to display
@@ -99,7 +103,7 @@ public final class MoneyDisplayHelper {
      * @see #getCyclingValueLine(MoneyResourceHandler,String)
      * @see #getCyclingValueLine(MoneyResourceHandler,Component)
      */
-    public static Component getCyclingValueLine(MoneyResourceHandler handler) { return getCyclingValueText(handler,LCText.Money.GUI_MONEY_STORAGE_EMPTY.get()); }
+    public static Component getCyclingValueLine(MoneyResourceHandler handler) { return getCyclingValueText(handler,GUI_MONEY_STORAGE_EMPTY.get()); }
     /**
      * Gets the text of a time-based cycling line from the Money Resource Handlers available money<br>
      * Will return the given emptyText if no money is available to display

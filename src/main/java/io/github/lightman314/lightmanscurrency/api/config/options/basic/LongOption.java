@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
-import io.github.lightman314.lightmanscurrency.api.text.LCText;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
@@ -41,8 +40,8 @@ public class LongOption extends ConfigOption<Long> {
     @Override
     protected List<Component> bonusCommentTooltips() {
         return Lists.newArrayList(
-                LCText.Config.CONFIG_OPTION_RANGE.get(this.lowerLimit,this.upperLimit),
-                LCText.Config.CONFIG_OPTION_DEFAULT.get(this.getDefaultValue())
+                CONFIG_OPTION_RANGE.get(this.lowerLimit,this.upperLimit),
+                CONFIG_OPTION_DEFAULT.get(this.getDefaultValue())
         );
     }
 

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.buil
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
@@ -13,9 +14,9 @@ import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.TradeS
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePrice;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePriceType;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.BuiltInResourceTypes;
-import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.ResourceSource;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -40,7 +41,10 @@ public class MoneyPrice extends TradePrice {
     public TradePriceType<?> getType() { return TYPE; }
 
     @Override
-    public boolean supportsTrade(TraderData trader,TradeData trade) { return true; }
+    public TradePrice copy() { return new MoneyPrice(this.price); }
+
+    @Override
+    public boolean maySupportTrade(TraderData trader, TradeData trade) { return true; }
     @Override
     public boolean isValid() { return this.price.isValidPrice(); }
 
@@ -52,7 +56,7 @@ public class MoneyPrice extends TradePrice {
         try(Transaction tx = Transaction.open(context.getTransaction()))
         {
             //Take from the customer
-            MoneyResourceHandler handler = context.getResource(ResourceSource.CUSTOMER,BuiltInResourceTypes.MONEY);
+            MoneyResourceHandler handler = context.getCustomerResource(BuiltInResourceTypes.MONEY);
             MoneyValue taken = handler.extract(this.price,tx);
             if(!taken.equals(this.price))
                 return TransferResult.FAILED_TO_TAKE;
@@ -61,14 +65,14 @@ public class MoneyPrice extends TradePrice {
             MoneyValue toStore = this.price;
             //If we shouldn't store the result in the trader, then we don't need to actually store the money into the trader
             if(!this.shouldStoreInTrader(context))
-                return TransferResult.taxedSuccess(taxesPaid);
-            handler = context.getResource(ResourceSource.TRADER,BuiltInResourceTypes.MONEY);
+                return TransferResult.taxedSuccess(new MoneyReceipt(this.price),taxesPaid);
+            handler = context.getTraderResource(BuiltInResourceTypes.MONEY);
             MoneyValue inserted = handler.insert(toStore,tx);
             if(!inserted.equals(toStore))
                 return TransferResult.FAILED_TO_GIVE;
             //Commit the sub-transaction
             tx.commit();
-            return TransferResult.taxedSuccess(taxesPaid);
+            return TransferResult.taxedSuccess(new MoneyReceipt(this.price),taxesPaid);
         }
     }
 
@@ -85,19 +89,19 @@ public class MoneyPrice extends TradePrice {
             MoneyValue toTake = this.price;
             if(!this.hasInfiniteStock(context))
             {
-                MoneyResourceHandler handler = context.getResource(ResourceSource.TRADER,BuiltInResourceTypes.MONEY);
+                MoneyResourceHandler handler = context.getTraderResource(BuiltInResourceTypes.MONEY);
                 MoneyValue taken = handler.extract(toTake,tx);
                 if(!taken.equals(toTake))
                     return TransferResult.FAILED_TO_TAKE;
             }
             //Now give to the player
-            MoneyResourceHandler handler = context.getResource(ResourceSource.CUSTOMER,BuiltInResourceTypes.MONEY);
+            MoneyResourceHandler handler = context.getCustomerResource(BuiltInResourceTypes.MONEY);
             MoneyValue inserted = handler.insert(this.price,tx);
             if(!inserted.equals(this.price))
                 return TransferResult.FAILED_TO_GIVE;
             //Commit the sub-transaction
             tx.commit();
-            return TransferResult.taxedSuccess(taxesPaid);
+            return TransferResult.taxedSuccess(new MoneyReceipt(this.price),taxesPaid);
         }
     }
 
@@ -107,9 +111,28 @@ public class MoneyPrice extends TradePrice {
             return 0;
         if(this.isFree() || this.hasInfiniteStock(context))
             return Long.MAX_VALUE;
-        MoneyResourceHandler handler = context.getResource(ResourceSource.TRADER,BuiltInResourceTypes.MONEY);
+        MoneyResourceHandler handler = context.getTraderResource(BuiltInResourceTypes.MONEY);
         MoneyValue available = handler.getResource(this.price.getKey());
+        //TODO calculate price with taxes
         return available.getInternalValue() / this.price.getInternalValue();
+    }
+
+    @Override
+    public boolean showOutOfSpaceWarning(TradeContext context) {
+        if(this.price.isEmpty())
+            return false;
+        try(Transaction tx = Transaction.open(context.getTransaction())) {
+            return !context.getTraderResource(BuiltInResourceTypes.MONEY).insert(this.price,tx).equals(this.price);
+        }
+    }
+
+    @Override
+    public boolean showCannotAffordWarning(TradeContext context) {
+        if(this.price.isEmpty())
+            return false;
+        try(Transaction tx = Transaction.open(context.getTransaction())) {
+            return !context.getCustomerResource(BuiltInResourceTypes.MONEY).extract(this.price,tx).equals(this.price);
+        }
     }
 
     @Override
@@ -118,10 +141,16 @@ public class MoneyPrice extends TradePrice {
     public TradePrice percentageOfValue(int percentage) { return new MoneyPrice(this.price.percentageOfValue(percentage)); }
 
     @Override
-    public void handleCustomEditMessage(FancyPacketMap packet) {
+    public void handleCustomEditMessage(FancyPacketMap packet,TradeSlot slot) {
         if(packet.contains("setPrice"))
+        {
             this.price = packet.get("setPrice",LCFancyPacketTypes.MONEY);
+            this.setChanged();
+        }
     }
+
+    @Override
+    public Component getNotificationText() { return this.price.getText(); }
 
     @Override
     public boolean onClickInteraction(Player player,TradeData trade,TradeSlot slot,int button,ItemStack heldItem,TradeEditContext context) {
@@ -137,5 +166,8 @@ public class MoneyPrice extends TradePrice {
         }
         return false;
     }
+
+    @Override
+    public String toString() { return "MoneyPrice[" + this.price.getString("empty") + "]"; }
 
 }

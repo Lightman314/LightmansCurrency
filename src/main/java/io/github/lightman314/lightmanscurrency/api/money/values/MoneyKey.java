@@ -4,7 +4,11 @@ import com.google.common.collect.MapMaker;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
+import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.DecoderException;
 import net.minecraft.IdentifierException;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 
 import java.util.Map;
@@ -13,8 +17,12 @@ import java.util.Objects;
 public final class MoneyKey {
 
     public static final Codec<MoneyKey> CODEC = Codec.STRING.comapFlatMap(string -> {
-        try {return DataResult.success(fromString(string));
+        try { return DataResult.success(parse(string));
         } catch (IdentifierException e) { return DataResult.error(e::getMessage); }
+    },MoneyKey::toString);
+    public static StreamCodec<ByteBuf,MoneyKey> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(string -> {
+        try{ return parse(string);
+        } catch (IdentifierException e) { throw new DecoderException(e); }
     },MoneyKey::toString);
 
     private static final Map<InternKey,MoneyKey> VALUES = new MapMaker().weakValues().makeMap();
@@ -43,7 +51,7 @@ public final class MoneyKey {
     @Override
     public String toString() { return this.key.isEmpty() ? this.type.toString() : this.type + ";" + this.key; }
 
-    public static MoneyKey fromString(String string) throws IdentifierException
+    public static MoneyKey parse(String string) throws IdentifierException
     {
         String[] split = string.split(";",2);
         if(split.length == 1)

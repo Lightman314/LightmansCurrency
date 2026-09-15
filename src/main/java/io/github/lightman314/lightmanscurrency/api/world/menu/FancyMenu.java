@@ -99,14 +99,7 @@ public abstract class FancyMenu extends AbstractContainerMenu implements ISidedC
         }
 
         @Override
-        public boolean stillValid(Player player) {
-            for(MenuValidator v : new ArrayList<>(this.validators))
-            {
-                if(!v.stillValid(player))
-                    return false;
-            }
-            return true;
-        }
+        public boolean stillValid(Player player) { return MenuValidator.stillValid(player,this.validators); }
     }
 
 }

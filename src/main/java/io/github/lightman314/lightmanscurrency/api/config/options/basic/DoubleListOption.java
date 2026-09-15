@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.api.config.options.basic;
 
 import io.github.lightman314.lightmanscurrency.api.config.options.ListOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
-import io.github.lightman314.lightmanscurrency.api.text.LCText;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
@@ -31,7 +30,7 @@ public class DoubleListOption extends ListOption<Double> {
     protected String bonusComment() { return "Range: " + this.lowerLimit + " -> " + this.upperLimit; }
     @Nullable
     @Override
-    protected Component bonusCommentTooltip() { return LCText.Config.CONFIG_OPTION_RANGE.get(this.lowerLimit,this.upperLimit); }
+    protected Component bonusCommentTooltip() { return CONFIG_OPTION_RANGE.get(this.lowerLimit,this.upperLimit); }
 
     public static DoubleListOption create(List<Double> defaultValue) { return new DoubleListOption(() -> defaultValue, -Double.MAX_VALUE, Double.MAX_VALUE); }
     public static DoubleListOption create(List<Double> defaultValue, double lowerLimit) { return new DoubleListOption(() -> defaultValue, lowerLimit, Double.MAX_VALUE); }

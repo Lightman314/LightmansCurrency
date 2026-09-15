@@ -1,7 +1,8 @@
 package io.github.lightman314.lightmanscurrency.api.ownership.interfaces;
 
-import io.github.lightman314.lightmanscurrency.api.ownership.OwnerHolder;
+import net.minecraft.world.entity.player.Player;
 
 public interface IOwnable {
-    OwnerHolder getOwner();
+    IOwnerHolder getOwner();
+    default boolean canBreak(Player player) { return this.getOwner().isMember(player); }
 }

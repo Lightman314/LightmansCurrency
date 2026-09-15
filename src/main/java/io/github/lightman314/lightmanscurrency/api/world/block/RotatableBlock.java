@@ -13,6 +13,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.function.Function;
 
 public class RotatableBlock extends EasyBlock implements IRotatableBlock {
@@ -27,12 +28,14 @@ public class RotatableBlock extends EasyBlock implements IRotatableBlock {
     }
 
     @Override
+    @OverridingMethodsMustInvokeSuper
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
         builder.add(FACING);
     }
 
     @Override
+    @OverridingMethodsMustInvokeSuper
     protected BlockState initializeDefaultState(BlockState state) { return super.initializeDefaultState(state).setValue(FACING,Direction.NORTH); }
 
     @Override

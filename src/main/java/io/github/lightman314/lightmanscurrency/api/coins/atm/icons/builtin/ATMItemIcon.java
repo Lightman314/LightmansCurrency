@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import com.google.gson.JsonSyntaxException;
-import io.github.lightman314.lightmanscurrency.api.helpers.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.helpers.data.CodecInteractionHelper;
 import io.github.lightman314.lightmanscurrency.api.coins.atm.icons.ATMIconType;
 import io.github.lightman314.lightmanscurrency.api.coins.atm.icons.ATMIconData;
 import net.minecraft.IdentifierException;
@@ -21,7 +21,7 @@ public class ATMItemIcon extends ATMIconData {
     private final boolean simpleItem;
     public final ItemStackTemplate item;
 
-    private ATMItemIcon(JsonObject data, DataContext<JsonElement> context) throws JsonSyntaxException, IdentifierException {
+    private ATMItemIcon(JsonObject data, CodecInteractionHelper<JsonElement> context) throws JsonSyntaxException, IdentifierException {
         super(data);
 
         if(data.has("item") && data.get("item").isJsonPrimitive())
@@ -50,7 +50,7 @@ public class ATMItemIcon extends ATMIconData {
     }
 
     @Override
-    protected void saveAdditional(JsonObject data,DataContext<JsonElement> context) {
+    protected void saveAdditional(JsonObject data, CodecInteractionHelper<JsonElement> context) {
 
         if(this.simpleItem)
             data.addProperty("item",BuiltInRegistries.ITEM.getKey(this.item.item().value()).toString());

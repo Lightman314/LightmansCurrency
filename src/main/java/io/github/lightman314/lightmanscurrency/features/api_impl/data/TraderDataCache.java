@@ -14,9 +14,12 @@ import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ITickerSer
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderType;
+import io.github.lightman314.lightmanscurrency.api.trader.event.TraderEvent;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.PersistentDataNode;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.neoforge.common.NeoForge;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -33,6 +36,7 @@ public final class TraderDataCache extends FancyData implements ITickerServer, I
     private long nextID;
 
     private final Map<Long,TraderData> traders;
+    private final Map<String,TraderData> persistentTraders = new HashMap<>();
     private Set<Long> changedTraders = new HashSet<>();
     private final List<Long> deletedTraders = new ArrayList<>();
 
@@ -45,8 +49,12 @@ public final class TraderDataCache extends FancyData implements ITickerServer, I
 
     private Map<Long,TraderData> getWritableTraders()
     {
-        //TODO filter out persistent traders
-        return this.traders;
+        Map<Long,TraderData> copy = new HashMap<>(this.traders);
+        this.traders.forEach((key,t) -> {
+            if(t.getNodeValue(PersistentDataNode.TYPE,PersistentDataNode::isPersistent,false))
+                copy.remove(key);
+        });
+        return copy;
     }
 
     @Override
@@ -55,7 +63,11 @@ public final class TraderDataCache extends FancyData implements ITickerServer, I
     @Nullable
     public TraderData getTrader(long traderID) { return this.traders.get(traderID); }
     @Nullable
+    public TraderData getTrader(String persistentKey) { return this.persistentTraders.get(persistentKey); }
+    @Nullable
     public List<TraderData> getAllTraders() { return new ArrayList<>(this.traders.values()); }
+
+    public Set<String> getPersistentKeys() { return new HashSet<>(this.persistentTraders.keySet()); }
 
     public long registerTrader(TraderData newTrader)
     {
@@ -63,8 +75,10 @@ public final class TraderDataCache extends FancyData implements ITickerServer, I
         LightmansCurrency.LogDebug("New Trader Registered with id of " + nextID,new Throwable());
         newTrader.setID(nextID);
         this.addTraderInternal(newTrader);
+        //Post Created Event
+        NeoForge.EVENT_BUS.post(new TraderEvent.TraderCreatedEvent(newTrader));
         //Send created trader packet
-        this.sendPacketToAll(FancyPacketMap.newMutable()
+        this.sendPacketToAll(FancyPacketMap.map()
                 .setList("CreatedTraders",LCFancyPacketTypes.MAP,ImmutableList.of(asCreatedTraderPacket(newTrader))));
         //Return the new trader ID
         return nextID;
@@ -81,6 +95,9 @@ public final class TraderDataCache extends FancyData implements ITickerServer, I
         this.pairTrader(trader);
         //Add the trader to the map
         this.traders.put(trader.getID(),trader);
+        PersistentDataNode node = trader.getNode(PersistentDataNode.TYPE);
+        if(node != null && node.isPersistent())
+            this.persistentTraders.put(node.getPersistentKey(),trader);
         //Initialize the trader
         trader.initialize();
     }
@@ -92,13 +109,18 @@ public final class TraderDataCache extends FancyData implements ITickerServer, I
         {
             this.deletedTraders.add(traderID);
             this.traders.remove(traderID);
+            PersistentDataNode node = trader.getNode(PersistentDataNode.TYPE);
+            if(node != null && node.isPersistent())
+                this.persistentTraders.remove(node.getPersistentKey());
+            NeoForge.EVENT_BUS.post(new TraderEvent.
+                    TraderDeletedEvent(trader));
         }
     }
 
     @Override
     public void onPlayerJoin(ServerPlayer player) {
         //Send "Trader Exists" packet for each existing trader
-        FancyPacketMap.Mutable packet = FancyPacketMap.newMutable();
+        FancyPacketMap.Mutable packet = FancyPacketMap.map();
         List<FancyPacketMap> list = new ArrayList<>();
         for(TraderData trader : this.getAllTraders())
             list.add(asCreatedTraderPacket(trader));
@@ -122,7 +144,7 @@ public final class TraderDataCache extends FancyData implements ITickerServer, I
             if(trader != null)
                 this.sendUpdatePacket(trader);
         }
-        this.sendPacketToAll(FancyPacketMap.newMutable().setList("DeletedTraders", LCFancyPacketTypes.LONG,this.deletedTraders));
+        this.sendPacketToAll(FancyPacketMap.map().setList("DeletedTraders", LCFancyPacketTypes.LONG,this.deletedTraders));
         this.deletedTraders.clear();
     }
 
@@ -137,15 +159,15 @@ public final class TraderDataCache extends FancyData implements ITickerServer, I
 
     private static FancyPacketMap asTraderUpdatePacket(TraderData trader,FancyPacketMap packet)
     {
-        return FancyPacketMap.newMutable()
-                .setMap("UpdateTrader",FancyPacketMap.newMutable()
+        return FancyPacketMap.map()
+                .setMap("UpdateTrader",FancyPacketMap.map()
                         .setLong("id",trader.getID())
                         .setMap("data",packet).immutable()).immutable();
     }
 
     private static FancyPacketMap asCreatedTraderPacket(TraderData trader)
     {
-        return FancyPacketMap.newMutable()
+        return FancyPacketMap.map()
                 .setLong("id",trader.getID())
                 .setRegistryEntry("type",LCRegistries.Trader.TRADER_TYPES,trader.getType())
                 .setMap("data",trader.createTraderPacket())
@@ -164,6 +186,8 @@ public final class TraderDataCache extends FancyData implements ITickerServer, I
                     continue;
                 TraderData newTrader = new TraderData(type);
                 newTrader.setID(traderID);
+                FancyPacketMap nodeData = entry.getMap("data");
+                newTrader.handleSyncPacket(nodeData);
                 this.addTraderInternal(newTrader);
             }
         }

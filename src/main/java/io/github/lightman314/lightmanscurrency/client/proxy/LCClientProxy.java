@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.proxy.LCProxy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
@@ -16,16 +17,22 @@ public final class LCClientProxy extends LCProxy {
 
     public static void initialize() { setProxy(new LCClientProxy()); }
 
-    private LCClientProxy() {}
+    private long timeDesync = 0;
+    private final Minecraft mc;
+
+    private LCClientProxy() { this.mc = Minecraft.getInstance(); }
 
     @Nullable
     @Override
     public Level getDummyLevel() {
-        Level level = Minecraft.getInstance().level;
+        Level level = this.mc.level;
         if(level == null)
             return super.getDummyLevel();
         return level;
     }
+
+    @Override
+    public boolean isSelf(Player player) { return player == this.mc.player; }
 
     @Override
     public List<GameProfile> getPlayerList(ISidedContext context) {
@@ -39,4 +46,14 @@ public final class LCClientProxy extends LCProxy {
         }
         return super.getPlayerList(context);
     }
+
+    @Nullable
+    @Override
+    public Player getLocalPlayer() { return this.mc.player; }
+
+    @Override
+    public void setTimeDesync(long offset) { this.timeDesync = offset; }
+    @Override
+    public long getTimeDesync() { return this.timeDesync; }
+
 }

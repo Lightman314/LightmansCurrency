@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": "#c:ingots/netherite",
+  "base": "lightmanscurrency:item_capacity_upgrade_3",
+  "result": {
+    "id": "lightmanscurrency:item_capacity_upgrade_4"
+  },
+  "template": "lightmanscurrency:upgrade_smithing_template"
+}

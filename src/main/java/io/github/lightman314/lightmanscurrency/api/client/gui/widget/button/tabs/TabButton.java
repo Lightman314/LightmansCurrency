@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.icon.IconData;
 import io.github.lightman314.lightmanscurrency.api.icon.client.IconRenderer;
+import io.github.lightman314.lightmanscurrency.api.notifications.category.NotificationCategory;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -21,6 +22,8 @@ public class TabButton extends FancyButton implements IMoveableWidget {
     public static final int SIZE = 20;
 
     public static final FaceSensitiveSprites DEFAULT = FaceSensitiveSprites.forTabs(LCApi.id("widget/tab/normal"));
+    public static final FaceSensitiveSprites RED = FaceSensitiveSprites.forTabs(LCApi.id("widget/tab/red"));
+    public static final FaceSensitiveSprites YELLOW = FaceSensitiveSprites.forTabs(LCApi.id("widget/tab/yellow"));
 
     private final FaceSensitiveSprites sprites;
     private final Function<TabButton,IconData> icon;
@@ -67,6 +70,10 @@ public class TabButton extends FancyButton implements IMoveableWidget {
             return this.withIcon(tab::getIcon)
                     .tooltip(TooltipSource.deferredSingle(tab::getName,true))
                     .visible(tab::isVisible);
+        }
+        public Builder forCategory(NotificationCategory category) {
+            return this.withIcon(category.getIcon())
+                    .tooltip(TooltipSource.simple(category.getName(),true));
         }
 
         @Override

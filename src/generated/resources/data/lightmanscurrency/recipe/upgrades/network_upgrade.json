@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": "#c:ingots/gold",
+  "base": "minecraft:ender_eye",
+  "result": {
+    "id": "lightmanscurrency:network_upgrade"
+  },
+  "template": "lightmanscurrency:upgrade_smithing_template"
+}

@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.datagen.client.models;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.EnumHelper;
 import io.github.lightman314.lightmanscurrency.api.world.block.interfaces.IColoredBlock;
+import io.github.lightman314.lightmanscurrency.api.world.block.interfaces.IWoodenBlock;
 import net.minecraft.client.data.models.model.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -20,6 +21,7 @@ public final class LCModelTemplates {
     public static final ModelTemplate COIN_BLOCK = new ModelTemplate(Optional.of(LCApi.id("block/coin_block")),Optional.empty(),LCTextureSlots.MAIN);
     public static final ModelTemplate COIN_PILE = new ModelTemplate(Optional.of(LCApi.id("block/coin_pile")),Optional.empty(),LCTextureSlots.MAIN);
     public static final ModelTemplate DISPLAY_CASE = withPrefix(new ModelTemplate(Optional.of(LCApi.id("block/display_case/base")),Optional.empty(),LCTextureSlots.WOOL),"display_case/").withCustomBlockKey(LCModelTemplates::getColoredKey);
+    public static final ModelTemplate CARD_DISPLAY = withPrefix(new ModelTemplate(Optional.of(LCApi.id("block/card_display/base")),Optional.empty(),LCTextureSlots.WOOL,LCTextureSlots.LOG,LCTextureSlots.LOG_TOP,LCTextureSlots.PLANK),"card_display/").withCustomBlockKey(LCModelTemplates::getWoodenAndColoredKey);
 
     public static final ModelTemplate WALLET_HIP = withPrefix(new ModelTemplate(Optional.of(LCApi.id("item/wallet_hip/wallet_base")),Optional.empty(),LCTextureSlots.MAIN),"wallet_hip/");
 
@@ -37,6 +39,35 @@ public final class LCModelTemplates {
             return key.withPath(EnumHelper.resourceSafeName(cb.getColor()));
         return key;
     }
+
+    public static Identifier getWoodenKey(Item item) {
+        Identifier key = BuiltInRegistries.ITEM.getKey(item);
+        if(item instanceof BlockItem bi && bi.getBlock() instanceof IWoodenBlock wb)
+            return key.withPath(wb.getWoodType().generatePath(""));
+        return key;
+    }
+
+    public static Identifier getWoodenKey(Block block) {
+        Identifier key = BuiltInRegistries.BLOCK.getKey(block);
+        if(block instanceof IWoodenBlock wb)
+            return key.withPath(wb.getWoodType().generatePath(""));
+        return key;
+    }
+
+    public static Identifier getWoodenAndColoredKey(Item item) {
+        Identifier key = BuiltInRegistries.ITEM.getKey(item);
+        if(item instanceof BlockItem bi && bi.getBlock() instanceof IWoodenBlock wb && bi.getBlock() instanceof IColoredBlock cb)
+            return key.withPath(wb.getWoodType().generatePath("","/" + EnumHelper.resourceSafeName(cb.getColor())));
+        return key;
+    }
+
+    public static Identifier getWoodenAndColoredKey(Block block) {
+        Identifier key = BuiltInRegistries.BLOCK.getKey(block);
+        if(block instanceof IWoodenBlock wb && block instanceof IColoredBlock cb)
+            return key.withPath(wb.getWoodType().generatePath("","/" + EnumHelper.resourceSafeName(cb.getColor())));
+        return key;
+    }
+
 
     public static class PrefixTemplate extends ModelTemplate {
 

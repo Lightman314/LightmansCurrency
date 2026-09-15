@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.gson.*;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.coins.ICoinLike;
 import io.github.lightman314.lightmanscurrency.api.coins.atm.ATMExchangeButtonData;
@@ -18,10 +19,11 @@ import io.github.lightman314.lightmanscurrency.api.helpers.FileHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.ItemHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.JsonHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.ResourceHelper;
-import io.github.lightman314.lightmanscurrency.api.helpers.data.DataContext;
-import io.github.lightman314.lightmanscurrency.api.text.LCText;
+import io.github.lightman314.lightmanscurrency.api.helpers.data.CodecInteractionHelper;
+import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.core.LCBlocks;
 import io.github.lightman314.lightmanscurrency.core.LCItems;
+import io.github.lightman314.lightmanscurrency.core.neoforge.LCDataAttachments;
 import io.github.lightman314.lightmanscurrency.network.message.data.SPacketSyncCoinData;
 import net.minecraft.IdentifierException;
 import net.minecraft.core.HolderLookup;
@@ -46,6 +48,8 @@ import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.resource.ResourceStack;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
 import java.io.File;
@@ -59,6 +63,17 @@ import java.util.function.Predicate;
 public final class CoinAPIImpl implements CoinAPI {
 
     public static final CoinAPIImpl INSTANCE = new CoinAPIImpl();
+
+    public static final String EMERLAD_CHAIN = "emeralds";
+    public static final String CHOCOLATE_CHAIN = "chocolate_coins";
+
+    public static final TextEntry COIN_CHAIN_MAIN = TextEntry.chain(CoinAPI.DEFAULT_CHAIN);
+    public static final TextEntry COIN_CHAIN_EMERALDS = TextEntry.chain(EMERLAD_CHAIN);
+    public static final TextEntry COIN_CHAIN_EMERALDS_DISPLAY = TextEntry.chainDisplay(EMERLAD_CHAIN);
+    public static final TextEntry COIN_CHAIN_EMERALDS_DISPLAY_WORDY = TextEntry.chainDisplayWordy(EMERLAD_CHAIN);
+    public static final TextEntry COIN_CHAIN_CHOCOLATE = TextEntry.chain(CHOCOLATE_CHAIN);
+    public static final TextEntry COIN_CHAIN_CHOCOLATE_DISPLAY = TextEntry.chainDisplay(CHOCOLATE_CHAIN);
+    public static final TextEntry COIN_CHAIN_CHOCOLATE_DISPLAY_WORDY = TextEntry.chainDisplayWordy(CHOCOLATE_CHAIN);
 
     private final Comparator<ItemStack> coinSorter = new CoinSorter();
 
@@ -87,7 +102,7 @@ public final class CoinAPIImpl implements CoinAPI {
         this.itemIdToChainMap = null;
 
         File folder = new File(DATA_LOCATION);
-        DataContext<JsonElement> context = DataContext.createJson(registryAccess);
+        CodecInteractionHelper<JsonElement> context = CodecInteractionHelper.createJson(registryAccess);
         //Locate all files in the folder that end with ".json"
         //Ignore sub-folders
         File[] array = folder.listFiles((dir, name) -> dir.equals(folder) && name.endsWith(".json"));
@@ -135,15 +150,7 @@ public final class CoinAPIImpl implements CoinAPI {
 
     private void loadData(Map<String,ChainData> dataMap,boolean postEvent)
     {
-        if(postEvent)
-        {
-            //Post the event when loading on the logical server
-            ChainDataReloadedEvent.Pre event = new ChainDataReloadedEvent.Pre(dataMap);
-            NeoForge.EVENT_BUS.post(event);
-            this.loadedChains = event.getChainMap();
-        }
-        else //Special override when receiving data from a packet
-            this.loadedChains = ImmutableMap.copyOf(dataMap);
+        this.loadedChains = Map.copyOf(dataMap);
         Map<Identifier,ChainData> temp = new HashMap<>();
         //Store chain data in an item to chain map so that we don't have to manually search through lists for matching entries
         for(ChainData chain : this.loadedChains.values())
@@ -156,7 +163,7 @@ public final class CoinAPIImpl implements CoinAPI {
         }
         this.itemIdToChainMap = ImmutableMap.copyOf(temp);
         if(postEvent)
-            NeoForge.EVENT_BUS.post(new ChainDataReloadedEvent.Post(this.loadedChains));
+            NeoForge.EVENT_BUS.post(new ChainDataReloadedEvent.Server());
     }
 
     private static String extractChainID(File file)
@@ -169,7 +176,7 @@ public final class CoinAPIImpl implements CoinAPI {
         return result;
     }
 
-    private static boolean safeLoadData(File file,Map<String,ChainData> map,List<CoinEntry> allEntries, DataContext<JsonElement> context)
+    private static boolean safeLoadData(File file,Map<String,ChainData> map,List<CoinEntry> allEntries, CodecInteractionHelper<JsonElement> context)
     {
         try {
             String chainName = extractChainID(file);
@@ -187,13 +194,13 @@ public final class CoinAPIImpl implements CoinAPI {
         }
     }
 
-    private void createMoneyDataFiles(Map<String,ChainData> allChains,DataContext<JsonElement> context)
+    private void createMoneyDataFiles(Map<String,ChainData> allChains, CodecInteractionHelper<JsonElement> context)
     {
         for(ChainData chain : allChains.values())
             this.createMoneyDataFile(chain,context);
     }
 
-    private void createMoneyDataFile(ChainData chain,DataContext<JsonElement> context)
+    private void createMoneyDataFile(ChainData chain, CodecInteractionHelper<JsonElement> context)
     {
         File file = new File(DATA_LOCATION + File.separatorChar + chain.chain + ".json");
         File dir = new File(file.getParent());
@@ -223,7 +230,7 @@ public final class CoinAPIImpl implements CoinAPI {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     private static void generateDefaultCoins(BuildDefaultCoinDataEvent event)
     {
-        ChainData.builder(CoinAPI.DEFAULT_CHAIN,LCText.Coins.COIN_CHAIN_MAIN)
+        ChainData.builder(CoinAPI.DEFAULT_CHAIN,COIN_CHAIN_MAIN)
                 .withCoreChain(LCItems.COIN_COPPER)
                 .withCoin(LCItems.COIN_IRON, 10)
                 .withCoin(LCItems.COIN_GOLD, 10)
@@ -244,35 +251,70 @@ public final class CoinAPIImpl implements CoinAPI {
                 .withSideChain(LCBlocks.COIN_PILE_NETHERITE, 9, LCItems.COIN_NETHERITE)
                 .withCoin(LCBlocks.COIN_BLOCK_NETHERITE, 4).back()
                 .withDisplay(CoinDisplay.easyDefine())
+                .withDisplaySprite(LCApi.id("dropdown_icons/money_main"))
                 .atmBuilder().accept(ATMExchangeButtonData::generateMain).back()
                 .apply(event,true); //Override any existing chains with this id, as they shouldn't be replacing the main chain on this priority level
 
         //Emerald Coin Chain
-        ChainData.builder("emeralds",LCText.Coins.COIN_CHAIN_EMERALDS)
+        ChainData.builder(EMERLAD_CHAIN,COIN_CHAIN_EMERALDS)
                 .withCoreChain(Items.EMERALD).withCoin(Items.EMERALD_BLOCK,9).back()
                 .withInputType(CoinInputType.DEFAULT)
-                .withDisplay(new NumberDisplay(LCText.Coins.COIN_CHAIN_EMERALDS_DISPLAY,LCText.Coins.COIN_CHAIN_EMERALDS_DISPLAY_WORDY, Items.EMERALD))
+                .withDisplay(new NumberDisplay(COIN_CHAIN_EMERALDS_DISPLAY,COIN_CHAIN_EMERALDS_DISPLAY_WORDY, Items.EMERALD))
+                .withDisplaySprite(LCApi.id("dropdown_icons/money_emerald"))
                 .apply(event, true);
+
+        //Chocolate Coin Chain
+        ChainData.builder(CHOCOLATE_CHAIN,COIN_CHAIN_CHOCOLATE)
+                .withCoreChain(LCItems.COIN_CHOCOLATE_COPPER)
+                .withCoin(LCItems.COIN_CHOCOLATE_IRON,10)
+                .withCoin(LCItems.COIN_CHOCOLATE_GOLD,10)
+                .withCoin(LCItems.COIN_CHOCOLATE_EMERALD,10)
+                .withCoin(LCItems.COIN_CHOCOLATE_DIAMOND,10)
+                .withCoin(LCItems.COIN_CHOCOLATE_NETHERITE,10).back()
+                //Side Chains
+                .withSideChain(LCBlocks.COIN_PILE_CHOCOLATE_COPPER,9,LCItems.COIN_CHOCOLATE_COPPER)
+                .withCoin(LCBlocks.COIN_BLOCK_CHOCOLATE_COPPER,4).back()
+                .withSideChain(LCBlocks.COIN_PILE_CHOCOLATE_IRON,9,LCItems.COIN_CHOCOLATE_IRON)
+                .withCoin(LCBlocks.COIN_BLOCK_CHOCOLATE_IRON,4).back()
+                .withSideChain(LCBlocks.COIN_PILE_CHOCOLATE_GOLD,9,LCItems.COIN_CHOCOLATE_GOLD)
+                .withCoin(LCBlocks.COIN_BLOCK_CHOCOLATE_GOLD,4).back()
+                .withSideChain(LCBlocks.COIN_PILE_CHOCOLATE_EMERALD,9,LCItems.COIN_CHOCOLATE_EMERALD)
+                .withCoin(LCBlocks.COIN_BLOCK_CHOCOLATE_EMERALD,4).back()
+                .withSideChain(LCBlocks.COIN_PILE_CHOCOLATE_DIAMOND,9,LCItems.COIN_CHOCOLATE_DIAMOND)
+                .withCoin(LCBlocks.COIN_BLOCK_CHOCOLATE_DIAMOND,4).back()
+                .withSideChain(LCBlocks.COIN_PILE_CHOCOLATE_NETHERITE,9,LCItems.COIN_CHOCOLATE_NETHERITE)
+                .withCoin(LCBlocks.COIN_BLOCK_CHOCOLATE_NETHERITE,4).back()
+                //ATM Data
+                .atmBuilder().accept(ATMExchangeButtonData::generateChocolate).back()
+                .withDisplay(new NumberDisplay(COIN_CHAIN_CHOCOLATE_DISPLAY,COIN_CHAIN_CHOCOLATE_DISPLAY_WORDY,LCItems.COIN_CHOCOLATE_COPPER))
+                .withInputType(CoinInputType.TEXT)
+                .withDisplaySprite(LCApi.id("dropdown_icons/money_chocolate"))
+                .asEvent()
+                .apply(event,true);
     }
 
     @Override
-    public ItemStack getEquippedWallet(Entity player) {
-        //TODO
-        return ItemStack.EMPTY;
-    }
+    public ItemStack getEquippedWallet(Entity player) { return player.getData(LCDataAttachments.WALLET).getWallet(); }
 
     @Override
     public Collection<ChainData> lookupAllChains() {
         if(this.loadedChains == null)
             return Collections.EMPTY_LIST;
-        return this.loadedChains.values();
+        return Collections.unmodifiableCollection(this.loadedChains.values());
     }
 
     @Nullable
     @Override
     public ChainData lookupChain(String chain) {
-        if(this.loadedChains == null)
+        if(this.loadedChains == null) {
+            LightmansCurrency.LogWarning("Attempted to access chain data before it was loaded!");
             return null;
+        }
+        //LightmansCurrency.LogDebug("Attempting Chain Lookup for '" + chain + "'\n" + DebugHelper.debugList(this.loadedChains.keySet()));
+        ChainData c = this.loadedChains.get(chain);
+        if(this.loadedChains.containsKey(chain) && c == null) {
+            LightmansCurrency.LogError("Loaded Chains contains the key for chain '" + chain + "' but the chain data itself is null!");
+        }
         return this.loadedChains.get(chain);
     }
 
@@ -318,7 +360,7 @@ public final class CoinAPIImpl implements CoinAPI {
     }
 
     @Override
-    public void exchangeCoinsAllUp(ResourceHandler<ItemResource> container,@Nullable Transaction transaction) {
+    public void exchangeCoinsAllUp(ResourceHandler<ItemResource> container,@Nullable TransactionContext transaction) {
         if(this.dataNotLoaded())
             return;
         try (Transaction tx = Transaction.open(transaction)) {
@@ -333,9 +375,10 @@ public final class CoinAPIImpl implements CoinAPI {
     }
 
     @Override
-    public boolean exchangeCoinsUp(ResourceHandler<ItemResource> container,Item smallCoin,@Nullable Transaction transaction) {
-        if(this.dataNotLoaded())
+    public boolean exchangeCoinsUp(ResourceHandler<ItemResource> container,Item smallCoin,@Nullable TransactionContext transaction) {
+        if(this.dataNotLoaded()) {
             return false;
+        }
         ChainData chain = this.lookupChain(smallCoin);
         if(chain != null)
         {
@@ -349,7 +392,7 @@ public final class CoinAPIImpl implements CoinAPI {
         return false;
     }
 
-    private void exchangeCoinsUpInternal(ResourceHandler<ItemResource> container, CoinEntry entry, @Nullable Transaction transaction)
+    private void exchangeCoinsUpInternal(ResourceHandler<ItemResource> container, CoinEntry entry, @Nullable TransactionContext transaction)
     {
         //Get the next-higher coin data
         Pair<CoinEntry,Integer> upperExchange = entry.getUpperExchange();
@@ -359,6 +402,7 @@ public final class CoinAPIImpl implements CoinAPI {
         Item largeCoin = upperExchange.getFirst().getCoin();
         int smallCoinCount = upperExchange.getSecond();
         Predicate<ItemResource> filter = i -> i.is(smallCoin);
+        int successCount = 0;
         while(ResourceHelper.getResourceCount(container,filter,transaction) >= smallCoinCount)
         {
             ItemStack stack = new ItemStack(entry.getCoin(),smallCoinCount);
@@ -372,6 +416,7 @@ public final class CoinAPIImpl implements CoinAPI {
                     {
                         //Commit the exchange if both transactions went through
                         tx.commit();
+                        successCount++;
                         success = true;
                     }
                 }
@@ -383,7 +428,7 @@ public final class CoinAPIImpl implements CoinAPI {
     }
 
     @Override
-    public void exchangeCoinsAllDown(ResourceHandler<ItemResource> container,@Nullable Transaction transaction) {
+    public void exchangeCoinsAllDown(ResourceHandler<ItemResource> container,@Nullable TransactionContext transaction) {
         if(this.dataNotLoaded())
             return;
         try(Transaction tx = Transaction.open(transaction))
@@ -402,7 +447,7 @@ public final class CoinAPIImpl implements CoinAPI {
     }
 
     @Override
-    public boolean exchangeCoinsDown(ResourceHandler<ItemResource> container,Item largeCoin,@Nullable Transaction transaction) {
+    public boolean exchangeCoinsDown(ResourceHandler<ItemResource> container,Item largeCoin,@Nullable TransactionContext transaction) {
         if(this.dataNotLoaded())
             return false;
         ChainData chain = this.lookupChain(largeCoin);
@@ -418,7 +463,7 @@ public final class CoinAPIImpl implements CoinAPI {
         return false;
     }
 
-    private void exchangeCoinsDownInternal(ResourceHandler<ItemResource> container, CoinEntry entry, @Nullable Transaction transaction) {
+    private void exchangeCoinsDownInternal(ResourceHandler<ItemResource> container, CoinEntry entry, @Nullable TransactionContext transaction) {
         Pair<CoinEntry,Integer> lowerExchange = entry.getLowerExchange();
         if(lowerExchange == null)
             return;
@@ -458,7 +503,7 @@ public final class CoinAPIImpl implements CoinAPI {
     }
 
     @Override
-    public void sortCoinsByValue(ResourceHandler<ItemResource> container,@Nullable Transaction transaction) {
+    public void sortCoinsByValue(ResourceHandler<ItemResource> container,@Nullable TransactionContext transaction) {
         try(Transaction tx = Transaction.open(transaction)) {
             //Collect a list of all items in the item resource handler
             List<ItemStack> oldItems = new ArrayList<>();
@@ -495,7 +540,7 @@ public final class CoinAPIImpl implements CoinAPI {
     private SPacketSyncCoinData getSyncPacket(HolderLookup.Provider registryAccess) {
         if(this.dataNotLoaded())
             this.reloadCoinData(registryAccess,false);
-        DataContext<JsonElement> context = DataContext.createJson(registryAccess);
+        CodecInteractionHelper<JsonElement> context = CodecInteractionHelper.createJson(registryAccess);
         Map<String,JsonObject> data = new HashMap<>();
         this.loadedChains.forEach((key,chain) -> data.put(key,chain.getAsJson(context)));
         return new SPacketSyncCoinData(data);
@@ -523,10 +568,11 @@ public final class CoinAPIImpl implements CoinAPI {
             packet.sendTo(player);
     }
 
+    @ApiStatus.Internal
     public static void handleSyncPacket(SPacketSyncCoinData message,HolderLookup.Provider registryAccess) {
         Map<String,ChainData> temp = new HashMap<>();
         List<CoinEntry> existingEntries = new ArrayList<>();
-        DataContext<JsonElement> context = DataContext.createJson(registryAccess);
+        CodecInteractionHelper<JsonElement> context = CodecInteractionHelper.createJson(registryAccess);
         try {
             message.getJson().forEach((key,data) -> {
                 ChainData chain = ChainData.fromJson(key,existingEntries,data,context);
@@ -541,6 +587,7 @@ public final class CoinAPIImpl implements CoinAPI {
             return;
         }
         INSTANCE.loadData(temp,false);
+        NeoForge.EVENT_BUS.post(new ChainDataReloadedEvent.Client());
     }
 
     @SubscribeEvent

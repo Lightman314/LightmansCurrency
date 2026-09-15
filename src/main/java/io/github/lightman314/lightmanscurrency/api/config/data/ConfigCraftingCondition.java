@@ -11,11 +11,10 @@ import net.neoforged.neoforge.common.conditions.ICondition;
 
 public class ConfigCraftingCondition implements ICondition {
 
-    public static final MapCodec<ConfigCraftingCondition> CODEC = RecordCodecBuilder.mapCodec(builder ->
-            builder.group(
-                            Identifier.CODEC.fieldOf("fileID").forGetter(c -> c.fileID),
-                            Codec.STRING.fieldOf("option").forGetter(c -> c.optionPath))
-                    .apply(builder,ConfigCraftingCondition::new));
+    public static final MapCodec<ConfigCraftingCondition> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
+            Identifier.CODEC.fieldOf("fileID").forGetter(c -> c.fileID),
+            Codec.STRING.fieldOf("option").forGetter(c -> c.optionPath))
+            .apply(builder,ConfigCraftingCondition::new));
 
     private final Identifier fileID;
     private final String optionPath;

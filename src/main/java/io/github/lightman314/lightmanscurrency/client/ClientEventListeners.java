@@ -1,37 +1,39 @@
 package io.github.lightman314.lightmanscurrency.client;
 
-import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
-import io.github.lightman314.lightmanscurrency.api.helpers.TooltipHelper;
+import io.github.lightman314.lightmanscurrency.api.LCApi;
+import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.FancyGuiExtractor;
+import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.ILateRenderer;
+import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.IRenderTick;
+import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.customer.TraderCustomerScreen;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.TraderStorageScreen;
-import io.github.lightman314.lightmanscurrency.core.LCDataComponents;
+import io.github.lightman314.lightmanscurrency.client.features.atm.ATMScreen;
+import io.github.lightman314.lightmanscurrency.client.features.coin_mint.CoinMintScreen;
+import io.github.lightman314.lightmanscurrency.client.features.resources.data.item_position.ItemPositionSetManager;
+import io.github.lightman314.lightmanscurrency.client.features.resources.data.item_position.ItemPositionManager;
+import io.github.lightman314.lightmanscurrency.client.features.wallet.WalletScreen;
 import io.github.lightman314.lightmanscurrency.core.LCMenuTypes;
 import io.github.lightman314.lightmanscurrency.features.api_impl.MoneyAPIImpl;
 import io.github.lightman314.lightmanscurrency.mixin.client.CreativeModeInventoryScreenAccessor;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
-import net.minecraft.network.chat.Component;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.TooltipProvider;
+import net.minecraft.world.item.*;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
-import net.neoforged.neoforge.client.event.ScreenEvent;
-import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+import net.neoforged.neoforge.client.event.*;
 
-import java.util.List;
 import java.util.function.BiFunction;
-import java.util.function.Consumer;
 
 @EventBusSubscriber(Dist.CLIENT)
 public class ClientEventListeners {
@@ -40,12 +42,22 @@ public class ClientEventListeners {
     private static void onPlayerLeave(ClientPlayerNetworkEvent.LoggingOut event)
     {
         MoneyAPIImpl.INSTANCE.onPlayerLeave(event.getPlayer());
+        SyncedConfigFile.onClientLeavesServer();
     }
 
     @SubscribeEvent
     private static void registerMenuScreens(RegisterMenuScreensEvent event)
     {
+        //Machines
+        event.register(LCMenuTypes.WALLET.get(),WalletScreen::new);
+        event.register(LCMenuTypes.COIN_MINT.get(),CoinMintScreen::new);
+        event.register(LCMenuTypes.ATM.get(),simpleFactory(ATMScreen::new));
+
+        //Traders
+        event.register(LCMenuTypes.TRADER_DIRECT.get(),simpleFactory(TraderCustomerScreen::new));
+        event.register(LCMenuTypes.TRADER_BLOCK_ENTITY.get(),simpleFactory(TraderCustomerScreen::new));
         event.register(LCMenuTypes.TRADER_STORAGE.get(),simpleFactory(TraderStorageScreen::new));
+
     }
 
     private static <M extends AbstractContainerMenu,U extends Screen & MenuAccess<M>> MenuScreens.ScreenConstructor<M,U> simpleFactory(BiFunction<M,Inventory,U> factory) {
@@ -53,21 +65,27 @@ public class ClientEventListeners {
     }
 
     @SubscribeEvent
-    private static void addItemTooltips(ItemTooltipEvent event)
-    {
-        //Collect data for easier use
-        List<Component> tooltips = event.getToolTip();
-        ItemStack item = event.getItemStack();
-        Item.TooltipContext context = event.getContext();
-        TooltipFlag flag = event.getFlags();
-
-        //Add all LC TooltipProviders to the items tooltips
-        Consumer<Component> builder = TooltipHelper.endOfTooltipBuilder(tooltips);
-        for(var type : LCDataComponents.REGISTER.getEntries())
+    private static void triggerInventoryRenderTick(ScreenEvent.Render.Pre event) {
+        if(event.getScreen() instanceof InventoryScreen || event.getScreen() instanceof CreativeModeInventoryScreen)
         {
-            Object value = item.get(type);
-            if(value instanceof TooltipProvider tp)
-                tp.addToTooltip(context,builder,flag,item);
+            ScreenPosition mousePos = ScreenPosition.of(event.getMouseX(),event.getMouseY());
+            for(Renderable r : event.getScreen().renderables)
+            {
+                if(r instanceof IRenderTick t)
+                    t.renderTick(mousePos);
+            }
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    private static void triggerLateRenderWidgets(ContainerScreenEvent.Render.Foreground event) {
+        //Use forground render event to render above slots, but before the tooltip and carried item (hopefully)
+        if(event.getContainerScreen() instanceof InventoryScreen || event.getContainerScreen() instanceof CreativeModeInventoryScreen) {
+            FancyGuiExtractor gui = new FancyGuiExtractor(event.getGuiGraphics(),event.getMouseX(),event.getMouseY(),0f);
+            for(Renderable r : event.getContainerScreen().renderables) {
+                if(r instanceof ILateRenderer lr)
+                    lr.extractLateRender(gui);
+            }
         }
     }
 
@@ -83,12 +101,13 @@ public class ClientEventListeners {
     }
 
     public static boolean isInventoryTabOpen() {
-        return CreativeModeInventoryScreenAccessor.getSelectedTab().getType() == CreativeModeTab.Type.INVENTORY;
+        return BuiltInRegistries.CREATIVE_MODE_TAB.getKey(CreativeModeInventoryScreenAccessor.getSelectedTab()) == CreativeModeTabs.INVENTORY.identifier();
     }
 
     @SubscribeEvent
-    private static void loadClientConfigs(ClientPlayerNetworkEvent.LoggingIn event) {
-        ConfigFile.loadClientFiles(ConfigFile.LoadPhase.GAME_START);
+    private static void registerResourceListeners(AddClientReloadListenersEvent event) {
+        event.addListener(LCApi.id("item_position_data"),ItemPositionManager.INSTANCE);
+        event.addListener(LCApi.id("item_position_sets"),ItemPositionSetManager.INSTANCE);
     }
 
 }

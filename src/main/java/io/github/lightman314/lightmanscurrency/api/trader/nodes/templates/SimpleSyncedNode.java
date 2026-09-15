@@ -9,10 +9,10 @@ import java.util.function.Consumer;
 
 public abstract class SimpleSyncedNode extends TraderNode implements ISyncingNode {
 
-    private FancyPacketMap.Mutable changedData = FancyPacketMap.newMutable();
+    private FancyPacketMap.Mutable changedData = FancyPacketMap.map();
     protected final void setChanged(Consumer<FancyPacketMap.Mutable> writer)
     {
-        if(this.isClient() || !this.isSyncReady(this.trader))
+        if(this.isClient() || !this.isSyncReady())
             return;
         writer.accept(this.changedData);
         this.setChanged();
@@ -22,6 +22,6 @@ public abstract class SimpleSyncedNode extends TraderNode implements ISyncingNod
     public FancyPacketMap getChangedData(ISyncingContext context) { return this.changedData; }
 
     @Override
-    public void clean() { this.changedData = FancyPacketMap.newMutable(); }
+    public void clean() { this.changedData = FancyPacketMap.map(); }
 
 }

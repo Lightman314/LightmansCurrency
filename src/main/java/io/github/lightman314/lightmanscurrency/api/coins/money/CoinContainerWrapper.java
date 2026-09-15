@@ -10,8 +10,8 @@ import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.item.ItemUtil;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
@@ -86,36 +86,36 @@ public class CoinContainerWrapper implements MoneyResourceHandler {
     public MoneyValue insert(MoneyValue value, TransactionContext transaction) {
         if(value instanceof CoinValue coinValue)
         {
-            try(Transaction tx = Transaction.open(transaction)) {
-                List<ItemStack> coins = coinValue.getAsSeperatedItemList();
-                List<ItemStack> extra = new ArrayList<>();
-                for(ItemStack c : coins)
-                {
-                    ItemStack e = ItemUtil.insertItemReturnRemaining(this.itemResource,c,false,transaction);
-                    if(!e.isEmpty())
-                        extra.add(e);
+            List<ItemStack> coins = coinValue.getAsSeperatedItemList();
+            List<ItemStack> extra = new ArrayList<>();
+            for(ItemStack c : coins)
+            {
+                int inserted = ResourceHandlerUtil.insertStacking(this.itemResource,ItemResource.of(c),c.getCount(),transaction);
+                if(inserted < c.getCount()) {
+                    c.shrink(inserted);
+                    extra.add(c);
                 }
-                //Let the overtflow handler accept any coins that couldn't fit in the container
-                for(ItemStack e : extra)
-                    this.overflowHandler.accept(e,transaction);
-                return value;
             }
+            //Let the overtflow handler accept any coins that couldn't fit in the container
+            for(ItemStack e : extra)
+                this.overflowHandler.accept(e,transaction);
+            //Exchange all coins after insertion
+            LCApi.getCoinAPI().exchangeCoinsAllUp(this.itemResource,transaction);
+            return value;
         }
         return MoneyValue.empty();
     }
 
     @Override
-    public MoneyValue extract(MoneyValue value, TransactionContext transaction) {
+    public MoneyValue extract(MoneyValue value,TransactionContext transaction) {
         if(value instanceof CoinValue coinValue)
         {
-            try(Transaction tx = Transaction.open(transaction)) {
-                long remainder = takeObjectsOfValue(coinValue,this.itemResource,transaction);
-                if(remainder > 0) //If there's still some of the value that we didn't take, then calculate the amount taken and return it
-                    return coinValue.fromInternalValue(coinValue.getInternalValue() - remainder);
-                if(remainder < 0) //Check if too much money was taken
-                    this.insert(coinValue.fromInternalValue(remainder * -1),transaction);
-                return value;
-            }
+            long remainder = takeObjectsOfValue(coinValue,this.itemResource,transaction);
+            if(remainder > 0) //If there's still some of the value that we didn't take, then calculate the amount taken and return it
+                return coinValue.fromInternalValue(coinValue.getInternalValue() - remainder);
+            if(remainder < 0) //Check if too much money was taken, and if so insert it
+                this.insert(coinValue.fromInternalValue(remainder * -1),transaction);
+            return value;
         }
         return MoneyValue.empty();
     }
@@ -123,8 +123,9 @@ public class CoinContainerWrapper implements MoneyResourceHandler {
     private static long takeObjectsOfValue(CoinValue takeValue,ResourceHandler<ItemResource> handler,TransactionContext transaction) {
         long value = takeValue.getInternalValue();
         ChainData chain = LCApi.getCoinAPI().lookupChain(takeValue.getChain());
-        if(chain != null)
+        if(chain == null)
             return value;
+
         List<CoinEntry> coinList = chain.getAllEntries(true);
         coinList.sort(ChainData.SORT_HIGHEST_VALUE_FIRST);
         //Remove objects from the items
@@ -177,5 +178,8 @@ public class CoinContainerWrapper implements MoneyResourceHandler {
         //Inform the user if we were exact, or if too many items were taken and a refund is required
         return value;
     }
+
+    @Override
+    public String toString() { return this.getClass().getSimpleName() + "(" + this.itemResource.size() + ")"; }
 
 }

@@ -1,0 +1,14 @@
+{
+  "type": "lightmanscurrency:wallet_upgrade",
+  "category": "misc",
+  "group": "wallet_upgrading",
+  "ingredients": [
+    "lightmanscurrency:wallet_iron",
+    "#c:ingots/gold",
+    "#c:gems/emerald",
+    "#c:gems/diamond",
+    "#c:ingots/netherite",
+    "minecraft:nether_star"
+  ],
+  "result": "lightmanscurrency:wallet_nether_star"
+}

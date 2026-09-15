@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.client.gui.widget;
 
-import io.github.lightman314.lightmanscurrency.api.client.gui.screen.menu.interfaces.IWidgetHolder;
+import io.github.lightman314.lightmanscurrency.api.client.gui.screen.interfaces.IWidgetHolder;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.IMultiWidget;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
 
@@ -12,7 +12,7 @@ public abstract class AbstractMultiWidget extends FancyWidget implements IMultiW
     private IWidgetHolder parent = null;
     private final List<Object> children = new ArrayList<>();
 
-    public AbstractMultiWidget(Builder<?,? extends AbstractMultiWidget> builder) { super(builder); }
+    public AbstractMultiWidget(AbstractBuilder<?,? extends AbstractMultiWidget> builder) { super(builder); }
 
     @Override
     public final void defineParent(IWidgetHolder screen) { this.parent = screen; }
@@ -37,10 +37,10 @@ public abstract class AbstractMultiWidget extends FancyWidget implements IMultiW
     }
 
     @Override
-    public final void removeChildren() {
+    public final void removeAllChildren() {
         if(this.parent != null)
         {
-            for(Object child : this.children)
+            for(Object child : new ArrayList<>(this.children))
                 this.parent.removeChild(child);
             this.children.clear();
         }

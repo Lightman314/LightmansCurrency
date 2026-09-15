@@ -1,0 +1,20 @@
+{
+  "values": [
+    "lightmanscurrency:copper_coin_pile",
+    "lightmanscurrency:copper_coin_block",
+    "lightmanscurrency:iron_coin_pile",
+    "lightmanscurrency:iron_coin_block",
+    "lightmanscurrency:gold_coin_pile",
+    "lightmanscurrency:gold_coin_block",
+    "lightmanscurrency:emerald_coin_pile",
+    "lightmanscurrency:emerald_coin_block",
+    "lightmanscurrency:diamond_coin_pile",
+    "lightmanscurrency:diamond_coin_block",
+    "lightmanscurrency:netherite_coin_pile",
+    "lightmanscurrency:netherite_coin_block",
+    "lightmanscurrency:copper_coin_pile",
+    "lightmanscurrency:copper_coin_block",
+    "lightmanscurrency:coin_mint",
+    "#lightmanscurrency:groups/display_case"
+  ]
+}

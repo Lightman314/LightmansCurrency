@@ -8,4 +8,7 @@ public interface IOptionalKey {
 
     static <K extends IOptionalKey> Predicate<K> vanillaFilter() { return IOptionalKey::isVanilla; }
     static <K extends IOptionalKey> Predicate<K> moddedFilter() { return IOptionalKey::isModded; }
+
+    static boolean isModdedKey(Object key) { return key instanceof IOptionalKey o && o.isModded(); }
+
 }

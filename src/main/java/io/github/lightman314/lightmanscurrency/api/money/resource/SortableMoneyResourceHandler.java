@@ -1,9 +1,12 @@
 package io.github.lightman314.lightmanscurrency.api.money.resource;
 
+import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.ListHelper;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyDisplayHelper;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
@@ -12,6 +15,10 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public interface SortableMoneyResourceHandler extends MoneyResourceHandler {
+
+    static TextEntry createEntry(String modid,String path) { return TextEntry.tooltip(modid,"money_source." + path); }
+
+    TextEntry TOOLTIP_MONEY_SOURCE_PLAYER = createEntry(LCApi.MODID,"player");
 
     /**
      * Sorting priority for inserting money.<br>
@@ -46,11 +53,11 @@ public interface SortableMoneyResourceHandler extends MoneyResourceHandler {
      * @param title The title of the source
      * @param contents The MoneyResourceHandler that actually contains the contents
      */
-    static void defaultTooltipFormat(Consumer<Component> builder, Component title, MoneyResourceHandler contents)
+    static void defaultTooltipFormat(Consumer<Component> builder,Component title,MoneyResourceHandler contents)
     {
         if(contents.isEmpty())
             return;
-        builder.accept(title);
+        builder.accept(title.copy().withStyle(ChatFormatting.BLUE));
         ListHelper.consumeAll(builder,MoneyDisplayHelper.contentsAsMultiLineText(contents));
     }
 
@@ -96,7 +103,8 @@ public interface SortableMoneyResourceHandler extends MoneyResourceHandler {
         public MoneyValue insert(MoneyValue value, TransactionContext transaction) { return this.handler.insert(value,transaction); }
         @Override
         public MoneyValue extract(MoneyValue value, TransactionContext transaction) { return this.handler.extract(value,transaction); }
-
+        @Override
+        public String toString() { return "SortableMoneyResource[" + this.handler.getClass().getSimpleName() + "]"; }
     }
 
 }

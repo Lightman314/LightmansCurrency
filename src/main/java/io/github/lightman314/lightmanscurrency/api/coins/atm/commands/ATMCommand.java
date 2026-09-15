@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
-import io.github.lightman314.lightmanscurrency.api.helpers.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.helpers.data.CodecInteractionHelper;
 import net.minecraft.IdentifierException;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -13,9 +13,10 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.GsonHelper;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 public abstract class ATMCommand {
 
@@ -23,9 +24,9 @@ public abstract class ATMCommand {
             .registry(LCRegistries.Coins.ATM_COMMAND_TYPE_KEY)
             .dispatch(ATMCommand::getType,ATMCommandType::streamCodec);
 
-    public abstract boolean execute(ResourceHandler<ItemResource> itemResourceHandler, @Nullable Transaction transaction);
+    public abstract boolean execute(ResourceHandler<ItemResource> itemResourceHandler, @Nullable TransactionContext transaction);
 
-    public final JsonObject write(DataContext<JsonElement> context)
+    public final JsonObject write(CodecInteractionHelper<JsonElement> context)
     {
         JsonObject json = new JsonObject();
         this.writeAdditional(json,context);
@@ -35,9 +36,9 @@ public abstract class ATMCommand {
 
     public abstract ATMCommandType<?> getType();
 
-    protected abstract void writeAdditional(JsonObject json,DataContext<JsonElement> context);
+    protected abstract void writeAdditional(JsonObject json, CodecInteractionHelper<JsonElement> context);
 
-    public static ATMCommand parse(JsonObject json, DataContext<JsonElement> context) throws JsonSyntaxException, IdentifierException
+    public static ATMCommand parse(JsonObject json, CodecInteractionHelper<JsonElement> context) throws JsonSyntaxException, IdentifierException
     {
         Identifier type = Identifier.parse(GsonHelper.getAsString(json,"type"));
         ATMCommandType<?> commandType = LCRegistries.Coins.ATM_COMMAND_TYPE.getValue(type);
@@ -45,5 +46,21 @@ public abstract class ATMCommand {
             throw new JsonSyntaxException(type + " is not a valid ATM Command type!");
         return commandType.parse(json,context);
     }
+
+    @Override
+    public final boolean equals(Object obj) {
+        if(obj == this)
+            return true;
+        if(obj instanceof ATMCommand o)
+            return o.getType() == this.getType() && this.equals(o);
+        return false;
+    }
+    protected abstract boolean equals(ATMCommand other);
+
+    @Override
+    public int hashCode() { return Objects.hash(this.getType(),this.hash()); }
+    protected abstract int hash();
+
+    public abstract String toString();
 
 }

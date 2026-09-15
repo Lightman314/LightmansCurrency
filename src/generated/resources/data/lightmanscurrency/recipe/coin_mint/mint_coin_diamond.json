@@ -1,0 +1,20 @@
+{
+  "neoforge:conditions": [
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.coin_mint.canMint"
+    },
+    {
+      "type": "lightmanscurrency:configured",
+      "fileID": "lightmanscurrency:common",
+      "option": "crafting.coin_mint.mint.diamond"
+    }
+  ],
+  "type": "lightmanscurrency:coin_mint",
+  "group": "coin_minting",
+  "ingredient": "#c:gems/diamond",
+  "result": {
+    "id": "lightmanscurrency:coin_diamond"
+  }
+}

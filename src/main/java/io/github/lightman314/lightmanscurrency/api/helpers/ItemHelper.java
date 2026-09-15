@@ -1,7 +1,21 @@
 package io.github.lightman314.lightmanscurrency.api.helpers;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.Property;
+import com.mojang.authlib.properties.PropertyMap;
+import io.github.lightman314.lightmanscurrency.api.LCApi;
+import io.github.lightman314.lightmanscurrency.api.text.LCText;
+import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
+import io.github.lightman314.lightmanscurrency.mixin.ItemStackAccessor;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ResolvableProfile;
 
@@ -12,17 +26,38 @@ public final class ItemHelper {
 
     private ItemHelper() {}
 
-    //Cache Skulls for convenience
-    private static final Map<String,ItemStack> skullsByName = new HashMap<>();
-    private static final Map<UUID,ItemStack> skullsById = new HashMap<>();
+    public static final ItemStackTemplate ALEX_HEAD;
 
-    public static List<ItemStack> copyList(List<ItemStack> list)
-    {
-        List<ItemStack> copy = new ArrayList<>();
-        for(ItemStack i : list)
-            copy.add(i.copy());
-        return copy;
+    static {
+        DataComponentPatch.Builder builder = DataComponentPatch.builder();
+        Multimap<String,Property> map = HashMultimap.create();
+        map.put("textures",new Property("textures","eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjNiMDk4OTY3MzQwZGFhYzUyOTI5M2MyNGUwNDkxMDUwOWIyMDhlN2I5NDU2M2MzZWYzMWRlYzdiMzc1MCJ9fX0="));
+        builder.set(DataComponents.PROFILE,ResolvableProfile.createResolved(new GameProfile(UUIDUtil.uuidFromIntArray(new int[] {-731408145, -304985227, -1778597514, 158507129 }),"",new PropertyMap(map))));
+        ALEX_HEAD = new ItemStackTemplate(Items.PLAYER_HEAD,builder.build());
     }
+
+    public static final TextEntry NOTIFICATION_ITEM_FORMAT = TextEntry.notification(LCApi.id("items"),"format");
+
+    //Cache Skulls for convenience
+    private static final Map<String,ItemStackTemplate> skullsByName = new HashMap<>();
+    private static final Map<UUID,ItemStackTemplate> skullsById = new HashMap<>();
+
+    public static List<ItemStack> ofSize(int size) {
+        List<ItemStack> list = new ArrayList<>();
+        while(list.size() < size)
+            list.add(ItemStack.EMPTY);
+        return list;
+    }
+
+    public static void validateList(List<ItemStack> list) {
+        list.replaceAll(stack -> {
+            if(ItemStackAccessor.validateComponents(stack.getComponents()).isError())
+                return ItemStack.EMPTY;
+            return stack;
+        });
+    }
+
+    public static List<ItemStack> copyList(List<ItemStack> list) { return ListHelper.copyList(list,ItemStack::copy); }
 
     public static List<ItemStack> combineStacks(List<ItemStack> list)
     {
@@ -80,24 +115,37 @@ public final class ItemHelper {
         return list;
     }
 
-    public static ItemStack skullForPlayer(String playerName)
+    public static int getItemIndex(Container container,ItemStack stack) {
+        for(int i = 0; i < container.getContainerSize(); ++i)
+        {
+            if(container.getItem(i) == stack)
+                return i;
+        }
+        return -1;
+    }
+
+    public static ItemStackTemplate skullForPlayer(String playerName)
     {
         if(!skullsByName.containsKey(playerName))
         {
-            ItemStack stack = new ItemStack(Items.PLAYER_HEAD);
-            stack.set(DataComponents.PROFILE, ResolvableProfile.createUnresolved(playerName));
-            skullsByName.put(playerName,stack);
+            DataComponentPatch patch = DataComponentPatch.builder()
+                            .set(DataComponents.PROFILE,ResolvableProfile.createUnresolved(playerName))
+                            .build();
+            ItemStackTemplate template = new ItemStackTemplate(Items.PLAYER_HEAD,1,patch);
+            skullsByName.put(playerName,template);
         }
         return skullsByName.get(playerName);
     }
 
-    public static ItemStack skullForPlayer(UUID playerID)
+    public static ItemStackTemplate skullForPlayer(UUID playerID)
     {
         if(!skullsById.containsKey(playerID))
         {
-            ItemStack stack = new ItemStack(Items.PLAYER_HEAD);
-            stack.set(DataComponents.PROFILE,ResolvableProfile.createUnresolved(playerID));
-            skullsById.put(playerID,stack);
+            DataComponentPatch patch = DataComponentPatch.builder()
+                    .set(DataComponents.PROFILE,ResolvableProfile.createUnresolved(playerID))
+                    .build();
+            ItemStackTemplate template = new ItemStackTemplate(Items.PLAYER_HEAD,1,patch);
+            skullsById.put(playerID,template);
         }
         return skullsById.get(playerID);
     }
@@ -107,6 +155,24 @@ public final class ItemHelper {
         if(stack.getCount() >= 1000)
             return (stack.getCount() / 1000) + "k";
         return null;
+    }
+
+    public static Component formatItemNames(List<ItemStack> items) {
+        Component text = Component.literal("NULL");
+        boolean first = true;
+        for(ItemStack stack : items) {
+            if(first) {
+                text = formatItem(stack);
+                first = false;
+            } else {
+                text = LCText.GENERIC_AND.get(text,formatItem(stack));
+            }
+        }
+        return text;
+    }
+
+    public static Component formatItem(ItemStack item) {
+        return item.getCount() <= 1 ? item.getHoverName() : NOTIFICATION_ITEM_FORMAT.get(item.getCount(),item.getHoverName());
     }
 
     public static int hashList(List<ItemStack> list) {

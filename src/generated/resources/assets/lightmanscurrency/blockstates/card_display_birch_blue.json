@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "lightmanscurrency:block/card_display/birch/blue",
+      "y": 270
+    },
+    "facing=north": {
+      "model": "lightmanscurrency:block/card_display/birch/blue",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/card_display/birch/blue"
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/card_display/birch/blue",
+      "y": 90
+    }
+  }
+}

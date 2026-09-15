@@ -67,10 +67,10 @@ public interface IRotatableBlock {
         return pos.relative(facing.getOpposite());
     }
 
-    static Vector3fc getRightVect(Direction facing) { return facing.getClockWise().getUnitVec3f(); }
-    static Vector3fc getLeftVect(Direction facing) { return facing.getCounterClockWise().getUnitVec3f(); }
-    static Vector3fc getFrontVect(Direction facing) { return facing.getUnitVec3f(); }
-    static Vector3fc getBackVect(Direction facing) { return facing.getOpposite().getUnitVec3f(); }
+    static Vector3fc getRightVect(Direction facing) { return facing.getCounterClockWise().getUnitVec3f(); }
+    static Vector3fc getLeftVect(Direction facing) { return facing.getClockWise().getUnitVec3f(); }
+    static Vector3fc getFrontVect(Direction facing) { return facing.getOpposite().getUnitVec3f(); }
+    static Vector3fc getBackVect(Direction facing) { return facing.getUnitVec3f(); }
 
     static Vector3f getOffsetVect(Direction facing) {
         return switch (facing) {

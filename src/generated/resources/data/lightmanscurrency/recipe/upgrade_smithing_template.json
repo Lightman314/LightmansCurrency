@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "c": "lightmanscurrency:trading_core",
+    "n": "#c:nuggets/iron"
+  },
+  "pattern": [
+    "nnn",
+    "ncn",
+    "nnn"
+  ],
+  "result": {
+    "id": "lightmanscurrency:upgrade_smithing_template"
+  }
+}

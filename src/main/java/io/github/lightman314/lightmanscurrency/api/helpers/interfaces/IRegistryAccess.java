@@ -9,7 +9,7 @@ public interface IRegistryAccess {
 
     HolderLookup.Provider registryAccess();
 
-    class Holder implements IRegistryAccess
+    class WithHolder implements IRegistryAccess
     {
         private Supplier<HolderLookup.Provider> registryAccess = () -> null;
 

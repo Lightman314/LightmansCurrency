@@ -1,12 +1,19 @@
 package io.github.lightman314.lightmanscurrency.api.text;
 
 import com.google.common.collect.Lists;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
+import io.github.lightman314.lightmanscurrency.api.notifications.category.NotificationCategoryType;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
+import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleType;
+import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePriceType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.Util;
 import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.ItemLike;
@@ -58,18 +65,40 @@ public final class TextEntry {
     public static TextEntry description(TextEntry parent) { return extend(parent,"desc"); }
     public static TextEntry plural(TextEntry parent) { return extend(parent,"plural"); }
     public static TextEntry initial(TextEntry parent) { return extend(parent,"initial"); }
-    //public static TextEntry tradeRule(TradeRuleType<?> type) { return new TextEntry(() -> TradeRule.translationKeyOfType(type)); }
-    //public static TextEntry tradeRuleMessage(TradeRuleType<?> type, String message) { return new TextEntry(() -> TradeRule.translationKeyOfType(type) + "." + message); }
-    //public static TextEntry notification(NotificationType<?> type) { return notification(() -> LCRegistries.NOTIFICATION_TYPES.getKey(type)); }
+    public static TextEntry tradeRule(TradeRuleType<?> type) { return new TextEntry(() -> TradeRule.translationKeyOfType(type)); }
+    public static TextEntry tradeRuleMessage(TradeRuleType<?> type,String message) { return new TextEntry(() -> TradeRule.translationKeyOfType(type) + "." + message); }
+    public static TextEntry tradeRuleTooltip(TradeRuleType<?> type,String message) { return new TextEntry(() -> {
+        Identifier key = type.getKey();
+        return "tooltip." + key.getNamespace() + ".trade_rule." + key.getPath() + "." + message;
+    });}
+    public static TextEntry tradeRuleButton(TradeRuleType<?> type,String message) { return new TextEntry(() -> {
+        Identifier key = type.getKey();
+        return "button." + key.getNamespace() + ".trade_rule." + key.getPath() + "." + message;
+    });}
+    public static TextEntry tradeRuleGui(TradeRuleType<?> type,String message) { return new TextEntry(() -> {
+        Identifier key = type.getKey();
+        return "gui." + key.getNamespace() + ".trade_rule." + key.getPath() + "." + message;
+    });}
+    public static TextEntry notification(NotificationType<?> type) { return notification(type::getKey); }
     public static TextEntry notification(Identifier type) { return notification(() -> type); }
-    public static TextEntry notification(Supplier<Identifier> type) { return delayed(type,key -> "notification." + key.getNamespace() + "." + key.getPath()); }
-    //public static TextEntry notification(NotificationType<?> type, String extra) { return notification(() -> LCRegistries.NOTIFICATION_TYPES.getKey(type),extra); }
+    public static TextEntry notification(Supplier<Identifier> type) { return delayed(type,key -> Util.makeDescriptionId("notification",key)); }
+    public static TextEntry notification(NotificationType<?> type, String extra) { return notification(type::getKey,extra); }
     public static TextEntry notification(Identifier type, String extra) { return notification(() -> type,extra); }
-    public static TextEntry notification(Supplier<Identifier> type, String extra) { return delayed(type,key -> "notification." + key.getNamespace() + "." + key.getPath() + "." + extra); }
+    public static TextEntry notification(Supplier<Identifier> type, String extra) { return delayed(type,key -> Util.makeDescriptionId("notification",key) + "." + extra); }
+    public static TextEntry notificationCategory(NotificationCategoryType<?> type) { return delayedNotificationCategory(() -> type); }
+    public static TextEntry delayedNotificationCategory(Supplier<NotificationCategoryType<?>> type) { return notificationCategory(() -> type.get().getKey()); }
+    public static TextEntry notificationCategory(Identifier type) { return notificationCategory(() -> type); }
+    public static TextEntry notificationCategory(Supplier<Identifier> type) { return delayed(type,key -> Util.makeDescriptionId("notification.source",key)); }
     public static TextEntry terminalSortType(String modid, String id) { return new TextEntry("gui." + modid + ".terminal.sort_type." + id); }
 
-    public static TextEntry dataName(String modid, String key) { return new TextEntry("data." + modid + ".name." + key); }
-    public static TextEntry dataCategory(String modid, String key) { return new TextEntry("data." + modid + ".category." + key); }
+    public static TextEntry traderNode(TraderNodeType<?> node) { return traderNode(node::getKey); }
+    public static TextEntry traderNode(Identifier nodeID) { return traderNode(() -> nodeID); }
+    public static TextEntry traderNode(Supplier<Identifier> nodeID) { return new TextEntry(() -> Util.makeDescriptionId("trader_node",nodeID.get())); }
+    public static TextEntry traderNodeValue(TraderNodeType<?> node,String value) { return traderNodeValue(node::getKey,value); }
+    public static TextEntry traderNodeValue(Identifier nodeID,String value) { return traderNodeValue(() -> nodeID,value); }
+    public static TextEntry traderNodeValue(Supplier<Identifier> nodeID,String value) { return new TextEntry(() -> Util.makeDescriptionId("trader_node",nodeID.get()) + ".value." + value); }
+
+    public static TextEntry priceOption(TradePriceType<?> type) { return delayed(type::getKey,key -> Util.makeDescriptionId("trade_price",key)); }
 
     public static TextEntry chain(String chain) { return new TextEntry("lightmanscurrency.money.chain." + chain); }
     public static TextEntry chainDisplay(String chain) { return new TextEntry("lightmanscurrency.money.chain." + chain + ".display"); }
@@ -90,7 +119,7 @@ public final class TextEntry {
 
     public static TextEntry extend(TextEntry parent, String extra) { return new TextEntry(() -> parent.getKey() + "." + extra); }
 
-    private static TextEntry delayed(Supplier<Identifier> keyGetter, Function<Identifier,String> factory) {
+    public static TextEntry delayed(Supplier<Identifier> keyGetter, Function<Identifier,String> factory) {
         return new TextEntry(() -> factory.apply(keyGetter.get()));
     }
 

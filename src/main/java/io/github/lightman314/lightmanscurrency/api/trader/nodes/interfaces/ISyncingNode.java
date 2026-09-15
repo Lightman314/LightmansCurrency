@@ -2,12 +2,16 @@ package io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces;
 
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.INodeAccess;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.TrackingLevel;
 
-public interface ISyncingNode {
+public interface ISyncingNode extends INodeAccess {
 
-    default boolean isSyncReady(TraderData trader) { return trader != null && trader.isInitialized(); }
+    default boolean isSyncReady() {
+        TraderData trader = this.getTrader();
+        return trader != null && trader.isInitialized();
+    }
 
     FancyPacketMap getChangedData(ISyncingContext context);
     default boolean sendTo(ISyncingContext context,TrackingLevel oldLevel) {

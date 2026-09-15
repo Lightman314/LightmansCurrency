@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 public abstract class MessageMenu extends FancyMenu {
 
     private Consumer<FancyPacketMap> clientListener = m -> {};
-    protected MessageMenu(@Nullable MenuType<?> menuType, int containerId,Player player) {
+    protected MessageMenu(@Nullable MenuType<?> menuType,int containerId,Player player) {
         super(menuType,containerId,player);
     }
 
@@ -48,6 +48,10 @@ public abstract class MessageMenu extends FancyMenu {
     }
     protected abstract void handleMessage(FancyPacketMap message);
 
+    public final void sendToSelf(FancyPacketMap message) {
+        this.clientListener.accept(message);
+    }
+
     public abstract static class Validated extends MessageMenu implements IValidatedMenu
     {
 
@@ -70,14 +74,7 @@ public abstract class MessageMenu extends FancyMenu {
         }
 
         @Override
-        public boolean stillValid(Player player) {
-            for(MenuValidator v : new ArrayList<>(this.validators))
-            {
-                if(!v.stillValid(player))
-                    return false;
-            }
-            return true;
-        }
+        public boolean stillValid(Player player) { return MenuValidator.stillValid(player,this.validators); }
     }
 
 }

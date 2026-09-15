@@ -8,13 +8,16 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
-import io.github.lightman314.lightmanscurrency.api.helpers.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.helpers.data.CodecInteractionHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.IRegistryAccess;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
-import io.github.lightman314.lightmanscurrency.api.ownership.OwnerHolder;
+import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.ownership.MemberLevel;
+import io.github.lightman314.lightmanscurrency.api.ownership.holder.OwnerHolder;
 import io.github.lightman314.lightmanscurrency.api.ownership.interfaces.IOwnable;
+import io.github.lightman314.lightmanscurrency.api.ownership.interfaces.IOwnerHolder;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.*;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.*;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.TradingNode;
@@ -30,6 +33,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeFailedExcep
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeResult;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.ResourceCollector;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.ResourceType;
+import io.github.lightman314.lightmanscurrency.api.trader.world.menu.customer.AbstractTabbedCustomerMenu;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.world.menu.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.features.api_impl.data.TraderDataCache;
@@ -43,7 +47,7 @@ import org.jetbrains.annotations.ApiStatus;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public final class TraderData extends IRegistryAccess.Holder implements ISidedContext.Mutable<TraderData>, IOwnable, TraderSource.Simple, INodeAccess {
+public final class TraderData extends IRegistryAccess.WithHolder implements ISidedContext.Mutable<TraderData>, IOwnable, TraderSource.Simple, INodeAccess {
 
     //Constants
     public static int GLOBAL_TRADE_LIMIT = 100;
@@ -52,13 +56,15 @@ public final class TraderData extends IRegistryAccess.Holder implements ISidedCo
     public static Codec<TraderData> CODEC = RecordCodecBuilder.create(builder -> builder.group(
             LCRegistries.Trader.TRADER_TYPES.byNameCodec().fieldOf("type").forGetter(TraderData::getType),
             Codec.LONG.fieldOf("id").forGetter(TraderData::getID),
-            TraderNode.MAP_CODEC.fieldOf("nodes").forGetter(TraderData::getWritableNodes)
+            TraderNode.SET_CODEC.fieldOf("nodes").forGetter(TraderData::getWritableNodes)
     ).apply(builder,TraderData::new));
 
     //Trader Source Implementation
     @Override
     @Nullable
     public TraderData getSimpleTrader() { return this; }
+    @Override
+    public TraderData getTrader() { return this; }
 
     //Sided Context implementation
     private ISidedContext sidedContext = ISidedContext.LOGICAL_SERVER;
@@ -99,7 +105,8 @@ public final class TraderData extends IRegistryAccess.Holder implements ISidedCo
     public long requestTracking(Player player, TrackingLevel level) {
         if(this.isClient() || level == TrackingLevel.NONE)
         {
-            LightmansCurrency.LogError("");
+            if(this.isClient())
+                LightmansCurrency.LogError("Tracking was requested on the logical client!",new Throwable());
             return -1;
         }
         TrackingLevel oldLevel = this.trackingData.getLevel(player);
@@ -166,12 +173,12 @@ public final class TraderData extends IRegistryAccess.Holder implements ISidedCo
     }
 
     public FancyPacketMap createTraderPacket() {
-        FancyPacketMap.Mutable packet = FancyPacketMap.newMutable();
+        FancyPacketMap.Mutable packet = FancyPacketMap.map();
         for(TraderNode node : this.getAllNodes())
         {
             if(node instanceof ISyncingNode n)
             {
-                FancyPacketMap.Mutable entry = FancyPacketMap.newMutable();
+                FancyPacketMap.Mutable entry = FancyPacketMap.map();
                 n.traderCreatePacket(entry);
                 if(!entry.isEmpty())
                     packet.setMap(node.getKey(),entry);
@@ -186,26 +193,26 @@ public final class TraderData extends IRegistryAccess.Holder implements ISidedCo
     public FancyPacketMap fullSyncPacket(ISyncingContext context,TrackingLevel oldLevel,@Nullable Set<TraderNodeType<?>> changedNodes) {
         if(context.getPlayerTrackingLevel() == TrackingLevel.NONE && context.getSpecialCustomerSet().isEmpty())
             return FancyPacketMap.EMPTY;
-        FancyPacketMap.Mutable builder = FancyPacketMap.newMutable();
+        FancyPacketMap.Mutable builder = FancyPacketMap.map();
         for(TraderNode n : this.getAllNodes())
         {
             if(n instanceof ISyncingNode node && (changedNodes == null || changedNodes.contains(n.getType())))
             {
                 if(node.sendTo(context,oldLevel))
                 {
-                    FancyPacketMap.Mutable entry = FancyPacketMap.newMutable();
+                    FancyPacketMap.Mutable entry = FancyPacketMap.map();
                     node.createSyncPacket(entry,context);
                     builder.setMap(n.getKey(),entry);
                 }
             }
         }
-        LightmansCurrency.LogDebug("Full sync packet:\n" + builder);
+        //LightmansCurrency.LogDebug("Full sync packet:\n" + builder);
         return builder.immutable();
     }
 
     public FancyPacketMap getChangedData(Player player)
     {
-        FancyPacketMap.Mutable builder = FancyPacketMap.newMutable();
+        FancyPacketMap.Mutable builder = FancyPacketMap.map();
         ISyncingContext context = this.trackingData.getContext(player);
         for(TraderNodeType<?> type : new HashSet<>(this.changedNodes))
         {
@@ -230,8 +237,8 @@ public final class TraderData extends IRegistryAccess.Holder implements ISidedCo
         //Never process a sync packet on the logical server
         if(this.isServer())
             return;
-        LightmansCurrency.LogDebug("Processing sync packet:\n" + packet);
-        DataContext<JsonElement> encoder = DataContext.createJson(this.registryAccess());
+        //LightmansCurrency.LogDebug("Processing sync packet:\n" + packet);
+        CodecInteractionHelper<JsonElement> encoder = CodecInteractionHelper.createJson(this.registryAccess());
         for(String key : packet.keySet())
         {
             try {
@@ -327,35 +334,34 @@ public final class TraderData extends IRegistryAccess.Holder implements ISidedCo
 
     private ImmutableMap<TraderNodeType<?>,TraderNode> collectNodes(Map<TraderNodeType<?>,TraderNode> loadedNodes,TraderArguments arguments)
     {
-        Map<TraderNodeType<?>,Optional<Object>> nodes = new HashMap<>();
-        NodeCollector c = NodeCollector.forMap(nodes,arguments);
-        this.type.addNodes(c);
+        NodeCollector collector = NodeCollector.basic(arguments);
+        this.type.addNodes(collector);
         //Post Trader Nodes Event
-        NeoForge.EVENT_BUS.post(new TraderEvent.RegisterNodesEvent(this,c));
+        NeoForge.EVENT_BUS.post(new TraderEvent.RegisterNodesEvent(this,collector));
         //Assemble nodes
         Map<TraderNodeType<?>,TraderNode> result = new HashMap<>();
-        nodes.forEach((type,argument) -> {
+        for(TraderNodeType<?> type : collector) {
             //Put loaded node in if present
             TraderNode node;
             if(loadedNodes.containsKey(type))
             {
                 node = loadedNodes.get(type);
-                node.updateArgument(argument);
+                node.updateArgument(arguments);
             }
             else
-                node = type.create(argument);
+                node = type.create(arguments);
             result.put(type,node);
             node.pairWithTrader(this);
-        });
+        }
         return ImmutableMap.copyOf(result);
     }
 
     //Interface Implementations
     @Override
-    public OwnerHolder getOwner() {
+    public IOwnerHolder getOwner() {
         for(IOwnerSource node : this.getNodes(IOwnerSource.class))
         {
-            Optional<OwnerHolder> owner = node.getValidOwner();
+            Optional<IOwnerHolder> owner = node.getValidOwner();
             if(owner.isPresent())
                 return owner.get();
         }
@@ -401,28 +407,40 @@ public final class TraderData extends IRegistryAccess.Holder implements ISidedCo
         return val;
     }
 
-    //Menus
-    public void openStorageMenu(Player player,MenuValidator validator)
-    {
-        for(ITraderMenuProvider node : this.getNodes(ITraderMenuProvider.class))
-        {
-            MenuProvider menu = node.storageMenuProvider(player,validator);
-            if(menu != null)
-                player.openMenu(menu);
-        }
-        LightmansCurrency.LogDebug("Attempting to open storage menu for " + player.getName().getString());
-        player.openMenu(TraderStorageMenu.getProvider(this,validator));
+    public void postNotification(Notification notification,boolean sendToMembers) {
+        sendToMembers = sendToMembers && INotificationSettingsSource.getSendNotificationsToMembers(this);
+        MemberLevel targets = INotificationSettingsSource.getNotificationMemberLevel(this);
+        boolean pushToChat = INotificationSettingsSource.getPushNotificationsToChat(this);
+        for(INotificationConsumerNode consumer : this.getNodes(INotificationConsumerNode.class))
+            consumer.pushNotification(notification,sendToMembers,targets,pushToChat);
     }
 
-    public void openCustomerMenu(Player player,MenuValidator validator)
+    //Menus
+    public void openStorageMenu(Player player,MenuValidator validator,boolean mouseUpdate)
     {
         for(ITraderMenuProvider node : this.getNodes(ITraderMenuProvider.class))
         {
-            MenuProvider menu = node.storageMenuProvider(player,validator);
-            if(menu != null)
+            MenuProvider menu = node.storageMenuProvider(player,validator,mouseUpdate);
+            if(menu != null) {
                 player.openMenu(menu);
+                return;
+            }
         }
-        //player.openMenu(TraderStorageMenu.getProvider(this,validator));
+        LightmansCurrency.LogDebug("Attempting to open storage menu for " + player.getName().getString());
+        player.openMenu(TraderStorageMenu.getProvider(this,validator,mouseUpdate));
+    }
+
+    public void openCustomerMenu(Player player,MenuValidator validator,boolean mouseUpdate)
+    {
+        for(ITraderMenuProvider node : this.getNodes(ITraderMenuProvider.class))
+        {
+            MenuProvider menu = node.customerMenuProvider(player,validator,mouseUpdate);
+            if(menu != null) {
+                player.openMenu(menu);
+                return;
+            }
+        }
+        player.openMenu(AbstractTabbedCustomerMenu.directProvider(this.getID(),validator,mouseUpdate));
     }
 
     //Trade Execution
@@ -439,35 +457,38 @@ public final class TraderData extends IRegistryAccess.Holder implements ISidedCo
 
     public boolean providesResources(ResourceType<?,?> type)
     {
-        return this.getNodes(ITradeResourceProvider.class).stream().anyMatch(node -> node.providesResource(type));
+        ResourceQuery query = new ResourceQuery();
+        this.collectResources(query);
+        return query.contains(type);
     }
 
-    public TradeResult attemptTrade(TradeContext.Builder builder,int tradeIndex)
+    public TradeResult attemptTrade(TradeContext.Builder builder,int nodeIndex,int tradeIndex)
     {
         try(TradeContext context = builder.build())
         {
             if(context.getTrader() != this)
-                throw new IllegalStateException("Attempted to execute the trade for a different traders context!");
-            if(tradeIndex < 0)
+                throw new IllegalArgumentException("Attempted to execute the trade for a different traders context!");
+            //Get the trade's node
+            List<TradingNode<?>> nodes = this.getTradingNodes();
+            if(nodeIndex < 0 || nodeIndex >= nodes.size())
                 throw new TradeFailedException(TradeResult.FAIL_INVALID_TRADE);
-            //Get trade node(s) and search for the trade of that index
-            for(TradingNode<?> node : this.getTradingNodes())
-            {
-                int tradeCount = node.getTradeCount();
-                if(tradeCount < tradeIndex)
-                {
-                    TradeEvent.Pre event = node.runPreTradeEvent(context,tradeIndex);
-                    if(event.isCanceled())
-                        return TradeResult.FAIL_EVENT_DENIAL;
-                    return node.executeTrade(context,tradeIndex);
-                }
-                else
-                    tradeIndex -= tradeCount;
-                if(tradeIndex < 0)
-                    throw new TradeFailedException(TradeResult.FAIL_INVALID_TRADE);
-            }
-            throw new TradeFailedException(TradeResult.FAIL_INVALID_TRADE);
+            TradingNode<?> node = nodes.get(nodeIndex);
+            //Run the pre-trade event
+            TradeEvent.Pre event = node.runPreTradeEvent(context,tradeIndex);
+            if(event.isCanceled())
+                return TradeResult.FAIL_EVENT_DENIAL;
+            //If the trade is not cancelled by the event, tell the node to attempt the trade
+            return node.executeTrade(context,tradeIndex);
         } catch (TradeFailedException e) { return e.result; }
+    }
+
+    private static class ResourceQuery implements ResourceCollector {
+        private final Set<ResourceType<?,?>> types = new HashSet<>();
+        @Override
+        public <T> void addResource(ResourceType<T, ?> type, T resource) {
+            this.types.add(type);
+        }
+        public boolean contains(ResourceType<?,?> type) { return this.types.contains(type); }
     }
 
 }

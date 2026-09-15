@@ -8,7 +8,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.*;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
-import io.github.lightman314.lightmanscurrency.api.helpers.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.helpers.data.CodecInteractionHelper;
 import io.github.lightman314.lightmanscurrency.api.coins.data.ChainData;
 import net.minecraft.IdentifierException;
 import net.minecraft.util.GsonHelper;
@@ -20,7 +20,7 @@ public class ATMData {
     private final List<ATMExchangeButtonData> exchangeButtons;
     public final List<ATMExchangeButtonData> getExchangeButtons() { return this.exchangeButtons; }
 
-    private ATMData(JsonObject jsonData,ChainData chain,DataContext<JsonElement> context) throws JsonSyntaxException, IdentifierException {
+    private ATMData(JsonObject jsonData, ChainData chain, CodecInteractionHelper<JsonElement> context) throws JsonSyntaxException, IdentifierException {
 
         //LightmansCurrency.LogInfo("Loading ATM Data from json:\n" + FileUtil.GSON.toJson(jsonData));
 
@@ -42,7 +42,7 @@ public class ATMData {
         this.chain = chain;
     }
 
-    public JsonObject save(DataContext<JsonElement> context) {
+    public JsonObject save(CodecInteractionHelper<JsonElement> context) {
         JsonObject data = new JsonObject();
 
         JsonArray exchangeButtonDataList = new JsonArray();
@@ -53,7 +53,7 @@ public class ATMData {
         return data;
     }
 
-    public static ATMData parse(JsonObject json,ChainData chain,DataContext<JsonElement> context) throws JsonSyntaxException, IdentifierException { return new ATMData(json,chain,context); }
+    public static ATMData parse(JsonObject json, ChainData chain, CodecInteractionHelper<JsonElement> context) throws JsonSyntaxException, IdentifierException { return new ATMData(json,chain,context); }
 
     public static Builder builder(ChainData.Builder parent) { return new Builder(parent); }
 

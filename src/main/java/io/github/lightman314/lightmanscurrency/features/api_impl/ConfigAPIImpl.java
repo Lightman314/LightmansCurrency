@@ -4,11 +4,10 @@ import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigAPI;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigFile;
 import io.github.lightman314.lightmanscurrency.api.config.ConfigReloadable;
+import net.minecraft.resources.Identifier;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
+import javax.annotation.Nullable;
+import java.util.*;
 
 public final class ConfigAPIImpl implements ConfigAPI {
 
@@ -16,15 +15,22 @@ public final class ConfigAPIImpl implements ConfigAPI {
 
     private ConfigAPIImpl() {}
 
-    private final List<ConfigReloadable> customReloadables = new ArrayList<>();
+    private final Map<Identifier,ConfigReloadable> customReloadables = new HashMap<>();
     private List<ConfigReloadable> sortedReloadables = null;
 
 
     @Override
     public void registerCustomReloadable(ConfigReloadable reloadable) {
-        this.customReloadables.add(reloadable);
+        if(this.customReloadables.containsKey(reloadable.getID())) {
+            throw new IllegalArgumentException("Cannot register a reloadable with the id " + reloadable.getID() + " as one is already present!");
+        }
+        this.customReloadables.put(reloadable.getID(),reloadable);
         this.sortedReloadables = null;
     }
+
+    @Nullable
+    @Override
+    public ConfigReloadable getReloadable(Identifier id) { return this.customReloadables.get(id); }
 
     @Override
     public Collection<ConfigReloadable> getReloadablesInOrder() {
@@ -32,7 +38,7 @@ public final class ConfigAPIImpl implements ConfigAPI {
         {
             //Populate the list
             List<ConfigReloadable> temp = new ArrayList<>(ConfigFile.getAvailableFiles());
-            temp.addAll(this.customReloadables);
+            temp.addAll(this.customReloadables.values());
             //Sort the list
             temp.sort(Comparator.comparingInt(ConfigReloadable::getDelayPriority));
             this.sortedReloadables = ImmutableList.copyOf(temp);

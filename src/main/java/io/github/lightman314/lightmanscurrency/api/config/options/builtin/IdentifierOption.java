@@ -4,7 +4,6 @@ import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.StringOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
-import io.github.lightman314.lightmanscurrency.api.text.LCText;
 import net.minecraft.IdentifierException;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -29,7 +28,7 @@ public class IdentifierOption extends ConfigOption<Identifier> {
     protected String bonusComment() { return "Default: " + PARSER.write(this.getDefaultValue()); }
     @Nullable
     @Override
-    protected Component bonusCommentTooltip() { return LCText.Config.CONFIG_OPTION_DEFAULT.get(PARSER.write(this.getDefaultValue())); }
+    protected Component bonusCommentTooltip() { return CONFIG_OPTION_DEFAULT.get(PARSER.write(this.getDefaultValue())); }
 
     private static class Parser implements ConfigParser<Identifier>
     {

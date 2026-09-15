@@ -3,21 +3,16 @@ package io.github.lightman314.lightmanscurrency.api.config;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 import java.util.Map;
 
+@EventBusSubscriber
 public abstract class SyncedConfigFile extends ConfigFile {
 
     @Override
     public boolean isServerOnly() { return true; }
-
-    public static void playerJoined(ServerPlayer player) {
-        for(ConfigFile file : getAvailableFiles())
-        {
-            if(file instanceof SyncedConfigFile f)
-                f.sendSyncPacket(player);
-        }
-    }
 
     public static void onClientLeavesServer() {
         for(ConfigFile file : getAvailableFiles())
@@ -30,7 +25,6 @@ public abstract class SyncedConfigFile extends ConfigFile {
     protected SyncedConfigFile(String fileName, Identifier id) {
         super(id, fileName, LoadPhase.GAME_START); //Lock load phase as game start to ensure the packet can be sent correctly.
     }
-
 
     private boolean loadedSyncData = false;
     @Override
@@ -52,5 +46,16 @@ public abstract class SyncedConfigFile extends ConfigFile {
     protected void afterReload() { this.sendSyncPacket(null); }
     @Override
     protected void afterOptionChanged(ConfigOption<?> option) { this.sendSyncPacket(null); }
+
+    private static void onPlayerJoined(PlayerEvent.PlayerLoggedInEvent event) {
+        if(event.getEntity() instanceof ServerPlayer sp)
+        {
+            for(ConfigFile file : getAvailableFiles())
+            {
+                if(file instanceof SyncedConfigFile f)
+                    f.sendSyncPacket(sp);
+            }
+        }
+    }
 
 }

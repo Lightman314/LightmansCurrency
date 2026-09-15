@@ -1,0 +1,40 @@
+{
+  "entries": [
+    {
+      "position": {
+        "x": 0.3125,
+        "y": 0.75,
+        "z": 0.75
+      }
+    },
+    {
+      "position": {
+        "x": 0.6875,
+        "y": 0.75,
+        "z": 0.75
+      }
+    },
+    {
+      "position": {
+        "x": 0.3125,
+        "y": 0.5625,
+        "z": 0.28125
+      }
+    },
+    {
+      "position": {
+        "x": 0.6875,
+        "y": 0.5625,
+        "z": 0.28125
+      }
+    }
+  ],
+  "extra_count": 1,
+  "offsetX": 1.0E-4,
+  "offsetY": 0.2,
+  "offsetZ": 1.0E-4,
+  "rotation_type": {
+    "type": "lightmanscurrency:facing_up"
+  },
+  "scale": 0.375
+}

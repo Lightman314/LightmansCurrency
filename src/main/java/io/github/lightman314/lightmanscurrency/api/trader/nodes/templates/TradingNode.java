@@ -2,11 +2,17 @@ package io.github.lightman314.lightmanscurrency.api.trader.nodes.templates;
 
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
-import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
-import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.StorageTabBuilder;
+import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
+import io.github.lightman314.lightmanscurrency.api.trader.notifications.OutOfStockNotification;
+import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleHolder;
+import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.StorageTabBuilder;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IPermissionUser;
-import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IStorageMenuProvider;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IStorageMenuTabProvider;
 import io.github.lightman314.lightmanscurrency.api.trader.event.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.Permission;
@@ -17,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeResult;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeData;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePrice;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.builtin.SimpleTradeEditTab;
+import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.builtin.rules.TradeTradeRuleTab;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -26,10 +33,15 @@ import org.jetbrains.annotations.ApiStatus;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTraderNode implements IStorageMenuProvider, IPermissionUser {
+public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTraderNode implements IStorageMenuTabProvider, IPermissionUser {
+
+    public static TextEntry sectionName(TraderNodeType<?> type) { return TextEntry.delayed(() -> LCRegistries.Trader.TRADER_NODE_TYPE.getKey(type),id -> id.getNamespace() + ".trading_node.section." + id.getPath()); }
+
+    protected TradingNode() {}
 
     //By default, sort by hash code so that two trading nodes aren't accidentally
     public int getPriority() { return this.getType().hashCode(); }
@@ -38,9 +50,19 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
     @Nullable
     public T getTrade(int tradeIndex) {
         List<T> trades = this.getTrades();
-        if(tradeIndex >= 0 && tradeIndex < trades.size())
-            return trades.get(tradeIndex);
-        return null;
+        if(tradeIndex < 0 || tradeIndex >= trades.size())
+            return null;
+        return trades.get(tradeIndex);
+    }
+    protected final int getGlobalTradeIndex(int tradeIndex) {
+        int offset = 0;
+        for(TradingNode<?> node : this.getTradingNodes()) {
+            if(node != this)
+                offset += node.getTradeCount();
+            else
+                return offset + tradeIndex;
+        }
+        return offset + tradeIndex;
     }
     protected final int getTradeIndex(TradeData trade) {
         try {return this.getMutableTrades().indexOf((T)trade);
@@ -97,7 +119,7 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
         List<FancyPacketMap> tradeList = new ArrayList<>();
         for(TradeData trade : this.getTrades())
         {
-            FancyPacketMap.Mutable entry = FancyPacketMap.newMutable();
+            FancyPacketMap.Mutable entry = FancyPacketMap.map();
             trade.getFullPacket(entry,context);
             tradeList.add(entry.immutable());
         }
@@ -134,7 +156,7 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
 
     protected final void forceTradeCount(int newCount) {
         List<T> trades = this.getMutableTrades();
-        while(trades.size() >= newCount)
+        while(trades.size() > newCount)
         {
             trades.removeLast();
             this.setTradeRemoved(trades.size());
@@ -159,19 +181,27 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
             event.setCanceled(true);
             return event;
         }
-        //TODO push event to trade rules
+        //Push to trade rules
+        TradeRule.beforeTrade(this,trade,event);
+        //Push to public event bus for external modifications
         NeoForge.EVENT_BUS.post(event);
         return event;
     }
 
+    protected final void postOutOfStockNotification(int tradeIndex) {
+        this.postNotification(new OutOfStockNotification(this.getTrader(),this.getGlobalTradeIndex(tradeIndex)));
+    }
+
     protected final TradeResult finishSuccessfulTrade(TradeContext context,TradeData trade,TradePrice pricePaid,TradePrice.TransferResult priceResult) { return this.finishSuccessfulTrade(context,trade,pricePaid,priceResult,ImmutableList.of()); }
-    protected final TradeResult finishSuccessfulTrade(TradeContext context,TradeData trade,TradePrice pricePaid,TradePrice.TransferResult priceResult,List<?> product)
+    protected final TradeResult finishSuccessfulTrade(TradeContext context,TradeData trade,TradePrice pricePaid,TradePrice.TransferResult priceResult,@Nullable Notification notification) { return this.finishSuccessfulTrade(context,trade,pricePaid,priceResult,ImmutableList.of(),notification); }
+    protected final TradeResult finishSuccessfulTrade(TradeContext context,TradeData trade,TradePrice pricePaid,TradePrice.TransferResult priceResult,List<?> product) { return this.finishSuccessfulTrade(context,trade,pricePaid,priceResult,product,null); }
+    protected final TradeResult finishSuccessfulTrade(TradeContext context,TradeData trade,TradePrice pricePaid,TradePrice.TransferResult priceResult, List<?> product,@Nullable Notification notification)
     {
         //Commit the actions performed within the trades context
         context.commit();
         //Push the post-trade event
-        TradeEvent.Post event = new TradeEvent.Post(context,this,trade,pricePaid,priceResult,product);
-        //TODO push event to trade rules
+        TradeEvent.Post event = new TradeEvent.Post(context,this,trade,pricePaid,priceResult,product,Optional.ofNullable(notification));
+        TradeRule.afterTrade(this,trade,event);
         NeoForge.EVENT_BUS.post(event);
         return TradeResult.success(event);
     }
@@ -184,6 +214,8 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
     @Override
     public void addTabs(StorageTabBuilder builder) {
         builder.addTab(SimpleTradeEditTab::new);
+        if(this.getTrade(0) instanceof TradeRuleHolder)
+            builder.addTab(TradeTradeRuleTab::new);
     }
 
 }

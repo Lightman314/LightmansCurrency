@@ -9,7 +9,7 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValueType;
-import io.github.lightman314.lightmanscurrency.api.text.LCText;
+import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.Item;
 
@@ -21,7 +21,9 @@ import java.util.concurrent.CompletableFuture;
 
 public abstract class MoneyValueParser<T extends MoneyValue> {
 
-    public static final SimpleCommandExceptionType NO_VALUE_EXCEPTION = new SimpleCommandExceptionType(LCText.Commands.ARGUMENT_MONEY_VALUE_NO_VALUE.get());
+    public static final TextEntry ARGUMENT_MONEY_VALUE_NO_VALUE = TextEntry.argument("money_value.no_value");
+
+    public static final SimpleCommandExceptionType NO_VALUE_EXCEPTION = new SimpleCommandExceptionType(ARGUMENT_MONEY_VALUE_NO_VALUE.get());
 
     public final String prefix;
 

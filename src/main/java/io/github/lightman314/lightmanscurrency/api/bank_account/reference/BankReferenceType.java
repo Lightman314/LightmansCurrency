@@ -2,18 +2,18 @@ package io.github.lightman314.lightmanscurrency.api.bank_account.reference;
 
 import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
-import io.github.lightman314.lightmanscurrency.api.helpers.registry.RegistryHelper;
+import io.github.lightman314.lightmanscurrency.api.helpers.registry.AbstractType;
+import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
-public abstract class BankReferenceType<T extends BankReference> {
+public final class BankReferenceType<T extends BankReference> extends AbstractType.Serializable<T,BankReferenceType<?>> {
 
-    public abstract MapCodec<T> codec();
-    public abstract StreamCodec<? super RegistryFriendlyByteBuf,T> streamCodec();
+    public BankReferenceType(MapCodec<T> codec, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec) { super(codec, streamCodec); }
 
     @Override
-    public int hashCode() { return RegistryHelper.hash(LCRegistries.Bank.REFERENCE_TYPE,this); }
+    protected Registry<BankReferenceType<?>> getRegistry() { return LCRegistries.Bank.REFERENCE_TYPE; }
     @Override
-    public String toString() { return RegistryHelper.toString("BankReferenceType",LCRegistries.Bank.REFERENCE_TYPE,this); }
+    protected String getName() { return "BankReferenceType"; }
 
 }

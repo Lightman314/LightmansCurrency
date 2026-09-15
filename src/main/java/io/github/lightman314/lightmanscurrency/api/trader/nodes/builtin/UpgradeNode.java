@@ -2,8 +2,13 @@ package io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.lightman314.lightmanscurrency.api.helpers.ItemHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
+import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
+import io.github.lightman314.lightmanscurrency.api.ownership.interfaces.IOwnerHolder;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderArguments;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.ITraderDestructionListener;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IUpgradeListener;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IUpgradeUser;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.SimpleSyncedNode;
@@ -14,10 +19,12 @@ import io.github.lightman314.lightmanscurrency.api.upgrades.world.UpgradeStorage
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
-public class UpgradeNode extends SimpleSyncedNode implements IUpgradeable {
+public class UpgradeNode extends SimpleSyncedNode implements IUpgradeable, ITraderDestructionListener {
 
     private static final MapCodec<UpgradeNode> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
             ItemStack.OPTIONAL_CODEC.listOf().fieldOf("storage").forGetter(n -> n.storage.getContents())
@@ -34,21 +41,20 @@ public class UpgradeNode extends SimpleSyncedNode implements IUpgradeable {
     }
 
     @Override
-    public void updateArgument(Optional<Object> argument) {
-        if(argument.isPresent() && argument.get() instanceof Number num)
-            this.storage.overrideSize(num.intValue());
+    public void updateArgument(TraderArguments arguments) {
+        Optional<Number> arg = arguments.tryGet(TYPE,Number.class);
+        if(arg.isPresent())
+            this.storage.overrideSize(arg.get().intValue());
     }
 
-    private void setUpgradesChanged(List<ItemStack> oldState, List<ItemStack> newState) {
-        this.setChanged(builder -> builder.modifyMap("storage_update",this.storage.createPacket(oldState,newState)));
-        for(IUpgradeListener listener : this.trader.getNodes(IUpgradeListener.class))
+    private void setUpgradesChanged(Consumer<FancyPacketMap.Mutable> packetBuilder) {
+        this.setChanged(builder -> builder.modifyMap("storage_update",packetBuilder));
+        for(IUpgradeListener listener : this.getNodes(IUpgradeListener.class))
             listener.afterUpgradesChanged(this.storage);
     }
 
     @Override
-    public TraderNodeType<?> getType() {
-        return TYPE;
-    }
+    public TraderNodeType<?> getType() { return TYPE; }
 
     @Override
     public void traderCreatePacket(FancyPacketMap.Mutable builder) {
@@ -75,12 +81,23 @@ public class UpgradeNode extends SimpleSyncedNode implements IUpgradeable {
 
     @Override
     public boolean allowUpgrade(UpgradeType type) {
-        for(IUpgradeUser node : this.trader.getNodes(IUpgradeUser.class))
+        for(IUpgradeUser node : this.getNodes(IUpgradeUser.class))
         {
             if(node.allowUpgrade(type))
                 return true;
         }
         return false;
+    }
+
+    @Override
+    public void onTraderDestroyed(IOwnerHolder owner, Consumer<ItemStack> itemSpawner, Optional<MoneyResourceHandler> playerMoney) {
+        List<ItemStack> drops = new ArrayList<>();
+        for(ItemStack s : this.storage.getContents()) {
+            if(!s.isEmpty())
+                drops.add(s);
+        }
+        //Combine the upgrades into larger stacks if relevant
+        ItemHelper.combineStacks(drops).forEach(itemSpawner);
     }
 
 }

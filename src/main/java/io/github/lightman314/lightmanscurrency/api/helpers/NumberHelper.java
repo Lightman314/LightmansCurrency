@@ -1,12 +1,14 @@
 package io.github.lightman314.lightmanscurrency.api.helpers;
 
 import javax.annotation.Nullable;
+import java.text.DecimalFormat;
 
 public final class NumberHelper {
 
     private NumberHelper() {}
 
-    public static boolean isIntegerOrEmpty(String text) { return text.isEmpty() || isInteger(text); }
+    private static final DecimalFormat FORMATTER = new DecimalFormat();
+
     public static boolean isInteger(String text) {
         try { int i = Integer.parseInt(text);
         } catch (NumberFormatException e) { return false; }
@@ -19,7 +21,6 @@ public final class NumberHelper {
         return defaultValue;
     }
 
-    public static boolean isLongOrEmpty(String text) { return text.isEmpty() || isLong(text); }
     public static boolean isLong(String text) {
         try { long i = Long.parseLong(text);
         } catch (NumberFormatException e) { return false; }
@@ -32,7 +33,6 @@ public final class NumberHelper {
         return defaultValue;
     }
 
-    public static boolean isFloatOrEmpty(String text) { return text.isEmpty() || isFloat(text); }
     public static boolean isFloat(String text) {
         try { float i = Float.parseFloat(text);
         } catch (NumberFormatException e) { return false; }
@@ -45,7 +45,6 @@ public final class NumberHelper {
         return defaultValue;
     }
 
-    public static boolean isDoubleOrEmpty(String text) { return text.isEmpty() || isDouble(text); }
     public static boolean isDouble(String text) {
         try { double i = Double.parseDouble(text);
         } catch (NumberFormatException e) { return false; }
@@ -57,5 +56,7 @@ public final class NumberHelper {
             return Double.parseDouble(text);
         return defaultValue;
     }
+
+    public static String prettyInteger(long number) { return FORMATTER.format(number); }
 
 }

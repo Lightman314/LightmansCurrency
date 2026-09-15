@@ -1,6 +1,9 @@
 package io.github.lightman314.lightmanscurrency.api.money.values;
 
+import io.github.lightman314.lightmanscurrency.api.LCCapabilities;
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
+import io.github.lightman314.lightmanscurrency.api.helpers.resource.access.SidedItemAccess;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.player.PlayerMoneyResourceHandler;
 import net.minecraft.ChatFormatting;
@@ -12,6 +15,7 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -26,6 +30,13 @@ public class MoneyValueHelper {
             return MoneyValue.empty();
         MoneyValue firstValue = getFirstNonEmpty(values);
         return firstValue.getTypedHelper().sumValues(values);
+    }
+
+    public static boolean isAllowedInMoneySlot(ItemStack stack,boolean allowCapabilities) { return LCRegistries.Money.VALUE_HELPER.stream().anyMatch(helper -> helper.allowInMoneySlot(stack)) || (allowCapabilities && hasMoneyCapability(stack)); }
+
+    public static boolean hasMoneyCapability(ItemStack stack) {
+        SidedItemAccess access = SidedItemAccess.forStack(stack,ISidedContext.LOGICAL_CLIENT);
+        return access.getSidedCapability(LCCapabilities.Money.ITEM) != null;
     }
 
     /**
@@ -58,14 +69,27 @@ public class MoneyValueHelper {
      * Custom implementations should ignore Money Values that are not their specific type
      * @see io.github.lightman314.lightmanscurrency.api.money.MoneyDisplayHelper#contentsAsMultiLineText(MoneyResourceHandler, ChatFormatting...) MoneyDisplayHelper#contentsAsText(MoneyResourceHandler, ChatFormatting...)
      */
-    public void appendTextTooltips(Consumer<Component> builder,List<MoneyValue> values)
+    public final void appendTextTooltips(Consumer<Component> builder,List<MoneyValue> values)
     {
+        List<MoneyValue> thisType = new ArrayList<>();
         for(MoneyValue value : values)
         {
             //Only add to the tooltip if the money value uses this exact helper
             if(value.getTypedHelper() == this)
-                builder.accept(value.getText());
+                thisType.add(value);
         }
+        if(!thisType.isEmpty())
+            this.appendTextTooltipsInternal(builder,thisType);
+    }
+
+    /**
+     * Implentation of {@link #appendTextTooltips(Consumer, List)} that has been provided a pre-filtered list of money values that should be utilizing this exact helper
+     * @param builder The tooltip builder that can be used to add a new line to the tooltip
+     * @param values A list of pre-filtered money values that utilize this helper
+     */
+    protected void appendTextTooltipsInternal(Consumer<Component> builder,List<MoneyValue> values) {
+        for(MoneyValue value : values)
+            builder.accept(value.getText());
     }
 
     protected static MoneyValue getFirstNonEmpty(List<MoneyValue> values)
@@ -93,5 +117,7 @@ public class MoneyValueHelper {
      */
     @Nullable
     public MoneyResourceHandler wrapContainer(ResourceHandler<ItemResource> itemResource,BiConsumer<ItemStack, TransactionContext> overflowHandler, ISidedContext context) { return null; }
+
+    public boolean allowInMoneySlot(ItemStack stack) { return false; }
 
 }

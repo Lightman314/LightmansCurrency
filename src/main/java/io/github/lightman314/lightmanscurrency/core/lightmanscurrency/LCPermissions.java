@@ -20,9 +20,14 @@ public final class LCPermissions {
         register("break_trader",BuiltInPermissions.BREAK_TRADER);
         register("collect_money",BuiltInPermissions.COLLECT_MONEY);
         register("store_money",BuiltInPermissions.STORE_MONEY);
+        register("edit_trade_rules",BuiltInPermissions.EDIT_TRADE_RULES);
+        register("edit_settings",BuiltInPermissions.EDIT_SETTINGS);
+        register("transfer_ownership",BuiltInPermissions.TRANSFER_OWNERSHIP);
+        register("view_logs",BuiltInPermissions.VIEW_LOGS);
+        register("external_access_setttings",BuiltInPermissions.EXTERNAL_ACCESS_SETTINGS);
     }
 
-    private static void register(String name,Permission<?> permission) {
+    public static void register(String name,Permission<?> permission) {
         REGISTER.register(name,() -> permission);
     }
 

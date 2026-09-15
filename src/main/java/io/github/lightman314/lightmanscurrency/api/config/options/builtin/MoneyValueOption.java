@@ -7,9 +7,9 @@ import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.StringOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyDisplayHelper;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.values.parsing.MoneyValueParser;
-import io.github.lightman314.lightmanscurrency.api.text.LCText;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
@@ -43,7 +43,7 @@ public class MoneyValueOption extends ConfigOption<MoneyValue> {
     }
     @Nullable
     @Override
-    protected Component bonusCommentTooltip() { return LCText.Config.CONFIG_OPTION_DEFAULT.get(this.getDefaultValue().getText(LCText.Money.GUI_MONEY_STORAGE_EMPTY.get())); }
+    protected Component bonusCommentTooltip() { return CONFIG_OPTION_DEFAULT.get(this.getDefaultValue().getText(MoneyDisplayHelper.GUI_MONEY_STORAGE_EMPTY.get())); }
 
     public static MoneyValueOption create(Supplier<MoneyValue> defaultValue) { return create(defaultValue, v -> true); }
     public static MoneyValueOption createNonEmpty(Supplier<MoneyValue> defaultValue) { return create(defaultValue, v -> !v.isEmpty()); }

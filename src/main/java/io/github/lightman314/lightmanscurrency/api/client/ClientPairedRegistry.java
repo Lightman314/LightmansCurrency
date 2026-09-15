@@ -1,9 +1,12 @@
 package io.github.lightman314.lightmanscurrency.api.client;
 
 import net.minecraft.core.Registry;
+import net.minecraft.core.TypedInstance;
 import net.minecraft.resources.Identifier;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -13,7 +16,7 @@ import java.util.function.Supplier;
  * @param <T> The type of the common class
  * @param <C> The type of the client-only class
  */
-public class ClientPairedRegistry<T,C> {
+public class ClientPairedRegistry<T,C> implements Iterable<C> {
 
     private final Registry<T> registry;
     private final Map<Identifier,C> clientRegistry = new HashMap<>();
@@ -63,6 +66,7 @@ public class ClientPairedRegistry<T,C> {
         return d;
     }
 
+    public C getValue(TypedInstance<T> commonEntry) { return getValue(commonEntry.typeHolder().value()); }
     /**
      * Gets the registered client-only entry that matches the common entry.
      * @param commonEntry The common entry that we want the client-only entry for.
@@ -81,5 +85,17 @@ public class ClientPairedRegistry<T,C> {
             return this.getDefaultValue();
         return this.clientRegistry.get(id);
     }
+
+    @Nullable
+    public C getNullableValue(T commonEntry) { return this.getNullableValue(this.getKey(commonEntry)); }
+    @Nullable
+    public C getNullableValue(Identifier id) {
+        try { return this.getValue(id);
+        } catch (IllegalStateException ignored) {}
+        return null;
+    }
+
+    @Override
+    public Iterator<C> iterator() { return this.clientRegistry.values().iterator(); }
 
 }

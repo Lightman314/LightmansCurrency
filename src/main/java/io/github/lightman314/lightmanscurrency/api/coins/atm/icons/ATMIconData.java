@@ -5,14 +5,14 @@ import com.google.gson.JsonObject;
 
 import com.google.gson.JsonSyntaxException;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
-import io.github.lightman314.lightmanscurrency.api.helpers.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.helpers.data.CodecInteractionHelper;
 import net.minecraft.IdentifierException;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.GsonHelper;
 
 public abstract class ATMIconData {
 
-    public static ATMIconData parse(JsonObject json,DataContext<JsonElement> context) throws JsonSyntaxException, IdentifierException {
+    public static ATMIconData parse(JsonObject json, CodecInteractionHelper<JsonElement> context) throws JsonSyntaxException, IdentifierException {
         Identifier type = Identifier.parse(GsonHelper.getAsString(json,"type"));
         ATMIconType iconType = LCRegistries.Coins.ATM_ICON_TYPE.getValue(type);
         if(iconType == null)
@@ -33,7 +33,7 @@ public abstract class ATMIconData {
         this.yPos = yPos;
     }
 
-    public final JsonObject save(DataContext<JsonElement> context) {
+    public final JsonObject save(CodecInteractionHelper<JsonElement> context) {
         JsonObject data = new JsonObject();
         data.addProperty("x", this.xPos);
         data.addProperty("y", this.yPos);
@@ -45,6 +45,6 @@ public abstract class ATMIconData {
 
     public abstract ATMIconType getType();
 
-    protected abstract void saveAdditional(JsonObject data,DataContext<JsonElement> context);
+    protected abstract void saveAdditional(JsonObject data, CodecInteractionHelper<JsonElement> context);
 
 }

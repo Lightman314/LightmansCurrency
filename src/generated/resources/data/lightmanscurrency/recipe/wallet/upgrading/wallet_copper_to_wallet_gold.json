@@ -1,0 +1,11 @@
+{
+  "type": "lightmanscurrency:wallet_upgrade",
+  "category": "misc",
+  "group": "wallet_upgrading",
+  "ingredients": [
+    "lightmanscurrency:wallet_copper",
+    "#c:ingots/iron",
+    "#c:ingots/gold"
+  ],
+  "result": "lightmanscurrency:wallet_gold"
+}

@@ -12,7 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.EnumHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.NumberHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
-import io.github.lightman314.lightmanscurrency.api.text.LCText;
+import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
 import io.github.lightman314.lightmanscurrency.features.api_impl.data.TraderDataCache;
 import net.minecraft.commands.CommandBuildContext;
@@ -26,8 +26,11 @@ import java.util.concurrent.CompletableFuture;
 
 public class TraderArgument implements ArgumentType<TraderData> {
 
-    public static final SimpleCommandExceptionType ERROR_NOT_FOUND = new SimpleCommandExceptionType(LCText.Commands.ARGUMENT_TRADER_NOT_FOUND.get());
-    public static final SimpleCommandExceptionType ERROR_NOT_RECOVERABLE = new SimpleCommandExceptionType(LCText.Commands.ARGUMENT_TRADER_NOT_RECOVERABLE.get());
+    public static final TextEntry ARGUMENT_TRADER_NOT_FOUND = TextEntry.argument("trader.not_found");
+    public static final TextEntry ARGUMENT_TRADER_NOT_RECOVERABLE = TextEntry.argument("trader.not_recoverable");
+
+    public static final SimpleCommandExceptionType ERROR_NOT_FOUND = new SimpleCommandExceptionType(ARGUMENT_TRADER_NOT_FOUND.get());
+    public static final SimpleCommandExceptionType ERROR_NOT_RECOVERABLE = new SimpleCommandExceptionType(ARGUMENT_TRADER_NOT_RECOVERABLE.get());
 
     private final ValidTraders filter;
     private TraderArgument(ValidTraders filter) { this.filter = filter; }
@@ -62,8 +65,10 @@ public class TraderArgument implements ArgumentType<TraderData> {
         }
         if(this.filter.allowPersistentIDs())
         {
-            //TODO look up trader by persistent trader id
-            //TraderData t = data.getTrader(traderID);
+            TraderData t = data.getTrader(traderID);
+            if(t == null)
+                throw ERROR_NOT_FOUND.createWithContext(reader);
+            return t;
         }
         throw ERROR_NOT_FOUND.createWithContext(reader);
     }

@@ -1,0 +1,9 @@
+{
+  "parent": "lightmanscurrency:block/card_display/base",
+  "textures": {
+    "log": "minecraft:block/oak_log",
+    "logtop": "minecraft:block/oak_log_top",
+    "plank": "minecraft:block/oak_planks",
+    "wool": "minecraft:block/red_wool"
+  }
+}

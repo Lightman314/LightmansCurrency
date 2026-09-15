@@ -31,7 +31,7 @@ public class IntListOption extends ListOption<Integer> {
     protected String bonusComment() { return "Range: " + this.lowerLimit + " -> " + this.upperLimit; }
     @Nullable
     @Override
-    protected Component bonusCommentTooltip() { return LCText.Config.CONFIG_OPTION_RANGE.get(this.lowerLimit,this.upperLimit); }
+    protected Component bonusCommentTooltip() { return CONFIG_OPTION_RANGE.get(this.lowerLimit,this.upperLimit); }
 
     public static IntListOption create(List<Integer> defaultValue) { return new IntListOption(() -> defaultValue, Integer.MIN_VALUE, Integer.MAX_VALUE); }
     public static IntListOption create(List<Integer> defaultValue, int lowerLimit) { return new IntListOption(() -> defaultValue, lowerLimit, Integer.MAX_VALUE); }

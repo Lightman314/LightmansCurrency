@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.client.gui.sprites;
 
+import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.resources.Identifier;
 
 import java.util.function.BiFunction;
@@ -36,6 +37,9 @@ public class DeferredSizedSprite implements SizedSprite {
                 return hovered ? onSpriteHovered : onSprite;
             return hovered ? offSpriteHovered : offSprite;
         },width,height);
+    }
+    public static SizedSprite.Template<BooleanSupplier> toggleAndHoverToggleSprite(WidgetSprites onSprite,WidgetSprites offSprite,int width,int height) {
+        return sup -> new WithContext((active,hovered) -> sup.getAsBoolean() ? onSprite.get(active,hovered) : offSprite.get(active,hovered),width,height);
     }
 
     public static class WithContext implements SizedSprite.WithContext {

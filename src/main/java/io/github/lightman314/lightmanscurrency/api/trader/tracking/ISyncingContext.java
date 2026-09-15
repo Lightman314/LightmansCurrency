@@ -22,7 +22,11 @@ public interface ISyncingContext {
     Set<UUID> getSpecialCustomerSet();
     default Set<UUID> getCustomerSet()
     {
-        if(this.isLevel(TrackingLevel.CUSTOMER) && this.addedSpecialRequest() != null)
+        //If this is a special request, only return a set of the special request
+        if(this.isSpecialRequest() && this.addedSpecialRequest().getSecond().isLevel(TrackingLevel.CUSTOMER))
+            return Set.of(this.addedSpecialRequest().getFirst());
+        //Otherwise combine the player with the special customer set
+        if(this.isLevel(TrackingLevel.CUSTOMER))
         {
             Set<UUID> combinedSet = new HashSet<>();
             combinedSet.add(this.getPlayerID());

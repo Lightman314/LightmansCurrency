@@ -135,8 +135,8 @@ dependencies {
     implementation "net.neoforged:neoforge:${neo_version}"
 
     //JEI
-    //compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
-    //localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
+    localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
 
     //Patchouli
     //implementation "maven.modrinth:patchouli:1.21.1-92-neoforge"
@@ -151,7 +151,7 @@ dependencies {
     //runtimeOnly "me.shedaniel:RoughlyEnoughItems-neoforge:$rei_version"
 
     //Curios API
-    //compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
+    compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
     //runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 
     //Immersive Engineering API

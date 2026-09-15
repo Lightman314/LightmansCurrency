@@ -1,0 +1,10 @@
+{
+  "type": "lightmanscurrency:wallet_upgrade",
+  "category": "misc",
+  "group": "wallet_upgrading",
+  "ingredients": [
+    "lightmanscurrency:wallet_diamond",
+    "#c:ingots/netherite"
+  ],
+  "result": "lightmanscurrency:wallet_netherite"
+}

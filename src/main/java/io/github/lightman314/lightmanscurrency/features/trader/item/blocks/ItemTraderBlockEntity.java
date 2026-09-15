@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.NetworkN
 import io.github.lightman314.lightmanscurrency.api.trader.world.block_entity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.core.LCBlockEntities;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCTraderTypes;
-import io.github.lightman314.lightmanscurrency.features.trader.item.nodes.ItemTradesNode;
+import io.github.lightman314.lightmanscurrency.features.trader.item.nodes.AbstractItemTradesNode;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -25,10 +25,11 @@ public class ItemTraderBlockEntity extends TraderBlockEntity.SingleType {
         if(this.getBlockState().getBlock() instanceof ItemTraderBlock b)
         {
             arguments.with(NetworkNode.TYPE,b.defaultNetworkVisibility())
-                    .with(ItemTradesNode.TYPE,b.defaultTradeCount());
+                    .with(AbstractItemTradesNode.TRADE_COUNT_ARG,b.defaultTradeCount());
         }
     }
 
     @Override
     protected TraderType getTraderType() { return LCTraderTypes.ITEM_TRADER.get(); }
+
 }

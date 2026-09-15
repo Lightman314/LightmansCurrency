@@ -1,8 +1,10 @@
 package io.github.lightman314.lightmanscurrency.api.trader.trade;
 
 import io.github.lightman314.lightmanscurrency.api.helpers.data.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
-import io.github.lightman314.lightmanscurrency.api.ownership.OwnerHolder;
+import io.github.lightman314.lightmanscurrency.api.ownership.holder.OwnerHolder;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
@@ -30,7 +32,10 @@ public final class TradeCustomer {
     public static TradeCustomer ofMachine(UUID ownerID,String name) { return ofMachine(PlayerReference.of(ownerID,name)); }
     public static TradeCustomer ofMachine(PlayerReference owner) { return new TradeCustomer(owner,CustomerType.MACHINE); }
 
-    public PlayerReference getPlayer() { return this.customer; }
+    public Component getName(ISidedContext context) { return Component.literal(this.asReference().getName(context)); }
+
+    public UUID getID() { return this.customer.id; }
+    public PlayerReference asReference() { return this.customer; }
 
     public boolean isPlayer() { return this.type == CustomerType.PLAYER; }
     public boolean isNPC() { return this.type == CustomerType.NPC; }

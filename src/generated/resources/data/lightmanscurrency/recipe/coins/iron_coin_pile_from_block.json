@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "coin_pile_from_block",
+  "ingredients": [
+    "lightmanscurrency:iron_coin_block"
+  ],
+  "result": {
+    "count": 4,
+    "id": "lightmanscurrency:iron_coin_pile"
+  }
+}

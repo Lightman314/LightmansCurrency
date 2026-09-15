@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.ownership.listing;
 
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
+import io.github.lightman314.lightmanscurrency.api.icon.IconData;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import net.minecraft.network.chat.Component;
 
@@ -33,7 +34,7 @@ public abstract class PotentialOwner implements ISidedContext.Mutable<PotentialO
 
     public Component getName() { return this.asOwner().getName(); }
 
-    //public abstract IconData getIcon();
+    public abstract IconData getIcon();
 
     public abstract void appendTooltip(List<Component> tooltip);
 

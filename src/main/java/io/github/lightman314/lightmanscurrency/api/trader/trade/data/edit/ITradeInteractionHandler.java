@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit;
 
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
-import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.TradingNode;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeData;
 
 public interface ITradeInteractionHandler {
@@ -14,10 +13,11 @@ public interface ITradeInteractionHandler {
     boolean allowsScrollInteractions();
     default boolean isSimpleEdit() { return !this.isAdvancedEdit(); }
     boolean isAdvancedEdit();
+    default TradeSlot getSelectedSlot() { return TradeSlot.NONE; }
     default boolean isSelected(TradeSlot slot) { return false; }
     default void changeSelection(TradeSlot slot) {}
     default void openAdvancedEdit(TradeData trade,TradeSlot slot) {}
-    void sendPriceEditPacket(TradeData trade,FancyPacketMap packet);
+    void handlePriceEditPacket(TradeData trade, FancyPacketMap packet);
 
     final class Null implements ITradeInteractionHandler {
         private Null() {}
@@ -33,7 +33,7 @@ public interface ITradeInteractionHandler {
         @Override
         public boolean isAdvancedEdit() { return false; }
         @Override
-        public void sendPriceEditPacket(TradeData trade,FancyPacketMap packet) {}
+        public void handlePriceEditPacket(TradeData trade, FancyPacketMap packet) {}
     }
 
 }

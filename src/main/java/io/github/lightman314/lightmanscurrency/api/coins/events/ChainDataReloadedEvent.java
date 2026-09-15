@@ -1,88 +1,51 @@
 package io.github.lightman314.lightmanscurrency.api.coins.events;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
+import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.coins.data.ChainData;
 import net.neoforged.bus.api.Event;
+import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 
 /**
- * Event run when the <code>MasterCoinList.json</code> file is loaded.<br>
- * {@link Pre} is called before finalizing the results, and allows adding or removing any existing coin chains.<br>
- * {@link Post} is called after the results are finalized, and cannot be edited.
+ * @see Server
+ * @see Client
  */
 public abstract class ChainDataReloadedEvent extends Event {
 
-    /**
-     * An uneditable copy of the chain data.
-     */
-    public abstract Map<String,ChainData> getChainMap();
+    @ApiStatus.Internal
+    public ChainDataReloadedEvent() { }
 
     /**
      * Whether a chain exists with the given id.
      */
-    public boolean chainExists(String chain) { return this.getChainMap().containsKey(chain); }
+    public boolean chainExists(String chain) { return this.getChain(chain) != null; }
 
     /**
      * Gets the chain data with the given id.<br>
      * Returns {@code null} if no chain with that id is present.
      */
     @Nullable
-    public ChainData getChain(String chain) { return this.getChainMap().get(chain); }
+    public ChainData getChain(String chain) { return LCApi.getCoinAPI().lookupChain(chain); }
 
     /**
      * An uneditable list of the chain data.
      */
-    public final List<ChainData> getChains() { return ImmutableList.copyOf(this.getChainMap().values()); }
+    public Collection<ChainData> getChains() { return LCApi.getCoinAPI().lookupAllChains(); }
 
-    public static class Pre extends ChainDataReloadedEvent
-    {
+    /**
+     * Event run when the coin data file(s) are loaded.<br>
+     * This event is called after the results are finalized, and cannot be edited.
+     * @see BuildDefaultCoinDataEvent BuildDefaultCoinDataEvent to modify the default chain data
+     */
+    public static final class Server extends Event {  }
 
-        private final Map<String,ChainData> dataMap;
-        
-        @Override
-        public Map<String, ChainData> getChainMap() { return ImmutableMap.copyOf(this.dataMap); }
-
-        public Pre(Map<String,ChainData> dataMap) { this.dataMap = new HashMap<>(dataMap); }
-
-        /**
-         * Adds the given chain to the map if no conflicting chains are present.<br>
-         * Use {@link #addEntry(ChainData, boolean)} to override any conflicting chains.
-         */
-        public void addEntry(ChainData chain) { this.addEntry(chain, false); }
-
-        /**
-         * Adds the given chain to the map.
-         * @param allowOverride Whether to override any conflicting chains that have the same chain id.
-         */
-        public void addEntry(ChainData chain, boolean allowOverride)
-        {
-            if(this.dataMap.containsKey(chain.chain) && !allowOverride)
-                return;
-            this.dataMap.put(chain.chain, chain);
-        }
-
-        /**
-         * Removes the chain with the given id.
-         */
-        public void removeEntry(String chain) { this.dataMap.remove(chain); }
-
-    }
-
-    public static class Post extends ChainDataReloadedEvent
-    {
-
-        private final Map<String,ChainData> dataMap;
-        
-        @Override
-        public Map<String, ChainData> getChainMap() { return this.dataMap; }
-
-        public Post(Map<String,ChainData> dataMap) { this.dataMap = dataMap; }
-
-    }
+    /**
+     * Event run when the coin data file(s) are received from the server.<br>
+     * This event is called after the results are finalized, and cannot be edited.
+     */
+    public static final class Client extends Event {  }
 
 }

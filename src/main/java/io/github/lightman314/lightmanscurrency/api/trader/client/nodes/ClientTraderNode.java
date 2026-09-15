@@ -1,9 +1,11 @@
 package io.github.lightman314.lightmanscurrency.api.trader.client.nodes;
 
+import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.client.ClientPairedRegistry;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderSource;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.INodeAccess;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
 
@@ -19,15 +21,28 @@ public class ClientTraderNode {
 
     protected ClientTraderNode() {}
 
-    public static <T> List<T> getClientNodes(@Nullable TraderData trader, Class<T> nodeClass) {
+    public static <T> List<T> getClientNodes(@Nullable TraderData trader, Class<T> nodeClass) { return getClientNodes((INodeAccess)trader,nodeClass); }
+    public static <T> List<T> getClientNodes(@Nullable INodeAccess trader, Class<T> nodeClass) {
         if(trader == null)
             return new ArrayList<>();
         List<T> list = new ArrayList<>();
         for(TraderNode node : trader.getAllNodes())
         {
-            ClientTraderNode clientNode = REGISTRY.getValue(node.getType());
+            ClientTraderNode clientNode = REGISTRY.getValue(node);
             if(nodeClass.isInstance(clientNode))
                 list.add(nodeClass.cast(clientNode));
+        }
+        return list;
+    }
+
+    public static <T> List<Pair<TraderNode,T>> getPairedClientNodes(@Nullable INodeAccess trader, Class<T> nodeClass) {
+        if(trader == null)
+            return new ArrayList<>();
+        List<Pair<TraderNode,T>> list = new ArrayList<>();
+        for(TraderNode node : trader.getAllNodes()) {
+            ClientTraderNode clientNode = REGISTRY.getValue(node);
+            if(nodeClass.isInstance(clientNode))
+                list.add(Pair.of(node,nodeClass.cast(clientNode)));
         }
         return list;
     }

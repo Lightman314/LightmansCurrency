@@ -8,8 +8,8 @@ import javax.annotation.Nullable;
 public interface ITraderMenuProvider {
 
     @Nullable
-    default MenuProvider customerMenuProvider(Player player, MenuValidator validator) { return null; }
+    default MenuProvider customerMenuProvider(Player player,MenuValidator validator,boolean mouseUpdate) { return null; }
     @Nullable
-    default MenuProvider storageMenuProvider(Player player, MenuValidator validator) { return null; }
+    default MenuProvider storageMenuProvider(Player player,MenuValidator validator,boolean mouseUpdate) { return null; }
 
 }

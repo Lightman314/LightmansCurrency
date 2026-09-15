@@ -2,13 +2,15 @@ package io.github.lightman314.lightmanscurrency.api.ownership;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.bank_account.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.codecs.StreamHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
-import io.github.lightman314.lightmanscurrency.api.text.LCText;
-import io.netty.buffer.ByteBuf;
+import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
+import io.github.lightman314.lightmanscurrency.api.notifications.holder.NotificationConsumer;
+import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -21,20 +23,19 @@ import net.minecraft.resources.RegistryOps;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-public abstract class Owner implements ISidedContext.Mutable<Owner> {
+public abstract class Owner implements ISidedContext.Mutable<Owner>, NotificationConsumer.ForMembers {
 
     public static final Codec<Owner> CODEC = LCRegistries.Ownership.OWNER_TYPE.byNameCodec()
             .dispatch(Owner::getType,OwnerType::codec);
     public static final StreamCodec<RegistryFriendlyByteBuf,Owner> STREAM_CODEC = ByteBufCodecs.registry(LCRegistries.Ownership.OWNER_TYPE_KEY)
             .dispatch(Owner::getType,OwnerType::streamCodec);
 
+    public static final TextEntry GUI_OWNER_NULL = TextEntry.gui(LCApi.MODID,"owner.null");
+    public static final TextEntry COMMAND_OWNER_LABEL_CUSTOM = TextEntry.command(LCApi.MODID,"owner.label.custom");
+
     public static Owner getNull() { return new NullOwner(); }
-    public static Owner getNull(ISidedContext parent) {
-        Owner owner = getNull();
-        owner.setSidedContext(parent);
-        return owner;
-    }
-    public static final OwnerType<Owner> NULL_TYPE = new NullType();
+    public static Owner getNull(ISidedContext parent) { return getNull().setSidedContext(parent); }
+    public static final OwnerType<Owner> NULL_TYPE = new OwnerType<>(MapCodec.unit(Owner::getNull),StreamHelper.uncheckedUnit(Owner::getNull));
 
     private ISidedContext parent = null;
     @Override
@@ -70,19 +71,23 @@ public abstract class Owner implements ISidedContext.Mutable<Owner> {
     @Nullable
     public abstract BankReference asBankReference();
 
-    public boolean hasNotificationLevels() { return false; }
-
-    /*/**
-     * Pushes notifications to all players relevant to this owner.
-     * @param notificationSource A notification generator, so that each player receives a unique instance of the notification.
-     * @param notificationLevel The notification level. Determines who should receive the notification.<br>
-     *                          0: All Members should receive the notification.
-     *                          1: Only Admins should receive the notification.
-     *                          2: Only the owner should receive the notification.
+    /**
+     * Whether this owner has multiple members with different {@link MemberLevel} access levels
      */
-    /*public abstract void pushNotification(Supplier<? extends Notification> notificationSource,MemberLevel targets, boolean sendToChat);
+    public boolean hasMemberLevels() { return false; }
 
-    public <T> void incrementStat(StatKey<?,T> key, T addValue) {}*/
+    /**
+     * Pushes notifications to all players relevant to this owner.
+     * @param notification A notification generator, so that each player receives a unique instance of the notification.
+     * @param targets The member level. Determines which sub-members of this owner should receive the notification.<br><br>
+     * {@link MemberLevel#MEMBERS}: All Members should receive the notification.<br>
+     * {@link MemberLevel#ADMINS}: Only Admins should receive the notification.<br>
+     * {@link MemberLevel#OWNER}: Only the owner should receive the notification.<br>
+     */
+    @Override
+    public abstract void postNotification(Notification notification, MemberLevel targets, boolean sendToChat);
+
+    /*public <T> void incrementStat(StatKey<?,T> key, T addValue) {}*/
 
     public abstract OwnerType<?> getType();
 
@@ -96,14 +101,16 @@ public abstract class Owner implements ISidedContext.Mutable<Owner> {
 
     @Override
     public final boolean equals(Object obj) {
+        if(this == obj)
+            return true;
         if(obj instanceof Owner o)
             return this.matches(o);
         return false;
     }
 
-    public abstract boolean matches(Owner other);
+    protected abstract boolean matches(Owner other);
 
-    public abstract int hash();
+    protected abstract int hash();
 
     @Override
     public final int hashCode() { return Objects.hash(LCRegistries.Ownership.OWNER_TYPE.getKey(this.getType()),this.hash()); }
@@ -114,9 +121,9 @@ public abstract class Owner implements ISidedContext.Mutable<Owner> {
     private static class NullOwner extends Owner {
 
         @Override
-        public Component getName() { return LCText.Ownership.GUI_OWNER_NULL.get(); }
+        public Component getName() { return GUI_OWNER_NULL.get(); }
         @Override
-        public Component getCommandLabel() { return LCText.Ownership.COMMAND_OWNER_LABEL_CUSTOM.get(this.getName()); }
+        public Component getCommandLabel() { return COMMAND_OWNER_LABEL_CUSTOM.get(this.getName()); }
         @Override
         public boolean stillValid() { return false; }
         @Override
@@ -130,8 +137,8 @@ public abstract class Owner implements ISidedContext.Mutable<Owner> {
         @Nullable
         @Override
         public BankReference asBankReference() { return null; }
-        //@Override
-        //public void pushNotification(Supplier<? extends Notification> notificationSource, int notificationLevel, boolean sendToChat) { }
+        @Override
+        public void postNotification(Notification notification, MemberLevel targets, boolean sendToChat) { }
         @Override
         public OwnerType<?> getType() { return NULL_TYPE; }
         @Override
@@ -140,17 +147,6 @@ public abstract class Owner implements ISidedContext.Mutable<Owner> {
         public boolean matches(Owner other) { return other.isNull(); }
         @Override
         public int hash() { return 0; }
-    }
-
-    private static class NullType extends OwnerType<Owner>
-    {
-        private static final MapCodec<Owner> MAP_CODEC = MapCodec.unit(Owner::getNull);
-        private static final StreamCodec<ByteBuf,Owner> STREAM_CODEC = StreamHelper.uncheckedUnit(Owner::getNull);
-
-        @Override
-        public MapCodec<Owner> codec() { return MAP_CODEC; }
-        @Override
-        public StreamCodec<? super RegistryFriendlyByteBuf, Owner> streamCodec() { return STREAM_CODEC; }
     }
 
 

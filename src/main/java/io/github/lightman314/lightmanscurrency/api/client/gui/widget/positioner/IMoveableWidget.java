@@ -8,4 +8,13 @@ public interface IMoveableWidget {
     boolean isVisible();
     void hideThisFrame();
 
+    interface WithoutFacing extends IMoveableWidget {
+
+        @Override
+        default void move(ScreenPosition position, WidgetFacing facing) { this.setPosition(position); }
+
+        void setPosition(ScreenPosition position);
+
+    }
+
 }

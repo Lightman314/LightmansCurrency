@@ -60,7 +60,7 @@ public class FallingCoinBlock extends FallingBlock {
     }
 
     @Nullable
-    protected LootTable getLootTable(ServerLevel level, BlockState state) { return level.getServer().reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE,this.getLootTableLocation(state))); }
+    protected LootTable getLootTable(ServerLevel level,BlockState state) { return level.getServer().reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE,this.getLootTableLocation(state))); }
 
     protected Identifier getLootTableLocation(BlockState state) { return BuiltInRegistries.BLOCK.getKey(state.getBlock()).withPrefix("blocks/falling/"); }
 

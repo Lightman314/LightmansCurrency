@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import javax.annotation.Nullable;
 
-public class BlockEntityValidator implements MenuValidator {
+public class BlockEntityValidator extends MenuValidator {
 
     public static final StreamCodec<RegistryFriendlyByteBuf,BlockEntityValidator> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC,BlockEntityValidator::getBEPos,

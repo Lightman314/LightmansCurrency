@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "chocolate_coin_pile_from_coin",
+  "ingredients": [
+    "lightmanscurrency:chocolate_coin_emerald",
+    "lightmanscurrency:chocolate_coin_emerald",
+    "lightmanscurrency:chocolate_coin_emerald",
+    "lightmanscurrency:chocolate_coin_emerald",
+    "lightmanscurrency:chocolate_coin_emerald",
+    "lightmanscurrency:chocolate_coin_emerald",
+    "lightmanscurrency:chocolate_coin_emerald",
+    "lightmanscurrency:chocolate_coin_emerald",
+    "lightmanscurrency:chocolate_coin_emerald"
+  ],
+  "result": {
+    "id": "lightmanscurrency:chocolate_emerald_coin_pile"
+  }
+}

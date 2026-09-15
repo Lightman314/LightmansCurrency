@@ -76,7 +76,7 @@ public class AlliesNode extends SimpleSyncedNode implements IPermissionSource, I
         if(this.isServer())
         {
             Map<Permission<?>,PermissionValue<?>> newMap = new HashMap<>();
-            for(IPermissionUser node : this.trader.getNodes(IPermissionUser.class))
+            for(IPermissionUser node : this.getNodes(IPermissionUser.class))
             {
                 node.addDefaultAllyPermission(perm -> {
                     if(!newMap.containsKey(perm))
@@ -97,7 +97,7 @@ public class AlliesNode extends SimpleSyncedNode implements IPermissionSource, I
     @Override
     public void createSyncPacket(FancyPacketMap.Mutable builder, ISyncingContext context) {
         builder.setList("allies", LCFancyPacketTypes.PLAYER_REFERENCE,this.allies);
-        FancyPacketMap.Mutable permMap = FancyPacketMap.newMutable();
+        FancyPacketMap.Mutable permMap = FancyPacketMap.map();
         for(PermissionValue<?> perm : new HashSet<>(this.permissions.values()))
             permMap.set(perm.getKey(),LCFancyPacketTypes.PERMISSION_VALUE,perm);
         builder.setMap("permissions",permMap);

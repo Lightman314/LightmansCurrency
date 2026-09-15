@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import com.google.gson.JsonSyntaxException;
-import io.github.lightman314.lightmanscurrency.api.helpers.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.helpers.data.CodecInteractionHelper;
 import io.github.lightman314.lightmanscurrency.api.coins.atm.icons.ATMIconType;
 import io.github.lightman314.lightmanscurrency.api.coins.atm.icons.ATMIconData;
 import net.minecraft.IdentifierException;
@@ -19,7 +19,7 @@ public class ATMSpriteIcon extends ATMIconData {
     public final int width;
     public final int height;
 
-    public ATMSpriteIcon(JsonObject data,DataContext<JsonElement> context) throws JsonSyntaxException, IdentifierException {
+    public ATMSpriteIcon(JsonObject data, CodecInteractionHelper<JsonElement> context) throws JsonSyntaxException, IdentifierException {
         super(data);
 
         this.sprite = Identifier.parse(GsonHelper.getAsString(data,"sprite"));
@@ -35,7 +35,7 @@ public class ATMSpriteIcon extends ATMIconData {
     }
 
     @Override
-    protected void saveAdditional(JsonObject data,DataContext<JsonElement> context) {
+    protected void saveAdditional(JsonObject data, CodecInteractionHelper<JsonElement> context) {
         data.addProperty("sprite",this.sprite.toString());
         data.addProperty("width", this.width);
         data.addProperty("height", this.height);

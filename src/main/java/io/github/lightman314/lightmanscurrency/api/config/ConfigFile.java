@@ -2,12 +2,15 @@ package io.github.lightman314.lightmanscurrency.api.config;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.config.events.ConfigEvent;
 import io.github.lightman314.lightmanscurrency.api.config.events.ConfigReloadAllEvent;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.text.MultiLineTextEntry;
+import io.github.lightman314.lightmanscurrency.network.message.config.SPacketReloadConfig;
+import io.github.lightman314.lightmanscurrency.network.message.config.SPacketSyncConfig;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -17,7 +20,9 @@ import net.minecraft.server.permissions.Permission;
 import net.minecraft.server.permissions.PermissionLevel;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.player.Player;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
@@ -105,7 +110,7 @@ public abstract class ConfigFile implements ConfigReloadable {
     protected String getConfigFolder() { return "config"; }
 
     private final Identifier fileID;
-    public Identifier getFileID() { return this.fileID; }
+    public final Identifier getFileID() { return this.fileID; }
     private final String fileName;
     public String getFileName() { return this.fileName; }
     public Component getDisplayName() { return Component.translatable(translationForFile(this.fileID)); }
@@ -128,14 +133,14 @@ public abstract class ConfigFile implements ConfigReloadable {
     @Override
     public Identifier getID() { return this.fileID; }
     @Override
-    public boolean canReload(CommandSourceStack stack) { return this.isClientOnly() ? stack.isPlayer() : stack.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.ADMINS)); }
+    public boolean canReload(CommandSourceStack stack) { return this.isClientOnly() ? stack.isPlayer() : stack.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.GAMEMASTERS)); }
     @Override
-    public void onCommandReload(CommandSourceStack stack) {
+    public void onCommandReload(CommandSourceStack stack) throws CommandSyntaxException {
         //Reload Pack
         if(!this.isClientOnly())
             this.reload();
-        /*else
-            new SPacketReloadConfig(this.fileID).sendTo(stack.getPlayerOrException());*/
+        else
+            new SPacketReloadConfig(this.fileID).sendTo(stack.getPlayerOrException());
     }
     @Override
     public boolean alertAdmins() { return !this.isClientOnly(); }
@@ -501,10 +506,10 @@ public abstract class ConfigFile implements ConfigReloadable {
     }
 
     public void sendSyncPacket(@Nullable Player target) {
-        /*if(target != null)
+        if(target != null)
             new SPacketSyncConfig(this.getFileID(),this.getSyncData()).sendTo(target);
         else
-            new SPacketSyncConfig(this.getFileID(),this.getSyncData()).sendToAll();*/
+            new SPacketSyncConfig(this.getFileID(),this.getSyncData()).sendToAll();
     }
 
     private Map<String,String> getSyncData()
@@ -698,6 +703,12 @@ public abstract class ConfigFile implements ConfigReloadable {
         private ConfigSection build(@Nullable ConfigSection parent, ConfigFile file) { return new ConfigSection(this, parent, file); }
     }
 
+    @SubscribeEvent
+    private static void onCommonSetup(FMLCommonSetupEvent event) {
+        loadServerFiles(LoadPhase.SETUP);
+    }
+
+    @SubscribeEvent
     private static void onServerStart(ServerStartedEvent event) {
         loadServerFiles(LoadPhase.GAME_START);
     }

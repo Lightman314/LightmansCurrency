@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.core;
 
-import com.google.common.collect.ImmutableSet;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
+import io.github.lightman314.lightmanscurrency.features.coin_mint.CoinMintBlockEntity;
 import io.github.lightman314.lightmanscurrency.features.trader.item.blocks.ItemTraderBlockEntity;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
@@ -19,7 +19,9 @@ public final class LCBlockEntities {
 
     public static final DeferredRegister<BlockEntityType<?>> REGISTER = DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE,LCApi.MODID);
 
-    public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<ItemTraderBlockEntity>> ITEM_TRADER = register2("item_trader",ItemTraderBlockEntity::new,merge(LCBlocks.DISPLAY_CASE.getFutureSet()));
+    public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<ItemTraderBlockEntity>> ITEM_TRADER = register("item_trader",ItemTraderBlockEntity::new,merge(LCBlocks.DISPLAY_CASE.getFutureSet(),LCBlocks.CARD_DISPLAY.getFutureSet()));
+
+    public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<CoinMintBlockEntity>> COIN_MINT = register("coin_mint",CoinMintBlockEntity::new,easySet(LCBlocks.COIN_MINT));
 
     @SafeVarargs
     public static Supplier<Set<Block>> easySet(Supplier<? extends Block>... blocks) {
@@ -39,10 +41,7 @@ public final class LCBlockEntities {
             return set;
         };
     }
-    public static <T extends BlockEntity> DeferredHolder<BlockEntityType<?>,BlockEntityType<T>> register1(String name,BlockEntityType.BlockEntitySupplier<T> factory,Supplier<Block[]> blocks) {
-        return register2(name,factory,() -> ImmutableSet.copyOf(blocks.get()));
-    }
-    public static <T extends BlockEntity> DeferredHolder<BlockEntityType<?>,BlockEntityType<T>> register2(String name, BlockEntityType.BlockEntitySupplier<T> factory,Supplier<Set<Block>> blocks) {
+    public static <T extends BlockEntity> DeferredHolder<BlockEntityType<?>,BlockEntityType<T>> register(String name, BlockEntityType.BlockEntitySupplier<T> factory,Supplier<Set<Block>> blocks) {
         return REGISTER.register(name,() -> new BlockEntityType<>(factory,blocks.get()));
     }
 

@@ -21,7 +21,7 @@ public interface ConfigReloadable
     boolean canReload(CommandSourceStack stack);
     boolean alertAdmins();
 
-    static ConfigReloadable simpleReloader(Identifier id, Consumer<CommandSourceStack> reloader)
+    static ConfigReloadable simpleReloader(Identifier id,Consumer<CommandSourceStack> reloader)
     {
         return new ConfigReloadable() {
             @Override

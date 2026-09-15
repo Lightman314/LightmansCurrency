@@ -40,6 +40,8 @@ public class CoinValue extends ItemBasedValue {
 
     private final String chain;
     public String getChain() { return this.chain; }
+    public boolean isChain(String chain) { return this.chain.equals(chain); }
+    public boolean isChain(ChainData chain) { return this.chain.equals(chain.chain); }
 
     private final ImmutableList<CoinValuePair> entries;
     public List<CoinValuePair> getEntries() { return this.entries; }
@@ -67,7 +69,7 @@ public class CoinValue extends ItemBasedValue {
     protected MoneyValue copyWithInternalValue(long value) { return fromNumber(this.chain,value); }
 
     public static MoneyValue fromNumber(String chain,long internalValue) { return fromNumber(LCApi.getCoinAPI().lookupChain(chain),internalValue); }
-    public static MoneyValue fromNumber(ChainData chain, long internalValue)
+    public static MoneyValue fromNumber(ChainData chain,long internalValue)
     {
         if(chain == null || internalValue <= 0)
             return empty();
@@ -107,8 +109,9 @@ public class CoinValue extends ItemBasedValue {
         return fromNumber(CoinAPI.DEFAULT_CHAIN,value);
     }
 
-    private static CoinValue parseUntrusted(String chain, List<CoinValuePair> entries)
+    private static CoinValue parseUntrusted(String chain,List<CoinValuePair> entries)
     {
+        entries = new ArrayList<>(entries);
         List<CoinValuePair> list = roundValue(chain,entries);
         return new CoinValue(chain,list);
     }

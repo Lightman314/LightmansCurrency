@@ -9,9 +9,11 @@ import net.minecraft.world.entity.player.Player;
 
 import java.util.function.Predicate;
 
-public class SimpleValidator implements MenuValidator {
+public class SimpleValidator extends MenuValidator {
 
     public static final StreamCodec<ByteBuf,SimpleValidator> STREAM_CODEC = StreamHelper.uncheckedUnit(new SimpleValidator(Predicates.alwaysTrue()));
+
+    public static final MenuValidator ALWAYS_TRUE = new SimpleValidator(Predicates.alwaysTrue());
 
     private final Predicate<Player> test;
     private final Runnable onFail;

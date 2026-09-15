@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.api.trader.data;
 
-import com.google.common.collect.Lists;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
@@ -13,6 +12,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public interface TraderSource {
+
+    TraderSource EMPTY = new Empty();
 
     default boolean isSimple() { return this.getSimpleTrader() != null; }
     @Nullable
@@ -31,17 +32,17 @@ public interface TraderSource {
     }
     static TraderSource blockEntity(Level level,BlockPos pos,Function<BlockEntity,TraderSource> source)
     {
-        return wrap(() -> {
+        return deferred(() -> {
             BlockEntity be = level.getBlockEntity(pos);
             return source.apply(be);
         });
     }
 
-    static TraderSource wrap(Supplier<TraderSource> supplier) { return new Wrapper(supplier); }
+    static TraderSource deferred(Supplier<TraderSource> supplier) { return new Wrapper(supplier); }
 
     interface Simple extends TraderSource {
         default boolean isSimple() { return true; }
-        default List<TraderData> getTraders() { return Lists.newArrayList(this.getSimpleTrader()); }
+        default List<TraderData> getTraders() { return List.of(this.getSimpleTrader()); }
     }
 
     interface Multi extends TraderSource {
@@ -82,6 +83,14 @@ public interface TraderSource {
             TraderSource s = this.source.get();
             return s != null && s.forceSearch();
         }
+    }
+
+    final class Empty implements TraderSource {
+        @Nullable
+        @Override
+        public TraderData getSimpleTrader() { return null; }
+        @Override
+        public List<TraderData> getTraders() { return List.of(); }
     }
 
 }

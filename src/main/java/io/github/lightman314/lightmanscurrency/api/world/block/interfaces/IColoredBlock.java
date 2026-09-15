@@ -1,9 +1,9 @@
 package io.github.lightman314.lightmanscurrency.api.world.block.interfaces;
 
-import net.minecraft.world.item.DyeColor;
+import io.github.lightman314.lightmanscurrency.api.helpers.registry.types.VanillaColor;
 
 public interface IColoredBlock {
 
-    DyeColor getColor();
+    VanillaColor getColor();
 
 }

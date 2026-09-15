@@ -7,16 +7,15 @@ public record TradeEditContext(boolean hasShiftDown,boolean hasCtrlDown,boolean 
 
     public FancyPacketMap encode()
     {
-        return FancyPacketMap.newMutable()
+        return FancyPacketMap.map()
                 .setBoolean("heldShift",this.hasShiftDown)
                 .setBoolean("heldCtrl",this.hasCtrlDown)
                 .setBoolean("heldAlt",this.hasAltDown)
-                .setInt("mouseX",this.mousePos.x)
-                .setInt("mouseY",this.mousePos.y);
+                .setScreenPos("mouse",this.mousePos);
     }
 
     public static TradeEditContext decode(FancyPacketMap data,ITradeInteractionHandler handler) {
-        return new TradeEditContext(data.getBoolean("heldShift"),data.getBoolean("heldCtrl"),data.getBoolean("heldAlt"),ScreenPosition.of(data.getInt("mouseX"),data.getInt("mouseY")),handler);
+        return new TradeEditContext(data.getBoolean("heldShift"),data.getBoolean("heldCtrl"),data.getBoolean("heldAlt"),data.getScreenPos("mouse"),handler);
     }
 
 }

@@ -71,7 +71,7 @@ public class ConfigNumberSource extends NumberSource {
     }
 
     @Override
-    public double get() {
+    public double getDouble() {
         this.assertOptionLookup();
         return this.option == null ? 0d : this.option.get().doubleValue();
     }
@@ -85,6 +85,9 @@ public class ConfigNumberSource extends NumberSource {
         //Otherwise the value should be fine as-is, let it convert to a double and back
         return super.getLong();
     }
+
+    @Override
+    public String toString() { return "ConfigSource[" + this.file + ";" + this.key + "]"; }
 
     @Override
     protected boolean equals(NumberSource source) {

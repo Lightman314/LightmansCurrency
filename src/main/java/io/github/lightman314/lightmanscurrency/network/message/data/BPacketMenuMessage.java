@@ -11,12 +11,11 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class BPacketMenuMessage extends BiDirectionalPacket {
 
-    private static final Type<BPacketMenuMessage> TYPE = bType("menu_message");
-    private static final StreamCodec<RegistryFriendlyByteBuf,BPacketMenuMessage> STREAM_CODEC = StreamCodec.composite(
+    public static final Type<BPacketMenuMessage> TYPE = bType("menu_message");
+    public static final StreamCodec<RegistryFriendlyByteBuf,BPacketMenuMessage> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.INT,p -> p.menuID,
             FancyPacketMap.STREAM_CODEC,p -> p.message,
             BPacketMenuMessage::new);
-    public static final Handler<BPacketMenuMessage> HANDLER = new H();
 
     private final int menuID;
     private final FancyPacketMap message;
@@ -27,14 +26,10 @@ public class BPacketMenuMessage extends BiDirectionalPacket {
         this.message = message.immutable();
     }
 
-    private static class H extends Handler<BPacketMenuMessage>
-    {
-        protected H() { super(TYPE,STREAM_CODEC); }
-        @Override
-        protected void handle(BPacketMenuMessage message, IPayloadContext context, Player player) {
-            if(player.containerMenu instanceof MessageMenu menu && menu.containerId == message.menuID)
-                menu.receiveMessage(message.message);
-        }
+    @Override
+    protected void handle(IPayloadContext context, Player player) {
+        if(player.containerMenu instanceof MessageMenu menu && menu.containerId == this.menuID)
+            menu.receiveMessage(this.message);
     }
 
 }

@@ -1,1 +1,0 @@
-lcadmin events @s unlock chocolate_coins

@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.money.values;
 
 import io.github.lightman314.lightmanscurrency.api.money.values.interfaces.IItemBasedValue;
-import io.github.lightman314.lightmanscurrency.api.ownership.OwnerHolder;
+import io.github.lightman314.lightmanscurrency.api.ownership.holder.OwnerHolder;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.function.Consumer;

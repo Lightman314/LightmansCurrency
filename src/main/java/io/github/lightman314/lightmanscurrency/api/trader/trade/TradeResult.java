@@ -1,9 +1,9 @@
 package io.github.lightman314.lightmanscurrency.api.trader.trade;
 
-import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.trader.event.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.TradingNode;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeData;
+import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePrice;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -57,7 +57,7 @@ public final class TradeResult {
     }
 
     /**
-     * Should only be created by {@link TradingNode#finishSuccessfulTrade(TradeContext,TradeData,MoneyValue,MoneyValue,List) TradingNode#finishSuccessfulTrade(TradeContext,TradeData,MoneyValue,MoneyValue,List)}
+     * Should only be created by {@link TradingNode#finishSuccessfulTrade(TradeContext, TradeData, TradePrice, TradePrice.TransferResult, List)}
      */
     @ApiStatus.Internal
     public static TradeResult success(TradeEvent.Post event) { return new TradeResult(Objects.requireNonNull(event)); }

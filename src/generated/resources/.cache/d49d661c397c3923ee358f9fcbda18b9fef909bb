@@ -1,0 +1,8 @@
+// 26.1.2	2026-08-09T16:42:51.7126445	Tags for minecraft:enchantment mod id lightmanscurrency
+1168879a685f5cc1341c21c5636b2536fc1a304a data/c/tags/enchantment/exclusive_set/mending.json
+a62bfcad875beca8413e9dedbb449a2bd35caafe data/lightmanscurrency/tags/enchantment/money_mending.json
+899678b2395e02b7156c56b5e10fa88c298661dd data/lightmanscurrency/tags/enchantment/wallet_enchantment.json
+899678b2395e02b7156c56b5e10fa88c298661dd data/minecraft/tags/enchantment/non_treasure.json
+6aee74dbfe042aecb300049bd69bd4b9a892d8cd data/minecraft/tags/enchantment/on_random_loot.json
+6aee74dbfe042aecb300049bd69bd4b9a892d8cd data/minecraft/tags/enchantment/tradeable.json
+6aee74dbfe042aecb300049bd69bd4b9a892d8cd data/minecraft/tags/enchantment/treasure.json

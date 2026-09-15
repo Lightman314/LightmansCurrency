@@ -2,12 +2,14 @@ package io.github.lightman314.lightmanscurrency.api.trader.event;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
+import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.TradingNode;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeCustomer;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeData;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePrice;
+import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePriceReceipt;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.builtin.MoneyPrice;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.message.TradeMessage;
 import net.minecraft.network.chat.Component;
@@ -17,6 +19,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * All events involved within the lifecycle of a customer trade interaction.
@@ -25,6 +28,7 @@ public abstract class TradeEvent extends Event {
 
     private final TradeContext context;
     public final TradeContext getContext() { return this.context; }
+    public final boolean isEditingView() { return this.context.isEditingView(); }
     public final TraderData getTrader() { return this.context.getTrader(); }
     public final TradeCustomer getCustomer() { return this.context.getCustomer(); }
     private final TradingNode<?> activeNode;
@@ -68,7 +72,28 @@ public abstract class TradeEvent extends Event {
         public void addWarning(Component message) { this.addMessage(TradeMessage.warn(message),false); }
         public void addError(Component message) { this.addMessage(TradeMessage.error(message),false); }
         public void addDenial(Component message) { this.addMessage(TradeMessage.error(message),true); }
-        public void addHoverOnly(Component message) { this.addMessage(TradeMessage.invis(message),false); }
+        public void addHidden(Component message) { this.addMessage(TradeMessage.hidden(message),false); }
+
+    }
+
+
+    /**
+     * This event is posted on both the logical server and the logical client in order to determine the trades base price.<br>
+     * Automatically posted when {@link TradeData#getPrice(TradeContext)} is called.<br>
+     * Called before {@link Cost} event is called, and this only allows you to modify the base cost of the trade
+     * **before** any percentage-based multipliers are applied.
+     */
+    public static final class BaseCost extends TradeEvent {
+
+        private final TradePrice originalBaseCost;
+        public TradePrice getOriginalBaseCost() { return this.originalBaseCost; }
+        private TradePrice baseCost;
+        public TradePrice getBaseCost() { return this.baseCost; }
+        public void setBaseCost(MoneyPrice newCost) { this.baseCost = newCost; }
+        public BaseCost(TradeContext context,TradingNode<?> activeNode,TradeData trade,TradePrice baseCost) {
+            super(context, activeNode, trade);
+            this.originalBaseCost = this.baseCost = baseCost;
+        }
 
     }
 
@@ -116,19 +141,22 @@ public abstract class TradeEvent extends Event {
         public TradePrice getPricePaid() { return this.pricePaid; }
         private final TradePrice.TransferResult priceResult;
         public MoneyValue getTaxesPaid() { return this.priceResult.getTaxesPaid(); }
-        public List<?> getPriceTransferContext() { return this.priceResult.getAdditionalContext(); }
+        public TradePriceReceipt getPriceReceipt() { return this.priceResult.getReceipt(); }
         private final List<?> product;
         public List<?> getProduct() { return this.product; }
+        private final Optional<Notification> tradeNotification;
+        public Optional<Notification> getTradeNotification() { return this.tradeNotification; }
 
         /**
-         * Should only be constructed via {@link TradingNode#finishSuccessfulTrade(TradeContext, TradeData, TradePrice, MoneyValue,List)}
+         * Should only be constructed via {@link TradingNode#finishSuccessfulTrade(TradeContext,TradeData,TradePrice,TradePrice.TransferResult,List,Notification)}
          */
         @ApiStatus.Internal
-        public Post(TradeContext context,TradingNode<?> activeNode,TradeData trade,TradePrice pricePaid,TradePrice.TransferResult priceResult,List<?> product) {
+        public Post(TradeContext context,TradingNode<?> activeNode,TradeData trade,TradePrice pricePaid,TradePrice.TransferResult priceResult,List<?> product,Optional<Notification> tradeNotification) {
             super(context,activeNode,trade);
             this.pricePaid = pricePaid;
             this.priceResult = priceResult;
             this.product = ImmutableList.copyOf(product);
+            this.tradeNotification = tradeNotification;
         }
 
     }

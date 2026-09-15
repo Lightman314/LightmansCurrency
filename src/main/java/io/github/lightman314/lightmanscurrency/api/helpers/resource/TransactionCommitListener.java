@@ -18,7 +18,7 @@ public class TransactionCommitListener<T> extends SnapshotJournal<T> {
     private final Supplier<T> cleanData;
     private final UnaryOperator<T> copy;
     private final Consumer<T> onCommit;
-    public TransactionCommitListener(Supplier<T> cleanData, UnaryOperator<T> copyData, Consumer<T> onCommit) {
+    public TransactionCommitListener(Supplier<T> cleanData,UnaryOperator<T> copyData,Consumer<T> onCommit) {
         this.data = cleanData.get();
         this.cleanData = cleanData;
         this.copy = copyData;

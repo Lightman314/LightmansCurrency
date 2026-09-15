@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Util;
 
 import java.util.Map;
 import java.util.Optional;
@@ -50,10 +51,20 @@ public final class Permission<T> {
 
     public boolean allowedValue(T value) { return this.allowedValue.test(value) && this.type.allowedValue(value); }
 
-    public Component getName() {
-        Identifier key = this.getKey();
-        return Component.translatable("gui." + key.getNamespace() + ".permission." + key.getPath());
+    private String descriptionID;
+    private String tooltipID;
+    public String getDescriptionID() {
+        if(this.descriptionID == null)
+            this.descriptionID = Util.makeDescriptionId("trader_permission",this.getKey());
+        return this.descriptionID;
     }
+    public String getTooltipID() {
+        if(this.tooltipID == null)
+            this.tooltipID = this.getDescriptionID() + ".tooltip";
+        return this.tooltipID;
+    }
+    public Component getName() { return Component.translatable(this.getDescriptionID()); }
+    public Component getTooltip() { return Component.translatable(this.getTooltipID()); }
 
     public PermissionValue<T> createNew() { return new PermissionValue<>(this,this.defaultValue.get()); }
 

@@ -1,0 +1,7 @@
+{
+    "pack": {
+        "description": { "translate": "resourcepack.lightmanscurrency.closer_items.description" },
+        "min_format": 84,
+        "max_format": 128000
+    }
+}

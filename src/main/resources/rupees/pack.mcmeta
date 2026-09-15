@@ -1,0 +1,7 @@
+{
+    "pack": {
+        "description": { "translate": "resourcepack.lightmanscurrency.rupees.description" },
+        "min_format": 84,
+        "max_format": 128000
+    }
+}

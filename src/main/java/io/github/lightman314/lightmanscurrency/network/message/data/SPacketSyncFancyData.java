@@ -15,12 +15,11 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class SPacketSyncFancyData extends ServerToClientPacket {
 
-    private static final Type<SPacketSyncFancyData> TYPE = sType("sync_fancy_data");
-    private static final StreamCodec<RegistryFriendlyByteBuf,SPacketSyncFancyData> STREAM_CODEC = StreamCodec.composite(
+    public static final Type<SPacketSyncFancyData> TYPE = sType("sync_fancy_data");
+    public static final StreamCodec<RegistryFriendlyByteBuf,SPacketSyncFancyData> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.registry(LCRegistries.Data.FANCY_DATA_KEY),p -> p.type,
             FancyPacketMap.STREAM_CODEC,p -> p.data,
             SPacketSyncFancyData::new);
-    public static final Handler<SPacketSyncFancyData> HANDLER = new H();
 
     private final FancyDataType<?> type;
     private final FancyPacketMap data;
@@ -30,17 +29,13 @@ public class SPacketSyncFancyData extends ServerToClientPacket {
         this.data = data.immutable();
     }
 
-    private static class H extends Handler<SPacketSyncFancyData>
-    {
-        protected H() { super(TYPE,STREAM_CODEC); }
-        @Override
-        protected void handle(SPacketSyncFancyData message, IPayloadContext context, Player player) {
-            FancyData data = ClientFancyDataCache.getData(message.type);
-            if(data != null)
-                data.receivePacket(message.data);
-            else
-                LightmansCurrency.LogError("Error getting client copy of the " + message.type + " data!");
-        }
+    @Override
+    protected void handle(IPayloadContext context, Player player) {
+        FancyData data = ClientFancyDataCache.getData(this.type);
+        if(data != null)
+            data.receivePacket(this.data);
+        else
+            LightmansCurrency.LogError("Error getting client copy of the " + this.type + " data!");
     }
 
 }

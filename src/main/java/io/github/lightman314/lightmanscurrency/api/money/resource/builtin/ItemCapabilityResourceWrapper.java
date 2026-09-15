@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.money.resource.builtin;
 
 import io.github.lightman314.lightmanscurrency.api.LCCapabilities;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
-import io.github.lightman314.lightmanscurrency.api.helpers.capabilities.SidedItemAccess;
+import io.github.lightman314.lightmanscurrency.api.helpers.resource.access.SidedItemAccess;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
@@ -76,5 +76,8 @@ public class ItemCapabilityResourceWrapper extends IterableMoneyResourceHandler 
         }
 
     }
+
+    @Override
+    public String toString() { return "ItemCapabilityMoneyWrapper(" + this.resourceHandler.size() + ")"; }
 
 }

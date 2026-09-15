@@ -1,0 +1,8 @@
+// 26.1.2	2026-08-25T20:38:18.5681621	Tags for minecraft:block mod id lightmanscurrency
+eab69f81f4c8f12618755243db77d30692d20b15 data/lightmanscurrency/tags/block/groups/card_display.json
+1723bc0183c181697067e639bf42ba46ba64ec2a data/lightmanscurrency/tags/block/groups/display_case.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/lightmanscurrency/tags/block/multi_block.json
+ef2c79021924f2e7fd7d43f20f07e0bc9c7638ba data/lightmanscurrency/tags/block/owner_protected.json
+27bc4507858a13ca7a75e1cc74b1c0afc70939d8 data/lightmanscurrency/tags/block/safe_interactable.json
+bccbd41442fd1571f9b14e128dc8c7263883155d data/minecraft/tags/block/mineable/axe.json
+3663fb9f46b617958eabd71402b52a913105a908 data/minecraft/tags/block/mineable/pickaxe.json

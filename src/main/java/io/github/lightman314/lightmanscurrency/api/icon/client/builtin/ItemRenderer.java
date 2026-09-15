@@ -11,8 +11,8 @@ public final class ItemRenderer extends IconRenderer {
     private ItemRenderer() {}
 
     @Override
-    protected void extractRenderState(FancyGuiExtractor gui, IconData icon, int x, int y) {
+    protected void extractRenderState(FancyGuiExtractor gui,IconData icon,int x,int y) {
         if(icon instanceof ItemIcon i)
-            gui.item(i.item(),x,y,i.countOverride().orElse(null));
+            gui.item(i.item().create(),x,y,i.countOverride().orElse(null));
     }
 }

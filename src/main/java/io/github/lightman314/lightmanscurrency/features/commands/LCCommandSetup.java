@@ -17,6 +17,7 @@ public final class LCCommandSetup {
     private static void registerCommands(RegisterCommandsEvent event) {
         LCAdminCommand.register(event.getDispatcher(),event.getBuildContext());
         LCDebugCommand.register(event.getDispatcher(),event.getBuildContext());
+        LCConfigCommand.register(event.getDispatcher(),event.getBuildContext());
     }
 
     public static Predicate<CommandSourceStack> requiresLevel(PermissionLevel level) { return stack -> stack.permissions().hasPermission(new Permission.HasCommandLevel(level)); }

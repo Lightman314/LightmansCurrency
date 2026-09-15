@@ -12,7 +12,7 @@ import java.util.List;
 
 public abstract class ServerToClientPacket extends CustomPacket {
 
-    protected ServerToClientPacket(Type<?> type) { super(type); }
+    public ServerToClientPacket(Type<?> type) { super(type); }
 
     public final void sendTo(Player player) { if(player instanceof ServerPlayer sp) this.sendTo(sp); }
     public final void sendTo(ServerPlayer player) { PacketDistributor.sendToPlayer(player, this); }

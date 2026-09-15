@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.helpers;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedList;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -21,11 +22,14 @@ public final class ResourceHelper {
     public static <T extends Resource> long getResourceCount(ResourceHandler<T> handler,Predicate<T> filter,@Nullable TransactionContext transaction)
     {
         long count = 0;
-        for(int i = 0; i < handler.size(); ++i)
-        {
-            T resource = handler.getResource(i);
-            if(filter.test(resource))
-                count += handler.extract(i,resource,Integer.MAX_VALUE,Transaction.open(transaction));
+        try(Transaction tx = Transaction.open(transaction)) {
+            for(int i = 0; i < handler.size(); ++i)
+            {
+                T resource = handler.getResource(i);
+                boolean result = filter.test(resource);
+                if(filter.test(resource))
+                    count += handler.extract(i,resource,Integer.MAX_VALUE,tx);
+            }
         }
         return count;
     }
@@ -48,7 +52,7 @@ public final class ResourceHelper {
         {
             try(Transaction tx = Transaction.open(transaction)) {
                 ResourceStack<T> stack = ResourceHandlerUtil.extractFirst(handler,filter,extractAmount - count,tx);
-                if(stack == null || stack.isEmpty())
+                if(stack == null || stack.isEmpty() || (count + stack.amount() > extractAmount))
                     return new ExtractionResults<>(extracted,count);
                 count += stack.amount();
                 extracted.add(stack);
@@ -122,6 +126,12 @@ public final class ResourceHelper {
         return result;
     }
 
-    public record ExtractionResults<T extends Resource>(List<ResourceStack<T>> extracted, int totalCount){ }
+    public static <T extends Resource> int getTotalResourceCount(List<ResourceStack<T>> resources) {
+        int count = 0;
+        for(ResourceStack<T> stack : resources)
+            count += stack.amount();
+        return count;
+    }
+
 
 }

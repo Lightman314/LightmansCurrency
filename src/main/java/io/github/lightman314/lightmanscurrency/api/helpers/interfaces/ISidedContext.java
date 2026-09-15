@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.helpers.interfaces;
 
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -21,22 +22,31 @@ public interface ISidedContext {
 
     static ISidedContext known(boolean isClient) { return isClient ? LOGICAL_CLIENT : LOGICAL_SERVER; }
     static ISidedContext wrap(Entity entity) { return entity == null ? LOGICAL_CLIENT : () -> entity.level().isClientSide(); }
+    static ISidedContext wrap(Item.TooltipContext context) {
+        if(context.level() != null)
+            return context.level()::isClientSide;
+        if(context.player() != null)
+            return wrap(context.player());
+        return LOGICAL_CLIENT;
+    }
     static ISidedContext wrapUnknown(@Nullable Object object) {
         if(object == null)
             return LOGICAL_CLIENT;
         if(object instanceof ISidedContext c)
             return c;
         if(object instanceof Entity e)
-            return () -> e.level().isClientSide();
+            return wrap(e);
         if(object instanceof Level l)
             return l::isClientSide;
         if(object instanceof LevelChunk c)
             return c.getLevel()::isClientSide;
-        if(object instanceof BlockEntity b)
+        if(object instanceof BlockEntity be)
             return () -> {
-                Level l = b.getLevel();
+                Level l = be.getLevel();
                 return l == null || l.isClientSide();
             };
+        if(object instanceof Item.TooltipContext c)
+            return wrap(c);
         return LOGICAL_CLIENT;
     }
 

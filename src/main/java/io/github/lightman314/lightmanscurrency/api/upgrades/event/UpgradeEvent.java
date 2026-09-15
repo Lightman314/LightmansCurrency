@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.upgrades.event;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
+import io.github.lightman314.lightmanscurrency.core.LCDataComponents;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -18,10 +19,19 @@ public abstract class UpgradeEvent extends Event {
 
     private final UpgradeType upgrade;
     public final UpgradeType getUpgrade() { return this.upgrade; }
+    public final boolean isUpgrade(ItemStack upgradeItem) {
+        if(upgradeItem.has(LCDataComponents.UPGRADE_TYPE))
+            return upgradeItem.get(LCDataComponents.UPGRADE_TYPE).get().is(this.upgrade);
+        return false;
+    }
+    public final boolean isUpgrade(Supplier<? extends UpgradeType> upgrade) { return this.isUpgrade(upgrade.get()); }
+    public final boolean isUpgrade(UpgradeType upgrade) { return this.upgrade == upgrade; }
     protected UpgradeEvent(UpgradeType upgrade) { this.upgrade = upgrade; }
 
     /**
-     * Event ca
+     * Event called whenever an {@link io.github.lightman314.lightmanscurrency.api.upgrades.world.UpgradeStorage UpgradeStorage} needs to check whether an upgrade can be inserted into the storage.<br>
+     * Will not be called if the upgrade is unique and already present to avoid de-uniquifying an upgrade type.<br>
+     * Cancelling the event will not alter the {@link #allowed} state, it will simply prevent other mods from listening to the event.
      */
     public static class AllowUpgradeEvent extends UpgradeEvent implements ICancellableEvent {
 
@@ -44,6 +54,10 @@ public abstract class UpgradeEvent extends Event {
 
     }
 
+    /**
+     * Called the first time {@link UpgradeType#getTargets()} is called to collect the list of valid targets for the upgrade.<br>
+     * Can be used to inform the upgrade type that it's usable on a machine added by an addon mod.
+     */
     public static class CollectUpgradeTargetsEvent extends UpgradeEvent {
 
         private final List<Component> targets;

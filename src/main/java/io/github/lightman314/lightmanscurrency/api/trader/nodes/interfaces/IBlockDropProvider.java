@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces;
 
-import io.github.lightman314.lightmanscurrency.api.ownership.OwnerHolder;
+import io.github.lightman314.lightmanscurrency.api.ownership.holder.OwnerHolder;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.function.Consumer;

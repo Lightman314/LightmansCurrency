@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.coins.money;
 
+import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.money.resource.player.PlayerMoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
@@ -25,5 +26,7 @@ public class CoinValueHelper extends MoneyValueHelper {
     @Override
     @Nullable
     public MoneyResourceHandler wrapContainer(ResourceHandler<ItemResource> itemResource,BiConsumer<ItemStack,TransactionContext> overflowHandler, ISidedContext context) { return new CoinContainerWrapper(itemResource,overflowHandler); }
+    @Override
+    public boolean allowInMoneySlot(ItemStack stack) { return LCApi.getCoinAPI().isCoin(stack,true); }
 
 }

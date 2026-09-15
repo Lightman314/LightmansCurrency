@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.JsonOps;
+import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.coins.data.coin.CoinEntry;
 import io.github.lightman314.lightmanscurrency.api.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.coins.display.ValueDisplayData;
@@ -12,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.coins.display.ValueDisplaySer
 import io.github.lightman314.lightmanscurrency.api.coins.value.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.coins.value.CoinValuePair;
 import io.github.lightman314.lightmanscurrency.api.text.LCText;
+import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.IdentifierException;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -32,6 +34,11 @@ import java.util.function.Supplier;
 public class CoinDisplay extends ValueDisplayData {
 
     public static final ValueDisplaySerializer SERIALIZER = new Serializer();
+
+    public static final TextEntry TOOLTIP_COIN_DISPLAY = TextEntry.tooltip(LCApi.MODID,"coin.display");
+    public static final TextEntry TOOLTIP_COIN_DISPLAY_WORTH = TextEntry.tooltip(LCApi.MODID,"coin.display.worth");
+    public static final TextEntry TOOLTIP_COIN_WORTH_DOWN = TextEntry.tooltip(LCApi.MODID,"coinworth.down");
+    public static final TextEntry TOOLTIP_COIN_WORTH_UP = TextEntry.tooltip(LCApi.MODID,"coinworth.up");
 
     public ValueDisplaySerializer getSerializer() { return SERIALIZER; }
 
@@ -91,12 +98,12 @@ public class CoinDisplay extends ValueDisplayData {
         if(lowerExchange != null)
         {
             ItemData otherData = this.getDataForCoin(lowerExchange.getFirst());
-            tooltip.add(LCText.Coins.TOOLTIP_COIN_WORTH_DOWN.get(lowerExchange.getSecond(), otherData.getPlural()).withStyle(ChatFormatting.YELLOW));
+            tooltip.add(TOOLTIP_COIN_WORTH_DOWN.get(lowerExchange.getSecond(), otherData.getPlural()).withStyle(ChatFormatting.YELLOW));
         }
         Pair<CoinEntry,Integer> upperExchange = parent.getUpperExchange(data.coin);
         if(upperExchange != null)
         {
-            tooltip.add(LCText.Coins.TOOLTIP_COIN_WORTH_UP.get(upperExchange.getSecond(), LCText.Coins.TOOLTIP_COIN_DISPLAY_WORTH.get(upperExchange.getFirst().getName(),getIcon(upperExchange.getFirst().getCoin()))).withStyle(ChatFormatting.YELLOW));
+            tooltip.add(TOOLTIP_COIN_WORTH_UP.get(upperExchange.getSecond(),TOOLTIP_COIN_DISPLAY_WORTH.get(upperExchange.getFirst().getName(),getIcon(upperExchange.getFirst().getCoin()))).withStyle(ChatFormatting.YELLOW));
         }
 
     }
@@ -151,7 +158,7 @@ public class CoinDisplay extends ValueDisplayData {
 
         public Component getInitial()
         {
-            return LCText.Coins.TOOLTIP_COIN_DISPLAY.get(Objects.requireNonNullElseGet(this.initial, () -> {
+            return TOOLTIP_COIN_DISPLAY.get(Objects.requireNonNullElseGet(this.initial, () -> {
                 String name = new ItemStack(this.coin).getHoverName().getString();
                 if(!name.isEmpty())
                     return Component.literal(name.substring(0,1).toLowerCase());
@@ -159,7 +166,7 @@ public class CoinDisplay extends ValueDisplayData {
             }),this.getIcon());
         }
 
-        public Component getPlural() { return LCText.Coins.TOOLTIP_COIN_DISPLAY_WORTH.get(Objects.requireNonNullElseGet(this.plural, () -> LCText.Misc.GENERIC_PLURAL.get(new ItemStack(this.coin).getHoverName())),this.getIcon()); }
+        public Component getPlural() { return TOOLTIP_COIN_DISPLAY_WORTH.get(Objects.requireNonNullElseGet(this.plural, () -> LCText.GENERIC_PLURAL.get(new ItemStack(this.coin).getHoverName())),this.getIcon()); }
         private Component getIcon() { return ValueDisplayData.getIcon(this.coin); }
         ItemData(Item coin) { this.coin = coin; }
     }

@@ -31,13 +31,12 @@ public class WidgetContextSprite implements SizedSprite.WithContext {
     public int height() { return this.height; }
 
     public static SizedSprite.Builder hoverToggleSprite(Identifier sprite,int width,int height) {
-        return hoverToggleSprite(sprite,sprite.withSuffix("_hovered"),width,height);
+        return widgetSprite(LCSprites.hoveredSprites(sprite),width,height);
     }
     public static SizedSprite.Builder hoverToggleSprite(Identifier normalSprite,Identifier hoveredSprite,int width,int height) {
         return widgetSprite(new WidgetSprites(normalSprite,normalSprite,hoveredSprite,hoveredSprite),width,height);
     }
-
-    public static SizedSprite.Builder widgetSprite(WidgetSprites sprites, int width, int height) {
+    public static SizedSprite.Builder widgetSprite(WidgetSprites sprites,int width,int height) {
         return () -> new WidgetContextSprite(sprites,width,height);
     }
 

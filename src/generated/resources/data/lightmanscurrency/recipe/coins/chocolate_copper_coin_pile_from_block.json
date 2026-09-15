@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "chocolate_coin_pile_from_block",
+  "ingredients": [
+    "lightmanscurrency:chocolate_copper_coin_block"
+  ],
+  "result": {
+    "count": 4,
+    "id": "lightmanscurrency:chocolate_copper_coin_pile"
+  }
+}

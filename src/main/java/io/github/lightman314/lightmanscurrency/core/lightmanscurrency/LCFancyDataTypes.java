@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.core.lightmanscurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.data.FancyDataType;
+import io.github.lightman314.lightmanscurrency.features.api_impl.data.PlayerBankDataCache;
 import io.github.lightman314.lightmanscurrency.features.api_impl.data.TraderDataCache;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -14,6 +15,7 @@ public final class LCFancyDataTypes {
 
     static {
         register("trader",TraderDataCache.TYPE);
+        register("player_bank",PlayerBankDataCache.TYPE);
     }
 
     private static void register(String name,FancyDataType<?> type) {

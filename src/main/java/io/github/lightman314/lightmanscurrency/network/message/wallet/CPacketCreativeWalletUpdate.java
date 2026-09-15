@@ -11,9 +11,8 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 public class CPacketCreativeWalletUpdate extends ClientToServerPacket {
 
-    private static final Type<CPacketCreativeWalletUpdate> TYPE = cType("creative_wallet_slot");
-    private static final StreamCodec<RegistryFriendlyByteBuf,CPacketCreativeWalletUpdate> STREAM_CODEC = StreamHelper.C2S_ITEM_STACK.map(CPacketCreativeWalletUpdate::new, p -> p.item);
-    public static final Handler<CPacketCreativeWalletUpdate> HANDLER = new H();
+    public static final Type<CPacketCreativeWalletUpdate> TYPE = cType("creative_wallet_slot");
+    public static final StreamCodec<RegistryFriendlyByteBuf,CPacketCreativeWalletUpdate> STREAM_CODEC = StreamHelper.C2S_ITEM_STACK.map(CPacketCreativeWalletUpdate::new, p -> p.item);
 
     private final ItemStack item;
     public CPacketCreativeWalletUpdate(ItemStack item) {
@@ -21,15 +20,11 @@ public class CPacketCreativeWalletUpdate extends ClientToServerPacket {
         this.item = item.copy();
     }
 
-    private static class H extends Handler<CPacketCreativeWalletUpdate> {
-
-        protected H() { super(TYPE,STREAM_CODEC); }
-        @Override
-        protected void handle(CPacketCreativeWalletUpdate message, IPayloadContext context, Player player) {
-            //Only actually process if the player is in creative on the server as well :)
-            if(player.isCreative())
-                player.getData(LCDataAttachments.WALLET).setWallet(message.item);
-        }
+    @Override
+    protected void handle(IPayloadContext context, Player player) {
+        //Only actually process if the player is in creative on the server as well :)
+        if(player.isCreative())
+            player.getData(LCDataAttachments.WALLET).setWallet(this.item);
     }
 
 }

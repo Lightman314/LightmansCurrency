@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.helpers;
 
 import com.google.common.collect.ImmutableList;
-import net.minecraft.world.item.DyeColor;
+import io.github.lightman314.lightmanscurrency.api.helpers.registry.types.VanillaColor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
@@ -12,16 +12,16 @@ public final class ColorHelper {
 
     private ColorHelper() {}
 
-    public static final List<DyeColor> SORTED_LIST = ImmutableList.of(
-            DyeColor.WHITE,DyeColor.LIGHT_GRAY,DyeColor.GRAY,DyeColor.BLACK,
-            DyeColor.BROWN,DyeColor.RED,DyeColor.ORANGE,DyeColor.YELLOW,
-            DyeColor.LIME,DyeColor.GREEN,DyeColor.CYAN,DyeColor.LIGHT_BLUE,
-            DyeColor.BLUE, DyeColor.PURPLE,DyeColor.MAGENTA,DyeColor.PINK
+    public static final List<VanillaColor> SORTED_LIST = ImmutableList.of(
+            VanillaColor.WHITE,VanillaColor.LIGHT_GRAY,VanillaColor.GRAY,VanillaColor.BLACK,
+            VanillaColor.BROWN,VanillaColor.RED,VanillaColor.ORANGE,VanillaColor.YELLOW,
+            VanillaColor.LIME,VanillaColor.GREEN,VanillaColor.CYAN,VanillaColor.LIGHT_BLUE,
+            VanillaColor.BLUE, VanillaColor.PURPLE,VanillaColor.MAGENTA,VanillaColor.PINK
     );
 
-    public static Comparator<DyeColor> COLOR_SORTER = Comparator.comparingInt(SORTED_LIST::indexOf);
+    public static Comparator<VanillaColor> COLOR_SORTER = Comparator.comparingInt(SORTED_LIST::indexOf);
 
-    public static Block getWoolBlock(DyeColor color) {
+    public static Block getWoolBlock(VanillaColor color) {
         return switch (color) {
             case WHITE -> Blocks.WHITE_WOOL;
             case ORANGE -> Blocks.ORANGE_WOOL;

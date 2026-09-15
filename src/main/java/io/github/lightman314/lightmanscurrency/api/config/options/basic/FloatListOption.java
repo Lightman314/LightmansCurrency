@@ -31,7 +31,7 @@ public class FloatListOption extends ListOption<Float> {
     protected String bonusComment() { return "Range: " + this.lowerLimit + " -> " + this.upperLimit; }
     @Nullable
     @Override
-    protected Component bonusCommentTooltip() { return LCText.Config.CONFIG_OPTION_RANGE.get(this.lowerLimit,this.upperLimit); }
+    protected Component bonusCommentTooltip() { return CONFIG_OPTION_RANGE.get(this.lowerLimit,this.upperLimit); }
 
     public static FloatListOption create(List<Float> defaultValue) { return new FloatListOption(() -> defaultValue, -Float.MAX_VALUE, Float.MAX_VALUE); }
     public static FloatListOption create(List<Float> defaultValue, float lowerLimit) { return new FloatListOption(() -> defaultValue, lowerLimit, Float.MAX_VALUE); }

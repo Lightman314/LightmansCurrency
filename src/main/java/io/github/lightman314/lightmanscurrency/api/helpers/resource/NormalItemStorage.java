@@ -1,22 +1,28 @@
 package io.github.lightman314.lightmanscurrency.api.helpers.resource;
 
+import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.helpers.ItemHelper;
-import net.minecraft.core.NonNullList;
+import io.github.lightman314.lightmanscurrency.api.helpers.data.ItemContents;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.transfer.IndexModifier;
 import net.neoforged.neoforge.transfer.TransferPreconditions;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * A form of {@link ListBackedItemStorage list-backed item storage} with a predetermined number of slots<br>
  * May be extended for custom implementations that limit what items are allowed, or how many items can fit in each slot
  */
-public class NormalItemStorage extends ListBackedItemStorage {
+public class NormalItemStorage extends ListBackedItemStorage implements IndexModifier<ItemResource> {
 
-    public NormalItemStorage(int size) { super(NonNullList.withSize(size,ItemStack.EMPTY)); }
+    public NormalItemStorage(int size) { super(ItemHelper.ofSize(size)); }
+
+    @Override
+    protected Codec<List<ItemStack>> codec() { return ItemStack.OPTIONAL_CODEC.listOf(); }
 
     /**
      * Changes the size of this container.<br>
@@ -37,15 +43,29 @@ public class NormalItemStorage extends ListBackedItemStorage {
         }
         while(this.storage.size() < newSize)
             this.storage.add(ItemStack.EMPTY);
-        //Attempt to forcibly fit the wallets contents within its storage
+        //Attempt to forcibly fit any items that don't fit in the new size into any empty space
+        //If this fails, the item is lost into the void
         this.forceInsert(removed);
     }
     @Override
     public void copyFrom(List<ItemStack> list) {
-        //Since it's a list with size, it'll keep its current size
-        this.storage.clear();
+        //Clear the list by filling it with empty stacks
+        this.clear();
         for(int i = 0; i < this.storage.size() && i < list.size(); ++i)
             this.storage.set(i,list.get(i));
+    }
+
+    public void copyFrom(ItemContents contents) {
+        if(contents == null)
+            return;
+        List<ItemStack> overflow = new ArrayList<>();
+        this.copyFrom(contents.asItems(this.storage.size(),overflow));
+        for(ItemStack stack : overflow)
+            this.forceInsert(stack);
+    }
+
+    public void clear() {
+        Collections.fill(this.storage,ItemStack.EMPTY);
     }
 
     protected final void forceInsert(List<ItemStack> list) {
@@ -77,19 +97,23 @@ public class NormalItemStorage extends ListBackedItemStorage {
         }
     }
 
-    public final void setItem(int slot,ItemResource resource,int amount) { this.setItem(slot,resource.toStack(amount)); }
-    public final void setItem(int slot,ItemStack stack)
+    @Override
+    public final void set(int slot,ItemResource resource, int amount) { this.set(slot,resource.toStack(amount)); }
+    public final void set(int slot,ItemStack stack)
     {
         if(slot < 0 || slot >= this.storage.size())
             return;
+        ItemStack currentStack = this.storage.get(slot);
+        if(ItemStack.matches(stack,currentStack))
+            return;
         List<ItemStack> oldData = ItemHelper.copyList(this.storage);
-        this.storage.set(slot,stack);
-        this.setChanged(oldData);
+        this.storage.set(slot,stack.copy());
+        this.knownChange(oldData);
     }
 
     //Default to the items max stack size
     @Override
-    public long getCapacityAsLong(int index, ItemResource resource) { return 64; }
+    public long getCapacityAsLong(int index, ItemResource resource) { return Math.min(64,resource.getMaxStackSize()); }
     @Override
     public boolean isValid(int index, ItemResource resource) { return this.isValid(index,resource.toStack()); }
     protected boolean isValid(int index,ItemStack stack) { return true; }
@@ -99,12 +123,11 @@ public class NormalItemStorage extends ListBackedItemStorage {
         assert index >= 0 && index < this.storage.size();
         if(!this.isValid(index,resource))
             return 0;
-        ItemStack insertStack = resource.toStack();
         ItemStack s = this.getStack(index);
         if(s.isEmpty() && this.isValid(index,resource))
         {
             //Insert up to our maximum allowed value
-            int insertAmount = Math.min(amount,Math.min(this.getCapacityAsInt(index,resource),insertStack.getMaxStackSize()));
+            int insertAmount = Math.min(amount,this.getCapacityAsInt(index,resource));
             if(insertAmount <= 0)
                 return 0;
             this.updateSnapshots(transaction);
@@ -112,9 +135,9 @@ public class NormalItemStorage extends ListBackedItemStorage {
             this.afterChangeBeforeCommit(transaction);
             return insertAmount;
         }
-        else if(ItemStack.isSameItemSameComponents(s,insertStack))
+        else if(resource.matches(s))
         {
-            int space = Math.min(s.getMaxStackSize(),this.getCapacityAsInt(index,resource)) - s.getCount();
+            int space = this.getCapacityAsInt(index,resource) - s.getCount();
             int insertAmount = Math.min(amount,space);
             if(insertAmount <= 0)
                 return 0;
@@ -130,11 +153,10 @@ public class NormalItemStorage extends ListBackedItemStorage {
     public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
         TransferPreconditions.checkNonEmptyNonNegative(resource,amount);
         assert index >= 0 && index < this.storage.size();
-        ItemStack extractStack = resource.toStack();
         ItemStack s = this.getStack(index);
         if(s.isEmpty())
             return 0;
-        if(ItemStack.isSameItemSameComponents(s,extractStack))
+        if(resource.matches(s))
         {
             int removeAmount = Math.min(amount,s.getCount());
             this.updateSnapshots(transaction);

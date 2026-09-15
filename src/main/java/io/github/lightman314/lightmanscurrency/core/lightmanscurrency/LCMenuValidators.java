@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.world.menu.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.api.world.menu.validation.builtin.BlockEntityValidator;
 import io.github.lightman314.lightmanscurrency.api.world.menu.validation.builtin.BlockValidator;
+import io.github.lightman314.lightmanscurrency.api.world.menu.validation.builtin.ItemInInventoryValidator;
 import io.github.lightman314.lightmanscurrency.api.world.menu.validation.builtin.SimpleValidator;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -17,8 +18,9 @@ public final class LCMenuValidators {
 
     static {
         register("simple",SimpleValidator.STREAM_CODEC);
-        register("block", BlockValidator.STREAM_CODEC);
-        register("block_entity", BlockEntityValidator.STREAM_CODEC);
+        register("block",BlockValidator.STREAM_CODEC);
+        register("block_entity",BlockEntityValidator.STREAM_CODEC);
+        register("item",ItemInInventoryValidator.STREAM_CODEC);
     }
 
     private static void register(String name,StreamCodec<? super RegistryFriendlyByteBuf,? extends MenuValidator> codec) {

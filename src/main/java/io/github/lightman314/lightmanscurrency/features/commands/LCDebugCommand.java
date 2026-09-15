@@ -7,7 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.command.arguments.TraderArgument;
 import io.github.lightman314.lightmanscurrency.api.helpers.JsonHelper;
-import io.github.lightman314.lightmanscurrency.api.helpers.data.DataContext;
+import io.github.lightman314.lightmanscurrency.api.helpers.data.CodecInteractionHelper;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
 import io.github.lightman314.lightmanscurrency.network.message.debug.SPacketDebugTraderData;
 import net.minecraft.commands.CommandBuildContext;
@@ -34,7 +34,7 @@ public final class LCDebugCommand {
         int result = 0;
         if(trader != null)
         {
-            DataContext<JsonElement> encoder = DataContext.createJson(source.registryAccess());
+            CodecInteractionHelper<JsonElement> encoder = CodecInteractionHelper.createJson(source.registryAccess());
             LightmansCurrency.LogInfo("Server Copy of Trader #" + trader.getID() + ":\n" + JsonHelper.PRETTY_GSON.toJson(encoder.write(trader,TraderData.CODEC)));
             source.sendSuccess(() -> Component.literal("Server data for trader #" + trader.getID() + " has been printed to the logs!"),false);
             result++;

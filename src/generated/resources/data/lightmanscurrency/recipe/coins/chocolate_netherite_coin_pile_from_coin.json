@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "chocolate_coin_pile_from_coin",
+  "ingredients": [
+    "lightmanscurrency:chocolate_coin_netherite",
+    "lightmanscurrency:chocolate_coin_netherite",
+    "lightmanscurrency:chocolate_coin_netherite",
+    "lightmanscurrency:chocolate_coin_netherite",
+    "lightmanscurrency:chocolate_coin_netherite",
+    "lightmanscurrency:chocolate_coin_netherite",
+    "lightmanscurrency:chocolate_coin_netherite",
+    "lightmanscurrency:chocolate_coin_netherite",
+    "lightmanscurrency:chocolate_coin_netherite"
+  ],
+  "result": {
+    "id": "lightmanscurrency:chocolate_netherite_coin_pile"
+  }
+}

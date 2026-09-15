@@ -2,22 +2,36 @@ package io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
+import io.github.lightman314.lightmanscurrency.api.text.MultiLineTextEntry;
+import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderState;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderArguments;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IDisplayNode;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IPermissionUser;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.ISettingsMessageListener;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.SimpleSyncedNode;
+import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
+import io.github.lightman314.lightmanscurrency.api.trader.permissions.Permission;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.trader.world.block_entity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.world.data.WorldPosition;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import javax.annotation.Nullable;
 import java.util.Optional;
+import java.util.function.Consumer;
 
-public class WorldNode extends SimpleSyncedNode {
+public class WorldNode extends SimpleSyncedNode implements IDisplayNode, ISettingsMessageListener, IPermissionUser {
 
     private static final MapCodec<WorldNode> MAP_CODEC = RecordCodecBuilder.mapCodec(buider -> buider.group(
             TraderState.CODEC.fieldOf("state").forGetter(WorldNode::getState),
@@ -25,6 +39,9 @@ public class WorldNode extends SimpleSyncedNode {
             BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("block").forGetter(n -> n.block)
     ).apply(buider,WorldNode::new));
     public static final TraderNodeType<WorldNode> TYPE = TraderNodeType.simple(WorldNode::new,MAP_CODEC);
+
+    public static final TextEntry BUTTON_TRADER_SETTINGS_DESTROY_TRADER = TextEntry.button(LCApi.MODID,"trader.settings.delete_trader");
+    public static final MultiLineTextEntry TOOLTIP_TRADER_SETTINGS_DESTROY_TRADER = MultiLineTextEntry.tooltip(LCApi.MODID,"trader.settings.delete_trader");
 
     private TraderState state = TraderState.NORMAL;
     public TraderState getState() { return this.state; }
@@ -46,10 +63,31 @@ public class WorldNode extends SimpleSyncedNode {
         if(this.position.equals(position))
             return;
         this.position = position;
-        this.setChangedNoPacket();
+        this.setChanged(builder -> builder.set("position",LCFancyPacketTypes.WORLD_POSITION,this.position));
     }
     private Optional<Block> block = Optional.empty();
     public Block getBlock() { return this.block.orElse(Blocks.AIR); }
+    @Nullable
+    public Block getBlockOrNull() { return this.block.orElse(null); }
+
+    @Nullable
+    @Override
+    public Component getDefaultName() {
+        if(this.block.isPresent())
+            return this.block.get().getName();
+        return null;
+    }
+
+    @Nullable
+    public TraderBlockEntity getBlockEntity(Level level) {
+        if(!this.position.isVoid() && level != null) {
+            if(level.dimension() == this.position.getDimension() && level.isLoaded(this.position.getPos())) {
+                if(level.getBlockEntity(this.position.getPos()) instanceof TraderBlockEntity be)
+                    return be;
+            }
+        }
+        return null;
+    }
 
     private WorldNode() {}
     private WorldNode(TraderState state, WorldPosition position, Optional<Block> block)
@@ -59,16 +97,17 @@ public class WorldNode extends SimpleSyncedNode {
     }
 
     @Override
-    public void updateArgument(Optional<Object> argument) {
-        if(argument.isPresent())
+    public void updateArgument(TraderArguments arguments) {
+        Optional<Object> arg = arguments.get(TYPE);
+        if(arg.isPresent())
         {
-            Object arg = argument.get();
-            if(arg instanceof TraderBlockEntity be)
+            Object val = arg.get();
+            if(val instanceof TraderBlockEntity be)
             {
                 this.position = be.getPosition();
                 this.block = Optional.of(be.getBlockState().getBlock());
             }
-            else if(arg instanceof BlockEntity be)
+            else if(val instanceof BlockEntity be)
             {
                 this.position = WorldPosition.ofBE(be);
                 this.block = Optional.of(be.getBlockState().getBlock());
@@ -95,6 +134,20 @@ public class WorldNode extends SimpleSyncedNode {
             this.position = data.get("position",LCFancyPacketTypes.WORLD_POSITION,this.position);
         if(data.contains("block"))
             this.block = Optional.of(data.getRegistryEntry("block",BuiltInRegistries.BLOCK));
+    }
+
+    @Override
+    public void handleSettingsChange(Player player, FancyPacketMap message) {
+        if(message.contains("destroyTrader") && this.getPermission(player,BuiltInPermissions.BREAK_TRADER).hasHigherPermission()) {
+            TraderBlockEntity be = this.getBlockEntity(player.level());
+            if(be != null)
+                be.requestTraderDestruction(player);
+        }
+    }
+
+    @Override
+    public void addDefaultAllyPermission(Consumer<Permission<?>> handler) {
+        handler.accept(BuiltInPermissions.BREAK_TRADER);
     }
 
 }

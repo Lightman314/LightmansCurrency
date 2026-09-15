@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "coin_pile_from_coin",
+  "ingredients": [
+    "lightmanscurrency:coin_diamond",
+    "lightmanscurrency:coin_diamond",
+    "lightmanscurrency:coin_diamond",
+    "lightmanscurrency:coin_diamond",
+    "lightmanscurrency:coin_diamond",
+    "lightmanscurrency:coin_diamond",
+    "lightmanscurrency:coin_diamond",
+    "lightmanscurrency:coin_diamond",
+    "lightmanscurrency:coin_diamond"
+  ],
+  "result": {
+    "id": "lightmanscurrency:diamond_coin_pile"
+  }
+}

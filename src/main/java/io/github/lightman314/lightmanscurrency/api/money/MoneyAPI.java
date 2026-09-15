@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.money;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.helpers.resource.TransactionCommitListener;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
+import io.github.lightman314.lightmanscurrency.api.money.resource.SortableMoneyResourceHandler;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -24,7 +25,7 @@ public interface MoneyAPI {
      * @param player The player whom we wish to query, give, or take money from
      * @return A Money Resource Handler through which monetary interactions can be taken.
      */
-    default MoneyResourceHandler getPlayersMoneyHandler(Player player) { return this.getPlayersMoneyHandler(player,true); }
+    default SortableMoneyResourceHandler getPlayersMoneyHandler(Player player) { return this.getPlayersMoneyHandler(player,true); }
     /**
      * Assembles a {@link MoneyResourceHandler} that can be used to directly give or take money from the player<br>
      * Default implementations will take money from the players equipped wallet, etc.
@@ -34,7 +35,7 @@ public interface MoneyAPI {
      * @param allowOverflow Whether the players inventory is a valid item overflow location. If {@code false} item overflow will be left to be output elsewhere if needed.
      * @return A Money Resource Handler through which monetary interactions can be taken.
      */
-    MoneyResourceHandler getPlayersMoneyHandler(Player player,boolean allowOverflow);
+    SortableMoneyResourceHandler getPlayersMoneyHandler(Player player,boolean allowOverflow);
 
     /**
      * Assembles a {@link MoneyResourceHandler} that can be used to insert or extract money from the given Container<br>
@@ -44,7 +45,7 @@ public interface MoneyAPI {
      * @param player The Player for context. Used to obtain both a {@link Consumer overflow handler}, and the {@link ISidedContext logical side}.
      * @return A Money Resource Handler through which you can interact with the container in a monetary fashion.
      */
-    default MoneyResourceHandler getContainersMoneyHandler(Container container,Player player) { return this.getContainersMoneyHandler(VanillaContainerWrapper.of(container), TransactionCommitListener.wrapAction(stack -> player.getInventory().placeItemBackInInventory(stack)),ISidedContext.wrap(player)); }
+    default MoneyResourceHandler getContainersMoneyHandler(Container container,Player player,boolean wrapCapabilities) { return this.getContainersMoneyHandler(container,playerOverflow(player),ISidedContext.wrap(player),wrapCapabilities); }
     /**
      * Assembles a {@link MoneyResourceHandler} that can be used to insert or extract money from the given Container<br>
      * May not support interactions with Money Types that don't involve items, however by default it will allow interactions with any items that have a Money Capability.
@@ -52,11 +53,13 @@ public interface MoneyAPI {
      * @param overflowHandler A consumer
      * @return A Money Resource Handler through which you can interact with the container in a monetary fashion.
      */
-    default MoneyResourceHandler getContainersMoneyHandler(Container container, BiConsumer<ItemStack,TransactionContext> overflowHandler, ISidedContext context) { return this.getContainersMoneyHandler(VanillaContainerWrapper.of(container),overflowHandler,context); }
-    default MoneyResourceHandler getContainersMoneyHandler(ResourceHandler<ItemResource> itemResource,Player player) { return this.getContainersMoneyHandler(itemResource,(stack,tx) -> player.getInventory().placeItemBackInInventory(stack),ISidedContext.wrap(player)); }
-    MoneyResourceHandler getContainersMoneyHandler(ResourceHandler<ItemResource> itemResource,BiConsumer<ItemStack,TransactionContext> overflowHandler,ISidedContext context);
+    default MoneyResourceHandler getContainersMoneyHandler(Container container,BiConsumer<ItemStack,TransactionContext> overflowHandler,ISidedContext context,boolean wrapCapabilities) { return this.getContainersMoneyHandler(VanillaContainerWrapper.of(container),overflowHandler,context,wrapCapabilities); }
+    default MoneyResourceHandler getContainersMoneyHandler(ResourceHandler<ItemResource> itemResource,Player player,boolean wrapCapabilities) { return this.getContainersMoneyHandler(itemResource,playerOverflow(player),ISidedContext.wrap(player),wrapCapabilities); }
+    MoneyResourceHandler getContainersMoneyHandler(ResourceHandler<ItemResource> itemResource,BiConsumer<ItemStack,TransactionContext> overflowHandler,ISidedContext context,boolean wrapCapabilities);
 
-    default MoneyResourceHandler getContainersMoneyViewer(Container container,ISidedContext context) { return this.getContainersMoneyViewer(VanillaContainerWrapper.of(container),context); }
-    default MoneyResourceHandler getContainersMoneyViewer(ResourceHandler<ItemResource> itemResource,ISidedContext context) { return MoneyResourceHandler.viewOnly(this.getContainersMoneyHandler(itemResource,(s,t) -> {},context)); }
+    default MoneyResourceHandler getContainersMoneyViewer(Container container,ISidedContext context,boolean wrapCapabilities) { return this.getContainersMoneyViewer(VanillaContainerWrapper.of(container),context,wrapCapabilities); }
+    default MoneyResourceHandler getContainersMoneyViewer(ResourceHandler<ItemResource> itemResource,ISidedContext context,boolean wrapCapabilities) { return MoneyResourceHandler.viewOnly(this.getContainersMoneyHandler(itemResource,(s,t) -> {},context,wrapCapabilities)); }
+
+    static BiConsumer<ItemStack,TransactionContext> playerOverflow(Player player) { return TransactionCommitListener.wrapAction(stack -> player.getInventory().placeItemBackInInventory(stack)); }
 
 }

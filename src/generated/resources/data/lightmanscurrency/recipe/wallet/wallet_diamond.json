@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "wallet_crafting",
+  "ingredients": [
+    "#c:leathers",
+    "#c:ingots/copper",
+    "#c:ingots/iron",
+    "#c:ingots/gold",
+    "#c:gems/emerald",
+    "#c:gems/diamond",
+    "#c:leathers"
+  ],
+  "result": {
+    "id": "lightmanscurrency:wallet_diamond"
+  }
+}

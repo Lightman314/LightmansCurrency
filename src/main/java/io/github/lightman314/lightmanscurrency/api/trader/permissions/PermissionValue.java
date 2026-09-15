@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.trader.permissions;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -27,7 +28,9 @@ public final class PermissionValue<T> {
         if(!codecCache.containsKey(type))
         {
             Codec<PermissionValue<?>> codec = type.codec().xmap(value -> new PermissionValue<>(permission,value),val -> (T)val.get());
-            codecCache.put(type,codec);
+            //Make a fallback codec that will load the default value so that permission maps won't break entire traders if I decided to change a permission's type
+            Codec<PermissionValue<T>> fallbackCodec = MapCodec.unitCodec(permission::createNew);
+            codecCache.put(type,Codec.withAlternative(codec,fallbackCodec));
         }
         return codecCache.get(type);
     }

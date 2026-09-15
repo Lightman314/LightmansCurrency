@@ -17,8 +17,8 @@ import io.github.lightman314.lightmanscurrency.api.coins.display.builtin.NullDis
 import io.github.lightman314.lightmanscurrency.api.coins.value.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.coins.events.BuildDefaultCoinDataEvent;
 import io.github.lightman314.lightmanscurrency.api.helpers.EnumHelper;
-import io.github.lightman314.lightmanscurrency.api.helpers.data.DataContext;
-import io.github.lightman314.lightmanscurrency.api.text.LCText;
+import io.github.lightman314.lightmanscurrency.api.helpers.ListHelper;
+import io.github.lightman314.lightmanscurrency.api.helpers.data.CodecInteractionHelper;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.IdentifierException;
@@ -32,23 +32,34 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import javax.annotation.Nullable;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.function.Supplier;
+import java.util.function.Consumer;
 
 public class ChainData {
 
     public static final Comparator<CoinEntry> SORT_HIGHEST_VALUE_FIRST = Comparator.comparingLong(CoinEntry::getInternalValue).reversed();
     public static final Comparator<CoinEntry> SORT_LOWEST_VALUE_FIRST = Comparator.comparingLong(CoinEntry::getInternalValue);
 
+    public static final TextEntry TOOLTIP_COIN_ADVANCED_CHAIN = TextEntry.tooltip(LCApi.MODID,"coin.advanced.chain");
+    public static final TextEntry TOOLTIP_COIN_ADVANCED_VALUE = TextEntry.tooltip(LCApi.MODID,"coin.advanced.value");
+    public static final TextEntry TOOLTIP_COIN_ADVANCED_CORE_CHAIN = TextEntry.tooltip(LCApi.MODID,"coin.advanced.core_chain");
+    public static final TextEntry TOOLTIP_COIN_ADVANCED_SIDE_CHAIN = TextEntry.tooltip(LCApi.MODID,"coin.advanced.side_chain");
+
     public final boolean isEvent;
     public final String chain;
     private final Component displayName;
     public Component getDisplayName() { return this.displayName; }
+
+    @Nullable
+    private final Identifier displaySprite;
+    @Nullable
+    public Identifier getDisplaySprite() { return this.displaySprite; }
 
     private final CoinInputType inputType;
     public CoinInputType getInputType() { return this.inputType; }
@@ -56,7 +67,10 @@ public class ChainData {
     private final ValueDisplayData displayData;
     public ValueDisplayData getDisplayData() { return this.displayData; }
 
-    public boolean isVisibleTo(Player player) { return true; /*!this.isEvent || EventUnlocks.isUnlocked(player, this.chain) || LCApi.isInAdminMode(player);*/ }
+    public boolean isVisibleTo(Player player) {
+        //TODO check for unlocked data
+        return true; /*!this.isEvent || EventUnlocks.isUnlocked(player, this.chain) || LCApi.isInAdminMode(player);*/
+    }
 
     private final ATMData atmData;
     public boolean hasATMData() { return this.atmData != null && !this.atmData.getExchangeButtons().isEmpty(); }
@@ -70,12 +84,12 @@ public class ChainData {
             CoinEntry entry = this.findEntry(stack);
             if(entry != null)
             {
-                tooltip.add(LCText.Coins.TOOLTIP_COIN_ADVANCED_CHAIN.get(this.chain).withStyle(ChatFormatting.DARK_GRAY));
-                tooltip.add(LCText.Coins.TOOLTIP_COIN_ADVANCED_VALUE.get(DecimalFormat.getIntegerInstance().format(entry.getInternalValue())).withStyle(ChatFormatting.DARK_GRAY));
+                tooltip.add(TOOLTIP_COIN_ADVANCED_CHAIN.get(this.chain).withStyle(ChatFormatting.DARK_GRAY));
+                tooltip.add(TOOLTIP_COIN_ADVANCED_VALUE.get(DecimalFormat.getIntegerInstance().format(entry.getInternalValue())).withStyle(ChatFormatting.DARK_GRAY));
                 if(entry.isSideChain())
-                    tooltip.add(LCText.Coins.TOOLTIP_COIN_ADVANCED_SIDE_CHAIN.get().withStyle(ChatFormatting.DARK_GRAY));
+                    tooltip.add(TOOLTIP_COIN_ADVANCED_SIDE_CHAIN.get().withStyle(ChatFormatting.DARK_GRAY));
                 else
-                    tooltip.add(LCText.Coins.TOOLTIP_COIN_ADVANCED_CORE_CHAIN.get().withStyle(ChatFormatting.DARK_GRAY));
+                    tooltip.add(TOOLTIP_COIN_ADVANCED_CORE_CHAIN.get().withStyle(ChatFormatting.DARK_GRAY));
             }
         }
     }
@@ -89,6 +103,7 @@ public class ChainData {
     {
         this.chain = builder.chain;
         this.displayName = builder.displayName;
+        this.displaySprite = builder.displaySprite;
         this.displayData = builder.displayData;
         this.displayData.setParent(this);
         this.inputType = builder.inputType;
@@ -112,10 +127,15 @@ public class ChainData {
         this.cacheCoinExchanges();
     }
 
-    protected ChainData(String chain,List<CoinEntry> existingEntries,JsonObject json,DataContext<JsonElement> context) throws JsonSyntaxException, IdentifierException
+    protected ChainData(String chain, List<CoinEntry> existingEntries, JsonObject json, CodecInteractionHelper<JsonElement> context) throws JsonSyntaxException, IdentifierException
     {
         this.chain = chain;
         this.displayName = ComponentSerialization.CODEC.decode(JsonOps.INSTANCE,json.get("name")).getOrThrow(JsonSyntaxException::new).getFirst();
+
+        if(json.has("icon"))
+            this.displaySprite = Identifier.parse(GsonHelper.getAsString(json,"icon"));
+        else
+            this.displaySprite = null;
 
         this.isEvent = GsonHelper.getAsBoolean(json, "EventChain", false);
 
@@ -246,7 +266,7 @@ public class ChainData {
         }
     }
 
-    public JsonObject getAsJson(DataContext<JsonElement> context)
+    public JsonObject getAsJson(CodecInteractionHelper<JsonElement> context)
     {
         JsonObject json = new JsonObject();
         //Write base data
@@ -254,6 +274,9 @@ public class ChainData {
         json.addProperty("displayType", LCRegistries.Coins.VALUE_DISPLAY_SERIALIZER.getKey(this.displayData.getSerializer()).toString());
         this.displayData.getSerializer().writeAdditional(this.displayData, json);
         json.addProperty("InputType", this.inputType.name());
+
+        if(this.displaySprite != null)
+            json.addProperty("icon",this.displaySprite.toString());
 
         if(this.isEvent)
             json.addProperty("EventChain",true);
@@ -449,7 +472,7 @@ public class ChainData {
     public static Builder builder(String chain, Component displayName) { return new Builder(BuildDefaultCoinDataEvent.getExistingEntries(), chain, displayName); }
     public static Builder builder(String chain, TextEntry displayName) { return new Builder(BuildDefaultCoinDataEvent.getExistingEntries(), chain, displayName.get()); }
 
-    public static ChainData fromJson(String chain,List<CoinEntry> existingEntries, JsonObject json, DataContext<JsonElement> context) throws JsonSyntaxException, IdentifierException { return new ChainData(chain,existingEntries,Objects.requireNonNull(json),context); }
+    public static ChainData fromJson(String chain, List<CoinEntry> existingEntries, JsonObject json, CodecInteractionHelper<JsonElement> context) throws JsonSyntaxException, IdentifierException { return new ChainData(chain,existingEntries,Objects.requireNonNull(json),context); }
 
     public static class Builder
     {
@@ -458,6 +481,8 @@ public class ChainData {
 
         public final String chain;
         private final Component displayName;
+        @Nullable
+        private Identifier displaySprite;
         private boolean isEvent = false;
         private ValueDisplayData displayData = NullDisplay.INSTANCE;
         private CoinInputType inputType = CoinInputType.DEFAULT;
@@ -475,6 +500,8 @@ public class ChainData {
 
         public Builder withDisplay(ValueDisplayData display) { this.displayData = display; return this; }
         public Builder withInputType(CoinInputType inputType) { this.inputType = inputType; return this; }
+
+        public Builder withDisplaySprite(Identifier displaySprite) { this.displaySprite = displaySprite; return this; }
 
         public Builder asEvent() { this.isEvent = true; return this; }
 
@@ -544,7 +571,7 @@ public class ChainData {
 
     }
 
-    public static void addCoinTooltips(ItemStack stack, List<Component> tooltip, TooltipFlag flag, @Nullable Player player)
+    public static void addCoinTooltips(ItemStack stack, Item.TooltipContext context,TooltipDisplay display,@Nullable Player player,TooltipFlag flag,Consumer<Component> builder)
     {
         ChainData chain = LCApi.getCoinAPI().lookupChain(stack);
         if(chain != null)
@@ -552,7 +579,7 @@ public class ChainData {
             List<Component> lines = new ArrayList<>();
             if(player == null || flag.isAdvanced() || flag.isCreative() || chain.isVisibleTo(player))
                 chain.formatCoinTooltip(stack, lines, flag);
-            //TooltipItem.insertTooltip(tooltip,lines);
+            ListHelper.consumeAll(builder,lines);
         }
     }
 

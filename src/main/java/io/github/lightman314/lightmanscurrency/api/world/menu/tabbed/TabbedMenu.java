@@ -9,22 +9,26 @@ import io.github.lightman314.lightmanscurrency.api.world.menu.MessageMenu;
 import io.github.lightman314.lightmanscurrency.api.world.menu.validation.IValidatedMenu;
 import io.github.lightman314.lightmanscurrency.api.world.menu.validation.MenuValidator;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 public abstract class TabbedMenu<X extends TabbedMenu<X,T>,T extends MenuTab<X>> extends MessageMenu implements ITickerServer {
 
+    private final int inventorySlots;
+
     private final Map<Integer,T> tabs;
     public final Map<Integer,T> getTabs() { return this.tabs; }
+
+    public Identifier getMenuKey() { return BuiltInRegistries.MENU.getKey(this.getType()); }
 
     private final int defaultTab;
     private int currentTab;
@@ -44,15 +48,19 @@ public abstract class TabbedMenu<X extends TabbedMenu<X,T>,T extends MenuTab<X>>
         this.defaultTab = this.currentTab = this.calculateDefaultTab();
         //Add Slots
         this.addInventorySlots(player.getInventory());
+        //Keep track of how many inventory slots are present
+        this.inventorySlots = this.slots.size();
+        this.addBonusSlots();
         //Add Tab Slots
         for(MenuTab<?> tab : this.getTabs().values())
             tab.addMenuSlots(this::addSlot);
 
         this.debugTabs();
-        this.debugSlotCount();
+        //this.debugSlotCount();
 
         //Flag the first tab as opened
         this.tabs.get(this.currentTab).onTabOpened(FancyPacketMap.EMPTY);
+
     }
 
     protected final void debugTabs() {
@@ -60,6 +68,8 @@ public abstract class TabbedMenu<X extends TabbedMenu<X,T>,T extends MenuTab<X>>
     }
 
     protected abstract void addInventorySlots(Inventory inventory);
+
+    protected void addBonusSlots() {}
 
     //Seperate method so that children can define this seperately
     protected int calculateDefaultTab() {
@@ -86,47 +96,88 @@ public abstract class TabbedMenu<X extends TabbedMenu<X,T>,T extends MenuTab<X>>
         if(this.currentTab == tabSlot)
             return; //Nothing to change here!
         T newTab = this.tabs.get(tabSlot);
-        if(newTab == null || (!newTab.canOpen() && tabSlot != this.defaultTab))
+        if(newTab == null || (!newTab.canOpen() && tabSlot != this.defaultTab)) {
+            LightmansCurrency.LogWarning("Failed to open tab " + tabSlot + " on the " + DebugHelper.sideName(this));
             return; //No new tab to open in that slot
+        }
         this.tabs.get(this.currentTab).onTabClosed();
         this.currentTab = tabSlot;
         newTab.onTabOpened(message);
         this.tabChangeListener.accept(tabSlot,message);
+        //LightmansCurrency.LogDebug("Changed tab to " + tabSlot + " on the " + DebugHelper.sideName(this));
         if(sendPacket)
         {
-            this.send(FancyPacketMap.newMutable().setMap("changeTab",FancyPacketMap.newMutable()
+            this.send(FancyPacketMap.map().setMap("changeTab",FancyPacketMap.map()
                     .setInt("slot",tabSlot)
                     .setOptionalMap("additional",message)));
         }
     }
 
     @Override
+    @OverridingMethodsMustInvokeSuper
     public void handleMessage(FancyPacketMap message) {
         if(message.contains("changeTab"))
         {
             FancyPacketMap entry = message.getMap("changeTab");
-            int slot = message.getInt("slot");
-            FancyPacketMap additional = message.getMap("additional");
+            int slot = entry.getInt("slot");
+            FancyPacketMap additional = entry.getMap("additional");
             //Call the same method on both sides, but don't send the packet when it was received *from* a packet
             this.changeTab(slot,additional,false);
         }
+        //Send to the current tab
+        this.getCurrentTab().handleMessage(message);
     }
 
     @Override
     public final ItemStack quickMoveStack(Player player,int slotIndex) {
-        if(this.getCurrentTab().quickMoveStack(player,slotIndex))
-            return ItemStack.EMPTY;
+        Optional<ItemStack> result = this.getCurrentTab().quickMoveStack(player,slotIndex);
+        if(result.isPresent())
+            return result.get();
         return this.quickMoveAction(player,slotIndex);
     }
-    protected ItemStack quickMoveAction(Player player, int slotIndex) { return ItemStack.EMPTY; }
+
+    protected ItemStack quickMoveAction(Player player, int slotIndex) {
+        ItemStack clicked = ItemStack.EMPTY;
+        Slot slot = this.slots.get(slotIndex);
+        if(slot != null && slot.hasItem())
+        {
+            ItemStack stack = slot.getItem();
+            clicked = stack.copy();
+            if(slotIndex < this.inventorySlots)
+            {
+                //If the slot is within the inventory slot range, quick move from the players inventory into the available bonus slots
+                if(!this.moveItemStackTo(stack,this.inventorySlots,this.slots.size(),false))
+                    return ItemStack.EMPTY;
+            }
+            else {
+                //Otherwise quick-move from the bonus slot back into the players inventory
+                if(!this.moveItemStackTo(stack,0,this.inventorySlots,true))
+                    return ItemStack.EMPTY;
+            }
+            if(stack.isEmpty())
+                slot.setByPlayer(ItemStack.EMPTY);
+            else
+                slot.setChanged();
+        }
+        return clicked;
+    }
 
     @Override
+    @OverridingMethodsMustInvokeSuper
     public void serverTick() {
         if(!this.getCurrentTab().canOpen())
             this.changeTab(this.defaultTab);
     }
 
-    public static int sortTabs(Map.Entry<?,? extends MenuTab<?>> tabA,Map.Entry<?,? extends MenuTab<?>> tabB) {
+    @Override
+    @OverridingMethodsMustInvokeSuper
+    public void removed(Player player) {
+        super.removed(player);
+        for(MenuTab<X> tab : this.tabs.values())
+            tab.onMenuClosed();
+    }
+
+    public static int sortTabs(Map.Entry<?,? extends MenuTab<?>> tabA, Map.Entry<?,? extends MenuTab<?>> tabB) {
         return sortTabs(tabA.getValue(),tabB.getValue());
     }
     public static int sortTabs(MenuTab<?> tabA, MenuTab<?> tabB) {
@@ -155,14 +206,8 @@ public abstract class TabbedMenu<X extends TabbedMenu<X,T>,T extends MenuTab<X>>
         }
 
         @Override
-        public boolean stillValid(Player player) {
-            for(MenuValidator v : new ArrayList<>(this.validators))
-            {
-                if(!v.stillValid(player))
-                    return false;
-            }
-            return true;
-        }
+        public boolean stillValid(Player player) { return MenuValidator.stillValid(player,this.validators); }
+
     }
 
 }

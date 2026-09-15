@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.config.options.builtin;
 import io.github.lightman314.lightmanscurrency.api.config.options.ListOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 import java.util.List;
@@ -20,6 +21,8 @@ public class ItemListOption extends ListOption<Item> {
 
     @Override
     public boolean allowedListValue(Item newValue) { return this.filter.test(newValue); }
+
+    public boolean contains(ItemStack item) { return this.contains(item.getItem()); }
 
     public static ItemListOption create(Supplier<List<Item>> defaultValue) { return new ItemListOption(defaultValue, i -> true); }
     public static ItemListOption create(Supplier<List<Item>> defaultValue, boolean allowAir) { return new ItemListOption(defaultValue, i -> i != Items.AIR); }

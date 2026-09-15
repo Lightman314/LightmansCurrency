@@ -1,18 +1,19 @@
 package io.github.lightman314.lightmanscurrency.api.trader.data;
 
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
-import io.github.lightman314.lightmanscurrency.api.helpers.registry.RegistryHelper;
+import io.github.lightman314.lightmanscurrency.api.helpers.registry.AbstractType;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.NodeCollector;
+import net.minecraft.core.Registry;
 
-
-public abstract class TraderType {
+public abstract class TraderType extends AbstractType<TraderType> {
 
     public abstract void addNodes(NodeCollector collector);
 
     @Override
-    public int hashCode() { return RegistryHelper.hash(LCRegistries.Trader.TRADER_TYPES,this); }
+    protected Registry<TraderType> getRegistry() { return LCRegistries.Trader.TRADER_TYPES; }
     @Override
-    public String toString() { return RegistryHelper.toString("TraderType",LCRegistries.Trader.TRADER_TYPES,this); }
-
+    protected String getName() { return "TraderType"; }
+    @Override
+    protected final TraderType getEntry() { return super.getEntry(); }
 
 }

@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency.api.client.gui.widget.scrolling;
 
+import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.ScreenHelper;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.IScrollListener;
+import net.minecraft.client.gui.layouts.LayoutElement;
 
 public interface IScrollable {
 
@@ -21,8 +23,9 @@ public interface IScrollable {
 
     default int getMinScroll() { return 0; }
     int getMaxScroll();
+    default boolean showScrollability() { return this.getMaxScroll() > this.getMinScroll(); }
 
-    default IScrollListener buildListener() {
+    default IScrollListener buildScrollListener() {
         return (x,y,dx,dy) -> {
             int scroll = this.getScroll();
             int newScroll = scroll;
@@ -32,7 +35,7 @@ public interface IScrollable {
                 newScroll --;
             if(scroll != newScroll)
             {
-                this.setScroll(scroll);
+                this.setScroll(newScroll);
                 return true;
             }
             return false;
@@ -54,5 +57,16 @@ public interface IScrollable {
 
     static int calculateMaxScroll(int actualSize,int visibleEntries) { return Math.max(actualSize - visibleEntries,0); }
     static int calculateMaxScroll(int actualSize,int entriesPerScroll,int visibleEntries) { return Math.max(0,Math.ceilDiv(actualSize,entriesPerScroll) - (visibleEntries/entriesPerScroll)); }
+
+    interface WithBuiltInListener extends IScrollable, IScrollListener, LayoutElement {
+
+        @Override
+        default boolean onMouseScrolled(int mouseX, int mouseY, double deltaX, double deltaY) {
+            if(ScreenHelper.getWidgetArea(this).isInArea(mouseX,mouseY))
+                return this.buildScrollListener().onMouseScrolled(mouseX,mouseY,deltaX,deltaY);
+            return false;
+        }
+
+    }
 
 }

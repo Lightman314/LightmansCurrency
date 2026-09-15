@@ -2,7 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.coins.value;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
+import com.mojang.brigadier.exceptions.Dynamic3CommandExceptionType;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.coins.data.ChainData;
@@ -10,7 +10,7 @@ import io.github.lightman314.lightmanscurrency.api.coins.data.coin.CoinEntry;
 import io.github.lightman314.lightmanscurrency.api.helpers.NumberHelper;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.values.parsing.MoneyValueParser;
-import io.github.lightman314.lightmanscurrency.api.text.LCText;
+import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import net.minecraft.IdentifierException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -23,8 +23,11 @@ public class CoinValueParser extends MoneyValueParser<CoinValue> {
 
     public static final CoinValueParser INSTANCE = new CoinValueParser();
 
-    public static final DynamicCommandExceptionType NOT_A_COIN_EXCEPTION = new DynamicCommandExceptionType(LCText.Commands.ARGUMENT_MONEY_VALUE_NOT_A_COIN::get);
-    public static final Dynamic2CommandExceptionType DIFFERENT_CHAIN_EXCEPTION = new Dynamic2CommandExceptionType(LCText.Commands.ARGUMENT_MONEY_VALUE_DIFFERENT_CHAIN::get);
+    public static final TextEntry ARGUMENT_MONEY_VALUE_NOT_A_COIN = TextEntry.argument("money_value.not_a_coin");
+    public static final TextEntry ARGUMENT_MONEY_VALUE_DIFFERENT_CHAIN = TextEntry.argument("money_value.different_chain");
+
+    public static final DynamicCommandExceptionType NOT_A_COIN_EXCEPTION = new DynamicCommandExceptionType(ARGUMENT_MONEY_VALUE_NOT_A_COIN::get);
+    public static final Dynamic3CommandExceptionType DIFFERENT_CHAIN_EXCEPTION = new Dynamic3CommandExceptionType(ARGUMENT_MONEY_VALUE_DIFFERENT_CHAIN::get);
 
     private CoinValueParser() { super("coin"); }
 
@@ -92,7 +95,7 @@ public class CoinValueParser extends MoneyValueParser<CoinValue> {
                 ChainData oldChain = this.chain.get();
                 if(oldChain.chain.equals(chain.chain))
                     return new PartialValue(this.chain,this.value + (entry.getInternalValue() * count));
-                throw DIFFERENT_CHAIN_EXCEPTION.createWithContext(reader,chain.chain,oldChain.chain);
+                throw DIFFERENT_CHAIN_EXCEPTION.createWithContext(reader,BuiltInRegistries.ITEM.getKey(entry.getCoin()),chain.chain,oldChain.chain);
             }
             return new PartialValue(Optional.of(chain),entry.getInternalValue() * count);
         }

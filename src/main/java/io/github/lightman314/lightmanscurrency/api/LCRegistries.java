@@ -9,13 +9,18 @@ import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketTy
 import io.github.lightman314.lightmanscurrency.api.icon.IconType;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValueHelper;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValueType;
+import io.github.lightman314.lightmanscurrency.api.money.values.source.MoneyValueSourceType;
+import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
+import io.github.lightman314.lightmanscurrency.api.notifications.category.NotificationCategoryType;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerType;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.PotentialOwnerProvider;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderType;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.Permission;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.PermissionType;
+import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeDataType;
+import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePriceReceiptType;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePriceType;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.api.upgrades.data.NumberSourceType;
@@ -35,6 +40,9 @@ public final class LCRegistries {
 
         public static final ResourceKey<Registry<MoneyValueType<?>>> VALUE_TYPE_KEY = ResourceKey.createRegistryKey(LCApi.id("money_value_type"));
         public static final Registry<MoneyValueType<?>> VALUE_TYPE = new RegistryBuilder<>(VALUE_TYPE_KEY).sync(true).create();
+
+        public static final ResourceKey<Registry<MoneyValueSourceType<?>>> VALUE_SOURCE_KEY = ResourceKey.createRegistryKey(LCApi.id("money_value_source_type"));
+        public static final Registry<MoneyValueSourceType<?>> VALUE_SOURCE = new RegistryBuilder<>(VALUE_SOURCE_KEY).sync(true).create();
 
         public static final ResourceKey<Registry<MoneyValueHelper>> VALUE_HELPER_KEY = ResourceKey.createRegistryKey(LCApi.id("money_value_helper"));
         public static final Registry<MoneyValueHelper> VALUE_HELPER = new RegistryBuilder<>(VALUE_HELPER_KEY).defaultKey(LCApi.id("default")).create();
@@ -89,11 +97,27 @@ public final class LCRegistries {
         public static final ResourceKey<Registry<TradePriceType<?>>> TRADE_PRICE_TYPE_KEY = ResourceKey.createRegistryKey(LCApi.id("trade_price_type"));
         public static final Registry<TradePriceType<?>> TRADE_PRICE_TYPE = new RegistryBuilder<>(TRADE_PRICE_TYPE_KEY).sync(true).create();
 
+        public static final ResourceKey<Registry<TradePriceReceiptType<?>>> TRADE_PRICE_RECEIPT_TYPE_KEY = ResourceKey.createRegistryKey(LCApi.id("trade_price_receipt_type"));
+        public static final Registry<TradePriceReceiptType<?>> TRADE_PRICE_RECEIPT_TYPE = new RegistryBuilder<>(TRADE_PRICE_RECEIPT_TYPE_KEY).sync(true).create();
+
+        public static final ResourceKey<Registry<TradeRuleType<?>>> TRADE_RULE_TYPE_KEY = ResourceKey.createRegistryKey(LCApi.id("trade_rule"));
+        public static final Registry<TradeRuleType<?>> TRADE_RULE_TYPE = new RegistryBuilder<>(TRADE_RULE_TYPE_KEY).sync(true).create();
+
         public static final ResourceKey<Registry<PermissionType<?>>> PERMISSION_TYPE_KEY = ResourceKey.createRegistryKey(LCApi.id("trader_permission_type"));
         public static final Registry<PermissionType<?>> PERMISSION_TYPE = new RegistryBuilder<>(PERMISSION_TYPE_KEY).sync(true).create();
 
         public static final ResourceKey<Registry<Permission<?>>> PERMISSION_KEY = ResourceKey.createRegistryKey(LCApi.id("trader_permission"));
         public static final Registry<Permission<?>> PERMISSION = new RegistryBuilder<>(PERMISSION_KEY).sync(true).create();
+
+    }
+
+    public static final class Notifications {
+
+        public static final ResourceKey<Registry<NotificationType<?>>> NOTIFICATION_TYPE_KEY = ResourceKey.createRegistryKey(LCApi.id("notification"));
+        public static final Registry<NotificationType<?>> NOTIFICATION_TYPE = new RegistryBuilder<>(NOTIFICATION_TYPE_KEY).sync(true).create();
+
+        public static final ResourceKey<Registry<NotificationCategoryType<?>>> NOTIFICATION_CATEGORY_TYPE_KEY = ResourceKey.createRegistryKey(LCApi.id("notification_category"));
+        public static final Registry<NotificationCategoryType<?>> NOTIFICATION_CATEGORY_TYPE = new RegistryBuilder<>(NOTIFICATION_CATEGORY_TYPE_KEY).sync(true).create();
 
     }
 

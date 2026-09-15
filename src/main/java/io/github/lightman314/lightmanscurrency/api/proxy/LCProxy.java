@@ -29,6 +29,8 @@ public class LCProxy {
         return null;
     }
 
+    public boolean isSelf(Player player) { return false; }
+
     public List<GameProfile> getPlayerList(ISidedContext context) {
         List<GameProfile> profiles = new ArrayList<>();
         if(context.isServer())
@@ -39,5 +41,11 @@ public class LCProxy {
         }
         return profiles;
     }
+
+    @Nullable
+    public Player getLocalPlayer() { return null; }
+
+    public long getTimeDesync() { return 0; }
+    public void setTimeDesync(long offset) {}
 
 }

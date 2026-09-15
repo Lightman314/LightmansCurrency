@@ -1,29 +1,40 @@
 package io.github.lightman314.lightmanscurrency.api.trader.nodes;
 
-import java.util.Map;
-import java.util.Optional;
+import com.google.common.collect.ImmutableSet;
+import io.github.lightman314.lightmanscurrency.api.LCRegistries;
+import net.minecraft.resources.Identifier;
 
-public interface NodeCollector {
+import java.util.*;
+
+public interface NodeCollector extends Iterable<TraderNodeType<?>> {
 
     void addNode(TraderNodeType<?> node);
-    void addNode(TraderNodeType<?> node,Optional<Object> argument);
+    default void addNode(TraderNodeType<?> node,Object argument) { this.addNode(node); this.addArgument(node,argument); }
+    default void addArgument(TraderNodeType<?> node,Object argument) { this.addArgument(LCRegistries.Trader.TRADER_NODE_TYPE.getKey(node),argument); }
+    void addArgument(Identifier key,Object argument);
     void removeNode(TraderNodeType<?> node);
+    default void replaceNode(TraderNodeType<?> oldNode,TraderNodeType<?> newNode) {
+        this.removeNode(oldNode);
+        this.addNode(newNode);
+    }
 
-    static NodeCollector forMap(Map<TraderNodeType<?>,Optional<Object>> map) { return forMap(map,TraderArguments.builder()); }
-    static NodeCollector forMap(Map<TraderNodeType<?>,Optional<Object>> map,TraderArguments arguments) { return new Basic(map,arguments); }
+    static NodeCollector basic() { return basic(TraderArguments.builder()); }
+    static NodeCollector basic(TraderArguments arguments) { return new Basic(arguments); }
 
     final class Basic implements NodeCollector
     {
-        private final Map<TraderNodeType<?>,Optional<Object>> data;
+        private final Set<TraderNodeType<?>> nodes = new HashSet<>();
         private final TraderArguments arguments;
-        private Basic(Map<TraderNodeType<?>,Optional<Object>> map,TraderArguments arguments) { this.data = map; this.arguments = arguments; }
+        private Basic(TraderArguments arguments) { this.arguments = arguments; }
 
         @Override
-        public void addNode(TraderNodeType<?> node) { this.data.put(node,this.arguments.get(node)); }
+        public void addNode(TraderNodeType<?> node) { this.nodes.add(node); }
         @Override
-        public void addNode(TraderNodeType<?> node,Optional<Object> argument) { this.data.put(node,argument); }
+        public void addArgument(Identifier key,Object argument) { this.arguments.with(key,argument); }
         @Override
-        public void removeNode(TraderNodeType<?> node) { this.data.remove(node); }
+        public void removeNode(TraderNodeType<?> node) { this.nodes.remove(node); }
+        @Override
+        public Iterator<TraderNodeType<?>> iterator() { return ImmutableSet.copyOf(this.nodes).iterator(); }
     }
 
 }

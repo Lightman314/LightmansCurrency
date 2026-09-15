@@ -23,6 +23,7 @@ import java.util.Map;
 public abstract class TabbedMenuScreen<M extends TabbedMenu<M,T>,T extends MenuTab<M>,C extends ClientMenuTab<M,? extends T,T,?>> extends MessageMenuScreen<M> {
 
     private final Map<Integer,C> clientTabs;
+    private final Map<C,Integer> keyLookup;
 
     protected boolean initialized = false;
     private int currentTab;
@@ -44,7 +45,8 @@ public abstract class TabbedMenuScreen<M extends TabbedMenu<M,T>,T extends MenuT
                 C newTab = (C)ClientMenuTab.create(this.getMenu(),tab,this);
                 if(newTab == null)
                     LightmansCurrency.LogError("No Client Tab Builder was registered for " + tab.getClientTabKey() + "!");
-                builder.put(key,newTab);
+                else
+                    builder.put(key,newTab);
             } catch (ClassCastException exception) {
                 LightmansCurrency.LogError("Error adding client tab to the screen!",exception);
             }
@@ -52,9 +54,11 @@ public abstract class TabbedMenuScreen<M extends TabbedMenu<M,T>,T extends MenuT
         this.clientTabs = builder.build();
         if(!this.clientTabs.containsKey(this.currentTab))
             throw new IllegalStateException("Screen did not properly construct the default client tab!");
+        ImmutableMap.Builder<C,Integer> keyLookupBuilder = ImmutableMap.builderWithExpectedSize(this.clientTabs.size());
+        this.clientTabs.forEach((key,tab) -> keyLookupBuilder.put(tab,key));
+        this.keyLookup = keyLookupBuilder.build();
 
         this.debugTabs();
-
     }
 
     protected final void debugTabs() {
@@ -63,10 +67,9 @@ public abstract class TabbedMenuScreen<M extends TabbedMenu<M,T>,T extends MenuT
 
     private void changeTab(C tab)
     {
-        this.clientTabs.forEach((slot,t) -> {
-            if(t == tab)
-                this.menu.changeTab(slot);
-        });
+        int newTab = this.keyLookup.get(tab);
+        //LightmansCurrency.LogDebug("Clicked tab button for tab " + newTab);
+        this.menu.changeTab(newTab);
     }
 
     private void onTabChanged(int newSlot,FancyPacketMap packet)
@@ -74,9 +77,11 @@ public abstract class TabbedMenuScreen<M extends TabbedMenu<M,T>,T extends MenuT
         if(this.currentTab == newSlot || !this.clientTabs.containsKey(newSlot))
             return;
         C oldTab = this.getCurrentTab();
+        this.removeChild(oldTab);
         oldTab.onTabClosed();
         this.currentTab = newSlot;
         C newTab = this.getCurrentTab();
+        this.addChild(newTab);
         newTab.onTabOpened(packet);
     }
 
@@ -103,10 +108,12 @@ public abstract class TabbedMenuScreen<M extends TabbedMenu<M,T>,T extends MenuT
                     .active(() -> tab != this.getCurrentTab())
                     .onPress(() -> this.changeTab(tab))
                     .build());
-            this.tabPositioner.addWidget(button);
+            this.tabPositioner.addWidgets(button);
         }
         //Initialize the current tab
-        this.getCurrentTab().onTabOpened(FancyPacketMap.EMPTY);
+        C currentTab = this.getCurrentTab();
+        this.addChild(currentTab);
+        currentTab.onTabOpened(FancyPacketMap.EMPTY);
     }
 
     @Override
@@ -120,6 +127,9 @@ public abstract class TabbedMenuScreen<M extends TabbedMenu<M,T>,T extends MenuT
     public static int sortTabs(ClientMenuTab<?,?,?,?> tabA,ClientMenuTab<?,?,?,?> tabB) {
         return Integer.compare(getSortPriority(tabA),getSortPriority(tabB));
     }
+
+    @Override
+    protected boolean blockInventoryMenuClosing() { return this.getCurrentTab().blockInventoryButtonClosing(); }
 
     private static int getSortPriority(ClientMenuTab<?,?,?,?> tab) { return ISortedTab.getTabSortPriority(tab,tab.getCommonTab()); }
 

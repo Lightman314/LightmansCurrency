@@ -1,0 +1,11 @@
+{
+  "type": "lightmanscurrency:wallet_upgrade",
+  "category": "misc",
+  "group": "wallet_upgrading",
+  "ingredients": [
+    "lightmanscurrency:wallet_diamond",
+    "#c:ingots/netherite",
+    "minecraft:dragon_head"
+  ],
+  "result": "lightmanscurrency:wallet_ender_dragon"
+}

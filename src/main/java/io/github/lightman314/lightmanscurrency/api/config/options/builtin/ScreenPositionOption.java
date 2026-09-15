@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.IntOption;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParser;
 import io.github.lightman314.lightmanscurrency.api.config.options.parsing.ConfigParsingException;
+import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
 import java.util.function.Supplier;
@@ -26,6 +27,9 @@ public class ScreenPositionOption extends ConfigOption<ScreenPosition> {
     @Nullable
     @Override
     protected String bonusComment() { return "Default: " + PARSER.write(this.getDefaultValue()); }
+    @Nullable
+    @Override
+    protected Component bonusCommentTooltip() { return CONFIG_OPTION_DEFAULT.get(PARSER.write(this.getDefaultValue())); }
 
     private static class Parser implements ConfigParser<ScreenPosition>
     {

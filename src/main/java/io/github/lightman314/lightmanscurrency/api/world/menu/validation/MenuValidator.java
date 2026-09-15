@@ -7,17 +7,33 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
-public interface MenuValidator {
+public abstract class MenuValidator {
 
-    StreamCodec<RegistryFriendlyByteBuf,MenuValidator> STREAM_CODEC = ByteBufCodecs.registry(LCRegistries.Misc.MENU_VALIDATOR_KEY)
+    private static final StreamCodec<RegistryFriendlyByteBuf,MenuValidator> INTERNAL_STREAM_CODEC = ByteBufCodecs.registry(LCRegistries.Misc.MENU_VALIDATOR_KEY)
             .dispatch(MenuValidator::getType,Function.identity());
+    public static final StreamCodec<RegistryFriendlyByteBuf,MenuValidator> STREAM_CODEC = StreamCodec.of((buf,val) -> {
+        buf.writeBoolean(val.networkAccess);
+        INTERNAL_STREAM_CODEC.encode(buf,val);
+    },buf -> {
+        boolean networkAccess = buf.readBoolean();
+        MenuValidator val = INTERNAL_STREAM_CODEC.decode(buf);
+        val.networkAccess = networkAccess;
+        return val;
+    });
 
-    StreamCodec<? super RegistryFriendlyByteBuf,? extends MenuValidator> getType();
+    private boolean networkAccess;
+    public final boolean isNetworkAccess() { return this.networkAccess; }
+    public final void flagAsNetworkAccess() { this.networkAccess = true; }
 
-    boolean stillValid(Player player);
+    public abstract StreamCodec<? super RegistryFriendlyByteBuf,? extends MenuValidator> getType();
 
-    default boolean isSimple() { return this instanceof SimpleValidator; }
+    public abstract boolean stillValid(Player player);
+    public static boolean stillValid(Player player, List<MenuValidator> validatorList) { return new ArrayList<>(validatorList).stream().allMatch(v -> v.stillValid(player)); }
+
+    public final boolean isSimple() { return this instanceof SimpleValidator; }
 
 }

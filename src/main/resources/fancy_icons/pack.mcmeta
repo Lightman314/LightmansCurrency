@@ -1,0 +1,8 @@
+{
+   "pack": {
+		"description": { "translate": "resourcepack.lightmanscurrency.fancy_icons.description" },
+	    "credit": "Made by Dowar",
+	    "min_format": 84,
+        "max_format": 128000
+   }
+}
