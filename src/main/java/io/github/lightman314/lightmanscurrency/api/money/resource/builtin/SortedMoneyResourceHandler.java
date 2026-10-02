@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.money.resource.builtin;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.SortableMoneyResourceHandler;
-import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import net.minecraft.network.chat.Component;
 
@@ -27,7 +27,7 @@ public class SortedMoneyResourceHandler extends IterableMoneyResourceHandler {
     @Override
     public List<MoneyValue> getAllResources() { return MoneyView.wrap(this.holdersExtractFirst).getAllResources(); }
     @Override
-    public MoneyValue getResource(MoneyKey key) { return MoneyView.wrap(this.holdersExtractFirst).getResource(key); }
+    public MoneyValue getResource(DualKey key) { return MoneyView.wrap(this.holdersExtractFirst).getResource(key); }
 
     public List<Component> getTooltips() {
         List<Component> result = new ArrayList<>();

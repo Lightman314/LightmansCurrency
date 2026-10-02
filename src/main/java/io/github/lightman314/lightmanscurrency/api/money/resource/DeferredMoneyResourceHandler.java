@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.money.resource;
 
-import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.ApiStatus;
@@ -18,7 +18,7 @@ public interface DeferredMoneyResourceHandler extends MoneyResourceHandler {
     default List<MoneyValue> getAllResources() { return this.getMoneyResourceHandler().getAllResources(); }
     @Override
     @ApiStatus.NonExtendable
-    default MoneyValue getResource(MoneyKey key) { return this.getMoneyResourceHandler().getResource(key); }
+    default MoneyValue getResource(DualKey key) { return this.getMoneyResourceHandler().getResource(key); }
     @Override
     @ApiStatus.NonExtendable
     default boolean isEmpty() { return this.getMoneyResourceHandler().isEmpty(); }

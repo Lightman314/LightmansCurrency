@@ -14,6 +14,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
@@ -172,5 +174,14 @@ public abstract class TradeRule implements ISidedContext {
         this.handlePlayerInteraction(request);
     }
     protected abstract void handlePlayerInteraction(FancyPacketMap request);
+
+    public final void resetToDefaultValues() {
+        this.active = false;
+        this.resetAdditionalToDefault();
+    }
+    protected abstract void resetAdditionalToDefault();
+
+    public abstract void encodeSettings(ValueOutput output);
+    public abstract void decodeSettings(ValueInput data);
 
 }

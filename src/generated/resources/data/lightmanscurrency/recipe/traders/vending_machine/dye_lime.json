@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "vending_machine_dyes",
+  "ingredients": [
+    "lightmanscurrency:vending_machine_white",
+    "#c:dyes/lime"
+  ],
+  "result": {
+    "id": "lightmanscurrency:vending_machine_lime"
+  }
+}

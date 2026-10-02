@@ -29,25 +29,47 @@ public class LCBlockTagProvider extends BlockTagsProvider {
                 .add(LCBlocks.COIN_PILE_NETHERITE,LCBlocks.COIN_BLOCK_NETHERITE)
                 .add(LCBlocks.COIN_PILE_COPPER,LCBlocks.COIN_BLOCK_COPPER)
                 .add(LCBlocks.COIN_MINT)
-                .addTag(LCTags.Blocks.GROUP_DISPLAY_CASE);
+                .add(LCBlocks.TRADING_TERMINAL)
+                .addTag(LCTags.Blocks.GROUP_DISPLAY_CASE)
+                .addTag(LCTags.Blocks.GROUP_VENDING_MACHINE)
+                .addTag(LCTags.Blocks.GROUP_LARGE_VENDING_MACHINE)
+                .addTag(LCTags.Blocks.GROUP_ITEM_NETWORK_TRADERS);
 
         this.tag(BlockTags.MINEABLE_WITH_AXE)
-                .addTag(LCTags.Blocks.GROUP_CARD_DISPLAY);
+                .addTag(LCTags.Blocks.GROUP_CARD_DISPLAY)
+                .addTag(LCTags.Blocks.GROUP_SINGLE_SHELF)
+                .addTag(LCTags.Blocks.GROUP_DOUBLE_SHELF);
 
         this.tag(LCTags.Blocks.MULTI_BLOCK);
 
         this.tag(LCTags.Blocks.OWNER_PROTECTED)
                 .addTag(LCTags.Blocks.GROUP_DISPLAY_CASE)
-                .addTag(LCTags.Blocks.GROUP_CARD_DISPLAY);
+                .addTag(LCTags.Blocks.GROUP_SINGLE_SHELF)
+                .addTag(LCTags.Blocks.GROUP_DOUBLE_SHELF)
+                .addTag(LCTags.Blocks.GROUP_CARD_DISPLAY)
+                .addTag(LCTags.Blocks.GROUP_VENDING_MACHINE)
+                .addTag(LCTags.Blocks.GROUP_LARGE_VENDING_MACHINE)
+                .addTag(LCTags.Blocks.GROUP_ITEM_NETWORK_TRADERS);
 
         this.tag(LCTags.Blocks.SAFE_INTERACTABLE)
+                .add(LCBlocks.TRADING_TERMINAL)
                 .addTag(LCTags.Blocks.OWNER_PROTECTED);
 
         //Trader Groups for convenience
         this.tag(LCTags.Blocks.GROUP_DISPLAY_CASE)
                 .addBundle(LCBlocks.DISPLAY_CASE);
+        this.tag(LCTags.Blocks.GROUP_SINGLE_SHELF)
+                .addBundle(LCBlocks.SINGLE_SHELF);
+        this.tag(LCTags.Blocks.GROUP_DOUBLE_SHELF)
+                .addBundle(LCBlocks.DOUBLE_SHELF);
         this.tag(LCTags.Blocks.GROUP_CARD_DISPLAY)
                 .addBundle(LCBlocks.CARD_DISPLAY);
+        this.tag(LCTags.Blocks.GROUP_VENDING_MACHINE)
+                .addBundle(LCBlocks.VENDING_MACHINE);
+        this.tag(LCTags.Blocks.GROUP_LARGE_VENDING_MACHINE)
+                .addBundle(LCBlocks.LARGE_VENDING_MACHINE);
+        this.tag(LCTags.Blocks.GROUP_ITEM_NETWORK_TRADERS)
+                .addBundle(LCBlocks.ITEM_NETWORK_TRADER);
 
     }
 

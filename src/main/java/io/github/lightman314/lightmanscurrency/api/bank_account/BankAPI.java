@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.bank_account;
 import io.github.lightman314.lightmanscurrency.api.bank_account.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.bank_account.source.BankAccountSource;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.List;
 
@@ -14,5 +15,7 @@ public interface BankAPI {
     List<BankAccount> getAllBankAccounts(ISidedContext context);
     default List<BankReference> getAllBankReferences(boolean isClient) { return this.getAllBankReferences(ISidedContext.known(isClient)); }
     List<BankReference> getAllBankReferences(ISidedContext context);
+
+    BankReference getPlayersSelectedAccount(Player player);
 
 }

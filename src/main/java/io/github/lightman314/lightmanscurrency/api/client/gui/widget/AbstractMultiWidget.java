@@ -12,7 +12,7 @@ public abstract class AbstractMultiWidget extends FancyWidget implements IMultiW
     private IWidgetHolder parent = null;
     private final List<Object> children = new ArrayList<>();
 
-    public AbstractMultiWidget(AbstractBuilder<?,? extends AbstractMultiWidget> builder) { super(builder); }
+    protected AbstractMultiWidget(AbstractBuilder<?,? extends AbstractMultiWidget> builder) { super(builder); }
 
     @Override
     public final void defineParent(IWidgetHolder screen) { this.parent = screen; }
@@ -29,12 +29,14 @@ public abstract class AbstractMultiWidget extends FancyWidget implements IMultiW
 
     @Override
     public final void removeChild(Object child) {
-        if(this.parent != null)
-        {
+        if(this.parent != null) {
             this.parent.removeChild(child);
         }
         this.children.remove(child);
+        this.afterChildRemoved(child);
     }
+
+    protected void afterChildRemoved(Object child) { }
 
     @Override
     public final void removeAllChildren() {
@@ -53,5 +55,18 @@ public abstract class AbstractMultiWidget extends FancyWidget implements IMultiW
     @Override
     public final void addLateChildren() { this.addLateChildren(this.getArea()); }
     protected abstract void addLateChildren(ScreenArea area);
+
+    public static abstract class LateChildren extends AbstractMultiWidget {
+        protected LateChildren(AbstractBuilder<?, ? extends LateChildren> builder) { super(builder); }
+        @Override
+        protected final void addEarlyChildren(ScreenArea area) { }
+    }
+
+    public static abstract class EarlyChildren extends AbstractMultiWidget {
+        protected EarlyChildren(AbstractBuilder<?, ? extends EarlyChildren> builder) { super(builder); }
+        @Override
+        protected final void addLateChildren(ScreenArea area) { }
+    }
+
 
 }

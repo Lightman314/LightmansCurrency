@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.money.resource.builtin;
 
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
-import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.world.data.DirectionalSettingsState;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
@@ -20,7 +20,7 @@ public class SidedMoneyResourceWrapper implements MoneyResourceHandler {
     @Override
     public List<MoneyValue> getAllResources() { return this.handler.getAllResources(); }
     @Override
-    public MoneyValue getResource(MoneyKey key) { return this.handler.getResource(key); }
+    public MoneyValue getResource(DualKey key) { return this.handler.getResource(key); }
 
     @Override
     public MoneyValue insert(MoneyValue value,TransactionContext transaction) {

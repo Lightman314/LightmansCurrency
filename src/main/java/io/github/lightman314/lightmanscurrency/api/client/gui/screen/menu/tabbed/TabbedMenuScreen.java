@@ -58,7 +58,7 @@ public abstract class TabbedMenuScreen<M extends TabbedMenu<M,T>,T extends MenuT
         this.clientTabs.forEach((key,tab) -> keyLookupBuilder.put(tab,key));
         this.keyLookup = keyLookupBuilder.build();
 
-        this.debugTabs();
+        //this.debugTabs();
     }
 
     protected final void debugTabs() {
@@ -129,7 +129,7 @@ public abstract class TabbedMenuScreen<M extends TabbedMenu<M,T>,T extends MenuT
     }
 
     @Override
-    protected boolean blockInventoryMenuClosing() { return this.getCurrentTab().blockInventoryButtonClosing(); }
+    protected boolean blockInventoryMenuClosing() { return super.blockInventoryMenuClosing() || this.getCurrentTab().blockInventoryButtonClosing(); }
 
     private static int getSortPriority(ClientMenuTab<?,?,?,?> tab) { return ISortedTab.getTabSortPriority(tab,tab.getCommonTab()); }
 

@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.ownership.listing;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import net.minecraft.world.entity.player.Player;
 
@@ -15,7 +16,7 @@ public class PotentialOwnerList {
     private final Player player;
     private final Supplier<Owner> currentOwner;
     private final Predicate<PotentialOwner> filter;
-    private Owner oldOwner;
+    private Owner oldOwner = null;
     private String lastSearch = "";
     private List<PotentialOwner> allOwners = null;
     private List<PotentialOwner> cache = new ArrayList<>();
@@ -41,6 +42,7 @@ public class PotentialOwnerList {
     {
         if(this.allOwners == null)
             this.allOwners = PotentialOwnerProvider.getPotentialOwners(this.player).stream().filter(this.filter).toList();
+        LightmansCurrency.LogDebug("There are " + this.allOwners.size() + " total owners to filter from!");
         this.lastSearch = searchFilter;
         //Re-do the sorting whenever the search is updated
         List<PotentialOwner> temp = new ArrayList<>(this.allOwners);
@@ -56,7 +58,8 @@ public class PotentialOwnerList {
         if(!searchFilter.isBlank())
             temp.removeIf(po -> po.failedFilter(searchFilter));
 
-        this.cache = ImmutableList.copyOf(temp);
+        this.cache = List.copyOf(temp);
+        LightmansCurrency.LogDebug("Found " + this.cache.size() + " potential owners.");
     }
 
     public List<PotentialOwner> getOwners() { return this.cache; }

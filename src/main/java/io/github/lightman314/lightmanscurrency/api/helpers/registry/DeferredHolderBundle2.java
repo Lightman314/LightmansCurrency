@@ -54,6 +54,17 @@ public class DeferredHolderBundle2<K1,K2,R,T extends R> {
     public Collection<T> getAll() { return this.allValues.stream().map(DeferredHolder::get).toList(); }
     public Collection<DeferredHolder<R,T>> getAllHolders(K1 key1) { return this.getSubmap(key1).values(); }
     public Collection<T> getAll(K1 key1) { return this.getAllHolders(key1).stream().map(DeferredHolder::get).toList(); }
+    public Collection<DeferredHolder<R,T>> getAllHolders2(K2 key2) {
+        List<DeferredHolder<R,T>> result = new ArrayList<>();
+        for(K1 key1 : this.getKey1Sorted()) {
+            Map<K2,DeferredHolder<R,T>> submap = this.getSubmap(key1);
+            DeferredHolder<R,T> h = submap.get(key2);
+            if(h != null)
+                result.add(h);
+        }
+        return result;
+    }
+    public Collection<T> getAll2(K2 key2) { return this.getAllHolders2(key2).stream().map(DeferredHolder::get).toList(); }
 
     private List<K1> getKey1Sorted() { return this.getKey1Sorted(this.sorter1); }
     private List<K1> getKey1Sorted(Comparator<K1> sorter) {

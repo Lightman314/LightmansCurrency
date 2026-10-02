@@ -11,7 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.client.gui.widget.money.Money
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.money.MoneyValueWidget;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.trader.client.trade.price.ClientTradePrice;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.customer.TraderCustomerScreen;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeData;
@@ -28,7 +28,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public final class TradePriceWidget extends AbstractMultiWidget {
+public final class TradePriceWidget extends AbstractMultiWidget.LateChildren {
 
     private final Supplier<TradeData> trade;
     private final ITradeInteractionHandler handler;
@@ -42,9 +42,9 @@ public final class TradePriceWidget extends AbstractMultiWidget {
     @Nullable
     private TradePriceWidget oldWidget;
 
-    private final Map<PriceKey,PriceInputHandler> availableHandlers;
+    private final Map<DualKey,PriceInputHandler> availableHandlers;
     private PriceInputHandler currentHandler = null;
-    private final List<PriceKey> handlerKeys = new ArrayList<>();
+    private final List<DualKey> handlerKeys = new ArrayList<>();
 
     private int lastKnownSlot = 0;
     public int getSlot() { return this.lastKnownSlot; }
@@ -77,14 +77,14 @@ public final class TradePriceWidget extends AbstractMultiWidget {
             this.handler.handlePriceEditPacket(trade,message);
     }
 
-    private Map<PriceKey,PriceInputHandler> setupHandlers() {
+    private Map<DualKey,PriceInputHandler> setupHandlers() {
         Minecraft mc = Minecraft.getInstance();
         Player player = mc.player;
-        ImmutableMap.Builder<PriceKey, PriceInputHandler> builder = ImmutableMap.builder();
-        Map<PriceKey,PriceInputHandler> oldHandlers = this.oldWidget != null ? this.oldWidget.availableHandlers : Map.of();
+        ImmutableMap.Builder<DualKey, PriceInputHandler> builder = ImmutableMap.builder();
+        Map<DualKey,PriceInputHandler> oldHandlers = this.oldWidget != null ? this.oldWidget.availableHandlers : Map.of();
         Consumer<PriceInputHandler> b = h -> {
             if(this.typeFilter.test(h.getPriceType())) {
-                PriceKey key = h.getKey();
+                DualKey key = h.getKey();
                 builder.put(key,h);
                 h.setup(this,this::sendPriceChangeMessage,oldHandlers.get(key));
                 this.handlerKeys.add(key);
@@ -97,7 +97,7 @@ public final class TradePriceWidget extends AbstractMultiWidget {
 
     private PriceInputHandler findDefaultHandler() {
         if(this.oldWidget != null && this.oldWidget.currentHandler != null) {
-            PriceKey type = this.oldWidget.currentHandler.getKey();
+            DualKey type = this.oldWidget.currentHandler.getKey();
             if(this.availableHandlers.containsKey(type)) {
                 this.oldWidget = null;
                 PriceInputHandler handler = this.availableHandlers.get(type);
@@ -109,7 +109,7 @@ public final class TradePriceWidget extends AbstractMultiWidget {
         TradePrice price = this.getCurrentPrice();
         //Get last selected if it's a free/empty money type
         if(price instanceof MoneyPrice mp && (mp.getPrice().isFree() || mp.getPrice().isEmpty())) {
-            MoneyKey lastSelected = MoneyValueWidget.getLastSelectedHandler();
+            DualKey lastSelected = MoneyValueWidget.getLastSelectedHandler();
             for(PriceInputHandler h : this.availableHandlers.values()) {
                 if(h instanceof MoneyPriceInputWrapper wrapper && wrapper.getMoneyKey().equals(lastSelected))
                     return h;
@@ -123,9 +123,6 @@ public final class TradePriceWidget extends AbstractMultiWidget {
         //Could not find a valid handler, just return the first one
         return this.availableHandlers.values().stream().toList().getFirst();
     }
-
-    @Override
-    protected void addEarlyChildren(ScreenArea area) { }
 
     @Override
     protected void addLateChildren(ScreenArea area) {
@@ -180,7 +177,7 @@ public final class TradePriceWidget extends AbstractMultiWidget {
 
     private List<DropdownOption> handlerOptions() {
         List<DropdownOption> options = new ArrayList<>();
-        for(PriceKey key : this.handlerKeys) {
+        for(DualKey key : this.handlerKeys) {
             PriceInputHandler handler = this.availableHandlers.get(key);
             options.add(handler.inputOption()
                     .withVisibleCheck(() -> this.displayFilter.test(handler.getPriceType())));

@@ -24,7 +24,9 @@ public class InfoClientTab extends TraderStorageClientTabWithSubTabs<InfoTab,Inf
 
     @Override
     protected void collectSubtabs(Consumer<InfoClientSubTab> builder) {
-        IInfoTabProvider.collectSettings(this, this, builder);
+        InfoTabBuilder tabBuilder = new InfoTabBuilder();
+        IInfoTabProvider.collectInfoTab(this,tabBuilder);
+        tabBuilder.buildTabs(this,builder);
     }
 
     @Override

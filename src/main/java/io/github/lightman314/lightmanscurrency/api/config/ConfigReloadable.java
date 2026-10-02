@@ -5,6 +5,7 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.permissions.Permission;
 import net.minecraft.server.permissions.PermissionLevel;
+import net.minecraft.server.permissions.Permissions;
 
 import java.util.function.Consumer;
 
@@ -44,7 +45,7 @@ public interface ConfigReloadable
             @Override
             public void onCommandReload(CommandSourceStack stack) { reloader.accept(stack); }
             @Override
-            public boolean canReload(CommandSourceStack stack) { return stack.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.GAMEMASTERS)); }
+            public boolean canReload(CommandSourceStack stack) { return stack.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER); }
             @Override
             public boolean alertAdmins() { return true; }
         };

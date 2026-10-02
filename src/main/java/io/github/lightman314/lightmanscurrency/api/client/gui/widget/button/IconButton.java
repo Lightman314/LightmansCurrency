@@ -16,14 +16,16 @@ public class IconButton extends FancyButton implements IMoveableWidget {
     public static final int SIZE = 20;
 
     private final Function<IconButton,IconData> icon;
+    private final Function<IconButton,Integer> color;
     protected IconButton(Builder builder) {
         super(builder);
         this.icon = builder.icon;
+        this.color = builder.color;
     }
 
     @Override
     protected void extractRenderState(FancyGuiExtractor gui, ScreenArea area) {
-        gui.blitButtonSprite(0,0,this.getWidth(),this.getHeight(),this.isActive(),this.isHovered());
+        gui.blitButtonSprite(0,0,this.getWidth(),this.getHeight(),this.isActive(),this.isHovered(),this.color.apply(this));
         //Render normal button background
         IconData i = this.icon.apply(this);
         if(i != null)
@@ -39,12 +41,16 @@ public class IconButton extends FancyButton implements IMoveableWidget {
     {
 
         private Function<IconButton,IconData> icon = b -> IconData.empty();
+        private Function<IconButton,Integer> color = b -> -1;
 
         private Builder() { super(SIZE,SIZE); }
 
         public Builder withIcon(IconData icon) { return this.withIcon(b -> icon); }
         public Builder withIcon(Supplier<IconData> icon) { return this.withIcon(b -> icon.get()); }
         public Builder withIcon(Function<IconButton,IconData> icon) { this.icon = icon; return this; }
+
+        public Builder withColor(Supplier<Integer> color) { return this.withColor(b -> color.get()); }
+        public Builder withColor(Function<IconButton,Integer> color) { this.color = color; return this; }
 
         @Override
         protected Builder getSelf() { return this; }

@@ -12,19 +12,19 @@ import top.theillusivec4.curios.api.CuriosApi;
 public final class LCCurios {
 
     public LCCurios(IEventBus modBus) {
-
         //Replace the helper with a properly implemented one
         LCCuriosHelperImpl.init();
         //Listen to the common setup event
         modBus.addListener(LCCurios::commonSetup);
-        
     }
 
     private static void commonSetup(FMLCommonSetupEvent event) {
-        for(var holder : LCItems.REGISTER.getEntries()) {
-            if(holder.get() instanceof WalletItem item)
-                CuriosApi.registerCurio(item,WalletCurio.INSTANCE);
-        }
+        event.enqueueWork(() -> {
+            for(var holder : LCItems.REGISTER.getEntries()) {
+                if(holder.get() instanceof WalletItem item)
+                    CuriosApi.registerCurio(item,WalletCurio.INSTANCE);
+            }
+        });
     }
 
 }

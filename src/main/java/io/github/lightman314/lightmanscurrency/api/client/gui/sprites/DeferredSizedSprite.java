@@ -5,27 +5,13 @@ import net.minecraft.resources.Identifier;
 
 import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
 
-public class DeferredSizedSprite implements SizedSprite {
+public final class DeferredSizedSprite {
 
-    private final Supplier<Identifier> sprite;
-    private final int width;
-    private final int height;
-    public DeferredSizedSprite(Supplier<Identifier> sprite, int width, int height) {
-        this.sprite = sprite;
-        this.width = width;
-        this.height = height;
-    }
-    @Override
-    public Identifier sprite() { return this.sprite.get(); }
-    @Override
-    public int width() { return this.width; }
-    @Override
-    public int height() { return this.height; }
+    private DeferredSizedSprite() {}
 
     public static SizedSprite.Template<BooleanSupplier> toggleSprite(Identifier onSprite,Identifier offSprite,int width,int height) {
-        return supplier -> new DeferredSizedSprite(() -> supplier.getAsBoolean() ? onSprite : offSprite,width,height);
+        return supplier -> new SizedSprite.Simple(() -> supplier.getAsBoolean() ? onSprite : offSprite,width,height);
     }
 
     public static SizedSprite.Template<BooleanSupplier> toggleAndHoverToggleSprite(Identifier onSprite, Identifier offSprite, int width, int height) {

@@ -52,7 +52,9 @@ public abstract class AbstractItemTradesNode<T extends ItemTradeData> extends Up
     protected Identifier getBaseCountArgument() { return TRADE_COUNT_ARG; }
 
     @Override
-    public Component getSetLabel() { return ItemTradesNode.SECTION_TITLE.get(); }
+    public Component getSettingsName() { return ItemTradesNode.NAME.get(); }
+    @Override
+    public Component getSetLabel() { return ItemTradesNode.NAME.get(); }
 
     @Override
     public TradeResult executeTrade(TradeContext context,int tradeIndex) throws TradeFailedException {
@@ -164,7 +166,7 @@ public abstract class AbstractItemTradesNode<T extends ItemTradeData> extends Up
     }
 
     @Nullable
-    protected Notification buildNotification(T trade,List<ItemStack> product,TradePriceReceipt price,TradePrice.TransferResult priceTransfer, TradeContext context) {
+    protected Notification buildNotification(T trade,List<ItemStack> product,TradePriceReceipt price,TradePrice.TransferResult priceTransfer,TradeContext context) {
         return new ItemTradeNotification(trade.getDirection(),price,ItemHelper.copyList(product),context.getCustomer().getName(this),new TraderCategory(context.getTrader()),priceTransfer.getTaxesPaid());
     }
 

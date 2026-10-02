@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.core;
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -23,6 +24,9 @@ public final class LCGameRules {
 
     public static DeferredHolder<GameRule<?>,GameRule<Boolean>> registerBoolean(String name,GameRuleCategory category,boolean defaultValue) {
         return register(name,() -> new GameRule<>(category,GameRuleType.BOOL,BoolArgumentType.bool(),GameRuleTypeVisitor::visitBoolean,Codec.BOOL,b -> b ? 1 : 0,defaultValue, FeatureFlagSet.of()));
+    }
+    public static DeferredHolder<GameRule<?>,GameRule<Integer>> registerIntRange(String name,GameRuleCategory category,int defaultValue,int min,int max) {
+        return register(name,() -> new GameRule<>(category,GameRuleType.INT, IntegerArgumentType.integer(min,max),GameRuleTypeVisitor::visitInteger,Codec.intRange(min,max),Integer::intValue,defaultValue,FeatureFlagSet.of()));
     }
     public static <T> DeferredHolder<GameRule<?>,GameRule<T>> register(String name, Supplier<GameRule<T>> rule) {
         return REGISTER.register(name,rule);

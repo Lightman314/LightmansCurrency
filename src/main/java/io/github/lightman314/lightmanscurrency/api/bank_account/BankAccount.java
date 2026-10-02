@@ -20,7 +20,7 @@ import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMa
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.SortableMoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.builtin.UnlimitedMoneyStorage;
-import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationStack;
@@ -32,7 +32,9 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import javax.annotation.Nullable;
 
@@ -47,7 +49,7 @@ public class BankAccount extends IRegistryAccess.WithHolder implements SortableM
 
     public static final StreamCodec<RegistryFriendlyByteBuf,BankAccount> STREAM_CODEC = buildStreamCodec(BankAccount.class,BankAccount::new);
 
-    protected static <T extends BankAccount> Products.P6<RecordCodecBuilder.Mu<T>,UnlimitedMoneyStorage,NotificationHolder,String,Map<MoneyKey,MoneyValue>,Integer,List<SalaryData>> baseFields(RecordCodecBuilder.Instance<T> builder) {
+    protected static <T extends BankAccount> Products.P6<RecordCodecBuilder.Mu<T>,UnlimitedMoneyStorage,NotificationHolder,String,Map<DualKey,MoneyValue>,Integer,List<SalaryData>> baseFields(RecordCodecBuilder.Instance<T> builder) {
         return builder.group(
                 UnlimitedMoneyStorage.CODEC.fieldOf("money").forGetter(BankAccount::getMoneyStorage),
                 NotificationHolder.CODEC.fieldOf("logs").forGetter(a -> a.notifications),
@@ -58,9 +60,9 @@ public class BankAccount extends IRegistryAccess.WithHolder implements SortableM
         );
     }
 
-    protected static <T extends BankAccount> Codec<T> buildCodec(Function6<UnlimitedMoneyStorage,NotificationHolder,String,Map<MoneyKey,MoneyValue>,Integer,List<SalaryData>,T> factory) { return RecordCodecBuilder.create(builder -> baseFields(builder).apply(builder,factory)); }
+    protected static <T extends BankAccount> Codec<T> buildCodec(Function6<UnlimitedMoneyStorage,NotificationHolder,String,Map<DualKey,MoneyValue>,Integer,List<SalaryData>,T> factory) { return RecordCodecBuilder.create(builder -> baseFields(builder).apply(builder,factory)); }
 
-    protected static <T extends BankAccount> SPart6<RegistryFriendlyByteBuf,T,UnlimitedMoneyStorage,NotificationHolder,String,Map<MoneyKey,MoneyValue>,Integer,List<SalaryData>> baseStreamFields(Class<T> clazz) {
+    protected static <T extends BankAccount> SPart6<RegistryFriendlyByteBuf,T,UnlimitedMoneyStorage,NotificationHolder,String,Map<DualKey,MoneyValue>,Integer,List<SalaryData>> baseStreamFields(Class<T> clazz) {
         return new SPart6<>(
                 UnlimitedMoneyStorage.STREAM_CODEC,BankAccount::getMoneyStorage,
                 NotificationHolder.STREAM_CODEC,a -> a.notifications,
@@ -70,9 +72,7 @@ public class BankAccount extends IRegistryAccess.WithHolder implements SortableM
                 SalaryData.STREAM_CODEC.apply(ByteBufCodecs.list()),BankAccount::getSalaries);
     }
 
-    protected static <T extends BankAccount> StreamCodec<RegistryFriendlyByteBuf,T> buildStreamCodec(Class<T> clazz,Function6<UnlimitedMoneyStorage,NotificationHolder,String,Map<MoneyKey,MoneyValue>,Integer,List<SalaryData>,T> factory) { return baseStreamFields(clazz).assemble(factory); }
-
-
+    protected static <T extends BankAccount> StreamCodec<RegistryFriendlyByteBuf,T> buildStreamCodec(Class<T> clazz,Function6<UnlimitedMoneyStorage,NotificationHolder,String,Map<DualKey,MoneyValue>,Integer,List<SalaryData>,T> factory) { return baseStreamFields(clazz).assemble(factory); }
 
     @Nullable
     private FancyPacketMap.Mutable changedData = null;
@@ -110,11 +110,12 @@ public class BankAccount extends IRegistryAccess.WithHolder implements SortableM
     private Runnable listener;
     public void setListener(Runnable listener) { this.listener = listener; }
 
+    private final Map<DualKey,NotificationSnapshot> notificationListeners = new HashMap<>();
+
     private final UnlimitedMoneyStorage storage = new UnlimitedMoneyStorage().withListener(() ->
             this.setChanged(builder -> builder.setList("money",LCFancyPacketTypes.MONEY,this.storage.getAllResources())));
 
     public UnlimitedMoneyStorage getMoneyStorage() { return this.storage; }
-
 
     public List<SalaryData> salaryData = new ArrayList<>();
     public List<SalaryData> getSalaries() { return Collections.unmodifiableList(this.salaryData); }
@@ -145,7 +146,7 @@ public class BankAccount extends IRegistryAccess.WithHolder implements SortableM
 
     int cardValidation;
     public int getCardValidation() { return this.cardValidation; }
-    public boolean isCardValid(int validationLevel) { return validationLevel >= this.cardValidation; }
+    public boolean isCardValid(int validationLevel) { return validationLevel == this.cardValidation; }
     public void resetCards() {
         this.cardValidation++;
         this.setChanged(builder -> builder.setInt("CardValidation",this.cardValidation));
@@ -154,13 +155,13 @@ public class BankAccount extends IRegistryAccess.WithHolder implements SortableM
     @Override
     public MoneyResourceHandler getMoneyResourceHandler() { return this.storage; }
 
-    private final Map<MoneyKey,MoneyValue> notificationLevels = new HashMap<>();
+    private final Map<DualKey,MoneyValue> notificationLevels = new HashMap<>();
 
-    public Map<MoneyKey,MoneyValue> getNotificationLevels() { return ImmutableMap.copyOf(this.notificationLevels); }
+    public Map<DualKey,MoneyValue> getNotificationLevels() { return ImmutableMap.copyOf(this.notificationLevels); }
 
-    public MoneyValue getNotificationLevelFor(MoneyKey type) { return this.notificationLevels.getOrDefault(type, MoneyValue.empty()); }
+    public MoneyValue getNotificationLevelFor(DualKey type) { return this.notificationLevels.getOrDefault(type, MoneyValue.empty()); }
 
-    public void setNotificationLevel(MoneyKey type,MoneyValue value) {
+    public void setNotificationLevel(DualKey type, MoneyValue value) {
         if(value.isEmpty())
             this.notificationLevels.remove(type);
         else
@@ -195,16 +196,16 @@ public class BankAccount extends IRegistryAccess.WithHolder implements SortableM
     public Component getName() { return GUI_BANK_ACCOUNT_NAME.get(this.ownerName); }
     public Component getOwnerName() { return Component.literal(this.ownerName); }
 
-    public void depositMoney(MoneyValue depositAmount,@Nullable Transaction transaction) {
+    public void depositMoney(MoneyValue depositAmount,@Nullable TransactionContext transaction) {
         try(Transaction tx = Transaction.open(transaction)) {
             this.storage.insert(depositAmount,tx);
             tx.commit();
         }
     }
 
-    public MoneyValue withdrawMoney(MoneyValue amount,@Nullable Transaction transaction) {
+    public MoneyValue withdrawMoney(MoneyValue amount,@Nullable TransactionContext transaction) {
         try(Transaction tx = Transaction.open(transaction)) {
-            MoneyKey type = amount.getKey();
+            DualKey type = amount.getKey();
             //Cache the previously stored amount
             long oldValue = this.storage.getResource(type).getInternalValue();
             MoneyValue result = this.storage.extract(amount,tx);
@@ -212,20 +213,29 @@ public class BankAccount extends IRegistryAccess.WithHolder implements SortableM
             if(result.isEmpty())
                 return MoneyValue.empty();
             tx.commit();
-            //Check if this interaction triggered a
+            //Check if this interaction triggered a low-balance notification
             MoneyValue notificationLevel = this.getNotificationLevelFor(type);
             long newLevel = notificationLevel.getInternalValue();
-            if(oldValue >= newLevel && this.storage.getResource(type).getInternalValue() < newLevel)
-                this.postNotification(new LowBalanceNotification(this.getName(),notificationLevel));
+            if(oldValue >= newLevel && this.storage.getResource(type).getInternalValue() < newLevel) {
+                //Attach a low-balance notification snapshot listener for this entry
+                if(!this.notificationListeners.containsKey(result.getKey())) {
+                    NotificationSnapshot snapshot = new NotificationSnapshot(result.getKey(),notificationLevel);
+                    this.notificationListeners.put(snapshot.key,snapshot);
+                    snapshot.updateSnapshots(transaction);
+                }
+            }
             return result;
         }
     }
+
+    @Override
+    public MoneyValue extract(MoneyValue value, TransactionContext transaction) { return this.withdrawMoney(value,transaction); }
 
     public BankAccount() {
         this(new UnlimitedMoneyStorage(),new NotificationHolder(),"Unknown",new HashMap<>(),0,new ArrayList<>());
     }
 
-    protected BankAccount(UnlimitedMoneyStorage storage,NotificationHolder logger,String ownerName,Map<MoneyKey,MoneyValue> notificationLevels,int cardValidation,List<SalaryData> salaries)
+    protected BankAccount(UnlimitedMoneyStorage storage, NotificationHolder logger, String ownerName, Map<DualKey,MoneyValue> notificationLevels, int cardValidation, List<SalaryData> salaries)
     {
         this.storage.copyFrom(storage);
         this.notifications.loadFrom(logger.getNotifications());
@@ -286,7 +296,7 @@ public class BankAccount extends IRegistryAccess.WithHolder implements SortableM
     @Override
     public Component getMoneyCategoryTitle() { return TOOLTIP_MONEY_SOURCE_BANK.get(); }
 
-    public final void applyInterest(double interestMultiplier, Map<MoneyKey,MoneyValue> limits, List<String> blacklist, boolean forceInterest, boolean notifyPlayers) {
+    public final void applyInterest(double interestMultiplier, Map<DualKey,MoneyValue> limits, List<String> blacklist, boolean forceInterest, boolean notifyPlayers) {
         for(MoneyValue value : this.storage.getAllResources())
         {
             //Don't calculate interest if the value has decided to opt out
@@ -326,12 +336,32 @@ public class BankAccount extends IRegistryAccess.WithHolder implements SortableM
 
     private static boolean isBlacklisted(List<String> blacklist, MoneyValue value)
     {
-        MoneyKey id = value.getKey();
+        DualKey id = value.getKey();
         return blacklist.stream().anyMatch(entry -> {
             if(entry.endsWith("*"))
                 return id.toString().startsWith(entry.substring(0, entry.length() - 1));
             return entry.equals(id.toString());
         });
+    }
+
+    private class NotificationSnapshot extends SnapshotJournal<Void> {
+
+        private final DualKey key;
+        private final MoneyValue notificationLevel;
+        private NotificationSnapshot(DualKey key,MoneyValue notificationLevel) { this.key = key; this.notificationLevel = notificationLevel; }
+
+        @Override
+        protected Void createSnapshot() { return null; }
+        @Override
+        protected void revertToSnapshot(Void snapshot) { }
+        @Override
+        protected void onRootCommit(Void originalState) {
+            BankAccount account = BankAccount.this;
+            //Perform the balance check again to ensure that the balance is still too low
+            if(account.storage.getResource(this.key).getInternalValue() < this.notificationLevel.getInternalValue())
+                account.postNotification(new LowBalanceNotification(account.getName(),this.notificationLevel));
+        }
+
     }
 
 }

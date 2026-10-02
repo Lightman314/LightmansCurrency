@@ -30,7 +30,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class DropdownWidget extends AbstractMultiWidget implements IMouseListener {
+public class DropdownWidget extends AbstractMultiWidget.EarlyChildren implements IMouseListener {
 
     public static final int HEIGHT = 12;
     public static final SizedSprite.Builder DEFAULT_ARROW_SPRITE = WidgetContextSprite.hoverToggleSprite(LCApi.id("widget/dropdown"),11,12);
@@ -99,12 +99,9 @@ public class DropdownWidget extends AbstractMultiWidget implements IMouseListene
     }
 
     @Override
-    protected void addLateChildren(ScreenArea area) {}
-
-    @Override
     protected void extractRenderState(FancyGuiExtractor gui,ScreenArea area) {
         //Render the background
-        gui.blitSprite(this.backgroundSprite.get(this.active,this.isHovered),0,0,area.width,HEIGHT,this.getFGColor());
+        gui.blitSprite(this.backgroundSprite.get(this.active,this.isHovered),0,0,area.width,HEIGHT,this.getSpriteColor());
         //Render the arrow
         int arrowWidth = this.arrowSprite.width();
         gui.blitSprite(this.arrowSprite,area.width - arrowWidth,0,this.getFGColor(),this.active,this.isHovered);

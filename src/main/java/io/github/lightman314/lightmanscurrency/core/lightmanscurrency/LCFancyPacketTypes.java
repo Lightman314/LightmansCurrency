@@ -6,7 +6,9 @@ import io.github.lightman314.lightmanscurrency.api.bank_account.BankAccount;
 import io.github.lightman314.lightmanscurrency.api.bank_account.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.bank_account.salary.SalaryData;
 import io.github.lightman314.lightmanscurrency.api.coins.atm.commands.ATMCommand;
+import io.github.lightman314.lightmanscurrency.api.ejection.EjectionEntry;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketType;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.PacketList;
@@ -15,9 +17,9 @@ import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationStack;
 import io.github.lightman314.lightmanscurrency.api.notifications.category.NotificationCategory;
-import io.github.lightman314.lightmanscurrency.api.ownership.MemberLevel;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.holder.OwnerHolder;
+import io.github.lightman314.lightmanscurrency.api.stats.StatEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.Permission;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.PermissionValue;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePrice;
@@ -70,6 +72,7 @@ public final class LCFancyPacketTypes {
     public static final DeferredHolder<FancyPacketType<?>,FancyPacketType<Permission<?>>> PERMISSION = register("permission",Permission.STREAM_CODEC);
     public static final DeferredHolder<FancyPacketType<?>,FancyPacketType<PermissionValue<?>>> PERMISSION_VALUE = register("permission_value",PermissionValue.STREAM_CODEC);
     public static final DeferredHolder<FancyPacketType<?>,FancyPacketType<WorldPosition>> WORLD_POSITION = register("world_position",WorldPosition.STREAM_CODEC);
+    public static final DeferredHolder<FancyPacketType<?>,FancyPacketType<DualKey>> DUAL_KEY = register("dual_key",DualKey.STREAM_CODEC);
     public static final DeferredHolder<FancyPacketType<?>,FancyPacketType<MoneyValue>> MONEY = register("money",MoneyValue.STREAM_CODEC);
     public static final DeferredHolder<FancyPacketType<?>,FancyPacketType<TradePrice>> TRADE_PRICE = register("trade_price",TradePrice.STREAM_CODEC);
     public static final DeferredHolder<FancyPacketType<?>,FancyPacketType<TradeItem>> TRADE_ITEM = register("trade_item",TradeItem.STREAM_CODEC);
@@ -81,6 +84,8 @@ public final class LCFancyPacketTypes {
     public static final DeferredHolder<FancyPacketType<?>,FancyPacketType<SalaryData>> BANK_SALARY = register("bank_salary",SalaryData.STREAM_CODEC);
     public static final DeferredHolder<FancyPacketType<?>,FancyPacketType<ATMCommand>> ATM_COMMAND = register("atm_command",ATMCommand.STREAM_CODEC);
     public static final DeferredHolder<FancyPacketType<?>,FancyPacketType<IconData>> ICON = register("icon",IconData.STREAM_CODEC);
+    public static final DeferredHolder<FancyPacketType<?>,FancyPacketType<EjectionEntry>> EJECTION_DATA = register("ejection_entry",EjectionEntry.STREAM_CODEC);
+    public static final DeferredHolder<FancyPacketType<?>,FancyPacketType<StatEntry<?,?>>> STAT_ENTRY = register("stat_entry",StatEntry.STREAM_CODEC);
 
     private static <T> DeferredHolder<FancyPacketType<?>,FancyPacketType<T>> register(String name, StreamCodec<? super RegistryFriendlyByteBuf,T> codec) { return REGISTER.register(name,() -> new FancyPacketType<>(codec)); }
 

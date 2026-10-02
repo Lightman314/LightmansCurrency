@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.bu
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.helpers.debug.DebugHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeData;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeSet;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.ITradeInteractionHandler;
@@ -11,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.TradeE
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.TradeSlot;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -33,7 +33,7 @@ public abstract class TradeInteractionTab extends TraderStorageTab implements IT
         return trades;
     }
 
-    protected final boolean canInteract(TradeData trade) { return this.editableTrades().contains(trade) && this.getPermission(BuiltInPermissions.EDIT_TRADES); }
+    protected final boolean canInteract(TradeData trade) { return this.editableTrades().contains(trade) && this.getPermission(LCPermissions.EDIT_TRADES); }
 
     @Override
     public final void onTradeSlotClick(TradeData trade,TradeSlot slot,int mouseButton,TradeEditContext context)

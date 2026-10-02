@@ -6,16 +6,16 @@ import io.github.lightman314.lightmanscurrency.api.client.gui.widget.money.templ
 import io.github.lightman314.lightmanscurrency.api.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.coins.display.builtin.NumberDisplay;
 import io.github.lightman314.lightmanscurrency.api.coins.value.CoinValue;
-import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 
 public class CoinDisplayInput extends SimpleDisplayInput {
 
     private final ChainData chain;
-    private final MoneyKey key;
+    private final DualKey key;
     public CoinDisplayInput(ChainData chain) {
         this.chain = chain;
-        this.key = MoneyKey.create(CoinValue.TYPE,this.chain.chain);
+        this.key = DualKey.create(CoinValue.TYPE,this.chain.chain);
         this.setPrefixAndSuffix();
     }
 
@@ -23,7 +23,7 @@ public class CoinDisplayInput extends SimpleDisplayInput {
     public DropdownOption inputOption() { return new DropdownOption(this.chain.getDisplayName(),this.chain.getDisplaySprite()); }
 
     @Override
-    public MoneyKey getKey() { return this.key; }
+    public DualKey getKey() { return this.key; }
 
     private void setPrefixAndSuffix() {
         if(this.chain.getDisplayData() instanceof NumberDisplay nd) {

@@ -35,6 +35,9 @@ public final class ClientPlayerNameCache {
     public static UUID lookupID(String playerName) { return lookupID(playerName,true); }
     @Nullable
     public static UUID lookupID(String playerName,boolean sendRequest) {
+        //Ignore completely if the name is blank
+        if(playerName.isBlank())
+            return null;
         if(nameToIdCache.containsKey(playerName))
             return nameToIdCache.get(playerName);
         if(sendRequest && !sentIDRequests.contains(playerName)) {

@@ -13,12 +13,12 @@ import java.util.Set;
 
 public abstract class ATMIconRenderer {
 
-    public static final ClientPairedRegistry<ATMIconType,ATMIconRenderer> REGISTRY = new ClientPairedRegistry<>(LCRegistries.Coins.ATM_ICON_TYPE);
+    public static final ClientPairedRegistry<ATMIconType,ATMIconRenderer> REGISTRY = ClientPairedRegistry.builder(LCRegistries.Coins.ATM_ICON_TYPE,ATMIconRenderer.class).build();
 
     private static final Set<ATMIconType> warned = new HashSet<>();
 
-    public static void renderIcon(ScreenPosition buttonPos, ATMIconData icon, FancyGuiExtractor gui,boolean hovered) {
-        ATMIconRenderer renderer = REGISTRY.getNullableValue(icon.getType());
+    public static void renderIcon(ScreenPosition buttonPos,ATMIconData icon,FancyGuiExtractor gui,boolean hovered) {
+        ATMIconRenderer renderer = REGISTRY.getValue(icon.getType());
         if(renderer != null) {
             gui.push(buttonPos);
             renderer.render(icon,gui,hovered);

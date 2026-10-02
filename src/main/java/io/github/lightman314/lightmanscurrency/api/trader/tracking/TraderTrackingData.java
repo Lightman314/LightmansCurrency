@@ -1,7 +1,9 @@
 package io.github.lightman314.lightmanscurrency.api.trader.tracking;
 
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.ISyncingNode;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
@@ -27,15 +29,16 @@ public class TraderTrackingData {
         if(level == TrackingLevel.NONE)
             return new Result(-1,null);
         PlayerData data = this.data.get(player.getUUID());
-        boolean flag = false;
         if(data == null)
         {
             data = new PlayerData();
             this.data.put(player.getUUID(),data);
-            flag = true;
         }
+        TrackingLevel oldLevel = data.getHighestLevel();
+        //Ignore changed nodes results if the player has never before reached this tracking level
+        boolean firstTimeAtLevel = !data.highestLevel.isLevel(level);
         long key = data.requestTracking(level);
-        return new Result(key,flag ? null : data.cleanChangedNodes());
+        return new Result(key,firstTimeAtLevel ? null : data.cleanChangedNodes(oldLevel,level));
     }
     public long requestSpecialTracking(Player player,TrackingLevel level,UUID target)
     {
@@ -64,29 +67,19 @@ public class TraderTrackingData {
 
     public void clearPlayer(UUID playerID) { this.data.remove(playerID); }
 
-    public void afterNodeChanged(TraderNodeType<?> type)
+    public void afterNodeChanged(TraderNode node)
     {
-        this.data.forEach((player,data) -> {
-            if(data.getHighestLevel() == TrackingLevel.NONE)
-                data.changedSinceLastPacket.add(type);
-        });
-    }
-
-    @Nullable
-    public Set<TraderNodeType<?>> getChangedNodes(Player player)
-    {
-        PlayerData data = this.data.get(player.getUUID());
-        if(data == null)
-            return null;
-        return data.changedSinceLastPacket;
+        if(node instanceof ISyncingNode n)
+            this.data.forEach((player,data) -> data.afterNodeChanged(n,node.getType()));
     }
 
     private class PlayerData
     {
+        TrackingLevel highestLevel = TrackingLevel.NONE;
         final Map<TrackingLevel,Set<Long>> trackingMap = new HashMap<>();
         final Map<Long,UUID> keyToSpecialMap = new HashMap<>();
         final Map<UUID,Map<TrackingLevel,Set<Long>>> specialTrackingMap = new HashMap<>();
-        final Set<TraderNodeType<?>> changedSinceLastPacket = new HashSet<>();
+        final Map<TrackingLevel,Set<TraderNodeType<?>>> changedSinceLastPacket = new HashMap<>();
         Set<Long> getOrCreateSet(TrackingLevel level) { return this.trackingMap.computeIfAbsent(level,l -> new HashSet<>()); }
         TrackingLevel getHighestLevel()
         {
@@ -113,6 +106,8 @@ public class TraderTrackingData {
             Set<Long> set = this.getOrCreateSet(level);
             long id = this.getNextID();
             set.add(id);
+            if(!this.highestLevel.isLevel(level))
+                this.highestLevel = level;
             return id;
         }
         boolean endTracking(long key)
@@ -157,8 +152,26 @@ public class TraderTrackingData {
                     this.specialTrackingMap.remove(target);
             }
         }
-        Set<TraderNodeType<?>> cleanChangedNodes() {
-            Set<TraderNodeType<?>> result = new HashSet<>(this.changedSinceLastPacket);
+
+        void afterNodeChanged(ISyncingNode node,TraderNodeType<?> type) {
+            TrackingLevel requiredLevel = node.requiredTrackingLevel();
+            if(!this.getHighestLevel().isLevel(requiredLevel))
+                this.addToChangedSet(requiredLevel,type);
+        }
+        void addToChangedSet(TrackingLevel level,TraderNodeType<?> type) {
+            this.changedSinceLastPacket.computeIfAbsent(level,l -> new HashSet<>()).add(type);
+        }
+        Set<TraderNodeType<?>> getAndCleanChangedNodes(TrackingLevel level) {
+            if(this.changedSinceLastPacket.containsKey(level))
+                return this.changedSinceLastPacket.remove(level);
+            return Set.of();
+        }
+        Set<TraderNodeType<?>> cleanChangedNodes(TrackingLevel oldLevel,TrackingLevel newLevel) {
+            Set<TraderNodeType<?>> result = new HashSet<>();
+            for(TrackingLevel level : TrackingLevel.nonEmptyValues()) {
+                if(!oldLevel.isLevel(level) && newLevel.isLevel(level))
+                    result.addAll(this.getAndCleanChangedNodes(level));
+            }
             this.changedSinceLastPacket.clear();
             return result;
         }

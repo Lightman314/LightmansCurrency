@@ -5,10 +5,7 @@ import net.minecraft.core.TypedInstance;
 import net.minecraft.resources.Identifier;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Supplier;
 
 /**
@@ -20,11 +17,15 @@ public class ClientPairedRegistry<T,C> implements Iterable<C> {
 
     private final Registry<T> registry;
     private final Map<Identifier,C> clientRegistry = new HashMap<>();
-    private final Supplier<C> defaultValue;
+    @Nullable
+    private final C defaultValue;
+    private final boolean throwIfUndefined;
 
-    public ClientPairedRegistry(Registry<T> registry) { this(registry,() -> null); }
-    public ClientPairedRegistry(Registry<T> registry,C defaultValue) { this(registry,() -> defaultValue); }
-    public ClientPairedRegistry(Registry<T> registry,Supplier<C> defaultValue) { this.registry = registry; this.defaultValue = defaultValue; }
+    private ClientPairedRegistry(Builder<T,C> builder) {
+        this.registry = builder.registry;
+        this.defaultValue = builder.defaultValue.get();
+        this.throwIfUndefined = builder.throwIfUndefined;
+    }
 
     private Identifier getKey(T commonEntry) throws IllegalStateException
     {
@@ -58,14 +59,14 @@ public class ClientPairedRegistry<T,C> implements Iterable<C> {
      * @return The default value for this client paired registry.
      * @throws IllegalStateException if no default value has been defined.
      */
+    @Nullable
     public C getDefaultValue() throws IllegalStateException
     {
-        C d = this.defaultValue.get();
-        if(d == null)
+        if(this.defaultValue == null && this.throwIfUndefined)
             throw new IllegalStateException("Default Value is not defined!");
-        return d;
+        return this.defaultValue;
     }
-
+    @Nullable
     public C getValue(TypedInstance<T> commonEntry) { return getValue(commonEntry.typeHolder().value()); }
     /**
      * Gets the registered client-only entry that matches the common entry.
@@ -73,6 +74,7 @@ public class ClientPairedRegistry<T,C> implements Iterable<C> {
      * @return The client-only entry that matches the common entry.
      * @throws IllegalStateException if the common entry is not registered to the registry, or if there is no client entry registered to this common entry and no default value is defined.
      */
+    @Nullable
     public C getValue(T commonEntry) throws IllegalStateException { return this.getValue(this.getKey(commonEntry)); }
     /**
      * Gets the registered client-only entry that matches the common entry.
@@ -80,22 +82,32 @@ public class ClientPairedRegistry<T,C> implements Iterable<C> {
      * @return The client-only entry that matches the common entry.
      * @throws IllegalStateException if there is no client entry registered to this common entry and no default value is defined.
      */
+    @Nullable
     public C getValue(Identifier id) throws IllegalStateException {
         if(!this.clientRegistry.containsKey(id))
             return this.getDefaultValue();
         return this.clientRegistry.get(id);
     }
 
-    @Nullable
-    public C getNullableValue(T commonEntry) { return this.getNullableValue(this.getKey(commonEntry)); }
-    @Nullable
-    public C getNullableValue(Identifier id) {
-        try { return this.getValue(id);
-        } catch (IllegalStateException ignored) {}
-        return null;
-    }
-
     @Override
     public Iterator<C> iterator() { return this.clientRegistry.values().iterator(); }
+
+    public static <T,C> Builder<T,C> builder(Registry<T> registry,Class<C> clazz) { return new Builder<>(registry); }
+
+    public static final class Builder<T,C> {
+
+        private final Registry<T> registry;
+        private Supplier<C> defaultValue = () -> null;
+        private boolean throwIfUndefined = false;
+        private Builder(Registry<T> registry) { this.registry = registry; }
+
+        public Builder<T,C> defaultValue(C defaultValue) { this.defaultValue = () -> defaultValue; return this; }
+        public Builder<T,C> defaultValueBuilder(Supplier<C> defaultValue) { this.defaultValue = defaultValue; return this; }
+
+        public Builder<T,C> throwIfUndefined() { this.throwIfUndefined = true; return this; }
+
+        public ClientPairedRegistry<T,C> build() { return new ClientPairedRegistry<>(this); }
+
+    }
 
 }

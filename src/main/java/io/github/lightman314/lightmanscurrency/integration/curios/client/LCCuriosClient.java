@@ -13,18 +13,16 @@ import top.theillusivec4.curios.api.client.ICurioRenderer;
 public class LCCuriosClient {
 
     public LCCuriosClient(IEventBus modBus) {
-
         modBus.addListener(LCCuriosClient::clientSetup);
-
     }
 
     private static void clientSetup(FMLClientSetupEvent event) {
-
-        for(var holder : LCItems.REGISTER.getEntries()) {
-            if(holder.get() instanceof WalletItem item)
-                ICurioRenderer.register(item,WalletCurioRenderer.SOURCE);
-        }
-
+        event.enqueueWork(() -> {
+            for(var holder : LCItems.REGISTER.getEntries()) {
+                if(holder.get() instanceof WalletItem item)
+                    ICurioRenderer.register(item,WalletCurioRenderer.SOURCE);
+            }
+        });
     }
 
 }

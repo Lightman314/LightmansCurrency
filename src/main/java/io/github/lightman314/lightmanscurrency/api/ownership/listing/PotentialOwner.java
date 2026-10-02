@@ -11,7 +11,7 @@ public abstract class PotentialOwner implements ISidedContext.Mutable<PotentialO
 
     private final Owner owner;
 
-    ISidedContext context;
+    ISidedContext context = ISidedContext.LOGICAL_CLIENT;
 
     @Override
     public final boolean isClient() { return this.context.isClient(); }
@@ -24,10 +24,11 @@ public abstract class PotentialOwner implements ISidedContext.Mutable<PotentialO
     public final int getPriority() { return this.currentOwner ? Integer.MAX_VALUE - 1 : this.priority; }
     public final int sortingPriority() { return this.getPriority() * -1; }
     public final void flagAsHighPriority() { this.priority = Integer.MAX_VALUE - 2; }
+    public final void checkCurrentOwner(Owner owner) { this.setAsCurrentOwner(owner.equals(this.asOwner())); }
     public final void setAsCurrentOwner(boolean isCurrentOwner) { this.currentOwner = isCurrentOwner; }
 
     protected PotentialOwner(Owner owner) { this(owner,0); }
-    protected PotentialOwner(Owner owner, int priority) { this.owner = owner.setSidedContext(this); this.priority = priority; }
+    protected PotentialOwner(Owner owner,int priority) { this.owner = owner.setSidedContext(this); this.priority = priority; }
 
     public final Owner asOwner() { return this.owner; }
     public boolean failedFilter(String searchFilter) { return !this.getName().getString().toLowerCase().contains(searchFilter.toLowerCase()); }

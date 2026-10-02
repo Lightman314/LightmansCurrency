@@ -5,7 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedCont
 import io.github.lightman314.lightmanscurrency.api.helpers.resource.access.SidedItemAccess;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyView;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
-import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -30,7 +30,7 @@ public class ItemCapabilityResourceWrapper extends IterableMoneyResourceHandler 
     public List<MoneyValue> getAllResources() { return MoneyView.wrap(this).getAllResources(); }
 
     @Override
-    public MoneyValue getResource(MoneyKey key) { return MoneyView.wrap(this).getResource(key); }
+    public MoneyValue getResource(DualKey key) { return MoneyView.wrap(this).getResource(key); }
 
     @Override
     public Iterator<MoneyResourceHandler> iterator() { return new Loop(this.resourceHandler,this.context); }

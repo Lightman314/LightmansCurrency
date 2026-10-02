@@ -10,7 +10,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 
 public final class LCClientProxy extends LCProxy {
@@ -38,11 +37,9 @@ public final class LCClientProxy extends LCProxy {
     public List<GameProfile> getPlayerList(ISidedContext context) {
         if(context.isClient())
         {
-            List<GameProfile> list = new ArrayList<>();
             ClientPacketListener connection = Minecraft.getInstance().getConnection();
             if(connection != null)
-                list.addAll(connection.getListedOnlinePlayers().stream().map(PlayerInfo::getProfile).toList());
-            return list;
+                return connection.getListedOnlinePlayers().stream().map(PlayerInfo::getProfile).toList();
         }
         return super.getPlayerList(context);
     }

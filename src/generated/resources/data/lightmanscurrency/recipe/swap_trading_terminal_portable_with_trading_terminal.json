@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "swap_trading_terminal_portable_and_trading_terminal",
+  "ingredients": [
+    "lightmanscurrency:trading_terminal"
+  ],
+  "result": {
+    "id": "lightmanscurrency:trading_terminal_portable"
+  }
+}

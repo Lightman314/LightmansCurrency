@@ -1,0 +1,19 @@
+{
+  "entries": [
+    {
+      "position": {
+        "x": 0.5,
+        "y": 0.5625,
+        "z": 0.90625
+      }
+    }
+  ],
+  "extra_count": 2,
+  "offsetX": 1.0E-4,
+  "offsetY": 1.0E-4,
+  "offsetZ": -0.075,
+  "rotation_type": {
+    "type": "lightmanscurrency:facing"
+  },
+  "scale": 0.875
+}

@@ -13,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.helpers.data.ItemContents;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.text.LCText;
 import io.github.lightman314.lightmanscurrency.client.ClientEventListeners;
+import io.github.lightman314.lightmanscurrency.client.features.wallet.gui.WalletGuiLayer;
 import io.github.lightman314.lightmanscurrency.core.LCDataComponents;
 import io.github.lightman314.lightmanscurrency.core.LCSounds;
 import io.github.lightman314.lightmanscurrency.core.neoforge.LCDataAttachments;
@@ -44,10 +45,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
-import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.renderstate.AvatarRenderStateModifier;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 import net.neoforged.neoforge.client.settings.KeyConflictContext;
@@ -184,6 +182,11 @@ public final class WalletClientEvents {
     @SubscribeEvent
     private static void addWalletDataToState(RegisterRenderStateModifiersEvent event) {
         event.registerAvatarEntityModifier(new WalletStateModifier());
+    }
+
+    @SubscribeEvent
+    private static void registerWalletOverlay(RegisterGuiLayersEvent event) {
+        event.registerBelowAll(LCApi.id("wallet"), WalletGuiLayer.INSTANCE);
     }
 
     private static final class WalletStateModifier extends AvatarRenderStateModifier {

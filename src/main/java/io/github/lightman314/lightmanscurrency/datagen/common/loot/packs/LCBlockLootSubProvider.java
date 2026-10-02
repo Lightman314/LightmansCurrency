@@ -55,6 +55,8 @@ public class LCBlockLootSubProvider extends BlockLootSubProvider {
         this.dropSelf(LCBlocks.COIN_MINT.get());
         //ATM
         this.tallDropSelf(LCBlocks.ATM.get());
+        //Trading Terminal
+        this.dropSelf(LCBlocks.TRADING_TERMINAL.get());
     }
 
     protected final void coinPileAndBlock(ItemLike coin,Holder<Block> pile,Holder<Block> block) { this.coinPileAndBlock(coin,pile.value(),block.value()); }

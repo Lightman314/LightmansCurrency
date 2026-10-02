@@ -1,5 +1,7 @@
 {
   "values": [
-    "#lightmanscurrency:groups/card_display"
+    "#lightmanscurrency:groups/card_display",
+    "#lightmanscurrency:groups/single_shelf",
+    "#lightmanscurrency:groups/double_shelf"
   ]
 }

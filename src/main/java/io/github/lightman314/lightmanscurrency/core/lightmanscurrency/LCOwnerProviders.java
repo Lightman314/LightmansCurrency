@@ -17,7 +17,7 @@ public final class LCOwnerProviders {
         //register("team",TeamOwnerProvider.INSTANCE);
     }
 
-    private static void register(String name, PotentialOwnerProvider provider) {
+    private static void register(String name,PotentialOwnerProvider provider) {
         REGISTER.register(name,() -> provider);
     }
 

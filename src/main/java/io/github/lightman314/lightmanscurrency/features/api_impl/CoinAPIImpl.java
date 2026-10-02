@@ -168,12 +168,8 @@ public final class CoinAPIImpl implements CoinAPI {
 
     private static String extractChainID(File file)
     {
-        String path = file.getAbsolutePath();
-        LightmansCurrency.LogInfo("Attempting to get chain id of " + path);
-        int lastSeperator = path.lastIndexOf(File.separatorChar);
-        String result = path.substring(lastSeperator + 1,path.length() - 5);
-        LightmansCurrency.LogDebug("Extracted chain id of '" + result + "' from '" + path + "'");
-        return result;
+        String name = file.getName();
+        return name.substring(0,name.length() - 5);
     }
 
     private static boolean safeLoadData(File file,Map<String,ChainData> map,List<CoinEntry> allEntries, CodecInteractionHelper<JsonElement> context)

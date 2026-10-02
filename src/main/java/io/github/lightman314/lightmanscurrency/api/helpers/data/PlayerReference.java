@@ -12,6 +12,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.client.ClientPlayerNameCache;
 import io.github.lightman314.lightmanscurrency.api.helpers.ItemHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import net.minecraft.core.UUIDUtil;
@@ -33,7 +34,7 @@ public class PlayerReference {
     public static final Codec<PlayerReference> CODEC = RecordCodecBuilder.create(builder -> builder.group(
                     UUIDUtil.CODEC.fieldOf("id").forGetter(pr -> pr.id),
                     Codec.STRING.fieldOf("name").forGetter(pr -> pr.getName(ISidedContext.LOGICAL_SERVER)),
-                    Codec.BOOL.fieldOf("forcedname").forGetter(pr -> pr.forceName)
+                    Codec.BOOL.optionalFieldOf("forcedname",false).forGetter(pr -> pr.forceName)
             ).apply(builder,PlayerReference::new));
 
     public static final Codec<List<PlayerReference>> LIST_CODEC = CODEC.listOf().validate(list -> {
@@ -143,10 +144,7 @@ public class PlayerReference {
         return new PlayerReference(playerID, name);
     }
 
-    public static PlayerReference of(GameProfile playerProfile)
-    {
-        if(playerProfile == null)
-            return null;
+    public static PlayerReference of(GameProfile playerProfile) {
         return of(playerProfile.id(),playerProfile.name());
     }
 
@@ -158,6 +156,7 @@ public class PlayerReference {
         return null;
     }
 
+    @Nullable
     public static PlayerReference of(Player player)
     {
         if(player == null)
@@ -165,15 +164,16 @@ public class PlayerReference {
         return of(player.getGameProfile());
     }
 
+    @Nullable
     public static PlayerReference of(ISidedContext context, String playerName)
     {
         if(playerName.isBlank())
             return null;
         if(context.isClient())
         {
-            /*UUID id = ClientPlayerNameCache.lookupID(playerName);
+            UUID id = ClientPlayerNameCache.lookupID(playerName);
             if(id != null)
-                return PlayerReference.of(id,playerName);*/
+                return PlayerReference.of(id,playerName);
             //LightmansCurrency.LogWarning("Attempted to assemble a player reference from name alone on a client. Should not be doing that.");
             return null;
         }
@@ -260,7 +260,6 @@ public class PlayerReference {
                 if(entry.getValue().equalsIgnoreCase(playerName))
                     return entry.getKey();
             }
-
             MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
             if(server != null)
             {

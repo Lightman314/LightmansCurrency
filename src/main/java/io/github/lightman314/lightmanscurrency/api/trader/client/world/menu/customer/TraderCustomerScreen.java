@@ -17,6 +17,8 @@ import io.github.lightman314.lightmanscurrency.api.money.MoneyDisplayHelper;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.builtin.EmptyMoneyResource;
 import io.github.lightman314.lightmanscurrency.api.money.resource.builtin.SortedMoneyResourceHandler;
+import io.github.lightman314.lightmanscurrency.api.trader.client.nodes.ClientTraderNode;
+import io.github.lightman314.lightmanscurrency.api.trader.client.nodes.interfaces.ICustomerScreenListener;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderSource;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.MoneyStorageNode;
@@ -84,7 +86,10 @@ public class TraderCustomerScreen extends TabbedMenuScreen<AbstractTabbedCustome
                 .visible(this.getMenu()::canOpenTerminal)
                 .tooltip(TooltipSource.simple(TraderCustomerMenu.TOOLTIP_TRADER_NETWORK_BACK))
                 .build());
-        this.rightEdgePositioner.addWidgets(openStorageButton,collectMoneyButton);
+        this.rightEdgePositioner.addWidgets(openStorageButton,collectMoneyButton,openTerminalButton);
+
+        for(ICustomerScreenListener listener : ClientTraderNode.getSourcesClientNodes(this.getTraderSource(),ICustomerScreenListener.class))
+            listener.onCustomerScreenInit(this.getTraderSource(),this.rightEdgePositioner,this,this.getMenu());
 
     }
 
@@ -109,6 +114,10 @@ public class TraderCustomerScreen extends TabbedMenuScreen<AbstractTabbedCustome
                 }
             }
         }
+
+        for(ICustomerScreenListener listener : ClientTraderNode.getSourcesClientNodes(this.getTraderSource(), ICustomerScreenListener.class))
+            listener.onCustomerScreenRender(this.getTraderSource(),gui,area,this.getMenu());
+
     }
 
     public static BooleanSupplier hasMoneyToCollect(TraderSource traderSource) {

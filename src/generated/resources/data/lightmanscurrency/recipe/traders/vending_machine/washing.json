@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "vending_machine_dyes",
+  "ingredients": [
+    [
+      "lightmanscurrency:vending_machine_orange",
+      "lightmanscurrency:vending_machine_magenta",
+      "lightmanscurrency:vending_machine_light_blue",
+      "lightmanscurrency:vending_machine_yellow",
+      "lightmanscurrency:vending_machine_lime",
+      "lightmanscurrency:vending_machine_pink",
+      "lightmanscurrency:vending_machine_gray",
+      "lightmanscurrency:vending_machine_light_gray",
+      "lightmanscurrency:vending_machine_cyan",
+      "lightmanscurrency:vending_machine_purple",
+      "lightmanscurrency:vending_machine_blue",
+      "lightmanscurrency:vending_machine_brown",
+      "lightmanscurrency:vending_machine_green",
+      "lightmanscurrency:vending_machine_red",
+      "lightmanscurrency:vending_machine_black"
+    ],
+    "minecraft:water_bucket"
+  ],
+  "result": {
+    "id": "lightmanscurrency:vending_machine_white"
+  }
+}

@@ -35,7 +35,6 @@ public abstract sealed class LCCuriosHelper permits LCCuriosHelper.NotLoadedImpl
     public abstract ItemStack getRandomItem(LivingEntity entity,Predicate<ItemStack> test);
 
     private static final class NotLoadedImpl extends LCCuriosHelper {
-
         @Override
         public boolean isLoaded() { return false; }
         @Override

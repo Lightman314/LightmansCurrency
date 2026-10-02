@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.core;
 
-import com.google.common.collect.Lists;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.text.LCText;
@@ -10,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.upgrades.data.ConfigNumberSou
 import io.github.lightman314.lightmanscurrency.client.features.atm.PortableATMItem;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCUpgrades;
 import io.github.lightman314.lightmanscurrency.features.chocolate_coins.ChocolateCoinItem;
+import io.github.lightman314.lightmanscurrency.features.network_terminal.PortableTerminalItem;
 import io.github.lightman314.lightmanscurrency.features.wallet.WalletItem;
 import io.github.lightman314.lightmanscurrency.features.wallet.WalletUpgradeData;
 import net.minecraft.ChatFormatting;
@@ -95,6 +95,7 @@ public final class LCItems {
             p.rarity(Rarity.UNCOMMON)));
 
     public static final DeferredItem<PortableATMItem> ATM_PORTABLE = register("atm_portable",PortableATMItem::new);
+    public static final DeferredItem<PortableTerminalItem> TRADING_TERMINAL_PORTABLE = register("trading_terminal_portable",PortableTerminalItem::new);
 
     //Upgrades
     public static final DeferredItem<Item> ITEM_CAPACITY_UPGRADE_1 = registerBasic("item_capacity_upgrade_1",

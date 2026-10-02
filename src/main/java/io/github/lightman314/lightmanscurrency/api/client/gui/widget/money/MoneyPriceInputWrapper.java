@@ -5,11 +5,10 @@ import io.github.lightman314.lightmanscurrency.api.client.gui.widget.TextSetting
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.button.SpriteButton;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.dropdown.DropdownOption;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.price.PriceInputHandler;
-import io.github.lightman314.lightmanscurrency.api.client.gui.widget.price.PriceKey;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePrice;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePriceType;
@@ -31,8 +30,8 @@ public final class MoneyPriceInputWrapper extends PriceInputHandler {
     @Override
     public TradePriceType<?> getPriceType() { return MoneyPrice.TYPE; }
     @Override
-    public PriceKey getKey() { return new PriceKey(MoneyPrice.TYPE.getKey(),this.handler.getKey().toString()); }
-    public MoneyKey getMoneyKey() { return this.handler.getKey(); }
+    public DualKey getKey() { return DualKey.create(MoneyPrice.TYPE,this.handler.getKey().toString()); }
+    public DualKey getMoneyKey() { return this.handler.getKey(); }
     @Override
     public boolean isForValue(TradePrice price) { return price instanceof MoneyPrice mp && this.handler.isForValue(mp.getPrice()); }
 

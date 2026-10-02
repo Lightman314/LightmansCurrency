@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.helpers.resource;
 
 import com.mojang.serialization.Codec;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.helpers.ItemHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.NumberHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
@@ -33,7 +32,7 @@ public abstract class ListBackedItemStorage implements ResourceHandler<ItemResou
     private ListChangedListener listener = (l1,l2) -> {};
     public void setListener(Runnable listener) { this.setListener((l1,l2) -> listener.run());}
     public void setListener(ListChangedListener listener) { this.listener = listener; }
-    public void setListener(Consumer<Consumer<FancyPacketMap.Mutable>> listener) { this.listener = new PacketListener(listener); }
+    public void setListener(FancyPacketMap.Listener listener) { this.listener = new PacketListener(listener); }
 
     public ListBackedItemStorage(List<ItemStack> list) { this.storage = new ArrayList<>(list); }
     public ListBackedItemStorage(Runnable listener) { this((l1,l2) -> listener.run()); }
@@ -176,7 +175,7 @@ public abstract class ListBackedItemStorage implements ResourceHandler<ItemResou
         void afterContentsChanged(List<ItemStack> oldContents,List<ItemStack> newContents);
     }
 
-    public record PacketListener(Consumer<Consumer<FancyPacketMap.Mutable>> writer) implements ListChangedListener {
+    public record PacketListener(FancyPacketMap.Listener writer) implements ListChangedListener {
         @Override
         public void afterContentsChanged(List<ItemStack> oldContents, List<ItemStack> newContents) {
             this.writer.accept(createPacket(oldContents,newContents));

@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.ownership.MemberLevel;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerType;
+import io.github.lightman314.lightmanscurrency.api.stats.interfaces.StatHolder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -54,6 +55,9 @@ public class FakeOwner extends Owner {
     @Nullable
     @Override
     public BankReference asBankReference() { return null; }
+    @Nullable
+    @Override
+    public StatHolder getStatistics() { return null; }
 
     @Override
     public void postNotification(Notification notificationSource, MemberLevel targets, boolean sendToChat) { }

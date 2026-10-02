@@ -108,11 +108,11 @@ public class WalletItem extends Item {
                 ItemStack exampleItem = new ItemStack(ListHelper.cyclingValueFromList(upgradeItems,Items.AIR.builtInRegistryHolder()));
                 if(!exampleItem.isEmpty())
                 {
-                    ListHelper.consumeAll(builder,TooltipHelper.splitTooltips(TOOLTIP_WALLET_UPGRADEABLE.get(
+                    TooltipHelper.splitTooltips(TOOLTIP_WALLET_UPGRADEABLE.get(
                                     TooltipHelper.lazyFormat(exampleItem.getItemName(),ChatFormatting.AQUA),
                                     TooltipHelper.lazyFormat(String.valueOf(upgradeData.bonusSlots()),ChatFormatting.GOLD),
                                     upgradeData.maxUpgrades() - upgradeCount)
-                            ,ChatFormatting.YELLOW));
+                            ,ChatFormatting.YELLOW).forEach(builder);
                 }
             }
             else if(upgradeCount > 0)

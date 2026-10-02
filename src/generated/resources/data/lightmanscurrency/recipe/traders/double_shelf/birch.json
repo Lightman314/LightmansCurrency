@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "trader_double_shelf",
+  "key": {
+    "c": "#c:chests/wooden",
+    "s": "minecraft:birch_slab",
+    "x": "lightmanscurrency:single_shelf_birch"
+  },
+  "pattern": [
+    "c",
+    "x",
+    "s"
+  ],
+  "result": {
+    "id": "lightmanscurrency:double_shelf_birch"
+  }
+}

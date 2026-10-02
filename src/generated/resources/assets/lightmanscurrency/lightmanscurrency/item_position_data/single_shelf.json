@@ -1,0 +1,15 @@
+{
+  "entries": [
+    {
+      "position": {
+        "x": 0.5,
+        "y": 0.5625,
+        "z": 0.90625
+      }
+    }
+  ],
+  "rotation_type": {
+    "type": "lightmanscurrency:facing"
+  },
+  "scale": 0.875
+}

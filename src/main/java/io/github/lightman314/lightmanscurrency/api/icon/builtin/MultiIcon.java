@@ -30,6 +30,10 @@ public class MultiIcon extends IconData {
 
     @Override
     public IconType<?> getType() { return TYPE; }
+    @Override
+    protected boolean equals(IconData icon) { return icon instanceof MultiIcon i && i.icons.equals(this.icons); }
+    @Override
+    protected int hash() { return this.icons.hashCode(); }
 
     private static void assertValidList(List<IconData> icons) {
         if(icons.size() > LIMIT)

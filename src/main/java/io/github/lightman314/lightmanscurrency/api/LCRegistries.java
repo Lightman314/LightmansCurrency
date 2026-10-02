@@ -14,11 +14,13 @@ import io.github.lightman314.lightmanscurrency.api.notifications.NotificationTyp
 import io.github.lightman314.lightmanscurrency.api.notifications.category.NotificationCategoryType;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerType;
 import io.github.lightman314.lightmanscurrency.api.ownership.listing.PotentialOwnerProvider;
+import io.github.lightman314.lightmanscurrency.api.stats.StatType;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderType;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.Permission;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.PermissionType;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleType;
+import io.github.lightman314.lightmanscurrency.api.trader.settings_storage.SettingsItemTransformer;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeDataType;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePriceReceiptType;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePriceType;
@@ -109,6 +111,9 @@ public final class LCRegistries {
         public static final ResourceKey<Registry<Permission<?>>> PERMISSION_KEY = ResourceKey.createRegistryKey(LCApi.id("trader_permission"));
         public static final Registry<Permission<?>> PERMISSION = new RegistryBuilder<>(PERMISSION_KEY).sync(true).create();
 
+        public static final ResourceKey<Registry<SettingsItemTransformer>> SETTINGS_ITEM_TRANSFORMER_KEY = ResourceKey.createRegistryKey(LCApi.id("settings_item_transformer"));
+        public static final Registry<SettingsItemTransformer> SETTINGS_ITEM_TRANSFORMER = new RegistryBuilder<>(SETTINGS_ITEM_TRANSFORMER_KEY).create();
+
     }
 
     public static final class Notifications {
@@ -136,6 +141,9 @@ public final class LCRegistries {
 
         public static final ResourceKey<Registry<FancyDataType<?>>> FANCY_DATA_KEY = ResourceKey.createRegistryKey(LCApi.id("fancy_data"));
         public static final Registry<FancyDataType<?>> FANCY_DATA = new RegistryBuilder<>(FANCY_DATA_KEY).sync(true).create();
+
+        public static final ResourceKey<Registry<StatType<?,?>>> STAT_TYPE_KEY = ResourceKey.createRegistryKey(LCApi.id("stat_type"));
+        public static final Registry<StatType<?,?>> STAT_TYPE = new RegistryBuilder<>(STAT_TYPE_KEY).sync(true).create();
 
     }
 

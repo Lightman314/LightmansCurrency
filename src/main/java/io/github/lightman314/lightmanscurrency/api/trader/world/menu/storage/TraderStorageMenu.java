@@ -12,7 +12,6 @@ import io.github.lightman314.lightmanscurrency.api.trader.nodes.INodeAccess;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IStorageMenuTabProvider;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.TrackingLevel;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.managers.MenuTrackingManager;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeContext;
@@ -23,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.api.world.menu.tabbed.TabBuilder;
 import io.github.lightman314.lightmanscurrency.api.world.menu.tabbed.TabbedMenu;
 import io.github.lightman314.lightmanscurrency.api.world.menu.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.core.LCMenuTypes;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -48,7 +48,7 @@ public class TraderStorageMenu extends TabbedMenu.Validated<TraderStorageMenu,Tr
     public TraderData getTrader() { return LCApi.getTraderAPI().getTrader(this,this.traderID); }
     public boolean traderValid() {
         TraderData trader = this.getTrader();
-        return trader != null && trader.getPermission(this.getPlayer(),BuiltInPermissions.OPEN_STORAGE);
+        return trader != null && trader.getPermission(this.getPlayer(), LCPermissions.OPEN_STORAGE);
     }
 
     private final MenuTrackingManager trackingManager;

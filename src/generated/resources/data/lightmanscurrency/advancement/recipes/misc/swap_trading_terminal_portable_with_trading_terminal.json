@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "lightmanscurrency:swap_trading_terminal_portable_with_trading_terminal"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "other": {
+      "conditions": {
+        "items": [
+          {
+            "items": "lightmanscurrency:trading_terminal"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "other"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:swap_trading_terminal_portable_with_trading_terminal"
+    ]
+  }
+}

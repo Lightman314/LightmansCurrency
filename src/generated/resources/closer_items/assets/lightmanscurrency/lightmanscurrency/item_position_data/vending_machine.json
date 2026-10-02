@@ -1,0 +1,55 @@
+{
+  "entries": [
+    {
+      "position": {
+        "x": 0.21875,
+        "y": 1.6875,
+        "z": 0.375
+      }
+    },
+    {
+      "position": {
+        "x": 0.59375,
+        "y": 1.6875,
+        "z": 0.375
+      }
+    },
+    {
+      "position": {
+        "x": 0.21875,
+        "y": 1.25,
+        "z": 0.375
+      }
+    },
+    {
+      "position": {
+        "x": 0.59375,
+        "y": 1.25,
+        "z": 0.375
+      }
+    },
+    {
+      "position": {
+        "x": 0.21875,
+        "y": 0.8125,
+        "z": 0.375
+      }
+    },
+    {
+      "position": {
+        "x": 0.59375,
+        "y": 0.8125,
+        "z": 0.375
+      }
+    }
+  ],
+  "extra_count": 6,
+  "min_light": 10,
+  "offsetX": 1.0E-4,
+  "offsetY": 1.0E-4,
+  "offsetZ": 0.075,
+  "rotation_type": {
+    "type": "lightmanscurrency:facing"
+  },
+  "scale": 0.3
+}

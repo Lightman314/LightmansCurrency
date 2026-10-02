@@ -14,7 +14,7 @@ import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.permissions.PermissionLevel;
+import net.minecraft.server.permissions.Permissions;
 
 public final class LCDebugCommand {
 
@@ -22,7 +22,7 @@ public final class LCDebugCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext context) {
         dispatcher.register(Commands.literal("lcdebug")
-                .requires(LCCommandSetup.requiresLevel(PermissionLevel.MODERATORS))
+                .requires(stack -> stack.permissions().hasPermission(Permissions.COMMANDS_MODERATOR))
                 .then(Commands.literal("trader")
                         .then(Commands.argument("traderID",TraderArgument.traderWithPersistent())
                             .executes(LCDebugCommand::debugTrader))));

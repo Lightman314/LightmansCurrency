@@ -6,32 +6,41 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
+import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IPermissionSource;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IPermissionUser;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.ISettingsStorageIONode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.SimpleSyncedNode;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.Permission;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.PermissionValue;
+import io.github.lightman314.lightmanscurrency.api.trader.settings_storage.SettingsDisplayOutput;
+import io.github.lightman314.lightmanscurrency.api.trader.settings_storage.SettingsLoadContext;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.*;
 import java.util.function.Consumer;
 
-public class AlliesNode extends SimpleSyncedNode implements IPermissionSource, IPermissionUser {
+public class AlliesNode extends SimpleSyncedNode implements IPermissionSource, IPermissionUser, ISettingsStorageIONode.PriorityLoad {
 
     private static final MapCodec<AlliesNode> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
             PlayerReference.LIST_CODEC.fieldOf("allies").forGetter(AlliesNode::getAllies),
             Permission.DATA_CODEC.fieldOf("permissions").forGetter(AlliesNode::getPermissionData)
     ).apply(builder,AlliesNode::new));
-
     public static final TraderNodeType<AlliesNode> TYPE = TraderNodeType.simple(AlliesNode::new,CODEC);
 
     private final List<PlayerReference> allies;
     public List<PlayerReference> getAllies() { return ImmutableList.copyOf(this.allies); }
     private final Map<Permission<?>,PermissionValue<?>> permissions;
     public final Map<Permission<?>,PermissionValue<?>> getPermissionData() { return ImmutableMap.copyOf(this.permissions); }
+
+    public static final TextEntry NAME = TextEntry.traderNode(TYPE);
+    public static final TextEntry VALUE_ALLIES = TextEntry.traderNodeValue(TYPE,"allies");
+    public static final TextEntry VALUE_ALLY_PERMS = TextEntry.traderNodeValue(TYPE,"ally_permissions");
 
     private AlliesNode() { this(ImmutableList.of(),ImmutableMap.of()); }
     private AlliesNode(List<PlayerReference> allies,Map<Permission<?>,PermissionValue<?>> permissions)
@@ -44,7 +53,7 @@ public class AlliesNode extends SimpleSyncedNode implements IPermissionSource, I
     public TraderNodeType<?> getType() { return TYPE; }
 
     @Override
-    public <T> T getPlayerPermission(PlayerReference player, Permission<T> permission) {
+    public <T> T getPlayerPermission(PlayerReference player,Permission<T> permission) {
         if(PlayerReference.isInList(this.allies,player))
             return this.getAllyPermissionValue(permission);
         return permission.getEmpty();
@@ -73,6 +82,10 @@ public class AlliesNode extends SimpleSyncedNode implements IPermissionSource, I
     //Collect the permission options from the other nodes
     @Override
     public void onAttach() {
+        this.validatePermissionsMap();
+    }
+
+    private void validatePermissionsMap() {
         if(this.isServer())
         {
             Map<Permission<?>,PermissionValue<?>> newMap = new HashMap<>();
@@ -141,8 +154,47 @@ public class AlliesNode extends SimpleSyncedNode implements IPermissionSource, I
 
     @Override
     public void addDefaultAllyPermission(Consumer<Permission<?>> handler) {
-        handler.accept(BuiltInPermissions.ADD_REMOVE_ALLIES);
-        handler.accept(BuiltInPermissions.EDIT_ALLY_PERMS);
+        handler.accept(LCPermissions.ADD_REMOVE_ALLIES);
+        handler.accept(LCPermissions.EDIT_ALLY_PERMS);
+    }
+
+    @Override
+    public void encodeSettings(ValueOutput output) {
+        output.store("allies",PlayerReference.LIST_CODEC,this.allies);
+        output.store("permissions",Permission.DATA_CODEC,this.permissions);
+    }
+
+    @Override
+    public void decodeSettings(ValueInput data,SettingsLoadContext.Mutable context) {
+        if(context.getPermission(LCPermissions.ADD_REMOVE_ALLIES)) {
+            //Inform the context about the previous allies list
+            context.definePreviousPermissionMapMembers(List.copyOf(this.allies));
+            this.allies.clear();
+            this.allies.addAll(data.read("allies",PlayerReference.LIST_CODEC).orElse(List.of()));
+            this.setChanged(w -> w.setList("allies",LCFancyPacketTypes.PLAYER_REFERENCE,this.allies));
+        }
+        if(context.getPermission(LCPermissions.EDIT_ALLY_PERMS)) {
+            //Inform the context about the previous ally map
+            context.definePreviousPermissionMap(Map.copyOf(this.permissions));
+            //Now load the permission map
+            this.permissions.clear();
+            this.permissions.putAll(data.read("permissions",Permission.DATA_CODEC).orElse(Map.of()));
+            //Now re-validate the permissions map contents as though this was a trader attachment
+            this.validatePermissionsMap();
+            this.setChanged(w -> {
+                FancyPacketMap.Mutable permMap = FancyPacketMap.map();
+                for(PermissionValue<?> perm : new HashSet<>(this.permissions.values()))
+                    permMap.set(perm.getKey(),LCFancyPacketTypes.PERMISSION_VALUE,perm);
+                w.setMap("permissions",permMap);
+            });
+        }
+    }
+
+    @Override
+    public void appendDisplay(ValueInput data,SettingsDisplayOutput output) {
+        output.acceptTitle(NAME);
+        output.acceptEntry(VALUE_ALLIES,data.read("allies",PlayerReference.LIST_CODEC).orElse(List.of()).size());
+        output.acceptEntry(VALUE_ALLY_PERMS,data.read("permissions",Permission.DATA_CODEC).orElse(Map.of()).size());
     }
 
 }

@@ -21,6 +21,8 @@ public final class LCNotificationTypes {
         register("bank_interaction_player",BankInteractionNotification.ForPlayer.TYPE);
         register("bank_interaction_machine",BankInteractionNotification.ForMachine.TYPE);
         register("bank_interaction_server",BankInteractionNotification.ForServer.TYPE);
+        register("bank_transfer_sent",BankTransferNotification.Sent.TYPE);
+        register("bank_transfer_received",BankTransferNotification.Received.TYPE);
         register("bank_interest",BankInterestNotification.TYPE);
         register("taxes_paid",TaxesPaidNotification.TYPE);
         register("item_trade",ItemTradeNotification.TYPE);

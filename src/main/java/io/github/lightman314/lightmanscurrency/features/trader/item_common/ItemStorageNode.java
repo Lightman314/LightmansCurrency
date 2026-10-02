@@ -2,19 +2,20 @@ package io.github.lightman314.lightmanscurrency.features.trader.item_common;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.ItemHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.helpers.resource.SidedResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.ownership.interfaces.IOwnerHolder;
-import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.CapabilityInteractionNode;
+import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.ExternalInteractionsNode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.*;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.StorageTabBuilder;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.UpgradeNode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.SimpleSyncedNode;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.Permission;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.BuiltInResourceTypes;
@@ -23,6 +24,7 @@ import io.github.lightman314.lightmanscurrency.api.upgrades.CapacityUpgradeType;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.api.upgrades.world.UpgradeStorage;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCUpgrades;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
@@ -43,12 +45,14 @@ public class ItemStorageNode extends SimpleSyncedNode implements IPermissionUser
 
     public static final TraderNodeType<ItemStorageNode> TYPE = TraderNodeType.simple(ItemStorageNode::new,CODEC);
 
+    public static final TextEntry TOOLTIP_INPUT_SETTINGS = TextEntry.tooltip(LCApi.MODID,"trader.settings.input.items");
+
     private final FlexibleItemStorage storage = new FlexibleItemStorage(this::allowedInStorage,this::getStorageCapacity,this::onStorageChanged);
     public FlexibleItemStorage getStorage() { return this.storage; }
 
     private final Map<Direction,ResourceHandler<ItemResource>> sidedCapabilities = new HashMap<>();
     public ResourceHandler<ItemResource> getCapabilityForSide(Direction relativeSide) {
-        return this.sidedCapabilities.computeIfAbsent(relativeSide,s -> new SidedResourceHandler.WithExtractionRule<>(this.storage,CapabilityInteractionNode.getSidedState(this,s),this::canExtractItem));
+        return this.sidedCapabilities.computeIfAbsent(relativeSide,s -> new SidedResourceHandler.WithExtractionRule<>(this.storage, ExternalInteractionsNode.getSidedState(this,s),this::canExtractItem));
     }
 
     private ItemStorageNode() {}
@@ -88,7 +92,7 @@ public class ItemStorageNode extends SimpleSyncedNode implements IPermissionUser
 
     @Override
     public void addDefaultAllyPermission(Consumer<Permission<?>> handler) {
-        handler.accept(BuiltInPermissions.OPEN_STORAGE);
+        handler.accept(LCPermissions.OPEN_STORAGE);
     }
 
     @Override

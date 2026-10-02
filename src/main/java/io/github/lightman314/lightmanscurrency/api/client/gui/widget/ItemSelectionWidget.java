@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.FancyGuiExtractor;
 import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.ScreenHelper;
 import io.github.lightman314.lightmanscurrency.api.client.gui.sprites.LCSprites;
-import io.github.lightman314.lightmanscurrency.api.client.gui.sprites.SimpleSizedSprite;
 import io.github.lightman314.lightmanscurrency.api.client.gui.sprites.SizedSprite;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.scrolling.IScrollable;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.scrolling.ScrollArea;
@@ -31,9 +30,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-public class ItemSelectionWidget extends AbstractMultiWidget implements IScrollable.WithBuiltInListener {
+public class ItemSelectionWidget extends AbstractMultiWidget.LateChildren implements IScrollable.WithBuiltInListener {
 
-    public static final SizedSprite STACK_SIZE_SPRITE = new SimpleSizedSprite(LCApi.id("widget/stack_size_area"),18,18);
+    public static final SizedSprite STACK_SIZE_SPRITE = new SizedSprite.Simple(LCApi.id("widget/stack_size_area"),18,18);
 
     private int scroll = 0;
     private int stackCount = 1;
@@ -77,10 +76,6 @@ public class ItemSelectionWidget extends AbstractMultiWidget implements IScrolla
     }
 
     private List<ItemStack> getFilteredItems() { return new ArrayList<>(ItemSelectionHelper.getFilteredItems(this.filter)); }
-
-    @Override
-    protected void addEarlyChildren(ScreenArea area) { }
-
 
     @Override
     protected void addLateChildren(ScreenArea area) {
@@ -138,7 +133,7 @@ public class ItemSelectionWidget extends AbstractMultiWidget implements IScrolla
         }
 
         //Render the search field
-        gui.blitSprite(LCSprites.SEARCH_FIELD,this.searchOffset.x,this.searchOffset.y,90,12);
+        gui.blitSprite(LCSprites.SEARCH_FIELD,this.searchOffset.x,this.searchOffset.y,90);
         //Render the search icon
         gui.blitSprite(LCSprites.SEARCH_ICON,this.searchOffset.x - 11,this.searchOffset.y - 1);
 

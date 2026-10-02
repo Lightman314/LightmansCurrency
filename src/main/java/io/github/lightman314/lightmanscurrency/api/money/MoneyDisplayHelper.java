@@ -44,7 +44,7 @@ public final class MoneyDisplayHelper {
      * @see #contentsAsMultiLineText(MoneyResourceHandler, ChatFormatting...)
      */
     public static void contentsAsTooltip(MoneyResourceHandler handler, Consumer<Component> builder, ChatFormatting... style) {
-        ListHelper.consumeAll(builder,contentsAsMultiLineText(handler,style));
+        contentsAsMultiLineText(handler,style).forEach(builder);
     }
 
     /**
@@ -69,6 +69,26 @@ public final class MoneyDisplayHelper {
      */
     public static MoneyValue getCyclingValue(MoneyResourceHandler handler) {
         return ListHelper.cyclingValueFromList(handler.getAllResources(),MoneyValue.empty());
+    }
+
+    /**
+     * Returns the handler's contents bundled into sub-lists of like values that should be displayed together<br>
+     * @see #getCyclingLikeValues(MoneyResourceHandler) 
+     */
+    public static List<List<MoneyValue>> getLikeValues(MoneyResourceHandler handler) {
+        List<List<MoneyValue>> list = new ArrayList<>();
+        List<MoneyValue> values = handler.getAllResources();
+        for(MoneyValueHelper helper : LCRegistries.Money.VALUE_HELPER)
+            list.addAll(helper.groupLikeValues(values));
+        return list;
+    }
+
+    /**
+     * Returns one sub-list of the money handlers like values
+     * @see #getLikeValues(MoneyResourceHandler)
+     */
+    public static List<MoneyValue> getCyclingLikeValues(MoneyResourceHandler handler) {
+        return ListHelper.cyclingValueFromList(getLikeValues(handler),List.of());
     }
 
     /**
@@ -103,7 +123,7 @@ public final class MoneyDisplayHelper {
      * @see #getCyclingValueLine(MoneyResourceHandler,String)
      * @see #getCyclingValueLine(MoneyResourceHandler,Component)
      */
-    public static Component getCyclingValueLine(MoneyResourceHandler handler) { return getCyclingValueText(handler,GUI_MONEY_STORAGE_EMPTY.get()); }
+    public static Component getCyclingValueLine(MoneyResourceHandler handler) { return getCyclingValueLine(handler,GUI_MONEY_STORAGE_EMPTY.get()); }
     /**
      * Gets the text of a time-based cycling line from the Money Resource Handlers available money<br>
      * Will return the given emptyText if no money is available to display

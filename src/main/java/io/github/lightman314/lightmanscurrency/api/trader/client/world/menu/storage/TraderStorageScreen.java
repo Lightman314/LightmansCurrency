@@ -11,7 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.client.gui.widget.positioner.
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.icon.builtin.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.trader.client.nodes.ClientTraderNode;
-import io.github.lightman314.lightmanscurrency.api.trader.client.nodes.IStorageScreenListener;
+import io.github.lightman314.lightmanscurrency.api.trader.client.nodes.interfaces.IStorageScreenListener;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.customer.TraderCustomerScreen;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.TraderStorageMenu;

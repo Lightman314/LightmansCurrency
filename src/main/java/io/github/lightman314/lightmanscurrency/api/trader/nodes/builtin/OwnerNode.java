@@ -12,21 +12,27 @@ import io.github.lightman314.lightmanscurrency.api.ownership.builtin.FakeOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
 import io.github.lightman314.lightmanscurrency.api.ownership.holder.OwnerHolder;
 import io.github.lightman314.lightmanscurrency.api.ownership.interfaces.IOwnerHolder;
+import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
+import io.github.lightman314.lightmanscurrency.api.stats.interfaces.StatListener;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderArguments;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.*;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.SimpleSyncedNode;
 import io.github.lightman314.lightmanscurrency.api.trader.notifications.settings.ChangeSettingNotification;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.Permission;
+import io.github.lightman314.lightmanscurrency.api.trader.settings_storage.SettingsDisplayOutput;
+import io.github.lightman314.lightmanscurrency.api.trader.settings_storage.SettingsLoadContext;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.Optional;
 
-public class OwnerNode extends SimpleSyncedNode implements IOwnerSource, IPermissionSource, INotificationConsumerNode, ISettingsMessageListener {
+public class OwnerNode extends SimpleSyncedNode implements IOwnerSource,IPermissionSource,INotificationConsumerNode,ISettingsMessageListener,ISettingsStorageIONode.PriorityLoad,IStatListeningNode {
 
     private static final MapCodec<OwnerNode> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
             OwnerHolder.CODEC.fieldOf("owner").forGetter(OwnerNode::getOwner)
@@ -103,18 +109,18 @@ public class OwnerNode extends SimpleSyncedNode implements IOwnerSource, IPermis
     }
 
     @Override
-    public void pushNotification(Notification notification,boolean sendToMembers,MemberLevel targets,boolean pushToChat) {
+    public void processNotification(Notification notification, boolean sendToMembers, MemberLevel targets, boolean pushToChat) {
         if(sendToMembers)
             this.owner.getValidOwner().postNotification(notification,targets,pushToChat);
     }
 
     @Override
     public void handleSettingsChange(Player player, FancyPacketMap message) {
-        if(message.contains("setOwner") && this.getPermission(player,BuiltInPermissions.TRANSFER_OWNERSHIP)) {
+        if(message.contains("setOwner") && this.getPermission(player,LCPermissions.TRANSFER_OWNERSHIP)) {
             Owner newOwner = message.get("setOwner",LCFancyPacketTypes.OWNER);
             this.setOwnerAndLogChange(player,newOwner);
         }
-        if(message.contains("setPlayerOwner") && this.getPermission(player,BuiltInPermissions.TRANSFER_OWNERSHIP)) {
+        if(message.contains("setPlayerOwner") && this.getPermission(player,LCPermissions.TRANSFER_OWNERSHIP)) {
             PlayerReference pr = PlayerReference.of(this,message.getString("setPlayerOwner"));
             if(pr != null)
                 this.setOwnerAndLogChange(player,PlayerOwner.of(pr));
@@ -131,6 +137,37 @@ public class OwnerNode extends SimpleSyncedNode implements IOwnerSource, IPermis
             this.owner.setOwner(newOwner);
             this.postInternalNotification(ChangeSettingNotification.advanced(PlayerReference.of(player),VALUE_OWNER.get(),newOwner.getName(),oldOwner.getName()));
         }
+    }
+
+    @Override
+    public int getSettingsLoadPriority() { return -1000; }
+    @Override
+    public void encodeSettings(ValueOutput output) {
+        output.store("owner",OwnerHolder.CODEC,this.owner);
+    }
+    @Override
+    public void decodeSettings(ValueInput data,SettingsLoadContext.Mutable context) {
+        if(context.getPermission(LCPermissions.TRANSFER_OWNERSHIP)) {
+            OwnerHolder newOwner = data.read("owner",OwnerHolder.CODEC).orElse(new OwnerHolder());
+            //Inform the loading context about this previous owner
+            context.definePreviousOwner(this.owner.getValidOwner());
+            //Now load from the context and flag as changed
+            this.owner.copyFrom(newOwner);
+            this.onOwnerChanged();
+        }
+    }
+
+    @Override
+    public void appendDisplay(ValueInput data,SettingsDisplayOutput output) {
+        output.acceptTitle(NAME);
+        output.acceptEntry(VALUE_OWNER,data.read("owner",OwnerHolder.CODEC).orElse(new OwnerHolder()).setSidedContext(this).getName());
+    }
+
+    @Override
+    public <V, A> void afterStatAdded(StatKey<V, A> key,A addValue) {
+        StatListener ownerStats = this.owner.getValidOwner().getStatistics();
+        if(ownerStats != null)
+            ownerStats.addToStat(key,addValue);
     }
 
 }

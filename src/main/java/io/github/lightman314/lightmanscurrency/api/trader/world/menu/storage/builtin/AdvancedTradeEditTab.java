@@ -5,7 +5,6 @@ import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.TradingNode;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeData;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeSet;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.TradeEditContext;
@@ -15,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.Trade
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.PreviousTab;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.builtin.rules.TradeTradeRuleTab;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -39,7 +39,7 @@ public abstract class AdvancedTradeEditTab extends TradeInteractionTab {
     public void withSelectionListener(BiConsumer<TradeSlot,TradeSlot> selectionListener) { this.selectionListener = selectionListener; }
 
     @Override
-    public boolean canOpen() { return this.getPermission(BuiltInPermissions.EDIT_TRADES); }
+    public boolean canOpen() { return this.getPermission(LCPermissions.EDIT_TRADES); }
 
     @Override
     protected final List<TradeSet> editableTradeSets() {
@@ -131,7 +131,7 @@ public abstract class AdvancedTradeEditTab extends TradeInteractionTab {
     }
 
     public final void openTradeRuleTab() {
-        if(this.getPermission(BuiltInPermissions.EDIT_TRADE_RULES))
+        if(this.getPermission(LCPermissions.EDIT_TRADE_RULES))
             TradeTradeRuleTab.open(this.getMenu(),this.nodeIndex,this.tradeIndex,new PreviousTab(this,writeOpenMessage(this.nodeIndex,this.tradeIndex,this.selection)));
     }
 

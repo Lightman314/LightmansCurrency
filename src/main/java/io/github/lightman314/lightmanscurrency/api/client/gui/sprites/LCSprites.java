@@ -10,10 +10,10 @@ public final class LCSprites {
     private LCSprites() {}
 
     public static final Identifier GENERIC_BACKGROUND = LCApi.id("container/generic_background");
-    public static final SizedSprite GENERIC_INFO = new SimpleSizedSprite(LCApi.id("container/generic_info"),10,10);
+    public static final SizedSprite GENERIC_INFO = new SizedSprite.Simple(LCApi.id("container/generic_info"),10,10);
 
-    public static final Identifier SEARCH_FIELD = LCApi.id("container/search_field");
-    public static final SizedSprite SEARCH_ICON = new SimpleSizedSprite(LCApi.id("container/search_icon"),11,14);
+    public static final HorizontalSizedSprite SEARCH_FIELD = new HorizontalSizedSprite.Simple(LCApi.id("container/search_field"),12);
+    public static final SizedSprite SEARCH_ICON = new SizedSprite.Simple(LCApi.id("container/search_icon"),11,14);
 
     public static final SizedSprite.Template<BooleanSupplier> TOGGLE = DeferredSizedSprite.toggleSprite(LCApi.id("widget/toggle_on"),LCApi.id("widget/toggle_off"),8,18);
     public static final SizedSprite.Template<BooleanSupplier> TOGGLE_COLORED = DeferredSizedSprite.toggleAndHoverToggleSprite(LCApi.id("widget/toggle_colored_on"),LCApi.id("widget/toggle_colored_off"),8,18);
@@ -31,10 +31,10 @@ public final class LCSprites {
     public static final SizedSprite.Builder BUTTON_QUICK_INSERT = WidgetContextSprite.hoverToggleSprite(LCApi.id("widget/quick_insert"),10,10);
     public static final SizedSprite.Builder BUTtON_QUICK_EXTRACT = WidgetContextSprite.hoverToggleSprite(LCApi.id("widget/quick_extract"),10,10);
 
-    public static final SizedSprite SMALL_ARROW_DOWN = new SimpleSizedSprite(LCApi.id("container/small_arrow_down"),8,6);
-    public static final SizedSprite SMALL_ARROW_UP = new SimpleSizedSprite(LCApi.id("container/small_arrow_up"),8,6);
-    public static final SizedSprite SMALL_ARROW_LEFT = new SimpleSizedSprite(LCApi.id("container/small_arrow_left"),6,8);
-    public static final SizedSprite SMALL_ARROW_RIGHT = new SimpleSizedSprite(LCApi.id("container/small_arrow_right"),6,8);
+    public static final SizedSprite SMALL_ARROW_DOWN = new SizedSprite.Simple(LCApi.id("container/small_arrow_down"),8,6);
+    public static final SizedSprite SMALL_ARROW_UP = new SizedSprite.Simple(LCApi.id("container/small_arrow_up"),8,6);
+    public static final SizedSprite SMALL_ARROW_LEFT = new SizedSprite.Simple(LCApi.id("container/small_arrow_left"),6,8);
+    public static final SizedSprite SMALL_ARROW_RIGHT = new SizedSprite.Simple(LCApi.id("container/small_arrow_right"),6,8);
 
     public static final SizedSprite.Builder FREE_TOGGLE = WidgetContextSprite.hoverToggleSprite(LCApi.id("widget/free_toggle"),10,10);
 

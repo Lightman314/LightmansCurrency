@@ -9,7 +9,7 @@ import net.minecraft.network.codec.StreamCodec;
 
 public final class NotificationType<T extends Notification> extends AbstractType.Serializable<T,NotificationType<?>> {
 
-    public NotificationType(MapCodec<T> codec, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec) { super(codec, streamCodec); }
+    public NotificationType(MapCodec<T> codec,StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec) { super(codec, streamCodec); }
 
     @Override
     protected Registry<NotificationType<?>> getRegistry() { return LCRegistries.Notifications.NOTIFICATION_TYPE; }

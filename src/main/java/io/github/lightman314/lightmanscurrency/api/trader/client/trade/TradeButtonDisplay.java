@@ -29,7 +29,8 @@ import java.util.List;
 
 public abstract class TradeButtonDisplay {
 
-    public static final ClientPairedRegistry<TradeDataType<?>,TradeButtonDisplay> REGISTRY = new ClientPairedRegistry<>(LCRegistries.Trader.TRADE_DATA_TYPE);
+    public static final ClientPairedRegistry<TradeDataType<?>,TradeButtonDisplay> REGISTRY = ClientPairedRegistry.builder(LCRegistries.Trader.TRADE_DATA_TYPE,TradeButtonDisplay.class)
+            .throwIfUndefined().build();
 
     public static final int FULL_SPACER = 1;
     public static final int MINI_SPACER = 1;

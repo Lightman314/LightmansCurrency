@@ -6,8 +6,9 @@ import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.LCTags;
 import io.github.lightman314.lightmanscurrency.api.config.data.ConfigCraftingCondition;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.BooleanOption;
-import io.github.lightman314.lightmanscurrency.api.helpers.EnumHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.ListHelper;
+import io.github.lightman314.lightmanscurrency.api.helpers.registry.DeferredHolderBundle;
+import io.github.lightman314.lightmanscurrency.api.helpers.registry.types.VanillaColor;
 import io.github.lightman314.lightmanscurrency.core.LCBlocks;
 import io.github.lightman314.lightmanscurrency.core.LCItems;
 import io.github.lightman314.lightmanscurrency.api.helpers.ColorHelper;
@@ -38,6 +39,7 @@ import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 import net.neoforged.neoforge.registries.DeferredItem;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -110,6 +112,19 @@ public class LCRecipeProvider extends RecipeProvider {
         //Portable ATM Swap Recipe
         this.generateSwapRecipes(LCItems.ATM_PORTABLE,LCBlocks.ATM);
 
+        //Trading Terminal
+        ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,LCBlocks.TRADING_TERMINAL)
+                .unlockedBy("money",this.moneyKnowledge())
+                .unlockedBy("trader",this.traderKnowledge())
+                .unlockedBy("ender",this.simpleRequirement(Items.ENDER_EYE))
+                .pattern("sgs").pattern("sgs").pattern("iei")
+                .define('e',Items.ENDER_EYE)
+                .define('g',Tags.Items.GLASS_BLOCKS_COLORLESS)
+                .define('i',Tags.Items.INGOTS_IRON)
+                .define('s',Tags.Items.STONES)
+                .save(this.output);
+        //Portable Trading Terminal Swap Recipe
+        this.generateSwapRecipes(LCItems.TRADING_TERMINAL_PORTABLE,LCBlocks.TRADING_TERMINAL);
 
         //Coin Mint Recipes
         this.mintAndMeltRecipe(Tags.Items.INGOTS_COPPER,Items.COPPER_INGOT,LCItems.COIN_COPPER,LCConfig.COMMON.coinMintMintableCopper,LCConfig.COMMON.coinMintMeltableCopper);
@@ -186,13 +201,46 @@ public class LCRecipeProvider extends RecipeProvider {
         //Traders
         LCBlocks.DISPLAY_CASE.forEach((color,display) ->
             ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,display)
+                    .group("trader_display_case")
                     .unlockedBy("money", moneyKnowledge())
                     .unlockedBy("trader", traderKnowledge())
                     .pattern("g").pattern("x").pattern("w")
                     .define('x',LCItems.TRADING_CORE)
                     .define('g', Tags.Items.GLASS_BLOCKS_COLORLESS)
                     .define('w',ColorHelper.getWoolBlock(color))
-                    .save(this.output,id("traders/display_case/" + EnumHelper.resourceSafeName(color))));
+                    .save(this.output,id("traders/display_case/" + color.getResourceSafeName())));
+
+        LCBlocks.SINGLE_SHELF.forEach((type,shelf) -> {
+            ICondition condition = type.isVanilla() ? null : new ModLoadedCondition(type.getModID());
+            WoodHelper.getSlab(type).ifPresent(slab ->
+                ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,shelf)
+                        .group("trader_single_shelf")
+                        .unlockedBy("money",moneyKnowledge())
+                        .unlockedBy("trader",traderKnowledge())
+                        .pattern("x").pattern("s")
+                        .define('x',LCItems.TRADING_CORE)
+                        .define('s',slab)
+                        .save(this.output(condition),this.id(type.generatePath("traders/single_shelf/")))
+            );
+        });
+
+        LCBlocks.DOUBLE_SHELF.forEach((type,shelf) -> {
+            ICondition condition = type.isVanilla() ? null : new ModLoadedCondition(type.getModID());
+            ItemLike trader = LCBlocks.SINGLE_SHELF.get(type);
+            if(trader == null)
+                return;
+            WoodHelper.getSlab(type).ifPresent(slab ->
+                    ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,shelf)
+                            .group("trader_double_shelf")
+                            .unlockedBy("money",moneyKnowledge())
+                            .unlockedBy("trader",traderKnowledge())
+                            .unlockedBy("shelf",simpleRequirement(LCTags.Items.GROUP_SINGLE_SHELF))
+                            .pattern("c").pattern("x").pattern("s")
+                            .define('c',Tags.Items.CHESTS_WOODEN)
+                            .define('x',trader)
+                            .define('s',slab)
+                            .save(this.output(condition),this.id(type.generatePath("traders/double_shelf/"))));
+        });
 
         LCBlocks.CARD_DISPLAY.forEach((type,color,display) -> {
             ICondition condition = type.isVanilla() ? null : new ModLoadedCondition(type.getModID());
@@ -206,9 +254,83 @@ public class LCRecipeProvider extends RecipeProvider {
                         .define('w',ColorHelper.getWoolBlock(color))
                         .define('c',Tags.Items.CHESTS_WOODEN)
                         .save(this.output(condition),
-                                this.id(type.generatePath("traders/card_display/","/" + EnumHelper.resourceSafeName(color))))
+                                this.id(type.generatePath("traders/card_display/","/" + color.getResourceSafeName())))
             );
         });
+
+        ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,LCBlocks.VENDING_MACHINE.get(VanillaColor.WHITE))
+                .unlockedBy("money",moneyKnowledge())
+                .unlockedBy("trader",traderKnowledge())
+                .pattern("igi").pattern("igi").pattern("cxc")
+                .define('x',LCItems.TRADING_CORE)
+                .define('g',Tags.Items.GLASS_BLOCKS_COLORLESS)
+                .define('i',Tags.Items.INGOTS_IRON)
+                .define('c',Tags.Items.CHESTS_WOODEN)
+                .save(this.output,this.id("traders/vending_machine/create"));
+        this.generateColoredDyeAndWashRecipes(LCBlocks.VENDING_MACHINE,"vending_machine_dyes","traders/vending_machine/",Pair.of("money",moneyKnowledge()),Pair.of("trader",traderKnowledge()));
+
+        ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,LCBlocks.LARGE_VENDING_MACHINE.get(VanillaColor.WHITE))
+                .unlockedBy("money",moneyKnowledge())
+                .unlockedBy("trader",traderKnowledge())
+                .unlockedBy("vending_machine",simpleRequirement(LCTags.Items.GROUP_VENDING_MACHINE))
+                .pattern("igi").pattern("igi").pattern("cxc")
+                .define('x',LCBlocks.VENDING_MACHINE.get(VanillaColor.WHITE))
+                .define('g',Tags.Items.GLASS_BLOCKS_COLORLESS)
+                .define('i',Tags.Items.INGOTS_IRON)
+                .define('c',Tags.Items.CHESTS_WOODEN)
+                .save(this.output,this.id("traders/large_vending_machine/create"));
+        this.generateColoredDyeAndWashRecipes(LCBlocks.LARGE_VENDING_MACHINE,"large_vending_machine_dyes","traders/large_vending_machine/",Pair.of("money",moneyKnowledge()),Pair.of("trader",traderKnowledge()));
+
+        //Item Network Traders
+        ICondition networkTraderCondition = ConfigCraftingCondition.of(LCConfig.COMMON.canCraftNetworkTraders);
+        ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,LCBlocks.ITEM_NETWORK_TRADER.get(1))
+                .group("item_network_trader")
+                .unlockedBy("money",moneyKnowledge())
+                .unlockedBy("trader",traderKnowledge())
+                .unlockedBy("terminal",terminalKnowledge())
+                .pattern("ici").pattern("ixi").pattern("iei")
+                .define('x',LCItems.TRADING_CORE)
+                .define('e',Items.ENDER_EYE)
+                .define('i',Tags.Items.INGOTS_IRON)
+                .define('c',Tags.Items.CHESTS_WOODEN)
+                .save(this.output.withConditions(networkTraderCondition),this.id("traders/network/",LCBlocks.ITEM_NETWORK_TRADER.get(1)));
+
+        ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,LCBlocks.ITEM_NETWORK_TRADER.get(2))
+                .group("item_network_trader")
+                .unlockedBy("money",moneyKnowledge())
+                .unlockedBy("trader",traderKnowledge())
+                .unlockedBy("terminal",terminalKnowledge())
+                .unlockedBy("previous",simpleRequirement(LCBlocks.ITEM_NETWORK_TRADER.get(1)))
+                .pattern("c").pattern("x").pattern("i")
+                .define('x',LCBlocks.ITEM_NETWORK_TRADER.get(1))
+                .define('i',Tags.Items.INGOTS_IRON)
+                .define('c',Tags.Items.CHESTS_WOODEN)
+                .save(this.output.withConditions(networkTraderCondition),this.id("traders/network/",LCBlocks.ITEM_NETWORK_TRADER.get(2)));
+
+        ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,LCBlocks.ITEM_NETWORK_TRADER.get(3))
+                .group("item_network_trader")
+                .unlockedBy("money",moneyKnowledge())
+                .unlockedBy("trader",traderKnowledge())
+                .unlockedBy("terminal",terminalKnowledge())
+                .unlockedBy("previous",simpleRequirement(LCBlocks.ITEM_NETWORK_TRADER.get(2)))
+                .pattern("c").pattern("x").pattern("i")
+                .define('x',LCBlocks.ITEM_NETWORK_TRADER.get(2))
+                .define('i',Tags.Items.INGOTS_IRON)
+                .define('c',Tags.Items.CHESTS_WOODEN)
+                .save(this.output.withConditions(networkTraderCondition),this.id("traders/network/",LCBlocks.ITEM_NETWORK_TRADER.get(3)));
+
+        ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,LCBlocks.ITEM_NETWORK_TRADER.get(4))
+                .group("item_network_trader")
+                .unlockedBy("money",moneyKnowledge())
+                .unlockedBy("trader",traderKnowledge())
+                .unlockedBy("terminal",terminalKnowledge())
+                .unlockedBy("previous",simpleRequirement(LCBlocks.ITEM_NETWORK_TRADER.get(3)))
+                .pattern("c").pattern("x").pattern("i")
+                .define('x',LCBlocks.ITEM_NETWORK_TRADER.get(3))
+                .define('i',Tags.Items.INGOTS_IRON)
+                .define('c',Tags.Items.CHESTS_WOODEN)
+                .save(this.output.withConditions(networkTraderCondition),this.id("traders/network/",LCBlocks.ITEM_NETWORK_TRADER.get(4)));
+
     }
 
     protected final void generateWalletRecipes(List<Pair<Ingredient,DeferredItem<?>>> ingredientWalletPairs) {
@@ -388,11 +510,41 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(this.output,this.id(this.itemID(itemA).withPrefix("swap_").withSuffix("_with_" + itemBName)));
     }
 
+    protected final <X extends ItemLike,T extends X>void generateColoredDyeAndWashRecipes(DeferredHolderBundle<VanillaColor,X,T> bundle,String group,String idPrefix,Pair<String,Criterion<?>>... requirements) {
+        //Dye Recipe
+        ItemLike white = bundle.get(VanillaColor.WHITE);
+        List<ItemLike> colored = new ArrayList<>();
+        for(VanillaColor color : VanillaColor.values()) {
+            if(color == VanillaColor.WHITE)
+                continue;
+            ItemLike result = bundle.get(color);
+            ShapelessRecipeBuilder builder = ShapelessRecipeBuilder.shapeless(this.itemHolderGetter(),RecipeCategory.MISC,result)
+                    .group(group)
+                    .unlockedBy("uncolored",this.simpleRequirement(white))
+                    .requires(white)
+                    .requires(color.getDyeTag());
+            for(var crit : requirements)
+                builder.unlockedBy(crit.getFirst(),crit.getSecond());
+            builder.save(this.output,this.id(idPrefix + "dye_" + color.getResourceSafeName()));
+            colored.add(result);
+        }
+        //Generate Washing Recipe
+        ShapelessRecipeBuilder builder = ShapelessRecipeBuilder.shapeless(this.itemHolderGetter(),RecipeCategory.MISC,white)
+                .group(group)
+                .unlockedBy("colored",this.simpleRequirement(colored))
+                .requires(Ingredient.of(colored.toArray(ItemLike[]::new)))
+                .requires(Items.WATER_BUCKET);
+        for(var crit : requirements)
+            builder.unlockedBy(crit.getFirst(),crit.getSecond());
+        builder.save(this.output,this.id(idPrefix + "washing"));
+    }
+
     protected final Criterion<?> moneyKnowledge() { return this.simpleRequirement(LCTags.Items.MONEY); }
     protected final Criterion<?> traderKnowledge() { return this.simpleRequirement(LCTags.Items.TRADERS); }
     protected final Criterion<?> terminalKnowledge() { return this.simpleRequirement(LCTags.Items.NETWORK_TERMINAL); }
 
     protected final Criterion<?> simpleRequirement(ItemLike item) { return InventoryChangeTrigger.TriggerInstance.hasItems(item); }
+    protected final Criterion<?> simpleRequirement(List<ItemLike> itemList) { return InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(this.itemHolderGetter(),itemList.toArray(ItemLike[]::new))); }
     protected final Criterion<?> simpleRequirement(TagKey<Item> itemTag) { return InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(this.itemHolderGetter(),itemTag)); }
 
     protected final HolderSet<Item> set(TagKey<Item> tag) { return this.itemHolderGetter().getOrThrow(tag); }

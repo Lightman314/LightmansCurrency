@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.core;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.customer.AbstractTabbedCustomerMenu;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.TraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.api.trader.world.menu.terminal.TradingTerminalMenu;
 import io.github.lightman314.lightmanscurrency.api.world.menu.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.features.atm.ATMMenu;
 import io.github.lightman314.lightmanscurrency.features.coin_mint.CoinMintBlockEntity;
@@ -29,12 +30,18 @@ public final class LCMenuTypes {
     public static final DeferredHolder<MenuType<?>,MenuType<CoinMintMenu>> COIN_MINT = register("coin_mint",() ->
             (id,inv,data) -> new CoinMintMenu(id,inv.player,(CoinMintBlockEntity)inv.player.level().getBlockEntity(data.readBlockPos())));
 
-    public static final DeferredHolder<MenuType<?>,MenuType<ATMMenu>> ATM = register("atm",() -> (id,inv,data) -> new ATMMenu(id,inv.player));
+    public static final DeferredHolder<MenuType<?>,MenuType<ATMMenu>> ATM = register("atm",() ->
+            (id,inv,data) -> new ATMMenu(id,inv.player));
+
+    public static final DeferredHolder<MenuType<?>,MenuType<TradingTerminalMenu>> TRADING_TERMINAL = register("trading_terminal",() ->
+            (id,inv,data) -> new TradingTerminalMenu(id,inv.player,MenuValidator.STREAM_CODEC.decode(data)));
 
     public static final DeferredHolder<MenuType<?>,MenuType<AbstractTabbedCustomerMenu>> TRADER_DIRECT = register("trader_direct",() ->
             (id,inv,data) -> new AbstractTabbedCustomerMenu.Direct(id,inv.player,data.readLong(),MenuValidator.STREAM_CODEC.decode(data)));
     public static final DeferredHolder<MenuType<?>,MenuType<AbstractTabbedCustomerMenu>> TRADER_BLOCK_ENTITY = register("trader_block",() ->
             (id,inv,data) -> new AbstractTabbedCustomerMenu.Block(id,inv.player,data.readBlockPos()));
+    public static final DeferredHolder<MenuType<?>,MenuType<AbstractTabbedCustomerMenu>> TRADER_ALL_NETWORK = register("trader_all_network",() ->
+            (id,inv,data) -> new AbstractTabbedCustomerMenu.AllNetworkTraders(id,inv.player,MenuValidator.STREAM_CODEC.decode(data)));
 
     public static final DeferredHolder<MenuType<?>,MenuType<TraderStorageMenu>> TRADER_STORAGE = register("trader_storage",() ->
             (id,inv,data) -> new TraderStorageMenu(id,inv.player,data.readLong(),MenuValidator.STREAM_CODEC.decode(data)));

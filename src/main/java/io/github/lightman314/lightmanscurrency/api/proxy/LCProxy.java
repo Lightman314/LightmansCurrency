@@ -8,7 +8,6 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -19,7 +18,7 @@ public class LCProxy {
 
     private static LCProxy instance = new LCProxy();
     public static LCProxy get() { return instance; }
-    protected static void setProxy(LCProxy proxy) { instance = Objects.requireNonNull(instance); }
+    protected static void setProxy(LCProxy proxy) { instance = Objects.requireNonNull(proxy); }
 
     @Nullable
     public Level getDummyLevel() {
@@ -32,14 +31,13 @@ public class LCProxy {
     public boolean isSelf(Player player) { return false; }
 
     public List<GameProfile> getPlayerList(ISidedContext context) {
-        List<GameProfile> profiles = new ArrayList<>();
         if(context.isServer())
         {
             MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
             if(server != null)
-                profiles.addAll(server.getPlayerList().getPlayers().stream().map(Player::getGameProfile).toList());
+                return server.getPlayerList().getPlayers().stream().map(Player::getGameProfile).toList();
         }
-        return profiles;
+        return List.of();
     }
 
     @Nullable

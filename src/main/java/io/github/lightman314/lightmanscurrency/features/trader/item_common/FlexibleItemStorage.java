@@ -18,7 +18,7 @@ public class FlexibleItemStorage extends ListBackedItemStorage {
     private final Predicate<ItemResource> filter;
     private final Supplier<Integer> capacity;
     public FlexibleItemStorage(Predicate<ItemResource> filter,Supplier<Integer> capacity,Runnable listener) { this(filter,capacity,(l1,l2) -> listener.run()); }
-    public FlexibleItemStorage(Predicate<ItemResource> filter,Supplier<Integer> capacity,Consumer<Consumer<FancyPacketMap.Mutable>> listener) { this(filter,capacity,new PacketListener(listener)); }
+    public FlexibleItemStorage(Predicate<ItemResource> filter,Supplier<Integer> capacity,FancyPacketMap.Listener listener) { this(filter,capacity,new PacketListener(listener)); }
     public FlexibleItemStorage(Predicate<ItemResource> filter,Supplier<Integer> capacity,ListChangedListener listener)
     {
         super(listener);

@@ -55,7 +55,7 @@ public abstract class TabbedMenu<X extends TabbedMenu<X,T>,T extends MenuTab<X>>
         for(MenuTab<?> tab : this.getTabs().values())
             tab.addMenuSlots(this::addSlot);
 
-        this.debugTabs();
+        //this.debugTabs();
         //this.debugSlotCount();
 
         //Flag the first tab as opened

@@ -25,7 +25,7 @@ import java.util.Objects;
 public class ItemTradeNotification extends TraderNotification.TaxableSingleLine {
 
     private static final MapCodec<ItemTradeNotification> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
-            TradeDirection.CODEC.fieldOf("type").forGetter(n -> n.type),
+            TradeDirection.CODEC.fieldOf("direction").forGetter(n -> n.direction),
             TradePriceReceipt.CODEC.fieldOf("cost").forGetter(n -> n.cost),
             CodecHelper.UNLIMITED_ITEM_LIST.fieldOf("items").forGetter(n -> n.items),
             ComponentSerialization.CODEC.fieldOf("customer").forGetter(n -> n.customer),
@@ -33,7 +33,7 @@ public class ItemTradeNotification extends TraderNotification.TaxableSingleLine 
             MoneyValue.CODEC.fieldOf("taxesPaid").forGetter(ItemTradeNotification::getTaxesPaid)
     ).apply(builder,ItemTradeNotification::new));
     private static final StreamCodec<RegistryFriendlyByteBuf,ItemTradeNotification> STREAM_CODEC = StreamCodec.composite(
-            TradeDirection.STREAM_CODEC,n -> n.type,
+            TradeDirection.STREAM_CODEC,n -> n.direction,
             TradePriceReceipt.STREAM_CODEC,n -> n.cost,
             ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()),n -> n.items,
             ComponentSerialization.STREAM_CODEC,n -> n.customer,
@@ -45,14 +45,14 @@ public class ItemTradeNotification extends TraderNotification.TaxableSingleLine 
 
     public static final TextEntry TEXT = TextEntry.notification(TYPE);
 
-    private final TradeDirection type;
+    private final TradeDirection direction;
     private final TradePriceReceipt cost;
     private final List<ItemStack> items;
     private final Component customer;
 
-    public ItemTradeNotification(TradeDirection type,TradePriceReceipt price,List<ItemStack> soldItems,Component customer,TraderCategory trader,MoneyValue taxesPaid) {
+    public ItemTradeNotification(TradeDirection direction, TradePriceReceipt price, List<ItemStack> soldItems, Component customer, TraderCategory trader, MoneyValue taxesPaid) {
         super(trader,taxesPaid);
-        this.type = type;
+        this.direction = direction;
         this.cost = price;
         this.items = List.copyOf(ItemHelper.combineStacks(soldItems));
         this.customer = customer;
@@ -62,7 +62,7 @@ public class ItemTradeNotification extends TraderNotification.TaxableSingleLine 
     protected Component getMessage() {
         return TEXT.get(
                 this.customer,
-                this.type.getAction(),
+                this.direction.getAction(),
                 ItemHelper.formatItemNames(this.items),
                 this.cost.getText());
     }
@@ -73,11 +73,11 @@ public class ItemTradeNotification extends TraderNotification.TaxableSingleLine 
     @Override
     protected boolean equals(Notification other) {
         if(other instanceof ItemTradeNotification n)
-            return this.type == n.type && ItemHelper.listsMatch(this.items,n.items) && this.cost.equals(n.cost) && this.customer.equals(n.customer) && super.parentDataMatches(n);
+            return this.direction == n.direction && ItemHelper.listsMatch(this.items,n.items) && this.cost.equals(n.cost) && this.customer.equals(n.customer) && super.parentDataMatches(n);
         return false;
     }
 
     @Override
-    protected int hash() { return Objects.hash(this.type,ItemHelper.hashList(this.items),this.cost,this.customer,this.hashParentData()); }
+    protected int hash() { return Objects.hash(this.direction,ItemHelper.hashList(this.items),this.cost,this.customer,this.hashParentData()); }
 
 }

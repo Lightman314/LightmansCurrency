@@ -82,11 +82,15 @@ public final class LCCreativeGroups {
             builder.title(LCText.Resources.CREATIVE_GROUP_MACHINES.get())
                     .icon(LCBlocks.ATM::toStack)
                     .displayItems((parameters,p) -> {
+                        //Coin Mint
+                        p.accept(LCBlocks.COIN_MINT);
                         //ATM
                         p.accept(LCBlocks.ATM);
                         p.accept(LCItems.ATM_PORTABLE);
-                        //Coin Mint
-                        p.accept(LCBlocks.COIN_MINT);
+                        //Cash Register
+                        //Trading Terminal
+                        p.accept(LCBlocks.TRADING_TERMINAL);
+                        p.accept(LCItems.TRADING_TERMINAL_PORTABLE);
                         //TODO Stuff lol
                     }));
 
@@ -95,7 +99,12 @@ public final class LCCreativeGroups {
                     .icon(LCItems.TRADING_CORE::toStack)
                     .displayItems(((parameters, p) -> {
                         ezPop(p,LCBlocks.DISPLAY_CASE);
+                        ezPop(p,LCBlocks.SINGLE_SHELF);
+                        ezPop(p,LCBlocks.DOUBLE_SHELF);
                         ezPop(p,LCBlocks.CARD_DISPLAY);
+                        ezPop(p,LCBlocks.VENDING_MACHINE);
+                        ezPop(p,LCBlocks.LARGE_VENDING_MACHINE);
+                        ezPop(p,LCBlocks.ITEM_NETWORK_TRADER);
                     })));
 
     public static final DeferredHolder<CreativeModeTab,CreativeModeTab> UPGRADES = register("upgrades",builder ->
@@ -128,6 +137,8 @@ public final class LCCreativeGroups {
         {
             //Add colored blocks
             ezPop(event,LCBlocks.DISPLAY_CASE);
+            ezPop(event,LCBlocks.VENDING_MACHINE);
+            ezPop(event,LCBlocks.LARGE_VENDING_MACHINE);
         }
     }
 

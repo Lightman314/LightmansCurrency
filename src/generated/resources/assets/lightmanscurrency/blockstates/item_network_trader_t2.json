@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "lightmanscurrency:block/item_network_trader_t2",
+      "y": 270
+    },
+    "facing=north": {
+      "model": "lightmanscurrency:block/item_network_trader_t2",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/item_network_trader_t2"
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/item_network_trader_t2",
+      "y": 90
+    }
+  }
+}

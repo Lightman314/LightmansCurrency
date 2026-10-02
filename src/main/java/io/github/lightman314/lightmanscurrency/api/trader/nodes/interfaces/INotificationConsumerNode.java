@@ -5,8 +5,6 @@ import io.github.lightman314.lightmanscurrency.api.ownership.MemberLevel;
 
 public interface INotificationConsumerNode {
 
-    void pushNotification(Notification notification,boolean sendToMembers, MemberLevel targets, boolean pushToChat);
-
-
+    void processNotification(Notification notification, boolean sendToMembers, MemberLevel targets, boolean pushToChat);
 
 }

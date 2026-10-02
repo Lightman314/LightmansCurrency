@@ -92,6 +92,4 @@ public abstract class TradeDataWithRules extends TradeData implements TradeRuleH
         }
     }
 
-
-
 }

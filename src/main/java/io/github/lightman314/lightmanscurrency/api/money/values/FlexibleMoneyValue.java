@@ -2,11 +2,14 @@ package io.github.lightman314.lightmanscurrency.api.money.values;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.Range;
+
+import java.util.Objects;
 
 /**
  * A {@link MoneyValue} wrapper that allows for negative MoneyValue results to various math<br>
@@ -58,7 +61,7 @@ public final class FlexibleMoneyValue {
 
     public boolean isEmpty() { return this.value.isEmpty(); }
 
-    public MoneyKey getKey() { return this.value.getKey(); }
+    public DualKey getKey() { return this.value.getKey(); }
 
     public boolean compatibleType(MoneyValue value) { return this.value.compatibleTypes(value); }
     public boolean compatibleType(FlexibleMoneyValue value) { return this.compatibleType(value.value); }
@@ -147,5 +150,12 @@ public final class FlexibleMoneyValue {
 
     public Component getText() { return this.value.getText(Component.literal("0")); }
     public Component getText(int color,int negativeColor) { return this.value.getText(Component.literal("0")).copy().withColor(this.negative ? negativeColor : color); }
+
+    @Override
+    public String toString() { return "FlexibleMoneyValue[" + this.value.getKey() + ";" + this.getInternalValue() + "]"; }
+    @Override
+    public int hashCode() { return Objects.hash(this.negative,this.value); }
+    @Override
+    public boolean equals(Object obj) { return obj instanceof FlexibleMoneyValue v && this.negative == v.negative && this.value.equals(v.value); }
 
 }

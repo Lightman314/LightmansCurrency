@@ -302,4 +302,6 @@ public sealed class FancyPacketMap implements IIndentStringable permits FancyPac
 
     }
 
+    public interface Listener extends Consumer<Consumer<FancyPacketMap.Mutable>> { }
+
 }

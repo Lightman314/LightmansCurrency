@@ -5,6 +5,9 @@ import io.github.lightman314.lightmanscurrency.api.codecs.partial.*;
 import com.mojang.datafixers.util.*;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -28,6 +31,9 @@ public final class StreamHelper {
 
     public static final StreamCodec<RegistryFriendlyByteBuf,ItemStack> C2S_ITEM_STACK = ItemStack.validatedStreamCodec(ItemStack.OPTIONAL_STREAM_CODEC);
 
+    public static final StreamCodec<ByteBuf, CompoundTag> COMPOUND_TAG = StreamCodec.of(FriendlyByteBuf::writeNbt,FriendlyByteBuf::readNbt);
+    public static final StreamCodec<ByteBuf, CompoundTag> UNLIMITED_COMPOUND_TAG = StreamCodec.of(FriendlyByteBuf::writeNbt,buf -> (CompoundTag)FriendlyByteBuf.readNbt(buf,NbtAccounter.unlimitedHeap()));
+
     public static <B,T> StreamCodec<B,T> uncheckedUnit(T instance) { return uncheckedUnit(() -> instance); }
     public static <B,T> StreamCodec<B,T> uncheckedUnit(Supplier<T> supplier)
     {
@@ -50,25 +56,8 @@ public final class StreamHelper {
         return ByteBufCodecs.collection(HashSet::new,codec);
     }
 
-    public static <B extends ByteBuf,K,V> StreamCodec<B, Map<K,V>> unboundedMap(StreamCodec<? super B,K> keyCodec, StreamCodec<? super B,V> valueCodec)
-    {
-        return StreamCodec.of((buf,map) -> {
-            buf.writeInt(map.size());
-            map.forEach((key,value) -> {
-                keyCodec.encode(buf,key);
-                valueCodec.encode(buf,value);
-            });
-        },(buf) -> {
-            Map<K,V> result = new HashMap<>();
-            int count = buf.readInt();
-            for(int i = 0; i < count; ++i)
-            {
-                K key = keyCodec.decode(buf);
-                V value = valueCodec.decode(buf);
-                result.put(key,value);
-            }
-            return result;
-        });
+    public static <B extends ByteBuf,K,V> StreamCodec<B,Map<K,V>> map(StreamCodec<? super B,K> keyCodec,StreamCodec<? super B,V> valueCodec) {
+        return ByteBufCodecs.map(HashMap::new,keyCodec,valueCodec);
     }
 
     /// Expanded StreamCodec#composite methods for up to 12 arguments

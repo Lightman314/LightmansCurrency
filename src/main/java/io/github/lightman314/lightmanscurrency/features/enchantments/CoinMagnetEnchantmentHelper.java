@@ -48,7 +48,7 @@ public final class CoinMagnetEnchantmentHelper {
                 ItemEntity ie = (ItemEntity)e;
                 ItemStack coinStack = ie.getItem();
                 try(Transaction tx = Transaction.open(transaction)) {
-                    int inserted = storage.pickup(ItemResource.of(coinStack),coinStack.getCount(),transaction);
+                    int inserted = storage.pickup(ItemResource.of(coinStack),coinStack.getCount(),tx);
                     if(inserted > 0 && inserted <= coinStack.getCount()) {
                         tx.commit();
                         coinStack.shrink(inserted);

@@ -5,13 +5,13 @@ import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleHolder;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.PreviousTab;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 
 import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
@@ -69,7 +69,7 @@ public abstract class AbstractTradeRuleTab extends TraderStorageTab {
     @OverridingMethodsMustInvokeSuper
     public boolean canOpen() { return this.hasRequiredPermissions(); }
 
-    protected boolean hasRequiredPermissions() { return this.getPermission(BuiltInPermissions.EDIT_TRADE_RULES); }
+    protected boolean hasRequiredPermissions() { return this.getPermission(LCPermissions.EDIT_TRADE_RULES); }
 
     public final void requestRuleChange(TradeRuleType<?> type,FancyPacketMap request) {
         if(this.isClient()) {

@@ -17,8 +17,8 @@ import io.github.lightman314.lightmanscurrency.api.ownership.holder.OwnerHolder;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.settings.SettingsClientTab;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.OwnerNode;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
@@ -38,7 +38,7 @@ public class OwnerSettingsTab extends SettingsSubTab.ForNode<OwnerNode> {
     public Component getName() { return OwnerNode.SETTINGS_TOOLTIP.get(); }
 
     @Override
-    public boolean isVisible() { return this.getPermission(BuiltInPermissions.TRANSFER_OWNERSHIP); }
+    public boolean isVisible() { return this.getPermission(LCPermissions.TRANSFER_OWNERSHIP); }
 
     private boolean manualMode = false;
     private boolean isManualMode() { return this.manualMode; }
@@ -137,5 +137,8 @@ public class OwnerSettingsTab extends SettingsSubTab.ForNode<OwnerNode> {
     private IconData getModeIcon() { return this.manualMode ? MANUAL_ICON : PLAYER_ICON; }
 
     private Component getModeTooltip() { return this.manualMode ? OwnerNode.TOOLTIP_OWNER_NODE_SELECTION.get() : OwnerNode.TOOLTIP_OWNER_NODE_MANUAL.get(); }
+
+    @Override
+    public boolean displayTitle() { return false; }
 
 }

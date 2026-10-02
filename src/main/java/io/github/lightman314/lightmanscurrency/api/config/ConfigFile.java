@@ -16,8 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.permissions.Permission;
-import net.minecraft.server.permissions.PermissionLevel;
+import net.minecraft.server.permissions.Permissions;
 import net.minecraft.server.players.PlayerList;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -121,10 +120,10 @@ public abstract class ConfigFile implements ConfigReloadable {
             this.reloadListeners.add(listener);
     }
 
-    private final List<UUID> trackingPlayers = new ArrayList<>();
+    private final Set<UUID> trackingPlayers = new HashSet<>();
     public final void addTrackingPlayer(Player player)
     {
-        if(this.isClientOnly() || this.trackingPlayers.contains(player.getUUID()))
+        if(this.isClientOnly())
             return;
         this.trackingPlayers.add(player.getUUID());
     }
@@ -133,7 +132,7 @@ public abstract class ConfigFile implements ConfigReloadable {
     @Override
     public Identifier getID() { return this.fileID; }
     @Override
-    public boolean canReload(CommandSourceStack stack) { return this.isClientOnly() ? stack.isPlayer() : stack.permissions().hasPermission(new Permission.HasCommandLevel(PermissionLevel.GAMEMASTERS)); }
+    public boolean canReload(CommandSourceStack stack) { return this.isClientOnly() ? stack.isPlayer() : stack.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER); }
     @Override
     public void onCommandReload(CommandSourceStack stack) throws CommandSyntaxException {
         //Reload Pack
@@ -617,7 +616,9 @@ public abstract class ConfigFile implements ConfigReloadable {
         private final ConfigSection parent;
         private final int depth;
         private final String name;
+        public Component getDisplayName(ConfigFile file) { return this.getDisplayName(file.getFileID()); }
         public Component getDisplayName(Identifier fileID) { return Component.translatable(translationForSection(fileID,this.fullName())); }
+        public List<Component> getTooltips(ConfigFile file) { return this.getTooltips(file.getFileID()); }
         public List<Component> getTooltips(Identifier fileID) { return new MultiLineTextEntry(translationForComment(fileID,this.fullName())).get(); }
 
         private String fullName()

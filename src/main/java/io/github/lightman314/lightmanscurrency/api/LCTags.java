@@ -29,6 +29,8 @@ public final class LCTags {
 
         //Misc Tags
         public static final TagKey<Item> COIN_MINTING_MATERIAL = key("coin_minting_material");
+        public static final TagKey<Item> SETTINGS_WRITABLE = key("settings/writable");
+        public static final TagKey<Item> SETTINGS_READABLE = key("settings/readable");
 
         public static final TagKey<Item> NETWORK_TERMINAL = key("network_terminal");
 
@@ -38,7 +40,14 @@ public final class LCTags {
         public static final TagKey<Item> TRADERS_NETWORK = key("traders/network");
 
         public static final TagKey<Item> GROUP_DISPLAY_CASE = key("groups/display_case");
+        public static final TagKey<Item> GROUP_SINGLE_SHELF = key("groups/single_shelf");
+        public static final TagKey<Item> GROUP_DOUBLE_SHELF = key("groups/double_shelf");
         public static final TagKey<Item> GROUP_CARD_DISPLAY = key("groups/card_display");
+        public static final TagKey<Item> GROUP_VENDING_MACHINE = key("groups/vending_machine");
+        public static final TagKey<Item> GROUP_LARGE_VENDING_MACHINE = key("groups/large_vending_machine");
+        public static final TagKey<Item> GROUP_ITEM_NETWORK_TRADERS = key("groups/item_network_trader");
+        public static final TagKey<Item> GROUP_AUCTION_STAND = key("groups/auction_stand");
+
 
         public static TagKey<Item> key(String name) { return TagKey.create(Registries.ITEM,LCApi.id(name)); }
 
@@ -53,8 +62,13 @@ public final class LCTags {
         public static final TagKey<Block> SAFE_INTERACTABLE = key("safe_interactable");
 
         public static final TagKey<Block> GROUP_CARD_DISPLAY = key("groups/card_display");
+        public static final TagKey<Block> GROUP_SINGLE_SHELF = key("groups/single_shelf");
+        public static final TagKey<Block> GROUP_DOUBLE_SHELF = key("groups/double_shelf");
         public static final TagKey<Block> GROUP_DISPLAY_CASE = key("groups/display_case");
-
+        public static final TagKey<Block> GROUP_VENDING_MACHINE = key("groups/vending_machine");
+        public static final TagKey<Block> GROUP_LARGE_VENDING_MACHINE = key("groups/large_vending_machine");
+        public static final TagKey<Block> GROUP_ITEM_NETWORK_TRADERS = key("groups/item_network_trader");
+        public static final TagKey<Block> GROUP_AUCTION_STAND = key("groups/auction_stand");
 
         public static TagKey<Block> key(String name) { return TagKey.create(Registries.BLOCK,LCApi.id(name)); }
 

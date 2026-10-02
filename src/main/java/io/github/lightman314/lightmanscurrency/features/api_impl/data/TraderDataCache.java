@@ -112,8 +112,7 @@ public final class TraderDataCache extends FancyData implements ITickerServer, I
             PersistentDataNode node = trader.getNode(PersistentDataNode.TYPE);
             if(node != null && node.isPersistent())
                 this.persistentTraders.remove(node.getPersistentKey());
-            NeoForge.EVENT_BUS.post(new TraderEvent.
-                    TraderDeletedEvent(trader));
+            NeoForge.EVENT_BUS.post(new TraderEvent.TraderDeletedEvent(trader));
         }
     }
 

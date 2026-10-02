@@ -3,7 +3,7 @@
   "textures": {
     "log": "minecraft:block/crimson_stem",
     "logtop": "minecraft:block/crimson_stem_top",
-    "plank": "minecraft:block/birch_planks",
+    "plank": "minecraft:block/crimson_planks",
     "wool": "minecraft:block/lime_wool"
   }
 }

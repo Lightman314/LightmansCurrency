@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.money.values.impl;
 import com.mojang.brigadier.StringReader;
 import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
-import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValueType;
 import io.github.lightman314.lightmanscurrency.api.money.values.parsing.MoneyValueParser;
@@ -32,7 +32,7 @@ public final class EmptyValue extends MoneyValue {
     public MoneyValueType<?> getType() { return this.isFree() ? FREE_TYPE : EMPTY_TYPE; }
 
     @Override
-    protected MoneyKey generateKey() { return MoneyKey.create(this.getType()); }
+    protected DualKey generateKey() { return DualKey.create(this.getType()); }
 
     @Override
     @Range(from = 0, to = Long.MAX_VALUE)

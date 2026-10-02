@@ -1,6 +1,11 @@
 {
   "values": [
     "#lightmanscurrency:groups/display_case",
-    "#lightmanscurrency:groups/card_display"
+    "#lightmanscurrency:groups/single_shelf",
+    "#lightmanscurrency:groups/double_shelf",
+    "#lightmanscurrency:groups/card_display",
+    "#lightmanscurrency:groups/vending_machine",
+    "#lightmanscurrency:groups/large_vending_machine",
+    "#lightmanscurrency:groups/item_network_trader"
   ]
 }

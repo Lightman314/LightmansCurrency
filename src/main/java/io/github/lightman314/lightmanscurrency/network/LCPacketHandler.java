@@ -53,6 +53,8 @@ public class LCPacketHandler {
         //Config
         registerS2C(SPacketSyncConfig.TYPE,SPacketSyncConfig.STREAM_CODEC);
         registerS2C(SPacketReloadConfig.TYPE,SPacketReloadConfig.STREAM_CODEC);
+        registerC2S(CPacketTrackServerFile.TYPE,CPacketTrackServerFile.STREAM_CODEC);
+        registerC2S(CPacketEditConfig.TYPE,CPacketEditConfig.STREAM_CODEC);
 
         //Player Name Cache
         registerC2S(CPacketRequestPlayerName.TYPE,CPacketRequestPlayerName.STREAM_CODEC);

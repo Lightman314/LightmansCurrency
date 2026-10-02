@@ -25,17 +25,18 @@ public interface IOwnerHolder extends ISidedContext {
 
     default boolean hasMemberLevels() { return this.getValidOwner().hasMemberLevels(); }
 
-    record Simple(Owner owner,ISidedContext context) implements IOwnerHolder {
+    final class Simple implements IOwnerHolder {
 
-        @Override
-        public Owner getValidOwner() {
-            return this.owner;
+        private final Owner owner;
+        private final ISidedContext context;
+        public Simple(Owner owner,ISidedContext context) {
+            this.owner = owner.copyWithContext(this);
+            this.context = context;
         }
-
         @Override
-        public boolean isClient() {
-            return false;
-        }
+        public Owner getValidOwner() { return this.owner; }
+        @Override
+        public boolean isClient() { return this.context.isClient(); }
     }
 
 }

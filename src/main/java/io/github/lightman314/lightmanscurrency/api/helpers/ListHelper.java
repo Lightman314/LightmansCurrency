@@ -2,8 +2,8 @@ package io.github.lightman314.lightmanscurrency.api.helpers;
 
 import com.mojang.datafixers.util.Pair;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -14,15 +14,13 @@ import java.util.function.UnaryOperator;
 public final class ListHelper {
     private ListHelper() {}
 
-    /**
-     * Runs each value of the list through the consumer<br>
-     * Useful as a {@linkplain List#addAll(Collection)} alternative where a Consumer is given instead of a List
-     */
-    public static <T> void consumeAll(Consumer<T> consumer,List<T> list)
-    {
-        for(T entry : list)
-            consumer.accept(entry);
+    @Nullable
+    public static <T> T getOrNull(List<T> list,int index) {
+        if(index >= 0 && index < list.size())
+            return list.get(index);
+        return null;
     }
+    public static <T> T getOrDefault(List<T> list,int index,T defaultValue) { return Objects.requireNonNullElse(getOrNull(list,index),defaultValue); }
 
     /**
      * Obtains a time-based cycling item from the list, moving on to the next entry every 2 seconds

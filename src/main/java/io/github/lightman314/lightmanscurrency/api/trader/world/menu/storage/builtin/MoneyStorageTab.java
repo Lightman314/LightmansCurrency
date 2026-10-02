@@ -8,12 +8,12 @@ import io.github.lightman314.lightmanscurrency.api.money.resource.builtin.MoneyI
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.MoneyStorageNode;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.TraderStorageTab;
 import io.github.lightman314.lightmanscurrency.api.world.menu.slots.EasyResourceSlot;
 import io.github.lightman314.lightmanscurrency.api.world.menu.slots.IEasySlot;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.Slot;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
@@ -65,11 +65,11 @@ public class MoneyStorageTab extends TraderStorageTab {
     public void onMenuClosed() { this.getMenu().clearContainer(this.moneyStorage); }
 
     public boolean canStoreMoney() {
-        return this.getPermission(BuiltInPermissions.STORE_MONEY);
+        return this.getPermission(LCPermissions.STORE_MONEY);
     }
 
     public boolean canCollectMoney() {
-        return this.getPermission(BuiltInPermissions.COLLECT_MONEY);
+        return this.getPermission(LCPermissions.COLLECT_MONEY);
     }
 
     public void storeMoney(MoneyValue amount) {

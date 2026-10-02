@@ -8,8 +8,11 @@ import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.customer.TraderCustomerScreen;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.TraderStorageScreen;
+import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.terminal.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.features.atm.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.features.coin_mint.CoinMintScreen;
+import io.github.lightman314.lightmanscurrency.client.features.rendering.BlockStateRenderState;
+import io.github.lightman314.lightmanscurrency.client.features.rendering.BlockStateRenderer;
 import io.github.lightman314.lightmanscurrency.client.features.resources.data.item_position.ItemPositionSetManager;
 import io.github.lightman314.lightmanscurrency.client.features.resources.data.item_position.ItemPositionManager;
 import io.github.lightman314.lightmanscurrency.client.features.wallet.WalletScreen;
@@ -52,10 +55,12 @@ public class ClientEventListeners {
         event.register(LCMenuTypes.WALLET.get(),WalletScreen::new);
         event.register(LCMenuTypes.COIN_MINT.get(),CoinMintScreen::new);
         event.register(LCMenuTypes.ATM.get(),simpleFactory(ATMScreen::new));
+        event.register(LCMenuTypes.TRADING_TERMINAL.get(),simpleFactory(TradingTerminalScreen::new));
 
         //Traders
         event.register(LCMenuTypes.TRADER_DIRECT.get(),simpleFactory(TraderCustomerScreen::new));
         event.register(LCMenuTypes.TRADER_BLOCK_ENTITY.get(),simpleFactory(TraderCustomerScreen::new));
+        event.register(LCMenuTypes.TRADER_ALL_NETWORK.get(),simpleFactory(TraderCustomerScreen::new));
         event.register(LCMenuTypes.TRADER_STORAGE.get(),simpleFactory(TraderStorageScreen::new));
 
     }
@@ -108,6 +113,11 @@ public class ClientEventListeners {
     private static void registerResourceListeners(AddClientReloadListenersEvent event) {
         event.addListener(LCApi.id("item_position_data"),ItemPositionManager.INSTANCE);
         event.addListener(LCApi.id("item_position_sets"),ItemPositionSetManager.INSTANCE);
+    }
+
+    @SubscribeEvent
+    private static void registerPipRenderers(RegisterPictureInPictureRenderersEvent event) {
+        event.register(BlockStateRenderState.class,BlockStateRenderer::new);
     }
 
 }

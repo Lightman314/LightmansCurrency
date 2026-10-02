@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.text.MultiLineTextEntry;
@@ -13,12 +14,12 @@ import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IDisp
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IPermissionUser;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.ISettingsMessageListener;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.SimpleSyncedNode;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.Permission;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.trader.world.block_entity.TraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.world.data.WorldPosition;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -46,7 +47,7 @@ public class WorldNode extends SimpleSyncedNode implements IDisplayNode, ISettin
     private TraderState state = TraderState.NORMAL;
     public TraderState getState() { return this.state; }
     public void setState(TraderState state) {
-        if(this.state == state)
+        if(this.state == state || this.state == TraderState.PERSISTENT)
             return;
         this.state = state;
         this.setChanged(builder -> builder.setEnum("state",this.state));
@@ -67,6 +68,15 @@ public class WorldNode extends SimpleSyncedNode implements IDisplayNode, ISettin
     }
     private Optional<Block> block = Optional.empty();
     public Block getBlock() { return this.block.orElse(Blocks.AIR); }
+    public void updateBlock(Block block) {
+        if(this.block.isPresent()) {
+            Block b = this.block.get();
+            if(b == block)
+                return;
+        }
+        this.block = Optional.of(block);
+        this.setChanged(m -> m.setRegistryEntry("block",BuiltInRegistries.BLOCK,block));
+    }
     @Nullable
     public Block getBlockOrNull() { return this.block.orElse(null); }
 
@@ -82,7 +92,7 @@ public class WorldNode extends SimpleSyncedNode implements IDisplayNode, ISettin
     public TraderBlockEntity getBlockEntity(Level level) {
         if(!this.position.isVoid() && level != null) {
             if(level.dimension() == this.position.getDimension() && level.isLoaded(this.position.getPos())) {
-                if(level.getBlockEntity(this.position.getPos()) instanceof TraderBlockEntity be)
+                if(level.getBlockEntity(this.position.getPos()) instanceof TraderBlockEntity be && be.getTraderID() == this.getTrader().getID())
                     return be;
             }
         }
@@ -92,6 +102,7 @@ public class WorldNode extends SimpleSyncedNode implements IDisplayNode, ISettin
     private WorldNode() {}
     private WorldNode(TraderState state, WorldPosition position, Optional<Block> block)
     {
+        this.state = state;
         this.position = position;
         this.block = block;
     }
@@ -138,16 +149,18 @@ public class WorldNode extends SimpleSyncedNode implements IDisplayNode, ISettin
 
     @Override
     public void handleSettingsChange(Player player, FancyPacketMap message) {
-        if(message.contains("destroyTrader") && this.getPermission(player,BuiltInPermissions.BREAK_TRADER).hasHigherPermission()) {
+        if(message.contains("destroyTrader") && this.getPermission(player, LCPermissions.BREAK_TRADER).hasHigherPermission()) {
             TraderBlockEntity be = this.getBlockEntity(player.level());
-            if(be != null)
+            if(be != null) {
+                LightmansCurrency.LogDebug("Requesting destruction of trader at " + this.position);
                 be.requestTraderDestruction(player);
+            }
         }
     }
 
     @Override
     public void addDefaultAllyPermission(Consumer<Permission<?>> handler) {
-        handler.accept(BuiltInPermissions.BREAK_TRADER);
+        handler.accept(LCPermissions.BREAK_TRADER);
     }
 
 }

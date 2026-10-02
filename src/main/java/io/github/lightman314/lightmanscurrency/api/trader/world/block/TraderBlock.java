@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.trader.world.block;
 
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderState;
@@ -16,13 +17,15 @@ import io.github.lightman314.lightmanscurrency.api.world.menu.validation.builtin
 import io.github.lightman314.lightmanscurrency.core.LCDataComponents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
@@ -35,14 +38,11 @@ import javax.annotation.Nullable;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-public abstract class TraderBlock extends EasyBlock implements EntityBlock, IProtectedBlock {
+public abstract class TraderBlock extends EasyBlock implements TraderEntityBlock,IProtectedBlock {
 
     //Give all traders the `noLootTable` flag since their block drops are handled manually due to break protection
     public TraderBlock(Properties properties) { super(properties.noLootTable()); }
 
-    @Override
-    @Nullable
-    public abstract TraderBlockEntity newBlockEntity(BlockPos worldPosition, BlockState blockState);
     @Override
     @Nullable
     public final PushReaction getPistonPushReaction(BlockState state) { return PushReaction.BLOCK; }
@@ -66,7 +66,7 @@ public abstract class TraderBlock extends EasyBlock implements EntityBlock, IPro
     }
 
     @Override
-    public final boolean canBreakBlock(Level level,BlockState state,BlockPos pos,Player player) {
+    public final boolean canBreakBlock(LevelAccessor level,BlockState state,BlockPos pos,Player player) {
         TraderBlockEntity be = this.getBlockEntity(level,state,pos);
         return be == null || be.canBreakTrader(player);
     }
@@ -107,14 +107,12 @@ public abstract class TraderBlock extends EasyBlock implements EntityBlock, IPro
                 be.flagAsLegalBreak();
                 TraderData trader = be.getTrader();
                 //Give the trader to the player
-                ItemStack drop = new ItemStack(state.getBlock());
+                ItemStack drop = createTraderDrop(state,trader,LCApi.isInAdminMode(player));
                 if(trader != null)
                 {
                     //Change the traders state to make it inaccessible to other players
                     TraderState newState = TraderState.heldItemState(player);
                     trader.ifNodePresent(WorldNode.TYPE,node -> node.setState(newState));
-                    //Put the traders data into the item stack
-                    drop.set(LCDataComponents.STORED_TRADER,new StoredTrader(trader,newState.allowAccess));
                 }
                 player.getInventory().placeItemBackInInventory(drop);
             }
@@ -124,15 +122,23 @@ public abstract class TraderBlock extends EasyBlock implements EntityBlock, IPro
             return false;
     }
 
+    protected ItemStack createTraderDrop(BlockState state,@Nullable TraderData trader,boolean allowAccess) {
+        ItemStack drop = new ItemStack(state.getBlock());
+        if(trader != null)
+            drop.set(LCDataComponents.STORED_TRADER,new StoredTrader(trader,allowAccess));
+        return drop;
+    }
+
     @Override
-    public void destroy(LevelAccessor level,BlockPos pos,BlockState state) {
-        //Only perform this check on the
+    protected void affectNeighborsAfterRemoval(BlockState state,ServerLevel level,BlockPos pos,boolean movedByPiston) {
+        LightmansCurrency.LogDebug("Destruction detected for trader at " + pos);
+        //Delete all other blocks
+        this.removeOtherParts(level,pos,state);
+        //Only perform this check on the actual block entity
         if(level.getBlockEntity(pos) instanceof TraderBlockEntity be)
         {
             //End the tracking regardless of whether the break is legal
             be.tracking.clearAll();
-            //Delete all other blocks
-            this.removeOtherParts(level,pos,state);
             //Do nothing else if the break is legal
             if(be.isLegalBreak())
                 return;
@@ -140,28 +146,52 @@ public abstract class TraderBlock extends EasyBlock implements EntityBlock, IPro
             TraderData trader = be.getTrader();
             if(trader != null)
             {
-                WorldNode node = trader.getNode(WorldNode.TYPE);
-                //TODO eject the trader
-                if(node != null) {
-                    node.setState(TraderState.EJECTED);
+                ItemStack drop = createTraderDrop(state,trader,false);
+                TraderState newState;
+                if(LCConfig.SERVER.safelyEjectMachineContents.get()) {
+                    //Eject the trader
+                    LCApi.getEjectionAPI().ejectData(trader.getOwner(),drop);
+                    newState = TraderState.EJECTED;
                 }
+                else {
+                    Block.popResource(level,pos,drop);
+                    newState = TraderState.HELD_AS_ITEM;
+                }
+                //Update the world state
+                WorldNode node = trader.getNode(WorldNode.TYPE);
+                if(node != null)
+                    node.setState(newState);
             }
         }
     }
 
     protected void removeOtherParts(LevelAccessor level,BlockPos pos,BlockState state) { }
 
+    protected final void deleteBlock(LevelAccessor level,BlockPos pos,BlockState expectedState) {
+        if(level.getBlockState(pos) == expectedState)
+            level.setBlock(pos,Blocks.AIR.defaultBlockState(),Block.UPDATE_ALL);
+    }
+
     public static <T,BE extends TraderBlockEntity> void registerCapability(RegisterCapabilitiesEvent event, BlockCapability<T, Direction> capability, Supplier<BlockEntityType<BE>> blockEntity, BiFunction<TraderData,Direction,T> getter) { registerCapability(event,capability,blockEntity.get(),getter); }
     public static <T,BE extends TraderBlockEntity> void registerCapability(RegisterCapabilitiesEvent event, BlockCapability<T, Direction> capability,BlockEntityType<BE> blockEntity,BiFunction<TraderData,Direction,T> getter) {
-        event.registerBlockEntity(capability,blockEntity,(be,trueSide) -> {
-            Direction relativeSide = trueSide;
-            if(be.getBlockState().getBlock() instanceof IRotatableBlock rb)
-                relativeSide = IRotatableBlock.getRelativeSide(rb.getFacing(be.getBlockState()),trueSide);
-            TraderData trader = be.getTrader();
-            if(trader != null)
-                return getter.apply(trader,relativeSide);
+        //Register as block capability instead of BE capability so that it doesn't need t
+        event.registerBlock(capability,(level,pos,state,be,trueSide) -> {
+            TraderBlockEntity tbe = null;
+            if(be instanceof TraderBlockEntity t)
+                tbe = t;
+            else if(state.getBlock() instanceof TraderBlock b)
+                tbe = b.getBlockEntity(level,state,pos);
+            if(tbe != null) {
+                TraderData trader = tbe.getTrader();
+                if(trader != null) {
+                    Direction relativeSide = trueSide;
+                    if(state.getBlock() instanceof IRotatableBlock rb)
+                        relativeSide = IRotatableBlock.getRelativeSide(rb.getFacing(state),trueSide);
+                    return getter.apply(trader,relativeSide);
+                }
+            }
             return null;
-        });
+        },blockEntity.getValidBlocks().toArray(Block[]::new)); //We still obtain the list of valid blocks from the BE type though
     }
 
 }

@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.features.coins;
 
 
-import io.github.lightman314.lightmanscurrency.api.world.block.EasyShapes;
+import io.github.lightman314.lightmanscurrency.api.world.block.ShapeHelper;
 import io.github.lightman314.lightmanscurrency.api.world.block.interfaces.IRotatableBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -48,7 +48,7 @@ public class FallingCoinPile extends FallingCoinBlock implements IRotatableBlock
     protected VoxelShape getOcclusionShape(BlockState state) { return Shapes.empty(); }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) { return EasyShapes.SLAB; }
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) { return ShapeHelper.SLAB; }
 
     @Override
     protected BlockState updateShape(BlockState state, LevelReader level, ScheduledTickAccess ticks, BlockPos pos, Direction directionToNeighbour, BlockPos neighbourPos, BlockState neighbourState, RandomSource random) {

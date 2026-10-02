@@ -3,9 +3,9 @@ package io.github.lightman314.lightmanscurrency.api.client.gui.widget;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.FancyGuiExtractor;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.button.IconButton;
-import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.IScrollListener;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.TooltipSource;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.scrolling.IScrollable;
+import io.github.lightman314.lightmanscurrency.api.client.gui.widget.scrolling.ScrollArea;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.scrolling.VerticalScrollBar;
 import io.github.lightman314.lightmanscurrency.api.helpers.NumberHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.TooltipHelper;
@@ -20,13 +20,14 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.FormattedCharSequence;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class NotificationDisplayWidget extends AbstractMultiWidget implements IScrollable {
+public class NotificationDisplayWidget extends AbstractMultiWidget.LateChildren implements IScrollable {
 
     public static final Identifier BG = LCApi.id("widget/notification/background");
     public static final Identifier BG_UNSEEN = LCApi.id("widget/notification/background_unseen");
@@ -46,8 +47,6 @@ public class NotificationDisplayWidget extends AbstractMultiWidget implements IS
 
     private int scroll = 0;
 
-    private final IScrollListener scrollListener = this.buildScrollListener();
-
     private List<NotificationStack> notificationCache = new ArrayList<>();
 
     public NotificationDisplayWidget(Builder builder) {
@@ -58,10 +57,9 @@ public class NotificationDisplayWidget extends AbstractMultiWidget implements IS
         this.colorIfUnseen = builder.colorIfUnseen;
         this.deletionHandler = builder.deleteHandler;
         this.canDelete = builder.canDelete;
+        if(builder.oldWidget != null)
+            this.scroll = builder.oldWidget.scroll;
     }
-
-    @Override
-    protected void addEarlyChildren(ScreenArea area) { }
 
     @Override
     protected void addLateChildren(ScreenArea area) {
@@ -80,6 +78,13 @@ public class NotificationDisplayWidget extends AbstractMultiWidget implements IS
                 .rightOf(this)
                 .visible(this::isVisible)
                 .build());
+        //And a scroll area
+        this.addChild(ScrollArea.builder()
+                .ofArea(area)
+                .withListener(this.buildScrollListener())
+                .active(this::isVisible)
+                .build());
+
     }
 
     private BooleanSupplier deleteButtonVisible(int row) {
@@ -108,58 +113,62 @@ public class NotificationDisplayWidget extends AbstractMultiWidget implements IS
 
         boolean deletingEnabled = this.canDelete.getAsBoolean();
 
-        for(int y = 0; y < this.rows && index < this.notificationCache.size(); ++y) {
+        for(int y = 0; y < this.rows; ++y) {
 
             int yPos = y * HEIGHT_PER_ROW;
-            NotificationStack n = this.notificationCache.get(index++);
+            NotificationStack n = null;
+            if(index < this.notificationCache.size())
+                n = this.notificationCache.get(index++);
 
             //Draw the BG
-            Pair<Identifier,Identifier> sprites = this.colorIfUnseen && !n.wasSeen() ? UNSEEN_SPRITES : SPRITES;
-            gui.blitSprite(sprites.first(),0,y,this.width,HEIGHT_PER_ROW);
+            Pair<Identifier,Identifier> sprites = this.colorIfUnseen && (n != null && !n.wasSeen()) ? UNSEEN_SPRITES : SPRITES;
+            gui.blitSprite(sprites.first(),0,yPos,this.width,HEIGHT_PER_ROW);
 
-            //Draw the text
-            int textXPos = 2;
-            int textWidth = this.width - 4;
-            if(deletingEnabled) //Shrink the text width by 20 if the delete button will be visible
-                textWidth -= 20;
-            //Text is now black in all states
-            int textColor = ARGB.opaque(0);
-            int centerY = yPos + ((HEIGHT_PER_ROW - gui.getFont().lineHeight) / 2);
-            if(n.getCount() > 1) {
-                //Render quantity text
-                String countText = NumberHelper.prettyInteger(n.getCount());
-                int quantityWidth = gui.getFont().width(countText);
-                //Seperator
-                gui.blitSprite(sprites.second(),1 + quantityWidth,yPos,3,HEIGHT_PER_ROW);
+            if(n != null) {
+                //Draw the text
+                int textXPos = 2;
+                int textWidth = this.width - 4;
+                if(deletingEnabled) //Shrink the text width by 20 if the delete button will be visible
+                    textWidth -= 20;
+                //Text is now black in all states
+                int textColor = ARGB.opaque(0);
+                int centerY = yPos + ((HEIGHT_PER_ROW - gui.getFont().lineHeight) / 2);
+                if(n.getCount() > 1) {
+                    //Render quantity text
+                    String countText = NumberHelper.prettyInteger(n.getCount());
+                    int quantityWidth = gui.getFont().width(countText);
+                    //Seperator
+                    gui.blitSprite(sprites.second(),1 + quantityWidth,yPos,3,HEIGHT_PER_ROW);
 
-                //Count Text
-                gui.text(countText,textXPos,centerY,textColor,false);
+                    //Count Text
+                    gui.text(countText,textXPos,centerY,textColor,false);
 
-                //Modify the rest of the text space
-                textXPos += quantityWidth + 2;
-                textWidth -= quantityWidth + 2;
-            }
+                    //Modify the rest of the text space
+                    textXPos += quantityWidth + 2;
+                    textWidth -= quantityWidth + 2;
+                }
 
-            List<Component> messages = showGeneral ? n.getGeneralMessage() : n.getMessageLines();
-            //Draw the lines
-            List<FormattedCharSequence> lines = new ArrayList<>();
-            for(Component line : messages)
-                lines.addAll(gui.getFont().split(line,textWidth));
-            if(lines.size() == 1)
-                gui.text(lines.getFirst(),textXPos,centerY,textColor,false);
-            else {
-                for(int i = 0; i < lines.size() && i < 2; ++i)
-                    gui.text(lines.get(i),textXPos,yPos + 2 + (i * 10),textColor,false);
-            }
-            int maxX = this.getX() + this.width;
-            if(deletingEnabled)
-                maxX -= 22;
-            //Collect the tooltips
-            if(tooltip == null && gui.getMousePos().x >= this.getX() && gui.getMousePos().x < maxX && gui.getMousePos().y >= this.getY() + yPos && gui.getMousePos().y < this.getY() + yPos + HEIGHT_PER_ROW) {
-                tooltip = new ArrayList<>();
-                tooltip.add(n.getTimeStampMessage());
-                if(lines.size() > 2)
-                    tooltip.addAll(TooltipHelper.splitTooltips(messages));
+                List<Component> messages = showGeneral ? n.getGeneralMessage() : n.getMessageLines();
+                //Draw the lines
+                List<FormattedCharSequence> lines = new ArrayList<>();
+                for(Component line : messages)
+                    lines.addAll(gui.getFont().split(line,textWidth));
+                if(lines.size() == 1)
+                    gui.text(lines.getFirst(),textXPos,centerY,textColor,false);
+                else {
+                    for(int i = 0; i < lines.size() && i < 2; ++i)
+                        gui.text(lines.get(i),textXPos,yPos + 2 + (i * 10),textColor,false);
+                }
+                int maxX = this.getX() + this.width;
+                if(deletingEnabled)
+                    maxX -= 22;
+                //Collect the tooltips
+                if(tooltip == null && gui.getMousePos().x >= this.getX() && gui.getMousePos().x < maxX && gui.getMousePos().y >= this.getY() + yPos && gui.getMousePos().y < this.getY() + yPos + HEIGHT_PER_ROW) {
+                    tooltip = new ArrayList<>();
+                    tooltip.add(n.getTimeStampMessage());
+                    if(lines.size() > 2)
+                        tooltip.addAll(TooltipHelper.splitTooltips(messages));
+                }
             }
         }
         //Render the tooltips
@@ -177,11 +186,6 @@ public class NotificationDisplayWidget extends AbstractMultiWidget implements IS
     @Override
     public int getMaxScroll() { return IScrollable.calculateMaxScroll(this.notificationCache.size(),this.rows); }
 
-    @Override
-    public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
-        return this.scrollListener.onMouseScrolled((int)x,(int)y,scrollX,scrollY);
-    }
-
     private void deleteNotification(int row) { this.deletionHandler.accept(row + this.scroll); }
 
     public static Builder builder() { return new Builder(); }
@@ -193,6 +197,9 @@ public class NotificationDisplayWidget extends AbstractMultiWidget implements IS
         @Override
         protected Builder getSelf() { return this; }
 
+        @Nullable
+        private NotificationDisplayWidget oldWidget = null;
+
         private int rows = 1;
         private Supplier<List<NotificationStack>> source = List::of;
         private BooleanSupplier showGeneral = () -> false;
@@ -202,6 +209,8 @@ public class NotificationDisplayWidget extends AbstractMultiWidget implements IS
 
         public Builder ofWidth(int width) { this.setWidth(width); return this; }
         public Builder withRows(int rows) { this.rows = rows; this.setHeight(this.rows * HEIGHT_PER_ROW); return this; }
+
+        public Builder withOldWidget(@Nullable NotificationDisplayWidget oldWidget) { this.oldWidget = oldWidget; return this; }
 
         public Builder withNotifications(Supplier<List<NotificationStack>> source) { this.source = source; return this; }
 

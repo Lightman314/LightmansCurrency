@@ -1,0 +1,6 @@
+{
+  "parent": "lightmanscurrency:block/single_shelf/base",
+  "textures": {
+    "plank": "minecraft:block/jungle_planks"
+  }
+}

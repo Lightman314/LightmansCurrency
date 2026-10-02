@@ -1,8 +1,13 @@
-// 26.1.2	2026-08-25T20:38:18.5681621	Tags for minecraft:block mod id lightmanscurrency
+// 26.1.2	2026-09-19T14:43:41.8624794	Tags for minecraft:block mod id lightmanscurrency
 eab69f81f4c8f12618755243db77d30692d20b15 data/lightmanscurrency/tags/block/groups/card_display.json
 1723bc0183c181697067e639bf42ba46ba64ec2a data/lightmanscurrency/tags/block/groups/display_case.json
+df5c56756562e6d789328835082cea3ad5348c4e data/lightmanscurrency/tags/block/groups/double_shelf.json
+e35d49b719c10679008585c719bd99dc668e5a4f data/lightmanscurrency/tags/block/groups/item_network_trader.json
+1236263a8db4e30cdc94c4c1206a2ce32d985f70 data/lightmanscurrency/tags/block/groups/large_vending_machine.json
+0315504845a35bf60eb32b439598e49b4afa8298 data/lightmanscurrency/tags/block/groups/single_shelf.json
+a5dd8728b93113d247ac4c0a6b69cd0e38bbe63b data/lightmanscurrency/tags/block/groups/vending_machine.json
 35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/lightmanscurrency/tags/block/multi_block.json
-ef2c79021924f2e7fd7d43f20f07e0bc9c7638ba data/lightmanscurrency/tags/block/owner_protected.json
-27bc4507858a13ca7a75e1cc74b1c0afc70939d8 data/lightmanscurrency/tags/block/safe_interactable.json
-bccbd41442fd1571f9b14e128dc8c7263883155d data/minecraft/tags/block/mineable/axe.json
-3663fb9f46b617958eabd71402b52a913105a908 data/minecraft/tags/block/mineable/pickaxe.json
+f79be6fce699a9e679084c52dfcb4bed8d0f8494 data/lightmanscurrency/tags/block/owner_protected.json
+1cb6ea5fc30baf209009add8e5c8f12b6b06fa29 data/lightmanscurrency/tags/block/safe_interactable.json
+ca8f54dbf286ccf8a1a3d4e8c4588069bbcc9afa data/minecraft/tags/block/mineable/axe.json
+389e9001b3dd6ab540142c8175a6ba5a99851032 data/minecraft/tags/block/mineable/pickaxe.json

@@ -1,6 +1,7 @@
 {
   "type": "minecraft:crafting_shaped",
   "category": "misc",
+  "group": "trader_display_case",
   "key": {
     "g": "#c:glass_blocks/colorless",
     "w": "minecraft:yellow_wool",

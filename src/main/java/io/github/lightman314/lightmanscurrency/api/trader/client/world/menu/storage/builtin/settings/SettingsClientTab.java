@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.settings;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.FancyGuiExtractor;
 import io.github.lightman314.lightmanscurrency.api.client.gui.screen.menu.tabbed.ClientMenuTab;
@@ -33,7 +32,6 @@ public class SettingsClientTab extends TraderStorageClientTabWithSubTabs<Setting
         ISettingTabProvider.collectSettings(this,this,this.getCommonTab()::assembleAndHandleSettingRequst,b);
         //Build the results
         b.buildTabs(this,builder);
-        LightmansCurrency.LogDebug("Settings Client Tab has " + this.getSubtabCount() + " tabs!");
     }
 
     @Override
@@ -64,6 +62,12 @@ public class SettingsClientTab extends TraderStorageClientTabWithSubTabs<Setting
         //Force ourselves back into the default tab slot if the current tab is no longer accessible
         if(tab != null && !tab.isVisible() && this.getCurrentTabSlot() != 0)
             this.setTab(0);
+    }
+
+    @Override
+    public boolean blockInventoryButtonClosing() {
+        SettingsSubTab tab = this.getCurrentTab();
+        return tab != null && tab.blockInventoryButtonClosing();
     }
 
 }

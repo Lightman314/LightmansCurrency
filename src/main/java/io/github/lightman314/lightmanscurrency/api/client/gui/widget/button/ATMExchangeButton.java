@@ -30,7 +30,7 @@ public final class ATMExchangeButton extends FancyButton {
     protected void extractRenderState(FancyGuiExtractor gui, ScreenArea area) {
         //Render background to width
         boolean highlighted = this.isHovered != this.selected.test(this.data.command);
-        gui.blitSprite(LCSprites.BUTTON_GRAY.get(this.active,highlighted),0,0,this.width,this.height,this.getFGColor());
+        gui.blitSprite(LCSprites.BUTTON_GRAY.get(this.active,highlighted),0,0,this.width,this.height,this.getSpriteColor());
 
         //Draw the icons
         for(ATMIconData icon : this.data.getIcons()) {

@@ -56,6 +56,13 @@ public final class OwnerHolder implements IOwnerHolder, ISidedContext.Mutable<Ow
         this.currentOwner = owner.currentOwner.copyWithContext(this);
     }
 
+    public void unsafeCopyFrom(IOwnerHolder owner) {
+        if(owner instanceof OwnerHolder h)
+            this.copyFrom(h);
+        else
+            this.backupOwner = this.currentOwner = owner.getValidOwner().copyWithContext(this);
+    }
+
     public void setOwner(Owner newOwner)
     {
         if(this.currentOwner.equals(newOwner))

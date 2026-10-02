@@ -152,7 +152,7 @@ dependencies {
 
     //Curios API
     compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
-    //runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+    runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 
     //Immersive Engineering API
     //compileOnly "curse.maven:immersive-engineering-231951:5828000"
@@ -215,7 +215,7 @@ dependencies {
     //runtimeOnly "maven.modrinth:modernfix:RU9sGOmD"
 
     //ComputerCraft
-    //implementation "maven.modrinth:cc-tweaked:${computercraft_version}"
+    implementation "maven.modrinth:cc-tweaked:${computercraft_version}"
 
     //FTB Filter System
     //compileOnly "curse.maven:ftb-filter-system-943925:6899527"

@@ -16,7 +16,8 @@ import java.util.function.Consumer;
 
 public interface ClientTradePrice {
 
-    ClientPairedRegistry<TradePriceType<?>, ClientTradePrice> REGISTRY = new ClientPairedRegistry<>(LCRegistries.Trader.TRADE_PRICE_TYPE);
+    ClientPairedRegistry<TradePriceType<?>,ClientTradePrice> REGISTRY = ClientPairedRegistry.builder(LCRegistries.Trader.TRADE_PRICE_TYPE,ClientTradePrice.class)
+            .throwIfUndefined().build();
 
     int EXPECTED_WIDTH = 33;
 

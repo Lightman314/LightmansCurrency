@@ -39,7 +39,7 @@ public class MoneyStorageClientTab extends TraderStorageClientTab<MoneyStorageTa
 
         this.amountWidget = this.addChild(MoneyValueWidget.builder()
                 .atPos(area.centerX() - MoneyValueWidget.HALF_WIDTH,area.y + 10)
-                .old(this.amountWidget)
+                .oldWidget(this.amountWidget)
                 .allowFreeInput(false)
                 .build());
 

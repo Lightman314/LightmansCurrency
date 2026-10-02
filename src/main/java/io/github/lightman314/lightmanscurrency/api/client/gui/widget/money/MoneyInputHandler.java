@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.client.gui.widget.TextSetting
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.dropdown.DropdownOption;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
-import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 public abstract class MoneyInputHandler implements IWidgetHolder {
 
     public abstract DropdownOption inputOption();
-    public abstract MoneyKey getKey();
+    public abstract DualKey getKey();
     public boolean isForValue(MoneyValue value) { return value.getKey().equals(this.getKey()); }
     public void tryMatchValue(MoneyValue value) {}
 

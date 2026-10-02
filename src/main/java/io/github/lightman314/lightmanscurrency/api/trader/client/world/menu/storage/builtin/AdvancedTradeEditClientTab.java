@@ -11,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.api.icon.builtin.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.TraderStorageClientTab;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleHolder;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeData;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeDirection;
@@ -20,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.Trade
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.builtin.AdvancedTradeEditTab;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.builtin.rules.AbstractTradeRuleTab;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import net.minecraft.world.item.Items;
 
 import javax.annotation.Nullable;
@@ -75,7 +75,7 @@ public abstract class AdvancedTradeEditClientTab<T extends AdvancedTradeEditTab>
             this.addRightEdgeWidget(IconButton.builder()
                     .withIcon(ItemIcon.of(Items.BOOK))
                     .onPress(this.getCommonTab()::openTradeRuleTab)
-                    .visible(() -> this.getTrade() instanceof TradeRuleHolder && this.getPermission(BuiltInPermissions.EDIT_TRADE_RULES))
+                    .visible(() -> this.getTrade() instanceof TradeRuleHolder && this.getPermission(LCPermissions.EDIT_TRADE_RULES))
                     .tooltip(TooltipSource.simple(AbstractTradeRuleTab.TOOLTIP_TRADER_TRADE_RULES_TRADE))
                     .build());
         }
@@ -130,9 +130,6 @@ public abstract class AdvancedTradeEditClientTab<T extends AdvancedTradeEditTab>
             return false;
         return slot.isPriceSlot(trade.getDirection());
     }
-
-    @Override
-    public boolean blockInventoryButtonClosing() { return true; }
 
     protected abstract void afterSelectionChange(TradeSlot oldSlot, TradeSlot newSlot);
 

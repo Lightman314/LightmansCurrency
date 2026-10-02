@@ -12,13 +12,13 @@ public class TextDisplayWidget extends FancyWidget {
     private final Supplier<Component> text;
     private final Supplier<Integer> color;
     private final boolean shadow;
-    private final boolean centered;
+    private final Positioning positioning;
     protected TextDisplayWidget(Builder builder) {
         super(builder);
         this.text = builder.text;
         this.color = builder.color;
         this.shadow = builder.shadow;
-        this.centered = builder.centered;
+        this.positioning = builder.positioning;
     }
 
     @Override
@@ -28,10 +28,8 @@ public class TextDisplayWidget extends FancyWidget {
         if(width > area.width)
             gui.scrollingText(t,0,0,area.width,area.height,this.color.get(),this.shadow);
         else {
-            if(this.centered)
-                gui.centeredText(t,area.halfWidth(),0,this.color.get(),this.shadow);
-            else
-                gui.text(t,0,0,this.color.get(),this.shadow);
+            int x = this.positioning.getXPos(width,area.pos.x,area.width);
+            gui.text(t,x,0,this.color.get(),this.shadow);
         }
     }
 
@@ -40,13 +38,24 @@ public class TextDisplayWidget extends FancyWidget {
 
     public static Builder builder() { return new Builder(); }
 
+    public enum Positioning {
+        LEFT,CENTER,RIGHT;
+        int getXPos(int textWidth,int left,int width) {
+            return switch (this) {
+                case LEFT -> left;
+                case CENTER -> left + (width - textWidth) / 2;
+                case RIGHT -> left + width - textWidth;
+            };
+        }
+    }
+
     public static final class Builder extends AbstractBuilder<Builder,TextDisplayWidget> {
 
         private Builder() { super(100,10); }
 
         private Supplier<Component> text = Component::empty;
         private Supplier<Integer> color = () -> 0xFF404040;
-        private boolean centered = false;
+        private Positioning positioning = Positioning.LEFT;
         private boolean shadow = false;
 
         public Builder ofWidth(int width) { this.setWidth(width); return this; }
@@ -60,7 +69,11 @@ public class TextDisplayWidget extends FancyWidget {
 
         public Builder withShadow(boolean shadow) { this.shadow = shadow; return this; }
 
-        public Builder withCenteredText() { this.centered = true; return this; }
+        public Builder withLeftText() { this.positioning = Positioning.LEFT; return this; }
+        public Builder withCenteredText() { this.positioning = Positioning.CENTER; return this; }
+        public Builder withRightText() { this.positioning = Positioning.RIGHT; return this; }
+
+        public Builder withTextPositioning(Positioning positioning) { this.positioning = positioning; return this; }
 
         @Override
         protected Builder getSelf() { return this; }

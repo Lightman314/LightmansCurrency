@@ -10,5 +10,7 @@ public final class LCTextureSlots {
     public static final TextureSlot LOG_TOP = TextureSlot.create("logtop");
     public static final TextureSlot LOG = TextureSlot.create("log");
     public static final TextureSlot PLANK = TextureSlot.create("plank");
+    public static final TextureSlot INTERIOR = TextureSlot.create("interior");
+    public static final TextureSlot EXTERIOR = TextureSlot.create("exterior");
 
 }

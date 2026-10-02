@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.api.money.resource.builtin;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.helpers.debug.DebugHelper;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;

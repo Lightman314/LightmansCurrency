@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.api.client.gui.sprites.LCSprites;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.TextDisplayWidget;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.button.SpriteButton;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.IPositionalWidgetHolder;
+import io.github.lightman314.lightmanscurrency.api.client.gui.widget.scrolling.ScrollingWidgetBuilder;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
@@ -19,7 +20,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public final class SimpleCheckmarkSetting implements SimpleSettingBuilder {
+public final class SimpleCheckmarkSetting implements ScrollingWidgetBuilder {
 
     private final BooleanSupplier currentValue;
     private final BooleanSupplier canEdit;

@@ -1,9 +1,9 @@
 package io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.settings;
 
 import com.mojang.datafixers.util.Pair;
+import io.github.lightman314.lightmanscurrency.api.client.gui.widget.scrolling.ScrollingWidgetBuilder;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.settings.simple.SettingLabel;
-import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.settings.simple.SimpleSettingBuilder;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.settings.simple.SimpleSettingCategory;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.settings.simple.SimpleSettingTab;
 import net.minecraft.network.chat.Component;
@@ -16,7 +16,7 @@ public final class SettingsTabBuilder {
 
     private final List<Pair<Integer,Function<SettingsClientTab,SettingsSubTab>>> results = new ArrayList<>();
 
-    private final Map<SimpleSettingCategory,List<SimpleSettingBuilder>> simpleSettings = new HashMap<>();
+    private final Map<SimpleSettingCategory,List<ScrollingWidgetBuilder>> simpleSettings = new HashMap<>();
 
     public SettingsTabBuilder() { }
 
@@ -31,8 +31,8 @@ public final class SettingsTabBuilder {
         this.results.add(Pair.of(sortPriority,factory));
     }
 
-    public void addSimpleSetting(SimpleSettingCategory category,SimpleSettingBuilder builder) {
-        List<SimpleSettingBuilder> list = this.simpleSettings.computeIfAbsent(category,this::createSimpleCategory);
+    public void addSimpleSetting(SimpleSettingCategory category,ScrollingWidgetBuilder builder) {
+        List<ScrollingWidgetBuilder> list = this.simpleSettings.computeIfAbsent(category,this::createSimpleCategory);
         list.add(builder);
     }
 
@@ -41,7 +41,7 @@ public final class SettingsTabBuilder {
     public void addSimpleSettingLabel(SimpleSettingCategory category,Component label) { this.addSimpleSettingLabel(category,label,0xFF404040); }
     public void addSimpleSettingLabel(SimpleSettingCategory category,Component label,int textColor) { this.addSimpleSetting(category,new SettingLabel(label,textColor)); }
 
-    private List<SimpleSettingBuilder> createSimpleCategory(SimpleSettingCategory category) {
+    private List<ScrollingWidgetBuilder> createSimpleCategory(SimpleSettingCategory category) {
         this.addTab(category.sortPriority(),(parent) -> new SimpleSettingTab(parent,category,this.simpleSettings.get(category)));
         return new ArrayList<>();
     }

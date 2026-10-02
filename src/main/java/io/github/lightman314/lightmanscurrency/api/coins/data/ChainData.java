@@ -17,7 +17,6 @@ import io.github.lightman314.lightmanscurrency.api.coins.display.builtin.NullDis
 import io.github.lightman314.lightmanscurrency.api.coins.value.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.coins.events.BuildDefaultCoinDataEvent;
 import io.github.lightman314.lightmanscurrency.api.helpers.EnumHelper;
-import io.github.lightman314.lightmanscurrency.api.helpers.ListHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.CodecInteractionHelper;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import net.minecraft.ChatFormatting;
@@ -579,7 +578,7 @@ public class ChainData {
             List<Component> lines = new ArrayList<>();
             if(player == null || flag.isAdvanced() || flag.isCreative() || chain.isVisibleTo(player))
                 chain.formatCoinTooltip(stack, lines, flag);
-            ListHelper.consumeAll(builder,lines);
+            lines.forEach(builder);
         }
     }
 

@@ -136,8 +136,10 @@ public final class WalletStorage extends SnapshotJournal<List<ItemStack>> implem
      */
     public int pickup(ItemResource resource,int amount,TransactionContext transaction) {
         int result = this.insert(resource,amount,transaction);
-        if(result > 0 && this.shouldAutoExchange())
+        if(result > 0 && this.shouldAutoExchange()) {
             LCApi.getCoinAPI().exchangeCoinsAllUp(this,transaction);
+            LCApi.getCoinAPI().sortCoinsByValue(this,transaction);
+        }
         return result;
     }
 
@@ -195,5 +197,13 @@ public final class WalletStorage extends SnapshotJournal<List<ItemStack>> implem
 
     @Override
     public boolean shouldWrapCapabilities() { return false; }
+
+    @Override
+    public void afterMoneyCommit() {
+        if(this.shouldAutoExchange()) {
+            LCApi.getCoinAPI().exchangeCoinsAllUp(this,null);
+            LCApi.getCoinAPI().sortCoinsByValue(this,null);
+        }
+    }
 
 }

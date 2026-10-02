@@ -13,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.coins.data.coin.CoinEntry;
 import io.github.lightman314.lightmanscurrency.api.coins.value.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
-import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.world.item.ItemStack;
@@ -29,14 +29,14 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
     private static final int SEGMENT_TOTAL = SEGMENT_WIDTH + SEGMENT_SPACING;
 
     private final ChainData chain;
-    private final MoneyKey key;
+    private final DualKey key;
     private final List<CoinEntry> coinData;
 
     private int scroll = 0;
 
     public CoinValueInput(ChainData chain) {
         this.chain = chain;
-        this.key = MoneyKey.create(CoinValue.TYPE,this.chain.chain);
+        this.key = DualKey.create(CoinValue.TYPE,this.chain.chain);
         this.coinData = this.chain.getAllEntries(false,ChainData.SORT_HIGHEST_VALUE_FIRST);
         //Default to fully scrolled
         this.scroll = this.getMaxScroll();
@@ -46,7 +46,7 @@ public class CoinValueInput extends MoneyInputHandler implements IScrollable {
     public DropdownOption inputOption() { return new DropdownOption(this.chain.getDisplayName(),this.chain.getDisplaySprite()); }
 
     @Override
-    public MoneyKey getKey() { return this.key; }
+    public DualKey getKey() { return this.key; }
 
     @Override
     protected void copyHandlerState(MoneyInputHandler oldHandler) {

@@ -19,13 +19,17 @@ import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeDirect
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.TradeEditContext;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.TradeSlot;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePrice;
+import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.builtin.MoneyPrice;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.BuiltInResourceTypes;
+import io.github.lightman314.lightmanscurrency.api.trader.trade.settings.SettingsIOTrade;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
 import io.github.lightman314.lightmanscurrency.features.trader.item.TradeItem;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IItemStorageFilter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.resource.ResourceStack;
@@ -36,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ItemTradeData extends TradeDataWithRules implements IItemStorageFilter {
+public class ItemTradeData extends TradeDataWithRules implements IItemStorageFilter, SettingsIOTrade {
 
     private static final MapCodec<ItemTradeData> MAP_CODEC = buildCodec(ItemTradeData::new);
     public static final Codec<ItemTradeData> CODEC = MAP_CODEC.codec();
@@ -269,6 +273,24 @@ public class ItemTradeData extends TradeDataWithRules implements IItemStorageFil
         if(this.isSale())
             return !TradeItem.allowedInStorage(this.sellItems,resource);
         return true;
+    }
+
+    @Override
+    public void encodeSettings(ValueOutput output) {
+        output.store("price",TradePrice.CODEC,this.getInternalPrice());
+        output.store("direction",TradeDirection.CODEC,this.type);
+        output.store("item1",TradeItem.CODEC,this.getItem(0));
+        output.store("item2",TradeItem.CODEC,this.getItem(2));
+    }
+
+    @Override
+    public void decodeSettings(ValueInput data) {
+        this.setPrice(data.read("price",TradePrice.CODEC).orElse(MoneyPrice.empty()));
+        this.setType(data.read("direction",TradeDirection.CODEC).orElse(TradeDirection.SALE));
+        this.getItem(0).copyFrom(data.read("item1",TradeItem.CODEC).orElse(TradeItem.create()));
+        this.setItemChanged(0);
+        this.getItem(1).copyFrom(data.read("item2",TradeItem.CODEC).orElse(TradeItem.create()));
+        this.setItemChanged(1);
     }
 
 }

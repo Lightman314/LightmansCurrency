@@ -22,7 +22,8 @@ public abstract class ClientMoneyValueType {
 
     private static final ClientMoneyValueType DEFAULT = new Default();
 
-    public static final ClientPairedRegistry<MoneyValueType<?>,ClientMoneyValueType> REGISTRY = new ClientPairedRegistry<>(LCRegistries.Money.VALUE_TYPE,DEFAULT);
+    public static final ClientPairedRegistry<MoneyValueType<?>,ClientMoneyValueType> REGISTRY = ClientPairedRegistry.builder(LCRegistries.Money.VALUE_TYPE,ClientMoneyValueType.class)
+            .defaultValue(DEFAULT).build();
 
     public List<TradeDisplayEntry> priceDisplay(TradePrice price, TradeContext context, int width, ITradeInteractionHandler handler) {
         if(price instanceof MoneyPrice money)

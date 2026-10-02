@@ -1,9 +1,13 @@
 package io.github.lightman314.lightmanscurrency.api.text;
 
-import io.github.lightman314.lightmanscurrency.api.helpers.TooltipHelper;
+import com.mojang.serialization.Codec;
+import io.github.lightman314.lightmanscurrency.api.helpers.data.BonusTooltip;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.common.util.Lazy;
 
@@ -15,16 +19,18 @@ import java.util.function.Supplier;
 
 public final class MultiLineTextEntry {
 
+    public static final Codec<MultiLineTextEntry> CODEC = Codec.STRING.xmap(MultiLineTextEntry::new,MultiLineTextEntry::getInitialKey);
+    public static final StreamCodec<ByteBuf,MultiLineTextEntry> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(MultiLineTextEntry::new,MultiLineTextEntry::getInitialKey);
+
     private final Lazy<String> key;
     public MultiLineTextEntry(String key) { this.key = Lazy.of(() -> key); }
     public MultiLineTextEntry(Supplier<String> key) { this.key = Lazy.of(key); }
 
+    private String getInitialKey() { return this.key.get(); }
+
     public String getKey(int index) { return this.key.get() + "." + (index + 1); }
 
-    public Supplier<List<Component>> asSupplier(Object... objects) { return () -> this.get(objects); }
-    public Supplier<List<Component>> asTooltip(Object... objects) { return () -> TooltipHelper.splitTooltips(get(objects),ChatFormatting.GRAY); }
     public List<Component> get(Object... objects) { return getWithStyle(c -> {}, objects); }
-    public void tooltip(List<Component> tooltip, Object... objects) { tooltip.addAll(this.get(objects)); }
     public List<Component> getWithStyle(ChatFormatting format, Object... objects) { return this.getWithStyle(c -> c.withStyle(format), objects); }
     public List<Component> getWithStyle(Consumer<MutableComponent> action, Object... objects)
     {
@@ -40,6 +46,13 @@ public final class MultiLineTextEntry {
             result.add(line);
         }
         return result;
+    }
+
+    public BonusTooltip asTooltip(Object... args) {
+        List<String> result = new ArrayList<>();
+        for(Object o : args)
+            result.add(o.toString());
+        return new BonusTooltip(this,List.copyOf(result));
     }
 
     public static MultiLineTextEntry tooltip(String modid, String key) { return new MultiLineTextEntry("tooltip." + modid + "." + key); }

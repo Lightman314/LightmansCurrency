@@ -12,8 +12,6 @@ import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ITickerClient;
 import io.github.lightman314.lightmanscurrency.api.world.menu.FancyMenu;
 import io.github.lightman314.lightmanscurrency.mixin.client.AbstractContainerScreenAccessor;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -38,6 +36,8 @@ public abstract class FancyMenuScreen<M extends FancyMenu> extends AbstractConta
     private final List<IRenderTick> renderTicks = new ArrayList<>();
     private final List<IScrollListener> scrollListeners = new ArrayList<>();
     private final List<IMouseListener> mouseListeners = new ArrayList<>();
+    private final List<IRemovalListener> removalListeners = new ArrayList<>();
+    private final List<IKeyboardInterceptor> keyboardListeners = new ArrayList<>();
     private final List<IRecipeIngredientViewer> ingredientViewers = new ArrayList<>();
     private final List<IGhostSlotProvider> ghostSlotProviders = new ArrayList<>();
     private final List<IAreaClaim> areaClaims = new ArrayList<>();
@@ -50,8 +50,6 @@ public abstract class FancyMenuScreen<M extends FancyMenu> extends AbstractConta
         }
         return result;
     }
-
-    public Font getFont() { return Minecraft.getInstance().font; }
 
     public FancyMenuScreen(M menu,Inventory inventory) { this(menu,inventory,Component.empty()); }
     public FancyMenuScreen(M menu,Inventory inventory,Component title) { super(menu,inventory,title); }
@@ -129,6 +127,10 @@ public abstract class FancyMenuScreen<M extends FancyMenu> extends AbstractConta
             this.scrollListeners.add(l);
         if(child instanceof IMouseListener l)
             this.mouseListeners.add(l);
+        if(child instanceof IRemovalListener l)
+            this.removalListeners.add(l);
+        if(child instanceof IKeyboardInterceptor l)
+            this.keyboardListeners.add(l);
         if(child instanceof IRecipeIngredientViewer v)
             this.ingredientViewers.add(v);
         if(child instanceof IGhostSlotProvider g)
@@ -166,6 +168,12 @@ public abstract class FancyMenuScreen<M extends FancyMenu> extends AbstractConta
             this.scrollListeners.remove(l);
         if(child instanceof IMouseListener l)
             this.mouseListeners.remove(l);
+        if(child instanceof IRemovalListener l) {
+            this.removalListeners.remove(l);
+            l.afterWidgetRemoval();
+        }
+        if(child instanceof IKeyboardInterceptor l)
+            this.keyboardListeners.remove(l);
         if(child instanceof IGhostSlotProvider g)
             this.ghostSlotProviders.remove(g);
         if(child instanceof IRecipeIngredientViewer v)
@@ -217,13 +225,18 @@ public abstract class FancyMenuScreen<M extends FancyMenu> extends AbstractConta
 
     protected abstract void extractBackground(FancyGuiExtractor gui, ScreenArea area);
 
+    @OverridingMethodsMustInvokeSuper
     protected boolean blockInventoryMenuClosing() {
+        for(IKeyboardInterceptor l : new ArrayList<>(this.keyboardListeners)) {
+            if(l.preventInventoryButtonFromClosingScreen())
+                return true;
+        }
         return false;
     }
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        if (this.minecraft.options.keyInventory.isActiveAndMatches(InputConstants.getKey(event)) && this.blockInventoryMenuClosing()) {
+        if (this.blockInventoryMenuClosing() && this.minecraft.options.keyInventory.isActiveAndMatches(InputConstants.getKey(event))) {
             //Only send to the relevant widget, otherwise abort as there shouldn't be anything else listening to this key
             return this.getFocused() != null && this.getFocused().keyPressed(event);
         }
@@ -290,9 +303,14 @@ public abstract class FancyMenuScreen<M extends FancyMenu> extends AbstractConta
         this.renderTicks.clear();
         this.scrollListeners.clear();
         this.mouseListeners.clear();
+        this.keyboardListeners.clear();
         this.ingredientViewers.clear();
         this.ghostSlotProviders.clear();
         this.areaClaims.clear();
+        for(IRemovalListener l : new ArrayList<>(this.removalListeners)) {
+            l.afterWidgetRemoval();
+        }
+        this.removalListeners.clear();
     }
 
     @Override

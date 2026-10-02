@@ -7,10 +7,13 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.common.DropRule;
 import top.theillusivec4.curios.api.type.capability.ICurio;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
+import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
+import top.theillusivec4.curios.api.type.inventory.ICurioStacksHandler;
 
 import javax.annotation.Nonnull;
 
@@ -39,6 +42,13 @@ public class WalletCurio implements ICurioItem {
         //Always keep if the keepWallet game rule is enabled
         if(context.entity().level() instanceof ServerLevel sl && sl.getServer().getGameRules().get(LCGameRules.KEEP_WALLET.get()))
             return DropRule.ALWAYS_KEEP;
+        //Return the drop rule defined by the slot
+        ICuriosItemHandler handler = CuriosApi.getCuriosInventoryOrNull(context.entity());
+        if(handler != null) {
+            ICurioStacksHandler sh = handler.getStacksHandler(context.identifier()).orElse(null);
+            if(sh != null)
+                return sh.getDropRule();
+        }
         return ICurioItem.super.getDropRule(context,source,recentlyHit,stack);
     }
 

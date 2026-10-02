@@ -1,14 +1,15 @@
 package io.github.lightman314.lightmanscurrency.api.client.gui.widget.text;
 
 import com.mojang.datafixers.util.Either;
-import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.IRenderTick;
-import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.IWidgetBuilder;
-import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.IWidgetWrapper;
+import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.*;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.text.parsers.*;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.mixin_helpers.EditBoxAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -16,7 +17,7 @@ import net.minecraft.resources.Identifier;
 import javax.annotation.Nullable;
 import java.util.function.*;
 
-public final class TextBoxWrapper<T> implements IRenderTick, IWidgetWrapper {
+public final class TextBoxWrapper<T> implements FancyRenderable, IRenderTick, IWidgetWrapper, IKeyboardInterceptor {
 
     private boolean ignoreChanged = false;
     private final EditBox editBox;
@@ -27,6 +28,16 @@ public final class TextBoxWrapper<T> implements IRenderTick, IWidgetWrapper {
     private final Function<EditBox,Boolean> active;
 
     public boolean isVisible() { return this.editBox.isVisible(); }
+
+    @Override
+    public void setVisible(boolean visible) { this.editBox.setVisible(visible); }
+
+    @Override
+    public void alreadyRendered() {
+        if(this.editBox instanceof EditBoxAccessor m)
+            m.lightmanscurrencySetAlreadyRenderered(true);
+    }
+
     public boolean isActive() { return this.editBox.isActive(); }
 
     private TextBoxWrapper(Builder<T> builder) {
@@ -35,7 +46,7 @@ public final class TextBoxWrapper<T> implements IRenderTick, IWidgetWrapper {
         this.handler = builder.handler;
         this.active = builder.active;
         this.visible = builder.visible;
-        this.editBox = new EditBox(builder.font,builder.area.x,builder.area.y,builder.area.width,builder.area.height,builder.message);
+        this.editBox = new EditBox(builder.font,builder.area.x,builder.area.y,builder.area.width,builder.area.height,builder.oldTextBox,builder.message);
         //Set max length *before* setting starting value
         this.editBox.setMaxLength(builder.maxLength);
         //Set starting value
@@ -55,7 +66,18 @@ public final class TextBoxWrapper<T> implements IRenderTick, IWidgetWrapper {
     public void setX(int x) { this.editBox.setX(x); }
     public void setY(int y) { this.editBox.setY(y); }
     public void setPosition(int x,int y) { this.editBox.setPosition(x,y); }
+
+    @Override
+    public void visitWidgets(Consumer<AbstractWidget> widgetVisitor) { }
+
     public void setPosition(ScreenPosition position) { this.editBox.setPosition(position.x,position.y); }
+
+    @Override
+    public void setScissorArea(@Nullable ScreenArea area) {
+        if(this.editBox instanceof EditBoxAccessor a)
+            a.lightmanscurrencySetScissorArea(area);
+    }
+
     public int getX() { return this.editBox.getX(); }
     public int getY() { return this.editBox.getY(); }
     public ScreenPosition getPosition() { return ScreenPosition.of(this.getX(),this.getY()); }
@@ -75,6 +97,10 @@ public final class TextBoxWrapper<T> implements IRenderTick, IWidgetWrapper {
     public void renderTick(ScreenPosition mousePos) {
         this.editBox.visible = this.visible.apply(this.editBox);
         this.editBox.active = this.active.apply(this.editBox);
+        if(this.editBox instanceof EditBoxAccessor a) {
+            a.lightmanscurrencySetAlreadyRenderered(false);
+            a.lightmanscurrencySetScissorArea(null);
+        }
     }
 
     public void setStringValue(String value) {
@@ -94,6 +120,7 @@ public final class TextBoxWrapper<T> implements IRenderTick, IWidgetWrapper {
     public String getString() { return this.editBox.getValue(); }
 
     public static <T> Builder<T> builder(Function<String,T> parser) { return new Builder<>(parser); }
+    public static <X extends Function<String,T>,T> Builder<T> builder(X parser,Function<X,Function<T,String>> writer) { return builder(parser).writer(writer.apply(parser)); }
 
     public static Builder<String> stringBuilder() { return new Builder<>(UnaryOperator.identity()); }
     public static Builder<Component> textBuilder() { return new Builder<>(ComponentParser.INSTANCE).writer(ComponentParser::write).withMaxLength(1024); }
@@ -103,6 +130,11 @@ public final class TextBoxWrapper<T> implements IRenderTick, IWidgetWrapper {
     public static Builder<Double> doubleBuilder() { return new Builder<>(DoubleParser.DEFAULT).writer(DoubleParser.DEFAULT_WRITER); }
     public static Builder<Identifier> identifierBuilder() { return identifierBuilder(false); }
     public static Builder<Identifier> identifierBuilder(boolean requireNamespace) { return new Builder<>(requireNamespace ? IdentifierParser.DEFAULT : IdentifierParser.REQUIRE_NAMESPACE); }
+
+    @Override
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        this.editBox.extractRenderState(graphics,mouseX,mouseY,a);
+    }
 
     public static final class Builder<T> implements IWidgetBuilder<TextBoxWrapper<T>>
     {

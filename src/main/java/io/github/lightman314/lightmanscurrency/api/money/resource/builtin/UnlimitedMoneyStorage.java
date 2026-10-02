@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.money.resource.builtin;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
-import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -24,8 +24,8 @@ public class UnlimitedMoneyStorage extends SnapshotJournal<Unit> implements Mone
     public static final Codec<UnlimitedMoneyStorage> CODEC = MoneyValue.CODEC.listOf().xmap(UnlimitedMoneyStorage::new,UnlimitedMoneyStorage::getAllResources);
     public static final StreamCodec<RegistryFriendlyByteBuf,UnlimitedMoneyStorage> STREAM_CODEC = MoneyValue.STREAM_CODEC.apply(ByteBufCodecs.list()).map( UnlimitedMoneyStorage::new,UnlimitedMoneyStorage::getAllResources);
 
-    private final Map<MoneyKey,MoneyValue> storage = new HashMap<>();
-    private final Map<MoneyKey,Snapshot> snapshots = new HashMap<>();
+    private final Map<DualKey,MoneyValue> storage = new HashMap<>();
+    private final Map<DualKey,Snapshot> snapshots = new HashMap<>();
     private final List<Runnable> listeners = new ArrayList<>();
 
     public UnlimitedMoneyStorage() {}
@@ -54,9 +54,9 @@ public class UnlimitedMoneyStorage extends SnapshotJournal<Unit> implements Mone
     public List<MoneyValue> getAllResources() { return ImmutableList.copyOf(this.storage.values()); }
 
     @Override
-    public MoneyValue getResource(MoneyKey key) { return this.storage.getOrDefault(key,MoneyValue.empty()); }
+    public MoneyValue getResource(DualKey key) { return this.storage.getOrDefault(key,MoneyValue.empty()); }
 
-    private void updateSnapshots(MoneyKey key,TransactionContext transaction) {
+    private void updateSnapshots(DualKey key, TransactionContext transaction) {
         Snapshot s = this.snapshots.computeIfAbsent(key,Snapshot::new);
         s.updateSnapshots(transaction);
         this.updateSnapshots(transaction);
@@ -68,7 +68,7 @@ public class UnlimitedMoneyStorage extends SnapshotJournal<Unit> implements Mone
         //Can't insert anything if the value is empty
         if(value.isEmpty())
             return MoneyValue.empty();
-        MoneyKey key = value.getKey();
+        DualKey key = value.getKey();
         //Get the current value
         MoneyValue currentValue = this.getResource(key);
         //Add the new value to the current value
@@ -88,7 +88,7 @@ public class UnlimitedMoneyStorage extends SnapshotJournal<Unit> implements Mone
         //Can't extract anything if the value is empty
         if(value.isEmpty())
             return MoneyValue.empty();
-        MoneyKey key = value.getKey();
+        DualKey key = value.getKey();
         //Get the current value
         MoneyValue currentValue = this.getResource(key);
         //Get the amount we can extract
@@ -123,8 +123,8 @@ public class UnlimitedMoneyStorage extends SnapshotJournal<Unit> implements Mone
 
     private class Snapshot extends SnapshotJournal<MoneyValue> {
 
-        private final MoneyKey key;
-        private Snapshot(MoneyKey key) { this.key = key; }
+        private final DualKey key;
+        private Snapshot(DualKey key) { this.key = key; }
 
         @Override
         protected MoneyValue createSnapshot() { return UnlimitedMoneyStorage.this.getResource(this.key); }

@@ -17,6 +17,8 @@ import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.data.InteractionMemory;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -147,6 +149,22 @@ public class PlayerTradeLimit extends TradeRule implements IPersistentRule {
         this.memory.clearExpiredData(this.timer);
     }
 
+    @Override
+    protected void resetAdditionalToDefault() {
+        this.setLimit(1);
+        this.setTimer(0L);
+    }
 
+    @Override
+    public void encodeSettings(ValueOutput output) {
+        output.putInt("limit",this.limit);
+        output.putLong("timer",this.timer);
+    }
+
+    @Override
+    public void decodeSettings(ValueInput data) {
+        this.setLimit(data.getIntOr("limit",1));
+        this.setTimer(data.getLongOr("timer",0L));
+    }
 
 }

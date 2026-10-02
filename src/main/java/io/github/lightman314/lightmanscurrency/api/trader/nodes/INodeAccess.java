@@ -1,6 +1,9 @@
 package io.github.lightman314.lightmanscurrency.api.trader.nodes;
 
+import io.github.lightman314.lightmanscurrency.api.stats.StatKey;
+import io.github.lightman314.lightmanscurrency.api.stats.interfaces.StatListener;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IStatListeningNode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.TradingNode;
 import net.minecraft.tags.TagKey;
 
@@ -13,7 +16,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public interface INodeAccess {
+public interface INodeAccess extends StatListener {
 
     @Nullable
     TraderData getTrader();
@@ -38,7 +41,7 @@ public interface INodeAccess {
     }
 
     @Nullable
-    default <T extends TraderNode,R,A> R getNodeArgValue(TraderNodeType<T> type, A arg, BiFunction<T,A,R> getter) { return this.getNodeArgValue(type,arg,getter,null); }
+    default <T extends TraderNode,R,A> R getNodeArgValue(TraderNodeType<T> type,A arg, BiFunction<T,A,R> getter) { return this.getNodeArgValue(type,arg,getter,null); }
     default <T extends TraderNode,R,A> R getNodeArgValue(TraderNodeType<T> type,A arg,BiFunction<T,A,R> getter,R defaultValue) {
         T node = this.getNode(type);
         if(node != null)
@@ -83,5 +86,11 @@ public interface INodeAccess {
         return list;
     }
     default List<TraderNode> getNodes(Predicate<TraderNode> filter) { return new ArrayList<>(this.getAllNodes().stream().filter(filter).toList()); }
+
+    @Override
+    default <V, T> void addToStat(StatKey<V, T> key, T addValue) {
+        for(IStatListeningNode node : this.getNodes(IStatListeningNode.class))
+            node.afterStatAdded(key,addValue);
+    }
 
 }

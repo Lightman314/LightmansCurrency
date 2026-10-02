@@ -2,19 +2,28 @@ package io.github.lightman314.lightmanscurrency.api.trader.nodes.templates;
 
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableList;
-import io.github.lightman314.lightmanscurrency.api.LCRegistries;
+import io.github.lightman314.lightmanscurrency.api.LCApi;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
+import io.github.lightman314.lightmanscurrency.api.helpers.time.TimeHelper;
+import io.github.lightman314.lightmanscurrency.api.money.MoneyStats;
+import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
+import io.github.lightman314.lightmanscurrency.api.trader.TraderStats;
+import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IAdminSettingProvider;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.ISettingsStorageIONode;
 import io.github.lightman314.lightmanscurrency.api.trader.notifications.OutOfStockNotification;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleHolder;
+import io.github.lightman314.lightmanscurrency.api.trader.settings_storage.ISettingsStorageIO;
+import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.builtin.MoneyReceipt;
+import io.github.lightman314.lightmanscurrency.api.trader.trade.settings.SettingsIOTrade;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.StorageTabBuilder;
-import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IPermissionUser;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IStorageMenuTabProvider;
 import io.github.lightman314.lightmanscurrency.api.trader.event.TradeEvent;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.Permission;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeContext;
@@ -25,9 +34,14 @@ import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.Trade
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.builtin.SimpleTradeEditTab;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.builtin.rules.TradeTradeRuleTab;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
@@ -37,11 +51,16 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTraderNode implements IStorageMenuTabProvider, IPermissionUser {
-
-    public static TextEntry sectionName(TraderNodeType<?> type) { return TextEntry.delayed(() -> LCRegistries.Trader.TRADER_NODE_TYPE.getKey(type),id -> id.getNamespace() + ".trading_node.section." + id.getPath()); }
+public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTraderNode implements IStorageMenuTabProvider, IPermissionUser, ISettingsStorageIONode {
 
     protected TradingNode() {}
+
+    public static final TextEntry VALUE_TRADE = TextEntry.traderNodeValue(LCApi.id("trades"),"trade");
+    public static final TextEntry VALUE_TRADE_RULES = TextEntry.traderNodeValue(LCApi.id("trades"),"trade_rules");
+    public static final TextEntry VALUE_TRADE_COUNT = TextEntry.traderNodeValue(LCApi.id("trades"),"trade_count");
+
+    public static final TextEntry TOOLTIP_TERMINAL_TRADE_COUNT = TextEntry.tooltip(LCApi.MODID,"terminal.info.trade_count");
+    public static final TextEntry TOOLTIP_TERMINAL_OUT_OF_STOCK_COUNT = TextEntry.tooltip(LCApi.MODID,"terminal.info.trade_count.out_of_stock");
 
     //By default, sort by hash code so that two trading nodes aren't accidentally
     public int getPriority() { return this.getType().hashCode(); }
@@ -156,6 +175,9 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
 
     protected final void forceTradeCount(int newCount) {
         List<T> trades = this.getMutableTrades();
+        //End early if the size already matches
+        if(newCount == trades.size())
+            return;
         while(trades.size() > newCount)
         {
             trades.removeLast();
@@ -199,6 +221,19 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
     {
         //Commit the actions performed within the trades context
         context.commit();
+        //Automatically increment all trade-related statistics
+        this.addToStat(TraderStats.INTERACTION_COUNT,1);
+        this.addToStat(TraderStats.LAST_INTERACTION,TimeHelper.getCurrentTime());
+        if(priceResult.getReceipt() instanceof MoneyReceipt mr) {
+            MoneyValue amount = mr.getMoney();
+            if(trade.isSale())
+                this.addToStat(MoneyStats.MONEY_EARNED,amount);
+            else if(trade.isPurchase())
+                this.addToStat(MoneyStats.MONEY_PAID,amount);
+        }
+        MoneyValue taxesPaid = priceResult.getTaxesPaid();
+        if(!taxesPaid.isEmpty())
+            this.addToStat(MoneyStats.TAXES_PAID,taxesPaid);
         //Push the post-trade event
         TradeEvent.Post event = new TradeEvent.Post(context,this,trade,pricePaid,priceResult,product,Optional.ofNullable(notification));
         TradeRule.afterTrade(this,trade,event);
@@ -208,7 +243,7 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
 
     @Override
     public void addDefaultAllyPermission(Consumer<Permission<?>> handler) {
-        handler.accept(BuiltInPermissions.EDIT_TRADES);
+        handler.accept(LCPermissions.EDIT_TRADES);
     }
 
     @Override
@@ -216,6 +251,59 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
         builder.addTab(SimpleTradeEditTab::new);
         if(this.getTrade(0) instanceof TradeRuleHolder)
             builder.addTab(TradeTradeRuleTab::new);
+    }
+
+    public int getCustomerReadyTrades() {
+        return (int)this.getTrades().stream().filter(TradeData::isCustomerReady).count();
+    }
+
+    public int getTradesInStock(@Nullable TransactionContext transaction) {
+        TraderData trader = this.getTrader();
+        if(trader == null)
+            return 0;
+        int count = 0;
+        for(TradeData trade : this.getTrades()) {
+            if(trade.isCustomerReady() && trade.predictHasStock(trader,transaction))
+                count++;
+        }
+        return count;
+    }
+
+    protected final Optional<Integer> getTerminalTradeColor() {
+        int customerReadyTrades = this.getCustomerReadyTrades();
+        //Red if 0 customer-ready trades
+        if(customerReadyTrades <= 0)
+            return Optional.of(ARGB.opaque(ChatFormatting.RED.getColor()));
+        //Green if creative/inifinite stock
+        if(IAdminSettingProvider.hasInfiniteStock(this))
+            return Optional.of(ARGB.opaque(ChatFormatting.GREEN.getColor()));
+        //Orange if all trades are out of stock
+        int tradesInStock = this.getTradesInStock(null);
+        if(tradesInStock <= 0)
+            return Optional.of(ARGB.opaque(ChatFormatting.GOLD.getColor()));
+        return Optional.empty();
+    }
+
+    protected final void appendTerminalTradeStatus(Consumer<Component> builder) {
+        int customerReadyTrades = this.getCustomerReadyTrades();
+        if(customerReadyTrades > 0) {
+            builder.accept(TOOLTIP_TERMINAL_TRADE_COUNT.get(customerReadyTrades));
+            int outOfStock = customerReadyTrades - this.getTradesInStock(null);
+            if(outOfStock > 0)
+                builder.accept(TOOLTIP_TERMINAL_OUT_OF_STOCK_COUNT.get(outOfStock));
+        }
+    }
+
+    @Override
+    public List<ISettingsStorageIO> getEntries(Player player) {
+        List<ISettingsStorageIO> result = new ArrayList<>();
+        result.add(this);
+        DualKey key = this.getSettingsKey();
+        for(int i = 0; i < this.getTradeCount(); ++i) {
+            TradeData trade = this.getTrade(i);
+            SettingsIOTrade.getSettingsForTrade(trade,key,i,result::add);
+        }
+        return result;
     }
 
 }

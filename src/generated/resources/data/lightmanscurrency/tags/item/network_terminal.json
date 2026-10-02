@@ -1,3 +1,6 @@
 {
-  "values": []
+  "values": [
+    "lightmanscurrency:trading_terminal",
+    "lightmanscurrency:trading_terminal_portable"
+  ]
 }

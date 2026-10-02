@@ -1,4 +1,4 @@
-// 26.1.2	2026-09-07T10:47:20.3935565	Loot Tables
+// 26.1.2	2026-09-19T13:15:45.1340518	Loot Tables
 fe246eb8f765aba560541c80bc4dac741700f796 data/lightmanscurrency/loot_table/blocks/atm.json
 74ae40322346d7e59f9aeb66a2ab5f112945318c data/lightmanscurrency/loot_table/blocks/chocolate_copper_coin_block.json
 e0e5ef331c5aee5d9eb5f04d583eacb19447c733 data/lightmanscurrency/loot_table/blocks/chocolate_copper_coin_pile.json
@@ -49,3 +49,4 @@ b31dc9b99188c45dc845b4be76f33d596ace4d7b data/lightmanscurrency/loot_table/block
 92330ef0c8df247fe058b7db96e716056a7dcc5f data/lightmanscurrency/loot_table/blocks/iron_coin_pile.json
 32a2b25a6d24e7bbfab6e06e51e49d669531be6f data/lightmanscurrency/loot_table/blocks/netherite_coin_block.json
 c8575932cdd7154dcd84a7ea07687254d7ce7370 data/lightmanscurrency/loot_table/blocks/netherite_coin_pile.json
+1f8d6bae7bfa9dbf41236965715b4b11108187bd data/lightmanscurrency/loot_table/blocks/trading_terminal.json

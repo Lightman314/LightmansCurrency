@@ -2,14 +2,16 @@ package io.github.lightman314.lightmanscurrency.features.atm;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
+import io.github.lightman314.lightmanscurrency.api.bank_account.BankAccount;
+import io.github.lightman314.lightmanscurrency.api.bank_account.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.world.menu.slots.IEasySlot;
 import io.github.lightman314.lightmanscurrency.api.world.menu.tabbed.MenuTab;
-import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 
+import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 public abstract class ATMTab extends MenuTab<ATMMenu> {
@@ -21,8 +23,14 @@ public abstract class ATMTab extends MenuTab<ATMMenu> {
     @Override
     public boolean canOpen() { return !this.isQuarantined(); }
 
+    public BankReference getSelectedAccount() { return this.getMenu().getSelectedAccount(); }
+    @Nullable
+    public BankAccount getAccount() { return this.getSelectedAccount().get(); }
+
     public ResourceHandler<ItemResource> getMoneyStorage() { return this.getMenu().getMoneyStorage(); }
     public MoneyResourceHandler getMoneyResource() { return this.getMenu().getMoneyResources(); }
+    public MoneyResourceHandler getPlayerAndMoneyResources() { return this.getMenu().getPlayerAndMoneyResources(); }
+    public MoneyResourceHandler getMoneyAndPlayerResources() { return this.getMenu().getMoneyAndPlayerResources(); }
 
     public abstract boolean usesMoneySlots();
 

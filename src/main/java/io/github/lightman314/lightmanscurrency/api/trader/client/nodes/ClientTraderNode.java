@@ -17,11 +17,10 @@ import java.util.Set;
 
 public class ClientTraderNode {
 
-    public static final ClientPairedRegistry<TraderNodeType<?>,ClientTraderNode> REGISTRY = new ClientPairedRegistry<>(LCRegistries.Trader.TRADER_NODE_TYPE,new ClientTraderNode());
+    public static final ClientPairedRegistry<TraderNodeType<?>,ClientTraderNode> REGISTRY = ClientPairedRegistry.builder(LCRegistries.Trader.TRADER_NODE_TYPE,ClientTraderNode.class).build();
 
     protected ClientTraderNode() {}
 
-    public static <T> List<T> getClientNodes(@Nullable TraderData trader, Class<T> nodeClass) { return getClientNodes((INodeAccess)trader,nodeClass); }
     public static <T> List<T> getClientNodes(@Nullable INodeAccess trader, Class<T> nodeClass) {
         if(trader == null)
             return new ArrayList<>();
@@ -33,6 +32,18 @@ public class ClientTraderNode {
                 list.add(nodeClass.cast(clientNode));
         }
         return list;
+    }
+
+    @Nullable
+    public static <T> T getFirstClientNode(@Nullable INodeAccess trader,Class<T> nodeClass) {
+        if(trader == null)
+            return null;
+        for(TraderNode node : trader.getAllNodes()) {
+            ClientTraderNode clientNode = REGISTRY.getValue(node);
+            if(nodeClass.isInstance(clientNode))
+                return nodeClass.cast(clientNode);
+        }
+        return null;
     }
 
     public static <T> List<Pair<TraderNode,T>> getPairedClientNodes(@Nullable INodeAccess trader, Class<T> nodeClass) {
@@ -47,7 +58,7 @@ public class ClientTraderNode {
         return list;
     }
 
-    public static <T> List<T> getClientNodes(@Nullable TraderSource source,Class<T> nodeClass) {
+    public static <T> List<T> getSourcesClientNodes(@Nullable TraderSource source,Class<T> nodeClass) {
         if(source == null)
             return new ArrayList<>();
         List<T> list = new ArrayList<>();

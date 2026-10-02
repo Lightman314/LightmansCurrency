@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.client.gui.widget.scrolling;
 
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.ScreenHelper;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.IScrollListener;
 import net.minecraft.client.gui.layouts.LayoutElement;
@@ -57,6 +58,11 @@ public interface IScrollable {
 
     static int calculateMaxScroll(int actualSize,int visibleEntries) { return Math.max(actualSize - visibleEntries,0); }
     static int calculateMaxScroll(int actualSize,int entriesPerScroll,int visibleEntries) { return Math.max(0,Math.ceilDiv(actualSize,entriesPerScroll) - (visibleEntries/entriesPerScroll)); }
+
+    static float handlePreciseScrolling(float scroll,float max,float deltaY) { return handlePreciseScrolling(scroll,0f,max,deltaY); }
+    static float handlePreciseScrolling(float scroll,float min,float max,float deltaY) {
+        return Math.clamp(scroll - (deltaY * LCConfig.CLIENT.scrollMultiplier.get()),min,max);
+    }
 
     interface WithBuiltInListener extends IScrollable, IScrollListener, LayoutElement {
 

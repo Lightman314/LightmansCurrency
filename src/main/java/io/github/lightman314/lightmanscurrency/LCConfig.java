@@ -6,10 +6,12 @@ import io.github.lightman314.lightmanscurrency.api.coins.value.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.config.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.*;
 import io.github.lightman314.lightmanscurrency.api.config.options.builtin.*;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenCorner;
 import io.github.lightman314.lightmanscurrency.api.loot.DefaultLootConfigEvent;
 import io.github.lightman314.lightmanscurrency.api.loot.tiers.ChestPoolLevel;
 import io.github.lightman314.lightmanscurrency.api.loot.tiers.EntityPoolLevel;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
+import io.github.lightman314.lightmanscurrency.client.features.wallet.gui.WalletDisplayType;
 import io.github.lightman314.lightmanscurrency.core.LCItems;
 import io.github.lightman314.lightmanscurrency.features.wallet.WalletItem;
 
@@ -48,9 +50,9 @@ public final class LCConfig {
         public final ScreenPositionOption walletButtonOffset = ScreenPositionOption.create(8,-10);
 
         public final BooleanOption walletOverlayEnabled = BooleanOption.createTrue();
-        //public final EnumOption<ScreenCorner> walletOverlayCorner = EnumOption.create(ScreenCorner.BOTTOM_LEFT);
+        public final EnumOption<ScreenCorner> walletOverlayCorner = EnumOption.create(ScreenCorner.BOTTOM_LEFT);
         public final ScreenPositionOption walletOverlayPosition = ScreenPositionOption.create(5,-5);
-        //public final EnumOption<WalletDisplayOverlay.DisplayType> walletOverlayType = EnumOption.create(WalletDisplayOverlay.DisplayType.ITEMS_WIDE);
+        public final EnumOption<WalletDisplayType> walletOverlayType = EnumOption.create(WalletDisplayType.ITEMS_NARROW);
 
         public final ScreenPositionOption notificationAndTeamButtonPosition = ScreenPositionOption.create(152,3);
         public final ScreenPositionOption notificationAndTeamButtonCreativePosition = ScreenPositionOption.create(171,3);
@@ -128,14 +130,14 @@ public final class LCConfig {
             builder.comment("Whether an overlay should be drawn on your HUD displaying your wallets current money amount.")
                     .add("enabled", this.walletOverlayEnabled);
 
-            //builder.comment("The corner of the screen that the overlay should be drawn on.")
-            //        .add("displayCorner", this.walletOverlayCorner);
+            builder.comment("The corner of the screen that the overlay should be drawn on.")
+                    .add("displayCorner",this.walletOverlayCorner);
 
             builder.comment("The position offset from the defined corner.")
-                    .add("displayOffset", this.walletOverlayPosition);
+                    .add("displayOffset",this.walletOverlayPosition);
 
-            //builder.comment("Whether the wallets items should be displayed as a coin item, or as value text.")
-            //        .add("displayType", this.walletOverlayType);
+            builder.comment("Whether the wallets items should be displayed as a coin item, or as value text.")
+                    .add("displayType",this.walletOverlayType);
 
             builder.pop();
 
@@ -675,6 +677,7 @@ public final class LCConfig {
         public final FloatOption coinMintSoundVolume = FloatOption.create(0.5f, 0f, 1f);
 
         //Wallet Settings
+        public final DoubleOption walletDropRate = DoubleOption.create(0d,0d,1d);
         public final ItemListOption walletCanExchange = ItemListOption.create(() -> Lists.newArrayList(LCItems.WALLET_IRON.get(), LCItems.WALLET_GOLD.get(), LCItems.WALLET_EMERALD.get(), LCItems.WALLET_DIAMOND.get(), LCItems.WALLET_NETHERITE.get(), LCItems.WALLET_NETHER_STAR.get(), LCItems.WALLET_ENDER_DRAGON.get()), i -> i instanceof WalletItem);
         public final ItemListOption walletCanPickup = ItemListOption.create(() -> Lists.newArrayList(LCItems.WALLET_GOLD.get(), LCItems.WALLET_EMERALD.get(), LCItems.WALLET_DIAMOND.get(), LCItems.WALLET_NETHERITE.get(), LCItems.WALLET_NETHER_STAR.get(), LCItems.WALLET_ENDER_DRAGON.get()), i -> i instanceof WalletItem);
         public final ItemListOption walletCanBank = ItemListOption.create(() -> Lists.newArrayList(LCItems.WALLET_NETHERITE.get(), LCItems.WALLET_NETHER_STAR.get(), LCItems.WALLET_ENDER_DRAGON.get()), i -> i instanceof WalletItem);
@@ -814,6 +817,10 @@ public final class LCConfig {
 
             builder.comment("Wallet Settings").push("wallet");
 
+            builder.comment("The percentage of the wallets contents that will be dropped upon the players death.",
+                            "Still triggers regardless of the keepInventory or keepWallet game rules.")
+                    .add("coinDropRate",this.walletDropRate);
+
             builder.comment("A list of wallets that are capable of exchanging coins.")
                     .add("exchangeAbility", this.walletCanExchange);
 
@@ -828,7 +835,7 @@ public final class LCConfig {
                     .add("allowCapacityUpgrade", this.walletCapacityUpgradeable);
 
             builder.comment("Whether Wallet Drops should be manually spawned into the world instead of the default behaviour of being passed to the PlayerDropsEvent",
-                            "Wallet Drops will be either the Wallet itself, or the coins dropped when the `coinDropPercent` game rule is greater than 0.")
+                            "Wallet Drops will be either the Wallet itself, or the coins dropped when the `coinDropRate` config options is greater than 0.")
                     .add("manualDropOverride", this.walletDropsManualSpawn);
 
             builder.pop();

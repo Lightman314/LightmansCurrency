@@ -1,28 +1,22 @@
 package io.github.lightman314.lightmanscurrency.api.client.gui.widget.dropdown;
 
 import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.FancyGuiExtractor;
-import io.github.lightman314.lightmanscurrency.api.client.gui.widget.FancyWidget;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.button.FancyButton;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.ILateRenderer;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.positioner.IMoveableWidget;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
-import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 
-import java.util.function.Function;
-
 public class DropdownButton extends FancyButton implements ILateRenderer, IMoveableWidget.WithoutFacing, IMouseListener {
 
     private final WidgetSprites sprites;
-    private final Function<FancyWidget,Integer> color;
     private final DropdownOption option;
     private DropdownButton(Builder builder) {
         super(builder);
         this.sprites = builder.sprite;
-        this.color = builder.color;
         this.option = builder.option;
     }
 
@@ -34,7 +28,7 @@ public class DropdownButton extends FancyButton implements ILateRenderer, IMovea
         if(!this.isVisible())
             return;
         gui.push(this.getPosition());
-        gui.blitSprite(this.sprites.get(this.active,this.isHovered),0,0,this.width,this.height,this.color.apply(this));
+        gui.blitSprite(this.sprites.get(this.active,this.isHovered),0,0,this.width,this.height,this.getSpriteColor());
         DropdownWidget.extractOption(gui,this.getArea(),option,2);
         gui.pop();
         this.handleCursor(gui.getGui());
@@ -54,7 +48,6 @@ public class DropdownButton extends FancyButton implements ILateRenderer, IMovea
         private Builder() { super(20,DropdownWidget.HEIGHT); }
 
         private WidgetSprites sprite = DropdownWidget.DEFAULT_BUTTON_SPRITE;
-        private Function<FancyWidget,Integer> color = AbstractWidget::getFGColor;
         private DropdownOption option = new DropdownOption(() -> false, Component.empty());
 
         @Override
@@ -64,10 +57,6 @@ public class DropdownButton extends FancyButton implements ILateRenderer, IMovea
 
         public Builder withSprite(WidgetSprites sprite) { this.sprite = sprite; return this; }
         public Builder forOption(DropdownOption option) { this.option = option; return this; }
-
-        public Builder withSpriteColor(int color) { return this.withSpriteColor(w -> color); }
-        public Builder withSpriteColor(Function<FancyWidget,Integer> color) { this.color = color; return this; }
-        public Builder withSpriteColor(int activeColor, int disabledColor) { return this.withSpriteColor(w -> w.isActive() ? activeColor : disabledColor); }
 
         @Override
         public DropdownButton build() { return new DropdownButton(this); }

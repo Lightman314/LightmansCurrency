@@ -12,7 +12,8 @@ import java.util.function.Function;
 
 public abstract class RuleClientTab<T extends TradeRule> extends TradeRuleClientSubTab {
 
-    public static final ClientPairedRegistry<TradeRuleType<?>,Function<TradeRulesClientTab,RuleClientTab<?>>> TAB_BUILDERS = new ClientPairedRegistry<>(LCRegistries.Trader.TRADE_RULE_TYPE,t -> null);
+    public static final ClientPairedRegistry<TradeRuleType<?>,RuleTabBuilder> TAB_BUILDERS = ClientPairedRegistry.builder(LCRegistries.Trader.TRADE_RULE_TYPE,RuleTabBuilder.class)
+            .defaultValue(t -> null).build();
 
     public RuleClientTab(TradeRulesClientTab tab) { super(tab); }
 
@@ -42,5 +43,7 @@ public abstract class RuleClientTab<T extends TradeRule> extends TradeRuleClient
     public void sendMessage(FancyPacketMap message) { }
 
     public final void requestChange(FancyPacketMap request) { this.getCommonTab().requestRuleChange(this.getType(),request); }
+
+    public interface RuleTabBuilder extends Function<TradeRulesClientTab,RuleClientTab<?>> {}
 
 }

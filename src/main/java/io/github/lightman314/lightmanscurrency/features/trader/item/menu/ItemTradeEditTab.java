@@ -2,10 +2,10 @@ package io.github.lightman314.lightmanscurrency.features.trader.item.menu;
 
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.builtin.AdvancedTradeEditTab;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import io.github.lightman314.lightmanscurrency.features.trader.item.TradeItem;
 import io.github.lightman314.lightmanscurrency.features.trader.item.trade.ItemTradeData;
 import net.minecraft.resources.Identifier;
@@ -23,7 +23,7 @@ public class ItemTradeEditTab extends AdvancedTradeEditTab {
     public void setDirection(TradeDirection direction) {
         if(direction.isOther())
             return;
-        if(this.getPermission(BuiltInPermissions.EDIT_TRADES) && this.getSelectedTrade() instanceof ItemTradeData trade) {
+        if(this.getPermission(LCPermissions.EDIT_TRADES) && this.getSelectedTrade() instanceof ItemTradeData trade) {
             if(trade.setType(direction)) {
                 this.changeSelection(this.getSelectedSlot().flipped());
                 //Validate the price after changing the trades direction
@@ -35,7 +35,7 @@ public class ItemTradeEditTab extends AdvancedTradeEditTab {
     }
 
     public void setItem(int slot,ItemStack stack) {
-        if(this.getPermission(BuiltInPermissions.EDIT_TRADES) && this.getSelectedTrade() instanceof ItemTradeData trade)
+        if(this.getPermission(LCPermissions.EDIT_TRADES) && this.getSelectedTrade() instanceof ItemTradeData trade)
         {
             TradeItem item = trade.getItem(slot);
             item.setStack(stack);
@@ -50,7 +50,7 @@ public class ItemTradeEditTab extends AdvancedTradeEditTab {
     }
 
     public void setCustomName(int slot,String customName) {
-        if(this.getPermission(BuiltInPermissions.EDIT_TRADES) && this.getSelectedTrade() instanceof ItemTradeData trade)
+        if(this.getPermission(LCPermissions.EDIT_TRADES) && this.getSelectedTrade() instanceof ItemTradeData trade)
         {
             TradeItem item = trade.getItem(slot);
             item.setNameChange(customName);
@@ -65,7 +65,7 @@ public class ItemTradeEditTab extends AdvancedTradeEditTab {
     }
 
     public void setStrict(int slot,boolean strict) {
-        if(this.getPermission(BuiltInPermissions.EDIT_TRADES) && this.getSelectedTrade() instanceof ItemTradeData trade)
+        if(this.getPermission(LCPermissions.EDIT_TRADES) && this.getSelectedTrade() instanceof ItemTradeData trade)
         {
             TradeItem item = trade.getItem(slot);
             item.setStrict(strict);

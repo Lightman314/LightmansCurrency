@@ -14,7 +14,7 @@ import io.github.lightman314.lightmanscurrency.api.client.gui.widget.dropdown.Dr
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.money.client.ClientMoneyValueType;
-import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -29,7 +29,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public final class MoneyValueWidget extends AbstractMultiWidget {
+public final class MoneyValueWidget extends AbstractMultiWidget.LateChildren {
 
     public static final int HEIGHT = 69;
     public static final int WIDTH = 176;
@@ -37,8 +37,8 @@ public final class MoneyValueWidget extends AbstractMultiWidget {
 
     public static final SizedSprite.Builder SPRITE_FREE_TOGGLE = LCSprites.FREE_TOGGLE;
 
-    static MoneyKey lastSelectedHandler = MoneyKey.create(LCApi.id("coins"),"main");
-    public static MoneyKey getLastSelectedHandler() { return lastSelectedHandler; }
+    static DualKey lastSelectedHandler = DualKey.create(LCApi.id("coins"),"main");
+    public static DualKey getLastSelectedHandler() { return lastSelectedHandler; }
 
     @Nullable
     private MoneyValueWidget oldWidget;
@@ -73,25 +73,25 @@ public final class MoneyValueWidget extends AbstractMultiWidget {
         this.availableHandlers = this.setupHandlers();
     }
 
-    private final Map<MoneyKey,MoneyInputHandler> availableHandlers;
-    private final List<MoneyKey> handlerKeys = new ArrayList<>();
+    private final Map<DualKey,MoneyInputHandler> availableHandlers;
+    private final List<DualKey> handlerKeys = new ArrayList<>();
     @Nullable
     private MoneyInputHandler currentHandler = null;
 
-    public MoneyKey getCurrentHandlerType() { return this.currentHandler == null ? MoneyKey.create(Identifier.fromNamespaceAndPath("",""),"") : this.currentHandler.getKey(); }
+    public DualKey getCurrentHandlerType() { return this.currentHandler == null ? DualKey.create(Identifier.fromNamespaceAndPath("",""),"") : this.currentHandler.getKey(); }
     @Nullable
     public MoneyInputHandler getCurrentHandler() { return this.currentHandler; }
     public void tryMatchHandler(MoneyValue value) {
         this.tryMatchValue(value,true);
     }
 
-    private Map<MoneyKey,MoneyInputHandler> setupHandlers() {
+    private Map<DualKey,MoneyInputHandler> setupHandlers() {
         Minecraft mc = Minecraft.getInstance();
         Player player = mc.player;
-        ImmutableMap.Builder<MoneyKey,MoneyInputHandler> builder = ImmutableMap.builder();
-        Map<MoneyKey,MoneyInputHandler> oldHandlers = this.oldWidget != null ? this.oldWidget.availableHandlers : Map.of();
+        ImmutableMap.Builder<DualKey,MoneyInputHandler> builder = ImmutableMap.builder();
+        Map<DualKey,MoneyInputHandler> oldHandlers = this.oldWidget != null ? this.oldWidget.availableHandlers : Map.of();
         Consumer<MoneyInputHandler> b = h -> {
-            MoneyKey key = h.getKey();
+            DualKey key = h.getKey();
             builder.put(key,h);
             h.setup(this,this::widgetChangedValue,oldHandlers.get(key));
             this.handlerKeys.add(key);
@@ -105,7 +105,7 @@ public final class MoneyValueWidget extends AbstractMultiWidget {
     private MoneyInputHandler findDefaultHandler() {
         if(this.oldWidget != null && this.oldWidget.currentHandler != null)
         {
-            MoneyKey type = this.oldWidget.currentHandler.getKey();
+            DualKey type = this.oldWidget.currentHandler.getKey();
             if(this.availableHandlers.containsKey(type))
             {
                 this.oldWidget = null;
@@ -123,7 +123,7 @@ public final class MoneyValueWidget extends AbstractMultiWidget {
         }
         //Get type from the money type
         else {
-            MoneyKey type = value.getKey();
+            DualKey type = value.getKey();
             if(this.availableHandlers.containsKey(type))
                 return this.availableHandlers.get(type);
             else
@@ -140,8 +140,6 @@ public final class MoneyValueWidget extends AbstractMultiWidget {
         return this.availableHandlers.values().stream().toList().getFirst();
     }
 
-    @Override
-    protected void addEarlyChildren(ScreenArea area) { }
     @Override
     protected void addLateChildren(ScreenArea area) {
 
@@ -217,7 +215,7 @@ public final class MoneyValueWidget extends AbstractMultiWidget {
 
     private List<DropdownOption> handlerOptions() {
         List<DropdownOption> options = new ArrayList<>();
-        for(MoneyKey key : this.handlerKeys)
+        for(DualKey key : this.handlerKeys)
             options.add(this.availableHandlers.get(key).inputOption());
         return options;
     }
@@ -293,7 +291,7 @@ public final class MoneyValueWidget extends AbstractMultiWidget {
         @Override
         protected Builder getSelf() { return this; }
 
-        public Builder old(@Nullable MoneyValueWidget widget) { this.oldWidget = widget; return this; }
+        public Builder oldWidget(@Nullable MoneyValueWidget widget) { this.oldWidget = widget; return this; }
 
         public Builder handler(Runnable handler) { return this.handler(v -> handler.run()); }
         public Builder handler(Consumer<MoneyValue> handler) { this.handler = handler; return this; }

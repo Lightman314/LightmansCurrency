@@ -13,7 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.notifications.holder.Notifica
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.info.InfoClientSubTab;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.info.InfoClientTab;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.NotificationNode;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Items;
 
@@ -31,6 +31,9 @@ public class NotificationTab extends InfoClientSubTab {
         this.settingsOnly = settingsOnly;
         this.filter = this.settingsOnly ? NotificationNode.FILTER_SETTINGS : NotificationNode.FILTER_NORMAL;
     }
+
+    private NotificationDisplayWidget displayWidget;
+
     @Override
     public IconData getIcon() { return this.settingsOnly ? SETTINGS_ICON : LOGGER_ICON; }
     @Override
@@ -38,9 +41,10 @@ public class NotificationTab extends InfoClientSubTab {
 
     @Override
     protected void initialize(ScreenArea area,FancyPacketMap message) {
-        this.addChild(NotificationDisplayWidget.builder()
+        this.displayWidget = this.addChild(NotificationDisplayWidget.builder()
                 .atPos(area.pos.offset(15,10))
-                .ofWidth(area.width - 300)
+                .ofWidth(area.width - 30)
+                .withOldWidget(this.displayWidget)
                 .withRows(5)
                 .withNotifications(this::getNotifications)
                 .deletionHandler(this::deleteNotification,this::canDeleteNotification)
@@ -57,7 +61,7 @@ public class NotificationTab extends InfoClientSubTab {
         return List.of();
     }
 
-    private boolean canDeleteNotification() { return this.getPermission(BuiltInPermissions.VIEW_LOGS).hasHigherPermission(); }
+    private boolean canDeleteNotification() { return this.getPermission(LCPermissions.VIEW_LOGS).hasHigherPermission(); }
 
     private void deleteNotification(int index) {
         this.sendSettingRequest(NotificationNode.TYPE,FancyPacketMap.map()

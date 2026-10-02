@@ -55,6 +55,8 @@ public final class ScreenPosition {
 
     @Override
     public boolean equals(Object obj) {
+        if(obj == this)
+            return true;
         if(obj instanceof ScreenPosition pos)
             return pos.x == this.x && pos.y == this.y;
         return false;

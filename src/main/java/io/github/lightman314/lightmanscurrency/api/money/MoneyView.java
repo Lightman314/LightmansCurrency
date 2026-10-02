@@ -1,27 +1,34 @@
 package io.github.lightman314.lightmanscurrency.api.money;
 
 import com.google.common.collect.ImmutableMap;
+import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
-import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValueHelper;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 
 import java.util.*;
 
 /**
  * A helper class used to combine multiple Money Values into a single instance for easy viewing.<br>
  * Implements {@link MoneyResourceHandler} so that {@link MoneyDisplayHelper} utilities can be utilized,
- * however this should not be treated as such in most cases.
+ * however no insert/extract methods will function.
  */
-public class MoneyView extends MoneyResourceHandler.ViewOnly {
+public final class MoneyView extends MoneyResourceHandler.ViewOnly {
 
-    private static final MoneyView EMPTY = new MoneyView();
+    public static final Codec<MoneyView> CODEC = MoneyValue.SET_CODEC.xmap(MoneyView::new,v -> v.values);
+    public static final StreamCodec<RegistryFriendlyByteBuf,MoneyView> STREAM_CODEC = MoneyValue.SET_STREAM_CODEC.map(MoneyView::new,v -> v.values);
 
-    private final ImmutableMap<MoneyKey,MoneyValue> values;
+    public static final MoneyView EMPTY = new MoneyView();
+
+    private final ImmutableMap<DualKey,MoneyValue> values;
 
     private MoneyView() { this.values = ImmutableMap.of(); }
+    private MoneyView(Map<DualKey,MoneyValue> values) { this.values = ImmutableMap.copyOf(values); }
     private MoneyView(Builder builder) {
-        ImmutableMap.Builder<MoneyKey,MoneyValue> temp = ImmutableMap.builderWithExpectedSize(builder.values.size());
+        ImmutableMap.Builder<DualKey,MoneyValue> temp = ImmutableMap.builderWithExpectedSize(builder.values.size());
         builder.values.forEach((key,list) -> {
             MoneyValue result = MoneyValueHelper.quickSumValues(list);
             if(!result.isEmpty())
@@ -33,7 +40,9 @@ public class MoneyView extends MoneyResourceHandler.ViewOnly {
     @Override
     public List<MoneyValue> getAllResources() { return new ArrayList<>(this.values.values()); }
     @Override
-    public MoneyValue getResource(MoneyKey key) { return this.values.getOrDefault(key,MoneyValue.empty()); }
+    public MoneyValue getResource(DualKey key) { return this.values.getOrDefault(key,MoneyValue.empty()); }
+
+    public Builder makeMutable() { return builder().merge(this); }
 
     public static MoneyView wrap(Iterable<? extends MoneyResourceHandler> handlers)
     {
@@ -49,7 +58,7 @@ public class MoneyView extends MoneyResourceHandler.ViewOnly {
 
     public static final class Builder
     {
-        private final Map<MoneyKey,List<MoneyValue>> values = new HashMap<>();
+        private final Map<DualKey,List<MoneyValue>> values = new HashMap<>();
         private Builder() {}
 
         public Builder merge(MoneyResourceHandler handler) { return this.add(handler.getAllResources()); }
@@ -59,7 +68,7 @@ public class MoneyView extends MoneyResourceHandler.ViewOnly {
         {
             if(value.isEmpty() || value.isFree() || value.isInvalid())
                 return this;
-            MoneyKey key = value.getKey();
+            DualKey key = value.getKey();
             List<MoneyValue> list = this.values.getOrDefault(key,new ArrayList<>());
             list.add(value);
             this.values.put(key,list);

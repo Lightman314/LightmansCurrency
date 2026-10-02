@@ -123,7 +123,7 @@ public final class TraderData extends IRegistryAccess.WithHolder implements ISid
             for(ISyncingNode node : this.getNodes(ISyncingNode.class))
                 node.afterTrackingChange(context,oldLevel);
         }
-        LightmansCurrency.LogDebug(player.getName().getString() + " is now tracking Trader #" + this.id + " at level " + level + " (Key: " + result.key() + ")");
+        //LightmansCurrency.LogDebug(player.getName().getString() + " is now tracking Trader #" + this.id + " at level " + level + " (Key: " + result.key() + ")");
         return result.key();
     }
 
@@ -181,7 +181,7 @@ public final class TraderData extends IRegistryAccess.WithHolder implements ISid
                 FancyPacketMap.Mutable entry = FancyPacketMap.map();
                 n.traderCreatePacket(entry);
                 if(!entry.isEmpty())
-                    packet.setMap(node.getKey(),entry);
+                    packet.setMap(node.getTypeString(),entry);
             }
         }
         return packet;
@@ -202,7 +202,7 @@ public final class TraderData extends IRegistryAccess.WithHolder implements ISid
                 {
                     FancyPacketMap.Mutable entry = FancyPacketMap.map();
                     node.createSyncPacket(entry,context);
-                    builder.setMap(n.getKey(),entry);
+                    builder.setMap(n.getTypeString(),entry);
                 }
             }
         }
@@ -317,7 +317,7 @@ public final class TraderData extends IRegistryAccess.WithHolder implements ISid
         if(node != null)
         {
             this.changedNodes.add(node.getType());
-            this.trackingData.afterNodeChanged(node.getType());
+            this.trackingData.afterNodeChanged(node);
         }
         TraderDataCache.TYPE.get(ISidedContext.LOGICAL_SERVER).setTraderChanged(this);
     }
@@ -412,7 +412,7 @@ public final class TraderData extends IRegistryAccess.WithHolder implements ISid
         MemberLevel targets = INotificationSettingsSource.getNotificationMemberLevel(this);
         boolean pushToChat = INotificationSettingsSource.getPushNotificationsToChat(this);
         for(INotificationConsumerNode consumer : this.getNodes(INotificationConsumerNode.class))
-            consumer.pushNotification(notification,sendToMembers,targets,pushToChat);
+            consumer.processNotification(notification,sendToMembers,targets,pushToChat);
     }
 
     //Menus
@@ -426,7 +426,6 @@ public final class TraderData extends IRegistryAccess.WithHolder implements ISid
                 return;
             }
         }
-        LightmansCurrency.LogDebug("Attempting to open storage menu for " + player.getName().getString());
         player.openMenu(TraderStorageMenu.getProvider(this,validator,mouseUpdate));
     }
 

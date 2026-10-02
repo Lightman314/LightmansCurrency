@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner
 import io.github.lightman314.lightmanscurrency.api.ownership.interfaces.IOwnable;
 import io.github.lightman314.lightmanscurrency.api.ownership.interfaces.IOwnerHolder;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
-import io.github.lightman314.lightmanscurrency.api.trader.data.TraderState;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderType;
 import io.github.lightman314.lightmanscurrency.api.trader.data_components.CopiedTrader;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderArguments;
@@ -17,11 +16,12 @@ import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.OwnerNod
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.WorldNode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IDisplayNode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.ITraderDestructionListener;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.managers.BlockEntityTrackingManager;
+import io.github.lightman314.lightmanscurrency.api.trader.world.block.TraderBlock;
 import io.github.lightman314.lightmanscurrency.api.world.blockentity.EasyBlockEntity;
 import io.github.lightman314.lightmanscurrency.api.world.data.WorldPosition;
 import io.github.lightman314.lightmanscurrency.core.LCDataComponents;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentGetter;
@@ -58,7 +58,11 @@ public abstract class TraderBlockEntity extends EasyBlockEntity implements IOwna
     @Override
     @OverridingMethodsMustInvokeSuper
     public void startTrackingPlayer(Player player) {
-        this.tracking.requestTracking(this.getTrader(),player);
+        TraderData trader = this.getTrader();
+        if(trader == null)
+            LightmansCurrency.LogWarning("BE at " + this.worldPosition + " does not have a valid trader attached!");
+        else
+            this.tracking.requestTracking(trader,player);
     }
 
     @Override
@@ -142,11 +146,21 @@ public abstract class TraderBlockEntity extends EasyBlockEntity implements IOwna
             if(trader != null && this.validTrader(trader) && trader.hasNode(WorldNode.TYPE))
             {
                 WorldNode node = trader.getNode(WorldNode.TYPE);
-                if(node.getState().isItem())
+                if(node.getState().allowRecovery)
                 {
-                    node.setState(TraderState.NORMAL);
+                    node.setNormalState();
+                    //Update the world position when placed back down you dummmy!
+                    node.setPosition(this.getPosition());
+                    BlockState state = this.getBlockState();
+                    if(state != null && state.getBlock() instanceof TraderBlock tb) {
+                        //Inform the trader of any block state updates just in case the trader was upgraded at some point
+                        node.updateBlock(tb);
+                        tb.validateAfterLoadingStoredTrader(trader,state);
+                    }
                     this.setTraderID(traderID);
                 }
+                else
+                    LightmansCurrency.LogDebug("Trader with id " + traderID + " is not currently in a recoverable state!");
             }
         }
     }
@@ -182,7 +196,7 @@ public abstract class TraderBlockEntity extends EasyBlockEntity implements IOwna
     public final boolean canBreakTrader(Player player)
     {
         TraderData trader = this.getTrader();
-        return trader == null || trader.getPermission(player,BuiltInPermissions.BREAK_TRADER).hasLowerPermission();
+        return trader == null || trader.getPermission(player,LCPermissions.BREAK_TRADER).hasLowerPermission();
     }
 
     public final WorldPosition getPosition() { return WorldPosition.ofBE(this); }
@@ -196,6 +210,7 @@ public abstract class TraderBlockEntity extends EasyBlockEntity implements IOwna
     public final void onTraderPlacement(@Nullable Player owner, ItemStack stack)
     {
         //Remove any stored trader data if present as that should be single-use only
+        LightmansCurrency.LogDebug("onTraderPlacement called. Trader ID: " + this.traderID + " Stored Trader: " + stack.has(LCDataComponents.STORED_TRADER));
         stack.remove(LCDataComponents.STORED_TRADER);
         if(this.traderID >= 0)
             return;

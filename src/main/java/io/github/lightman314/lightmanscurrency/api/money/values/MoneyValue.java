@@ -6,6 +6,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.coins.value.CoinValue;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.impl.EmptyValue;
 import io.github.lightman314.lightmanscurrency.api.money.values.parsing.MoneyValueParser;
 import io.github.lightman314.lightmanscurrency.api.ownership.holder.OwnerHolder;
@@ -46,8 +47,8 @@ public abstract class MoneyValue implements Resource {
         }
         return DataResult.success(value);
     });
-    public static final Codec<Map<MoneyKey,MoneyValue>> SET_CODEC = NON_EMPTY_OR_FREE_CODEC.listOf().xmap(list -> {
-        Map<MoneyKey,MoneyValue> map = new HashMap<>();
+    public static final Codec<Map<DualKey,MoneyValue>> SET_CODEC = NON_EMPTY_OR_FREE_CODEC.listOf().xmap(list -> {
+        Map<DualKey,MoneyValue> map = new HashMap<>();
         for(MoneyValue v : list)
             map.put(v.getKey(),v);
         return map;
@@ -68,8 +69,8 @@ public abstract class MoneyValue implements Resource {
 
     public static final StreamCodec<RegistryFriendlyByteBuf,MoneyValue> STREAM_CODEC = ByteBufCodecs.registry(LCRegistries.Money.VALUE_TYPE_KEY).dispatch(MoneyValue::getType,MoneyValueType::streamCodec);
 
-    public static final StreamCodec<RegistryFriendlyByteBuf,Map<MoneyKey,MoneyValue>> SET_STREAM_CODEC = STREAM_CODEC.apply(ByteBufCodecs.list()).map(list -> {
-        Map<MoneyKey,MoneyValue> map = new HashMap<>();
+    public static final StreamCodec<RegistryFriendlyByteBuf,Map<DualKey,MoneyValue>> SET_STREAM_CODEC = STREAM_CODEC.apply(ByteBufCodecs.list()).map(list -> {
+        Map<DualKey,MoneyValue> map = new HashMap<>();
         for(MoneyValue v : list)
         {
             if(!v.isFree() && !v.isEmpty())
@@ -92,19 +93,19 @@ public abstract class MoneyValue implements Resource {
     public MoneyValueHelper getTypedHelper() { return MoneyValueHelper.DEFAULT; }
 
     /**
-     * Used internally to obtain and cache this money value's {@link MoneyKey}
+     * Used internally to obtain and cache this money value's {@link DualKey}
      * @see #getKey()
      */
-    protected abstract MoneyKey generateKey();
+    protected abstract DualKey generateKey();
 
-    private MoneyKey key = null;
+    private DualKey key = null;
     /**
-     * Returns a unique {@link MoneyKey} for this value type.<br>
+     * Returns a unique {@link DualKey} for this value type.<br>
      * Multiple Money Values of the same {@link #getType() type}, may have differing Keys if they use the same system, but are considered seperate value types<br>
      * For example, multiple {@link CoinValue CoinValue} values will use the same underlying system,
      * but money from different "coin chains" need to be handled independently and cannot be combined.
      */
-    public final MoneyKey getKey() {
+    public final DualKey getKey() {
         if(this.key == null)
             this.key = Objects.requireNonNull(this.generateKey(),"Failed to generate a Money Key!");
         return this.key;

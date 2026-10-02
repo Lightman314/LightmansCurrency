@@ -30,7 +30,7 @@ public abstract class InventoryMenuMixin extends AbstractCraftingMenu {
     @Inject(method = "<init>",at = @At("TAIL"))
     private void openMenu(Inventory inventory, boolean active, Player owner, CallbackInfo ci) {
         //Ignore if curios is loaded
-        if(LCCuriosHelper.get().isLoaded())
+        if(LCCuriosHelper.get().hasWalletSlot(owner))
             return;
         ScreenPosition pos = LCConfig.CLIENT.walletSlot.get().offset(1,1);
         this.lightmanscurrency$walletSlot = this.addSlot(new WalletSlot(inventory.player,pos.x,pos.y));

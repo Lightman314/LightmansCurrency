@@ -14,7 +14,6 @@ import io.github.lightman314.lightmanscurrency.api.ownership.interfaces.IOwnerHo
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.*;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.SimpleSyncedNode;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.Permission;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.BuiltInResourceTypes;
@@ -22,6 +21,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.Resour
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.StorageTabBuilder;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.builtin.MoneyStorageTab;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
@@ -61,8 +61,8 @@ public class MoneyStorageNode extends SimpleSyncedNode implements IPermissionUse
 
     @Override
     public void addDefaultAllyPermission(Consumer<Permission<?>> handler) {
-        handler.accept(BuiltInPermissions.COLLECT_MONEY);
-        handler.accept(BuiltInPermissions.STORE_MONEY);
+        handler.accept(LCPermissions.COLLECT_MONEY);
+        handler.accept(LCPermissions.STORE_MONEY);
     }
 
     @Override

@@ -24,6 +24,7 @@ public final class LCTraderNodeTypes {
         register("money_storage",MoneyStorageNode.TYPE);
         register("upgrades",UpgradeNode.TYPE);
         register("notifications",NotificationNode.TYPE);
+        register("statistics",TraderStatsNode.TYPE);
         register("trade_rules",TradeRulesNode.TYPE);
         register("settings",SettingsNode.TYPE);
         //Network Trader Nodes
@@ -33,7 +34,7 @@ public final class LCTraderNodeTypes {
         register("persistent",PersistentDataNode.TYPE);
 
         //Input Trader Nodes
-        register("capability_interaction",CapabilityInteractionNode.TYPE);
+        register("external_interactions",ExternalInteractionsNode.TYPE);
 
         //Item Traders
         register("item_storage",ItemStorageNode.TYPE);

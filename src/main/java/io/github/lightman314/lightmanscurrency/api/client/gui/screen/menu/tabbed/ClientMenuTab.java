@@ -4,12 +4,15 @@ import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.client.events.RegisterClientMenuTabEvent;
 import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.FancyGuiExtractor;
 import io.github.lightman314.lightmanscurrency.api.client.gui.screen.interfaces.IWidgetHolder;
+import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.IRegistryAccess;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.icon.IconData;
 import io.github.lightman314.lightmanscurrency.api.world.menu.tabbed.MenuTab;
 import io.github.lightman314.lightmanscurrency.api.world.menu.tabbed.TabbedMenu;
 import net.minecraft.client.gui.Font;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
@@ -22,9 +25,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class ClientMenuTab<X extends TabbedMenu<X,T>,C extends T,T extends MenuTab<X>,S extends TabbedMenuScreen<X,T,?>> implements IWidgetHolder {
+public abstract class ClientMenuTab<X extends TabbedMenu<X,T>,C extends T,T extends MenuTab<X>,S extends TabbedMenuScreen<X,T,?>> implements IWidgetHolder, IRegistryAccess {
 
     private static final Map<Identifier,Map<Identifier,TabBuilder<?,?,?,?>>> registry = new HashMap<>();
+
+    public final ScreenArea getArea() { return this.screen.getArea(); }
+    public final ScreenPosition getCorner() { return this.screen.getCorner(); }
 
     public static void initialize() {
         if(registry.isEmpty())
@@ -41,6 +47,9 @@ public abstract class ClientMenuTab<X extends TabbedMenu<X,T>,C extends T,T exte
     }
 
     public final Player getPlayer() { return this.getMenu().getPlayer(); }
+    @Override
+    public final HolderLookup.Provider registryAccess() { return this.menu.registryAccess(); }
+
     private final List<Object> children = new ArrayList<>();
     private final S screen;
     public final S getScreen() { return this.screen; }

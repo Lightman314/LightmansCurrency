@@ -16,12 +16,11 @@ public abstract class MenuValidator {
     private static final StreamCodec<RegistryFriendlyByteBuf,MenuValidator> INTERNAL_STREAM_CODEC = ByteBufCodecs.registry(LCRegistries.Misc.MENU_VALIDATOR_KEY)
             .dispatch(MenuValidator::getType,Function.identity());
     public static final StreamCodec<RegistryFriendlyByteBuf,MenuValidator> STREAM_CODEC = StreamCodec.of((buf,val) -> {
-        buf.writeBoolean(val.networkAccess);
         INTERNAL_STREAM_CODEC.encode(buf,val);
+        buf.writeBoolean(val.networkAccess);
     },buf -> {
-        boolean networkAccess = buf.readBoolean();
         MenuValidator val = INTERNAL_STREAM_CODEC.decode(buf);
-        val.networkAccess = networkAccess;
+        val.networkAccess = buf.readBoolean();
         return val;
     });
 

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.client.gui.widget.button;
 
 
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.FancyWidget;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.MouseButtonInfo;
@@ -27,6 +28,7 @@ public abstract class FancyButton extends FancyWidget {
     @Override
     @ApiStatus.Internal
     protected void extractWidgetRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
+        this.isHovered = this.isHovered && this.isInScissorArea(ScreenPosition.of(mouseX,mouseY));
         super.extractWidgetRenderState(graphics, mouseX, mouseY, a);
         if(this.isVisible())
             this.handleCursor(graphics);

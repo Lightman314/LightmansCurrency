@@ -11,7 +11,7 @@ public final class NotificationAPIImpl implements NotificationAPI {
     public static final NotificationAPIImpl INSTANCE = new NotificationAPIImpl();
 
     @Override
-    public void pushPlayerNotification(UUID playerID, Notification notification, boolean pushToChat) {
+    public void pushPlayerNotification(UUID playerID,Notification notification,boolean pushToChat) {
         //TODO re-implement player bank accounts
     }
 

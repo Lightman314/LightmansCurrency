@@ -12,9 +12,10 @@ import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedCont
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ITickerClient;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ITickerCommon;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ITickerServer;
-import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.trader.world.block.TraderBlock;
+import io.github.lightman314.lightmanscurrency.api.world.block.interfaces.IProtectedBlock;
 import io.github.lightman314.lightmanscurrency.core.LCBlockEntities;
 import io.github.lightman314.lightmanscurrency.core.LCDataComponents;
 import io.github.lightman314.lightmanscurrency.core.LCRecipeTypes;
@@ -23,6 +24,7 @@ import io.github.lightman314.lightmanscurrency.features.api_impl.data.PlayerBank
 import io.github.lightman314.lightmanscurrency.features.enchantments.CoinMagnetEnchantmentHelper;
 import io.github.lightman314.lightmanscurrency.features.enchantments.MoneyMendingEnchantmentHelper;
 import io.github.lightman314.lightmanscurrency.features.trader.item_common.ItemStorageNode;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.profiling.Profiler;
@@ -38,12 +40,15 @@ import net.neoforged.neoforge.common.tooltip.TooltipAppender;
 import net.neoforged.neoforge.common.tooltip.TooltipLocation;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.RegisterTooltipAppendersEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 @EventBusSubscriber
@@ -73,6 +78,7 @@ public final class CommonEventListeners {
         event.register(LCRegistries.Trader.TRADE_RULE_TYPE);
         event.register(LCRegistries.Trader.PERMISSION_TYPE);
         event.register(LCRegistries.Trader.PERMISSION);
+        event.register(LCRegistries.Trader.SETTINGS_ITEM_TRANSFORMER);
         event.register(LCRegistries.Notifications.NOTIFICATION_TYPE);
         event.register(LCRegistries.Notifications.NOTIFICATION_CATEGORY_TYPE);
         event.register(LCRegistries.Upgrades.UPGRADES);
@@ -80,6 +86,7 @@ public final class CommonEventListeners {
         event.register(LCRegistries.Misc.MENU_VALIDATOR);
         event.register(LCRegistries.Misc.ICON_TYPE);
         event.register(LCRegistries.Data.FANCY_DATA);
+        event.register(LCRegistries.Data.STAT_TYPE);
         event.register(LCRegistries.Network.PACKET_TYPE);
     }
 
@@ -93,7 +100,7 @@ public final class CommonEventListeners {
             filler.push("Lightman's Currency Enchantment Ticks");
             ticker = 0;
             for(ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
-                if(!player.isSpectator()) {
+                if(!player.isSpectator() && player.isAlive()) {
                     //Wallet Enchantment Ticks (Coin Magnet for now)
                     player.getExistingData(LCDataAttachments.WALLET).ifPresent(attachment -> {
                         //Tick Coin Magnet
@@ -120,7 +127,7 @@ public final class CommonEventListeners {
             bankData.flagInterestAsComplete();
             //Collect config values to optimize loop as it's very possible that there could be a lot of bank accounts to loop through
             double rate = LCConfig.SERVER.bankAccountInterestRate.get();
-            Map<MoneyKey,MoneyValue> limits = LCConfig.SERVER.bankAccountInterestLimits.get();
+            Map<DualKey,MoneyValue> limits = LCConfig.SERVER.bankAccountInterestLimits.get();
             List<String> blacklist = LCConfig.SERVER.bankAccountInterestBlacklist.get();
             boolean forceInterest = LCConfig.SERVER.bankAccountForceInterest.get();
             boolean pushNotification = LCConfig.SERVER.bankAccountInterestNotification.get();
@@ -159,10 +166,15 @@ public final class CommonEventListeners {
         beforeAll(event,LCDataComponents.COPIED_TRADER);
         beforeAll(event,LCDataComponents.STORED_TRADER);
         beforeAll(event,LCDataComponents.UPGRADE_TYPE);
+        beforeAll(event,LCDataComponents.BONUS_TOOLTIP);
     }
 
     private static <T extends TooltipProvider> void beforeAll(RegisterTooltipAppendersEvent event, Supplier<DataComponentType<T>> type) {
         event.registerComponentAppenderBeforeAll(type,TooltipAppender.createComponentAppender(type.get()));
+    }
+
+    private static <T extends TooltipProvider> void afterAll(RegisterTooltipAppendersEvent event,Supplier<DataComponentType<T>> type) {
+        event.registerComponentAppenderAfterAll(type,TooltipAppender.createComponentAppender(type.get()));
     }
 
     @SubscribeEvent
@@ -176,9 +188,29 @@ public final class CommonEventListeners {
 
     }
 
+    @SubscribeEvent
     private static void syncRelevantRecipes(OnDatapackSyncEvent event) {
         //Sync for recipe-viewer purposes
         event.sendRecipes(LCRecipeTypes.COIN_MINT.get());
+    }
+
+    @SubscribeEvent
+    private static void protectBlocks(PlayerEvent.BreakSpeed event) {
+        Optional<BlockPos> pos = event.getPosition();
+        if(pos.isPresent() && event.getState().getBlock() instanceof IProtectedBlock block) {
+            Player player = event.getEntity();
+            if(!block.canBreakBlock(player.level(),event.getState(), pos.get(),player))
+                event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    private static void protectBlocksFailsafe(BreakBlockEvent event) {
+        if(event.getState().getBlock() instanceof IProtectedBlock block) {
+            Player player = event.getPlayer();
+            if(!block.canBreakBlock(player.level(),event.getState(),event.getPos(),player))
+                event.setCanceled(true);
+        }
     }
 
 }

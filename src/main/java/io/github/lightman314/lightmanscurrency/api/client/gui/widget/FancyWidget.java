@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.client.gui.widget;
 
 import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.FancyGuiExtractor;
+import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.FancyRenderable;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.IRenderTick;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.IWidgetBuilder;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.TooltipSource;
@@ -18,15 +19,16 @@ import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
-public abstract class FancyWidget extends AbstractWidget implements IRenderTick {
+public abstract class FancyWidget extends AbstractWidget implements FancyRenderable,IRenderTick {
 
     /**
      * Used to manually trigger child widgets within a specified scroll area<br>
@@ -37,19 +39,17 @@ public abstract class FancyWidget extends AbstractWidget implements IRenderTick 
      * @param widgets
      * @param modifyVisibility Whether we should override the widgets visibility status
      */
-    public static void renderWidgetsInArea(FancyGuiExtractor gui,ScreenArea area,List<? extends FancyWidget> widgets,boolean modifyVisibility) {
-        for(FancyWidget w : widgets)
+    public static void renderWidgetsInArea(FancyGuiExtractor gui, ScreenArea area, List<? extends FancyRenderable> widgets, boolean modifyVisibility) {
+        for(FancyRenderable w : widgets)
         {
             if(area.overlaps(w.getArea()) && (modifyVisibility || w.isVisible()))
             {
-                gui.push(w.getPosition());
                 if(modifyVisibility)
-                    w.visible = true;
-                w.extractRenderState(gui,w.getArea());
-                gui.pop();
+                    w.setVisible(true);
+                w.extractRenderState(gui.getGui(),gui.getMousePos().x,gui.getMousePos().y,gui.getPartialTicks());
             }
             else if(modifyVisibility)
-                w.visible = false;
+                w.setVisible(false);
             //Trigger "already rendered" regardless of whether it's visible this frame or not
             w.alreadyRendered();
         }
@@ -67,6 +67,7 @@ public abstract class FancyWidget extends AbstractWidget implements IRenderTick 
     public final void setScissorArea(@Nullable ScreenArea area) {
         this.scissorArea = Optional.ofNullable(area);
     }
+    protected final boolean isInScissorArea(ScreenPosition mousePos) { return this.scissorArea.isEmpty() || this.scissorArea.get().isInArea(mousePos); }
 
     @Override
     public final int getX() { return this.area.x; }
@@ -100,6 +101,8 @@ public abstract class FancyWidget extends AbstractWidget implements IRenderTick 
     public final ScreenRectangle getRectangle() { return new ScreenRectangle(this.area.x,this.area.y,this.area.width,this.area.height); }
     @Override
     public final void setRectangle(int width, int height, int x, int y) { this.area = ScreenArea.of(x,y,width,height); }
+    @Override
+    public final void setVisible(boolean visible) { this.visible = visible; }
 
     private Optional<Boolean> oldVisibleState = Optional.empty();
     private boolean alreadyRendered = false;
@@ -113,6 +116,7 @@ public abstract class FancyWidget extends AbstractWidget implements IRenderTick 
     //Easy Widget data
     private final Function<FancyWidget,Boolean> activeCheck;
     private final Function<FancyWidget,Boolean> visibleCheck;
+    private final Function<FancyWidget,Integer> spriteColor;
     private final TooltipSource tooltip;
 
     protected FancyWidget(AbstractBuilder<?,?> builder)
@@ -121,9 +125,9 @@ public abstract class FancyWidget extends AbstractWidget implements IRenderTick 
         this.area = builder.area;
         this.activeCheck = builder.activeCheck;
         this.visibleCheck = builder.visibleCheck;
+        this.spriteColor = builder.spriteColor;
         this.tooltip = builder.tooltip;
     }
-
 
     @Override
     public boolean isMouseOver(double mouseX, double mouseY) {
@@ -156,6 +160,8 @@ public abstract class FancyWidget extends AbstractWidget implements IRenderTick 
      */
     protected void renderTickInternal(ScreenPosition mousePos) {}
 
+    public final int getSpriteColor() { return this.spriteColor.apply(this); }
+
     //Only non-final so that EasyButton can add the cursor handling
     @Override
     @ApiStatus.Internal
@@ -167,6 +173,7 @@ public abstract class FancyWidget extends AbstractWidget implements IRenderTick 
             return;
         }
         FancyGuiExtractor gui = new FancyGuiExtractor(graphics,mouseX,mouseY,a);
+        this.isHovered = this.isHovered && this.isInScissorArea(gui.getMousePos());
         this.extractRenderState(gui.push(this.getPosition()),this.area);
         gui.pop();
         //Try and add the tooltip
@@ -206,9 +213,12 @@ public abstract class FancyWidget extends AbstractWidget implements IRenderTick 
     {
         private ScreenArea area;
         protected final ScreenArea getArea() { return this.area; }
+        protected final int getWidth() { return this.area.width; }
+        protected final int getHeight() { return this.area.height; }
         private Component message = Component.empty();
         private Function<FancyWidget,Boolean> activeCheck = w -> w.active;
         private Function<FancyWidget,Boolean> visibleCheck = w -> w.visible;
+        private Function<FancyWidget,Integer> spriteColor = w -> w.active ? -1 : 0xFF7F7F7F;
         private TooltipSource tooltip = TooltipSource.EMPTY;
 
         protected AbstractBuilder() { this(100,20); }
@@ -231,6 +241,10 @@ public abstract class FancyWidget extends AbstractWidget implements IRenderTick 
         public final T visible(BooleanSupplier visible) { return this.visible1(w -> visible.getAsBoolean()); }
         public final T visible(UnaryOperator<Boolean> visible) { return this.visible1(w -> visible.apply(w.visible)); }
         public final T visible1(Function<FancyWidget,Boolean> visible) { this.visibleCheck = visible; return this.getSelf(); }
+
+        public final T spriteColor(Supplier<Integer> color) { return this.spriteColor(w -> color.get()); }
+        public final T spriteColor(int activeColor,int disabledColor) { return this.spriteColor(w -> w.active ? activeColor : disabledColor); }
+        public final T spriteColor(Function<FancyWidget,Integer> color) { this.spriteColor = color; return this.getSelf(); }
 
         public final T matchWith(FancyWidget parent) { return this.active(parent::isActive).visible(parent::isVisible); }
 

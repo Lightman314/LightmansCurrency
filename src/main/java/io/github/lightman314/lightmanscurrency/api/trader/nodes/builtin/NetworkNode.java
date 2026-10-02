@@ -41,7 +41,7 @@ public class NetworkNode extends SimpleSyncedNode implements INetworkController,
         if(this.alwaysShow)
             return true;
         //Check for network upgrade
-        return this.getNodeValue(UpgradeNode.TYPE,n -> n.getStorage().hasUpgrade(LCUpgrades.NETWORK));
+        return this.getNodeArgValue(UpgradeNode.TYPE,LCUpgrades.NETWORK,UpgradeNode::hasUpgrade,false);
     }
 
     @Override

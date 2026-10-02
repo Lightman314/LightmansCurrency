@@ -14,5 +14,9 @@ public final class EmptyIcon extends IconData {
 
     @Override
     public IconType<?> getType() { return TYPE; }
+    @Override
+    protected boolean equals(IconData icon) { return icon == INSTANCE; }
+    @Override
+    protected int hash() { return 0; }
 
 }

@@ -1,11 +1,11 @@
 package io.github.lightman314.lightmanscurrency.features.atm;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.bank_account.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.bank_account.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.builtin.MoneyItemStorage;
+import io.github.lightman314.lightmanscurrency.api.money.resource.builtin.UnsortedMoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.world.menu.provider.FancyMenuProvider;
 import io.github.lightman314.lightmanscurrency.api.world.menu.slots.EasyResourceSlot;
 import io.github.lightman314.lightmanscurrency.api.world.menu.tabbed.TabBuilder;
@@ -15,7 +15,7 @@ import io.github.lightman314.lightmanscurrency.api.world.menu.validation.builtin
 import io.github.lightman314.lightmanscurrency.api.world.menu.validation.builtin.SimpleValidator;
 import io.github.lightman314.lightmanscurrency.core.LCMenuTypes;
 import io.github.lightman314.lightmanscurrency.features.api_impl.data.PlayerBankDataCache;
-import io.github.lightman314.lightmanscurrency.features.atm.tabs.CoinExchangeTab;
+import io.github.lightman314.lightmanscurrency.features.atm.tabs.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -40,6 +40,11 @@ public class ATMMenu extends TabbedMenu.Validated<ATMMenu,ATMTab> {
     public ResourceHandler<ItemResource> getMoneyStorage() { return this.moneyStorage; }
     public MoneyResourceHandler getMoneyResources() { return this.moneyStorage.getMoneyResourceHandler(this.getPlayer()); }
 
+    private MoneyResourceHandler getPlayerMoney(boolean allowOverflow) { return LCApi.getMoneyAPI().getPlayersMoneyHandler(this.getPlayer(),allowOverflow); }
+
+    public MoneyResourceHandler getPlayerAndMoneyResources() { return new UnsortedMoneyResourceHandler(List.of(this.getPlayerMoney(false),this.getMoneyResources(),this.getPlayerMoney(true))); }
+    public MoneyResourceHandler getMoneyAndPlayerResources() { return new UnsortedMoneyResourceHandler(List.of(this.getMoneyResources(),this.getPlayerMoney(true))); }
+
     public ATMMenu(int containerId,Player player) { this(LCMenuTypes.ATM.get(),containerId,player,SimpleValidator.ALWAYS_TRUE); }
     protected ATMMenu(int containerId, Player player,MenuValidator validator) { this(LCMenuTypes.ATM.get(),containerId,player,validator); }
     protected ATMMenu(@Nullable MenuType<?> menuType, int containerId, Player player,MenuValidator validator) {
@@ -54,12 +59,19 @@ public class ATMMenu extends TabbedMenu.Validated<ATMMenu,ATMTab> {
         this.moneySlots = List.copyOf(temp);
     }
 
-    public BankReference getSelectedAccount() { return PlayerBankDataCache.TYPE.get(this).getSelectedAccount(this.getPlayer()); }
+    public BankReference getSelectedAccount() { return LCApi.getBankAPI().getPlayersSelectedAccount(this.getPlayer()); }
 
     @Override
     protected void collectTabs(TabBuilder<ATMMenu,ATMTab> builder) {
         builder.addTab(new CoinExchangeTab(this));
-        //TODO add more tabs
+        //Bank Account Tabs
+        builder.addTab(new AccountSelectionTab(this));
+        builder.addTab(new AccountInteractionTab(this));
+        builder.addTab(new AccountSettingsTab(this));
+        builder.addTab(new AccountLogsTab(this));
+        builder.addTab(new MoneyTransferTab(this));
+        //Salary Tabs
+        //TODO add salary tabs
     }
 
     @Override

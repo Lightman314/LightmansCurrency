@@ -18,22 +18,26 @@ public final class TraderAPIImpl implements TraderAPI {
 
     @Override
     public boolean filterTrader(TraderData trader, String searchText) {
-        return false;
+        //TODO implement filters
+        return true;
     }
 
     @Override
     public List<TraderData> filterTraders(List<TraderData> traders, String searchText) {
-        return List.of();
+        //TODO implement filters
+        return traders;
     }
 
     @Override
     public boolean filterTrade(TradeData trade, String searchText) {
-        return false;
+        //TODO implement filters
+        return true;
     }
 
     @Override
     public List<TradeData> filterTrades(List<TradeData> trades, String searchText) {
-        return List.of();
+        //TODO implement filters
+        return trades;
     }
 
     @Nullable

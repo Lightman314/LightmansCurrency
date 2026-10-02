@@ -1,0 +1,15 @@
+package io.github.lightman314.lightmanscurrency.api.trader.client.nodes.interfaces;
+
+import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.FancyGuiExtractor;
+import io.github.lightman314.lightmanscurrency.api.client.gui.screen.interfaces.IWidgetHolder;
+import io.github.lightman314.lightmanscurrency.api.client.gui.widget.positioner.IWidgetPositioner;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
+import io.github.lightman314.lightmanscurrency.api.trader.data.TraderSource;
+import io.github.lightman314.lightmanscurrency.api.trader.world.menu.customer.TraderCustomerMenu;
+
+public interface ICustomerScreenListener {
+
+    void onCustomerScreenInit(TraderSource source, IWidgetPositioner edgePositioner,IWidgetHolder screen,TraderCustomerMenu menu);
+    void onCustomerScreenRender(TraderSource source,FancyGuiExtractor gui,ScreenArea area,TraderCustomerMenu menu);
+
+}

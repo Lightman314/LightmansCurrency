@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.helpers.EnumHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.debug.DebugHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
+import io.github.lightman314.lightmanscurrency.api.text.TextEntryBundle;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Direction;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -12,7 +13,6 @@ import net.minecraft.network.codec.StreamCodec;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public class DirectionalSettings {
 
@@ -21,6 +21,10 @@ public class DirectionalSettings {
     public static final StreamCodec<ByteBuf,DirectionalSettings> STREAM_CODEC = ByteBufCodecs.map(HashMap::new,Direction.STREAM_CODEC,DirectionalSettingsState.STREAM_CODEC)
             .map(DirectionalSettings::new,s -> s.data);
 
+    public static final DirectionalSettings EMPTY = new DirectionalSettings(Map.of());
+
+    public static final TextEntryBundle<Direction> GUI_INPUT_SIDES = TextEntryBundle.of(Direction.values(),"gui.lightmanscurrency.settings.side");
+
     private IDirectionalSettingsHolder parent = IDirectionalSettingsHolder.DEFAULT;
     public DirectionalSettings withParent(IDirectionalSettingsHolder parent) {
         this.parent = parent;
@@ -28,9 +32,9 @@ public class DirectionalSettings {
         return this;
     }
 
-    private Consumer<Consumer<FancyPacketMap.Mutable>> listener = m -> {};
+    private FancyPacketMap.Listener listener = m -> {};
     public DirectionalSettings withListener(Runnable listener) { return this.withListener(m -> listener.run()); }
-    public DirectionalSettings withListener(Consumer<Consumer<FancyPacketMap.Mutable>> listener) {
+    public DirectionalSettings withListener(FancyPacketMap.Listener listener) {
         this.listener = listener;
         return this;
     }
@@ -72,12 +76,23 @@ public class DirectionalSettings {
     public DirectionalSettings() { this(new HashMap<>()); }
     private DirectionalSettings(Map<Direction,DirectionalSettingsState> data) { this.data = new HashMap<>(data); }
 
+    public void copyFrom(DirectionalSettings other) {
+        List<Direction> ignored = this.parent.getIgnoredSides();
+        for(Direction side : Direction.values()) {
+            if(!ignored.contains(side))
+                this.data.put(side,other.data.getOrDefault(side,DirectionalSettingsState.NONE));
+        }
+    }
+
     public DirectionalSettingsState getState(Direction side) { return this.data.getOrDefault(side,DirectionalSettingsState.NONE); }
-    public void setState(Direction side,DirectionalSettingsState state) {
+    public boolean setState(Direction side,DirectionalSettingsState state) {
         if(this.parent.getIgnoredSides().contains(side))
-            return;
+            return false;
+        if(this.data.get(side) == state)
+            return false;
         this.data.put(side,state);
         this.listener.accept(m -> m.setEnum(side.getSerializedName(),state));
+        return true;
     }
 
     public boolean allowInputs(Direction side) { return this.getState(side).allowsInputs(); }

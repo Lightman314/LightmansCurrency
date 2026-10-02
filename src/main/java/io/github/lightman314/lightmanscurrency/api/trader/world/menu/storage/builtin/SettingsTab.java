@@ -5,9 +5,9 @@ import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMa
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.ISettingsMessageListener;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.TraderStorageMenu;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.TraderStorageTab;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import net.minecraft.resources.Identifier;
 
 public class SettingsTab extends TraderStorageTab {
@@ -36,7 +36,7 @@ public class SettingsTab extends TraderStorageTab {
     }
 
     @Override
-    public boolean canOpen() { return this.getPermission(BuiltInPermissions.EDIT_SETTINGS); }
+    public boolean canOpen() { return this.getPermission(LCPermissions.EDIT_SETTINGS); }
 
     @Override
     public int getTabSortPriority() { return 5; }

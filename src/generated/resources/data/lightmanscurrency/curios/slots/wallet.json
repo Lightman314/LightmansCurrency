@@ -1,0 +1,8 @@
+{
+  "add_cosmetic": true,
+  "entities": [
+    "minecraft:player"
+  ],
+  "icon": "lightmanscurrency:container/slot/wallet",
+  "order": -1
+}

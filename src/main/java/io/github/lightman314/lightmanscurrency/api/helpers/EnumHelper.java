@@ -94,7 +94,7 @@ public final class EnumHelper {
         throw new JsonSyntaxException("Missing " + entry + ", expected to find a " + enumName);
     }
 
-    public static String resourceSafeName(Object value) { return value.toString().toLowerCase(Locale.ENGLISH); }
+    public static String resourceSafeName(Object value) { return value.toString().toLowerCase(Locale.ROOT); }
     public static String prettyName(Object value) {
         StringBuilder result = new StringBuilder();
         String uglyString = value.toString();
@@ -115,5 +115,17 @@ public final class EnumHelper {
         }
         return result.toString();
     }
+
+    public static Enum<?> unsafeEnumCycle(Class<? extends Enum<?>> clazz,Enum<?> currentValue,boolean positiveCycle) {
+        int ordinal = currentValue.ordinal();
+        int nextOrdinal = positiveCycle ? ordinal + 1 : ordinal - 1;
+        Enum<?>[] all = clazz.getEnumConstants();
+        for(Enum<?> e : all) {
+            if(e.ordinal() == nextOrdinal)
+                return e;
+        }
+        return positiveCycle ? all[0] : all[all.length - 1];
+    }
+
 
 }

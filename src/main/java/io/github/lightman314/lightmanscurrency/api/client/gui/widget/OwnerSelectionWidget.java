@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class OwnerSelectionWidget extends AbstractMultiWidget implements IScrollable {
+public class OwnerSelectionWidget extends AbstractMultiWidget.LateChildren implements IScrollable {
 
     private final Supplier<Owner> selectedOwner;
     private final Consumer<Owner> handler;
@@ -40,10 +40,8 @@ public class OwnerSelectionWidget extends AbstractMultiWidget implements IScroll
         if(builder.oldWidget != null) {
             this.scroll = builder.oldWidget.scroll;
             this.searchBox = builder.oldWidget.searchBox;
-            this.list = builder.oldWidget.list;
         }
-        else
-            this.list = new PotentialOwnerList(builder.player,this.selectedOwner,builder.filter);
+        this.list = new PotentialOwnerList(builder.player,this.selectedOwner,builder.filter);
     }
 
     @Override
@@ -52,15 +50,12 @@ public class OwnerSelectionWidget extends AbstractMultiWidget implements IScroll
     }
 
     @Override
-    protected void addEarlyChildren(ScreenArea area) { }
-
-    @Override
     protected void addLateChildren(ScreenArea area) {
         //Search Box
         this.searchBox = this.addChild(TextBoxWrapper.stringBuilder()
-                .atPos(area.pos.offset(this.width - 99,2))
+                .atPos(area.pos.offset(this.width - 88,2))
                 .withOldWidget(this.searchBox)
-                .ofSize(79,9)
+                .ofSize(88,9)
                 .noBorder()
                 .withHandler(this::modifySearch)
                 .visible(this::isVisible)
@@ -72,14 +67,15 @@ public class OwnerSelectionWidget extends AbstractMultiWidget implements IScroll
                 .visible(this::isVisible)
                 .build());
         this.addChild(ScrollArea.builder()
-                .ofArea(this.getArea())
+                .ofArea(area)
+                .active(this::isVisible)
                 .withListener(this.buildScrollListener())
                 .build());
 
         for(int i = 0; i < this.rows; ++i) {
             final int index = i;
             this.addChild(OwnerSelectButton.builder()
-                    .atPos(area.pos.offset(0,12 + i * OwnerSelectButton.HEIGHT))
+                    .atPos(area.pos.offset(0,12 + (i * OwnerSelectButton.HEIGHT)))
                     .ofWidth(area.width)
                     .onPress(() -> this.setOwner(index))
                     .selected(this.selectedOwner)
@@ -91,7 +87,7 @@ public class OwnerSelectionWidget extends AbstractMultiWidget implements IScroll
 
     @Override
     protected void extractRenderState(FancyGuiExtractor gui, ScreenArea area) {
-        gui.blitSprite(LCSprites.SEARCH_FIELD,this.width - 90,0,90,12);
+        gui.blitSprite(LCSprites.SEARCH_FIELD,this.width - 90,0,90);
     }
 
     private void modifySearch(String newSearch) {
@@ -115,11 +111,13 @@ public class OwnerSelectionWidget extends AbstractMultiWidget implements IScroll
     }
 
     @Override
+    public boolean isMouseOver(double mouseX, double mouseY) { return false; }
+    @Override
     public int getScroll() { return this.scroll; }
     @Override
     public void setScroll(int scroll) { this.scroll = scroll; }
     @Override
-    public int getMaxScroll() { return IScrollable.calculateMaxScroll(this.rows,this.list.getOwners().size()); }
+    public int getMaxScroll() { return IScrollable.calculateMaxScroll(this.list.getOwners().size(),this.rows); }
 
     public static Builder builder() { return new Builder(); }
 

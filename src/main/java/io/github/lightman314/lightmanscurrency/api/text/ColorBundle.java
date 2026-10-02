@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.api.text;
 
-import io.github.lightman314.lightmanscurrency.api.helpers.EnumHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.registry.types.VanillaColor;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -15,7 +14,7 @@ public class ColorBundle extends TextEntryBundle<VanillaColor> {
     public static ColorBundle of(Function<String,TextEntry> factory) {
         Map<VanillaColor,TextEntry> map = new HashMap<>();
         for(VanillaColor color : VanillaColor.values())
-            map.put(color,factory.apply(EnumHelper.resourceSafeName(color)));
+            map.put(color,factory.apply(color.getResourceSafeName()));
         return new ColorBundle(map);
     }
 

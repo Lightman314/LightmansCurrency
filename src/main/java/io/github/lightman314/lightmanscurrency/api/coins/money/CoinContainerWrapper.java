@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.coins.data.coin.CoinEntry;
 import io.github.lightman314.lightmanscurrency.api.coins.value.CoinValue;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
-import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -60,7 +60,7 @@ public class CoinContainerWrapper implements MoneyResourceHandler {
     }
 
     @Override
-    public MoneyValue getResource(MoneyKey key) {
+    public MoneyValue getResource(DualKey key) {
         if(key.isType(CoinValue.TYPE))
         {
             ChainData chain = LCApi.getCoinAPI().lookupChain(key.getKey());

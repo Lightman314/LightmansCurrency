@@ -10,20 +10,18 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class LimitedItemStorage extends ListBackedItemStorage {
 
     private final Supplier<Integer> capacity;
 
-    public LimitedItemStorage(Supplier<Integer> capacity, Runnable listener) { this(capacity,(l1,l2) -> listener.run()); }
-    public LimitedItemStorage(Supplier<Integer> capacity, Consumer<Consumer<FancyPacketMap.Mutable>> listener) { this(capacity,new PacketListener(listener)); }
-    public LimitedItemStorage(Supplier<Integer> capacity, ListChangedListener listener) {
+    public LimitedItemStorage(Supplier<Integer> capacity,Runnable listener) { this(capacity,(l1,l2) -> listener.run()); }
+    public LimitedItemStorage(Supplier<Integer> capacity,FancyPacketMap.Listener listener) { this(capacity,new PacketListener(listener)); }
+    public LimitedItemStorage(Supplier<Integer> capacity,ListChangedListener listener) {
         super(listener);
         this.capacity = capacity;
     }
-
 
     @Override
     protected Codec<List<ItemStack>> codec() { return CodecHelper.UNLIMITED_ITEM_LIST; }

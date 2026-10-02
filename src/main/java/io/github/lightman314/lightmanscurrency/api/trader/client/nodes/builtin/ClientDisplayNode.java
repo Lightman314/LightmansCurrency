@@ -11,7 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.nodes.INodeAccess;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.DisplayNode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IPermissionAccess;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 
 import java.util.function.BiConsumer;
 
@@ -26,7 +26,7 @@ public class ClientDisplayNode extends ClientTraderNode implements ISettingTabPr
         builder.addSimpleSettingLabel(SimpleSettingCategory.MISC,DisplayNode.NAME);
         builder.addSimpleSetting(SimpleSettingCategory.MISC,SimpleCheckmarkSetting.builder()
                 .withCurrentValue(trader,DisplayNode.TYPE,DisplayNode::alwaysShowSearchBox)
-                .canEdit(perms,BuiltInPermissions.EDIT_SETTINGS)
+                .canEdit(perms,LCPermissions.EDIT_SETTINGS)
                 .onPress(sender,DisplayNode.TYPE,"alwaysShowSearch")
                 .withLabel(DisplayNode.GUI_ALWAYS_SHOW_SEARCH)
                 .build());

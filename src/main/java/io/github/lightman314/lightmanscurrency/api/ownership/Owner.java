@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.api.helpers.data.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.holder.NotificationConsumer;
+import io.github.lightman314.lightmanscurrency.api.stats.interfaces.StatHolder;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -70,6 +71,8 @@ public abstract class Owner implements ISidedContext.Mutable<Owner>, Notificatio
     public abstract PlayerReference asPlayerReference();
     @Nullable
     public abstract BankReference asBankReference();
+    @Nullable
+    public abstract StatHolder getStatistics();
 
     /**
      * Whether this owner has multiple members with different {@link MemberLevel} access levels
@@ -137,6 +140,9 @@ public abstract class Owner implements ISidedContext.Mutable<Owner>, Notificatio
         @Nullable
         @Override
         public BankReference asBankReference() { return null; }
+        @Nullable
+        @Override
+        public StatHolder getStatistics() { return null; }
         @Override
         public void postNotification(Notification notification, MemberLevel targets, boolean sendToChat) { }
         @Override

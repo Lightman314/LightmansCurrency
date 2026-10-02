@@ -1,9 +1,8 @@
 package io.github.lightman314.lightmanscurrency.api.money.resource;
 
 import io.github.lightman314.lightmanscurrency.api.LCApi;
-import io.github.lightman314.lightmanscurrency.api.helpers.ListHelper;
 import io.github.lightman314.lightmanscurrency.api.money.MoneyDisplayHelper;
-import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import net.minecraft.ChatFormatting;
@@ -58,7 +57,7 @@ public interface SortableMoneyResourceHandler extends MoneyResourceHandler {
         if(contents.isEmpty())
             return;
         builder.accept(title.copy().withStyle(ChatFormatting.BLUE));
-        ListHelper.consumeAll(builder,MoneyDisplayHelper.contentsAsMultiLineText(contents));
+        MoneyDisplayHelper.contentsAsMultiLineText(contents).forEach(builder);
     }
 
     static void sortInsertFirst(List<SortableMoneyResourceHandler> list) { list.sort(Comparator.comparingInt(SortableMoneyResourceHandler::insertSortPriority)); }
@@ -92,7 +91,7 @@ public interface SortableMoneyResourceHandler extends MoneyResourceHandler {
         @Override
         public List<MoneyValue> getAllResources() { return this.handler.getAllResources(); }
         @Override
-        public MoneyValue getResource(MoneyKey key) { return this.handler.getResource(key); }
+        public MoneyValue getResource(DualKey key) { return this.handler.getResource(key); }
         @Override
         public boolean isEmpty() { return this.handler.isEmpty(); }
         @Override

@@ -46,9 +46,10 @@ public record StoredTrader(long traderID,boolean stillAccessible) implements Too
         if(level != null) {
             TraderData trader = LCApi.getTraderAPI().getTrader(level.isClientSide(),this.traderID);
             if(trader != null)
-                builder.accept(IDisplayNode.getTraderName(trader).copy().withStyle(ChatFormatting.GRAY));
+                builder.accept(IDisplayNode.getTraderName(trader));
         }
-        TooltipHelper.splitTooltips(STILL_ACCESSIBLE.get(),ChatFormatting.GRAY).forEach(builder);
+        if(this.stillAccessible)
+            TooltipHelper.splitTooltips(STILL_ACCESSIBLE.get(),ChatFormatting.GRAY).forEach(builder);
         if(flag.isAdvanced())
             builder.accept(WITH_DATA_ID.get(this.traderID).withStyle(ChatFormatting.DARK_GRAY));
     }

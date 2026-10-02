@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.FancyGuiEx
 import io.github.lightman314.lightmanscurrency.api.client.gui.screen.interfaces.IWidgetHolder;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.TextSettings;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.dropdown.DropdownOption;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
@@ -21,7 +22,7 @@ public abstract class PriceInputHandler implements IWidgetHolder {
 
     public abstract DropdownOption inputOption();
     public abstract TradePriceType<?> getPriceType();
-    public PriceKey getKey() { return PriceKey.forType(this.getPriceType()); }
+    public DualKey getKey() { return DualKey.create(this.getPriceType().getKey()); }
     public abstract boolean isForValue(TradePrice price);
 
     protected Font getFont() { return Minecraft.getInstance().font; }

@@ -2,7 +2,9 @@ package io.github.lightman314.lightmanscurrency.api.client.gui.helpers;
 
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
+import io.github.lightman314.lightmanscurrency.api.client.gui.sprites.HorizontalSizedSprite;
 import io.github.lightman314.lightmanscurrency.api.client.gui.sprites.SizedSprite;
+import io.github.lightman314.lightmanscurrency.api.client.gui.sprites.VerticalSizedSprite;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import net.minecraft.client.Minecraft;
@@ -14,6 +16,7 @@ import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.state.gui.pip.PictureInPictureRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -52,6 +55,7 @@ public final class FancyGuiExtractor {
     public Matrix3x2fStack getPose() { return this.gui.pose(); }
     private final ScreenPosition mousePos;
     public ScreenPosition getMousePos() { return this.mousePos; }
+    public ScreenPosition getRelativeMousePos() { return this.mousePos.relativeTo(this.getOffset()); }
     private final float partial;
     public float getPartialTicks() { return this.partial; }
     private final Minecraft mc = Minecraft.getInstance();
@@ -98,6 +102,12 @@ public final class FancyGuiExtractor {
     public boolean pointInScissor(int x,int y) {
         ScreenPosition p = this.getPosition(x,y);
         return this.gui.containsPointInScissor(p.x,p.y);
+    }
+
+    public void fill(int x,int y,int width,int height,int color) { this.fill(RenderPipelines.GUI,x,y,width,height,color);}
+    public void fill(RenderPipeline pipeline,int x,int y,int width,int height,int color) {
+        ScreenPosition p = this.getPosition(x,y);
+        this.gui.fill(pipeline,p.x,p.y,p.x + width,p.y + height,color);
     }
 
     //Text
@@ -188,8 +198,21 @@ public final class FancyGuiExtractor {
         ScreenPosition p = this.getPosition(x,y);
         this.gui.blit(pipeline,texture,p.x,p.y,u,v,width,height,textureWidth,textureHeight);
     }
-    public void blitButtonSprite(int x,int y,int width,int height,boolean active,boolean hoveredOrFocused) {
-        this.blitSprite(DEFAULT_BUTTON_SPRITES.get(active,hoveredOrFocused),x,y,width,height);
+    public void blitButtonSprite(int x,int y,int width,int height,boolean active,boolean hoveredOrFocused) { this.blitButtonSprite(x,y,width,height,active,hoveredOrFocused,-1); }
+    public void blitButtonSprite(int x,int y,int width,int height,boolean active,boolean hoveredOrFocused,int color) {
+        this.blitSprite(DEFAULT_BUTTON_SPRITES.get(active,hoveredOrFocused),x,y,width,height,color);
+    }
+    public void blitSprite(Identifier sprite,ScreenArea area) { this.blitSprite(RenderPipelines.GUI_TEXTURED,sprite,area); }
+    public void blitSprite(RenderPipeline pipeline,Identifier sprite,ScreenArea area) {
+        this.push(area.pos);
+        this.blitSprite(pipeline,sprite,0,0,area.width,area.height);
+        this.pop();
+    }
+    public void blitSprite(Identifier sprite,ScreenArea area,int color) { this.blitSprite(RenderPipelines.GUI_TEXTURED,sprite,area,color); }
+    public void blitSprite(RenderPipeline pipeline,Identifier sprite,ScreenArea area,int color) {
+        this.push(area.pos);
+        this.blitSprite(pipeline,sprite,0,0,area.width,area.height,color);
+        this.pop();
     }
     public void blitSprite(Identifier sprite,int x,int y,int width,int height) { this.blitSprite(RenderPipelines.GUI_TEXTURED,sprite,x,y,width,height); }
     public void blitSprite(RenderPipeline pipeline,Identifier sprite,int x,int y,int width,int height) {
@@ -241,6 +264,50 @@ public final class FancyGuiExtractor {
         ScreenPosition p = this.getPosition(x,y);
         int height = Mth.ceil(progress * (float)sprite.height());
         this.gui.blitSprite(pipeline,sprite.sprite(),sprite.width(),sprite.height(),0,0,p.x,p.y,sprite.width(),height);
+    }
+
+    //Horizontal Sprite quick-blits
+    public void blitSprite(HorizontalSizedSprite sprite, int x, int y,int width) { this.blitSprite(RenderPipelines.GUI_TEXTURED,sprite,x,y,width); }
+    public void blitSprite(RenderPipeline pipeline,HorizontalSizedSprite sprite,int x,int y,int width) {
+        this.blitSprite(pipeline,sprite.sprite(),x,y,width,sprite.height());
+    }
+    public void blitSprite(HorizontalSizedSprite sprite,int x,int y,int width,int color) { this.blitSprite(RenderPipelines.GUI_TEXTURED,sprite,x,y,width,color); }
+    public void blitSprite(RenderPipeline pipeline,HorizontalSizedSprite sprite,int x,int y,int width,int color) {
+        this.blitSprite(pipeline,sprite.sprite(),x,y,width,sprite.height(),color);
+    }
+    public void blitSprite(HorizontalSizedSprite sprite,int x,int y,int width,boolean active,boolean hovered) { this.blitSprite(RenderPipelines.GUI_TEXTURED,sprite,x,y,width,active,hovered); }
+    public void blitSprite(RenderPipeline pipeline,HorizontalSizedSprite sprite,int x,int y,int width,boolean active,boolean hovered) {
+        if(sprite instanceof HorizontalSizedSprite.WithContext c)
+            c.defineContext(active,hovered);
+        this.blitSprite(pipeline,sprite.sprite(),x,y,width,sprite.height());
+    }
+    public void blitSprite(HorizontalSizedSprite sprite,int x,int y,int width,int color,boolean active,boolean hovered) { this.blitSprite(RenderPipelines.GUI_TEXTURED,sprite,x,y,width,color,active,hovered); }
+    public void blitSprite(RenderPipeline pipeline,HorizontalSizedSprite sprite,int x,int y,int width,int color,boolean active,boolean hovered) {
+        if(sprite instanceof HorizontalSizedSprite.WithContext c)
+            c.defineContext(active,hovered);
+        this.blitSprite(pipeline,sprite.sprite(),x,y,width,sprite.height(),color);
+    }
+
+    //Vertical Sprite quick-blits
+    public void blitSprite(VerticalSizedSprite sprite, int x, int y, int height) { this.blitSprite(RenderPipelines.GUI_TEXTURED,sprite,x,y,height); }
+    public void blitSprite(RenderPipeline pipeline,VerticalSizedSprite sprite,int x,int y,int height) {
+        this.blitSprite(pipeline,sprite.sprite(),x,y,sprite.width(),height);
+    }
+    public void blitSprite(VerticalSizedSprite sprite,int x,int y,int height,int color) { this.blitSprite(RenderPipelines.GUI_TEXTURED,sprite,x,y,height,color); }
+    public void blitSprite(RenderPipeline pipeline,VerticalSizedSprite sprite,int x,int y,int height,int color) {
+        this.blitSprite(pipeline,sprite.sprite(),x,y,sprite.width(),height,color);
+    }
+    public void blitSprite(VerticalSizedSprite sprite,int x,int y,int height,boolean active,boolean hovered) { this.blitSprite(RenderPipelines.GUI_TEXTURED,sprite,x,y,height,active,hovered); }
+    public void blitSprite(RenderPipeline pipeline,VerticalSizedSprite sprite,int x,int y,int height,boolean active,boolean hovered) {
+        if(sprite instanceof VerticalSizedSprite.WithContext c)
+            c.defineContext(active,hovered);
+        this.blitSprite(pipeline,sprite.sprite(),x,y,sprite.width(),height);
+    }
+    public void blitSprite(VerticalSizedSprite sprite,int x,int y,int height,int color,boolean active,boolean hovered) { this.blitSprite(RenderPipelines.GUI_TEXTURED,sprite,x,y,height,color,active,hovered); }
+    public void blitSprite(RenderPipeline pipeline,VerticalSizedSprite sprite,int x,int y,int height,int color,boolean active,boolean hovered) {
+        if(sprite instanceof VerticalSizedSprite.WithContext c)
+            c.defineContext(active,hovered);
+        this.blitSprite(pipeline,sprite.sprite(),x,y,sprite.width(),height,color);
     }
 
     public void blitBackground(Identifier texture, ScreenArea area) {
@@ -319,6 +386,10 @@ public final class FancyGuiExtractor {
     {
         List<FormattedCharSequence> list = tooltip.stream().map(Component::getVisualOrderText).toList();
         this.gui.setTooltipForNextFrame(this.font,list, Optional.empty(),positioner,this.mousePos.x,this.mousePos.y,true,null);
+    }
+
+    public void submitPictureInPictureRenderState(PictureInPictureRenderState state) {
+        this.gui.submitPictureInPictureRenderState(state);
     }
 
 }

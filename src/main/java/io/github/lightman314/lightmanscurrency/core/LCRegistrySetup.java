@@ -57,6 +57,7 @@ public final class LCRegistrySetup {
         LCTradeRuleTypes.REGISTER.register(bus);
         LCPermissionTypes.REGISTER.register(bus);
         LCPermissions.REGISTER.register(bus);
+        LCSettingItemTransformers.REGISTER.register(bus);
         //Upgrades
         LCUpgrades.REGISTER.register(bus);
         LCNumberSources.REGISTER.register(bus);
@@ -68,6 +69,7 @@ public final class LCRegistrySetup {
         LCIconTypes.REGISTER.register(bus);
         //Data
         LCFancyDataTypes.REGISTER.register(bus);
+        LCStatTypes.REGISTER.register(bus);
         //Network
         LCFancyPacketTypes.REGISTER.register(bus);
 

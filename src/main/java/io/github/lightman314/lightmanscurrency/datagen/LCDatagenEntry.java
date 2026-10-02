@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.datagen.client.LCItemPositionProv
 import io.github.lightman314.lightmanscurrency.datagen.client.LCModelProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.LCEnchantmentProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.LCVillagerTradeProvider;
+import io.github.lightman314.lightmanscurrency.datagen.common.curios.LCCuriosDataProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.loot.LCLootTableProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.tags.*;
 import io.github.lightman314.lightmanscurrency.datagen.common.LCRecipeProvider;
@@ -15,6 +16,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
@@ -59,6 +61,10 @@ public final class LCDatagenEntry {
         event.addProvider(new LCTraderNodeTypeTagProvider(output,registryFuture));
         event.addProvider(new LCEnchantmentTagProvider(output,registryFuture));
         event.addProvider(new LCVillagerTradeTagProvider(output,registryFuture));
+
+        //Modded Data
+        if(ModList.get().isLoaded("curios"))
+            event.addProvider(new LCCuriosDataProvider(output,registryFuture));
 
     }
 

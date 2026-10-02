@@ -32,9 +32,8 @@ public class OwnerSelectButton extends FancyButton {
             this.visible = false;
             return;
         }
-        int color = this.getFGColor();
         //Render BG
-        gui.blitSprite(LCSprites.BUTTON_BROWN.get(this.active,this.isHovered),0,0,area.width,area.height);
+        gui.blitSprite(LCSprites.BUTTON_BROWN.get(this.active,this.isHovered),0,0,area.width,area.height,this.getSpriteColor());
 
         //Render Icon
         IconData icon = owner.getIcon();

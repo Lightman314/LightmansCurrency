@@ -17,8 +17,8 @@ public class PlayerOwnerProvider implements PotentialOwnerProvider {
     private PlayerOwnerProvider() {}
 
     @Override
-    public void collectPotentialOwners(Player player,Consumer<PotentialOwner> builder) {
-        for(GameProfile profile : LCProxy.get().getPlayerList(ISidedContext.wrap(player)))
+    public void collectPotentialOwners(Player player,ISidedContext context,Consumer<PotentialOwner> builder) {
+        for(GameProfile profile : LCProxy.get().getPlayerList(context))
         {
             PlayerReference pr = PlayerReference.of(profile);
             PotentialPlayerOwner ppo = new PotentialPlayerOwner(pr);

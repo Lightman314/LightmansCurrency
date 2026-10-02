@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.icon.builtin;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.lightman314.lightmanscurrency.api.helpers.ItemHelper;
 import io.github.lightman314.lightmanscurrency.api.icon.IconData;
 import io.github.lightman314.lightmanscurrency.api.icon.IconType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -12,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class ItemIcon extends IconData {
@@ -38,12 +40,15 @@ public class ItemIcon extends IconData {
     public static ItemIcon of(ItemLike item) { return of(new ItemStackTemplate(item.asItem())); }
     public static ItemIcon of(ItemStackTemplate item) { return new ItemIcon(item,Optional.empty()); }
     public static ItemIcon of(ItemStackTemplate item,String countOverride) { return new ItemIcon(item,Optional.of(countOverride)); }
-    public static ItemIcon of(ItemStack stack) { return of(revertToTemplate(stack)); }
-    public static ItemIcon of(ItemStack stack,String countOverride) { return of(revertToTemplate(stack),countOverride); }
-
-    private static ItemStackTemplate revertToTemplate(ItemStack stack) { return new ItemStackTemplate(stack.getItem(),stack.getCount(),stack.getComponentsPatch()); }
+    public static ItemIcon of(ItemStack stack) { return of(ItemHelper.asTemplate(stack)); }
+    public static ItemIcon of(ItemStack stack,String countOverride) { return of(ItemHelper.asTemplate(stack),countOverride); }
 
     @Override
     public IconType<?> getType() { return TYPE; }
+
+    @Override
+    protected boolean equals(IconData icon) { return icon instanceof ItemIcon ii && this.item.equals(ii.item) && this.countOverride.equals(ii.countOverride); }
+    @Override
+    protected int hash() { return Objects.hash(this.item,this.countOverride); }
 
 }

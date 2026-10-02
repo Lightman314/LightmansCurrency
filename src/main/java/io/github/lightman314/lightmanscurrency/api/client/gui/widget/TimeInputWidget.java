@@ -11,7 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.helpers.time.TimeUnit;
 import java.util.List;
 import java.util.function.Consumer;
 
-public final class TimeInputWidget extends AbstractMultiWidget {
+public final class TimeInputWidget extends AbstractMultiWidget.EarlyChildren {
 
     private final List<TimeUnit> relevantUnits;
     private final int spacing;
@@ -56,9 +56,6 @@ public final class TimeInputWidget extends AbstractMultiWidget {
                     .build());
         }
     }
-
-    @Override
-    protected void addLateChildren(ScreenArea area) { }
 
     public void setTime(long milliseconds) {
         this.setTime(new TimeData(milliseconds));

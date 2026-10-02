@@ -10,7 +10,6 @@ import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IPerm
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IStorageMenuTabProvider;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.ITradeResourceProvider;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.SimpleSyncedNode;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.Permission;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.BuiltInResourceTypes;
@@ -19,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.Sto
 import io.github.lightman314.lightmanscurrency.api.upgrades.CapacityUpgradeType;
 import io.github.lightman314.lightmanscurrency.api.upgrades.world.UpgradeStorage;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCUpgrades;
 import io.github.lightman314.lightmanscurrency.features.trader.item_common.LimitedItemStorage;
 import net.minecraft.world.item.ItemStack;
@@ -71,7 +71,7 @@ public class GachaStorageNode extends SimpleSyncedNode implements IPermissionUse
 
     @Override
     public void addDefaultAllyPermission(Consumer<Permission<?>> handler) {
-        handler.accept(BuiltInPermissions.OPEN_STORAGE);
+        handler.accept(LCPermissions.OPEN_STORAGE);
     }
 
     @Override

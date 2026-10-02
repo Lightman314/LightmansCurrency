@@ -5,33 +5,44 @@ import com.mojang.datafixers.util.Function3;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderArguments;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.UpgradeNode;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IDisplayNode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IFlexibleTradingNode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IUpgradeListener;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IUpgradeUser;
+import io.github.lightman314.lightmanscurrency.api.trader.settings_storage.SettingsDisplayOutput;
+import io.github.lightman314.lightmanscurrency.api.trader.settings_storage.SettingsLoadContext;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeData;
 import io.github.lightman314.lightmanscurrency.api.upgrades.CapacityUpgradeType;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeReference;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.api.upgrades.world.UpgradeStorage;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCUpgrades;
 import io.github.lightman314.lightmanscurrency.features.trader.item.trade.ItemTradeData;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
-public abstract class UpgradeableTradingNode<T extends TradeData> extends TradingNode<T> implements IUpgradeUser, IUpgradeListener, IFlexibleTradingNode {
+public abstract class UpgradeableTradingNode<T extends TradeData> extends TradingNode<T> implements IUpgradeUser, IUpgradeListener, IFlexibleTradingNode, IDisplayNode {
 
     protected int baseCount = 1;
+    public final int getBaseCount() { return this.baseCount; }
+    public void safeUpdateBaseCount(int expectedCount) { if(this.baseCount < expectedCount) this.overrideBaseCount(expectedCount); }
+    public void overrideBaseCount(int newCount) { this.baseCount = Math.max(1,newCount); this.refactorTrades(); }
+    public void upgradeBaseCount(int amount) { if(amount > 0) this.overrideBaseCount(this.baseCount + amount); }
     protected int upgradeCount = 0;
     private final List<T> trades = new ArrayList<>();
 
@@ -81,7 +92,7 @@ public abstract class UpgradeableTradingNode<T extends TradeData> extends Tradin
             return;
         //Validate the total trade count
         int totalCount = Math.clamp(this.baseCount + this.upgradeCount,1,TraderData.GLOBAL_TRADE_LIMIT);
-        LightmansCurrency.LogDebug("Refacting trade count. Old total: " + this.trades.size() + " New total: " + totalCount);
+        //LightmansCurrency.LogDebug("Refactoring trade count. Old total: " + this.trades.size() + " New total: " + totalCount);
         this.forceTradeCount(totalCount);
     }
 
@@ -182,6 +193,49 @@ public abstract class UpgradeableTradingNode<T extends TradeData> extends Tradin
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void appendTerminalText(@Nullable Player player, Consumer<Component> builder) { this.appendTerminalTradeStatus(builder); }
+
+    @Override
+    public Optional<Integer> getNameColor() { return this.getTerminalTradeColor(); }
+
+    @Override
+    public void encodeSettings(ValueOutput output) {
+        output.putInt("trade_count",this.baseCount);
+        output.putInt("upgrade_count",this.upgradeCount);
+    }
+
+    @Override
+    public void decodeSettings(ValueInput data, SettingsLoadContext context) {
+        boolean countChanged = false;
+        if(context.getPermission(LCPermissions.EDIT_TRADES)) {
+            int newUpgradeCount = data.getIntOr("upgrade_count",0);
+            if(this.upgradeCount < newUpgradeCount) {
+                int addAmount = Math.min(newUpgradeCount - this.upgradeCount,this.getUnusedOfferUpgrades());
+                if(addAmount > 0) {
+                    this.upgradeCount += addAmount;
+                    countChanged = true;
+                }
+            }
+        }
+        if(context.isAdminPlayer()) {
+            int newBaseCount = data.getIntOr("trade_count",0);
+            if(newBaseCount > this.baseCount) {
+                this.baseCount = newBaseCount;
+                countChanged = true;
+            }
+        }
+        if(countChanged)
+            this.refactorTrades();
+    }
+
+    @Override
+    public void appendDisplay(ValueInput data, SettingsDisplayOutput output) {
+        output.acceptTitle(this.getSettingsName());
+        int totalCount = data.getIntOr("trade_count",0) + data.getIntOr("upgrade_count",0);
+        output.acceptEntry(VALUE_TRADE_COUNT,totalCount);
     }
 
 }

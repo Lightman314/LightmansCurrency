@@ -19,10 +19,13 @@ import io.github.lightman314.lightmanscurrency.features.wallet.menu.AbstractWall
 import io.github.lightman314.lightmanscurrency.features.wallet.menu.WalletMenu;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Items;
 
 public class WalletScreen extends FancyMenuScreen<WalletMenu> {
+
+    public static final Identifier BACKGROUND = LCApi.id("container/wallet/background");
 
     public static final IconData EXCHANGE_ICON = SpriteIcon.of(LCApi.id("icon/wallet_exchange"));
     public static final IconData AUTO_EXCHANGE_ICON_ON = SpriteIcon.of(LCApi.id("icon/wallet_auto_exchange"));
@@ -94,7 +97,7 @@ public class WalletScreen extends FancyMenuScreen<WalletMenu> {
 
     @Override
     protected void extractBackground(FancyGuiExtractor gui, ScreenArea area) {
-        gui.blitSprite(LCSprites.GENERIC_BACKGROUND,0,0,area.width,area.height);
+        gui.blitSprite(BACKGROUND,area);
         //Slots
         gui.blitSlots(this.menu.slots);
     }

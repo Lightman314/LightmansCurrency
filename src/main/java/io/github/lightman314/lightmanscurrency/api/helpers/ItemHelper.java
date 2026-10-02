@@ -108,7 +108,7 @@ public final class ItemHelper {
     {
         ItemStack s = stack.copy();
         List<ItemStack> list = new ArrayList<>();
-        while(stack.getCount() > s.getMaxStackSize())
+        while(s.getCount() > s.getMaxStackSize())
             list.add(s.split(s.getMaxStackSize()));
         if(!s.isEmpty())
             list.add(s);
@@ -181,5 +181,7 @@ public final class ItemHelper {
             hashes.add(ItemStack.hashItemAndComponents(s));
         return hashes.hashCode();
     }
+
+    public static ItemStackTemplate asTemplate(ItemStack stack) { return new ItemStackTemplate(stack.getItem(),stack.getCount(),stack.getComponentsPatch()); }
 
 }

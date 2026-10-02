@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "lightmanscurrency:block/single_shelf/bamboo",
+      "y": 270
+    },
+    "facing=north": {
+      "model": "lightmanscurrency:block/single_shelf/bamboo",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "lightmanscurrency:block/single_shelf/bamboo"
+    },
+    "facing=west": {
+      "model": "lightmanscurrency:block/single_shelf/bamboo",
+      "y": 90
+    }
+  }
+}

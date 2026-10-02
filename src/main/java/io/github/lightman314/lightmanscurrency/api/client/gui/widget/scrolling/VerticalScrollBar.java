@@ -3,8 +3,8 @@ package io.github.lightman314.lightmanscurrency.api.client.gui.widget.scrolling;
 import com.google.common.primitives.Ints;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.FancyGuiExtractor;
-import io.github.lightman314.lightmanscurrency.api.client.gui.sprites.SimpleSizedSprite;
 import io.github.lightman314.lightmanscurrency.api.client.gui.sprites.SizedSprite;
+import io.github.lightman314.lightmanscurrency.api.client.gui.sprites.VerticalSizedSprite;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.FancyWidget;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.IMouseListener;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
@@ -15,12 +15,12 @@ import net.minecraft.resources.Identifier;
 
 public class VerticalScrollBar extends FancyWidget implements IMouseListener {
 
-    public static final Identifier DEFAULT_BACKGROUND = LCApi.id("widget/scrollbar_vert_background");
-    public static final SizedSprite DEFAULT_KNOB = new SimpleSizedSprite(LCApi.id("widget/scrollbar_vert_knob"),8,29);
-    public static final SizedSprite SMALL_KNOB = new SimpleSizedSprite(LCApi.id("widget/scrollbar_vert_smallknob"),8,9);
+    public static final VerticalSizedSprite DEFAULT_BACKGROUND = new VerticalSizedSprite.Simple(LCApi.id("widget/scrollbar_vert_background"),8);
+    public static final SizedSprite DEFAULT_KNOB = new SizedSprite.Simple(LCApi.id("widget/scrollbar_vert_knob"),8,29);
+    public static final SizedSprite SMALL_KNOB = new SizedSprite.Simple(LCApi.id("widget/scrollbar_vert_smallknob"),8,9);
 
     private final IScrollable scrollable;
-    private final Identifier backgroundSprite;
+    private final VerticalSizedSprite backgroundSprite;
     private final SizedSprite knobSprite;
     private final boolean alwaysShow;
 
@@ -50,7 +50,7 @@ public class VerticalScrollBar extends FancyWidget implements IMouseListener {
             return;
         }
         //Render the background
-        gui.blitSprite(this.backgroundSprite,0,0,this.width,this.height);
+        gui.blitSprite(this.backgroundSprite,0,0,this.height);
         //Render the kob
         if(showKnob)
         {
@@ -144,16 +144,17 @@ public class VerticalScrollBar extends FancyWidget implements IMouseListener {
 
         private Builder(IScrollable scrollable) { super(8,100); this.scrollable = scrollable; }
 
-        private Identifier backgroundSprite = DEFAULT_BACKGROUND;
+        private VerticalSizedSprite backgroundSprite = DEFAULT_BACKGROUND;
         private SizedSprite knobSprite = DEFAULT_KNOB;
         private boolean alwaysShow = false;
         private final IScrollable scrollable;
 
-        public Builder leftOf(LayoutElement element) { return this.atPos(element.getX() - this.getArea().width,element.getY()).ofHeight(element.getHeight()); }
+        public Builder leftOf(LayoutElement element) { return this.atPos(element.getX() - this.getWidth(),element.getY()).ofHeight(element.getHeight()); }
         public Builder rightOf(LayoutElement element) { return this.atPos(element.getX() + element.getWidth(),element.getY()).ofHeight(element.getHeight()); }
         public Builder ofHeight(int height) { this.setHeight(height); return this; }
 
-        public Builder withBackground(Identifier backgroundSprite) { this.backgroundSprite = backgroundSprite; return this; }
+        public Builder withBackground(Identifier background) { return this.withBackground(new VerticalSizedSprite.Simple(background,this.getWidth())); }
+        public Builder withBackground(VerticalSizedSprite backgroundSprite) { this.backgroundSprite = backgroundSprite; this.setWidth(this.backgroundSprite.width()); return this; }
         public Builder withKnob(SizedSprite sprite) { this.knobSprite = sprite; this.setWidth(sprite.width()); return this; }
 
         public Builder alwaysShow() { this.alwaysShow = true; return this; }

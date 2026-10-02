@@ -3,11 +3,13 @@ package io.github.lightman314.lightmanscurrency.api.ownership.builtin;
 import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.bank_account.reference.BankReference;
+import io.github.lightman314.lightmanscurrency.api.bank_account.reference.builtin.PlayerBankReference;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.ownership.MemberLevel;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.OwnerType;
+import io.github.lightman314.lightmanscurrency.api.stats.interfaces.StatHolder;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -64,9 +66,11 @@ public class PlayerOwner extends Owner {
 
     @Nullable
     @Override
-    public BankReference asBankReference() { return null;
-        //return PlayerBankReference.of(this.player).flagAsClient(this); //TODO re-implement player bank accounts
-    }
+    public BankReference asBankReference() { return PlayerBankReference.of(this.player).setSidedContext(this); }
+
+    @Nullable
+    @Override
+    public StatHolder getStatistics() { return LCApi.getPlayerStatsAPI().getPlayerStats(this.player,this); }
 
     @Override
     public void postNotification(Notification notification, MemberLevel targets, boolean sendToChat) { LCApi.getNotificationAPI().pushPlayerNotification(this.player.id,notification,sendToChat); }

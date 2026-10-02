@@ -11,7 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.coins.CoinAPI;
 import io.github.lightman314.lightmanscurrency.api.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.coins.data.coin.CoinEntry;
 import io.github.lightman314.lightmanscurrency.api.money.values.ItemBasedValue;
-import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValueType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -64,7 +64,7 @@ public class CoinValue extends ItemBasedValue {
     @Override
     public MoneyValueType<?> getType() { return TYPE; }
     @Override
-    protected MoneyKey generateKey() { return MoneyKey.create(TYPE,this.chain); }
+    protected DualKey generateKey() { return DualKey.create(TYPE,this.chain); }
     @Override
     protected MoneyValue copyWithInternalValue(long value) { return fromNumber(this.chain,value); }
 

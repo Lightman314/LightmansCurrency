@@ -36,7 +36,10 @@ public final class LCCuriosHelperImpl extends LCCuriosHelper {
         ICurioStacksHandler handler = getWalletHandler(entity);
         if(handler == null)
             return ItemStack.EMPTY;
-        return handler.getCosmeticStacks().getStackInSlot(0);
+        ItemStack wallet = handler.getCosmeticStacks().getStackInSlot(0);
+        if(wallet.isEmpty())
+            wallet = handler.getStacks().getStackInSlot(0);
+        return wallet;
     }
 
     @Override

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "trader_single_shelf",
+  "key": {
+    "s": "minecraft:pale_oak_slab",
+    "x": "lightmanscurrency:trading_core"
+  },
+  "pattern": [
+    "x",
+    "s"
+  ],
+  "result": {
+    "id": "lightmanscurrency:single_shelf_pale_oak"
+  }
+}

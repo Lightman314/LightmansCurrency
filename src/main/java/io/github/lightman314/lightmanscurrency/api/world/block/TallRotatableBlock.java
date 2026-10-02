@@ -27,9 +27,9 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock {
 
     private final BiFunction<Direction,Boolean,VoxelShape> shape;
 
-    public TallRotatableBlock(Properties properties) { this(properties,EasyShapes.TALL_BOX); }
-    public TallRotatableBlock(Properties properties, VoxelShape shape) { this(properties,EasyShapes.tallSingleShape(shape)); }
-    public TallRotatableBlock(Properties properties, BiFunction<Direction,Boolean,VoxelShape> shape) {
+    public TallRotatableBlock(Properties properties) { this(properties, ShapeHelper.TALL_BOX); }
+    public TallRotatableBlock(Properties properties,VoxelShape shape) { this(properties, ShapeHelper.tallSingleShape(shape)); }
+    public TallRotatableBlock(Properties properties,BiFunction<Direction,Boolean,VoxelShape> shape) {
         super(properties.pushReaction(PushReaction.BLOCK));
         this.shape = shape;
     }
@@ -50,7 +50,7 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock {
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity by, ItemStack itemStack) {
         if(this.isReplaceable(level,pos.above()))
-            level.setBlockAndUpdate(pos.above(),this.defaultBlockState().setValue(ISBOTTOM,false).setValue(FACING,state.getValue(FACING)));
+            level.setBlockAndUpdate(pos.above(),state.setValue(ISBOTTOM,false).setValue(FACING,this.getFacing(state)));
         else
         {
             //Failed placing the top block. Abort placement

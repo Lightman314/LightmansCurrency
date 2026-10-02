@@ -1,7 +1,10 @@
 package io.github.lightman314.lightmanscurrency.api.trader.data;
 
+import io.github.lightman314.lightmanscurrency.api.LCApi;
+import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -36,6 +39,10 @@ public interface TraderSource {
             BlockEntity be = level.getBlockEntity(pos);
             return source.apply(be);
         });
+    }
+    static TraderSource direct(Player player,long traderID) { return direct(ISidedContext.wrap(player),traderID); }
+    static TraderSource direct(ISidedContext context,long traderID) {
+        return deferred(() -> LCApi.getTraderAPI().getTrader(context,traderID));
     }
 
     static TraderSource deferred(Supplier<TraderSource> supplier) { return new Wrapper(supplier); }
@@ -91,6 +98,12 @@ public interface TraderSource {
         public TraderData getSimpleTrader() { return null; }
         @Override
         public List<TraderData> getTraders() { return List.of(); }
+    }
+
+    record AllNetworkTraders(ISidedContext context) implements Multi {
+        public AllNetworkTraders(Player player) { this(ISidedContext.wrap(player)); }
+        @Override
+        public List<TraderData> getTraders() { return LCApi.getTraderAPI().getAllNetworkTraders(this.context); }
     }
 
 }

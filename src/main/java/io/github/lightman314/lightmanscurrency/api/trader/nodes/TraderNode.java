@@ -40,8 +40,8 @@ public abstract class TraderNode implements TypedInstance<TraderNodeType<?>>,ISi
     public final void setChanged() { this.trader.setChanged(this); }
     public final void setChangedNoPacket() { this.trader.setChangedNoPacket(); }
 
-    public final String getKey() { return LCRegistries.Trader.TRADER_NODE_TYPE.getKey(this.getType()).toString(); }
     public abstract TraderNodeType<?> getType();
+    public final String getTypeString() { return this.getType().getKey().toString(); }
 
     /**
      * Called during the TraderData constructor to give the node access to its trader for future methods<br>

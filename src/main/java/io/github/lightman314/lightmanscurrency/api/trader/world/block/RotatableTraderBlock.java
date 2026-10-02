@@ -1,6 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.trader.world.block;
 
-import io.github.lightman314.lightmanscurrency.api.world.block.EasyShapes;
+import io.github.lightman314.lightmanscurrency.api.world.block.ShapeHelper;
 import io.github.lightman314.lightmanscurrency.api.world.block.interfaces.IRotatableBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,8 +21,8 @@ public abstract class RotatableTraderBlock extends TraderBlock implements IRotat
 
     private final Function<Direction, VoxelShape> shape;
 
-    public RotatableTraderBlock(Properties properties) { this(properties,EasyShapes.BOX); }
-    public RotatableTraderBlock(Properties properties,VoxelShape shape) { this(properties,EasyShapes.singleShape(shape)); }
+    public RotatableTraderBlock(Properties properties) { this(properties, ShapeHelper.BOX); }
+    public RotatableTraderBlock(Properties properties,VoxelShape shape) { this(properties, ShapeHelper.singleShape(shape)); }
     public RotatableTraderBlock(Properties properties,Function<Direction,VoxelShape> shape) {
         super(properties);
         this.shape = shape;

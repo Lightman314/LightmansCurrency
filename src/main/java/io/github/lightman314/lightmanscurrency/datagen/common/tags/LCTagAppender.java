@@ -126,6 +126,34 @@ public interface LCTagAppender<E,T> extends TagAppender<E,T> {
         return this;
     }
 
+    default <K> LCTagAppender<E,T> addBundlePart1(DeferredHolderBundle2<K,?,? extends E,? extends E> bundle,K key) { return this.addBundlePart1(bundle,key,Function.identity()); }
+    default <X,K> LCTagAppender<E,T> addBundlePart1(DeferredHolderBundle2<K,?,? extends X,? extends X> bundle,K key,Function<X,E> mapper) {
+        bundle.forEach((k1,k2,value) -> {
+            E element = mapper.apply(value);
+            if(k1.equals(key)) {
+                if(IOptionalKey.isModdedKey(k1) || IOptionalKey.isModdedKey(k2))
+                    this.addOptional(element);
+                else
+                    this.add(element);
+            }
+        });
+        return this;
+    }
+
+    default <K> LCTagAppender<E,T> addBundlePart2(DeferredHolderBundle2<?,K,? extends E,? extends E> bundle,K key) { return this.addBundlePart2(bundle,key,Function.identity()); }
+    default <X,K> LCTagAppender<E,T> addBundlePart2(DeferredHolderBundle2<?,K,? extends X,? extends X> bundle,K key,Function<X,E> mapper) {
+        bundle.forEach((k1,k2,value) -> {
+            E element = mapper.apply(value);
+            if(k2.equals(key)) {
+                if(IOptionalKey.isModdedKey(k1) || IOptionalKey.isModdedKey(k2))
+                    this.addOptional(element);
+                else
+                    this.add(element);
+            }
+        });
+        return this;
+    }
+
     record Wrapper<E,T>(TagAppender<E,T> appender) implements LCTagAppender<E,T> {
 
         @Override

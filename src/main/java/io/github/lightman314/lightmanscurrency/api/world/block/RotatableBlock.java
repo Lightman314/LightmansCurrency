@@ -20,8 +20,8 @@ public class RotatableBlock extends EasyBlock implements IRotatableBlock {
 
     private final Function<Direction,VoxelShape> shape;
 
-    public RotatableBlock(Properties properties) { this(properties,EasyShapes.BOX); }
-    public RotatableBlock(Properties properties,VoxelShape shape) { this(properties,EasyShapes.singleShape(shape)); }
+    public RotatableBlock(Properties properties) { this(properties, ShapeHelper.BOX); }
+    public RotatableBlock(Properties properties,VoxelShape shape) { this(properties, ShapeHelper.singleShape(shape)); }
     public RotatableBlock(Properties properties,Function<Direction,VoxelShape> shape) {
         super(properties);
         this.shape = shape;

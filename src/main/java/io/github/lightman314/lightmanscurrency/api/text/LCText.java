@@ -51,6 +51,26 @@ public final class LCText {
 
     }
 
+    public static final class Config {
+        private Config() {}
+
+
+        public static final TextEntry CONFIG_TITLE_FILES = TextEntry.gui(MODID,"config.title.files");
+        public static final TextEntry CONFIG_TITLE_SEPERATOR = TextEntry.gui(MODID,"config.title.seperator");
+        public static final TextEntry CONFIG_LABEL_FILE = TextEntry.tooltip(MODID,"config.label.file");
+        public static final TextEntry CONFIG_OPTION_COUNT = TextEntry.tooltip(MODID,"config.option_count");
+        public static final TextEntry CONFIG_UNDO = TextEntry.button(MODID,"config.undo");
+        public static final TextEntry CONFIG_UNDO_ALL = TextEntry.button(MODID,"config.undo_all");
+        public static final TextEntry CONFIG_RESET_DEFAULT = TextEntry.button(MODID,"config.reset_to_default");
+        public static final TextEntry CONFIG_OPTION_LIST_COUNT = TextEntry.button(MODID,"config.option.list_count");
+        public static final TextEntry CONFIG_OPTION_LIST_ENTRY = TextEntry.gui(MODID,"config.option.list_entry");
+        public static final TextEntry CONFIG_OPTION_LIST_ADD = TextEntry.button(MODID,"config.option.list_add");
+        public static final TextEntry CONFIG_OPTION_LIST_REMOVE = TextEntry.tooltip(MODID,"config.option.list_remove");
+        public static final TextEntry CONFIG_OPTION_EDIT_TOOLTIP = TextEntry.tooltip(MODID,"config.option.edit");
+        public static final TextEntry CONFIG_OPTION_NOT_SUPPORTED = TextEntry.button(MODID,"config.option.not_supported");
+
+    }
+
     @Deprecated(forRemoval = true)
     public static final class Ownership {
         private Ownership() {}

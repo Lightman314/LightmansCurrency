@@ -5,14 +5,13 @@ import io.github.lightman314.lightmanscurrency.api.helpers.time.TimeHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.trader.event.TradeEvent;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.ISyncingNode;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
 import net.minecraft.core.UUIDUtil;
 
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
+
 
 public final class InteractionMemory implements ISidedContext.Mutable<InteractionMemory> {
 
@@ -27,9 +26,9 @@ public final class InteractionMemory implements ISidedContext.Mutable<Interactio
 
     private final Map<UUID,List<Long>> memory = new HashMap<>();
     private Map<UUID,List<Long>> getMemory() { return this.memory; }
-    private BiConsumer<Consumer<FancyPacketMap.Mutable>,Predicate<ISyncingContext>> listener = (w,p) -> {};
+    private ISyncingNode.SyncingListener listener = (w, p) -> {};
 
-    public InteractionMemory withListener(BiConsumer<Consumer<FancyPacketMap.Mutable>,Predicate<ISyncingContext>> listener) { this.listener = listener; return this; }
+    public InteractionMemory withListener(ISyncingNode.SyncingListener listener) { this.listener = listener; return this; }
 
     public boolean isEmpty() { return this.memory.isEmpty(); }
 

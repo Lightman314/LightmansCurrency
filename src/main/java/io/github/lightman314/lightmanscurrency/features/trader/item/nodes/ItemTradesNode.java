@@ -13,7 +13,7 @@ public class ItemTradesNode extends AbstractItemTradesNode<ItemTradeData> {
 
     public static final TraderNodeType<ItemTradesNode> TYPE = TraderNodeType.simple(ItemTradesNode::new,MAP_CODEC);
 
-    public static final TextEntry SECTION_TITLE = sectionName(TYPE);
+    public static final TextEntry NAME = TextEntry.traderNode(TYPE);
 
     protected ItemTradesNode() {}
     protected ItemTradesNode(int count,int upgradeCount,List<ItemTradeData> trades) { super(count,upgradeCount,trades); }

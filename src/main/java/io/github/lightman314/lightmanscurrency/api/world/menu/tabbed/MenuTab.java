@@ -1,7 +1,9 @@
 package io.github.lightman314.lightmanscurrency.api.world.menu.tabbed;
 
+import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.IRegistryAccess;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -10,11 +12,14 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public abstract class MenuTab<T extends TabbedMenu<?,?>> implements ISidedContext {
+public abstract class MenuTab<T extends TabbedMenu<?,?>> implements ISidedContext, IRegistryAccess {
 
     private final T menu;
     public final T getMenu() { return this.menu; }
     public final Player getPlayer() { return this.menu.getPlayer(); }
+
+    @Override
+    public final HolderLookup.Provider registryAccess() { return this.menu.registryAccess(); }
 
     @Override
     public final boolean isClient() { return this.menu.isClient(); }
@@ -34,7 +39,7 @@ public abstract class MenuTab<T extends TabbedMenu<?,?>> implements ISidedContex
     public Optional<ItemStack> quickMoveStack(Player player, int slotIndex) { return Optional.empty(); }
 
     public final void send(FancyPacketMap message) { this.menu.send(message); }
-    public final void sendToCient(FancyPacketMap message) { this.menu.sendToClient(message); }
+    public final void sendToClient(FancyPacketMap message) { this.menu.sendToClient(message); }
     public final void sendToServer(FancyPacketMap message) { this.menu.sendToServer(message); }
     public final void sendToSelf(FancyPacketMap message) { this.menu.sendToSelf(message); }
     public void handleMessage(FancyPacketMap message) {}

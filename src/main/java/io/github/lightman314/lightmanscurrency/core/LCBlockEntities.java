@@ -19,7 +19,7 @@ public final class LCBlockEntities {
 
     public static final DeferredRegister<BlockEntityType<?>> REGISTER = DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE,LCApi.MODID);
 
-    public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<ItemTraderBlockEntity>> ITEM_TRADER = register("item_trader",ItemTraderBlockEntity::new,merge(LCBlocks.DISPLAY_CASE.getFutureSet(),LCBlocks.CARD_DISPLAY.getFutureSet()));
+    public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<ItemTraderBlockEntity>> ITEM_TRADER = register("item_trader",ItemTraderBlockEntity::new,merge(LCBlocks.DISPLAY_CASE.getFutureSet(),LCBlocks.SINGLE_SHELF.getFutureSet(),LCBlocks.DOUBLE_SHELF.getFutureSet(),LCBlocks.CARD_DISPLAY.getFutureSet(),LCBlocks.VENDING_MACHINE.getFutureSet(),LCBlocks.LARGE_VENDING_MACHINE.getFutureSet()));
 
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<CoinMintBlockEntity>> COIN_MINT = register("coin_mint",CoinMintBlockEntity::new,easySet(LCBlocks.COIN_MINT));
 

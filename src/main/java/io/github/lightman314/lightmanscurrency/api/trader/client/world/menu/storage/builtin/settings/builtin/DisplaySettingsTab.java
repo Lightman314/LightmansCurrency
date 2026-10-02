@@ -9,14 +9,17 @@ import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.text.TextBoxWrapper;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
+import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.icon.IconData;
 import io.github.lightman314.lightmanscurrency.api.icon.builtin.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.icon.client.IconRenderer;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.settings.SettingsClientTab;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.settings.SettingsSubTab;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.DisplayNode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.WorldNode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.INetworkController;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
+import io.github.lightman314.lightmanscurrency.api.trader.world.block_entity.TraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
@@ -46,7 +49,7 @@ public class DisplaySettingsTab extends SettingsSubTab.ForNode<DisplayNode> impl
         if(node == null)
             return;
 
-        this.iconArea = ScreenArea.of(area.halfWidth() - 8,96,16,16);
+        this.iconArea = ScreenArea.of(area.pos.offset(area.halfWidth() - 9,95),18,18);
 
         this.nameInput = this.addChild(TextBoxWrapper.stringBuilder()
                 .atPos(area.pos.offset(20,25))
@@ -75,7 +78,7 @@ public class DisplaySettingsTab extends SettingsSubTab.ForNode<DisplayNode> impl
                 .build());
 
         //Add Ghost Slot for the trader icons
-        this.addChild(GhostSlot.simpleItem(area.pos.offset(this.iconArea.pos),this::changeIcon).asProvider(this::iconEditable));
+        this.addChild(GhostSlot.simpleItem(this.iconArea.pos,this::changeIcon).asProvider(this::iconEditable));
 
         //Add "Destroy Trader" button
         this.addChild(TextButton.builder()
@@ -86,16 +89,28 @@ public class DisplaySettingsTab extends SettingsSubTab.ForNode<DisplayNode> impl
                         .withAutoWrap(ChatFormatting.RED,ChatFormatting.BOLD))
                 .visible(this::isBlockLoaded)
                 .active(this::canDestroyTrader)
-                .onPress(this::destroyTrader).build());
+                .onPress(this::destroyTrader)
+                .build());
 
     }
 
     @Override
     public void extractBackground(FancyGuiExtractor gui, ScreenArea area) {
-
+        if(this.iconViewable()) {
+            ScreenPosition iconPos = this.iconArea.pos.relativeTo(this.getCorner());
+            gui.blitSlot(iconPos);
+            boolean hovered = this.iconArea.isInArea(gui.getMousePos());
+            if(hovered)
+                gui.blitSlotHighlightBack(this.iconArea.pos);
+            IconData icon = this.getNodeValue(DisplayNode.TYPE,DisplayNode::getCustomIcon);
+            if(icon != null)
+                IconRenderer.extractState(gui,icon,iconPos.offset(1,1));
+            if(hovered)
+                gui.blitSlotHighlightFront(this.iconArea.pos);
+        }
     }
 
-    private boolean hasDisplayPermission() { return this.getPermission(BuiltInPermissions.EDIT_DISPLAY); }
+    private boolean hasDisplayPermission() { return this.getPermission(LCPermissions.EDIT_DISPLAY); }
     private boolean canSetName() {
         DisplayNode node = this.getNode();
         if(node == null || this.nameInput == null)
@@ -109,9 +124,8 @@ public class DisplaySettingsTab extends SettingsSubTab.ForNode<DisplayNode> impl
         if(node == null || this.nameInput == null)
             return;
         String value = this.nameInput.getValue();
-        if(!value.equals(node.getInternalCustomName()) && !value.isBlank()) {
+        if(!value.equals(node.getInternalCustomName()) && !value.isBlank())
             this.sendSettingRequest(FancyPacketMap.map().setString("changeName",value));
-        }
     }
 
     private void resetName() {
@@ -126,7 +140,7 @@ public class DisplaySettingsTab extends SettingsSubTab.ForNode<DisplayNode> impl
 
     @Override
     public boolean onMouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if(this.iconEditable() && this.iconArea.offsetPosition(this.getScreen().getCorner()).isInArea(ScreenHelper.getMousePos(event))) {
+        if(this.iconEditable() && this.iconArea.isInArea(ScreenHelper.getMousePos(event))) {
             this.changeIcon(this.getMenu().getCarried());
             return true;
         }
@@ -138,11 +152,12 @@ public class DisplaySettingsTab extends SettingsSubTab.ForNode<DisplayNode> impl
     }
 
     private boolean isBlockLoaded() {
-        return this.getTrader().getNodeValue(WorldNode.TYPE,n -> n.getBlockEntity(this.getPlayer().level())) != null;
+        TraderBlockEntity be = this.getTrader().getNodeArgValue(WorldNode.TYPE,this.getPlayer().level(),WorldNode::getBlockEntity);
+        return be != null;
     }
 
     private boolean canDestroyTrader() {
-        return this.isBlockLoaded() && this.getPermission(BuiltInPermissions.BREAK_TRADER).hasHigherPermission();
+        return this.isBlockLoaded() && this.getPermission(LCPermissions.BREAK_TRADER).hasHigherPermission();
     }
 
     private void destroyTrader() {

@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.sto
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.button.TextButton;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.IPositionalWidgetHolder;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.TooltipSource;
+import io.github.lightman314.lightmanscurrency.api.client.gui.widget.scrolling.ScrollingWidgetBuilder;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.INodeAccess;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNode;
@@ -15,7 +16,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class SimpleButtonSetting implements SimpleSettingBuilder {
+public class SimpleButtonSetting implements ScrollingWidgetBuilder {
 
     private final Supplier<Component> buttonText;
     private final TooltipSource buttonTooltip;

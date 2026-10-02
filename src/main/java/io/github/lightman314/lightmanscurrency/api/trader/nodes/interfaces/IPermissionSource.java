@@ -5,6 +5,6 @@ import io.github.lightman314.lightmanscurrency.api.trader.permissions.Permission
 
 public interface IPermissionSource {
 
-    <T> T getPlayerPermission(PlayerReference player, Permission<T> permission);
+    <T> T getPlayerPermission(PlayerReference player,Permission<T> permission);
 
 }

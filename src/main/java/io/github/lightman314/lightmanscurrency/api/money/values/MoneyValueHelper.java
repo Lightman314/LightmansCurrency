@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.money.values;
 import io.github.lightman314.lightmanscurrency.api.LCCapabilities;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.helpers.resource.access.SidedItemAccess;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.player.PlayerMoneyResourceHandler;
@@ -40,7 +41,7 @@ public class MoneyValueHelper {
     }
 
     /**
-     * From a list of values that are presumed to have the same {@link MoneyKey}, returns the sum of all values within the list.
+     * From a list of values that are presumed to have the same {@link DualKey}, returns the sum of all values within the list.
      */
     public MoneyValue sumValues(List<MoneyValue> values)
     {
@@ -61,8 +62,37 @@ public class MoneyValueHelper {
         return firstValue.fromInternalValue(totalValue);
     }
 
+    public List<List<MoneyValue>> groupLikeValues(List<MoneyValue> values) {
+        List<MoneyValue> thisType = new ArrayList<>();
+        for(MoneyValue value : values) {
+            if(value.getTypedHelper() == this)
+                thisType.add(value);
+        }
+        return this.groupLikeValuesInternal(thisType);
+    }
+
+    protected List<List<MoneyValue>> groupLikeValuesInternal(List<MoneyValue> values) {
+        //By default, one value per sub-list
+        return values.stream().map(List::of).toList();
+    }
+
+    protected final List<List<MoneyValue>> groupLikeValues(List<MoneyValue> values,int countPerGroup) {
+        List<List<MoneyValue>> result = new ArrayList<>();
+        List<MoneyValue> temp = new ArrayList<>();
+        for(MoneyValue val : values) {
+            temp.add(val);
+            if(temp.size() >= countPerGroup) {
+                result.add(temp);
+                temp = new ArrayList<>();
+            }
+        }
+        if(!temp.isEmpty())
+            result.add(temp);
+        return result;
+    }
+
     /**
-     * From a list of values that could have any {@link MoneyKey}, append text components to the
+     * From a list of values that could have any {@link DualKey}, append text components to the
      * tooltip via the {@code builder}.<br>
      * Intended to allow some money value types to place multiple Money Value entries into a single line,
      * but the default implementation simply adds each value to its own line.<br>

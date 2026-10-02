@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.api.trader.world.menu.customer;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
-import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.builtin.EmptyMoneyResource;
@@ -20,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeIndexes;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeResult;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.BuiltInResourceTypes;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.customer.builtin.NormalCustomerTab;
+import io.github.lightman314.lightmanscurrency.api.trader.world.menu.terminal.TradingTerminalMenu;
 import io.github.lightman314.lightmanscurrency.api.world.menu.provider.FancyMenuProvider;
 import io.github.lightman314.lightmanscurrency.api.world.menu.tabbed.TabBuilder;
 import io.github.lightman314.lightmanscurrency.api.world.menu.tabbed.TabbedMenu;
@@ -43,7 +43,6 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
-import java.util.function.Supplier;
 
 
 public abstract class AbstractTabbedCustomerMenu extends TabbedMenu.Validated<AbstractTabbedCustomerMenu, TraderCustomerTab> implements TraderCustomerMenu {
@@ -177,8 +176,8 @@ public abstract class AbstractTabbedCustomerMenu extends TabbedMenu.Validated<Ab
         //Ignore if we weren't actually accessed through the terminal
         if(!this.getValidator().isNetworkAccess())
             return;
-        //TODO actually open the terminal menu
-        LightmansCurrency.LogDebug("Not yet implemented");
+        //Open the Terminal Menu
+        this.getPlayer().openMenu(TradingTerminalMenu.createProvider(this.getValidator()));
     }
 
     @Override
@@ -249,13 +248,17 @@ public abstract class AbstractTabbedCustomerMenu extends TabbedMenu.Validated<Ab
                 buf -> buf.writeBlockPos(blockPos));
     }
 
+    public static MenuProvider allNetworkTraderProvider(MenuValidator validator, boolean mouseUpdate) {
+        return new FancyMenuProvider((id,inv,player) -> new AllNetworkTraders(id,player,validator),
+                mouseUpdate,
+                buf -> MenuValidator.STREAM_CODEC.encode(buf,validator));
+    }
+
     public static class Direct extends AbstractTabbedCustomerMenu {
 
         public Direct(int containerId,Player player,long traderID,MenuValidator validator) {
-            super(LCMenuTypes.TRADER_DIRECT.get(),containerId,player,validator,TraderSource.deferred(getTrader(ISidedContext.wrap(player),traderID)));
+            super(LCMenuTypes.TRADER_DIRECT.get(),containerId,player,validator,TraderSource.direct(player,traderID));
         }
-
-        private static Supplier<TraderSource> getTrader(ISidedContext context,long traderID) { return () -> LCApi.getTraderAPI().getTrader(context,traderID); }
 
     }
 
@@ -267,6 +270,12 @@ public abstract class AbstractTabbedCustomerMenu extends TabbedMenu.Validated<Ab
             super(LCMenuTypes.TRADER_DIRECT.get(),containerId,player,validator,TraderSource.blockEntity(player.level(),blockPos));
         }
 
+    }
+
+    public static class AllNetworkTraders extends AbstractTabbedCustomerMenu {
+        public AllNetworkTraders(int containerID,Player player,MenuValidator validator) {
+            super(LCMenuTypes.TRADER_ALL_NETWORK.get(),containerID,player,validator,new TraderSource.AllNetworkTraders(player));
+        }
     }
 
 }

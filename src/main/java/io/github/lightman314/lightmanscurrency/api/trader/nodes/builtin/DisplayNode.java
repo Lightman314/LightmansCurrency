@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin;
 
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -9,19 +10,19 @@ import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.icon.IconData;
-import io.github.lightman314.lightmanscurrency.api.icon.builtin.ItemIcon;
+import io.github.lightman314.lightmanscurrency.api.icon.ItemToIconCycler;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
-import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IDisplayNode;
-import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IPermissionUser;
-import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IPersistentNode;
-import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.ISettingsMessageListener;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.*;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.SimpleSyncedNode;
 import io.github.lightman314.lightmanscurrency.api.trader.notifications.settings.ChangeSettingNotification;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.BuiltInPermissions;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.Permission;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.ISettingsStorageIONode;
+import io.github.lightman314.lightmanscurrency.api.trader.settings_storage.SettingsDisplayOutput;
+import io.github.lightman314.lightmanscurrency.api.trader.settings_storage.SettingsLoadContext;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.contents.PlainTextContents;
@@ -32,9 +33,10 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
-public class DisplayNode extends SimpleSyncedNode implements IPersistentNode, ISettingsMessageListener, IPermissionUser, IDisplayNode {
+public class DisplayNode extends SimpleSyncedNode implements IPersistentNode, ISettingsMessageListener, IPermissionUser, IDisplayNode, ISettingsStorageIONode {
 
     public static final int MAX_NAME_LENGTH = 32;
 
@@ -55,8 +57,6 @@ public class DisplayNode extends SimpleSyncedNode implements IPersistentNode, IS
     public static final TextEntry BUTTON_RESET_NAME = TextEntry.button(LCApi.MODID,"trader.settings.reset_name");
     public static final TextEntry GUI_ALWAYS_SHOW_SEARCH = TextEntry.gui(LCApi.MODID,"trader.settings.always_show_search_box");
 
-
-
     private String customName = "";
     @Nullable
     private Component customNameText = null;
@@ -73,6 +73,7 @@ public class DisplayNode extends SimpleSyncedNode implements IPersistentNode, IS
     public String getInternalCustomName() { return this.customName; }
     @Nullable
     public Component getInternalCustomNameText() { return this.customNameText; }
+    @CanIgnoreReturnValue
     public boolean setCustomName(@Nullable PlayerReference admin,String newName)
     {
         boolean different = this.customNameText != null;
@@ -90,13 +91,16 @@ public class DisplayNode extends SimpleSyncedNode implements IPersistentNode, IS
         }
         return false;
     }
+    @CanIgnoreReturnValue
     public boolean setCustomName(@Nullable PlayerReference admin, Component newName)
     {
         boolean different = true;
-        if(this.customNameText == null && newName.getContents() instanceof PlainTextContents.LiteralContents contents)
+        if(this.customNameText == null && newName != null && newName.getContents() instanceof PlainTextContents.LiteralContents contents)
             different = !this.customName.equals(contents.text());
         if(this.customNameText != null)
             different = !this.customNameText.equals(newName);
+        if(this.customNameText == null && newName == null)
+            return false;
         if(different)
         {
             this.customName = "";
@@ -120,7 +124,10 @@ public class DisplayNode extends SimpleSyncedNode implements IPersistentNode, IS
 
     private Optional<IconData> customIcon = Optional.empty();
     public boolean hasCustomIcon() { return this.customIcon.isPresent(); }
-    public IconData getCustomIcon() { return this.customIcon.orElse(IconData.empty()); }
+    @Override
+    @Nullable
+    public IconData getCustomIcon() { return this.customIcon.orElse(null); }
+    @CanIgnoreReturnValue
     public boolean setCustomIcon(@Nullable PlayerReference admin,@Nullable IconData newIcon)
     {
         if(newIcon != null && newIcon.isEmpty())
@@ -140,6 +147,7 @@ public class DisplayNode extends SimpleSyncedNode implements IPersistentNode, IS
 
     private boolean alwaysShowSearchBox = false;
     public final boolean alwaysShowSearchBox() { return this.alwaysShowSearchBox; }
+    @CanIgnoreReturnValue
     public final boolean setAlwaysShowSearchBox(@Nullable PlayerReference admin, boolean newVal)
     {
         if(this.alwaysShowSearchBox != newVal)
@@ -201,22 +209,19 @@ public class DisplayNode extends SimpleSyncedNode implements IPersistentNode, IS
 
     @Override
     public void handleSettingsChange(Player player,FancyPacketMap message) {
-        if(message.contains("changeName") && this.getPermission(player,BuiltInPermissions.EDIT_DISPLAY))
+        if(message.contains("changeName") && this.getPermission(player,LCPermissions.EDIT_DISPLAY))
         {
-            String newName = message.getString("ChangeName");
+            String newName = message.getString("changeName");
             if(newName.length() > MAX_NAME_LENGTH)
                 newName = newName.substring(0,MAX_NAME_LENGTH);
             this.setCustomName(PlayerReference.of(player),newName);
         }
-        if(message.contains("cycleIcon") && this.getPermission(player,BuiltInPermissions.EDIT_DISPLAY))
+        if(message.contains("cycleIcon") && this.getPermission(player,LCPermissions.EDIT_DISPLAY))
         {
             ItemStack iconCycler = message.getItem("cycleIcon",true);
-            if(iconCycler.isEmpty())
-                this.setCustomIcon(PlayerReference.of(player),null);
-            else //TODO allow other mods to allow special icon types from the clicked icon
-                this.setCustomIcon(PlayerReference.of(player),ItemIcon.of(iconCycler));
+            this.setCustomIcon(PlayerReference.of(player),ItemToIconCycler.getNextIconInCycle(iconCycler,this.customIcon));
         }
-        if(message.contains("alwaysShowSearch") && this.getPermission(player,BuiltInPermissions.EDIT_DISPLAY))
+        if(message.contains("alwaysShowSearch") && this.getPermission(player,LCPermissions.EDIT_DISPLAY))
             this.setAlwaysShowSearchBox(PlayerReference.of(player),message.getBoolean("alwaysShowSearch"));
     }
 
@@ -238,12 +243,41 @@ public class DisplayNode extends SimpleSyncedNode implements IPersistentNode, IS
 
     @Override
     public void addDefaultAllyPermission(Consumer<Permission<?>> handler) {
-        handler.accept(BuiltInPermissions.EDIT_DISPLAY);
+        handler.accept(LCPermissions.EDIT_DISPLAY);
     }
 
-    /*@Override
-    public void registerSettingsNodes(TraderData trader, Consumer<SettingsNode> consumer) {
-        consumer.accept(new DisplaySettings(trader,this));
-    }*/
+    @Override
+    public void encodeSettings(ValueOutput output) {
+        if(this.customNameText != null)
+            output.store("customNameText",ComponentSerialization.CODEC,this.customNameText);
+        else if(!this.customName.isBlank())
+            output.putString("customName",this.customName);
+        if(this.customIcon.isPresent())
+            output.store("customIcon",IconData.CODEC,this.customIcon.get());
+        output.putBoolean("forceSearch",this.alwaysShowSearchBox);
+    }
+
+    @Override
+    public void decodeSettings(ValueInput data,SettingsLoadContext context) {
+        if(context.getPermission(LCPermissions.EDIT_DISPLAY)) {
+            this.setCustomName(null,data.read("customNameText",ComponentSerialization.CODEC).orElse(null));
+            this.setCustomName(null,data.getStringOr("customName",""));
+            this.setAlwaysShowSearchBox(null,data.getBooleanOr("forceSearch",false));
+        }
+    }
+
+    @Override
+    public void appendDisplay(ValueInput data,SettingsDisplayOutput output) {
+        output.acceptTitle(NAME);
+        Set<String> keySet = data.keySet();
+        if(keySet.contains("customNameText"))
+            output.acceptEntry(VALUE_TRADER_NAME,data.read("customNameText",ComponentSerialization.CODEC).orElse(Component.literal("ERROR")));
+        else if(keySet.contains("customName"))
+            output.acceptEntry(VALUE_TRADER_NAME,data.getStringOr("customName","ERROR"));
+        if(keySet.contains("customIcon"))
+            output.acceptLine(VALUE_CUSTOM_ICON);
+        if(keySet.contains("forceSearch"))
+            output.acceptEntry(VALUE_SEARCH_BOX,data.getBooleanOr("forceSearch",false));
+    }
 
 }

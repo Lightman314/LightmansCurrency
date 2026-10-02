@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.client.gui.widget.trader;
 
 import com.google.common.collect.ImmutableMap;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.FancyGuiExtractor;
 import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.GhostSlot;
 import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.ScreenHelper;
@@ -55,14 +54,15 @@ public class TradeButton extends FancyButton implements IGhostSlotProvider, IScr
 
     @Override
     protected void extractRenderState(FancyGuiExtractor gui,ScreenArea area) {
+
         //Render Background Sprite
         gui.blitSprite(this.getBackgroundSprite().get(this.active,this.isHovered()),0,0,this.getWidth(),this.getHeight());
         //Get the trade display
         if(this.cachedDisplay.isEmpty())
             return;
         int nextX = TradeButtonDisplay.FULL_SPACER;
-        boolean isHovered = this.isHovered();
         boolean isActive = this.isActive();
+        boolean isHovered = this.isHovered();
         int mouseX = gui.getMousePos().x - this.getX();
         TradeTooltipBuilder tooltips = TradeTooltipBuilder.create();
         @Nullable
@@ -156,7 +156,7 @@ public class TradeButton extends FancyButton implements IGhostSlotProvider, IScr
 
     private WidgetSprites getBackgroundSprite() { return LCSprites.BUTTON_GRAY; }
 
-    private TradeDisplayResults calculateDisplayEntries(@Nullable TradeData trade, TradeContext context, ScreenPosition mousePos) {
+    private TradeDisplayResults calculateDisplayEntries(@Nullable TradeData trade,TradeContext context,ScreenPosition mousePos) {
         if(trade == null)
             return TradeDisplayResults.EMPTY;
         //Assemble the trade context and collect the display entries
@@ -171,7 +171,7 @@ public class TradeButton extends FancyButton implements IGhostSlotProvider, IScr
         }
         int totalWidth = display.getButtonWidth(trade,context,this.interactions);
         TradeTooltipBuilder builder = TradeTooltipBuilder.create();
-        if(this.getArea().isInArea(mousePos))
+        if(this.getArea().isInArea(mousePos) && this.isInScissorArea(mousePos))
             display.appendTooltips(builder,trade,context,mousePos.relativeTo(this.getArea().pos),this.interactions);
         this.setWidth(totalWidth);
         return new TradeDisplayResults(trade,display,entries,totalWidth,sectionWidth.build(),builder.build());

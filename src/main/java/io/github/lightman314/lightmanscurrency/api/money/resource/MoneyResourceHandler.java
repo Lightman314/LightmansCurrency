@@ -1,7 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.money.resource;
 
 
-import io.github.lightman314.lightmanscurrency.api.money.values.MoneyKey;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
@@ -23,10 +23,10 @@ public interface MoneyResourceHandler {
     List<MoneyValue> getAllResources();
 
     /**
-     * The currently available {@link MoneyValue} that matches the given {@link MoneyKey}<br>
+     * The currently available {@link MoneyValue} that matches the given {@link DualKey}<br>
      * Is {@link MoneyValue#empty()} if no money of that type is available
      */
-    MoneyValue getResource(MoneyKey key);
+    MoneyValue getResource(DualKey key);
 
     /**
      * Whether this Money Resource Handler is completely empty
@@ -42,7 +42,7 @@ public interface MoneyResourceHandler {
     default boolean containsResource(MoneyValue value) { return this.getResource(value.getKey()).containsValue(value); }
 
     /**
-     * Returns the maximum amount of money that can be extracted of the given {@link MoneyKey}
+     * Returns the maximum amount of money that can be extracted of the given {@link DualKey}
      */
     default MoneyValue capValue(MoneyValue value) { return this.containsResource(value) ? value : this.getResource(value.getKey()); }
 
@@ -81,7 +81,7 @@ public interface MoneyResourceHandler {
         @Override
         default List<MoneyValue> getAllResources() { return this.getMoneyResourceHandler().getAllResources(); }
         @Override
-        default MoneyValue getResource(MoneyKey key) { return this.getMoneyResourceHandler().getResource(key); }
+        default MoneyValue getResource(DualKey key) { return this.getMoneyResourceHandler().getResource(key); }
         @Override
         default boolean isEmpty() { return this.getMoneyResourceHandler().isEmpty(); }
         @Override
@@ -109,7 +109,7 @@ public interface MoneyResourceHandler {
             @Override
             public List<MoneyValue> getAllResources() { return this.handler.getAllResources(); }
             @Override
-            public MoneyValue getResource(MoneyKey key) { return this.handler.getResource(key); }
+            public MoneyValue getResource(DualKey key) { return this.handler.getResource(key); }
             @Override
             public boolean isEmpty() { return this.handler.isEmpty(); }
             @Override

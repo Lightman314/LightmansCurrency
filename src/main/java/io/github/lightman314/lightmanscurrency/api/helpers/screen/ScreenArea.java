@@ -73,6 +73,7 @@ public final class ScreenArea {
     public ScreenArea ofSize(int width, int height) { return of(this.pos, width, height); }
     public ScreenArea shrinkWidth(int widthDelta) { return of(this.pos, this.width - widthDelta, this.height); }
     public ScreenArea shrinkHeight(int heightDelta) { return of(this.pos, this.width, this.height - heightDelta); }
+    public ScreenArea grow(int width,int height) { return of(this.pos,this.width + width,this.height + height); }
     public ScreenArea lowered(int amount) { return of(this.x,this.y + amount,this.width,this.height - amount); }
 
     public ScreenPosition cornerTopLeft() { return this.pos; }

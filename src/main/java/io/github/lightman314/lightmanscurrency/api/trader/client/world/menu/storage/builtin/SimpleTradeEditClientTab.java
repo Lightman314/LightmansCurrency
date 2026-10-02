@@ -34,8 +34,9 @@ public class SimpleTradeEditClientTab extends TraderStorageClientTab<SimpleTrade
     protected void initialize(ScreenArea area,FancyPacketMap message) {
         this.addChild(TradeDisplayArea.builder()
                 .atPos(area.pos.offset(11,6))
-                .ofSize(area.width - 22,111)
+                .ofSize(area.width - 22,135)
                 .forTrader(TraderSource.deferred(this.getMenu()::getTrader))
+                .hideTraderOwner()
                 .withContext(t -> this.getMenu().getTradeContext())
                 .withFilter(this::showTrade)
                 .withInteractionHandler(this.getCommonTab())

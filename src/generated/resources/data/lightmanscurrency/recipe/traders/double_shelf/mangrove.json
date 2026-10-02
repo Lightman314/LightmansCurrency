@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "trader_double_shelf",
+  "key": {
+    "c": "#c:chests/wooden",
+    "s": "minecraft:mangrove_slab",
+    "x": "lightmanscurrency:single_shelf_mangrove"
+  },
+  "pattern": [
+    "c",
+    "x",
+    "s"
+  ],
+  "result": {
+    "id": "lightmanscurrency:double_shelf_mangrove"
+  }
+}

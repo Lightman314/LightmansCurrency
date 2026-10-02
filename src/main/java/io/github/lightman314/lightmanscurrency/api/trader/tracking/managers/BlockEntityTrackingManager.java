@@ -132,7 +132,7 @@ public final class BlockEntityTrackingManager implements ISidedContext {
         {
             if(be instanceof ITraderTrackingBE tracker)
             {
-                LightmansCurrency.LogDebug("BE at " + be.getBlockPos() + " implements tracking BE interface, requesting tracking for " + player.getName().getString());
+                //LightmansCurrency.LogDebug("BE at " + be.getBlockPos() + " implements tracking BE interface, requesting tracking for " + player.getName().getString());
                 tracker.startTrackingPlayer(player);
             }
 

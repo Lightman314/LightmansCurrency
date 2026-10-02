@@ -56,7 +56,7 @@ public final class WoodHelper {
                 .build();
         WoodData.builder(WoodType.CRIMSON)
                 .withLog(() -> Items.CRIMSON_STEM,Identifier.withDefaultNamespace("block/crimson_stem"))
-                .withPlanksAndSlab(() -> Items.CRIMSON_PLANKS,() -> Items.CRIMSON_SLAB,Identifier.withDefaultNamespace("block/birch_planks"))
+                .withPlanksAndSlab(() -> Items.CRIMSON_PLANKS,() -> Items.CRIMSON_SLAB,Identifier.withDefaultNamespace("block/crimson_planks"))
                 .build();
         WoodData.builder(WoodType.WARPED)
                 .withLog(() -> Items.WARPED_STEM,Identifier.withDefaultNamespace("block/warped_stem"))

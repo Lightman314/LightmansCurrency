@@ -1,2 +1,6 @@
-// 26.1.2	2026-09-09T21:04:11.2033172	Lightman's Currency Item Positions: lightmanscurrency/closer_items
+// 26.1.2	2026-09-16T19:56:50.7387435	Lightman's Currency Item Positions: lightmanscurrency/closer_items
 197733bf9646c7eaecebf72aa45a09b2c17b1447 closer_items/assets/lightmanscurrency/lightmanscurrency/item_position_data/card_display.json
+b456f37ab6f50614151a951317b31cb1900d188c closer_items/assets/lightmanscurrency/lightmanscurrency/item_position_data/double_shelf.json
+c839c0a5e813098f54d2e71632b1485a8e8b2155 closer_items/assets/lightmanscurrency/lightmanscurrency/item_position_data/large_vending_machine.json
+2fe90e1c65f24d5eb2a008091182fd4112e1c342 closer_items/assets/lightmanscurrency/lightmanscurrency/item_position_data/single_shelf.json
+a008ef1ab49b92c8e86fc9be12d06180f7e2c975 closer_items/assets/lightmanscurrency/lightmanscurrency/item_position_data/vending_machine.json

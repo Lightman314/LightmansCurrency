@@ -5,6 +5,8 @@ import io.github.lightman314.lightmanscurrency.api.bank_account.BankAccount;
 import io.github.lightman314.lightmanscurrency.api.bank_account.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.bank_account.source.BankAccountSource;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
+import io.github.lightman314.lightmanscurrency.features.api_impl.data.PlayerBankDataCache;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.*;
 
@@ -31,5 +33,8 @@ public final class BankAPIImpl implements BankAPI {
         this.sources.forEach(source -> accounts.addAll(source.collectAllReferences(context)));
         return accounts;
     }
+
+    @Override
+    public BankReference getPlayersSelectedAccount(Player player) { return PlayerBankDataCache.TYPE.get(ISidedContext.wrap(player)).getSelectedAccount(player); }
 
 }

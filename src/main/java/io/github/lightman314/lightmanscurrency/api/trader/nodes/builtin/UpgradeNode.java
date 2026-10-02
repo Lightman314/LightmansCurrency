@@ -17,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.api.upgrades.IUpgradeable;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeType;
 import io.github.lightman314.lightmanscurrency.api.upgrades.world.UpgradeStorage;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
+import net.minecraft.core.Holder;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
@@ -75,6 +76,9 @@ public class UpgradeNode extends SimpleSyncedNode implements IUpgradeable, ITrad
         if(data.contains("storage_update"))
             this.storage.processPacket(data.getMap("storage_update"));
     }
+
+    public boolean hasUpgrade(UpgradeType type) { return this.getStorage().hasUpgrade(type); }
+    public boolean hasUpgrade(Holder<UpgradeType> type) { return this.getStorage().hasUpgrade(type); }
 
     @Override
     public UpgradeStorage getStorage() { return this.storage; }
