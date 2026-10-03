@@ -103,6 +103,8 @@ public class PlayerReference {
 	{
 		if(entity == null)
 			return false;
+        if(entity instanceof Player player)
+            return this.is(PlayerReference.of(player));
 		return entity.getUUID().equals(this.id);
 	}
 	
@@ -252,11 +254,11 @@ public class PlayerReference {
         return pr;
     }
 
-	public static boolean isInList(List<PlayerReference> list, Entity entry) { if(entry != null) return isInList(list, entry.getUUID()); return false; }
+	public static boolean isInList(List<PlayerReference> list,Entity entry) { if(entry != null) return isInList(list,PlayerReference.of(entry)); return false; }
 	
-	public static boolean isInList(List<PlayerReference> list, PlayerReference entry) { if(entry != null) return isInList(list, entry.id); return false; }
+	public static boolean isInList(List<PlayerReference> list,PlayerReference entry) { if(entry != null) return isInList(list,entry.id); return false; }
 	
-	public static boolean isInList(List<PlayerReference> list, UUID id)
+	public static boolean isInList(List<PlayerReference> list,UUID id)
 	{
 		for(PlayerReference player : list)
 		{

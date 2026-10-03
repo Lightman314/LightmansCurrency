@@ -221,7 +221,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements IServerTicke
 		}
 		
 		//Remove the input item(s)
-		this.getStorage().removeItem(0, mintOutput.getCount());
+		this.getStorage().removeItem(0,this.lastRelevantRecipe.ingredientCount);
 		
 		//Job is done!
 		this.setChanged();

@@ -1095,6 +1095,8 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 		json.addProperty("ID", id);
 		json.addProperty("Name", this.hasCustomName() ? this.customName : "Trader");
 		json.addProperty("OwnerName", ownerName);
+        if(this.customIcon != null && !this.customIcon.isNull())
+            json.add("CustomIcon",this.customIcon.write());
 
 		JsonArray ruleData = TradeRule.saveRulesToJson(this.rules);
 		if(!ruleData.isEmpty())
@@ -1266,6 +1268,8 @@ public abstract class TraderData implements ISidedObject, IDumpable, IUpgradeabl
 
 		if(json.has("Name"))
 			this.customName = GsonHelper.getAsString(json, "Name");
+        if(json.has("CustomIcon"))
+            this.customIcon = IconData.parse(GsonHelper.getAsJsonObject(json,"CustomIcon"));
 
 		if(json.has("Rules"))
 			this.rules = TradeRule.Parse(GsonHelper.getAsJsonArray(json, "Rules"), this);
