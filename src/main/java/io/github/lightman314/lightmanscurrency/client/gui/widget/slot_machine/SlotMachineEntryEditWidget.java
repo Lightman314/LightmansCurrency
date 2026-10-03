@@ -134,6 +134,7 @@ public class SlotMachineEntryEditWidget extends EasyWidgetWithChildren implement
         double newOdds = MathUtil.clamp(newScroll,0.01d,99.99d);
         //Manually change the text input with the new value, and it'll automatically trigger the packet
         this.oddsEdit.setStringValue(SlotMachineEntry.ODDS_FORMATTER.format(newOdds));
+        this.onOddsChanged(newOdds);
     }
     @Override
     public int getMaxScroll() { return 100; }
