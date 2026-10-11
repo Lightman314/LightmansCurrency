@@ -15,8 +15,8 @@ import java.util.function.UnaryOperator;
 public class PlayerWalletHandler implements PlayerMoneyResourceHandler, DeferredMoneyResourceHandler {
 
     private Player player;
-    private final UnaryOperator<OverflowHandler> overflowModifier;
-    public PlayerWalletHandler(Player player,UnaryOperator<OverflowHandler> overflowModifier) { this.player = player; this.overflowModifier = overflowModifier; }
+    private final OverflowHandler.Modifier overflowModifier;
+    public PlayerWalletHandler(Player player,OverflowHandler.Modifier overflowModifier) { this.player = player; this.overflowModifier = overflowModifier; }
 
     @Override
     public void updatePlayer(Player player) { this.player = player; }

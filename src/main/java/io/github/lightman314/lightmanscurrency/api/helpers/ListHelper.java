@@ -80,14 +80,4 @@ public final class ListHelper {
         return true;
     }
 
-    @Nullable
-    public static <T> UnaryOperator<T> combineOperators(List<UnaryOperator<T>> list) {
-        if(list.isEmpty())
-            return null;
-        Function<T,T> first = list.getFirst();
-        for(int i = 1; i < list.size(); ++i)
-            first = first.andThen(list.get(i));
-        return first::apply;
-    }
-
 }

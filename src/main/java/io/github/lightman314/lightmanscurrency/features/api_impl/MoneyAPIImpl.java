@@ -21,7 +21,6 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.function.UnaryOperator;
 
 @EventBusSubscriber
 public final class MoneyAPIImpl implements MoneyAPI {
@@ -41,19 +40,19 @@ public final class MoneyAPIImpl implements MoneyAPI {
             wrapper.updatePlayer(player);
             return wrapper;
         }
-        PlayerMoneyResourceWrapper wrapper = this.createPlayersMoneyHandler(player,UnaryOperator.identity());
+        PlayerMoneyResourceWrapper wrapper = this.createPlayersMoneyHandler(player,OverflowHandler.Modifier.NONE);
         this.cache.put(key,wrapper);
         return wrapper;
     }
 
     @Override
-    public SortableMoneyResourceHandler getPlayersMoneyHandler(Player player,@Nullable UnaryOperator<OverflowHandler> overflowModifier) {
+    public SortableMoneyResourceHandler getPlayersMoneyHandler(Player player,@Nullable OverflowHandler.Modifier overflowModifier) {
         if(overflowModifier == null)
             return this.getPlayersMoneyHandler(player);
         return this.createPlayersMoneyHandler(player,overflowModifier);
     }
 
-    private PlayerMoneyResourceWrapper createPlayersMoneyHandler(Player player,UnaryOperator<OverflowHandler> overflowModifier) {
+    private PlayerMoneyResourceWrapper createPlayersMoneyHandler(Player player,OverflowHandler.Modifier overflowModifier) {
 
         //Assemble the wrapper
         List<PlayerMoneyResourceHandler> list = new ArrayList<>();

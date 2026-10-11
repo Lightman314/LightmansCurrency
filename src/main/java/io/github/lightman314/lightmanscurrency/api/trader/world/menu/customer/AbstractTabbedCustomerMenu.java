@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.api.trader.world.menu.customer;
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
-import io.github.lightman314.lightmanscurrency.api.helpers.ListHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.money.OverflowHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
@@ -47,8 +46,6 @@ import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.UnaryOperator;
-
 
 public abstract class AbstractTabbedCustomerMenu extends TabbedMenu.Validated<AbstractTabbedCustomerMenu, TraderCustomerTab> implements TraderCustomerMenu {
 
@@ -189,24 +186,24 @@ public abstract class AbstractTabbedCustomerMenu extends TabbedMenu.Validated<Ab
     public TradeContext.Builder buildContext(TradeContext.Builder builder) {
         //Tab resources first as they may wish to make some things accessible before the normal player inventory
         @Nullable
-        UnaryOperator<OverflowHandler> modifier = this.appendTabResources(builder);
+        OverflowHandler.Modifier modifier = this.appendTabResources(builder);
         this.appendPlayerResources(builder,modifier);
         return builder;
     }
 
     @Nullable
-    protected final UnaryOperator<OverflowHandler> appendTabResources(TradeContext.Builder builder) {
-        List<UnaryOperator<OverflowHandler>> modifiers = new ArrayList<>();
+    protected final OverflowHandler.Modifier appendTabResources(TradeContext.Builder builder) {
+        List<OverflowHandler.Modifier> modifiers = new ArrayList<>();
         for(TraderCustomerTab tab : this.getTabs().values()) {
             tab.buildContext(builder);
-            UnaryOperator<OverflowHandler> temp = tab.buildPlayerOverflowModifier();
+            OverflowHandler.Modifier temp = tab.buildPlayerOverflowModifier();
             if(temp != null)
                 modifiers.add(temp);
         }
-        return ListHelper.combineOperators(modifiers);
+        return OverflowHandler.Modifier.combine(modifiers);
     }
 
-    protected final void appendPlayerResources(TradeContext.Builder builder,@Nullable UnaryOperator<OverflowHandler> modifier) {
+    protected final void appendPlayerResources(TradeContext.Builder builder,@Nullable OverflowHandler.Modifier modifier) {
         //Give access to the players personal money
         builder.withResource(BuiltInResourceTypes.MONEY,LCApi.getMoneyAPI().getPlayersMoneyHandler(this.getPlayer(),modifier))
                 //Give access to the players inventory for item sales

@@ -22,6 +22,6 @@ public abstract class TraderCustomerTab extends MenuTab<AbstractTabbedCustomerMe
     public void buildContext(TradeContext.Builder builder) { }
 
     @Nullable
-    public UnaryOperator<OverflowHandler> buildPlayerOverflowModifier() { return null; }
+    public OverflowHandler.Modifier buildPlayerOverflowModifier() { return null; }
 
 }

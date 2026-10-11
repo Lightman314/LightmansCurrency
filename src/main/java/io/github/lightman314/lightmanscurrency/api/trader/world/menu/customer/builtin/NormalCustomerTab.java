@@ -82,7 +82,7 @@ public class NormalCustomerTab extends TraderCustomerTab {
 
     @Override
     @Nullable
-    public UnaryOperator<OverflowHandler> buildPlayerOverflowModifier() { return OverflowHandler.resourceHandlerModifier(this.moneyStorage); }
+    public OverflowHandler.Modifier buildPlayerOverflowModifier() { return OverflowHandler.resourceHandlerModifier(this.moneyStorage); }
 
     @Override
     public void onTabOpened(FancyPacketMap additional) {

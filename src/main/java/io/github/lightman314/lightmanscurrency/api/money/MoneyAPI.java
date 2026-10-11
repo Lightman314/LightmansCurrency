@@ -11,7 +11,6 @@ import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
-import java.util.function.UnaryOperator;
 
 public interface MoneyAPI {
 
@@ -33,7 +32,7 @@ public interface MoneyAPI {
      * @param overflowModifier An operator used to modify the overflow handler and provide custom overflow item interceptions
      * @return A Money Resource Handler through which monetary interactions can be taken.
      */
-    SortableMoneyResourceHandler getPlayersMoneyHandler(Player player,@Nullable UnaryOperator<OverflowHandler> overflowModifier);
+    SortableMoneyResourceHandler getPlayersMoneyHandler(Player player,@Nullable OverflowHandler.Modifier overflowModifier);
 
     /**
      * Assembles a {@link MoneyResourceHandler} that can be used to insert or extract money from the given Container<br>

@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 
 public interface OverflowHandler {
 
@@ -27,7 +26,23 @@ public interface OverflowHandler {
     static OverflowHandler forListConsumer(Consumer<List<ItemStack>> consumer) { return new Template.ConsumerWrapper(consumer); }
 
     static OverflowHandler forResourceHandler(ResourceHandler<ItemResource> handler,OverflowHandler fallback) { return new ResourceHandlerWrapper(handler,fallback); }
-    static UnaryOperator<OverflowHandler> resourceHandlerModifier(ResourceHandler<ItemResource> handler) { return o -> forResourceHandler(handler,o); }
+    static OverflowHandler.Modifier resourceHandlerModifier(ResourceHandler<ItemResource> handler) { return o -> forResourceHandler(handler,o); }
+
+    interface Modifier {
+        Modifier NONE = o -> o;
+        OverflowHandler modifyOverflow(OverflowHandler overflowHandler);
+        default Modifier andThen(Modifier other) { return o -> other.modifyOverflow(this.modifyOverflow(o)); }
+        static Modifier combine(List<Modifier> modifiers) {
+            if(modifiers.isEmpty())
+                return NONE;
+            Modifier result = modifiers.getFirst();
+            if(modifiers.size() == 1)
+                return result;
+            for(int i = 1; i < modifiers.size(); ++i)
+                result = result.andThen(modifiers.get(i));
+            return result;
+        }
+    }
 
     abstract class Template extends SnapshotJournal<List<ItemStack>> implements OverflowHandler {
 

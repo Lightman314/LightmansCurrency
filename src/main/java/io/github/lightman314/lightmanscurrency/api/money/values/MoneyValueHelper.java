@@ -139,7 +139,7 @@ public class MoneyValueHelper {
      * @return A Player Money Resource Handler that can accurately insert or extract money from the player.
      */
     @Nullable
-    public PlayerMoneyResourceHandler createMoneyHandlerForPlayer(Player player,UnaryOperator<OverflowHandler> overflowModifier) { return null; }
+    public PlayerMoneyResourceHandler createMoneyHandlerForPlayer(Player player,OverflowHandler.Modifier overflowModifier) { return null; }
 
     /**
      * Creates a {@link MoneyResourceHandler}

@@ -22,7 +22,7 @@ public class CoinValueHelper extends MoneyValueHelper {
 
     @Override
     @Nullable
-    public PlayerMoneyResourceHandler createMoneyHandlerForPlayer(Player player,UnaryOperator<OverflowHandler> overflowModifier) { return new PlayerWalletHandler(player,overflowModifier); }
+    public PlayerMoneyResourceHandler createMoneyHandlerForPlayer(Player player,OverflowHandler.Modifier overflowModifier) { return new PlayerWalletHandler(player,overflowModifier); }
     @Override
     @Nullable
     public MoneyResourceHandler wrapContainer(ResourceHandler<ItemResource> itemResource,OverflowHandler overflowHandler, ISidedContext context) { return new CoinContainerWrapper(itemResource,overflowHandler); }

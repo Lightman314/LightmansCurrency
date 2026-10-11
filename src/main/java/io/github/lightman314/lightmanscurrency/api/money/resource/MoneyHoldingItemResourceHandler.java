@@ -8,16 +8,14 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 
-import java.util.function.UnaryOperator;
-
 public interface MoneyHoldingItemResourceHandler extends ResourceHandler<ItemResource> {
 
     default boolean shouldWrapCapabilities() { return true; }
 
     default MoneyResourceHandler getMoneyResourceHandler(Player player) { return this.getMoneyResourceHandler(OverflowHandler.forPlayer(player),ISidedContext.wrap(player),this.shouldWrapCapabilities()); }
     default MoneyResourceHandler getMoneyResourceHandler(Player player,boolean wrapCapabilities) { return this.getMoneyResourceHandler(OverflowHandler.forPlayer(player), ISidedContext.wrap(player),wrapCapabilities); }
-    default MoneyResourceHandler getMoneyResourceHandler(Player player,UnaryOperator<OverflowHandler> overflowModifier) { return this.getMoneyResourceHandler(overflowModifier.apply(OverflowHandler.forPlayer(player)),ISidedContext.wrap(player),this.shouldWrapCapabilities()); }
-    default MoneyResourceHandler getMoneyResourceHandler(Player player,UnaryOperator<OverflowHandler> overflowModifier,boolean wrapCapabilities) { return this.getMoneyResourceHandler(overflowModifier.apply(OverflowHandler.forPlayer(player)), ISidedContext.wrap(player),wrapCapabilities); }
+    default MoneyResourceHandler getMoneyResourceHandler(Player player,OverflowHandler.Modifier overflowModifier) { return this.getMoneyResourceHandler(overflowModifier.modifyOverflow(OverflowHandler.forPlayer(player)),ISidedContext.wrap(player),this.shouldWrapCapabilities()); }
+    default MoneyResourceHandler getMoneyResourceHandler(Player player,OverflowHandler.Modifier overflowModifier,boolean wrapCapabilities) { return this.getMoneyResourceHandler(overflowModifier.modifyOverflow(OverflowHandler.forPlayer(player)), ISidedContext.wrap(player),wrapCapabilities); }
     default MoneyResourceHandler getMoneyResourceHandler(OverflowHandler overflowHandler,ISidedContext context) { return this.getMoneyResourceHandler(overflowHandler,context,this.shouldWrapCapabilities()); }
     default MoneyResourceHandler getMoneyResourceHandler(OverflowHandler overflowHandler,ISidedContext context,boolean wrapCapabilities) {
         return new MoneyResourceHandlerCommitListenerWrapper(LCApi.getMoneyAPI().getContainersMoneyHandler(this,overflowHandler,context,wrapCapabilities),this::afterMoneyCommit);
