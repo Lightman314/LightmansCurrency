@@ -24,6 +24,8 @@ public class ATMScreen extends TabbedMenuScreen<ATMMenu,ATMTab,ATMClientTab<?>> 
     protected void extractBackground(FancyGuiExtractor gui, ScreenArea area) {
         gui.blitBackground(GUI_TEXTURE,area);
         gui.blitSlots(this.menu.getMoneySlots());
+        //Reposition the inventory label if it should be hidden
+        this.inventoryLabelX = this.getCurrentTab().hideInventoryLabel() ? Integer.MIN_VALUE : 8;
         super.extractBackground(gui, area);
     }
 

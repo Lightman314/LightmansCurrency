@@ -84,7 +84,7 @@ public class NetworkTraderSelectionClientTab extends TradingTerminalClientTab<Ne
                 fullSearch.append(" ");
             fullSearch.append(lastSearch);
         }
-        this.filteredTraderCache = LCApi.getTraderAPI().filterTraders(this.allTraderCache,fullSearch.toString());
+        this.filteredTraderCache = LCApi.getTraderAPI().filterTraders(this.allTraderCache,fullSearch.toString(),null);
         //Validate the scroll
         this.validateScroll();
     }

@@ -1,0 +1,24 @@
+{
+  "values": [
+    {
+      "id": "lightmanscurrency:banker/2/shelf",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:banker/2/double_shelf",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:banker/2/coin_chest",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:banker/2/display_case",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:banker/2/paygate",
+      "required": false
+    }
+  ]
+}

@@ -11,6 +11,9 @@ import io.github.lightman314.lightmanscurrency.api.helpers.ResourceHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.trader.filtering.FilterHelper;
+import io.github.lightman314.lightmanscurrency.api.trader.filtering.PendingSearch;
+import io.github.lightman314.lightmanscurrency.api.trader.filtering.interfaces.ISearchFilterPrice;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IAdminSettingProvider;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeFailedException;
@@ -40,7 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class ItemPrice extends TradePrice implements IItemStorageFilter {
+public class ItemPrice extends TradePrice implements IItemStorageFilter, ISearchFilterPrice {
 
     public static final MapCodec<ItemPrice> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
             TradeItem.CODEC.listOf().fieldOf("items").forGetter(p -> p.items)
@@ -280,5 +283,12 @@ public class ItemPrice extends TradePrice implements IItemStorageFilter {
 
     @Override
     public boolean itemAllowedInStorage(ItemResource item) { return TradeItem.allowedInStorage(this.items,item); }
+
+    @Override
+    public void applySearchFilters(TradeData trade,PendingSearch search) {
+        List<FilterHelper.ItemWithContext> itemList = this.items.stream().map(FilterHelper.ItemWithContext::new).toList();
+        search.processFilter(FilterHelper.ITEM,FilterHelper.filterItemsWithContext(itemList,trade.registryAccess()));
+        search.processFilter(FilterHelper.TOOLTIP,FilterHelper.filterItemsWithContext(itemList,trade.registryAccess()));
+    }
 
 }

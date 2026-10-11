@@ -70,10 +70,8 @@ public class PlayerReference {
             return this.name;
         if(context.isClient())
         {
-            //TODO re-implement the client player name cache
-            //String n = ClientPlayerNameCache.lookupName(this.id);
-            //return Objects.requireNonNullElse(n,this.name);
-            return this.name;
+            String n = ClientPlayerNameCache.lookupName(this.id);
+            return Objects.requireNonNullElse(n,this.name);
         }
         else
         {
@@ -86,7 +84,11 @@ public class PlayerReference {
     public Component getNameComponent(ISidedContext context) { return Component.literal(this.getName(context)); }
     public ItemStackTemplate getSkull() { return ItemHelper.skullForPlayer(this.id); }
 
-    private PlayerReference(UUID playerID, String name, boolean forceName) { this.id = playerID; this.name = name; this.forceName = forceName; }
+    private PlayerReference(UUID playerID,String name,boolean forceName) {
+        this.id = Objects.requireNonNull(playerID);
+        this.name = Objects.requireNonNull(name);
+        this.forceName = forceName;
+    }
     private PlayerReference(UUID playerID, String name) { this(playerID,name,false); }
 
     /**
@@ -98,38 +100,24 @@ public class PlayerReference {
         return copy;
     }
 
-    public boolean is(PlayerReference player)
-    {
-        if(player == null)
-            return false;
-        return is(player.id);
-    }
+    public boolean is(PlayerReference player) { return is(player.id); }
 
-    public boolean isExact(PlayerReference player)
-    {
-        if(player == null)
-            return false;
-        return is(player.id) && !this.forceName && !player.forceName;
-    }
+    public boolean isExact(PlayerReference player) { return this.equals(player); }
 
     public boolean is(GameProfile profile) { return is(profile.id()); }
 
-    public boolean is(UUID entityID)
-    {
-        if(entityID == null)
-            return false;
-        return entityID.equals(this.id);
-    }
+    public boolean is(UUID entityID) { return entityID.equals(this.id); }
 
     public boolean is(Entity entity)
     {
-        if(entity == null)
-            return false;
+        if(entity instanceof Player p)
+            return this.is(p.getGameProfile());
         return entity.getUUID().equals(this.id);
     }
 
     public boolean isOnline() { return this.getPlayer() != null; }
 
+    @Nullable
     public Player getPlayer() {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if(server != null)
@@ -137,35 +125,19 @@ public class PlayerReference {
         return null;
     }
 
-    public static PlayerReference of(UUID playerID, String name)
-    {
-        if(playerID == null)
-            throw new RuntimeException("Cannot make a PlayerReference from a null player ID!");
-        return new PlayerReference(playerID, name);
-    }
+    public static PlayerReference of(UUID playerID,String name) { return new PlayerReference(playerID,name); }
 
-    public static PlayerReference of(GameProfile playerProfile) {
-        return of(playerProfile.id(),playerProfile.name());
-    }
+    public static PlayerReference of(GameProfile playerProfile) { return of(playerProfile.id(),playerProfile.name()); }
 
-    @Nullable
     public static PlayerReference of(Entity entity)
     {
         if(entity instanceof Player player)
-            return of(player);
-        return null;
+            return of(player.getGameProfile());
+        return of(entity.getUUID(),entity.getDisplayName().getString());
     }
 
     @Nullable
-    public static PlayerReference of(Player player)
-    {
-        if(player == null)
-            return null;
-        return of(player.getGameProfile());
-    }
-
-    @Nullable
-    public static PlayerReference of(ISidedContext context, String playerName)
+    public static PlayerReference of(ISidedContext context,String playerName)
     {
         if(playerName.isBlank())
             return null;
@@ -183,24 +155,18 @@ public class PlayerReference {
         return null;
     }
 
-    public static PlayerReference dummy(String dummyName) {
-        PlayerReference pr = new PlayerReference(new UUID(0,0),dummyName);
-        pr.forceName = true;
-        return pr;
+    public static PlayerReference dummy(String dummyName) { return new PlayerReference(new UUID(0,0),dummyName,true); }
+
+    public static boolean isInList(List<PlayerReference> list,Entity entity) {
+        return list.stream().anyMatch(p -> p.is(entity));
     }
 
-    public static boolean isInList(List<PlayerReference> list, Entity entry) { if(entry != null) return isInList(list, entry.getUUID()); return false; }
+    public static boolean isInList(List<PlayerReference> list,PlayerReference entry) {
+        return list.stream().anyMatch(p -> p.is(entry));
+    }
 
-    public static boolean isInList(List<PlayerReference> list, PlayerReference entry) { if(entry != null) return isInList(list, entry.id); return false; }
-
-    public static boolean isInList(List<PlayerReference> list, UUID id)
-    {
-        for(PlayerReference player : list)
-        {
-            if(player != null && player.is(id))
-                return true;
-        }
-        return false;
+    public static boolean isInList(List<PlayerReference> list, UUID id) {
+        return list.stream().anyMatch(p -> p.is(id));
     }
 
     public static boolean addToList(List<PlayerReference> list, PlayerReference entry)
@@ -213,9 +179,9 @@ public class PlayerReference {
         return false;
     }
 
-    public static boolean removeFromList(List<PlayerReference> list, PlayerReference entry) { if(entry != null) return removeFromList(list, entry.id); return false; }
+    public static boolean removeFromList(List<PlayerReference> list,PlayerReference entry) { return removeFromList(list,entry.id); }
 
-    public static boolean removeFromList(List<PlayerReference> list, UUID id)
+    public static boolean removeFromList(List<PlayerReference> list,UUID id)
     {
         for(int i = 0; i < list.size(); ++i)
         {
@@ -232,6 +198,7 @@ public class PlayerReference {
     /**
      * Only run on server.
      */
+    @Nullable
     public static String getPlayerName(UUID playerID)
     {
         try {
@@ -252,6 +219,7 @@ public class PlayerReference {
     /**
      * Only run on server.
      */
+    @Nullable
     public static UUID getPlayerID(String playerName)
     {
         try {

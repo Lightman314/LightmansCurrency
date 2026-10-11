@@ -122,7 +122,7 @@ public class MoneyTransferClientTab extends ATMClientTab<MoneyTransferTab> imple
     }
 
     private boolean allowAccount(BankReference reference) {
-        return reference != null && !reference.equals(this.getSelectedAccount());
+        return !reference.equals(this.getSelectedAccount());
     }
 
     private int getTransferColor(IconButton button) {
@@ -206,4 +206,8 @@ public class MoneyTransferClientTab extends ATMClientTab<MoneyTransferTab> imple
         if(message.contains("transferResponse"))
             this.responseMessage = message.getText("transferResponse");
     }
+
+    @Override
+    public boolean hideInventoryLabel() { return true; }
+
 }

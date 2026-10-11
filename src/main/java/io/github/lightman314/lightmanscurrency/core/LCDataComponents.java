@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.data_components.Stored
 import io.github.lightman314.lightmanscurrency.api.trader.settings_storage.CopiedTraderSettings;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeHolder;
 import io.github.lightman314.lightmanscurrency.api.upgrades.data.NumberSource;
+import io.github.lightman314.lightmanscurrency.features.cash_register.TraderPositionSet;
 import io.github.lightman314.lightmanscurrency.features.colors.ColorDisplay;
 import io.github.lightman314.lightmanscurrency.features.wallet.WalletItem;
 import io.github.lightman314.lightmanscurrency.features.wallet.WalletUpgradeData;
@@ -45,6 +46,9 @@ public final class LCDataComponents {
 
     public static final DeferredHolder<DataComponentType<?>,DataComponentType<StoredTrader>> STORED_TRADER = register("stored_trader",StoredTrader.CODEC,StoredTrader.STREAM_CODEC);
     public static final DeferredHolder<DataComponentType<?>,DataComponentType<CopiedTrader>> COPIED_TRADER = register("copied_trader",CopiedTrader.CODEC,CopiedTrader.STREAM_CODEC);
+
+    //Cash Register
+    public static final DeferredHolder<DataComponentType<?>,DataComponentType<TraderPositionSet>> TRADER_POSITIONS = register("trader_positions", TraderPositionSet.CODEC, TraderPositionSet.STREAM_CODEC);
 
     //Color Display
     public static final DeferredHolder<DataComponentType<?>,DataComponentType<ColorDisplay>> COLOR_DISPLAY = register("color_display",ColorDisplay.CODEC,ColorDisplay.STREAM_CODEC);

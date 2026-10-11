@@ -58,7 +58,8 @@ public final class TextEntry {
     public static TextEntry widget(String modid, String key) { return new TextEntry("widget." + modid + "." + key); }
     public static TextEntry message(String modid, String key) { return new TextEntry("message." + modid + "." + key); }
     public static TextEntry blurb(String modid, String key) { return new TextEntry("blurb." + modid + "." + key); }
-    public static TextEntry command(String modid, String key) { return new TextEntry("command." + modid + "." + key); }
+    public static TextEntry command(String modid,String key) { return new TextEntry("command." + modid + "." + key); }
+    public static TextEntry command(String modid,Supplier<String> key) { return new TextEntry(() -> "command." + modid + "." + key.get()); }
     public static TextEntry argument(String key) { return new TextEntry("command.argument." + key); }
 
     //Custom Inputs

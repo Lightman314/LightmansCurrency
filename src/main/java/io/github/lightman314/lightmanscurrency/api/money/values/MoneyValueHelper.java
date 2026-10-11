@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.helpers.resource.access.SidedItemAccess;
+import io.github.lightman314.lightmanscurrency.api.money.OverflowHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.player.PlayerMoneyResourceHandler;
 import net.minecraft.ChatFormatting;
@@ -13,13 +14,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
-import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 public class MoneyValueHelper {
 
@@ -135,18 +135,18 @@ public class MoneyValueHelper {
     /**
      * Creates a {@link PlayerMoneyResourceHandler} for the player which can be used to give or take money from the player directly.
      * @param player The player to create the Resource Handler for.
-     * @param allowOverflow Whether the players inventory can be used to handle overflowing items (i.e. coins that won't fit in their wallet).
+     * @param overflowModifier Whether the players inventory can be used to handle overflowing items (i.e. coins that won't fit in their wallet).
      * @return A Player Money Resource Handler that can accurately insert or extract money from the player.
      */
     @Nullable
-    public PlayerMoneyResourceHandler createMoneyHandlerForPlayer(Player player,boolean allowOverflow) { return null; }
+    public PlayerMoneyResourceHandler createMoneyHandlerForPlayer(Player player,UnaryOperator<OverflowHandler> overflowModifier) { return null; }
 
     /**
      * Creates a {@link MoneyResourceHandler}
      * @implSpec Ensure that the {@code overflowHandler} is only utilized by the generated Money Resource Handler <b>after</b> the transaction has been commited
      */
     @Nullable
-    public MoneyResourceHandler wrapContainer(ResourceHandler<ItemResource> itemResource,BiConsumer<ItemStack, TransactionContext> overflowHandler, ISidedContext context) { return null; }
+    public MoneyResourceHandler wrapContainer(ResourceHandler<ItemResource> itemResource, OverflowHandler overflowHandler, ISidedContext context) { return null; }
 
     public boolean allowInMoneySlot(ItemStack stack) { return false; }
 

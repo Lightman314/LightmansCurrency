@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.attachment.AttachmentWithContext;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
+import io.github.lightman314.lightmanscurrency.api.money.OverflowHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.builtin.EmptyMoneyResource;
 import io.github.lightman314.lightmanscurrency.core.neoforge.LCDataAttachments;
@@ -26,8 +27,6 @@ import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
-
-import java.util.function.BiConsumer;
 
 @EventBusSubscriber
 public final class WalletAttachment extends SnapshotJournal<ItemStack> implements ItemAccess, AttachmentWithContext {
@@ -75,8 +74,7 @@ public final class WalletAttachment extends SnapshotJournal<ItemStack> implement
         return this.wallet;
     }
 
-    private boolean visible = true;
-    private boolean wasVisible = this.visible;
+    private boolean visible,wasVisible = true;
     public boolean isVisible() {
         if(this.useCuriosData())
             return LCCuriosHelper.get().getWalletVisibility(this.entity);
@@ -116,7 +114,7 @@ public final class WalletAttachment extends SnapshotJournal<ItemStack> implement
         return EmptyMoneyResource.INSTANCE;
     }
 
-    public MoneyResourceHandler getContentHandler(BiConsumer<ItemStack,TransactionContext> overflowHandler, ISidedContext context) {
+    public MoneyResourceHandler getContentHandler(OverflowHandler overflowHandler, ISidedContext context) {
         if(WalletItem.isWallet(this.wallet))
         {
             WalletStorage storage = new WalletStorage(this);

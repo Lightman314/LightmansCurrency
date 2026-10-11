@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage;
 
 import com.google.common.collect.ImmutableList;
+import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.INodeAccess;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNode;
@@ -29,6 +30,9 @@ public abstract class TraderStorageTab extends MenuTab<TraderStorageMenu> implem
         TraderData trader = this.getTrader();
         return trader == null ? ImmutableList.of() : trader.getAllNodes();
     }
+
+    @Override
+    public final boolean isAdminPlayer() { return LCApi.isInAdminMode(this.getPlayer()); }
 
     @Override
     public final <T> T getPermission(Permission<T> permission) {

@@ -1,0 +1,24 @@
+{
+  "values": [
+    {
+      "id": "lightmanscurrency:banker/4/vending_machine",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:banker/4/network_trader",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:banker/4/freezer",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:banker/4/bookshelf",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:banker/4/money_mending",
+      "required": false
+    }
+  ]
+}

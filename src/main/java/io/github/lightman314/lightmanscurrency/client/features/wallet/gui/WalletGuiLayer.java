@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.client.features.wallet.gui;
 
+import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
@@ -20,6 +21,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.gui.GuiLayer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class WalletGuiLayer implements GuiLayer {
@@ -34,7 +36,6 @@ public class WalletGuiLayer implements GuiLayer {
     public void render(GuiGraphicsExtractor guiGraphics,DeltaTracker deltaTracker) {
         if(!LCConfig.CLIENT.walletOverlayEnabled.get())
             return;
-
         try {
             FancyGuiExtractor gui = new FancyGuiExtractor(guiGraphics,0f);
             Minecraft mc = Minecraft.getInstance();
@@ -74,13 +75,21 @@ public class WalletGuiLayer implements GuiLayer {
                 //Confirm at least the first value is an item based value
                 //If a money helper is grouping non-item-based money with item-based money that's their issue at this point
                 if(randomValue.getFirst() instanceof IItemBasedValue) {
+                    List<Pair<ItemStack,ScreenPosition>> pendingItems = new ArrayList<>();
                     for(MoneyValue value : randomValue) {
                         if(value instanceof IItemBasedValue iv) {
                             for(ItemStack coin : iv.getAsItemList()) {
-                                gui.item(coin,currentPosition);
+                                pendingItems.add(Pair.of(coin,currentPosition));
                                 currentPosition = currentPosition.offset(offsetAmount,0);
                             }
                         }
+                    }
+                    //Cycle through the list from right to left so that overlapping coins won't overlap the previous coins count
+                    int delta = corner.isLeft() ? -1 : 1;
+                    int start = corner.isLeft() ? pendingItems.size() - 1 : 0;
+                    for(int i = start; i >= 0 && i < pendingItems.size();i += delta) {
+                        var pair = pendingItems.get(i);
+                        gui.item(pair.getFirst(),pair.getSecond());
                     }
                 }
                 else //If it's not an item-base value, forcibly use the text display

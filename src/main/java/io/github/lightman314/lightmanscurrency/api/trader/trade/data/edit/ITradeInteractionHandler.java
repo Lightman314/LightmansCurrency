@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit;
 
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.TradingNode;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeData;
 
 public interface ITradeInteractionHandler {
@@ -18,6 +19,11 @@ public interface ITradeInteractionHandler {
     default void changeSelection(TradeSlot slot) {}
     default void openAdvancedEdit(TradeData trade,TradeSlot slot) {}
     void handlePriceEditPacket(TradeData trade, FancyPacketMap packet);
+    default boolean allowQuantityEdit(TradingNode<?> node) { return false; }
+    default boolean canAddTrade(TradingNode<?> node) { return false; }
+    default boolean canRemoveTrade(TradingNode<?> node) { return false; }
+    default void addTrade(TradingNode<?> node) {}
+    default void removeTrade(TradingNode<?> node) {}
 
     final class Null implements ITradeInteractionHandler {
         private Null() {}

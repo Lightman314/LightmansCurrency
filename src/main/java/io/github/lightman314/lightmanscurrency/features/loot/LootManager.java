@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.features.loot;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
-import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.StringListOption;
 import io.github.lightman314.lightmanscurrency.api.loot.DefaultLootConfigEvent;
 import io.github.lightman314.lightmanscurrency.api.loot.modifiers.IBonusLootModifier;
@@ -15,9 +14,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.context.ContextKeySet;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -37,12 +34,9 @@ import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 
 import javax.annotation.Nullable;
 import java.util.*;
-import java.util.stream.Stream;
 
 @EventBusSubscriber
 public final class LootManager implements LootAPI {
-
-    public static final ContextKeySet ENTITY_PARAMS = new ContextKeySet.Builder().optional(LootContextParams.ATTACKING_ENTITY).required(LootContextParams.DAMAGE_SOURCE).build();
 
     private boolean initialized = false;
     private LootManager() {}
@@ -55,7 +49,6 @@ public final class LootManager implements LootAPI {
         if(this.initialized)
             return;
         LCConfig.COMMON.addListener(LootManager::debugLootConfigs);
-        LootContextParamSets.REGISTRY.put(LCApi.id("entity_addon"),ENTITY_PARAMS);
         this.initialized = true;
     }
 
@@ -212,8 +205,9 @@ public final class LootManager implements LootAPI {
         //Add the killed by player condition to the loot context
         if(player != null)
             parameterBuilder.withParameter(LootContextParams.ATTACKING_ENTITY,player);
-        parameterBuilder.withParameter(LootContextParams.DAMAGE_SOURCE,damageSource);
-        LootParams params = parameterBuilder.create(ENTITY_PARAMS);
+        parameterBuilder.withParameter(LootContextParams.ORIGIN,entity.position())
+                        .withParameter(LootContextParams.DAMAGE_SOURCE,damageSource);
+        LootParams params = parameterBuilder.create(LootContextParamSets.ENTITY);
         return new LootContext.Builder(params).create(Optional.empty());
     }
 
@@ -275,14 +269,11 @@ public final class LootManager implements LootAPI {
 
     private static boolean configContainsEntity(StringListOption option,EntityType<?> type) {
         Identifier id = BuiltInRegistries.ENTITY_TYPE.getKey(type);
-        if(id == null)
-            return false;
-        Stream<TagKey<EntityType<?>>> entityTags = type.getTags();
         for(String entry : option.get()) {
             try {
                 if(entry.startsWith("#")) {
                     Identifier tagKey = Identifier.parse(entry.substring(1));
-                    if(entityTags.anyMatch(tag -> tag.location().equals(tagKey)))
+                    if(type.getTags().anyMatch(tag -> tag.location().equals(tagKey)))
                         return true;
                 }
                 else {

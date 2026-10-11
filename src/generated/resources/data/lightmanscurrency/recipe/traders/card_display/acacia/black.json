@@ -5,7 +5,7 @@
     "c": "#c:chests/wooden",
     "l": "minecraft:acacia_log",
     "w": "minecraft:black_wool",
-    "x": "lightmanscurrency:trading_core"
+    "x": "lightmanscurrency:trading_mechanism"
   },
   "pattern": [
     "  w",

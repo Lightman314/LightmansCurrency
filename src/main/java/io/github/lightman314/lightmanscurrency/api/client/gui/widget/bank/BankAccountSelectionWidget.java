@@ -94,12 +94,13 @@ public class BankAccountSelectionWidget extends AbstractMultiWidget.LateChildren
     private boolean searchFilter(BankReference reference) {
         if(this.lastSearch.isBlank())
             return true;
-        BankAccount account = reference == null ? null : reference.get();
+        BankAccount account = reference.get();
         if(account == null)
             return false;
         return account.getName().getString().toLowerCase().contains(this.lastSearch.toLowerCase());
     }
 
+    @Nullable
     private BankReference getAccount(int index) { return ListHelper.getOrNull(this.accountCache,index); }
 
     private void selectAccount(int index) {
@@ -149,13 +150,6 @@ public class BankAccountSelectionWidget extends AbstractMultiWidget.LateChildren
             return -1;
         if(hB && !hA)
             return 1;
-        //Put null entries at the bottom of the list
-        if(rA != null && rB == null)
-            return -1;
-        if(rB != null && rA == null)
-            return 1;
-        if(rA == null && rB == null)
-            return 0;
 
         //Otherwise sort by the accounts priority (inverted so that high priority is first)
         int priority = Integer.compare(rB.sortPriority(),rA.sortPriority());
@@ -169,7 +163,7 @@ public class BankAccountSelectionWidget extends AbstractMultiWidget.LateChildren
                 return -1;
             if(baB != null && baA == null)
                 return 1;
-            if(baA == null && baB == null)
+            if(baA == null)
                 return 0;
             //Sort by name
             return baA.getName().getString().compareToIgnoreCase(baB.getName().getString());

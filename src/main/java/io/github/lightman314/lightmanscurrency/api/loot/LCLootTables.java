@@ -35,6 +35,14 @@ public class LCLootTables {
     public static final Identifier CHEST_DROPS_T5 = register("loot_addons/chest/tier5");
     public static final Identifier CHEST_DROPS_T6 = register("loot_addons/chest/tier6");
 
+    public static final Identifier CHEST_ADDON_BONUS_CHEST = register("chests/additions/spawn_bonus_chest");
+    public static final Identifier CHEST_ADDON_BASTION_TREASURE = register("chests/additions/bastion_treasure");
+    public static final Identifier CHEST_ADDON_END_CITY_TREASURE = register("chests/additions/end_city_treasure");
+    public static final Identifier CHEST_ADDON_WOODLAND_MANSION = register("chests/additions/woodland_mansion");
+    public static final Identifier CHEST_ADDON_BURIED_TREASURE = register("chests/additions/buried_treasure");
+    public static final Identifier CHEST_ADDON_SHIPWRECK_TREASURE = register("chests/additions/shipwreck_treasure");
+    public static final Identifier CHEST_ADDON_ANCIENT_CITY = register("chests/additions/ancient_city");
+
     public static final Identifier ARCHAEOLOGY_VILLAGE_DESERT_BANKER = register("archaeology/village/desert_banker");
     public static final Identifier ARCHAEOLOGY_VILLAGE_PLAINS_SHOP = register("archaeology/village/plains_shop");
     public static final Identifier ARCHAEOLOGY_VILLAGE_TAIGA_SHOP = register("archaeology/village/taiga_shop");

@@ -23,7 +23,7 @@ import java.util.Set;
 
 public class LCBlockLootSubProvider extends BlockLootSubProvider {
 
-    private static final Set<Item> EXPLOSION_RESISTANT = Set.of();
+    private static final Set<Item> EXPLOSION_RESISTANT = Set.of(LCItems.COIN_NETHERITE.get(),LCBlocks.COIN_PILE_NETHERITE.asItem(),LCBlocks.COIN_BLOCK_NETHERITE.asItem());
 
     public LCBlockLootSubProvider(HolderLookup.Provider registries) { this(EXPLOSION_RESISTANT,FeatureFlags.REGISTRY.allFlags(),registries); }
     protected LCBlockLootSubProvider(Set<Item> explosionResistant, FeatureFlagSet enabledFeatures,HolderLookup.Provider registries) {
@@ -55,6 +55,8 @@ public class LCBlockLootSubProvider extends BlockLootSubProvider {
         this.dropSelf(LCBlocks.COIN_MINT.get());
         //ATM
         this.tallDropSelf(LCBlocks.ATM.get());
+        //Cash Register
+        this.dropSelf(LCBlocks.CASH_REGISTER.get());
         //Trading Terminal
         this.dropSelf(LCBlocks.TRADING_TERMINAL.get());
     }

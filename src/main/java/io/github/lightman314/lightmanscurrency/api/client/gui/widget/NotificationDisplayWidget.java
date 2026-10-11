@@ -132,7 +132,7 @@ public class NotificationDisplayWidget extends AbstractMultiWidget.LateChildren 
                     textWidth -= 20;
                 //Text is now black in all states
                 int textColor = ARGB.opaque(0);
-                int centerY = yPos + ((HEIGHT_PER_ROW - gui.getFont().lineHeight) / 2);
+                int centerY = yPos + 7;
                 if(n.getCount() > 1) {
                     //Render quantity text
                     String countText = NumberHelper.prettyInteger(n.getCount());

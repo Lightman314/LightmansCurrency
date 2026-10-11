@@ -9,6 +9,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.api.helpers.ExtractionResults;
 import io.github.lightman314.lightmanscurrency.api.helpers.ResourceHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
+import io.github.lightman314.lightmanscurrency.api.trader.filtering.FilterHelper;
+import io.github.lightman314.lightmanscurrency.api.trader.filtering.PendingSearch;
+import io.github.lightman314.lightmanscurrency.api.trader.filtering.interfaces.ISearchFilterTrade;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
@@ -40,7 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ItemTradeData extends TradeDataWithRules implements IItemStorageFilter, SettingsIOTrade {
+public class ItemTradeData extends TradeDataWithRules implements IItemStorageFilter, SettingsIOTrade, ISearchFilterTrade {
 
     private static final MapCodec<ItemTradeData> MAP_CODEC = buildCodec(ItemTradeData::new);
     public static final Codec<ItemTradeData> CODEC = MAP_CODEC.codec();
@@ -291,6 +294,13 @@ public class ItemTradeData extends TradeDataWithRules implements IItemStorageFil
         this.setItemChanged(0);
         this.getItem(1).copyFrom(data.read("item2",TradeItem.CODEC).orElse(TradeItem.create()));
         this.setItemChanged(1);
+    }
+
+    @Override
+    public void applySearchFilters(PendingSearch search) {
+        List<FilterHelper.ItemWithContext> itemList = this.sellItems.stream().map(FilterHelper.ItemWithContext::new).toList();
+        search.processFilter(FilterHelper.ITEM,FilterHelper.filterItemsWithContext(itemList,this.registryAccess()));
+        search.processFilter(FilterHelper.TOOLTIP,FilterHelper.filterItemTooltipsWithContext(itemList,this.registryAccess()));
     }
 
 }

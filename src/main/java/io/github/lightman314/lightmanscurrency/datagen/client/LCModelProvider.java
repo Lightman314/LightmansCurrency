@@ -126,6 +126,8 @@ public class LCModelProvider extends ModelProvider {
         //ATM
         this.tallRotatableBlockWithItem(blockModels,itemModels,LCBlocks.ATM);
         this.existingItem(itemModels,LCItems.ATM_PORTABLE);
+        //Cash Register
+        this.rotatableBlockWithItem(blockModels,itemModels,LCBlocks.CASH_REGISTER);
         //Terminal
         this.rotatableBlockWithItem(blockModels,itemModels,LCBlocks.TRADING_TERMINAL);
         this.existingItem(itemModels,LCItems.TRADING_TERMINAL_PORTABLE);

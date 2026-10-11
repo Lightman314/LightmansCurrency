@@ -8,11 +8,13 @@ import com.mojang.datafixers.Products;
 import com.mojang.datafixers.util.Function6;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.bank_account.notifications.BankInterestNotification;
 import io.github.lightman314.lightmanscurrency.api.bank_account.notifications.LowBalanceNotification;
 import io.github.lightman314.lightmanscurrency.api.bank_account.salary.SalaryData;
 import io.github.lightman314.lightmanscurrency.api.codecs.partial.SPart6;
+import io.github.lightman314.lightmanscurrency.api.helpers.debug.DebugHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.IRegistryAccess;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ITickerServer;
@@ -112,10 +114,13 @@ public class BankAccount extends IRegistryAccess.WithHolder implements SortableM
 
     private final Map<DualKey,NotificationSnapshot> notificationListeners = new HashMap<>();
 
-    private final UnlimitedMoneyStorage storage = new UnlimitedMoneyStorage().withListener(() ->
-            this.setChanged(builder -> builder.setList("money",LCFancyPacketTypes.MONEY,this.storage.getAllResources())));
+    private final UnlimitedMoneyStorage storage = new UnlimitedMoneyStorage().withListener(this::onMoneyChanged);
 
     public UnlimitedMoneyStorage getMoneyStorage() { return this.storage; }
+
+    private void onMoneyChanged() {
+        this.setChanged(builder -> builder.setList("money",LCFancyPacketTypes.MONEY,this.storage.getAllResources()));
+    }
 
     public List<SalaryData> salaryData = new ArrayList<>();
     public List<SalaryData> getSalaries() { return Collections.unmodifiableList(this.salaryData); }
@@ -186,7 +191,7 @@ public class BankAccount extends IRegistryAccess.WithHolder implements SortableM
         return (notification) -> LCApi.getNotificationAPI().pushPlayerNotification(playerID,notification);
     }
 
-    protected final NotificationHolder notifications = new NotificationHolder();
+    protected final NotificationHolder notifications = new NotificationHolder().setSidedContext(this);
 
     public List<NotificationStack> getNotifications() { return this.notifications.getNotifications(); }
 
@@ -215,8 +220,8 @@ public class BankAccount extends IRegistryAccess.WithHolder implements SortableM
             tx.commit();
             //Check if this interaction triggered a low-balance notification
             MoneyValue notificationLevel = this.getNotificationLevelFor(type);
-            long newLevel = notificationLevel.getInternalValue();
-            if(oldValue >= newLevel && this.storage.getResource(type).getInternalValue() < newLevel) {
+            long notificationValue = notificationLevel.getInternalValue();
+            if(oldValue >= notificationValue && this.storage.getResource(type).getInternalValue() < notificationValue) {
                 //Attach a low-balance notification snapshot listener for this entry
                 if(!this.notificationListeners.containsKey(result.getKey())) {
                     NotificationSnapshot snapshot = new NotificationSnapshot(result.getKey(),notificationLevel);
@@ -229,13 +234,15 @@ public class BankAccount extends IRegistryAccess.WithHolder implements SortableM
     }
 
     @Override
-    public MoneyValue extract(MoneyValue value, TransactionContext transaction) { return this.withdrawMoney(value,transaction); }
+    public MoneyValue extract(MoneyValue value,TransactionContext transaction) {
+        return this.withdrawMoney(value,transaction);
+    }
 
     public BankAccount() {
         this(new UnlimitedMoneyStorage(),new NotificationHolder(),"Unknown",new HashMap<>(),0,new ArrayList<>());
     }
 
-    protected BankAccount(UnlimitedMoneyStorage storage, NotificationHolder logger, String ownerName, Map<DualKey,MoneyValue> notificationLevels, int cardValidation, List<SalaryData> salaries)
+    protected BankAccount(UnlimitedMoneyStorage storage,NotificationHolder logger,String ownerName,Map<DualKey,MoneyValue> notificationLevels,int cardValidation,List<SalaryData> salaries)
     {
         this.storage.copyFrom(storage);
         this.notifications.loadFrom(logger.getNotifications());
@@ -261,6 +268,9 @@ public class BankAccount extends IRegistryAccess.WithHolder implements SortableM
 
     public final void handlePacket(FancyPacketMap data)
     {
+        //Handle Money Storage Sync
+        if(data.contains("money"))
+            this.storage.copyFrom(data.getList("money",LCFancyPacketTypes.MONEY));
         //Handle "Add Salary" methods
         int addCount = data.getInt("AddSalary");
         for(int i = 0; i < addCount; ++i)
@@ -286,10 +296,8 @@ public class BankAccount extends IRegistryAccess.WithHolder implements SortableM
             for(MoneyValue value : data.getList("NotificationLevels",LCFancyPacketTypes.MONEY))
                 this.notificationLevels.put(value.getKey(),value);
         }
-        if(data.contains("AddNotification"))
-        {
-            for(Notification n : data.getList("AddNotification", LCFancyPacketTypes.NOTIFICATION))
-                this.notifications.postNotification(n);
+        if(data.contains("AddNotification")) {
+            data.getList("AddNotification", LCFancyPacketTypes.NOTIFICATION).forEach(this.notifications::addClientNotification);
         }
     }
 

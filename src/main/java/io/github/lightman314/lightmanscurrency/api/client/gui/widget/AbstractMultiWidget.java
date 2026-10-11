@@ -58,6 +58,10 @@ public abstract class AbstractMultiWidget extends FancyWidget implements IMultiW
 
     public static abstract class LateChildren extends AbstractMultiWidget {
         protected LateChildren(AbstractBuilder<?, ? extends LateChildren> builder) { super(builder); }
+        //By default, pretend this widget doesn't exist for late-children multi-widgets
+        //Otherwise it will prevent interacting with any children in this widgets area
+        @Override
+        public boolean isMouseOver(double mouseX, double mouseY) { return false; }
         @Override
         protected final void addEarlyChildren(ScreenArea area) { }
     }

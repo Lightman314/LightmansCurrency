@@ -1,24 +1,25 @@
 package io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces;
 
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.INodeAccess;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 
 public interface IAdminSettingProvider {
 
-    default boolean hasInfiniteStock(boolean currentState) { return currentState; }
-    default boolean shouldStorePrice(boolean currentState) { return currentState; }
+    default void modifyInfiniteStock(MutableBoolean currentState) { }
+    default void modifyStorePrice(MutableBoolean currentState) {  }
 
     static boolean hasInfiniteStock(INodeAccess trader) {
-        boolean hasInfiniteStock = false;
+        MutableBoolean hasInfiniteStock = new MutableBoolean(false);
         for(IAdminSettingProvider rule : trader.getNodes(IAdminSettingProvider.class))
-            hasInfiniteStock = rule.hasInfiniteStock(hasInfiniteStock);
-        return hasInfiniteStock;
+            rule.modifyInfiniteStock(hasInfiniteStock);
+        return hasInfiniteStock.booleanValue();
     }
 
     static boolean shouldStorePrice(INodeAccess trader) {
-        boolean shouldStorePrice = true;
+        MutableBoolean shouldStorePrice = new MutableBoolean(true);
         for(IAdminSettingProvider rule : trader.getNodes(IAdminSettingProvider.class))
-            shouldStorePrice = rule.shouldStorePrice(shouldStorePrice);
-        return shouldStorePrice;
+            rule.modifyStorePrice(shouldStorePrice);
+        return shouldStorePrice.booleanValue();
     }
 
 }

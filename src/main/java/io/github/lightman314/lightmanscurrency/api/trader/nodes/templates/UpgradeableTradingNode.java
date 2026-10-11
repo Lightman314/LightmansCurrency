@@ -7,6 +7,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.INodeAccess;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderArguments;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.UpgradeNode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IDisplayNode;
@@ -76,8 +77,7 @@ public abstract class UpgradeableTradingNode<T extends TradeData> extends Tradin
         if(key != null)
         {
             Optional<Number> arg = arguments.tryGet(key,Number.class);
-            if(arg.isPresent())
-                this.baseCount = Math.clamp(arg.get().intValue(),1, TraderData.GLOBAL_TRADE_LIMIT);
+            arg.ifPresent(number -> this.baseCount = Math.clamp(number.intValue(), 1, TraderData.GLOBAL_TRADE_LIMIT));
         }
     }
 
@@ -135,18 +135,40 @@ public abstract class UpgradeableTradingNode<T extends TradeData> extends Tradin
             this.upgradeCount -= Math.min(this.upgradeCount,overflow);
             this.refactorTrades();
         }
+        //If this is the only Upgradeable Trading Node, automatically equip all of them to this node
+        else if(this.isServer() && !hasMultipleUpgradeables(this)) {
+            int available = Math.min(this.getUnusedOfferUpgrades(),TraderData.GLOBAL_TRADE_LIMIT - this.getTradeCount());
+            if(available > 0) {
+                this.upgradeCount += available;
+                this.refactorTrades();
+            }
+        }
     }
 
     @Override
     public boolean allowUpgrade(UpgradeType type) { return type.is(LCUpgrades.TRADE_OFFER); }
 
-    @Override
-    public boolean showTradeCountButtons(Player player) { return this.hasAnyOfferUpgrades() && !this.hasAnyOfferUpgrades(); }
+    public static boolean hasMultipleUpgradeables(INodeAccess trader) { return trader.getNodes(UpgradeableTradingNode.class).size() > 1; }
 
     @Override
-    public boolean canAddTrade(Player player) { return LCApi.isInAdminMode(player) || this.getUnusedOfferUpgrades() > 0; }
+    public boolean showTradeCountButtons(Player player) {
+        if(LCApi.isInAdminMode(player))
+            return true;
+        return hasMultipleUpgradeables(this) && this.hasAnyOfferUpgrades() || this.upgradeCount > 0;
+    }
+
     @Override
-    public boolean canRemoveTrade(Player player) { return (LCApi.isInAdminMode(player) && this.trades.size() > 1) || this.upgradeCount > 0; }
+    public boolean canAddTrade(Player player) {
+        if(LCApi.isInAdminMode(player) && this.getTradeCount() < TraderData.GLOBAL_TRADE_LIMIT)
+            return true;
+        return this.getUnusedOfferUpgrades() > 0;
+    }
+    @Override
+    public boolean canRemoveTrade(Player player) {
+        if(LCApi.isInAdminMode(player) && this.trades.size() > 1)
+            return true;
+        return hasMultipleUpgradeables(this) && this.upgradeCount > 0;
+    }
 
     @Override
     public boolean tryAddTrade(Player player) {

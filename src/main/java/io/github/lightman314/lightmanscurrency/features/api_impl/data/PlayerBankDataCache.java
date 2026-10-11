@@ -11,7 +11,6 @@ import io.github.lightman314.lightmanscurrency.api.helpers.time.TimeHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
-import io.github.lightman314.lightmanscurrency.api.proxy.LCProxy;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.MinecraftServer;
@@ -73,8 +72,6 @@ public class PlayerBankDataCache extends FancyData {
     }
 
     private void setAccount(UUID player,BankAccount account) {
-        if(player == null)
-            return;
         this.attachAccount(player,account);
         BankEntry entry = this.playerAccounts.get(player);
         if(entry == null)
@@ -94,8 +91,6 @@ public class PlayerBankDataCache extends FancyData {
 
     public BankAccount getAccount(Player player) { return this.getAccount(player.getUUID()); }
     public BankAccount getAccount(UUID player) {
-        if(player == null)
-            return null;
         if(this.playerAccounts.containsKey(player))
             return this.playerAccounts.get(player).account;
         BankAccount newAccount = this.generateBankAccount(player);
@@ -165,13 +160,8 @@ public class PlayerBankDataCache extends FancyData {
     }
 
     public void setSelectedAccount(Player player,BankReference account) {
-        if(account == null)
+        if(this.isClient())
             return;
-        if(this.isClient()) {
-            if(!LCProxy.get().isSelf(player))
-                return;
-            //TODO send c2s packet requesting the selected account change
-        }
         if(!account.allowedAccess(player))
             return;
         UUID playerID = player.getUUID();
@@ -247,8 +237,7 @@ public class PlayerBankDataCache extends FancyData {
         if(data.contains("update")) {
             FancyPacketMap update = data.getMap("update");
             BankAccount account = this.getAccount(update.getUUID("id"));
-            if(account != null)
-                account.handlePacket(update);
+            account.handlePacket(update);
         }
     }
 

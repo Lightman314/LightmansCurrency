@@ -33,9 +33,9 @@ public class AccountInteractionTab extends ATMTab {
     @Override
     public Identifier getClientTabKey() { return CLIENT_KEY; }
 
+    public boolean hasMoneyInSlots() { return !this.getMoneyResource().isEmpty(); }
+
     public void depositMoney(MoneyValue amount) {
-        if(amount == null)
-            return;
         if(this.isClient()) {
             this.send(FancyPacketMap.map().set("depositMoney",LCFancyPacketTypes.MONEY,amount));
             return;
@@ -73,8 +73,6 @@ public class AccountInteractionTab extends ATMTab {
     }
 
     public void withdrawMoney(MoneyValue amount) {
-        if(amount == null)
-            return;
         if(this.isClient()) {
             this.send(FancyPacketMap.map().set("withdrawMoney",LCFancyPacketTypes.MONEY,amount));
             return;
@@ -99,9 +97,9 @@ public class AccountInteractionTab extends ATMTab {
     @Override
     public void handleMessage(FancyPacketMap message) {
         if(message.contains("depositMoney"))
-            this.depositMoney(message.get("depositMoney",LCFancyPacketTypes.MONEY));
+            this.depositMoney(message.get("depositMoney",LCFancyPacketTypes.MONEY,MoneyValue.empty()));
         if(message.contains("withdrawMoney"))
-            this.withdrawMoney(message.get("withdrawMoney",LCFancyPacketTypes.MONEY));
+            this.withdrawMoney(message.get("withdrawMoney",LCFancyPacketTypes.MONEY,MoneyValue.empty()));
 
     }
 }

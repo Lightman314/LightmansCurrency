@@ -38,6 +38,10 @@ public final class TextBoxWrapper<T> implements FancyRenderable, IRenderTick, IW
             m.lightmanscurrencySetAlreadyRenderered(true);
     }
 
+    //Only block the inventory button from closing the screen if the text box is currently visible
+    @Override
+    public boolean preventInventoryButtonFromClosingScreen() { return this.editBox.visible; }
+
     public boolean isActive() { return this.editBox.isActive(); }
 
     private TextBoxWrapper(Builder<T> builder) {

@@ -269,9 +269,6 @@ public final class MoneyValueWidget extends AbstractMultiWidget.LateChildren {
             this.handler.accept(value);
     }
 
-    @Override
-    public boolean isMouseOver(double mouseX, double mouseY) { return false; }
-
     public static Builder builder() { return new Builder(); }
 
     public static class Builder extends AbstractBuilder<Builder,MoneyValueWidget> {

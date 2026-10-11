@@ -9,6 +9,8 @@ import io.github.lightman314.lightmanscurrency.api.icon.builtin.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.customer.TraderCustomerClientTab;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.customer.TraderCustomerScreen;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.trader.data.TraderSource;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.DisplayNode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.TradingNode;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeIndexes;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeData;
@@ -25,6 +27,8 @@ public class NormalCustomerClientTab extends TraderCustomerClientTab<NormalCusto
         super(menu,commonTab,screen);
     }
 
+    private TradeDisplayArea tradeDisplay = null;
+
     @Override
     public IconData getIcon() { return ItemIcon.of(LCItems.TRADING_CORE); }
     @Override
@@ -32,17 +36,35 @@ public class NormalCustomerClientTab extends TraderCustomerClientTab<NormalCusto
 
     @Override
     protected void initialize(ScreenArea area, FancyPacketMap message) {
-        this.addChild(TradeDisplayArea.builder()
+        this.tradeDisplay = this.addChild(TradeDisplayArea.builder()
+                .withOldWidget(this.tradeDisplay)
                 .atPos(area.pos.offset(11,6))
                 .ofSize(area.width - 22,111)
                 .forTrader(this.getMenu().getTraderSource())
                 .withContext(this.getMenu()::getContext)
                 .withFilter(this::showTrade)
                 .onPress(this::attemptTrade)
+                .withSearchBox(this::showSearchBox)
                 .build());
     }
 
     protected boolean showTrade(TradeData trade) { return trade.isCustomerReady(); }
+
+    private boolean showSearchBox() {
+        TraderSource source = this.getTraderSource();
+        if(source.forceSearch())
+            return true;
+        if(source.isSimple()) {
+            //If there's only one trader, obey the "always show search box" display settting
+            TraderData trader = source.getSimpleTrader();
+            DisplayNode node = trader.getNode(DisplayNode.TYPE);
+            if(node != null)
+                return node.alwaysShowSearchBox();
+        }
+        else //If there's multiple traders, show the search box if there's 2 or more traders available
+            return source.getTraders().size() > 1;
+        return false;
+    }
 
     private void attemptTrade(TraderData trader,TradingNode<?> node,TradeData trade) {
         //Lookup and

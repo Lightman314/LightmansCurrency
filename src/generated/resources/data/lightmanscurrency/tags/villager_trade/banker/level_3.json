@@ -1,0 +1,24 @@
+{
+  "values": [
+    {
+      "id": "lightmanscurrency:banker/3/card_display",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:banker/3/armor_display",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:banker/3/ticket_kiosk",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:banker/3/terminal",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:banker/3/network_trader",
+      "required": false
+    }
+  ]
+}

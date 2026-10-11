@@ -12,6 +12,7 @@ import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
+import java.util.function.BooleanSupplier;
 
 public class BankInteractionWidget extends AbstractMultiWidget.LateChildren {
 
@@ -19,7 +20,7 @@ public class BankInteractionWidget extends AbstractMultiWidget.LateChildren {
 
     private final IBankInteractionHandler handler;
     private final int spacing;
-    private final boolean allowEmptyDeposits;
+    private final BooleanSupplier allowEmptyDeposits;
 
     private MoneyValueWidget amountSelection;
 
@@ -80,12 +81,12 @@ public class BankInteractionWidget extends AbstractMultiWidget.LateChildren {
 
     private boolean canDeposit() {
         BankAccount account = this.handler.getBankAccount();
-        return account != null && (this.allowEmptyDeposits || !this.amountSelection.getCurrentValue().isEmpty());
+        return account != null && (this.allowEmptyDeposits.getAsBoolean() || !this.amountSelection.getCurrentValue().isEmpty());
     }
 
     private void attemptDeposit() {
         MoneyValue amount = this.amountSelection.getCurrentValue();
-        if(this.allowEmptyDeposits || !amount.isEmpty()) {
+        if(this.allowEmptyDeposits.getAsBoolean() || !amount.isEmpty()) {
             this.handler.attemptDeposit(amount);
             this.amountSelection.changeValue(MoneyValue.empty());
         }
@@ -112,13 +113,13 @@ public class BankInteractionWidget extends AbstractMultiWidget.LateChildren {
 
         private IBankInteractionHandler handler = null;
         private int spacing = 5;
-        private boolean allowEmptyDeposits = true;
+        private BooleanSupplier allowEmptyDeposits = () -> false;
 
         public Builder withOldWidget(@Nullable BankInteractionWidget oldWidget) { this.oldWidget = oldWidget; return this; }
 
         public Builder withHandler(IBankInteractionHandler handler) { this.handler = handler; return this; }
         public Builder withSpacing(int spacing) { this.spacing = spacing; this.setHeight(MoneyValueWidget.HEIGHT + this.spacing + 35); return this; }
-        public Builder blockEmptyDeposits() { this.allowEmptyDeposits = false; return this; }
+        public Builder allowEmptyDeposits(BooleanSupplier allowEmptyDeposits) { this.allowEmptyDeposits = allowEmptyDeposits; return this; }
 
         @Override
         protected Builder getSelf() { return this; }

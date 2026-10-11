@@ -13,7 +13,7 @@ public final class DebugHelper {
 
     public static String sideName(Entity context) { return sideName(ISidedContext.wrap(context)); }
     public static String sideName(Level context) { return sideName(ISidedContext.known(context.isClientSide())); }
-    public static String sideName(ISidedContext context) { return context.isClient() ? "client" : "server"; }
+    public static String sideName(ISidedContext context) { return ISidedContext.getDebugSideName(context); }
 
     public static String debugList(Iterable<?> list) { return debugList(list,Object::toString); }
     public static String debugList(Iterable<?> list,String seperator) { return debugList(list,seperator,Object::toString); }

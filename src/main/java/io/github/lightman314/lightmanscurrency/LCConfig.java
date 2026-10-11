@@ -13,7 +13,13 @@ import io.github.lightman314.lightmanscurrency.api.loot.tiers.EntityPoolLevel;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.client.features.wallet.gui.WalletDisplayType;
 import io.github.lightman314.lightmanscurrency.core.LCItems;
+import io.github.lightman314.lightmanscurrency.features.villagers.config.ConfiguredTradeModOption;
+import io.github.lightman314.lightmanscurrency.features.villagers.config.VillagerTradeModsOption;
+import io.github.lightman314.lightmanscurrency.features.villagers.mods.ConfiguredTradeMod;
+import io.github.lightman314.lightmanscurrency.features.villagers.mods.VillagerTradeMods;
 import io.github.lightman314.lightmanscurrency.features.wallet.WalletItem;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
+import net.minecraft.world.entity.npc.villager.VillagerType;
 
 import java.util.ArrayList;
 
@@ -277,16 +283,13 @@ public final class LCConfig {
         public final BooleanOption piglinsBarterCoins = BooleanOption.createTrue();
 
         //Custom Trades
-        public final BooleanOption addCustomWanderingTrades = BooleanOption.createTrue();
-        public final BooleanOption addBankerVillager = BooleanOption.createTrue();
-        public final BooleanOption addCashierVillager = BooleanOption.createTrue();
         public final BooleanOption changeVanillaTrades = BooleanOption.createFalse();
         public final BooleanOption changeModdedTrades = BooleanOption.createFalse();
         public final BooleanOption changeWanderingTrades = BooleanOption.createFalse();
-        /*public final ConfiguredTradeModOption defaultEmeraldReplacementMod =
+        public final ConfiguredTradeModOption defaultEmeraldReplacementMod =
                 ConfiguredTradeMod.builder()
                         .defaults(LCItems.COIN_EMERALD)
-                        .bothForRegion(VillagerType.SNOW, LCItems.COIN_CHOCOLATE_EMERALD)
+                        .bothForRegion(VillagerType.SNOW,LCItems.COIN_CHOCOLATE_EMERALD)
                         .buildOption();
         public final VillagerTradeModsOption professionEmeraldReplacementOverrides = VillagerTradeMods.builder()
                 .forProfession(VillagerProfession.BUTCHER)
@@ -305,8 +308,8 @@ public final class LCConfig {
                 .forProfession(VillagerProfession.FLETCHER)
                 .defaultCost(LCItems.COIN_IRON)
                 .defaultResult(LCItems.COIN_COPPER)
-                .costForRegion(VillagerType.SNOW, LCItems.COIN_CHOCOLATE_IRON)
-                .resultForRegion(VillagerType.SNOW, LCItems.COIN_CHOCOLATE_COPPER).back()
+                .costForRegion(VillagerType.SNOW,LCItems.COIN_CHOCOLATE_IRON)
+                .resultForRegion(VillagerType.SNOW,LCItems.COIN_CHOCOLATE_COPPER).back()
                 .forProfession(VillagerProfession.LEATHERWORKER)
                 .defaults(LCItems.COIN_IRON)
                 .bothForRegion(VillagerType.SNOW, LCItems.COIN_CHOCOLATE_IRON).back()
@@ -316,7 +319,7 @@ public final class LCConfig {
                 .forProfession(VillagerProfession.SHEPHERD)
                 .defaults(LCItems.COIN_IRON)
                 .bothForRegion(VillagerType.SNOW, LCItems.COIN_CHOCOLATE_IRON).back()
-                .buildOption();*/
+                .buildOption();
 
         //Loot Items
         public final ItemOption lootItem1 = ItemOption.create(LCItems.COIN_COPPER);
@@ -356,7 +359,6 @@ public final class LCConfig {
         public final StringListOption chestDropsT6 = StringListOption.create(DefaultLootConfigEvent.Chest.collect(ChestPoolLevel.T6));
 
         //Event Options
-        public final BooleanOption chocolateEventCoins = BooleanOption.createTrue();
         public final BooleanOption eventStartingRewards = BooleanOption.createTrue();
         public final BooleanOption eventLootReplacements = BooleanOption.createTrue();
 
@@ -475,12 +477,8 @@ public final class LCConfig {
 
             builder.comment("Event Settings").push("events");
 
-            builder.comment("Whether the Chocolate Event Coins will be added to the coin data.",
-                            "Note: Disabling will not remove any Chocolate Coin items that already exist, this simply makes them no longer function as money")
-                    .add("chocolate", this.chocolateEventCoins);
-
             builder.comment("Whether custom events defined in the 'SeasonalEvents.json' config can give players the one-time reward for logging in during the event.")
-                    .add("startingRewards", this.eventStartingRewards);
+                    .add("startingRewards",this.eventStartingRewards);
 
             builder.comment("Whether custom events can replace a portion (or all) of the default loot with custom event loot.")
                     .add("lootReplacements",this.eventLootReplacements);
@@ -492,27 +490,18 @@ public final class LCConfig {
             builder.comment("Whether Piglins will accept gold coins as a valid bartering item")
                     .add("piglinsBarterCoins",this.piglinsBarterCoins);
 
-            builder.comment("Whether the wandering trader will have additional trades that allow you to buy misc items with money.")
-                    .add("addCustomWanderingTrades", this.addCustomWanderingTrades);
-
-            builder.comment("Whether the banker villager profession will have any registered trades.","The banker sells Lightman's Currency items for coins.")
-                    .add("addBanker", this.addBankerVillager);
-
-            builder.comment("Whether the cashier villager profession will have any registered trades.","The cashier sells an amalgamation of vanilla traders products for coins.")
-                    .add("addCashier", this.addCashierVillager);
-
             builder.comment("Villager Trade Modification","Note: Changes made only apply to newly generated trades. Villagers with trades already defined will not be changed.").push("modification");
 
             builder.comment("Whether vanilla villagers should have the Emeralds from their trades replaced with coins.")
-                    .add("changeVanillaTrades", this.changeVanillaTrades);
+                    .add("changeVanillaTrades",this.changeVanillaTrades);
 
             builder.comment("Whether villagers added by other mods should have the Emeralds from their trades replaced with coins.")
-                    .add("changeModdedTrades", this.changeModdedTrades);
+                    .add("changeModdedTrades",this.changeModdedTrades);
 
             builder.comment("Whether the wandering trader should have the emeralds from their trades replaced with the default replacement coin.")
-                    .add("changeWanderingTrades", this.changeWanderingTrades);
+                    .add("changeWanderingTrades",this.changeWanderingTrades);
 
-            /*builder.comment("The default coin to replace a trades emeralds with.",
+            builder.comment("The default coin to replace a trades emeralds with.",
                             "May seperate and define villager type specific entries by adding multiple items seperated by '-' with region")
                     .add("defaultEmeraldReplacementItem", this.defaultEmeraldReplacementMod);
 
@@ -526,7 +515,7 @@ public final class LCConfig {
                             "Each item-entry is either 1 or 2 item ids (e.g. \"mod:coin_item\" or \"mod:coin_item_1;mod:coin_item_2\".",
                             "When two are given, the first will replace the cost items (items the player must pay the villager) and the second will replace the result (items the player will be paid by the villager)",
                             "Every trader not on this list will use the default trader coin defined above.")
-                    .add("professionEmeraldReplacementOverrides", this.professionEmeraldReplacementOverrides);*/
+                    .add("professionEmeraldReplacementOverrides", this.professionEmeraldReplacementOverrides);
 
             builder.pop().pop();
 

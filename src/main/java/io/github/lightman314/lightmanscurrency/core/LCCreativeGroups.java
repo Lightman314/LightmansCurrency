@@ -88,6 +88,7 @@ public final class LCCreativeGroups {
                         p.accept(LCBlocks.ATM);
                         p.accept(LCItems.ATM_PORTABLE);
                         //Cash Register
+                        p.accept(LCBlocks.CASH_REGISTER);
                         //Trading Terminal
                         p.accept(LCBlocks.TRADING_TERMINAL);
                         p.accept(LCItems.TRADING_TERMINAL_PORTABLE);

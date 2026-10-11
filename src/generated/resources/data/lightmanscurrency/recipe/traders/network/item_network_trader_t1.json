@@ -13,7 +13,7 @@
     "c": "#c:chests/wooden",
     "e": "minecraft:ender_eye",
     "i": "#c:ingots/iron",
-    "x": "lightmanscurrency:trading_core"
+    "x": "lightmanscurrency:trading_mechanism"
   },
   "pattern": [
     "ici",

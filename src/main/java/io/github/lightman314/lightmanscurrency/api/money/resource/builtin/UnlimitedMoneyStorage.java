@@ -45,8 +45,7 @@ public class UnlimitedMoneyStorage extends SnapshotJournal<Unit> implements Mone
 
     public final UnlimitedMoneyStorage withListener(Runnable listener)
     {
-        if(!this.listeners.contains(listener))
-            this.listeners.add(listener);
+        this.listeners.add(listener);
         return this;
     }
 

@@ -38,7 +38,6 @@ public final class PlayerBankReference extends BankReference {
     public BankReferenceType<?> getType() { return TYPE; }
     @Override
     public int sortPriority() { return 1000000; }
-    @Nullable
     @Override
     public BankAccount get() {
         PlayerBankDataCache cache = PlayerBankDataCache.TYPE.get(this);

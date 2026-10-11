@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage;
 
+import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.client.gui.screen.menu.tabbed.ClientMenuTab;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.positioner.IMoveableWidget;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
@@ -32,6 +33,8 @@ public abstract class TraderStorageClientTab<C extends TraderStorageTab> extends
     public final <T extends TraderNode> T getNode(TraderNodeType<T> type) { return this.getCommonTab().getNode(type); }
     @Override
     public final List<TraderNode> getAllNodes() { return this.getCommonTab().getAllNodes(); }
+    @Override
+    public final boolean isAdminPlayer() { return LCApi.isInAdminMode(this.getPlayer()); }
     @Override
     public final <T> T getPermission(Permission<T> permission) { return this.getCommonTab().getPermission(permission); }
 

@@ -1,5 +1,20 @@
 {
   "values": [
-    "lightmanscurrency:wandering_trader/atm"
+    {
+      "id": "lightmanscurrency:wandering_trader/atm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:wandering_trader/ticket_station",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:wandering_trader/cash_register",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:wandering_trader/network_terminal",
+      "required": false
+    }
   ]
 }

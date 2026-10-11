@@ -6,10 +6,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
+import java.util.function.*;
 
 public final class ListHelper {
     private ListHelper() {}
@@ -76,11 +73,21 @@ public final class ListHelper {
     public static <T> boolean listEquals(List<T> list1,List<T> list2,BiFunction<T,T,Boolean> test) {
         if(list1.size() != list2.size())
             return false;
-        for(int i = 0; i < list1.size() && i < list2.size(); ++i) {
+        for(int i = 0; i < list1.size(); ++i) {
             if(!list1.get(i).equals(list2.get(i)))
                 return false;
         }
         return true;
+    }
+
+    @Nullable
+    public static <T> UnaryOperator<T> combineOperators(List<UnaryOperator<T>> list) {
+        if(list.isEmpty())
+            return null;
+        Function<T,T> first = list.getFirst();
+        for(int i = 1; i < list.size(); ++i)
+            first = first.andThen(list.get(i));
+        return first::apply;
     }
 
 }

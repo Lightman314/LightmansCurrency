@@ -4,12 +4,10 @@ import io.github.lightman314.lightmanscurrency.datagen.client.LCCloserItemPositi
 import io.github.lightman314.lightmanscurrency.datagen.client.LCEnglishProvider;
 import io.github.lightman314.lightmanscurrency.datagen.client.LCItemPositionProvider;
 import io.github.lightman314.lightmanscurrency.datagen.client.LCModelProvider;
-import io.github.lightman314.lightmanscurrency.datagen.common.LCEnchantmentProvider;
-import io.github.lightman314.lightmanscurrency.datagen.common.LCVillagerTradeProvider;
+import io.github.lightman314.lightmanscurrency.datagen.common.*;
 import io.github.lightman314.lightmanscurrency.datagen.common.curios.LCCuriosDataProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.loot.LCLootTableProvider;
 import io.github.lightman314.lightmanscurrency.datagen.common.tags.*;
-import io.github.lightman314.lightmanscurrency.datagen.common.LCRecipeProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
@@ -35,6 +33,7 @@ public final class LCDatagenEntry {
         event.createDatapackRegistryObjects(new RegistrySetBuilder()
                 .add(Registries.ENCHANTMENT,LCEnchantmentProvider::bootstrap)
                 .add(Registries.VILLAGER_TRADE,LCVillagerTradeProvider::bootstrap)
+                .add(Registries.TRADE_SET,LCTradeSetProvider::bootstrap)
         );
 
         DataGenerator generator = event.getGenerator();
@@ -54,6 +53,7 @@ public final class LCDatagenEntry {
         event.addProvider(LCRecipeProvider.create(output,registryFuture));
         //Loot
         event.addProvider(LCLootTableProvider.create(output,registryFuture));
+        event.addProvider(new LCGlobalLootModifierProvider(output,registryFuture));
         //Tags
         event.addProvider(new LCItemTagProvider(output,registryFuture));
         event.addProvider(new LCBlockTagProvider(output,registryFuture));
@@ -61,6 +61,7 @@ public final class LCDatagenEntry {
         event.addProvider(new LCTraderNodeTypeTagProvider(output,registryFuture));
         event.addProvider(new LCEnchantmentTagProvider(output,registryFuture));
         event.addProvider(new LCVillagerTradeTagProvider(output,registryFuture));
+        event.addProvider(new LCPoiTagProvider(output,registryFuture));
 
         //Modded Data
         if(ModList.get().isLoaded("curios"))

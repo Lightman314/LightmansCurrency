@@ -75,6 +75,9 @@ public class ItemSelectionWidget extends AbstractMultiWidget.LateChildren implem
 
     }
 
+    @Override
+    public boolean isMouseOver(double mouseX, double mouseY) { return true; }
+
     private List<ItemStack> getFilteredItems() { return new ArrayList<>(ItemSelectionHelper.getFilteredItems(this.filter)); }
 
     @Override

@@ -16,6 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.Event;
 import net.neoforged.bus.api.ICancellableEvent;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +59,7 @@ public abstract class TradeEvent extends Event {
          * Should only be constructed via {@link TradingNode#runPreTradeEvent(TradeContext, int)}
          */
         @ApiStatus.Internal
-        public Pre(TradeContext context, TradingNode<?> activeNode, TradeData trade) { super(context, activeNode, trade); }
+        public Pre(TradeContext context, TradingNode<?> activeNode,@Nullable TradeData trade) { super(context, activeNode, trade); }
 
         public void addMessage(TradeMessage message,boolean cancelTrade)
         {

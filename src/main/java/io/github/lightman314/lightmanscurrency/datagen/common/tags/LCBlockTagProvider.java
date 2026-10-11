@@ -20,6 +20,7 @@ public class LCBlockTagProvider extends BlockTagsProvider {
     @Override
     protected void addTags(HolderLookup.Provider registries) {
 
+        //Vanilla Tags
         this.tag(BlockTags.MINEABLE_WITH_PICKAXE)
                 .add(LCBlocks.COIN_PILE_COPPER,LCBlocks.COIN_BLOCK_COPPER)
                 .add(LCBlocks.COIN_PILE_IRON,LCBlocks.COIN_BLOCK_IRON)
@@ -40,7 +41,17 @@ public class LCBlockTagProvider extends BlockTagsProvider {
                 .addTag(LCTags.Blocks.GROUP_SINGLE_SHELF)
                 .addTag(LCTags.Blocks.GROUP_DOUBLE_SHELF);
 
-        this.tag(LCTags.Blocks.MULTI_BLOCK);
+        //Protection Tags
+        this.tag(BlockTags.DRAGON_IMMUNE)
+                .addTag(LCTags.Blocks.OWNER_PROTECTED);
+        this.tag(BlockTags.WITHER_IMMUNE)
+                .addTag(LCTags.Blocks.OWNER_PROTECTED);
+
+        //LC Tags
+        this.tag(LCTags.Blocks.MULTI_BLOCK)
+                .addBundle(LCBlocks.VENDING_MACHINE)
+                .addBundle(LCBlocks.LARGE_VENDING_MACHINE)
+                .add(LCBlocks.ATM);
 
         this.tag(LCTags.Blocks.OWNER_PROTECTED)
                 .addTag(LCTags.Blocks.GROUP_DISPLAY_CASE)

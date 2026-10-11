@@ -35,7 +35,6 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.conditions.ICondition;
-import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 import net.neoforged.neoforge.registries.DeferredItem;
 import org.jetbrains.annotations.Nullable;
 
@@ -99,6 +98,15 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('p',Items.PISTON)
                 .define('s',Items.SMOOTH_STONE)
                 .save(this.output.withConditions(ConfigCraftingCondition.of(LCConfig.COMMON.canCraftCoinMint)));
+
+        ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,LCBlocks.CASH_REGISTER)
+                .unlockedBy("money",this.moneyKnowledge())
+                .unlockedBy("trader",this.traderKnowledge())
+                .pattern("iii").pattern("ede").pattern("iii")
+                .define('i',Tags.Items.INGOTS_IRON)
+                .define('e',Tags.Items.ENDER_PEARLS)
+                .define('d',Items.DROPPER)
+                .save(this.output);
 
         //ATM
         ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,LCBlocks.ATM)
@@ -210,8 +218,7 @@ public class LCRecipeProvider extends RecipeProvider {
                     .define('w',ColorHelper.getWoolBlock(color))
                     .save(this.output,id("traders/display_case/" + color.getResourceSafeName())));
 
-        LCBlocks.SINGLE_SHELF.forEach((type,shelf) -> {
-            ICondition condition = type.isVanilla() ? null : new ModLoadedCondition(type.getModID());
+        LCBlocks.SINGLE_SHELF.forEach((type,shelf) ->
             WoodHelper.getSlab(type).ifPresent(slab ->
                 ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,shelf)
                         .group("trader_single_shelf")
@@ -220,15 +227,11 @@ public class LCRecipeProvider extends RecipeProvider {
                         .pattern("x").pattern("s")
                         .define('x',LCItems.TRADING_CORE)
                         .define('s',slab)
-                        .save(this.output(condition),this.id(type.generatePath("traders/single_shelf/")))
-            );
-        });
+                        .save(this.output,this.id(type.generatePath("traders/single_shelf/")))
+            ));
 
         LCBlocks.DOUBLE_SHELF.forEach((type,shelf) -> {
-            ICondition condition = type.isVanilla() ? null : new ModLoadedCondition(type.getModID());
-            ItemLike trader = LCBlocks.SINGLE_SHELF.get(type);
-            if(trader == null)
-                return;
+            ItemLike singleShelf = LCBlocks.SINGLE_SHELF.get(type);
             WoodHelper.getSlab(type).ifPresent(slab ->
                     ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,shelf)
                             .group("trader_double_shelf")
@@ -237,13 +240,12 @@ public class LCRecipeProvider extends RecipeProvider {
                             .unlockedBy("shelf",simpleRequirement(LCTags.Items.GROUP_SINGLE_SHELF))
                             .pattern("c").pattern("x").pattern("s")
                             .define('c',Tags.Items.CHESTS_WOODEN)
-                            .define('x',trader)
+                            .define('x',singleShelf)
                             .define('s',slab)
-                            .save(this.output(condition),this.id(type.generatePath("traders/double_shelf/"))));
+                            .save(this.output,this.id(type.generatePath("traders/double_shelf/"))));
         });
 
-        LCBlocks.CARD_DISPLAY.forEach((type,color,display) -> {
-            ICondition condition = type.isVanilla() ? null : new ModLoadedCondition(type.getModID());
+        LCBlocks.CARD_DISPLAY.forEach((type,color,display) ->
             WoodHelper.getLogAndPlank(type).ifPresent(pair ->
                 ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,display)
                         .unlockedBy("money",moneyKnowledge())
@@ -253,10 +255,8 @@ public class LCRecipeProvider extends RecipeProvider {
                         .define('l',pair.getFirst())
                         .define('w',ColorHelper.getWoolBlock(color))
                         .define('c',Tags.Items.CHESTS_WOODEN)
-                        .save(this.output(condition),
-                                this.id(type.generatePath("traders/card_display/","/" + color.getResourceSafeName())))
-            );
-        });
+                        .save(this.output,this.id(type.generatePath("traders/card_display/","/" + color.getResourceSafeName())))
+            ));
 
         ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,LCBlocks.VENDING_MACHINE.get(VanillaColor.WHITE))
                 .unlockedBy("money",moneyKnowledge())

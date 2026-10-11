@@ -36,6 +36,9 @@ public final class LCSprites {
     public static final SizedSprite SMALL_ARROW_LEFT = new SizedSprite.Simple(LCApi.id("container/small_arrow_left"),6,8);
     public static final SizedSprite SMALL_ARROW_RIGHT = new SizedSprite.Simple(LCApi.id("container/small_arrow_right"),6,8);
 
+    public static final SizedSprite.Builder SIGN_PLUS = WidgetContextSprite.hoverToggleSprite(LCApi.id("widget/sign_plus"),10,10);
+    public static final SizedSprite.Builder SIGN_MINUS = WidgetContextSprite.hoverToggleSprite(LCApi.id("widget/sign_minus"),10,10);
+
     public static final SizedSprite.Builder FREE_TOGGLE = WidgetContextSprite.hoverToggleSprite(LCApi.id("widget/free_toggle"),10,10);
 
     public static final SizedSprite.Template<BooleanSupplier> CHECKBOX = DeferredSizedSprite.toggleAndHoverToggleSprite(checkboxSprite(LCApi.id("widget/checkbox_on")),checkboxSprite(LCApi.id("widget/checkbox_off")),10,10);

@@ -18,7 +18,7 @@ public interface IPositionalWidgetHolder {
     int getWidth();
     int getLowestWidgetPoint();
 
-    default void addChildren(Collection<ScrollingWidgetBuilder> builders,int spacing) { this.addChildren(builders,0,0); }
+    default void addChildren(Collection<ScrollingWidgetBuilder> builders,int spacing) { this.addChildren(builders,spacing,0); }
     default int addChildren(Collection<ScrollingWidgetBuilder> builders,int spacing,int yPos) {
         int totalHeight = 0;
         for(ScrollingWidgetBuilder builder : builders) {

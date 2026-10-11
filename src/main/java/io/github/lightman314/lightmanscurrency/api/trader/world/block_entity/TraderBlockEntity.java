@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.trader.world.block_entity;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.CodecInteractionHelper;
+import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.ownership.holder.OwnerHolder;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
@@ -47,7 +48,7 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public abstract class TraderBlockEntity extends EasyBlockEntity implements IOwnable, BlockEntityTrackingManager.ITraderTrackingBE {
+public abstract class TraderBlockEntity extends EasyBlockEntity.Synced implements IOwnable, BlockEntityTrackingManager.ITraderTrackingBE {
 
     private boolean legalBreak = false;
     public void flagAsLegalBreak() { this.legalBreak = true; }
@@ -108,6 +109,8 @@ public abstract class TraderBlockEntity extends EasyBlockEntity implements IOwna
             this.tracking.requestTracking(trader);
         //Invalidate the capabilities for this BE as they may have changed
         this.invalidateCapabilities();
+        //Send a sync packet informing the relevant clients that the trader ID has changed
+        this.sendPacket(FancyPacketMap.map().setLong("traderID",this.traderID));
     }
     @Nullable
     public final TraderData getTrader() {
@@ -152,7 +155,7 @@ public abstract class TraderBlockEntity extends EasyBlockEntity implements IOwna
                     //Update the world position when placed back down you dummmy!
                     node.setPosition(this.getPosition());
                     BlockState state = this.getBlockState();
-                    if(state != null && state.getBlock() instanceof TraderBlock tb) {
+                    if(state.getBlock() instanceof TraderBlock tb) {
                         //Inform the trader of any block state updates just in case the trader was upgraded at some point
                         node.updateBlock(tb);
                         tb.validateAfterLoadingStoredTrader(trader,state);
@@ -217,7 +220,6 @@ public abstract class TraderBlockEntity extends EasyBlockEntity implements IOwna
         //Otherwise create a new trader
         TraderData trader = this.createNewTrader(this.collectArguments(owner));
         this.setTraderID(LCApi.getTraderAPI().initializeTrader(trader));
-        this.sendUpdate();
     }
 
     protected final TraderArguments collectArguments(@Nullable Player player)
@@ -259,6 +261,7 @@ public abstract class TraderBlockEntity extends EasyBlockEntity implements IOwna
 
     @Override
     public void onLoad() {
+        super.onLoad();
         if(this.isServer())
         {
             //Attempt to load the written trader
@@ -298,8 +301,18 @@ public abstract class TraderBlockEntity extends EasyBlockEntity implements IOwna
             }
             //Request tracking for all players that can see this chunk
             this.tracking.requestTracking(this.getTrader());
-            this.sendUpdate();
         }
+    }
+
+    @Override
+    public void writeInitialPacket(FancyPacketMap.Mutable packet,Player player) {
+        packet.setLong("traderID",this.traderID);
+    }
+
+    @Override
+    public void handleSyncPacket(FancyPacketMap packet) {
+        if(packet.contains("traderID"))
+            this.traderID = packet.getLong("traderID",-1);
     }
 
     public static abstract class SingleType extends TraderBlockEntity

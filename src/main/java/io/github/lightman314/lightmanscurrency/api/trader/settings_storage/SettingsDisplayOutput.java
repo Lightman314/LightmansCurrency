@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.api.text.LCText;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.storage.ValueInput;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,11 @@ public interface SettingsDisplayOutput {
 
     default void acceptLine(TextEntry line) { this.acceptLine(line.get()); }
     void acceptLine(Component line);
+
+    default void collectData(ValueInput input,List<ISettingsStorageIO> settings) {
+        for(ISettingsStorageIO s : settings)
+            input.child(s.getSettingsKey().toString()).ifPresent(e -> s.appendDisplay(e,this));
+    }
 
     record Simple(List<Component> lines) implements SettingsDisplayOutput {
         public Simple() { this(new ArrayList<>()); }

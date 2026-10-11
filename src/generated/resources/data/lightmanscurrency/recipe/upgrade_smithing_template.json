@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "c": "lightmanscurrency:trading_core",
+    "c": "lightmanscurrency:trading_mechanism",
     "n": "#c:nuggets/iron"
   },
   "pattern": [

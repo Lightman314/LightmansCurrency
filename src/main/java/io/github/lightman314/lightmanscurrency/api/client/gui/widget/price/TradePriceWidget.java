@@ -200,9 +200,6 @@ public final class TradePriceWidget extends AbstractMultiWidget.LateChildren {
 
     }
 
-    @Override
-    public boolean isMouseOver(double mouseX, double mouseY) { return false; }
-
     public static Builder builder() { return new Builder(); }
 
     public static final class Builder extends AbstractBuilder<Builder,TradePriceWidget> {

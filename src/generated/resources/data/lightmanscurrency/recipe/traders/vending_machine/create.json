@@ -5,7 +5,7 @@
     "c": "#c:chests/wooden",
     "g": "#c:glass_blocks/colorless",
     "i": "#c:ingots/iron",
-    "x": "lightmanscurrency:trading_core"
+    "x": "lightmanscurrency:trading_mechanism"
   },
   "pattern": [
     "igi",

@@ -2,31 +2,64 @@ package io.github.lightman314.lightmanscurrency.api.trader;
 
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.trader.filtering.IExtraTradeSearchFilter;
+import io.github.lightman314.lightmanscurrency.api.trader.filtering.IExtraTraderSearchFilter;
+import io.github.lightman314.lightmanscurrency.api.trader.filtering.PendingSearch;
+import io.github.lightman314.lightmanscurrency.api.trader.filtering.interfaces.ISearchFilterNode;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeData;
+import io.github.lightman314.lightmanscurrency.api.trader.filtering.interfaces.ISearchFilterTrade;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
 public interface TraderAPI {
 
+
+    /**
+     * Registers an {@link IExtraTraderSearchFilter} filter that will be applied in addition to the trader's built-in {@link ISearchFilterNode} filters.
+     */
+    void registerExtraTraderSearchFilter(IExtraTraderSearchFilter filter);
+    /**
+     * Registers an {@link IExtraTradeSearchFilter} filter that will be applied in addition to the trader's built-in {@link ISearchFilterTrade} filters.
+     */
+    void registerExtraTradeSearchFilter(IExtraTradeSearchFilter filter);
+
+    default <T extends IExtraTraderSearchFilter & IExtraTradeSearchFilter> void registerExtraSearchFilter(T filter) {
+        this.registerExtraTraderSearchFilter(filter);
+        this.registerExtraTradeSearchFilter(filter);
+    }
+
     /**
      * Whether the given trader matches the given search text, and should be listed in the search results
      */
-    boolean filterTrader(TraderData trader,String searchText);
+    boolean filterTrader(TraderData trader,String searchText,@Nullable TransactionContext transaction);
 
     /**
-     * Filters the given list via {@link #filterTrader(TraderData,String)} and assembles a new list of the traders that passed
+     * Filters the given list via {@link #filterTrader(TraderData,String,TransactionContext)} and assembles a new list of the traders that passed
      */
-    List<TraderData> filterTraders(List<TraderData> traders,String searchText);
+    List<TraderData> filterTraders(List<TraderData> traders,String searchText,@Nullable TransactionContext transaction);
 
     /**
      * Whether the given trade matches the given search text, and should be listed in the search results
      */
-    boolean filterTrade(TradeData trade,String searchText);
+    boolean filterTrade(TradeData trade,String searchText,@Nullable TransactionContext transaction);
     /**
-     * Filters the given list via {@link #filterTrade(TradeData,String)} and assembles a neww list of the  trades that passed
+     * Filters the given list via {@link #filterTrade(TradeData,String,TransactionContext)} and assembles a neww list of the  trades that passed
      */
-    List<TradeData> filterTrades(List<TradeData> trades,String searchText);
+    List<TradeData> filterTrades(List<TradeData> trades,String searchText,@Nullable TransactionContext transaction);
+
+    /**
+     * Applies the trades search filters to the current search.
+     */
+    void applyTradeFilters(TradeData trade,PendingSearch search);
+    /**
+     * Apples the trades search filters to the current search
+     */
+    default void applyTradeFilters(List<? extends TradeData> trades,PendingSearch search) {
+        for(TradeData trade : trades)
+            this.applyTradeFilters(trade,search);
+    }
 
     /**
      * Gets the {@link TraderData} with the given trader id.

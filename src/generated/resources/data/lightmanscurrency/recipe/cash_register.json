@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "d": "minecraft:dropper",
+    "e": "#c:ender_pearls",
+    "i": "#c:ingots/iron"
+  },
+  "pattern": [
+    "iii",
+    "ede",
+    "iii"
+  ],
+  "result": {
+    "id": "lightmanscurrency:cash_register"
+  }
+}

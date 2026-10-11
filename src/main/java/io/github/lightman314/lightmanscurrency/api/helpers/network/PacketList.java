@@ -29,7 +29,7 @@ public final class PacketList<T> implements Iterable<T>, IIndentStringable {
     });
 
     public final FancyPacketType<T> listType;
-    public final List<T> list;
+    public final ArrayList<T> list;
     public PacketList(FancyPacketType<T> type,List<T> list)
     {
         this.listType = type;

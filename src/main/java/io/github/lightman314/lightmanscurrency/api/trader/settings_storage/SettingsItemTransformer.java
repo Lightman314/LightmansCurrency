@@ -23,10 +23,9 @@ public abstract class SettingsItemTransformer {
 
     public abstract static class PrettyLineWriter extends SettingsItemTransformer {
         @Override
-        protected final ItemStack tryAppendAdditionalData(ItemStack item, ValueInput input, Component machineName, Player player, List<ISettingsStorageIO> settings) {
+        protected final ItemStack tryAppendAdditionalData(ItemStack item,ValueInput input,Component machineName, Player player, List<ISettingsStorageIO> settings) {
             SettingsDisplayOutput.Simple output = new SettingsDisplayOutput.Simple();
-            for(ISettingsStorageIO s : settings)
-                s.appendDisplay(input,output);
+            output.collectData(input,settings);
             return this.writeLinesToStack(item,new PrettyLineData(machineName,player,output.lines()));
         }
 

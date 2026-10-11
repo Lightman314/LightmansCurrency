@@ -1,0 +1,18 @@
+{
+  "given_item_modifiers": [
+    {
+      "function": "lightmanscurrency:randomized_item",
+      "items": "#lightmanscurrency:groups/single_shelf"
+    }
+  ],
+  "gives": {
+    "id": "lightmanscurrency:single_shelf_oak"
+  },
+  "max_uses": 12.0,
+  "reputation_discount": 0.05,
+  "wants": {
+    "count": 6.0,
+    "id": "lightmanscurrency:coin_iron"
+  },
+  "xp": 5.0
+}

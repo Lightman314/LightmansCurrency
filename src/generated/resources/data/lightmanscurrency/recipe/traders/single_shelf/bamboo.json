@@ -4,7 +4,7 @@
   "group": "trader_single_shelf",
   "key": {
     "s": "minecraft:bamboo_slab",
-    "x": "lightmanscurrency:trading_core"
+    "x": "lightmanscurrency:trading_mechanism"
   },
   "pattern": [
     "x",

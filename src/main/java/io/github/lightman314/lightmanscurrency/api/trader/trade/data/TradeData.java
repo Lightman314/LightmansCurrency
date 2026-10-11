@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.PlayerReference;
+import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.IRegistryAccess;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
@@ -18,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.TradeE
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.TradeSlot;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePrice;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.NeoForge;
@@ -28,7 +30,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public abstract class TradeData implements ISidedContext {
+public abstract class TradeData implements ISidedContext, IRegistryAccess {
 
     public static final Codec<TradeData> CODEC = LCRegistries.Trader.TRADE_DATA_TYPE.byNameCodec()
             .dispatch(TradeData::getType,TradeDataType::codec);
@@ -43,11 +45,17 @@ public abstract class TradeData implements ISidedContext {
 
     public abstract TradeDataType<?> getType();
 
+    @Nullable
     private TradingNode<?> parent;
+    @Nullable
     public final TradingNode<?> getHolder() { return this.parent; }
+    @Nullable
     public final TraderData getTrader() { return this.parent != null ? this.parent.getTrader() : null; }
     public final void initialize(TradingNode<?> node) { this.parent = node; this.afterInit(); }
     protected void afterInit() {}
+
+    @Override
+    public final HolderLookup.Provider registryAccess() { return this.parent.registryAccess(); }
 
     @Override
     public final boolean isClient() { return this.parent == null || this.parent.isClient(); }
@@ -55,7 +63,7 @@ public abstract class TradeData implements ISidedContext {
     private TradePrice price = TradePrice.empty().withListener(this::setPriceChanged);
     public TradePrice getInternalPrice() { return this.price; }
     public void validatePrice(TraderData trader) {
-        if(trader != null && !this.price.currentlySupportsTrade(trader,this))
+        if(!this.price.currentlySupportsTrade(trader,this))
             this.setPrice(TradePrice.empty());
     }
 

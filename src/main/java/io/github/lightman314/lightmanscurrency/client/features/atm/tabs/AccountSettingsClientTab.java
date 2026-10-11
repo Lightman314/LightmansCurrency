@@ -69,7 +69,7 @@ public class AccountSettingsClientTab extends ATMClientTab<AccountSettingsTab> {
         if(account != null) {
             int yPos = 70;
             Component text = this.getRandomNotificationLevelText(account);
-            gui.centeredTextWithWordWrap(text,area.centerX(),yPos,area.width - 10,0xFF404040,false);
+            gui.centeredTextWithWordWrap(text,area.halfWidth(),yPos,area.width - 10,0xFF404040,false);
             int lines = gui.getFont().split(text,area.width - 10).size();
             //Tooltip if hovering over the text
             ScreenArea hoverArea = ScreenArea.of(5,yPos,area.width - 10,10 * lines);
@@ -103,7 +103,7 @@ public class AccountSettingsClientTab extends ATMClientTab<AccountSettingsTab> {
 
     private void onValueTypeChanged() {
         BankAccount account = this.getBankAccount();
-        if(account != null) {
+        if(account != null && this.notificationSelection != null) {
             DualKey key = this.notificationSelection.getCurrentHandlerType();
             MoneyValue currentValue = account.getNotificationLevelFor(key);
             this.notificationSelection.changeValue(currentValue);

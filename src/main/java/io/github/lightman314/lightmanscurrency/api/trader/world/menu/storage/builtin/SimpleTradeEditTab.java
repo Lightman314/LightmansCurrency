@@ -2,14 +2,18 @@ package io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.bu
 
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
+import io.github.lightman314.lightmanscurrency.api.helpers.ListHelper;
+import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IFlexibleTradingNode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.TradingNode;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeData;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeSet;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.TradeEditContext;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.TradeSlot;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.TraderStorageMenu;
+import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -53,7 +57,7 @@ public class SimpleTradeEditTab extends TradeInteractionTab {
         if(trader == null)
             return;
         TradingNode<?> node = trade.getHolder();
-        if(node == null || node.advancedEditTabKey() == null)
+        if(node.advancedEditTabKey() == null)
             return;
         int nodeIndex = trader.getTradingNodes().indexOf(node);
         if(nodeIndex < 0)
@@ -78,5 +82,56 @@ public class SimpleTradeEditTab extends TradeInteractionTab {
     public boolean allowsScrollInteractions() { return false; }
     @Override
     public boolean isAdvancedEdit() { return false; }
+
+    @Override
+    public boolean allowQuantityEdit(TradingNode<?> node) {
+        return this.getPermission(LCPermissions.EDIT_TRADES) && node instanceof IFlexibleTradingNode fn && fn.showTradeCountButtons(this.getPlayer());
+    }
+
+    @Override
+    public boolean canAddTrade(TradingNode<?> node) {
+        return this.getPermission(LCPermissions.EDIT_TRADES) && node instanceof IFlexibleTradingNode fn && fn.canAddTrade(this.getPlayer());
+    }
+
+    @Override
+    public boolean canRemoveTrade(TradingNode<?> node) {
+        return this.getPermission(LCPermissions.EDIT_TRADES) && node instanceof IFlexibleTradingNode fn && fn.canRemoveTrade(this.getPlayer());
+    }
+
+    @Override
+    public void addTrade(TradingNode<?> node) {
+        if(this.getPermission(LCPermissions.EDIT_TRADES) && node instanceof IFlexibleTradingNode fn && fn.canAddTrade(this.getPlayer())) {
+            fn.tryAddTrade(this.getPlayer());
+            int nodeIndex = this.getTradingNodes().indexOf(node);
+            if(nodeIndex >= 0)
+                this.sendToServer(FancyPacketMap.map().setInt("addTrade",nodeIndex));
+        }
+    }
+
+    @Override
+    public void removeTrade(TradingNode<?> node) {
+        if(this.getPermission(LCPermissions.EDIT_TRADES) && node instanceof IFlexibleTradingNode fn && fn.canRemoveTrade(this.getPlayer())) {
+            fn.tryRemoveTrade(this.getPlayer());
+            int nodeIndex = this.getTradingNodes().indexOf(node);
+            if(nodeIndex >= 0)
+                this.sendToServer(FancyPacketMap.map().setInt("removeTrade",nodeIndex));
+        }
+        super.removeTrade(node);
+    }
+
+    @Override
+    public void handleMessage(FancyPacketMap packet) {
+        super.handleMessage(packet);
+        if(packet.contains("addTrade")) {
+            TradingNode<?> node = ListHelper.getOrNull(this.getTradingNodes(),packet.getInt("addTrade"));
+            if(node != null)
+                this.addTrade(node);
+        }
+        if(packet.contains("removeTrade")) {
+            TradingNode<?> node = ListHelper.getOrNull(this.getTradingNodes(),packet.getInt("removeTrade"));
+            if(node != null)
+                this.removeTrade(node);
+        }
+    }
 
 }

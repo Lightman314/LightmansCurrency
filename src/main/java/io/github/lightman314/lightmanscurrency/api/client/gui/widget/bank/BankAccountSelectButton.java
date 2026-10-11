@@ -62,7 +62,7 @@ public class BankAccountSelectButton extends FancyButton {
             IconRenderer.extractState(gui,icon,2,2);
         //Render the name
         int textColor = this.active ? 0xFFFFFFFF : 0xFF202020;
-        gui.textWithScrollingOverflow(this.accountName(),22,5,area.width - 24,textColor,true);
+        gui.textWithScrollingOverflow(this.accountName(),22,6,area.width - 24,textColor,true);
 
     }
 

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.notifications.holder;
 
 import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.LCConfig;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationStack;
@@ -76,6 +77,8 @@ public final class NotificationHolder implements ISidedContext.Mutable<Notificat
     public void postNotification(Notification notification) {
         if(this.isServer())
             this.postNotificationInternal(notification);
+        else
+            LightmansCurrency.LogWarning("Notification Posted on the Logical Client!",new Throwable());
     }
 
     public void addClientNotification(Notification notification) {

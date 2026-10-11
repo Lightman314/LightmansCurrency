@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.coins.data.coin.CoinEntry;
 import io.github.lightman314.lightmanscurrency.api.coins.value.CoinValue;
+import io.github.lightman314.lightmanscurrency.api.money.OverflowHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
@@ -19,13 +20,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
 
 public class CoinContainerWrapper implements MoneyResourceHandler {
 
     private final ResourceHandler<ItemResource> itemResource;
-    private final BiConsumer<ItemStack,TransactionContext> overflowHandler;
-    public CoinContainerWrapper(ResourceHandler<ItemResource> itemResource,BiConsumer<ItemStack,TransactionContext> overflowHandler)
+    private final OverflowHandler overflowHandler;
+    public CoinContainerWrapper(ResourceHandler<ItemResource> itemResource,OverflowHandler overflowHandler)
     {
         this.itemResource = itemResource;
         this.overflowHandler = overflowHandler;
@@ -98,7 +98,7 @@ public class CoinContainerWrapper implements MoneyResourceHandler {
             }
             //Let the overtflow handler accept any coins that couldn't fit in the container
             for(ItemStack e : extra)
-                this.overflowHandler.accept(e,transaction);
+                this.overflowHandler.overflowItem(e,transaction);
             //Exchange all coins after insertion
             LCApi.getCoinAPI().exchangeCoinsAllUp(this.itemResource,transaction);
             return value;

@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.features.atm;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.bank_account.BankAccount;
 import io.github.lightman314.lightmanscurrency.api.bank_account.reference.BankReference;
@@ -38,7 +37,6 @@ public abstract class ATMTab extends MenuTab<ATMMenu> {
     @OverridingMethodsMustInvokeSuper
     public void onTabOpened(FancyPacketMap additional) {
         IEasySlot.setActive(this.getMenu().getMoneySlots(),this.usesMoneySlots());
-        LightmansCurrency.LogDebug("Set " + this.getMenu().getMoneySlots().size() + " money slots as " + (this.usesMoneySlots() ? "active" : "inactive"));
     }
 
     public static abstract class SafeAccess extends ATMTab {

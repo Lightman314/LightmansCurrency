@@ -72,7 +72,7 @@ public final class LCItems {
                     .component(LCDataComponents.WALLET_MAGNET_BONUS,1)
                     .component(LCDataComponents.WALLET_INVULNERABLE,Unit.INSTANCE));
     public static final DeferredItem<WalletItem> WALLET_ENDER_DRAGON = registerWallet("wallet_ender_dragon",36,p ->
-            p.fireResistant() //TODO add dragon sounds
+            p.fireResistant()
                     .component(LCDataComponents.WALLET_MAGNET_BONUS,3)
                     .component(LCDataComponents.WALLET_PICKUP_SOUND,new WeightedList.Builder<Identifier>()
                             .add(WalletItem.DEFAULT_SOUND,51)
@@ -84,7 +84,8 @@ public final class LCItems {
 
 
     //Trading Core
-    public static final DeferredItem<Item> TRADING_CORE = registerBasic("trading_core");
+    public static final DeferredItem<Item> TRADING_CORE = registerBasic("trading_mechanism");
+    static { addAlias("trading_core","trading_mechanism"); }
     public static final DeferredItem<SmithingTemplateItem> UPGRADE_SMITHING_TEMPLATE = register("upgrade_smithing_template",p -> new SmithingTemplateItem(
             LCText.Resources.TOOLTIP_SMITHING_TEMPLATE_APPLIES_TO.getWithStyle(ChatFormatting.BLUE),
             LCText.Resources.TOOLTIP_SMITHING_TEMPLATE_INGREDIENTS.getWithStyle(ChatFormatting.BLUE),

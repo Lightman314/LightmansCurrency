@@ -101,12 +101,12 @@ public class DisplaySettingsTab extends SettingsSubTab.ForNode<DisplayNode> impl
             gui.blitSlot(iconPos);
             boolean hovered = this.iconArea.isInArea(gui.getMousePos());
             if(hovered)
-                gui.blitSlotHighlightBack(this.iconArea.pos);
+                gui.blitSlotHighlightBack(iconPos);
             IconData icon = this.getNodeValue(DisplayNode.TYPE,DisplayNode::getCustomIcon);
             if(icon != null)
                 IconRenderer.extractState(gui,icon,iconPos.offset(1,1));
             if(hovered)
-                gui.blitSlotHighlightFront(this.iconArea.pos);
+                gui.blitSlotHighlightFront(iconPos);
         }
     }
 

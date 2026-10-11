@@ -5,7 +5,7 @@
       "conditions": {
         "items": [
           {
-            "items": "lightmanscurrency:trading_core"
+            "items": "lightmanscurrency:trading_mechanism"
           }
         ]
       },

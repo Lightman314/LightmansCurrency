@@ -63,9 +63,9 @@ public interface SortableMoneyResourceHandler extends MoneyResourceHandler {
     static void sortInsertFirst(List<SortableMoneyResourceHandler> list) { list.sort(Comparator.comparingInt(SortableMoneyResourceHandler::insertSortPriority)); }
     static void sortExtractFirst(List<SortableMoneyResourceHandler> list) { list.sort(Comparator.comparingInt(SortableMoneyResourceHandler::extractSortPriorty)); }
 
-    static SortableMoneyResourceHandler wrapHandler(MoneyResourceHandler handler, Component title) { return wrapHandler(handler,title,0,0); }
-    static SortableMoneyResourceHandler wrapHandler(MoneyResourceHandler handler, Component title, int priority) { return wrapHandler(handler,title,priority,priority * -1); }
-    static SortableMoneyResourceHandler wrapHandler(MoneyResourceHandler handler, Component title, int insertPriority, int extractPriority) { return new Wrapper(handler,title,insertPriority,extractPriority); }
+    static SortableMoneyResourceHandler wrapHandler(MoneyResourceHandler handler,Component title) { return wrapHandler(handler,title,0,0); }
+    static SortableMoneyResourceHandler wrapHandler(MoneyResourceHandler handler,Component title,int priority) { return wrapHandler(handler,title,priority,priority * -1); }
+    static SortableMoneyResourceHandler wrapHandler(MoneyResourceHandler handler,Component title,int insertPriority,int extractPriority) { return new Wrapper(handler,title,insertPriority,extractPriority); }
 
     interface Deferred extends SortableMoneyResourceHandler, DeferredMoneyResourceHandler {  }
 

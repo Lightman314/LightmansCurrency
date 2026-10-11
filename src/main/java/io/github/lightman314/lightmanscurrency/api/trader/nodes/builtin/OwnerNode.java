@@ -32,7 +32,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.Optional;
 
-public class OwnerNode extends SimpleSyncedNode implements IOwnerSource,IPermissionSource,INotificationConsumerNode,ISettingsMessageListener,ISettingsStorageIONode.PriorityLoad,IStatListeningNode {
+public class OwnerNode extends SimpleSyncedNode implements IOwnerSource,IPermissionSource,INotificationConsumerNode,ISettingsMessageListener,ISettingsStorageIONode.PriorityLoad,IStatListeningNode, IAdminInfoProvider {
 
     private static final MapCodec<OwnerNode> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
             OwnerHolder.CODEC.fieldOf("owner").forGetter(OwnerNode::getOwner)
@@ -133,7 +133,7 @@ public class OwnerNode extends SimpleSyncedNode implements IOwnerSource,IPermiss
 
     private void setOwnerAndLogChange(Player player,Owner newOwner) {
         Owner oldOwner = this.owner.getValidOwner();
-        if(newOwner != null && !newOwner.equals(oldOwner)) {
+        if(!newOwner.equals(oldOwner)) {
             this.owner.setOwner(newOwner);
             this.postInternalNotification(ChangeSettingNotification.advanced(PlayerReference.of(player),VALUE_OWNER.get(),newOwner.getName(),oldOwner.getName()));
         }
@@ -168,6 +168,11 @@ public class OwnerNode extends SimpleSyncedNode implements IOwnerSource,IPermiss
         StatListener ownerStats = this.owner.getValidOwner().getStatistics();
         if(ownerStats != null)
             ownerStats.addToStat(key,addValue);
+    }
+
+    @Override
+    public void displayAdminListData(Builder builder) {
+        builder.accept(-5000,this.getOwner().getValidOwner().getCommandLabel());
     }
 
 }

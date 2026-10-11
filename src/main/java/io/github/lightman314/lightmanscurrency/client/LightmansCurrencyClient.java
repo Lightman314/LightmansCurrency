@@ -128,6 +128,7 @@ public class LightmansCurrencyClient {
         ClientTraderNode.REGISTRY.register(ExternalInteractionsNode.TYPE,ClientExternalInteractionsNode.INSTANCE);
         ClientTraderNode.REGISTRY.register(ItemStorageNode.TYPE,ClientItemStorageNode.INSTANCE);
         ClientTraderNode.REGISTRY.register(GachaStorageNode.TYPE,ClientItemStorageNode.INSTANCE);
+        ClientTraderNode.REGISTRY.register(AdminSettingsNode.TYPE,ClientAdminSettingsNode.INSTANCE);
 
         //Register Money Price Displays
         ClientMoneyValueType.REGISTRY.register(CoinValue.TYPE,ClientCoinType.INSTANCE);
@@ -150,7 +151,8 @@ public class LightmansCurrencyClient {
                 .register(AccountSelectionTab.CLIENT_KEY,AccountSelectionClientTab.BUILDER)
                 .register(AccountInteractionTab.CLIENT_KEY,AccountInteractionClientTab.BUILDER)
                 .register(AccountSettingsTab.CLIENT_KEY,AccountSettingsClientTab.BUILDER)
-                .register(AccountLogsTab.CLIENT_KEY,AccountLogsClientTab.BUILDER);
+                .register(AccountLogsTab.CLIENT_KEY,AccountLogsClientTab.BUILDER)
+                .register(MoneyTransferTab.CLIENT_KEY,MoneyTransferClientTab.BUILDER);
         //Trader Customer Menu
         event.forMenu(AbstractTabbedCustomerMenu.MENU_KEY,AbstractTabbedCustomerMenu.class,TraderCustomerScreen.class)
                 .register(NormalCustomerTab.CLIENT_KEY,NormalCustomerClientTab.BUILDER);

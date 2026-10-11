@@ -19,6 +19,8 @@ public abstract class ATMClientTab<T extends ATMTab> extends ClientMenuTab<ATMMe
     @Nullable
     public BankAccount getBankAccount() { return this.getSelectedAccount().get(); }
 
+    public boolean hideInventoryLabel() { return false; }
+
     public ResourceHandler<ItemResource> getMoneyStorage() { return this.getMenu().getMoneyStorage(); }
     public MoneyResourceHandler getMoneyResource() { return this.getMenu().getMoneyResources(); }
     public MoneyResourceHandler getPlayerAndMoneyResources() { return this.getMenu().getPlayerAndMoneyResources(); }

@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.core;
 
 import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
+import io.github.lightman314.lightmanscurrency.features.loot.functions.RandomizeEnchantmentFunction;
 import io.github.lightman314.lightmanscurrency.features.loot.functions.RandomizeItemFunction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
@@ -14,6 +15,7 @@ public final class LCLootItemFunctions {
 
     static {
         register("randomized_item",RandomizeItemFunction.MAP_CODEC);
+        register("randomized_enchantment",RandomizeEnchantmentFunction.MAP_CODEC);
     }
 
     private static void register(String name, MapCodec<? extends LootItemFunction> codec) {

@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.features.atm;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.bank_account.reference.BankReference;
 import io.github.lightman314.lightmanscurrency.api.bank_account.reference.builtin.PlayerBankReference;
+import io.github.lightman314.lightmanscurrency.api.money.OverflowHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.builtin.MoneyItemStorage;
 import io.github.lightman314.lightmanscurrency.api.money.resource.builtin.UnsortedMoneyResourceHandler;
@@ -40,10 +41,14 @@ public class ATMMenu extends TabbedMenu.Validated<ATMMenu,ATMTab> {
     public ResourceHandler<ItemResource> getMoneyStorage() { return this.moneyStorage; }
     public MoneyResourceHandler getMoneyResources() { return this.moneyStorage.getMoneyResourceHandler(this.getPlayer()); }
 
-    private MoneyResourceHandler getPlayerMoney(boolean allowOverflow) { return LCApi.getMoneyAPI().getPlayersMoneyHandler(this.getPlayer(),allowOverflow); }
+    private MoneyResourceHandler getPlayerMoney(boolean slotOverflow) {
+        if(slotOverflow)
+            return LCApi.getMoneyAPI().getPlayersMoneyHandler(this.getPlayer(),OverflowHandler.resourceHandlerModifier(this.moneyStorage));
+        return LCApi.getMoneyAPI().getPlayersMoneyHandler(this.getPlayer());
+    }
 
-    public MoneyResourceHandler getPlayerAndMoneyResources() { return new UnsortedMoneyResourceHandler(List.of(this.getPlayerMoney(false),this.getMoneyResources(),this.getPlayerMoney(true))); }
-    public MoneyResourceHandler getMoneyAndPlayerResources() { return new UnsortedMoneyResourceHandler(List.of(this.getMoneyResources(),this.getPlayerMoney(true))); }
+    public MoneyResourceHandler getPlayerAndMoneyResources() { return new UnsortedMoneyResourceHandler(List.of(this.getPlayerMoney(true),this.getMoneyResources())); }
+    public MoneyResourceHandler getMoneyAndPlayerResources() { return new UnsortedMoneyResourceHandler(List.of(this.getMoneyResources(),this.getPlayerMoney(false))); }
 
     public ATMMenu(int containerId,Player player) { this(LCMenuTypes.ATM.get(),containerId,player,SimpleValidator.ALWAYS_TRUE); }
     protected ATMMenu(int containerId, Player player,MenuValidator validator) { this(LCMenuTypes.ATM.get(),containerId,player,validator); }

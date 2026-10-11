@@ -1,0 +1,24 @@
+{
+  "values": [
+    {
+      "id": "lightmanscurrency:banker/5/large_vending_machine",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:banker/5/network_trader",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:banker/5/slot_machine",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:banker/5/trader_interface",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:banker/5/money_mending",
+      "required": false
+    }
+  ]
+}

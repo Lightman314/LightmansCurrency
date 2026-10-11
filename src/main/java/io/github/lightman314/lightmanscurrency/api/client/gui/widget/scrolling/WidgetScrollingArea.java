@@ -102,9 +102,6 @@ public class WidgetScrollingArea extends AbstractMultiWidget.LateChildren implem
         gui.disableScissor();
     }
 
-    @Override
-    public boolean isMouseOver(double mouseX, double mouseY) { return false; }
-
     public static Builder builder() { return new Builder(); }
 
     @Override

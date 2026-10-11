@@ -1,0 +1,24 @@
+{
+  "values": [
+    {
+      "id": "lightmanscurrency:banker/1/coin_mint",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:banker/1/atm",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:banker/1/cash_register",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:banker/1/ticket_station",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:banker/1/trading_mechanism",
+      "required": false
+    }
+  ]
+}

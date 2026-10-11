@@ -166,7 +166,10 @@ public final class CommonEventListeners {
         beforeAll(event,LCDataComponents.COPIED_TRADER);
         beforeAll(event,LCDataComponents.STORED_TRADER);
         beforeAll(event,LCDataComponents.UPGRADE_TYPE);
+        beforeAll(event,LCDataComponents.TRADER_POSITIONS);
+        //Bonus Tooltip Last so that it is always truly "before all"
         beforeAll(event,LCDataComponents.BONUS_TOOLTIP);
+
     }
 
     private static <T extends TooltipProvider> void beforeAll(RegisterTooltipAppendersEvent event, Supplier<DataComponentType<T>> type) {

@@ -19,7 +19,7 @@ public record RandomizeItemFunction(HolderSet<Item> holderSet) implements LootIt
     @Override
     public MapCodec<? extends LootItemFunction> codec() { return MAP_CODEC; }
     @Override
-    public ItemStack apply(ItemStack stack, LootContext context) {
+    public ItemStack apply(ItemStack stack,LootContext context) {
         Optional<Holder<Item>> random = this.holderSet.getRandomElement(context.getRandom());
         if(random.isPresent())
             return stack.transmuteCopy(random.get().value());

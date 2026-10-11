@@ -115,6 +115,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements ITickerServe
 
     @Override
     public void onLoad() {
+        super.onLoad();
         this.lastRelevantRecipe = this.getRelevantRecipe();
     }
 
@@ -177,11 +178,12 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements ITickerServe
 
     @Nullable
     public Optional<RecipeHolder<CoinMintRecipe>> getRelevantRecipe() {
-        SingleRecipeInput recipeInput = this.getRecipeInput();
-        if(recipeInput.isEmpty())
-            return Optional.empty();
-        if(this.level instanceof ServerLevel sl)
+        if(this.level instanceof ServerLevel sl) {
+            SingleRecipeInput recipeInput = this.getRecipeInput();
+            if(recipeInput.isEmpty())
+                return Optional.empty();
             return sl.getServer().getRecipeManager().getRecipeFor(LCRecipeTypes.COIN_MINT.get(),recipeInput,sl);
+        }
         return Optional.empty();
     }
 

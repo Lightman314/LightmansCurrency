@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "chance": 0.1,
+          "condition": "minecraft:random_chance"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "lightmanscurrency:wallet_netherite"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "lightmanscurrency:chests/additions/bastion_treasure"
+}

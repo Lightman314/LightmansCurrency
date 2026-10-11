@@ -111,8 +111,6 @@ public class OwnerSelectionWidget extends AbstractMultiWidget.LateChildren imple
     }
 
     @Override
-    public boolean isMouseOver(double mouseX, double mouseY) { return false; }
-    @Override
     public int getScroll() { return this.scroll; }
     @Override
     public void setScroll(int scroll) { this.scroll = scroll; }

@@ -22,13 +22,13 @@ public class TextDisplayWidget extends FancyWidget {
     }
 
     @Override
-    protected void extractRenderState(FancyGuiExtractor gui, ScreenArea area) {
+    protected void extractRenderState(FancyGuiExtractor gui,ScreenArea area) {
         Component t = this.text.get();
         int width = gui.getFont().width(t);
         if(width > area.width)
             gui.scrollingText(t,0,0,area.width,area.height,this.color.get(),this.shadow);
         else {
-            int x = this.positioning.getXPos(width,area.pos.x,area.width);
+            int x = this.positioning.getXPos(width,area.width);
             gui.text(t,x,0,this.color.get(),this.shadow);
         }
     }
@@ -40,11 +40,11 @@ public class TextDisplayWidget extends FancyWidget {
 
     public enum Positioning {
         LEFT,CENTER,RIGHT;
-        int getXPos(int textWidth,int left,int width) {
+        int getXPos(int textWidth, int width) {
             return switch (this) {
-                case LEFT -> left;
-                case CENTER -> left + (width - textWidth) / 2;
-                case RIGHT -> left + width - textWidth;
+                case LEFT -> 0;
+                case CENTER -> (width - textWidth) / 2;
+                case RIGHT -> width - textWidth;
             };
         }
     }

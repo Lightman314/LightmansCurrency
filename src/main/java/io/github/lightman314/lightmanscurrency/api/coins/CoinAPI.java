@@ -58,6 +58,7 @@ public interface CoinAPI {
     /**
      * Attempts to obtain the {@link ChainData} for the given coin item
      */
+    @Nullable
     default ChainData lookupChain(ItemResource coin) { return this.lookupChain(coin.getItem()); }
     /**
      * Attempts to obtain the {@link ChainData} for the given coin item

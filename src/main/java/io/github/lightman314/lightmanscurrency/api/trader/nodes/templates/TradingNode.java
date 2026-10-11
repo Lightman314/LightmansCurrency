@@ -12,6 +12,9 @@ import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.TraderStats;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.trader.filtering.PendingSearch;
+import io.github.lightman314.lightmanscurrency.api.trader.filtering.interfaces.ISearchFilterNode;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.INodeAccess;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IAdminSettingProvider;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.ISettingsStorageIONode;
 import io.github.lightman314.lightmanscurrency.api.trader.notifications.OutOfStockNotification;
@@ -46,12 +49,13 @@ import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTraderNode implements IStorageMenuTabProvider, IPermissionUser, ISettingsStorageIONode {
+public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTraderNode implements IStorageMenuTabProvider, IPermissionUser, ISettingsStorageIONode, ISearchFilterNode {
 
     protected TradingNode() {}
 
@@ -62,7 +66,7 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
     public static final TextEntry TOOLTIP_TERMINAL_TRADE_COUNT = TextEntry.tooltip(LCApi.MODID,"terminal.info.trade_count");
     public static final TextEntry TOOLTIP_TERMINAL_OUT_OF_STOCK_COUNT = TextEntry.tooltip(LCApi.MODID,"terminal.info.trade_count.out_of_stock");
 
-    //By default, sort by hash code so that two trading nodes aren't accidentally
+    //By default, sort by hash code so that two trading nodes don't have the same sorting priority
     public int getPriority() { return this.getType().hashCode(); }
 
     public int getTradeCount() { return this.getTrades().size(); }
@@ -84,7 +88,8 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
         return offset + tradeIndex;
     }
     protected final int getTradeIndex(TradeData trade) {
-        try {return this.getMutableTrades().indexOf((T)trade);
+        try {//noinspection unchecked
+            return this.getMutableTrades().indexOf((T)trade);
         } catch (ClassCastException ignored) { return -1; }
     }
     protected final T createAndInitializeTrade() {
@@ -94,7 +99,7 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
     }
     protected abstract T createNewTrade();
     protected abstract List<T> getMutableTrades();
-    public List<T> getTrades() { return ImmutableList.copyOf(this.getMutableTrades()); }
+    public List<T> getTrades() { return Collections.unmodifiableList(this.getMutableTrades()); }
 
     @Nullable
     public abstract Identifier advancedEditTabKey();
@@ -108,22 +113,23 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
             b.modifyListEntry("trades",LCFancyPacketTypes.MAP,tradeIndex,m -> {
                 FancyPacketMap.Mutable builder = m.mutable();
                 packet.accept(builder);
-                //If a change happened, clearly it wasn't removed so delete the remove flag
-                builder.remove("remove");
                 return builder.immutable();
             },() -> FancyPacketMap.EMPTY),filter);
     }
 
-    protected final void setTradeRemoved(int tradeIndex) {
-        if(tradeIndex < 0)
-            return;
-        this.setChanged(b ->
-                b.modifyListEntry("trades",LCFancyPacketTypes.MAP,tradeIndex,m -> {
-                    FancyPacketMap.Mutable builder = m.mutable();
-                    builder.clear() //Clear any existing changes, and then set the "remove" flag
-                            .setFlag("remove");
-                    return builder;
-                },() -> FancyPacketMap.EMPTY));
+    protected final void setTradeRemoved() {
+        this.setChanged(b -> {
+            //Define a "tradeCount" hard-coded entry
+            int newSize = this.getMutableTrades().size();
+            b.setInt("tradeCount",newSize);
+            //Ensure no entries exist in the list of this index or higher
+            List<FancyPacketMap> changeList = b.getList("trades",LCFancyPacketTypes.MAP);
+            if(changeList.size() > newSize) {
+                while(changeList.size() > newSize)
+                    changeList.removeLast();
+                b.setList("trades",LCFancyPacketTypes.MAP,changeList);
+            }
+        });
     }
 
     protected final void attachTrades() {
@@ -147,6 +153,10 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
 
     @Override
     public void onDataSync(FancyPacketMap data) {
+        if(data.contains("tradeCount")) {
+            //Force the trade count to match the expected count
+            this.forceTradeCount(Math.clamp(data.getInt("tradeCount"),1,TraderData.GLOBAL_TRADE_LIMIT));
+        }
         if(data.contains("trades"))
         {
             List<T> trades = this.getMutableTrades();
@@ -181,7 +191,7 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
         while(trades.size() > newCount)
         {
             trades.removeLast();
-            this.setTradeRemoved(trades.size());
+            this.setTradeRemoved();
         }
         while(trades.size() < newCount)
         {
@@ -253,14 +263,26 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
             builder.addTab(TradeTradeRuleTab::new);
     }
 
-    public int getCustomerReadyTrades() {
-        return (int)this.getTrades().stream().filter(TradeData::isCustomerReady).count();
+    public static int getCustomerReadyTradeCount(INodeAccess trader) {
+        int count = 0;
+        for(TradingNode<?> node : trader.getTradingNodes())
+            count += node.getCustomerReadyTradeCount();
+        return count;
+    }
+
+    public int getCustomerReadyTradeCount() { return this.getCustomerReadyTrades().size(); }
+
+    public List<T> getCustomerReadyTrades() { return this.getTrades().stream().filter(TradeData::isCustomerReady).toList(); }
+
+    public static int getTradesInStock(INodeAccess trader,@Nullable TransactionContext transaction) {
+        int count = 0;
+        for(TradingNode<?> node : trader.getTradingNodes())
+            count += node.getTradesInStock(transaction);
+        return count;
     }
 
     public int getTradesInStock(@Nullable TransactionContext transaction) {
         TraderData trader = this.getTrader();
-        if(trader == null)
-            return 0;
         int count = 0;
         for(TradeData trade : this.getTrades()) {
             if(trade.isCustomerReady() && trade.predictHasStock(trader,transaction))
@@ -270,7 +292,7 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
     }
 
     protected final Optional<Integer> getTerminalTradeColor() {
-        int customerReadyTrades = this.getCustomerReadyTrades();
+        int customerReadyTrades = this.getCustomerReadyTradeCount();
         //Red if 0 customer-ready trades
         if(customerReadyTrades <= 0)
             return Optional.of(ARGB.opaque(ChatFormatting.RED.getColor()));
@@ -285,7 +307,7 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
     }
 
     protected final void appendTerminalTradeStatus(Consumer<Component> builder) {
-        int customerReadyTrades = this.getCustomerReadyTrades();
+        int customerReadyTrades = this.getCustomerReadyTradeCount();
         if(customerReadyTrades > 0) {
             builder.accept(TOOLTIP_TERMINAL_TRADE_COUNT.get(customerReadyTrades));
             int outOfStock = customerReadyTrades - this.getTradesInStock(null);
@@ -305,5 +327,14 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
         }
         return result;
     }
+
+    @Override
+    public void applySearchFilters(PendingSearch search) {
+        //Apply the trades filters to this trade
+        LCApi.getTraderAPI().applyTradeFilters(this.getCustomerReadyTrades(),search);
+    }
+
+    @Override
+    public boolean isReadyForCustomers() { return this.getTrades().stream().anyMatch(TradeData::isCustomerReady); }
 
 }

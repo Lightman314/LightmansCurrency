@@ -1,5 +1,16 @@
 {
   "values": [
-    "lightmanscurrency:wandering_trader/display_case"
+    {
+      "id": "lightmanscurrency:wandering_trader/display_case",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:wandering_trader/armor_display",
+      "required": false
+    },
+    {
+      "id": "lightmanscurrency:wandering_trader/ticket_kiosk",
+      "required": false
+    }
   ]
 }

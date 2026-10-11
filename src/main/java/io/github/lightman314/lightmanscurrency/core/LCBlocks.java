@@ -1,16 +1,18 @@
 package io.github.lightman314.lightmanscurrency.core;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Function3;
 import com.mojang.datafixers.util.Function4;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.ColorHelper;
-import io.github.lightman314.lightmanscurrency.api.helpers.registry.AdvancedDeferredHolderBundle;
-import io.github.lightman314.lightmanscurrency.api.helpers.registry.AdvancedDeferredHolderBundle2;
+import io.github.lightman314.lightmanscurrency.api.helpers.data.BonusTooltip;
 import io.github.lightman314.lightmanscurrency.api.helpers.registry.DeferredHolderBundle;
+import io.github.lightman314.lightmanscurrency.api.helpers.registry.DeferredHolderBundle2;
 import io.github.lightman314.lightmanscurrency.api.helpers.registry.types.VanillaColor;
 import io.github.lightman314.lightmanscurrency.api.helpers.registry.types.WoodType;
 import io.github.lightman314.lightmanscurrency.features.atm.ATMBlock;
+import io.github.lightman314.lightmanscurrency.features.cash_register.CashRegisterBlock;
+import io.github.lightman314.lightmanscurrency.features.cash_register.CashRegisterItem;
+import io.github.lightman314.lightmanscurrency.features.cash_register.TraderPositionSet;
 import io.github.lightman314.lightmanscurrency.features.coin_mint.CoinMintBlock;
 import io.github.lightman314.lightmanscurrency.features.coins.FallingCoinBlock;
 import io.github.lightman314.lightmanscurrency.features.coins.FallingCoinPile;
@@ -154,6 +156,15 @@ public final class LCBlocks {
                     .strength(3f,6f)
                     .sound(SoundType.METAL));
 
+    public static final DeferredBlock<CashRegisterBlock> CASH_REGISTER = register("cash_register",CashRegisterBlock::new,p ->
+            p.mapColor(MapColor.COLOR_GRAY)
+                    .strength(3f,6f)
+                    .sound(SoundType.METAL),
+            CashRegisterItem::new,p -> p.component(LCDataComponents.BONUS_TOOLTIP,new BonusTooltip(CashRegisterBlock.TOOLTIP))
+                    .component(LCDataComponents.TRADER_POSITIONS,TraderPositionSet.EMPTY));
+
+
+
     public static final DeferredBlock<TradingTerminalBlock> TRADING_TERMINAL = register("trading_terminal",p -> new TradingTerminalBlock(p,Block.box(1d,0d,1d,15d,16d,15d)),p ->
             p.mapColor(MapColor.METAL)
                     .strength(3f,6f)
@@ -168,7 +179,7 @@ public final class LCBlocks {
             (b,p,c) -> new BlockItem(b,p),
             (p,c) -> p.component(LCDataComponents.BONUS_TOOLTIP,ItemTraderBlock.TOOLTIP.asTooltip(1)));
 
-    public static final AdvancedDeferredHolderBundle<WoodType,Block, SingleShelfBlock> SINGLE_SHELF = registerWooden("single_shelf", SingleShelfBlock::new,(p, type) ->
+    public static final DeferredHolderBundle<WoodType,Block, SingleShelfBlock> SINGLE_SHELF = registerWooden("single_shelf", SingleShelfBlock::new,(p, type) ->
             p.mapColor(type.mapColor)
                     .strength(2f,Float.POSITIVE_INFINITY)
                     .sound(SoundType.WOOD)
@@ -177,7 +188,7 @@ public final class LCBlocks {
             (b,p,w) -> new BlockItem(b,p),
             (p,w) -> p.component(LCDataComponents.BONUS_TOOLTIP,ItemTraderBlock.TOOLTIP.asTooltip(1)));
 
-    public static final AdvancedDeferredHolderBundle<WoodType,Block, DoubleShelfBlock> DOUBLE_SHELF = registerWooden("double_shelf",DoubleShelfBlock::new,(p, type) ->
+    public static final DeferredHolderBundle<WoodType,Block,DoubleShelfBlock> DOUBLE_SHELF = registerWooden("double_shelf",DoubleShelfBlock::new,(p, type) ->
                 p.mapColor(type.mapColor)
                             .strength(2f,Float.POSITIVE_INFINITY)
                             .sound(SoundType.WOOD)
@@ -186,7 +197,7 @@ public final class LCBlocks {
             (b,p,w) -> new BlockItem(b,p),
             (p,w) -> p.component(LCDataComponents.BONUS_TOOLTIP,ItemTraderBlock.TOOLTIP.asTooltip(4)));
 
-    public static final AdvancedDeferredHolderBundle2<WoodType,VanillaColor,Block,CardDisplayBlock> CARD_DISPLAY = registerWoodenAndColored("card_display",CardDisplayBlock::new,(p,t,c) ->
+    public static final DeferredHolderBundle2<WoodType,VanillaColor,Block,CardDisplayBlock> CARD_DISPLAY = registerWoodenAndColored("card_display",CardDisplayBlock::new,(p,t,c) ->
             p.mapColor(t.mapColor)
                     .strength(2.0f,Float.POSITIVE_INFINITY)
                     .sound(SoundType.WOOD)
@@ -235,32 +246,30 @@ public final class LCBlocks {
         return bundle.lock();
     }
 
-    public static <T extends Block> AdvancedDeferredHolderBundle<WoodType,Block,T> registerWooden(String name,Function<BlockBehaviour.Properties,T> factory,BiFunction<BlockBehaviour.Properties,WoodType,BlockBehaviour.Properties> properties,Predicate<WoodType.Attributes> requirement) {
+    public static <T extends Block> DeferredHolderBundle<WoodType,Block,T> registerWooden(String name,Function<BlockBehaviour.Properties,T> factory,BiFunction<BlockBehaviour.Properties,WoodType,BlockBehaviour.Properties> properties,Predicate<WoodType.Attributes> requirement) {
         return registerWooden(name,factory,properties,requirement,(b,p,t) -> new BlockItem(b,p),(p,t) -> p);
     }
-    public static <T extends Block> AdvancedDeferredHolderBundle<WoodType,Block,T> registerWooden(String name,Function<BlockBehaviour.Properties,T> factory,BiFunction<BlockBehaviour.Properties,WoodType,BlockBehaviour.Properties> properties,Predicate<WoodType.Attributes> requirement,Function3<Block,Item.Properties,WoodType,Item> itemFactory,BiFunction<Item.Properties,WoodType,Item.Properties> itemProperties) {
-        AdvancedDeferredHolderBundle<WoodType,Block,T> bundle = new AdvancedDeferredHolderBundle<>(WoodType::sortByWood,type -> register(type.generateID(name),factory,p -> properties.apply(p,type),(b,p) -> itemFactory.apply(b,p,type),p -> itemProperties.apply(p,type)));
-        Consumer<WoodType> consumer = WoodType.Attributes.filteredConsumer(bundle::registerKey,requirement);
-        //Register already known types
-        WoodType.validValues().forEach(consumer);
-        //Register listener so that any new types will be registered as well
-        WoodType.registerListener(consumer);
-        return bundle;
+    public static <T extends Block> DeferredHolderBundle<WoodType,Block,T> registerWooden(String name,Function<BlockBehaviour.Properties,T> factory,BiFunction<BlockBehaviour.Properties,WoodType,BlockBehaviour.Properties> properties,Predicate<WoodType.Attributes> requirement,Function3<Block,Item.Properties,WoodType,Item> itemFactory,BiFunction<Item.Properties,WoodType,Item.Properties> itemProperties) {
+        DeferredHolderBundle<WoodType,Block,T> bundle = new DeferredHolderBundle<>(WoodType::sortByWood);
+        for(WoodType type : WoodType.validValues()) {
+            DeferredBlock<T> holder = register(type.generateID(name),factory,p -> properties.apply(p,type),(b,p) -> itemFactory.apply(b,p,type),p -> itemProperties.apply(p,type));
+            bundle.put(type,holder);
+        }
+        return bundle.lock();
     }
 
-    public static <T extends Block> AdvancedDeferredHolderBundle2<WoodType,VanillaColor,Block,T> registerWoodenAndColored(String name, Function<BlockBehaviour.Properties,T> factory, Function3<BlockBehaviour.Properties,WoodType,VanillaColor,BlockBehaviour.Properties> properties,Predicate<WoodType.Attributes> requirement) {
+    public static <T extends Block> DeferredHolderBundle2<WoodType,VanillaColor,Block,T> registerWoodenAndColored(String name, Function<BlockBehaviour.Properties,T> factory, Function3<BlockBehaviour.Properties,WoodType,VanillaColor,BlockBehaviour.Properties> properties,Predicate<WoodType.Attributes> requirement) {
         return registerWoodenAndColored(name,factory,properties,requirement,(b,p,t,c) -> new BlockItem(b,p),(p,t,c) -> p);
     }
-    public static <T extends Block> AdvancedDeferredHolderBundle2<WoodType,VanillaColor,Block,T> registerWoodenAndColored(String name, Function<BlockBehaviour.Properties,T> factory, Function3<BlockBehaviour.Properties,WoodType,VanillaColor,BlockBehaviour.Properties> properties, Predicate<WoodType.Attributes> requirement,Function4<Block,Item.Properties,WoodType,VanillaColor,Item> itemFactory, Function3<Item.Properties,WoodType,VanillaColor,Item.Properties> itemProperties) {
-        AdvancedDeferredHolderBundle2<WoodType,VanillaColor,Block,T> bundle = new AdvancedDeferredHolderBundle2<>(WoodType::sortByWood,ColorHelper.COLOR_SORTER, ImmutableList.copyOf(VanillaColor.values()),(type, color) ->
-                register(type.generateID(name) + "_" + color.getResourceSafeName(),factory,p -> properties.apply(p,type,color),(b,p) -> itemFactory.apply(b,p,type,color),p -> itemProperties.apply(p,type,color))
-        );
-        Consumer<WoodType> consumer = WoodType.Attributes.filteredConsumer(bundle::registerKey,requirement);
-        //Register already known types
-        WoodType.validValues().forEach(consumer);
-        //Register listener so that any new types will be registered as well
-        WoodType.registerListener(consumer);
-        return bundle;
+    public static <T extends Block> DeferredHolderBundle2<WoodType,VanillaColor,Block,T> registerWoodenAndColored(String name, Function<BlockBehaviour.Properties,T> factory, Function3<BlockBehaviour.Properties,WoodType,VanillaColor,BlockBehaviour.Properties> properties, Predicate<WoodType.Attributes> requirement, Function4<Block,Item.Properties,WoodType,VanillaColor,Item> itemFactory, Function3<Item.Properties,WoodType,VanillaColor,Item.Properties> itemProperties) {
+        DeferredHolderBundle2<WoodType,VanillaColor,Block,T> bundle = new DeferredHolderBundle2<>(WoodType::sortByWood,ColorHelper.COLOR_SORTER);
+        for(WoodType type : WoodType.validValues()) {
+            for(VanillaColor color : VanillaColor.values()) {
+                DeferredBlock<T> holder = register(type.generateID(name) + "_" + color.getResourceSafeName(),factory,p -> properties.apply(p,type,color),(b,p) -> itemFactory.apply(b,p,type,color),p -> itemProperties.apply(p,type,color));
+                bundle.put(type,color,holder);
+            }
+        }
+        return bundle.lock();
     }
 
     public static <T extends Block> DeferredHolderBundle<Integer,Block,T> registerTieredBlock(String name,BiFunction<BlockBehaviour.Properties,Integer,T> factory,BiFunction<BlockBehaviour.Properties,Integer,BlockBehaviour.Properties> properties,int maxTier) { return registerTieredBlock(name,factory,properties,maxTier,(b,p,t) -> new BlockItem(b,p),(p,i) -> p); }

@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.customer.TraderCustomerScreen;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.TraderStorageScreen;
 import io.github.lightman314.lightmanscurrency.client.LCClientRecipeCache;
+import io.github.lightman314.lightmanscurrency.client.features.atm.ATMScreen;
 import io.github.lightman314.lightmanscurrency.core.LCRecipeTypes;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
@@ -34,6 +35,7 @@ public class LCJei implements IModPlugin {
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
         registration.addGenericGuiContainerHandler(TraderCustomerScreen.class,FancyGuiHandlerArea.INSTANCE);
         registration.addGenericGuiContainerHandler(TraderStorageScreen.class,FancyGuiHandlerArea.INSTANCE);
+        registration.addGenericGuiContainerHandler(ATMScreen.class,FancyGuiHandlerArea.INSTANCE);
         registration.addGhostIngredientHandler(TraderStorageScreen.class,new FancyGhostIngredientHandler<>());
     }
 

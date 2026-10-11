@@ -36,6 +36,7 @@ public class TradeButton extends FancyButton implements IGhostSlotProvider, IScr
 
     private final Supplier<TradeData> trade;
     private final Supplier<TradeContext.Builder> context;
+    @Nullable
     private final ITradeInteractionHandler interactions;
     private final boolean externalControl;
     protected TradeButton(Builder builder) {

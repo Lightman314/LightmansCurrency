@@ -3,7 +3,7 @@ package io.github.lightman314.lightmanscurrency.features.wallet;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
-import io.github.lightman314.lightmanscurrency.api.helpers.resource.TransactionCommitListener;
+import io.github.lightman314.lightmanscurrency.api.money.OverflowHandler;
 import io.github.lightman314.lightmanscurrency.api.money.resource.MoneyResourceHandler;
 import io.github.lightman314.lightmanscurrency.api.money.values.ItemBasedValue;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
@@ -87,7 +87,7 @@ public final class WalletEventListener {
                     WalletStorage storage = new WalletStorage(holder);
                     MoneyResourceHandler walletMoney = storage.getMoneyResourceHandler(
                             //Drop overflow items instead of giving them to the player in this scenario
-                            TransactionCommitListener.wrapAction(drops::add),
+                            OverflowHandler.forListConsumer(drops::addAll),
                             ISidedContext.LOGICAL_SERVER);
                     try(Transaction transaction = Transaction.openRoot()) {
                         for(MoneyValue contents : walletMoney.getAllResources()) {

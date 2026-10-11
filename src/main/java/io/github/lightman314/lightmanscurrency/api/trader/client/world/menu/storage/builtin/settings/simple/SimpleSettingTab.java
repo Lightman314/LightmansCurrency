@@ -35,14 +35,18 @@ public class SimpleSettingTab extends SettingsSubTab {
     public void extractBackground(FancyGuiExtractor gui, ScreenArea area) { }
 
     @Override
-    public boolean displayTitle() { return false; }
+    public boolean isVisible() { return this.category.canAccess().apply(this); }
+
+    @Override
+    public boolean displayTitle() { return this.category.showTitle(); }
 
     @Override
     protected void initialize(ScreenArea area, FancyPacketMap message) {
+        int extraHeight = this.category.showTitle() ? 12 : 0;
         int width = area.width - 40;
         this.holder = this.addChild(WidgetScrollingArea.builder()
-                .atPos(area.pos.offset(20,6))
-                .ofSize(width,115)
+                .atPos(area.pos.offset(20,6 + extraHeight))
+                .ofSize(width,115 - extraHeight)
                 .withOldWidget(this.holder)
                 .build());
         this.holder.addChildren(this.options,SPACING);

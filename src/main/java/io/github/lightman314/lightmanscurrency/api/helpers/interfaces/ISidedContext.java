@@ -21,7 +21,7 @@ public interface ISidedContext {
     default boolean isServer() { return !this.isClient(); }
 
     static ISidedContext known(boolean isClient) { return isClient ? LOGICAL_CLIENT : LOGICAL_SERVER; }
-    static ISidedContext wrap(Entity entity) { return entity == null ? LOGICAL_CLIENT : () -> entity.level().isClientSide(); }
+    static ISidedContext wrap(Entity entity) { return () -> entity.level().isClientSide(); }
     static ISidedContext wrap(Item.TooltipContext context) {
         if(context.level() != null)
             return context.level()::isClientSide;
@@ -30,38 +30,28 @@ public interface ISidedContext {
         return LOGICAL_CLIENT;
     }
     static ISidedContext wrapUnknown(@Nullable Object object) {
-        if(object == null)
-            return LOGICAL_CLIENT;
-        if(object instanceof ISidedContext c)
-            return c;
-        if(object instanceof Entity e)
-            return wrap(e);
-        if(object instanceof Level l)
-            return l::isClientSide;
-        if(object instanceof LevelChunk c)
-            return c.getLevel()::isClientSide;
-        if(object instanceof BlockEntity be)
-            return () -> {
+        return switch (object) {
+            case ISidedContext c -> c;
+            case Entity e -> wrap(e);
+            case Level l -> l::isClientSide;
+            case LevelChunk c -> c.getLevel()::isClientSide;
+            case BlockEntity be -> () -> {
                 Level l = be.getLevel();
                 return l == null || l.isClientSide();
             };
-        if(object instanceof Item.TooltipContext c)
-            return wrap(c);
-        return LOGICAL_CLIENT;
+            case Item.TooltipContext c -> wrap(c);
+            default -> LOGICAL_CLIENT;
+        };
     }
 
     interface Slave extends ISidedContext
     {
         ISidedContext getParentContext();
         @ApiStatus.NonExtendable
-        default boolean isClient() {
-            ISidedContext parent = this.getParentContext();
-            return parent == null || parent.isClient();
-        }
+        default boolean isClient() { return this.getParentContext().isClient(); }
     }
 
-    interface Mutable<T> extends ISidedContext
-    {
+    interface Mutable<T> extends ISidedContext {
         T setSidedContext(ISidedContext context);
     }
 

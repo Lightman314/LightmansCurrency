@@ -35,14 +35,13 @@ public class AccountInteractionClientTab extends ATMClientTab<AccountInteraction
                 .atPos(area.pos)
                 .withHandler(this)
                 .withSpacing(19)
+                .allowEmptyDeposits(this.getCommonTab()::hasMoneyInSlots)
                 .withOldWidget(this.interactionWidget)
                 .build());
     }
 
     @Override
-    public void extractBackground(FancyGuiExtractor gui, ScreenArea area) {
-
-    }
+    public void extractBackground(FancyGuiExtractor gui, ScreenArea area) { }
 
     @Override
     public void attemptDeposit(MoneyValue amount) { this.getCommonTab().depositMoney(amount); }

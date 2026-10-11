@@ -27,6 +27,7 @@ public final class LCTraderNodeTypes {
         register("statistics",TraderStatsNode.TYPE);
         register("trade_rules",TradeRulesNode.TYPE);
         register("settings",SettingsNode.TYPE);
+        register("admin_settings",AdminSettingsNode.TYPE);
         //Network Trader Nodes
         register("network",NetworkNode.TYPE);
 

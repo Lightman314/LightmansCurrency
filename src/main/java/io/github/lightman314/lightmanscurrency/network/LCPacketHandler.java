@@ -1,5 +1,7 @@
 package io.github.lightman314.lightmanscurrency.network;
 
+import io.github.lightman314.lightmanscurrency.network.message.block_entity.CPacketRequestBlockEntityPacket;
+import io.github.lightman314.lightmanscurrency.network.message.block_entity.SPacketSyncBlockEntity;
 import io.github.lightman314.lightmanscurrency.network.message.config.*;
 import io.github.lightman314.lightmanscurrency.network.message.data.*;
 import io.github.lightman314.lightmanscurrency.network.message.debug.*;
@@ -61,8 +63,13 @@ public class LCPacketHandler {
         registerC2S(CPacketRequestPlayerID.TYPE,CPacketRequestPlayerID.STREAM_CODEC);
         registerS2C(SPacketPlayerCacheResult.TYPE,SPacketPlayerCacheResult.STREAM_CODEC);
 
+        //Block Entity Packets
+        registerC2S(CPacketRequestBlockEntityPacket.TYPE,CPacketRequestBlockEntityPacket.STREAM_CODEC);
+        registerS2C(SPacketSyncBlockEntity.TYPE,SPacketSyncBlockEntity.STREAM_CODEC);
+
         //Debug Packets
         registerS2C(SPacketDebugTraderData.TYPE,SPacketDebugTraderData.STREAM_CODEC);
+        registerS2C(SPacketDebugBankAccount.TYPE,SPacketDebugBankAccount.STREAM_CODEC);
 
     }
 

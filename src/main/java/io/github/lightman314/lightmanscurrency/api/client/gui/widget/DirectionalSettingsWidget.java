@@ -52,12 +52,9 @@ public class DirectionalSettingsWidget extends AbstractMultiWidget.LateChildren 
     }
 
     @Override
-    public boolean isMouseOver(double mouseX, double mouseY) { return false; }
-
-    @Override
     protected void addLateChildren(ScreenArea area) {
         //Get the attributes
-        this.attributes = /*DisplayBlockAttributes.NULL;//*/DisplayBlockAttributes.of(this.context);
+        this.attributes = DisplayBlockAttributes.of(this.context);
         //Recalculate the size
         area = this.recalculateSize(attributes);
         //Generate buttons that only display the frame as the actual block will be drawn below them

@@ -48,6 +48,8 @@ public class CodecHelper {
         } catch (NumberFormatException e) { return DataResult.error(e::getMessage); }
     },l -> Long.toString(l));
 
+    public static <T> Codec<Set<T>> setCodec(Codec<T> codec) { return Codec.list(codec).xmap(Set::copyOf,List::copyOf); }
+
     public static Codec<Identifier> identifierWithDefaultNamespace(String defaultNamespace) {
         return Codec.STRING.comapFlatMap(string -> {
             if(string.contains(":"))

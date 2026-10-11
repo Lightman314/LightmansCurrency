@@ -23,6 +23,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.settings_storage.Setti
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
+import io.github.lightman314.lightmanscurrency.features.commands.LCAdminCommand;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.contents.PlainTextContents;
@@ -36,7 +37,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
-public class DisplayNode extends SimpleSyncedNode implements IPersistentNode, ISettingsMessageListener, IPermissionUser, IDisplayNode, ISettingsStorageIONode {
+public class DisplayNode extends SimpleSyncedNode implements IPersistentNode, ISettingsMessageListener, IPermissionUser, IDisplayNode, ISettingsStorageIONode, IAdminInfoProvider {
 
     public static final int MAX_NAME_LENGTH = 32;
 
@@ -56,6 +57,8 @@ public class DisplayNode extends SimpleSyncedNode implements IPersistentNode, IS
     public static final TextEntry BUTTON_CHANGE_NAME = TextEntry.button(LCApi.MODID,"trader.settings.change_name");
     public static final TextEntry BUTTON_RESET_NAME = TextEntry.button(LCApi.MODID,"trader.settings.reset_name");
     public static final TextEntry GUI_ALWAYS_SHOW_SEARCH = TextEntry.gui(LCApi.MODID,"trader.settings.always_show_search_box");
+
+    public static final TextEntry COMMAND_CUSTOM_NAME = LCAdminCommand.traderListText(TYPE,"custom_name");
 
     private String customName = "";
     @Nullable
@@ -95,12 +98,10 @@ public class DisplayNode extends SimpleSyncedNode implements IPersistentNode, IS
     public boolean setCustomName(@Nullable PlayerReference admin, Component newName)
     {
         boolean different = true;
-        if(this.customNameText == null && newName != null && newName.getContents() instanceof PlainTextContents.LiteralContents contents)
+        if(this.customNameText == null && newName.getContents() instanceof PlainTextContents.LiteralContents contents)
             different = !this.customName.equals(contents.text());
         if(this.customNameText != null)
             different = !this.customNameText.equals(newName);
-        if(this.customNameText == null && newName == null)
-            return false;
         if(different)
         {
             this.customName = "";
@@ -278,6 +279,13 @@ public class DisplayNode extends SimpleSyncedNode implements IPersistentNode, IS
             output.acceptLine(VALUE_CUSTOM_ICON);
         if(keySet.contains("forceSearch"))
             output.acceptEntry(VALUE_SEARCH_BOX,data.getBooleanOr("forceSearch",false));
+    }
+
+    @Override
+    public void displayAdminListData(Builder builder) {
+        Component customName = this.getCustomName();
+        if(customName != null)
+            builder.accept(COMMAND_CUSTOM_NAME.get(customName));
     }
 
 }

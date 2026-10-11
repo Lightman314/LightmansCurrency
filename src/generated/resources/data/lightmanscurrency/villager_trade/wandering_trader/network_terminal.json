@@ -1,0 +1,11 @@
+{
+  "gives": {
+    "id": "lightmanscurrency:trading_terminal"
+  },
+  "max_uses": 2.0,
+  "reputation_discount": 0.05,
+  "wants": {
+    "count": 5.0,
+    "id": "lightmanscurrency:coin_iron"
+  }
+}

@@ -70,10 +70,13 @@ import io.github.lightman314.lightmanscurrency.api.world.data.DirectionalSetting
 import io.github.lightman314.lightmanscurrency.client.features.resources.BuiltInResourcePacks;
 import io.github.lightman314.lightmanscurrency.core.LCBlocks;
 import io.github.lightman314.lightmanscurrency.core.LCItems;
+import io.github.lightman314.lightmanscurrency.core.LCVillagerProfessions;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCTraderTypes;
 import io.github.lightman314.lightmanscurrency.features.api_impl.CoinAPIImpl;
 import io.github.lightman314.lightmanscurrency.features.atm.tabs.*;
+import io.github.lightman314.lightmanscurrency.features.cash_register.CashRegisterBlockEntity;
+import io.github.lightman314.lightmanscurrency.features.cash_register.TraderPositionSet;
 import io.github.lightman314.lightmanscurrency.features.chocolate_coins.ChocolateCoinItem;
 import io.github.lightman314.lightmanscurrency.features.colors.ColorDisplay;
 import io.github.lightman314.lightmanscurrency.features.commands.LCAdminCommand;
@@ -90,14 +93,18 @@ import io.github.lightman314.lightmanscurrency.features.wallet.WalletItem;
 import io.github.lightman314.lightmanscurrency.features.wallet.menu.AbstractWalletMenu;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.Util;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.data.LanguageProvider;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -214,6 +221,7 @@ public class LCEnglishProvider extends LanguageProvider {
         this.block(LCBlocks.COIN_MINT,"Coin Mint");
         this.block(LCBlocks.ATM,"ATM");
         this.item(LCItems.ATM_PORTABLE,"ATM");
+        this.block(LCBlocks.CASH_REGISTER,"Cash Register");
         this.block(LCBlocks.TRADING_TERMINAL,"Trading Network Access Terminal");
         this.item(LCItems.TRADING_TERMINAL_PORTABLE,"Trading Network Access Terminal");
 
@@ -238,6 +246,10 @@ public class LCEnglishProvider extends LanguageProvider {
         //Enchantments
         this.enchantment(LCEnchantments.COIN_MAGNET,"Coin Magnet","Lets your wallet collect coins from a larger range.");
         this.enchantment(LCEnchantments.MONEY_MENDING,"Money Mending","Repairs the item using money from your equipped wallet.");
+
+        //Villager Professions
+        this.villager(LCVillagerProfessions.BANKER,"Banker");
+        this.villager(LCVillagerProfessions.CASHIER,"Cashier");
 
         //Key Binds
         this.text(LCText.Resources.KEY_WALLET,"Open Wallet");
@@ -291,6 +303,13 @@ public class LCEnglishProvider extends LanguageProvider {
         this.text(BonusTooltip.TOOLTIP_INFO_BLURB,"Hold SHIFT for more information.");
         this.text(ItemTraderBlock.TOOLTIP,"Item Trader:","Trades Offers: %s","Can be used to Sell, Purchase, or Barter items with other players");
         this.text(ItemTraderBlock.ARMOR_TOOLTIP,"Armor Trader:","Trades Offers: %s","Can be used to Sell, Purchase, or Barter armor pieces with other players");
+
+        //Cash Register Text
+        this.text(CashRegisterBlockEntity.MESSAGE_NOT_LINKED,"Cash Register is not linked to any traders");
+        this.text(TraderPositionSet.TOOLTIP_INFO,"Linked with %s traders");
+        this.text(TraderPositionSet.TOOLTIP_INSTRUCTIONS,"Crouch & Interact with a trader to register");
+        this.text(TraderPositionSet.TOOLTIP_HOLD_CRTL,"Hold CTRL for details");
+        this.text(TraderPositionSet.TOOLTIP_DETAILS,"Trader %1$s at %2$s %3$s %4$s");
 
         //Money Text
         this.text(EmptyValue.GUI_MONEY_VALUE_FREE,"Free");
@@ -456,6 +475,10 @@ public class LCEnglishProvider extends LanguageProvider {
         this.text(NotificationNode.VALUE_PUSH_TO_CHAT,"Push to Chat");
         this.text(NotificationNode.GUI_MEMBER_LEVEL,"Push to Team %s");
 
+        //Admin Settings
+        this.text(AdminSettingsNode.NAME,"Admin Settings");
+        this.text(AdminSettingsNode.VALUE_UNLIMITED_STOCK,"Unlimited Trade Stock");
+        this.text(AdminSettingsNode.VALUE_STORE_PRICE,"Store Collected Price");
 
         //Settings Clipboard
         this.text(SettingsClipboardTab.TOOLTIP,"Settings Clipboard");
@@ -614,6 +637,18 @@ public class LCEnglishProvider extends LanguageProvider {
         this.text(LCAdminCommand.TOGGLE_ADMIN_DISABLED,"DISABLED");
         this.text(LCAdminCommand.TRADER_DELETE_SUCCESS,"Successfully deleted %s");
         this.text(LCAdminCommand.TRADER_RECOVER_SUCCESS,"Successfully gave %1$s a fresh item linked to %2$s");
+        this.text(LCAdminCommand.TRADER_LIST_TITLE,"-----Trader Data List-----");
+        this.text(LCAdminCommand.TRADER_LIST_NONE,"There are no traders on this server");
+        this.text(LCAdminCommand.TRADER_LIST_NONE_MATCHING,"No traders found with the given search filter");
+        this.text(LCAdminCommand.TRADER_LIST_TRADER_ID,"Trader ID: %s");
+        this.text(LCAdminCommand.TRADER_LIST_TRADER_ID_TOOLTIP,"Copy Trader ID");
+        this.text(PersistentDataNode.COMMAND_PERSISTENT_ID,"Persistent ID: %s");
+        this.text(LCAdminCommand.TRADER_LIST_TYPE,"Type: %s");
+        this.text(WorldNode.COMMAND_LIST_STATE,"State: %s");
+        this.text(WorldNode.COMMAND_LIST_DIMENSION,"Dimension: %s");
+        this.text(WorldNode.COMMAND_LIST_POSITION,"Position: %s");
+        this.text(WorldNode.COMMAND_LIST_POSITION_TOOLTIP,"Teleport to Trader");
+        this.text(DisplayNode.COMMAND_CUSTOM_NAME,"Custom Name: %s");
 
         this.text(LCConfigCommand.RELOAD,"Reloaded %s Config Files");
         this.text(LCConfigCommand.RELOAD_FILE,"Reloaded %s");
@@ -758,23 +793,18 @@ public class LCEnglishProvider extends LanguageProvider {
         this.configOption(LCConfig.COMMON.canCraftCoinChestUpgradeSecurity,"Security Upgrade","Whether the Money Chest Security Upgrade can be crafted.");
         //Events
         this.configSection(LCConfig.COMMON,"events","Event Settings");
-        this.configOption(LCConfig.COMMON.chocolateEventCoins,"Chocolate Coins","Whether the Chocolate Event Coins will be added to the coin data.",
-                "Note: Disabling will not remove any Chocolate Coin items that already exist, this simply makes them no longer function as money");
         this.configOption(LCConfig.COMMON.eventStartingRewards,"Event Starting Rewards","Whether custom events defined in the 'SeasonalEvents.json' config can give players the one-time reward for logging in during the event.");
         this.configOption(LCConfig.COMMON.eventLootReplacements,"Event Loot Replacements","Whether custom events can replace a portion (or all) of the default loot with custom event loot.");
         //Villagers
         this.configSection(LCConfig.COMMON,"villagers","Villager Related Settings","Note: Any changes to villagers requires a full reboot to be applied due to how Minecraft/Forge registers trades.");
         this.configOption(LCConfig.COMMON.piglinsBarterCoins,"Piglins Barter Coins","Whether Piglins will accept gold coins as a valid bartering item");
-        this.configOption(LCConfig.COMMON.addCustomWanderingTrades,"Custom Wandering Trades","Whether the wandering trader will have additional trades that allow you to buy misc items with money.");
-        this.configOption(LCConfig.COMMON.addBankerVillager,"Banker Trade Offers","Whether the banker villager profession (ATM) will have any registered trades.","The banker sells Lightman's Currency items for coins.");
-        this.configOption(LCConfig.COMMON.addCashierVillager,"Cashier Trade Offers","Whether the cashier villager profession (Cash Register) will have any registered trades.","The cashier sells an amalgamation of vanilla traders products for coins.");
         //Villagers -> Modifications
         this.configSection(LCConfig.COMMON,"villagers.modification","Villager Trade Modification","Note: Changes made only apply to newly generated trades. Villagers with trades already defined will not be changed.");
         this.configOption(LCConfig.COMMON.changeVanillaTrades,"Change Vanilla Trade Offers","Whether vanilla villagers should have the Emeralds from their trades replaced with coins.");
         this.configOption(LCConfig.COMMON.changeModdedTrades,"Change Modded Trade Offers","Whether vanilla villagers added by other mods should have the Emeralds from their trades replaced with coins.");
         this.configOption(LCConfig.COMMON.changeWanderingTrades,"Change Wandering Trader Offers","Whether the wandering trader should have the emeralds from their trades replaced with the default replacement coin.");
-        //this.configOption(LCConfig.COMMON.defaultEmeraldReplacementMod,"Default Replacement Item","The default coin to replace a trades emeralds with.");
-        //this.configOption(LCConfig.COMMON.professionEmeraldReplacementOverrides,"Profession Replacement Items","List of replacement coin overrides for each villager profession.");
+        this.configOption(LCConfig.COMMON.defaultEmeraldReplacementMod,"Default Replacement Item","The default coin to replace a trades emeralds with.");
+        this.configOption(LCConfig.COMMON.professionEmeraldReplacementOverrides,"Profession Replacement Items","List of replacement coin overrides for each villager profession.");
         //Loot
         this.configSection(LCConfig.COMMON,"loot","Loot Options");
         this.configOption(LCConfig.COMMON.lootItem1,"Loot Item Tier 1","Tier 1 loot item.","Applies to loot table loot type \"lightmanscurrency:configured_item\" with \"tier\":1, which is used in all \"lightmanscurrency:loot_addons\" loot tables configured below.");
@@ -1093,6 +1123,14 @@ public class LCEnglishProvider extends LanguageProvider {
         String key = Util.makeDescriptionId("enchantment",enchantment);
         this.add(key,translation);
         this.add(key + ".description",description);
+    }
+
+    protected final void villager(DeferredHolder<VillagerProfession,?> profession, String translation) {
+        Component name = profession.get().name();
+        if(name.getContents() instanceof TranslatableContents contents)
+            this.add(contents.getKey(),translation);
+        else
+            throw new IllegalStateException(profession.getKey() + " does not use a translatable name, and thus cannot be translated!");
     }
 
     protected final void tradeRule(TradeRuleType<?> type,String translation) { this.tradeRule(type.getKey(),translation); }

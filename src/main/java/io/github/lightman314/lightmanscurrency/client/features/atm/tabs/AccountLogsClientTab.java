@@ -37,7 +37,7 @@ public class AccountLogsClientTab extends ATMClientTab<AccountLogsTab> {
     @Override
     protected void initialize(ScreenArea area, FancyPacketMap message) {
         this.displayWidget = this.addChild(NotificationDisplayWidget.builder()
-                .atPos(15,15)
+                .atPos(area.pos.offset(15,15))
                 .ofWidth(area.width - 30)
                 .withOldWidget(this.displayWidget)
                 .withRows(6)
@@ -55,7 +55,7 @@ public class AccountLogsClientTab extends ATMClientTab<AccountLogsTab> {
 
     private List<NotificationStack> getNotifications() {
         BankAccount account = this.getBankAccount();
-        if(account == null)
+        if(account != null)
             return account.getNotifications();
         return List.of();
     }

@@ -10,17 +10,16 @@ public final class LockedOwnerHolder implements IOwnerHolder {
 
     private final Owner owner;
     private final ISidedContext context;
-    public LockedOwnerHolder(Owner owner, ISidedContext context) {
+    public LockedOwnerHolder(Owner owner,ISidedContext context) {
         this.owner = owner;
         this.context = context;
     }
-    public LockedOwnerHolder(Component fakeOwnerName, ISidedContext context) {
+    public LockedOwnerHolder(Component fakeOwnerName,ISidedContext context) {
         this(FakeOwner.of(fakeOwnerName),context);
     }
 
     @Override
     public Owner getValidOwner() { return this.owner; }
-
     @Override
     public boolean isClient() { return this.context.isClient(); }
 }

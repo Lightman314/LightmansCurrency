@@ -1,3 +1,13 @@
-// 26.1.2	2026-09-07T16:31:13.5146091	Tags for minecraft:villager_trade mod id vanilla
-7a412466a6ec7a9f7f6b31f8e10935f2a678e1b8 data/minecraft/tags/villager_trade/wandering_trader/common.json
-169650eb61067738af408238573560c1b731c0c6 data/minecraft/tags/villager_trade/wandering_trader/uncommon.json
+// 26.1.2	2026-10-09T20:25:28.3148263	Tags for minecraft:villager_trade mod id vanilla
+b2fcdc433b93952a102222688cb658553334bc6d data/lightmanscurrency/tags/villager_trade/banker/level_1.json
+cfe590e7818dfd0d332e3263fa6e77025e2a0937 data/lightmanscurrency/tags/villager_trade/banker/level_2.json
+16e63f35d1e4d0d99f5fbfb19b6deff34ac29e63 data/lightmanscurrency/tags/villager_trade/banker/level_3.json
+410bcd2118962882d9a449b57d70680013d06d94 data/lightmanscurrency/tags/villager_trade/banker/level_4.json
+d880ea6b749219997d43fd677798c6a92d774413 data/lightmanscurrency/tags/villager_trade/banker/level_5.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/lightmanscurrency/tags/villager_trade/cashier/level_1.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/lightmanscurrency/tags/villager_trade/cashier/level_2.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/lightmanscurrency/tags/villager_trade/cashier/level_3.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/lightmanscurrency/tags/villager_trade/cashier/level_4.json
+35133e95f1c8fdd7a1c21afcc231fc0bffefb9a8 data/lightmanscurrency/tags/villager_trade/cashier/level_5.json
+2cf0c9e291754b39f3031a8e957a014fa34bddab data/minecraft/tags/villager_trade/wandering_trader/common.json
+cc009d89b88184397012c30ee30cfaa9501d6660 data/minecraft/tags/villager_trade/wandering_trader/uncommon.json
