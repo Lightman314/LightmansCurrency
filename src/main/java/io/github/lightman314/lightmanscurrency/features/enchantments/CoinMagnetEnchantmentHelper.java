@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.features.enchantments;
 
+import com.mojang.datafixers.util.Pair;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.core.LCEnchantmentDataComponents;
@@ -10,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.features.wallet.WalletStorage;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Unit;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -18,7 +20,6 @@ import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.function.Consumer;
@@ -38,7 +39,7 @@ public final class CoinMagnetEnchantmentHelper {
         if(enchantmentLevel <= 0)
             return;
         float range = getCollectionRange(enchantmentLevel);
-        WalletStorage storage = new WalletStorage(attachment);
+        WalletStorage storage = attachment.getWalletStorage();
         Level level = entity.level();
 
         AABB searchBox = new AABB(entity.getX() - range, entity.getY() - range,entity.getZ() - range,entity.getX() + range,entity.getY() + range,entity.getZ() + range);
@@ -48,7 +49,7 @@ public final class CoinMagnetEnchantmentHelper {
                 ItemEntity ie = (ItemEntity)e;
                 ItemStack coinStack = ie.getItem();
                 try(Transaction tx = Transaction.open(transaction)) {
-                    int inserted = storage.pickup(ItemResource.of(coinStack),coinStack.getCount(),tx);
+                    int inserted = storage.pickup(coinStack,tx);
                     if(inserted > 0 && inserted <= coinStack.getCount()) {
                         tx.commit();
                         coinStack.shrink(inserted);
@@ -76,7 +77,7 @@ public final class CoinMagnetEnchantmentHelper {
     }
 
     public static int getCoinMagnetLevel(ItemStack wallet) {
-        var pair = EnchantmentHelper.getHighestLevel(wallet,LCEnchantmentDataComponents.COLLECT_COINS.get());
+        Pair<Unit,Integer> pair = EnchantmentHelper.getHighestLevel(wallet,LCEnchantmentDataComponents.COLLECT_COINS.get());
         return pair == null ? 0 : pair.getSecond();
     }
 

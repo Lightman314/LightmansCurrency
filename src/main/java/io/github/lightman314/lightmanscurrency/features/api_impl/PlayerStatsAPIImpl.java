@@ -19,17 +19,15 @@ public final class PlayerStatsAPIImpl implements PlayerStatsAPI {
     }
 
     @Override
-    public void startTrackingPlayerStats(PlayerReference player,Player viewer) {
+    public long startTrackingPlayerStats(PlayerReference player,Player viewer) {
         if(viewer.level().isClientSide())
-            return;
-        PlayerStatsDataCache.TYPE.get(ISidedContext.LOGICAL_SERVER).requestStatTracking(player,viewer);
+            return -1;
+        return PlayerStatsDataCache.TYPE.get(ISidedContext.LOGICAL_SERVER).requestStatTracking(player,viewer);
     }
 
     @Override
-    public void endPlayerStatTracking(PlayerReference player,Player viewer) {
-        if(viewer.level().isClientSide())
-            return;
-        PlayerStatsDataCache.TYPE.get(ISidedContext.LOGICAL_SERVER).endStatTracking(player,viewer);
+    public void endPlayerStatTracking(long trackingKey) {
+        PlayerStatsDataCache.TYPE.get(ISidedContext.LOGICAL_SERVER).endStatTracking(trackingKey);
     }
 
 }

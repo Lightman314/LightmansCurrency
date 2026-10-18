@@ -84,7 +84,7 @@ public final class LCItems {
 
 
     //Trading Core
-    public static final DeferredItem<Item> TRADING_CORE = registerBasic("trading_mechanism");
+    public static final DeferredItem<Item> TRADING_MECHANISM = registerBasic("trading_mechanism");
     static { addAlias("trading_core","trading_mechanism"); }
     public static final DeferredItem<SmithingTemplateItem> UPGRADE_SMITHING_TEMPLATE = register("upgrade_smithing_template",p -> new SmithingTemplateItem(
             LCText.Resources.TOOLTIP_SMITHING_TEMPLATE_APPLIES_TO.getWithStyle(ChatFormatting.BLUE),

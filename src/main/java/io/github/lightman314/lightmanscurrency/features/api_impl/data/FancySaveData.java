@@ -77,6 +77,14 @@ public class FancySaveData<T extends FancyData> extends SavedData {
     }
 
     @SubscribeEvent
+    private static void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent event) {
+        if(event.getEntity() instanceof ServerPlayer sp) {
+            for(FancyData data : serverDataCache.values())
+                data.onPlayerLeave(sp);
+        }
+    }
+
+    @SubscribeEvent
     private static void onServerTick(ServerTickEvent.Pre event)
     {
         for(FancyData data : serverDataCache.values())

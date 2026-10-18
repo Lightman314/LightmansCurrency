@@ -1,9 +1,15 @@
 package io.github.lightman314.lightmanscurrency.client;
 
+import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.FancyGuiExtractor;
+import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.ScreenHelper;
+import io.github.lightman314.lightmanscurrency.api.client.gui.sprites.DeferredSizedSprite;
+import io.github.lightman314.lightmanscurrency.api.client.gui.sprites.SizedSprite;
+import io.github.lightman314.lightmanscurrency.api.client.gui.widget.button.SpriteButton;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.ILateRenderer;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.IRenderTick;
+import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.TooltipSource;
 import io.github.lightman314.lightmanscurrency.api.config.SyncedConfigFile;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.customer.TraderCustomerScreen;
@@ -11,6 +17,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.stor
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.terminal.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.client.features.atm.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.features.coin_mint.CoinMintScreen;
+import io.github.lightman314.lightmanscurrency.client.features.player_data.PlayerDataScreen;
 import io.github.lightman314.lightmanscurrency.client.features.rendering.BlockStateRenderState;
 import io.github.lightman314.lightmanscurrency.client.features.rendering.BlockStateRenderer;
 import io.github.lightman314.lightmanscurrency.client.features.resources.data.item_position.ItemPositionSetManager;
@@ -18,7 +25,10 @@ import io.github.lightman314.lightmanscurrency.client.features.resources.data.it
 import io.github.lightman314.lightmanscurrency.client.features.wallet.WalletScreen;
 import io.github.lightman314.lightmanscurrency.core.LCMenuTypes;
 import io.github.lightman314.lightmanscurrency.features.api_impl.MoneyAPIImpl;
+import io.github.lightman314.lightmanscurrency.features.player_data.PlayerDataMenu;
 import io.github.lightman314.lightmanscurrency.mixin.client.CreativeModeInventoryScreenAccessor;
+import io.github.lightman314.lightmanscurrency.network.message.menus.CPacketViewPlayerData;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
@@ -37,9 +47,12 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
 
 import java.util.function.BiFunction;
+import java.util.function.BooleanSupplier;
 
 @EventBusSubscriber(Dist.CLIENT)
 public class ClientEventListeners {
+
+    private static final SizedSprite.Template<BooleanSupplier> NOTIFICATION_SPRITE = DeferredSizedSprite.toggleAndHoverToggleSprite(LCApi.id("widget/notifications_unseen"),LCApi.id("widget/notifications"),9,9);
 
     @SubscribeEvent
     private static void onPlayerLeave(ClientPlayerNetworkEvent.LoggingOut event)
@@ -62,6 +75,9 @@ public class ClientEventListeners {
         event.register(LCMenuTypes.TRADER_BLOCK_ENTITY.get(),simpleFactory(TraderCustomerScreen::new));
         event.register(LCMenuTypes.TRADER_ALL_NETWORK.get(),simpleFactory(TraderCustomerScreen::new));
         event.register(LCMenuTypes.TRADER_STORAGE.get(),simpleFactory(TraderStorageScreen::new));
+
+        //Misc
+        event.register(LCMenuTypes.PLAYER_DATA.get(),simpleFactory(PlayerDataScreen::new));
 
     }
 
@@ -100,6 +116,20 @@ public class ClientEventListeners {
         {
             boolean isCreative = screen instanceof CreativeModeInventoryScreen;
 
+            ScreenPosition corner = ScreenHelper.getScreenCorner(screen);
+            if(isCreative)
+                corner = corner.offset(LCConfig.CLIENT.notificationAndTeamButtonCreativePosition.get());
+            else
+                corner = corner.offset(LCConfig.CLIENT.notificationAndTeamButtonPosition.get());
+
+            //Team Button
+            event.addListener(SpriteButton.builder()
+                    .atPos(corner.offset(10,0))
+                    .withSprite(NOTIFICATION_SPRITE.buildSprite(ClientEventListeners::hasUnseenNotification))
+                    .visible(isButtonVisible(isCreative))
+                    .tooltip(TooltipSource.simple(PlayerDataMenu.TOOLTIP_OPEN))
+                    .onPress(CPacketViewPlayerData::sendToServer)
+                    .build());
             //TODO Team/Ejection/Notification buttons
 
         }
@@ -108,6 +138,10 @@ public class ClientEventListeners {
     public static boolean isInventoryTabOpen() {
         return BuiltInRegistries.CREATIVE_MODE_TAB.getKey(CreativeModeInventoryScreenAccessor.getSelectedTab()) == CreativeModeTabs.INVENTORY.identifier();
     }
+
+    private static BooleanSupplier isButtonVisible(boolean isCreative) { return isCreative ? ClientEventListeners::isInventoryTabOpen : () -> true; }
+
+    private static boolean hasUnseenNotification() { return LCApi.getNotificationAPI().getPlayerNotifications(Minecraft.getInstance().player).hasUnseenNotification(); }
 
     @SubscribeEvent
     private static void registerResourceListeners(AddClientReloadListenersEvent event) {

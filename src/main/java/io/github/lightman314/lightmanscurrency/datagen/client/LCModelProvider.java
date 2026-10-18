@@ -82,7 +82,7 @@ public class LCModelProvider extends ModelProvider {
         this.simpleWallet(itemModels,LCItems.WALLET_NETHER_STAR);
         this.simpleWallet(itemModels,LCItems.WALLET_ENDER_DRAGON,false);
 
-        itemModels.generateFlatItem(LCItems.TRADING_CORE.get(),ModelTemplates.FLAT_ITEM);
+        itemModels.generateFlatItem(LCItems.TRADING_MECHANISM.get(),ModelTemplates.FLAT_ITEM);
         itemModels.generateFlatItem(LCItems.UPGRADE_SMITHING_TEMPLATE.get(),ModelTemplates.FLAT_ITEM);
 
         Identifier baseTexture = LCApi.id("item/item_capacity_upgrade");
@@ -150,6 +150,9 @@ public class LCModelProvider extends ModelProvider {
         this.rotatableBlockWithItem(blockModels,itemModels,LCBlocks.ITEM_NETWORK_TRADER.get(2));
         this.rotatableBlockWithItem(blockModels,itemModels,LCBlocks.ITEM_NETWORK_TRADER.get(3));
         this.rotatableBlockWithItem(blockModels,itemModels,LCBlocks.ITEM_NETWORK_TRADER.get(4));
+
+        //Armor Display
+        this.tallRotatableBlockWithItem(blockModels,itemModels,LCBlocks.ARMOR_DISPLAY,this.getBlockModelID(LCBlocks.ARMOR_DISPLAY.get()));
 
     }
 
@@ -238,6 +241,15 @@ public class LCModelProvider extends ModelProvider {
         Variant item = new Variant(modelID);
         this.tallRotatableBlockWithItem(blockModels,itemModels,block,top,bottom,item);
     }
+    protected final <T extends Block & IRotatableBlock & ITallBlock> void tallRotatableBlockWithItem(BlockModelGenerators blockModels,ItemModelGenerators itemModels,Supplier<T> block,Identifier modelFolder) { this.tallRotatableBlockWithItem(blockModels,itemModels,block.get(),modelFolder); }
+    protected final <T extends Block & IRotatableBlock & ITallBlock> void tallRotatableBlockWithItem(BlockModelGenerators blockModels,ItemModelGenerators itemModels,T block,Identifier modelFolder) {
+        Variant top = new Variant(modelFolder.withSuffix("/top"));
+        Variant bottom = new Variant(modelFolder.withSuffix("/bottom"));
+        Variant item = new Variant(modelFolder.withSuffix("/item"));
+        this.tallRotatableBlockWithItem(blockModels,itemModels,block,top,bottom,item);
+    }
+
+
     protected final <T extends Block & IRotatableBlock & ITallBlock> void tallRotatableBlockWithItem(BlockModelGenerators blockModels,ItemModelGenerators itemModels,Supplier<T> block,Variant top,Variant bottom,Variant item) { this.tallRotatableBlockWithItem(blockModels,itemModels,block.get(),top,bottom,item); }
     protected final <T extends Block & IRotatableBlock & ITallBlock> void tallRotatableBlockWithItem(BlockModelGenerators blockModels,ItemModelGenerators itemModels,T block,Variant top,Variant bottom,Variant item) {
         this.tallRotatableBlock(blockModels,block,top,bottom);

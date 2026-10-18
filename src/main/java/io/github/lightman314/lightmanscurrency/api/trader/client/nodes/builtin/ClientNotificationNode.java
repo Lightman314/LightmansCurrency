@@ -42,16 +42,17 @@ public class ClientNotificationNode extends ClientTraderNode implements IInfoTab
                 .onPress(sender,NotificationNode.TYPE,"pushToChat")
                 .withLabel(NotificationNode.VALUE_PUSH_TO_CHAT)
                 .build());
+        //Notify Member toggle
+        builder.addSimpleSetting(SimpleSettingCategory.MISC,SimpleCheckmarkSetting.builder()
+                .withCurrentValue(trader,NotificationNode.TYPE,NotificationNode::sendsNotificationsToMembers)
+                .canEdit(perms,LCPermissions.EDIT_SETTINGS)
+                .onPress(sender,NotificationNode.TYPE,"pushToMembers")
+                .withLabel(NotificationNode.VALUE_NOTIFY_MEMBERS)
+                .build());
         TraderData t = trader.getTrader();
         if(t != null && t.getOwner().hasMemberLevels()) {
             //Add Member-Related settings options
-            //Notify Member toggle
-            builder.addSimpleSetting(SimpleSettingCategory.MISC,SimpleCheckmarkSetting.builder()
-                    .withCurrentValue(trader,NotificationNode.TYPE,NotificationNode::sendsNotificationsToMembers)
-                    .canEdit(perms,LCPermissions.EDIT_SETTINGS)
-                    .onPress(sender,NotificationNode.TYPE,"pushToMembers")
-                    .withLabel(NotificationNode.VALUE_NOTIFY_MEMBERS)
-                    .build());
+
             //Notify Member Level
             builder.addSimpleSetting(SimpleSettingCategory.MISC, SimpleButtonSetting.builder()
                     .withText(trader,NotificationNode.TYPE,NotificationNode::getMemberLevelBlurb)

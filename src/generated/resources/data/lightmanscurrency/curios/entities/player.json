@@ -1,0 +1,14 @@
+{
+  "entities": [
+    "#curios:player_like"
+  ],
+  "slots": [
+    "wallet",
+    {
+      "slot": {
+        "id": "charm",
+        "size": 2
+      }
+    }
+  ]
+}

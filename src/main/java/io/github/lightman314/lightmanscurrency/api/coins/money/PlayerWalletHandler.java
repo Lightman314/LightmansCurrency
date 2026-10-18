@@ -7,10 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.money.resource.DeferredMoneyR
 
 import io.github.lightman314.lightmanscurrency.core.neoforge.LCDataAttachments;
 import io.github.lightman314.lightmanscurrency.features.wallet.WalletAttachment;
-import io.github.lightman314.lightmanscurrency.features.wallet.WalletStorage;
 import net.minecraft.world.entity.player.Player;
-
-import java.util.function.UnaryOperator;
 
 public class PlayerWalletHandler implements PlayerMoneyResourceHandler, DeferredMoneyResourceHandler {
 
@@ -25,10 +22,8 @@ public class PlayerWalletHandler implements PlayerMoneyResourceHandler, Deferred
     public MoneyResourceHandler getMoneyResourceHandler() {
         //Get players wallet attachment
         WalletAttachment attachment = this.player.getData(LCDataAttachments.WALLET);
-        //Get the wallets storage using the attachment as the ItemAccess
-        WalletStorage storage = new WalletStorage(attachment);
         //Wrap the inventory with a money handler and call it a day :)
-        return storage.getMoneyResourceHandler(this.player,this.overflowModifier);
+        return attachment.getWalletStorage().getMoneyResourceHandler(this.player,this.overflowModifier);
     }
 
     @Override

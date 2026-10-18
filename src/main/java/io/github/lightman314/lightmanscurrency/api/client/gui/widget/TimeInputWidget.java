@@ -142,7 +142,7 @@ public final class TimeInputWidget extends AbstractMultiWidget.EarlyChildren {
 
         public Builder minDuration(long minDuration) { this.minDuration = minDuration; return this; }
         public Builder maxDuration(long maxDuration) { this.maxDuration = maxDuration; return this; }
-        public Builder withRange(long minDuration, long maxDuration) { return this.minDuration(minDuration).maxDuration(maxDuration); }
+        public Builder withDurationRange(long minDuration, long maxDuration) { return this.minDuration(minDuration).maxDuration(maxDuration); }
 
         public Builder startTime(long startTime) { this.startTime = startTime; return this; }
         public Builder startTime(TimeData startTime) { this.startTime = startTime.milliseconds; return this; }

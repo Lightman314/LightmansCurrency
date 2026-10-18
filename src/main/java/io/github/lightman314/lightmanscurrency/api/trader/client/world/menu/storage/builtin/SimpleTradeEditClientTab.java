@@ -26,7 +26,7 @@ public class SimpleTradeEditClientTab extends TraderStorageClientTab<SimpleTrade
     }
 
     @Override
-    public IconData getIcon() { return ItemIcon.of(LCItems.TRADING_CORE); }
+    public IconData getIcon() { return ItemIcon.of(LCItems.TRADING_MECHANISM); }
     @Override
     public Component getName() { return SimpleTradeEditTab.TOOLTIP_TRADE_EDIT_TAB.get(); }
 

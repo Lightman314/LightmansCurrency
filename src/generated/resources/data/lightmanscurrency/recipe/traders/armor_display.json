@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": "minecraft:armor_stand",
+    "g": "#c:glass_blocks/colorless",
+    "i": "#c:ingots/iron",
+    "x": "lightmanscurrency:trading_mechanism"
+  },
+  "pattern": [
+    "ggg",
+    "gag",
+    "ixi"
+  ],
+  "result": {
+    "id": "lightmanscurrency:armor_display"
+  }
+}

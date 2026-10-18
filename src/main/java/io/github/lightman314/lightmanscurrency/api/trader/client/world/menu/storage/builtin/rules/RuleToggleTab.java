@@ -30,10 +30,8 @@ public class RuleToggleTab extends TradeRuleClientSubTab implements IScrollable 
     private int scroll = 0;
     @Override
     public int getScroll() { return this.scroll; }
-
     @Override
     public void setScroll(int scroll) { this.scroll = scroll; }
-
     @Override
     public int getMaxScroll() { return IScrollable.calculateMaxScroll(this.getFilteredRules().size(),RULES_PER_PAGE); }
 
@@ -83,8 +81,9 @@ public class RuleToggleTab extends TradeRuleClientSubTab implements IScrollable 
         gui.text(AbstractTradeRuleTab.GUI_TRADE_RULES_LIST.get(),20,10,0xFF404040,false);
 
         List<TradeRule> rules = this.getFilteredRules();
-        for(int i = this.scroll; i < RULES_PER_PAGE - this.scroll && i < rules.size(); ++i) {
-            TradeRule rule = rules.get(i);
+        for(int i = 0; i < RULES_PER_PAGE; ++i) {
+            int index = i + this.scroll;
+            TradeRule rule = rules.get(index);
             IconRenderer.extractState(gui,rule.getIcon(),30,26 + (18 * i));
             gui.text(rule.getName(),48,30 + (18 * i),0xFF404040,false);
         }

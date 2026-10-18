@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.*;
 import io.github.lightman314.lightmanscurrency.features.trader.gacha.nodes.GachaStorageNode;
+import io.github.lightman314.lightmanscurrency.features.trader.item.nodes.ArmorTradesNode;
 import io.github.lightman314.lightmanscurrency.features.trader.item.nodes.ItemTradesNode;
 import io.github.lightman314.lightmanscurrency.features.trader.item_common.ItemStorageNode;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -40,6 +41,7 @@ public final class LCTraderNodeTypes {
         //Item Traders
         register("item_storage",ItemStorageNode.TYPE);
         register("item_trades",ItemTradesNode.TYPE);
+        register("armor_trades",ArmorTradesNode.TYPE);
         register("gacha_storage",GachaStorageNode.TYPE);
 
     }

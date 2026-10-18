@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.helpers.ListHelper;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
 import io.github.lightman314.lightmanscurrency.api.notifications.category.NotificationCategory;
-import io.github.lightman314.lightmanscurrency.api.notifications.category.builtin.GeneralCategory;
+import io.github.lightman314.lightmanscurrency.api.notifications.category.builtin.UnfilteredCategory;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -32,15 +32,15 @@ public class PlainTextNotification extends Notification {
     private final List<Component> text;
     private final NotificationCategory category;
     private Optional<NotificationCategory> getCodecCategory() { return this.category.notGeneral() ? Optional.of(this.category) : Optional.empty(); }
-    public PlainTextNotification(Component text) { this(text,GeneralCategory.INSTANCE); }
+    public PlainTextNotification(Component text) { this(text, UnfilteredCategory.INSTANCE); }
     public PlainTextNotification(Component text,NotificationCategory category) { this(List.of(text),category); }
-    public PlainTextNotification(List<Component> text) { this(text,GeneralCategory.INSTANCE); }
+    public PlainTextNotification(List<Component> text) { this(text, UnfilteredCategory.INSTANCE); }
     public PlainTextNotification(List<Component> text,NotificationCategory category) {
         this.text = List.copyOf(ListHelper.copyList(text,Component::copy));
         this.category = category.setSidedContext(this);
     }
 
-    private static PlainTextNotification parseCodec(List<Component> text,Optional<NotificationCategory> category) { return new PlainTextNotification(text,category.orElse(GeneralCategory.INSTANCE)); }
+    private static PlainTextNotification parseCodec(List<Component> text,Optional<NotificationCategory> category) { return new PlainTextNotification(text,category.orElse(UnfilteredCategory.INSTANCE)); }
 
     @Override
     public NotificationType<?> getType() { return TYPE; }

@@ -5,13 +5,14 @@ import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.helpers.registry.RegistryHelper;
 import io.github.lightman314.lightmanscurrency.api.icon.IconData;
-import io.github.lightman314.lightmanscurrency.api.notifications.category.builtin.GeneralCategory;
+import io.github.lightman314.lightmanscurrency.api.notifications.category.builtin.UnfilteredCategory;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
 import javax.annotation.concurrent.Immutable;
+import java.util.Objects;
 
 @Immutable
 public abstract class NotificationCategory implements ISidedContext.Mutable<NotificationCategory> {
@@ -35,10 +36,10 @@ public abstract class NotificationCategory implements ISidedContext.Mutable<Noti
     public abstract Component getName();
     public abstract IconData getIcon();
     public abstract NotificationCategoryType<?> getType();
-    public abstract boolean equals(NotificationCategory other);
 
     @Override
-    public abstract int hashCode();
+    public final int hashCode() { return Objects.hash(this.getType(),this.hash()); }
+    protected abstract int hash();
     @Override
     public boolean equals(Object obj) {
         if(this == obj)
@@ -47,8 +48,9 @@ public abstract class NotificationCategory implements ISidedContext.Mutable<Noti
             return this.equals(cat);
         return false;
     }
+    protected abstract boolean equals(NotificationCategory other);
 
-    public final boolean notGeneral() { return this != GeneralCategory.INSTANCE; }
+    public final boolean notGeneral() { return this != UnfilteredCategory.INSTANCE; }
 
     @Override
     public final String toString() { return RegistryHelper.toString("NotificationCategory",LCRegistries.Notifications.NOTIFICATION_CATEGORY_TYPE,this.getType()); }

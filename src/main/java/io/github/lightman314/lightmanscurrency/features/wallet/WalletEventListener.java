@@ -24,7 +24,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
-import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.ArrayList;
@@ -43,13 +42,13 @@ public final class WalletEventListener {
         ItemEntity ie = event.getItemEntity();
         ItemStack coin = ie.getItem();
         if(canPlayerPickup(ie,player) && LCApi.getCoinAPI().isAllowedInCoinContainer(coin,false)) {
-            WalletAttachment handler = player.getData(LCDataAttachments.WALLET);
-            ItemStack wallet = handler.getWallet();
+            WalletAttachment attachment = player.getData(LCDataAttachments.WALLET);
+            ItemStack wallet = attachment.getWallet();
             if(!WalletItem.isWallet(wallet) || !WalletItem.hasPickupAbility(wallet))
                 return;
-            WalletStorage storage = new WalletStorage(handler);
+            WalletStorage storage = attachment.getWalletStorage();
             try(Transaction transaction = Transaction.openRoot()) {
-                int inserted = storage.pickup(ItemResource.of(coin),coin.getCount(),transaction);
+                int inserted = storage.pickup(coin,transaction);
                 if(inserted > 0) {
                     transaction.commit();
                     coin.shrink(inserted);
@@ -73,8 +72,8 @@ public final class WalletEventListener {
             return;
         if(!entity.isSpectator() && (entity.hasData(LCDataAttachments.WALLET) || LCCuriosHelper.get().hasWalletSlot(entity))) {
             boolean letCuriosHandleWallet = LCCuriosHelper.get().hasWalletSlot(entity);
-            WalletAttachment holder = entity.getData(LCDataAttachments.WALLET);
-            ItemStack wallet = holder.getWallet();
+            WalletAttachment attachment = entity.getData(LCDataAttachments.WALLET);
+            ItemStack wallet = attachment.getWallet();
             if(wallet.isEmpty() || !WalletItem.isWallet(wallet))
                 return;
             if(entity instanceof Player player && player.level() instanceof ServerLevel sl) { //Only worry about game rules on players. Otherwise, it always drops the wallet.
@@ -84,7 +83,7 @@ public final class WalletEventListener {
                 //Collect wallet content drops
                 double dropRate = LCConfig.SERVER.walletDropRate.get();
                 if(dropRate > 0d) {
-                    WalletStorage storage = new WalletStorage(holder);
+                    WalletStorage storage = attachment.getWalletStorage();
                     MoneyResourceHandler walletMoney = storage.getMoneyResourceHandler(
                             //Drop overflow items instead of giving them to the player in this scenario
                             OverflowHandler.forListConsumer(drops::addAll),
@@ -108,11 +107,11 @@ public final class WalletEventListener {
                         transaction.commit();
                     }
                     //Update local wallet variable now that some of the contents have been removed
-                    wallet = holder.getWallet();
+                    wallet = attachment.getWallet();
                 }
                 if(!keepWallet) {
                     drops.addFirst(wallet);
-                    holder.setWallet(ItemStack.EMPTY);
+                    attachment.setWallet(ItemStack.EMPTY);
                 }
                 List<ItemEntity> dropItems = createDropEntities(player,drops);
                 if(LCConfig.SERVER.walletDropsManualSpawn.get()) {
@@ -125,7 +124,7 @@ public final class WalletEventListener {
             }
             else if(!letCuriosHandleWallet) {
                 event.getDrops().add(createDropEntity(entity,wallet.copy()));
-                holder.setWallet(ItemStack.EMPTY);
+                attachment.setWallet(ItemStack.EMPTY);
             }
         }
     }

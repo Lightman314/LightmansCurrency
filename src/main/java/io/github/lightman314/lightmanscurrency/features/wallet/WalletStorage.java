@@ -26,7 +26,7 @@ public final class WalletStorage extends SnapshotJournal<List<ItemStack>> implem
     private final ItemAccess walletAccess;
     private ItemContents lastKnownData;
     private NonNullList<ItemStack> lastKnownContents = null;
-    boolean hasWallet() { return WalletItem.isWallet(this.walletAccess.getResource()); }
+    public boolean hasWallet() { return WalletItem.isWallet(this.walletAccess.getResource()); }
     NonNullList<ItemStack> getContents() {
         ItemResource currentWallet = this.walletAccess.getResource();
         ItemContents currentData = currentWallet.getOrDefault(LCDataComponents.WALLET_CONTENTS,ItemContents.EMPTY);
@@ -129,10 +129,22 @@ public final class WalletStorage extends SnapshotJournal<List<ItemStack>> implem
      * Wallet-exclusive version of the {@link ResourceHandler#insert(Resource, int, TransactionContext)} method,
      * however this also triggers the coin exchange automatically on a sucessful insertion <i>if</i> the wallet
      * in question should in-fact automatically exchange coins on pickup.
+     * @param item – The item to insert. Must be non-empty. Insert amount is determined by the item's count.
+     * @param transaction – The transaction that this operation is part of.
+     * @return The amount that was inserted. Between 0 (inclusive, nothing was inserted) and amount (inclusive, everything was inserted).
+     * @see #pickup(ItemResource, int, TransactionContext)
+     */
+    public int pickup(ItemStack item,TransactionContext transaction) { return this.pickup(ItemResource.of(item),item.getCount(),transaction); }
+
+    /**
+     * Wallet-exclusive version of the {@link ResourceHandler#insert(Resource, int, TransactionContext)} method,
+     * however this also triggers the coin exchange automatically on a sucessful insertion <i>if</i> the wallet
+     * in question should in-fact automatically exchange coins on pickup.
      * @param resource – The resource to insert. Must be non-empty.
      * @param amount – The maximum amount of the resource to insert. Must be non-negative.
      * @param transaction – The transaction that this operation is part of.
      * @return The amount that was inserted. Between 0 (inclusive, nothing was inserted) and amount (inclusive, everything was inserted).
+     * @see #pickup(ItemStack, TransactionContext)
      */
     public int pickup(ItemResource resource,int amount,TransactionContext transaction) {
         int result = this.insert(resource,amount,transaction);

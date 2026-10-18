@@ -55,8 +55,6 @@ public class ItemTraderRenderState extends BlockEntityRenderState {
             return;
         //TODO check variant in the future
         state.blockState = be.getBlockState();
-        if(state.blockState == null)
-            state.blockState = Blocks.AIR.defaultBlockState();
         state.positionData = ItemPositionSetManager.getDataForBlock(state.blockState);
         state.partialTicks = partialTicks;
         TraderData trader = be.getTrader();

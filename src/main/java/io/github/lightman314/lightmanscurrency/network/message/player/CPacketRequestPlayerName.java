@@ -20,7 +20,7 @@ public class CPacketRequestPlayerName extends ClientToServerPacket {
     public CPacketRequestPlayerName(UUID playerID) { super(TYPE); this.playerID = playerID; }
 
     @Override
-    protected void handle(IPayloadContext context, Player player) {
+    protected void handle(IPayloadContext context,Player player) {
         if(player.level() instanceof ServerLevel sl) {
             MinecraftServer server = sl.getServer();
             server.services().profileResolver().fetchById(this.playerID)

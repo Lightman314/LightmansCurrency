@@ -47,7 +47,7 @@ public class StatDisplayWidget extends FancyWidget implements IScrollable, IScro
         //Validate the current scroll to ensure everything is rendered at the correct position
         this.validateScroll();
         //If no stats are present, render the empty stats text instead
-        if(allKeys.isEmpty() || stats == null) {
+        if(allKeys.isEmpty()) {
             List<FormattedCharSequence> lines = gui.getFont().split(StatViewer.GUI_STATS_EMPTY.get(),area.width);
             int centerX = area.halfWidth();
             int centerY = area.halfHeight();

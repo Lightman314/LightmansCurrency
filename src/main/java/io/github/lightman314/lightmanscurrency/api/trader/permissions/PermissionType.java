@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.registry.AbstractType;
 import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 
 public abstract class PermissionType<T> extends AbstractType<PermissionType<?>> {
@@ -16,6 +17,8 @@ public abstract class PermissionType<T> extends AbstractType<PermissionType<?>> 
     public abstract T getEmpty();
     public abstract T getMaxValue();
     public abstract T getHighest(T value1,T value2);
+    public abstract Class<T> getValueClass();
+    public abstract Component getValueText(Permission<T> permission,T value);
 
     @Override
     protected final PermissionType<?> getEntry() { return super.getEntry(); }
@@ -23,4 +26,5 @@ public abstract class PermissionType<T> extends AbstractType<PermissionType<?>> 
     protected final Registry<PermissionType<?>> getRegistry() { return LCRegistries.Trader.PERMISSION_TYPE; }
     @Override
     protected final String getName() { return "PermissionType"; }
+
 }

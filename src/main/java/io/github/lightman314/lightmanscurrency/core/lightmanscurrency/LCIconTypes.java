@@ -15,6 +15,7 @@ public final class LCIconTypes {
         register("null",EmptyIcon.TYPE);
         register("item",ItemIcon.TYPE);
         register("sprite",SpriteIcon.TYPE);
+        register("text",TextIcon.TYPE);
         register("multi",MultiIcon.TYPE);
     }
 

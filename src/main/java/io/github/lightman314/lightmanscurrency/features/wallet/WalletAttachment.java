@@ -3,7 +3,6 @@ package io.github.lightman314.lightmanscurrency.features.wallet;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.attachment.AttachmentWithContext;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.money.OverflowHandler;
@@ -74,13 +73,21 @@ public final class WalletAttachment extends SnapshotJournal<ItemStack> implement
         return this.wallet;
     }
 
-    private boolean visible,wasVisible = true;
+    private boolean visible = true;
+    private boolean wasVisible = true;
     public boolean isVisible() {
         if(this.useCuriosData())
             return LCCuriosHelper.get().getWalletVisibility(this.entity);
         return this.visible;
     }
     public void setVisible(boolean visible) { this.visible = visible; }
+
+    private WalletStorage walletStorage;
+    public WalletStorage getWalletStorage() {
+        if(this.walletStorage == null)
+            this.walletStorage = new WalletStorage(this);
+        return this.walletStorage;
+    }
 
     public WalletAttachment() {}
 
@@ -106,28 +113,23 @@ public final class WalletAttachment extends SnapshotJournal<ItemStack> implement
 
     public MoneyResourceHandler getContentViewer(ISidedContext context) {
         if(WalletItem.isWallet(this.getWallet()))
-        {
-            WalletStorage storage = new WalletStorage(this);
-            //This is a viewer, so no need for a proper listener
-            return LCApi.getMoneyAPI().getContainersMoneyViewer(storage,context,false);
-        }
+            return this.walletStorage.getMoneyResourceViewer(context);
         return EmptyMoneyResource.INSTANCE;
     }
 
-    public MoneyResourceHandler getContentHandler(OverflowHandler overflowHandler, ISidedContext context) {
+    public MoneyResourceHandler getContentHandler(Player player,OverflowHandler.Modifier overflowModifier) {
         if(WalletItem.isWallet(this.wallet))
-        {
-            WalletStorage storage = new WalletStorage(this);
-            return LCApi.getMoneyAPI().getContainersMoneyHandler(storage,overflowHandler,context,false);
-        }
+            return this.walletStorage.getMoneyResourceHandler(player,overflowModifier);
         return EmptyMoneyResource.INSTANCE;
     }
-    public MoneyResourceHandler getContentHandler(Player player,ISidedContext context) {
+    public MoneyResourceHandler getContentHandler(OverflowHandler overflowHandler,ISidedContext context) {
         if(WalletItem.isWallet(this.wallet))
-        {
-            WalletStorage storage = new WalletStorage(this);
-            return LCApi.getMoneyAPI().getContainersMoneyHandler(storage,player,false);
-        }
+            return this.walletStorage.getMoneyResourceHandler(overflowHandler,context);
+        return EmptyMoneyResource.INSTANCE;
+    }
+    public MoneyResourceHandler getContentHandler(Player player) {
+        if(WalletItem.isWallet(this.wallet))
+            return this.walletStorage.getMoneyResourceHandler(player);
         return EmptyMoneyResource.INSTANCE;
     }
 

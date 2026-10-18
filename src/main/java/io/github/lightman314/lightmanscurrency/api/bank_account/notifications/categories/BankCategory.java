@@ -30,6 +30,6 @@ public class BankCategory extends NotificationCategory {
     @Override
     public boolean equals(NotificationCategory other) { return other instanceof BankCategory c && c.name.equals(this.name); }
     @Override
-    public int hashCode() { return this.name.hashCode(); }
+    protected int hash() { return this.name.hashCode(); }
 
 }

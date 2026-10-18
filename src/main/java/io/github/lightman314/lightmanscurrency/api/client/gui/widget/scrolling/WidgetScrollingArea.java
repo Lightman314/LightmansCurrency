@@ -60,6 +60,7 @@ public class WidgetScrollingArea extends AbstractMultiWidget.LateChildren implem
 
     @Override
     protected void renderTickInternal(ScreenPosition mousePos) {
+        this.validateScroll();
         ScreenArea area = this.getArea();
         ScreenPosition corner;
         if(this.centerVertically && this.childHeight < this.height) {

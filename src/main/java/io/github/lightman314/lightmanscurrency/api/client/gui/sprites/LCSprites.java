@@ -10,6 +10,7 @@ public final class LCSprites {
     private LCSprites() {}
 
     public static final Identifier GENERIC_BACKGROUND = LCApi.id("container/generic_background");
+    public static final Identifier SQUARE_BACKGROUND = LCApi.id("container/square_background");
     public static final SizedSprite GENERIC_INFO = new SizedSprite.Simple(LCApi.id("container/generic_info"),10,10);
 
     public static final HorizontalSizedSprite SEARCH_FIELD = new HorizontalSizedSprite.Simple(LCApi.id("container/search_field"),12);

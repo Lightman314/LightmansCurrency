@@ -46,6 +46,7 @@ public class TradeRuleSettingsWrapper implements ISettingsStorageIO {
         if(this.loadPermissions.test(context)) {
             this.holder.getRuleData().forEach((type,rule) -> {
                 Optional<ValueInput> entry = data.child(type.getKey().toString());
+                entry.ifPresentOrElse(rule::decodeSettings,rule::resetToDefaultValues);
             });
         }
     }

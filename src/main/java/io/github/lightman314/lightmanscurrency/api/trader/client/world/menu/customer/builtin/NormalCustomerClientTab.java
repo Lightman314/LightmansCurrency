@@ -30,7 +30,7 @@ public class NormalCustomerClientTab extends TraderCustomerClientTab<NormalCusto
     private TradeDisplayArea tradeDisplay = null;
 
     @Override
-    public IconData getIcon() { return ItemIcon.of(LCItems.TRADING_CORE); }
+    public IconData getIcon() { return ItemIcon.of(LCItems.TRADING_MECHANISM); }
     @Override
     public Component getName() { return NormalCustomerTab.TOOLTIP_CUSTOMER_TAB.get(); }
 

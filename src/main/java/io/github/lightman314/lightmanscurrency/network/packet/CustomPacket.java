@@ -21,7 +21,10 @@ public abstract class CustomPacket implements CustomPacketPayload {
     @Override
     public Type<? extends CustomPacketPayload> type() { return this.type; }
 
-    public final void handle(IPayloadContext context) { this.handle(context,context.player()); }
+    public final void handle(IPayloadContext context) {
+        //Enqueue the work so that it runs on the correct thread
+        context.enqueueWork(() -> this.handle(context,context.player()));
+    }
     protected abstract void handle(IPayloadContext context,Player player);
 
 }

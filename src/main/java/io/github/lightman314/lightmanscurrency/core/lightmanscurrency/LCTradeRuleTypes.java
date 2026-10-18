@@ -12,8 +12,15 @@ public final class LCTradeRuleTypes {
     public static final DeferredRegister<TradeRuleType<?>> REGISTER = DeferredRegister.create(LCRegistries.Trader.TRADE_RULE_TYPE,LCApi.MODID);
 
     static {
+        register("daily_trades",DailyTrades.TYPE);
+        register("demand_pricing",DemandPricing.TYPE);
         register("free_sample",FreeSample.TYPE);
+        register("global_trade_limit",GlobalTradeLimit.TYPE);
+        register("player_discounts",PlayerDiscounts.TYPE);
+        register("player_interaction_list",PlayerInteractionListing.TYPE);
         register("player_trade_limit",PlayerTradeLimit.TYPE);
+        register("price_fluctuation",PriceFluctuation.TYPE);
+        register("timed_sale",TimedSale.TYPE);
     }
 
     private static void register(String name,TradeRuleType<?> type) {

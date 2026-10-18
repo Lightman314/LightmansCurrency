@@ -7,14 +7,14 @@ import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedCont
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationStack;
 import io.github.lightman314.lightmanscurrency.api.notifications.category.NotificationCategory;
-import io.github.lightman314.lightmanscurrency.api.notifications.category.builtin.GeneralCategory;
+import io.github.lightman314.lightmanscurrency.api.notifications.category.builtin.UnfilteredCategory;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
 import java.util.*;
 
-public final class NotificationHolder implements ISidedContext.Mutable<NotificationHolder>, NotificationConsumer {
+public final class NotificationHolder implements ISidedContext.Mutable<NotificationHolder>,NotificationConsumer,NotificationReader {
 
     public static final Codec<NotificationHolder> CODEC = NotificationStack.CODEC.listOf().xmap(NotificationHolder::new,NotificationHolder::getNotifications);
     public static final StreamCodec<RegistryFriendlyByteBuf,NotificationHolder> STREAM_CODEC = NotificationStack.STREAM_CODEC.apply(ByteBufCodecs.list()).map(NotificationHolder::new,NotificationHolder::getNotifications);
@@ -27,6 +27,7 @@ public final class NotificationHolder implements ISidedContext.Mutable<Notificat
     public boolean isClient() { return this.context.isClient(); }
 
     private final List<NotificationStack> notifications = new ArrayList<>();
+    @Override
     public List<NotificationStack> getNotifications() { return Collections.unmodifiableList(this.notifications); }
     private final Map<NotificationFilter,List<NotificationStack>> filteredCache = new HashMap<>();
     private final List<NotificationCategory> categories = new ArrayList<>();
@@ -34,6 +35,7 @@ public final class NotificationHolder implements ISidedContext.Mutable<Notificat
     public NotificationHolder() {}
     public NotificationHolder(List<NotificationStack> notifications) {
         this.notifications.addAll(notifications);
+        this.notifications.forEach(n -> n.setSidedContext(this));
         this.validateListSize();
         this.updateCategoryCache();
     }
@@ -55,21 +57,25 @@ public final class NotificationHolder implements ISidedContext.Mutable<Notificat
         }
     }
 
-    public List<NotificationStack> getNotifications(NotificationCategory category) {
-        if(category == GeneralCategory.INSTANCE)
-            return this.getNotifications();
-        return this.getNotifications(NotificationFilter.ofCategory(category));
-    }
+    @Override
     public List<NotificationStack> getNotifications(NotificationFilter filter) {
         //Cache the results of the query to optimize rendering
         //Cache is cleared when notifications are added or removed
         if(!this.filteredCache.containsKey(filter))
             this.filteredCache.put(filter,this.notifications.stream().filter(filter::filter).toList());
-        return this.filteredCache.getOrDefault(filter,List.of());
+        return this.filteredCache.get(filter);
     }
 
-    public boolean hasUnseenNotification() { return this.hasUnseenNotification(GeneralCategory.INSTANCE); }
+    @Override
+    public boolean hasUnseenNotification() { return this.getNotifications().stream().anyMatch(NotificationStack::isUnseen); }
+    @Override
     public boolean hasUnseenNotification(NotificationCategory category) { return this.getNotifications(category).stream().anyMatch(NotificationStack::isUnseen); }
+    @Override
+    public boolean hasUnseenNotification(NotificationFilter filter) { return this.getNotifications(filter).stream().anyMatch(NotificationStack::isUnseen); }
+
+    public void markAsSeen() { this.notifications.forEach(NotificationStack::setSeen); }
+    public void markAsSeen(NotificationCategory category) { this.getNotifications(category).forEach(NotificationStack::setSeen); }
+    public void markAsSeen(NotificationFilter filter) { this.getNotifications(filter).forEach(NotificationStack::setSeen); }
 
     public List<NotificationCategory> getCategories() { return Collections.unmodifiableList(this.categories); }
 
@@ -77,8 +83,6 @@ public final class NotificationHolder implements ISidedContext.Mutable<Notificat
     public void postNotification(Notification notification) {
         if(this.isServer())
             this.postNotificationInternal(notification);
-        else
-            LightmansCurrency.LogWarning("Notification Posted on the Logical Client!",new Throwable());
     }
 
     public void addClientNotification(Notification notification) {
@@ -104,19 +108,20 @@ public final class NotificationHolder implements ISidedContext.Mutable<Notificat
         this.validateListSize();
     }
 
-    public void deleteNotification(int index) {
+    public int deleteNotification(int index) {
         if(index < 0 || index >= this.notifications.size())
-            return;
+            return -1;
         this.notifications.remove(index);
         //Clear the cache
         this.filteredCache.clear();
         this.updateCategoryCache();
+        return index;
     }
-    public void deleteNotification(NotificationCategory category,int index) {
-        if(category == GeneralCategory.INSTANCE)
-            this.deleteNotification(index);
+    public int deleteNotification(NotificationCategory category,int index) {
+        if(category == UnfilteredCategory.INSTANCE)
+            return this.deleteNotification(index);
         else
-            this.deleteNotification(NotificationFilter.ofCategory(category),index);
+            return this.deleteNotification(NotificationFilter.ofCategory(category),index);
     }
     public int deleteNotification(NotificationFilter filter,int index) {
         for(int i = 0; i < this.notifications.size(); ++i) {

@@ -9,7 +9,8 @@ public interface PlayerStatsAPI {
 
     default StatHolder getPlayerStats(Player player) { return getPlayerStats(PlayerReference.of(player),ISidedContext.wrap(player)); }
     StatHolder getPlayerStats(PlayerReference player,ISidedContext context);
-    void startTrackingPlayerStats(PlayerReference player, Player viewer);
-    void endPlayerStatTracking(PlayerReference player,Player viewer);
+    default long startTrackingPlayerStats(Player player) { return this.startTrackingPlayerStats(PlayerReference.of(player),player); }
+    long startTrackingPlayerStats(PlayerReference player, Player viewer);
+    void endPlayerStatTracking(long statKey);
 
 }

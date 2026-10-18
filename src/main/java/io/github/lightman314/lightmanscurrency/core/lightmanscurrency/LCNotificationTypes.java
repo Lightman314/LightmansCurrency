@@ -4,9 +4,9 @@ import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.bank_account.notifications.*;
 import io.github.lightman314.lightmanscurrency.api.notifications.NotificationType;
-import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesPaidNotification;
-import io.github.lightman314.lightmanscurrency.api.trader.notifications.OutOfStockNotification;
-import io.github.lightman314.lightmanscurrency.api.trader.notifications.settings.ChangeSettingNotification;
+import io.github.lightman314.lightmanscurrency.api.taxes.notifications.*;
+import io.github.lightman314.lightmanscurrency.api.trader.notifications.*;
+import io.github.lightman314.lightmanscurrency.api.trader.notifications.settings.*;
 import io.github.lightman314.lightmanscurrency.features.trader.item.notifications.ItemTradeNotification;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -29,6 +29,9 @@ public final class LCNotificationTypes {
         register("setting_change_dumb",ChangeSettingNotification.Dumb.TYPE);
         register("setting_change_simple",ChangeSettingNotification.Simple.TYPE);
         register("setting_change_advanced",ChangeSettingNotification.Advanced.TYPE);
+        register("add_ally",ChangeAllyNotification.AddAlly.TYPE);
+        register("remove_ally",ChangeAllyNotification.RemoveAlly.TYPE);
+        register("edit_ally_permissions",ChangeAllyPermissionNotification.TYPE);
     }
 
     private static void register(String name,NotificationType<?> type) {

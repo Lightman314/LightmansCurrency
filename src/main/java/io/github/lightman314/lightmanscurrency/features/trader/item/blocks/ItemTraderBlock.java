@@ -30,6 +30,6 @@ public interface ItemTraderBlock extends TraderEntityBlock {
 
     @Override
     @Nullable
-    default TraderBlockEntity newBlockEntity(BlockPos worldPosition, BlockState blockState) { return new ItemTraderBlockEntity(worldPosition,blockState); }
+    default TraderBlockEntity createBlockEntity(BlockPos worldPosition, BlockState blockState) { return new ItemTraderBlockEntity(worldPosition,blockState); }
 
 }

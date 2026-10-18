@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.LCTags;
 import io.github.lightman314.lightmanscurrency.api.config.data.ConfigCraftingCondition;
 import io.github.lightman314.lightmanscurrency.api.config.options.basic.BooleanOption;
 import io.github.lightman314.lightmanscurrency.api.helpers.ListHelper;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.BlockItemTagKey;
 import io.github.lightman314.lightmanscurrency.api.helpers.registry.DeferredHolderBundle;
 import io.github.lightman314.lightmanscurrency.api.helpers.registry.types.VanillaColor;
 import io.github.lightman314.lightmanscurrency.core.LCBlocks;
@@ -68,7 +69,7 @@ public class LCRecipeProvider extends RecipeProvider {
     protected void buildRecipes() {
 
         //Trading Core
-        ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,LCItems.TRADING_CORE)
+        ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,LCItems.TRADING_MECHANISM)
                 .unlockedBy("money", moneyKnowledge())
                 .pattern("rqr").pattern("rdr").pattern("rpr")
                 .define('r',Tags.Items.DUSTS_REDSTONE)
@@ -160,21 +161,21 @@ public class LCRecipeProvider extends RecipeProvider {
         //Smithing Template
         ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,LCItems.UPGRADE_SMITHING_TEMPLATE)
                 .unlockedBy("trader",traderKnowledge())
-                .unlockedBy("core",simpleRequirement(LCItems.TRADING_CORE))
+                .unlockedBy("core",simpleRequirement(LCItems.TRADING_MECHANISM))
                 .pattern("nnn").pattern("ncn").pattern("nnn")
                 .define('n',Tags.Items.NUGGETS_IRON)
-                .define('c',LCItems.TRADING_CORE)
+                .define('c',LCItems.TRADING_MECHANISM)
                 .save(this.output);
         ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,LCItems.UPGRADE_SMITHING_TEMPLATE,2)
                 .unlockedBy("trader",traderKnowledge())
-                .unlockedBy("core",simpleRequirement(LCItems.TRADING_CORE))
+                .unlockedBy("core",simpleRequirement(LCItems.TRADING_MECHANISM))
                 .pattern("nnn").pattern("ntn").pattern("nnn")
                 .define('n',Tags.Items.NUGGETS_IRON)
                 .define('t',LCItems.UPGRADE_SMITHING_TEMPLATE)
                 .save(this.output,id(LCItems.UPGRADE_SMITHING_TEMPLATE,"_clone_1"));
         ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,LCItems.UPGRADE_SMITHING_TEMPLATE,10)
                 .unlockedBy("trader",traderKnowledge())
-                .unlockedBy("core",simpleRequirement(LCItems.TRADING_CORE))
+                .unlockedBy("core",simpleRequirement(LCItems.TRADING_MECHANISM))
                 .pattern("iii").pattern("iti").pattern("iii")
                 .define('i',Tags.Items.INGOTS_IRON)
                 .define('t',LCItems.UPGRADE_SMITHING_TEMPLATE)
@@ -213,7 +214,7 @@ public class LCRecipeProvider extends RecipeProvider {
                     .unlockedBy("money", moneyKnowledge())
                     .unlockedBy("trader", traderKnowledge())
                     .pattern("g").pattern("x").pattern("w")
-                    .define('x',LCItems.TRADING_CORE)
+                    .define('x',LCItems.TRADING_MECHANISM)
                     .define('g', Tags.Items.GLASS_BLOCKS_COLORLESS)
                     .define('w',ColorHelper.getWoolBlock(color))
                     .save(this.output,id("traders/display_case/" + color.getResourceSafeName())));
@@ -225,7 +226,7 @@ public class LCRecipeProvider extends RecipeProvider {
                         .unlockedBy("money",moneyKnowledge())
                         .unlockedBy("trader",traderKnowledge())
                         .pattern("x").pattern("s")
-                        .define('x',LCItems.TRADING_CORE)
+                        .define('x',LCItems.TRADING_MECHANISM)
                         .define('s',slab)
                         .save(this.output,this.id(type.generatePath("traders/single_shelf/")))
             ));
@@ -237,7 +238,7 @@ public class LCRecipeProvider extends RecipeProvider {
                             .group("trader_double_shelf")
                             .unlockedBy("money",moneyKnowledge())
                             .unlockedBy("trader",traderKnowledge())
-                            .unlockedBy("shelf",simpleRequirement(LCTags.Items.GROUP_SINGLE_SHELF))
+                            .unlockedBy("shelf",simpleRequirement(LCTags.BlocksAndItems.GROUP_SINGLE_SHELF))
                             .pattern("c").pattern("x").pattern("s")
                             .define('c',Tags.Items.CHESTS_WOODEN)
                             .define('x',singleShelf)
@@ -251,7 +252,7 @@ public class LCRecipeProvider extends RecipeProvider {
                         .unlockedBy("money",moneyKnowledge())
                         .unlockedBy("trader",traderKnowledge())
                         .pattern("  w").pattern(" xl").pattern("llc")
-                        .define('x',LCItems.TRADING_CORE)
+                        .define('x',LCItems.TRADING_MECHANISM)
                         .define('l',pair.getFirst())
                         .define('w',ColorHelper.getWoolBlock(color))
                         .define('c',Tags.Items.CHESTS_WOODEN)
@@ -262,7 +263,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlockedBy("money",moneyKnowledge())
                 .unlockedBy("trader",traderKnowledge())
                 .pattern("igi").pattern("igi").pattern("cxc")
-                .define('x',LCItems.TRADING_CORE)
+                .define('x',LCItems.TRADING_MECHANISM)
                 .define('g',Tags.Items.GLASS_BLOCKS_COLORLESS)
                 .define('i',Tags.Items.INGOTS_IRON)
                 .define('c',Tags.Items.CHESTS_WOODEN)
@@ -272,7 +273,7 @@ public class LCRecipeProvider extends RecipeProvider {
         ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,LCBlocks.LARGE_VENDING_MACHINE.get(VanillaColor.WHITE))
                 .unlockedBy("money",moneyKnowledge())
                 .unlockedBy("trader",traderKnowledge())
-                .unlockedBy("vending_machine",simpleRequirement(LCTags.Items.GROUP_VENDING_MACHINE))
+                .unlockedBy("vending_machine",simpleRequirement(LCTags.BlocksAndItems.GROUP_VENDING_MACHINE))
                 .pattern("igi").pattern("igi").pattern("cxc")
                 .define('x',LCBlocks.VENDING_MACHINE.get(VanillaColor.WHITE))
                 .define('g',Tags.Items.GLASS_BLOCKS_COLORLESS)
@@ -289,7 +290,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlockedBy("trader",traderKnowledge())
                 .unlockedBy("terminal",terminalKnowledge())
                 .pattern("ici").pattern("ixi").pattern("iei")
-                .define('x',LCItems.TRADING_CORE)
+                .define('x',LCItems.TRADING_MECHANISM)
                 .define('e',Items.ENDER_EYE)
                 .define('i',Tags.Items.INGOTS_IRON)
                 .define('c',Tags.Items.CHESTS_WOODEN)
@@ -330,6 +331,17 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('i',Tags.Items.INGOTS_IRON)
                 .define('c',Tags.Items.CHESTS_WOODEN)
                 .save(this.output.withConditions(networkTraderCondition),this.id("traders/network/",LCBlocks.ITEM_NETWORK_TRADER.get(4)));
+
+        //Armor Display
+        ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,LCBlocks.ARMOR_DISPLAY)
+                .unlockedBy("money",moneyKnowledge())
+                .unlockedBy("trader",traderKnowledge())
+                .pattern("ggg").pattern("gag").pattern("ixi")
+                .define('x',LCItems.TRADING_MECHANISM)
+                .define('g',Tags.Items.GLASS_BLOCKS_COLORLESS)
+                .define('i',Tags.Items.INGOTS_IRON)
+                .define('a',Items.ARMOR_STAND)
+                .save(this.output,this.id("traders/",LCBlocks.ARMOR_DISPLAY));
 
     }
 
@@ -454,6 +466,7 @@ public class LCRecipeProvider extends RecipeProvider {
                 .unlockedBy("coins",this.moneyKnowledge())
                 .unlockedBy("material",this.simpleRequirement(coin))
                 .save(this.output.withConditions(ConfigCraftingCondition.of(LCConfig.COMMON.coinMintCanMelt),ConfigCraftingCondition.of(canMelt)),this.id("coin_mint/melt_",coin));
+
     }
 
     protected final void generateCoinBlockRecipe(ItemLike coin,ItemLike pile,ItemLike block) { this.generateCoinBlockRecipe(coin,pile,block,""); }
@@ -546,6 +559,7 @@ public class LCRecipeProvider extends RecipeProvider {
     protected final Criterion<?> simpleRequirement(ItemLike item) { return InventoryChangeTrigger.TriggerInstance.hasItems(item); }
     protected final Criterion<?> simpleRequirement(List<ItemLike> itemList) { return InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(this.itemHolderGetter(),itemList.toArray(ItemLike[]::new))); }
     protected final Criterion<?> simpleRequirement(TagKey<Item> itemTag) { return InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(this.itemHolderGetter(),itemTag)); }
+    protected final Criterion<?> simpleRequirement(BlockItemTagKey blockItemTag) { return this.simpleRequirement(blockItemTag.item()); }
 
     protected final HolderSet<Item> set(TagKey<Item> tag) { return this.itemHolderGetter().getOrThrow(tag); }
     protected final Ingredient ingredient(TagKey<Item> tag) { return Ingredient.of(this.set(tag)); }

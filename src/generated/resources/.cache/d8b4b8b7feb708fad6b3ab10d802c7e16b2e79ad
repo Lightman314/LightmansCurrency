@@ -1,4 +1,5 @@
-// 26.1.2	2026-10-08T20:49:34.3268092	Model Definitions - lightmanscurrency
+// 26.1.2	2026-10-14T20:29:29.8048951	Model Definitions - lightmanscurrency
+ee2db676d70e0ee37ae0324b770ddddfa911d8a6 assets/lightmanscurrency/blockstates/armor_display.json
 a5c96536a376f47c1ed4932046d099ccc534b688 assets/lightmanscurrency/blockstates/atm.json
 a96fd78de3e4c0949518e2cbef26ddb1514a2b63 assets/lightmanscurrency/blockstates/card_display_acacia_black.json
 5a00c94ef4f0425aaf42309114547736257ee775 assets/lightmanscurrency/blockstates/card_display_acacia_blue.json
@@ -295,6 +296,7 @@ ab9c53ce25bb61fe4cd6998eaddd9a390f023220 assets/lightmanscurrency/blockstates/ve
 0829ad766b1af29f54fc77aff77100d9ab26bb31 assets/lightmanscurrency/blockstates/vending_machine_red.json
 f77c0fab9266ccd3557d5e69858d13bcb8efe42f assets/lightmanscurrency/blockstates/vending_machine_white.json
 68e0eb93b2b7148d15cf1a75550c64ee45a51d79 assets/lightmanscurrency/blockstates/vending_machine_yellow.json
+925ad44166d775a13b6a0db2954a27278e3f7f24 assets/lightmanscurrency/items/armor_display.json
 9aa2d3c805fc6b7231b44702a91978f3135eeed9 assets/lightmanscurrency/items/atm.json
 b543b0473968e40f785a234e9051fdec6ced566c assets/lightmanscurrency/items/atm_portable.json
 39fe7c5864f27b2ea61af627a2a08124d6710cb7 assets/lightmanscurrency/items/card_display_acacia_black.json

@@ -47,7 +47,7 @@ public final class LCVillagerTradeProvider {
                 new ItemStackTemplate(LCBlocks.TRADING_TERMINAL.asItem()),
                 2,1,0.05f,Optional.empty(),List.of()
         ));
-        HolderSet<Item> displayCases = items.getOrThrow(LCTags.Items.GROUP_DISPLAY_CASE);
+        HolderSet<Item> displayCases = items.getOrThrow(LCTags.BlocksAndItems.GROUP_DISPLAY_CASE.item());
         context.register(LCVillagerTrades.WANDERING_TRADER_DISPLAY_CASE,new VillagerTrade(
                 new TradeCost(LCItems.COIN_GOLD,2),
                 new ItemStackTemplate(LCBlocks.DISPLAY_CASE.get(VanillaColor.WHITE).asItem()),
@@ -77,18 +77,18 @@ public final class LCVillagerTradeProvider {
         context.register(LCVillagerTrades.BANKER_1_TRADING_MECHANISM,new VillagerTrade(
                 new TradeCost(LCItems.COIN_IRON,4),
                 Optional.of(new TradeCost(LCItems.COIN_COPPER,8)),
-                new ItemStackTemplate(LCItems.TRADING_CORE.asItem()),
+                new ItemStackTemplate(LCItems.TRADING_MECHANISM.asItem()),
                 12,1,0.05f,Optional.empty(),List.of()
         ));
 
-        HolderSet<Item> shelves = items.getOrThrow(LCTags.Items.GROUP_SINGLE_SHELF);
+        HolderSet<Item> shelves = items.getOrThrow(LCTags.BlocksAndItems.GROUP_SINGLE_SHELF.item());
         context.register(LCVillagerTrades.BANKER_2_SHELF,new VillagerTrade(
                 new TradeCost(LCItems.COIN_IRON,6),
                 new ItemStackTemplate(LCBlocks.SINGLE_SHELF.get(WoodType.OAK).asItem()),
                 12,5,0.05f,Optional.empty(),
                 List.of(new RandomizeItemFunction(shelves))
         ));
-        HolderSet<Item> doubleShelves = items.getOrThrow(LCTags.Items.GROUP_DOUBLE_SHELF);
+        HolderSet<Item> doubleShelves = items.getOrThrow(LCTags.BlocksAndItems.GROUP_DOUBLE_SHELF.item());
         context.register(LCVillagerTrades.BANKER_2_DOUBLE_SHELF,new VillagerTrade(
                 new TradeCost(LCItems.COIN_IRON,14),
                 new ItemStackTemplate(LCBlocks.DOUBLE_SHELF.get(WoodType.OAK).asItem()),
@@ -104,7 +104,7 @@ public final class LCVillagerTradeProvider {
         ));
         //TODO Paygate Trade
 
-        HolderSet<Item> cardDisplays = items.getOrThrow(LCTags.Items.GROUP_CARD_DISPLAY);
+        HolderSet<Item> cardDisplays = items.getOrThrow(LCTags.BlocksAndItems.GROUP_CARD_DISPLAY.item());
         context.register(LCVillagerTrades.BANKER_3_CARD_DISPLAY,new VillagerTrade(
                 new TradeCost(LCItems.COIN_IRON,15),
                 new ItemStackTemplate(LCBlocks.CARD_DISPLAY.get(WoodType.OAK,VanillaColor.RED).asItem()),
@@ -127,7 +127,7 @@ public final class LCVillagerTradeProvider {
         ));
 
 
-        HolderSet<Item> vendingMachines = items.getOrThrow(LCTags.Items.GROUP_VENDING_MACHINE);
+        HolderSet<Item> vendingMachines = items.getOrThrow(LCTags.BlocksAndItems.GROUP_VENDING_MACHINE.item());
         context.register(LCVillagerTrades.BANKER_4_VENDING_MACHINE,new VillagerTrade(
                 new TradeCost(LCItems.COIN_IRON,25),
                 new ItemStackTemplate(LCBlocks.VENDING_MACHINE.get(VanillaColor.WHITE).asItem()),
@@ -149,7 +149,7 @@ public final class LCVillagerTradeProvider {
                 List.of(new RandomizeEnchantmentFunction(moneyMendingEnchants))
         ));
 
-        HolderSet<Item> largeVendingMachines = items.getOrThrow(LCTags.Items.GROUP_LARGE_VENDING_MACHINE);
+        HolderSet<Item> largeVendingMachines = items.getOrThrow(LCTags.BlocksAndItems.GROUP_LARGE_VENDING_MACHINE.item());
         context.register(LCVillagerTrades.BANKER_5_LARGE_VENDING_MACHINE,new VillagerTrade(
                 new TradeCost(LCItems.COIN_IRON,25),
                 new ItemStackTemplate(LCBlocks.LARGE_VENDING_MACHINE.get(VanillaColor.WHITE).asItem()),

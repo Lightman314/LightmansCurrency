@@ -3,11 +3,12 @@ package io.github.lightman314.lightmanscurrency.network;
 import io.github.lightman314.lightmanscurrency.network.message.block_entity.CPacketRequestBlockEntityPacket;
 import io.github.lightman314.lightmanscurrency.network.message.block_entity.SPacketSyncBlockEntity;
 import io.github.lightman314.lightmanscurrency.network.message.config.*;
+import io.github.lightman314.lightmanscurrency.network.message.curios.*;
 import io.github.lightman314.lightmanscurrency.network.message.data.*;
 import io.github.lightman314.lightmanscurrency.network.message.debug.*;
-import io.github.lightman314.lightmanscurrency.network.message.player.CPacketRequestPlayerID;
-import io.github.lightman314.lightmanscurrency.network.message.player.CPacketRequestPlayerName;
-import io.github.lightman314.lightmanscurrency.network.message.player.SPacketPlayerCacheResult;
+import io.github.lightman314.lightmanscurrency.network.message.menus.CPacketViewPlayerData;
+import io.github.lightman314.lightmanscurrency.network.message.notifications.SPacketChatNotification;
+import io.github.lightman314.lightmanscurrency.network.message.player.*;
 import io.github.lightman314.lightmanscurrency.network.message.system.*;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.*;
 import io.github.lightman314.lightmanscurrency.network.packet.BiDirectionalPacket;
@@ -20,6 +21,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload.Type;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.HandlerThread;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 @EventBusSubscriber
@@ -28,11 +30,13 @@ public class LCPacketHandler {
     public static final String PROTOCOL_VERSION = "2";
 
     private static PayloadRegistrar registrar = null;
+    private static PayloadRegistrar networkRegistrar;
 
     @SubscribeEvent
     private static void onPayloadRegister(RegisterPayloadHandlersEvent event)
     {
         registrar = event.registrar(PROTOCOL_VERSION);
+        networkRegistrar = registrar.executesOn(HandlerThread.NETWORK);
 
         //Coin Data
         registerS2C(SPacketSyncCoinData.TYPE,SPacketSyncCoinData.STREAM_CODEC);
@@ -59,13 +63,24 @@ public class LCPacketHandler {
         registerC2S(CPacketEditConfig.TYPE,CPacketEditConfig.STREAM_CODEC);
 
         //Player Name Cache
-        registerC2S(CPacketRequestPlayerName.TYPE,CPacketRequestPlayerName.STREAM_CODEC);
-        registerC2S(CPacketRequestPlayerID.TYPE,CPacketRequestPlayerID.STREAM_CODEC);
+        //Request name/id packets should happen on the network thread so that it won't
+        registerNetworkC2S(CPacketRequestPlayerName.TYPE,CPacketRequestPlayerName.STREAM_CODEC);
+        registerNetworkC2S(CPacketRequestPlayerID.TYPE,CPacketRequestPlayerID.STREAM_CODEC);
         registerS2C(SPacketPlayerCacheResult.TYPE,SPacketPlayerCacheResult.STREAM_CODEC);
 
         //Block Entity Packets
         registerC2S(CPacketRequestBlockEntityPacket.TYPE,CPacketRequestBlockEntityPacket.STREAM_CODEC);
         registerS2C(SPacketSyncBlockEntity.TYPE,SPacketSyncBlockEntity.STREAM_CODEC);
+
+        //Notification Packets
+        registerS2C(SPacketChatNotification.TYPE,SPacketChatNotification.STREAM_CODEC);
+
+        //Player Menu Buttons
+        registerC2S(CPacketViewPlayerData.TYPE,CPacketViewPlayerData.STREAM_CODEC);
+
+        //Curios Compat Packets
+        registerC2S(CPacketOpenTerminal.TYPE,CPacketOpenTerminal.STREAM_CODEC);
+        registerC2S(CPacketOpenATM.TYPE,CPacketOpenATM.STREAM_CODEC);
 
         //Debug Packets
         registerS2C(SPacketDebugTraderData.TYPE,SPacketDebugTraderData.STREAM_CODEC);
@@ -73,24 +88,32 @@ public class LCPacketHandler {
 
     }
 
-    private static <T extends ServerToClientPacket> void registerS2C(Type<T> type,StreamCodec<? super RegistryFriendlyByteBuf,T> codec)
-    {
+    private static <T extends ServerToClientPacket> void registerS2C(Type<T> type,StreamCodec<? super RegistryFriendlyByteBuf,T> codec) {
         registrar.playToClient(type,codec,T::handle);
     }
 
-    private static <T extends ClientToServerPacket> void registerC2S(Type<T> type,StreamCodec<? super RegistryFriendlyByteBuf,T> codec)
-    {
+    private static <T extends ClientToServerPacket> void registerC2S(Type<T> type,StreamCodec<? super RegistryFriendlyByteBuf,T> codec) {
         registrar.playToServer(type,codec,T::handle);
     }
 
-    private static <T extends BiDirectionalPacket> void registerBi(Type<T> type,StreamCodec<? super RegistryFriendlyByteBuf,T> codec)
-    {
+    private static <T extends BiDirectionalPacket> void registerBi(Type<T> type,StreamCodec<? super RegistryFriendlyByteBuf,T> codec) {
         registrar.playBidirectional(type,codec,T::handle,T::handle);
     }
 
-    private static <T extends ServerToClientPacket> void registerConfigS2C(Type<T> type,StreamCodec<? super FriendlyByteBuf,T> codec)
-    {
+    private static <T extends ServerToClientPacket> void registerConfigS2C(Type<T> type,StreamCodec<? super FriendlyByteBuf,T> codec) {
         registrar.configurationToClient(type,codec,T::handle);
+    }
+
+    private static <T extends ServerToClientPacket> void registerNetworkS2C(Type<T> type,StreamCodec<? super RegistryFriendlyByteBuf,T> codec) {
+        networkRegistrar.playToClient(type,codec,T::handle);
+    }
+
+    private static <T extends ClientToServerPacket> void registerNetworkC2S(Type<T> type,StreamCodec<? super RegistryFriendlyByteBuf,T> codec) {
+        networkRegistrar.playToServer(type,codec,T::handle);
+    }
+
+    private static <T extends BiDirectionalPacket> void registerNetworkBi(Type<T> type,StreamCodec<? super RegistryFriendlyByteBuf,T> codec) {
+        networkRegistrar.playBidirectional(type,codec,T::handle,T::handle);
     }
 
 }

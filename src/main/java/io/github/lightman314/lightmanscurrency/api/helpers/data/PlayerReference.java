@@ -12,9 +12,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
+import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.client.ClientPlayerNameCache;
 import io.github.lightman314.lightmanscurrency.api.helpers.ItemHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
+import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -59,6 +61,9 @@ public class PlayerReference {
     public static final StreamCodec<FriendlyByteBuf,List<PlayerReference>> LIST_STREAM_CODEC = STREAM_CODEC.apply(ByteBufCodecs.list());
 
     public static final PlayerReference NULL = new PlayerReference(new UUID(0,0),"NULL",true);
+
+    public static final TextEntry TOOLTIP_ADD_PLAYER = TextEntry.tooltip(LCApi.MODID,"player.add");
+    public static final TextEntry TOOLTIP_REMOVE_PLAYER = TextEntry.tooltip(LCApi.MODID,"player.remove");
 
     public final UUID id;
     private boolean forceName;

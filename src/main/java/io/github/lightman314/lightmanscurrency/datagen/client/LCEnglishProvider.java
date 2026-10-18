@@ -3,10 +3,7 @@ package io.github.lightman314.lightmanscurrency.datagen.client;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.bank_account.BankAccount;
-import io.github.lightman314.lightmanscurrency.api.bank_account.notifications.BankInteractionNotification;
-import io.github.lightman314.lightmanscurrency.api.bank_account.notifications.BankInterestNotification;
-import io.github.lightman314.lightmanscurrency.api.bank_account.notifications.BankTransferNotification;
-import io.github.lightman314.lightmanscurrency.api.bank_account.notifications.LowBalanceNotification;
+import io.github.lightman314.lightmanscurrency.api.bank_account.notifications.*;
 import io.github.lightman314.lightmanscurrency.api.coins.data.ChainData;
 import io.github.lightman314.lightmanscurrency.api.coins.display.builtin.CoinDisplay;
 import io.github.lightman314.lightmanscurrency.api.coins.display.builtin.NumberDisplay;
@@ -17,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import io.github.lightman314.lightmanscurrency.api.helpers.EnumHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.ItemHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.BonusTooltip;
+import io.github.lightman314.lightmanscurrency.api.helpers.data.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.helpers.registry.DeferredHolderBundle;
 import io.github.lightman314.lightmanscurrency.api.helpers.registry.DeferredHolderBundle2;
 import io.github.lightman314.lightmanscurrency.api.helpers.registry.types.VanillaColor;
@@ -29,6 +27,7 @@ import io.github.lightman314.lightmanscurrency.api.money.values.impl.EmptyValue;
 import io.github.lightman314.lightmanscurrency.api.money.values.parsing.MoneyValueParser;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.notifications.category.SingletonNotificationCategory;
+import io.github.lightman314.lightmanscurrency.api.notifications.category.builtin.UnfilteredCategory;
 import io.github.lightman314.lightmanscurrency.api.ownership.MemberLevel;
 import io.github.lightman314.lightmanscurrency.api.ownership.Owner;
 import io.github.lightman314.lightmanscurrency.api.ownership.builtin.PlayerOwner;
@@ -45,14 +44,13 @@ import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IDisplayNode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.TradingNode;
 import io.github.lightman314.lightmanscurrency.api.trader.notifications.OutOfStockNotification;
-import io.github.lightman314.lightmanscurrency.api.trader.notifications.settings.ChangeSettingNotification;
-import io.github.lightman314.lightmanscurrency.api.trader.permissions.EnumPermissionType;
+import io.github.lightman314.lightmanscurrency.api.trader.notifications.settings.*;
+import io.github.lightman314.lightmanscurrency.api.trader.permissions.builtin.EnumPermissionType;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.Permission;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.TriStatePermission;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleType;
-import io.github.lightman314.lightmanscurrency.api.trader.rules.builtin.FreeSample;
-import io.github.lightman314.lightmanscurrency.api.trader.rules.builtin.PlayerTradeLimit;
+import io.github.lightman314.lightmanscurrency.api.trader.rules.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeResult;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeData;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeDirection;
@@ -83,6 +81,9 @@ import io.github.lightman314.lightmanscurrency.features.commands.LCAdminCommand;
 import io.github.lightman314.lightmanscurrency.features.commands.LCConfigCommand;
 import io.github.lightman314.lightmanscurrency.features.enchantments.LCEnchantments;
 import io.github.lightman314.lightmanscurrency.features.enchantments.MoneyMendingEnchantmentHelper;
+import io.github.lightman314.lightmanscurrency.features.player_data.PlayerDataMenu;
+import io.github.lightman314.lightmanscurrency.features.player_data.tabs.NotificationTab;
+import io.github.lightman314.lightmanscurrency.features.player_data.tabs.PlayerStatsTab;
 import io.github.lightman314.lightmanscurrency.features.trader.item.TradeItem;
 import io.github.lightman314.lightmanscurrency.features.trader.item.blocks.ItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.features.trader.item.nodes.ItemTradesNode;
@@ -127,6 +128,10 @@ public class LCEnglishProvider extends LanguageProvider {
         this.text(LCText.TOOLTIP_ITEM_COUNT,"Count: %1$s/%2$s");
         this.text(LCText.GUI_SETTINGS_VALUE_TRUE_FALSE.get(true),"true");
         this.text(LCText.GUI_SETTINGS_VALUE_TRUE_FALSE.get(false),"false");
+
+        //Player
+        this.text(PlayerReference.TOOLTIP_ADD_PLAYER,"Add");
+        this.text(PlayerReference.TOOLTIP_REMOVE_PLAYER,"Remove");
 
         //Time
         this.timeText(TimeUnit.ENTRIES.get(TimeUnit.DAY)," day"," days","d");
@@ -175,7 +180,7 @@ public class LCEnglishProvider extends LanguageProvider {
         this.item(LCItems.WALLET_ENDER_DRAGON,"Ender Dragon Wallet");
 
         //Trading Core
-        this.item(LCItems.TRADING_CORE,"Trading Mechanism");
+        this.item(LCItems.TRADING_MECHANISM,"Trading Mechanism");
         this.item(LCItems.UPGRADE_SMITHING_TEMPLATE,"Trading Upgrades");
 
         //Upgrades
@@ -242,6 +247,8 @@ public class LCEnglishProvider extends LanguageProvider {
         this.block(LCBlocks.ITEM_NETWORK_TRADER.getHolder(2),"Item Network Trader T2");
         this.block(LCBlocks.ITEM_NETWORK_TRADER.getHolder(3),"Item Network Trader T3");
         this.block(LCBlocks.ITEM_NETWORK_TRADER.getHolder(4),"Item Network Trader T4");
+        //Armor Display
+        this.block(LCBlocks.ARMOR_DISPLAY,"Armor Display");
 
         //Enchantments
         this.enchantment(LCEnchantments.COIN_MAGNET,"Coin Magnet","Lets your wallet collect coins from a larger range.");
@@ -253,6 +260,8 @@ public class LCEnglishProvider extends LanguageProvider {
 
         //Key Binds
         this.text(LCText.Resources.KEY_WALLET,"Open Wallet");
+        this.text(LCText.Resources.KEY_TERMINAL,"Access Portable Terminal");
+        this.text(LCText.Resources.KEY_ATM,"Access Portable ATM");
 
         //Wallet Tooltips
         this.text(WalletItem.MESSAGE_WALLET_NONE_EQUIPPED,"No wallet equipped to your wallet slot. Cannot open wallet.");
@@ -403,7 +412,7 @@ public class LCEnglishProvider extends LanguageProvider {
         this.text(CopiedTrader.WITH_COPY,"Contains a Copy of a Trader's Data");
         this.text(NormalCustomerTab.TOOLTIP_CUSTOMER_TAB,"Trade Interaction");
         this.add(IDisplayNode.toTranslationKey(LCTraderTypes.ITEM_TRADER.getId()),"Item Trader");
-        this.add(IDisplayNode.toTranslationKey(LCTraderTypes.ARMOR_DISPLAY.getId()),"Item Trader");
+        this.add(IDisplayNode.toTranslationKey(LCTraderTypes.ARMOR_DISPLAY.getId()),"Armor Trader");
         this.text(SimpleTradeEditTab.TOOLTIP_TRADE_EDIT_TAB,"Edit Trades");
         this.text(MoneyStorageTab.TOOLTIP_MONEY_STORAGE,"Money Storage");
         this.text(MoneyStorageTab.GUI_TRADER_MONEY_STORAGE_CONTENTS,"Current Contents: %s");
@@ -537,6 +546,22 @@ public class LCEnglishProvider extends LanguageProvider {
         this.add(TradeResult.FAIL_NULL.getTranslationKey(),"The trade or trader no longer exists");
 
         //Trade Rules
+        //Daily Trades
+        this.tradeRule(DailyTrades.TYPE,"Daily Trade Progression");
+        this.text(DailyTrades.ALLOWED,"Trade is unlocked");
+        this.text(DailyTrades.LOCKED_COMPLETE,"Trade has already been redeemed");
+        this.text(DailyTrades.LOCKED_WAITING,"Trade can be redeemed in %s");
+        this.text(DailyTrades.LOCKED_NOT_NEXT,"Waiting for previous trade to be redeemed");
+        this.text(DailyTrades.BUTTON_RESET,"Reset Interaction Data");
+        this.text(DailyTrades.TOOLTIP_RESET,"Forgets each players progress through the trade list, resetting them back to the initial trade");
+        this.text(DailyTrades.GUI_INFO,"Players can interact with a trade %s after interacting with the previous one");
+        //Demand Pricing
+        this.tradeRule(DemandPricing.TYPE,"Demand-Based Pricing");
+        this.text(DemandPricing.MESSAGE_INFO,"Trade Price changes depending on available stock");
+        this.text(DemandPricing.GUI_INFO,"Price will fluctuate between %1$s (stock <= %4$s) to %2$s (stock >= %3$s)");
+        this.text(DemandPricing.GUI_INFO_INVALID_PRICE,"Price inputs are invalid");
+        this.text(DemandPricing.GUI_INFO_INVALID_STOCK,"Upper stock limit <= Lower stock limit");
+        this.text(DemandPricing.GUI_INFO_INVALID_HOST,"Trade is not a Sale which means stock count may be dependent on the price");
         //Free Sample
         this.tradeRule(FreeSample.TYPE,"Free Sample");
         this.text(FreeSample.INFO_SINGLE,"Your first purchase is free!");
@@ -550,6 +575,26 @@ public class LCEnglishProvider extends LanguageProvider {
         this.text(FreeSample.GUI_PLAYER_COUNT,"%s free samples have been given!");
         this.text(FreeSample.GUI_DURATION,"Forget free samples after %s");
         this.text(FreeSample.GUI_NO_DURATION,"Never forgets free samples");
+        //Global Trade Limit
+        this.tradeRule(GlobalTradeLimit.TYPE,"Global Trade Limit");
+        this.text(GlobalTradeLimit.DENIAL,"This trade has been interacted with %s times already");
+        this.text(GlobalTradeLimit.DENIAL_LIMIT,"Limit is %s");
+        this.text(GlobalTradeLimit.INFO,"This trade has been interacted with %1$s of %2$s times.");
+        this.text(GlobalTradeLimit.BUTTON_CLEAR_MEMORY,"Clear Memory");
+        this.text(GlobalTradeLimit.TOOLTIP_CLEAR_MEMORY,"Clears the memory of how many trades have been handled");
+        this.text(GlobalTradeLimit.GUI_INFO,"Players can do %s trade(s)");
+        //Player Discounts
+        this.tradeRule(PlayerDiscounts.TYPE,"Player Discounts");
+        this.text(PlayerDiscounts.INFO_SALE,"You have ben given a %s%% discount");
+        this.text(PlayerDiscounts.INFO_PURCHASE,"You will be paid %s%% more");
+        this.text(PlayerDiscounts.GUI_LABEL,"%% Discount");
+        //Palyer Interaction Listing
+        this.tradeRule(PlayerInteractionListing.TYPE,"Whitelist/Blacklist");
+        this.text(PlayerInteractionListing.DENIAL_BLACKLIST,"You are blacklisted");
+        this.text(PlayerInteractionListing.DENIAL_WHITELIST,"You are not whitelisted");
+        this.text(PlayerInteractionListing.ALLOWED,"You are whitelisted");
+        this.text(PlayerInteractionListing.BUTTON_MODE_WHITELIST,"Mode: Whitelist");
+        this.text(PlayerInteractionListing.BUTTON_MODE_BLACKLIST,"Mode: Blacklist");
         //Player Trade Limit
         this.tradeRule(PlayerTradeLimit.TYPE,"Player Trade Limits");
         this.text(PlayerTradeLimit.DENIAL,"You have done this trade %s times already");
@@ -563,6 +608,21 @@ public class LCEnglishProvider extends LanguageProvider {
         this.text(PlayerTradeLimit.GUI_INFO,"Players can do %s trade(s)");
         this.text(PlayerTradeLimit.GUI_DURATION,"Forget interactions after %s");
         this.text(PlayerTradeLimit.GUI_NO_DURATION,"Never forget interactions");
+        //Price Fluctuation
+        this.tradeRule(PriceFluctuation.TYPE,"Price Fluctuation");
+        this.text(PriceFluctuation.GUI_LABEL,"%% Fluctuation");
+        this.text(PriceFluctuation.GUI_INFO,"Randomly increases the price by up to %1$s%% of the base price every %2$s");
+        //Timed Sale
+        this.tradeRule(TimedSale.TYPE,"Sale");
+        this.text(TimedSale.INFO_SALE,"This trade is on sale for %1$s%% for %2$s");
+        this.text(TimedSale.INFO_PURCHASE,"This trade is on sale and will pay %1$s%% more for %2$s");
+        this.text(TimedSale.GUI_LABEL,"%% Discount");
+        this.text(TimedSale.GUI_INFO_ACTIVE,"%s until the sale ends");
+        this.text(TimedSale.GUI_INFO_INACTIVE,"Pending Duration: %s");
+        this.text(TimedSale.BUTTON_START,"Start");
+        this.text(TimedSale.BUTTON_STOP,"Stop");
+        this.text(TimedSale.TOOLTIP_START,"Start the Sale");
+        this.text(TimedSale.TOOLTIP_STOP,"Stop the Sale early");
 
         //Permissions
         this.permission(LCPermissions.OPEN_STORAGE,"Open Storage","Allows player to access the Storage Menu and add or remove stock from the traders storage.");
@@ -594,12 +654,12 @@ public class LCEnglishProvider extends LanguageProvider {
         this.text(Notification.NOTIFICATION_TIMESTAMP,"%s");
         this.text(Notification.TOOLTIP_DELETE,"Delete");
 
-
         this.text(ItemHelper.NOTIFICATION_ITEM_FORMAT,"%1$sx %2$s");
         this.text(OutOfStockNotification.TEXT,"Trade #%2$s is out of stock");
         this.text(OutOfStockNotification.TEXT_INDEXLESS,"Trader is out of stock");
         this.text(ItemTradeNotification.TEXT,"%1$s %2$s %3$s for %4$s");
 
+        this.text(UnfilteredCategory.INSTANCE.text,"All Notifications");
         this.text(LowBalanceNotification.TEXT,"Bank Account is below %s");
         this.text(BankInteractionNotification.TEXT_WITHDRAW,"%1$s withdrew %2$s");
         this.text(BankInteractionNotification.TEXT_DEPOSIT,"%1$s deposited %2$s");
@@ -614,6 +674,11 @@ public class LCEnglishProvider extends LanguageProvider {
         this.text(ChangeSettingNotification.Simple.TEXT,"%1$s changed %2$s to %3$s");
         this.text(ChangeSettingNotification.Advanced.TEXT,"%1$s changed %2$s from %3$s to %4$s");
 
+        this.text(ChangeAllyNotification.AddAlly.TEXT,"%1$s added %2$s to the list of allies");
+        this.text(ChangeAllyNotification.RemoveAlly.TEXT,"%1$s removed %2$s from the list of allies");
+
+        this.text(ChangeAllyPermissionNotification.TEXT,"%1$s changed allies %2$s permission to %3$s");
+
         //Stats
         this.text(StatViewer.GUI_STAT_LABEL,"%s: ");
         this.text(StatViewer.GUI_STATS_EMPTY,"No Statistics Recorded");
@@ -624,6 +689,12 @@ public class LCEnglishProvider extends LanguageProvider {
         this.statKeyName(MoneyStats.MONEY_PAID,"Money Paid");
         this.statKeyName(TraderStats.LAST_INTERACTION,"Last Customer Interaction");
         this.statKeyName(TraderStats.INTERACTION_COUNT,"Trades Fulfilled");
+
+        //Player Data Display
+        this.text(PlayerDataMenu.TOOLTIP_OPEN,"View Notifications");
+        this.text(NotificationTab.NAME,"Notifications");
+        this.text(NotificationTab.BUTTON_MARK_AS_READ,"Mark as Read");
+        this.text(PlayerStatsTab.NAME,"Personal Statistics");
 
         //Commands
         this.text(CoinValueParser.ARGUMENT_MONEY_VALUE_NOT_A_COIN,"'%s' is not a valid coin!");

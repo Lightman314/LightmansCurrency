@@ -37,7 +37,7 @@ public final class RegisterClientMenuTabEvent extends Event implements IModBusEv
 
     private record SubBuilder<X extends TabbedMenu<X,T>,T extends MenuTab<X>,S extends TabbedMenuScreen<X,T,?>>(Identifier menuKey,Map<Identifier,TabBuilder<?,?,?,?>> submap) implements TabRegistration<X,T,S> {
         @Override
-        public <C extends T> TabRegistration<X,T,S> register(Identifier key, TabBuilder<X,C,T,S> builder) {
+        public <C extends T> TabRegistration<X,T,S> register(Identifier key,TabBuilder<X,C,T,S> builder) {
             if(this.submap.containsKey(key)) {
                 LightmansCurrency.LogError("Attempted to register duplicate client tab for " + this.menuKey + " - " + key);
                 return this;

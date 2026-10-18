@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.builtin.SettingsTab;
 
 import javax.annotation.Nullable;
+import java.util.function.Function;
 
 public abstract class SettingsSubTab extends TraderStorageClientTab<SettingsTab> {
 
@@ -34,6 +35,8 @@ public abstract class SettingsSubTab extends TraderStorageClientTab<SettingsTab>
 
         @Nullable
         protected final T getNode() { return this.getNode(this.nodeType); }
+
+        protected final <X> X getNodeValue(Function<T,X> getter,X defaultValue) { return this.getNodeValue(this.nodeType,getter,defaultValue); }
 
         public final void sendSettingRequest(FancyPacketMap message) { this.sendSettingRequest(this.nodeType,message); }
 

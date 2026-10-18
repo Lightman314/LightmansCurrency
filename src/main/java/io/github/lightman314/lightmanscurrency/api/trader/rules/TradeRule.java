@@ -6,6 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.icon.IconData;
+import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.event.TradeEvent;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.INodeAccess;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
@@ -36,6 +37,7 @@ public abstract class TradeRule implements ISidedContext {
     public static String translationKeyOfType(TradeRuleType<?> type) { return translationKeyOfType(type.getKey()); }
     public static Component nameOfType(Identifier ruleType) { return Component.translatable(translationKeyOfType(ruleType)); }
     public static Component nameOfType(TradeRuleType<?> ruleType) { return nameOfType(ruleType.getKey()); }
+    public static TextEntry fancyNameOfType(TradeRuleType<?> type,String bonus) { return new TextEntry(() -> translationKeyOfType(type) + "." + bonus); }
 
     protected static <T extends TradeRule> RecordCodecBuilder<T,Boolean> activeField() {
         return Codec.BOOL.fieldOf("active").forGetter(TradeRule::isActiveInternal);
@@ -137,7 +139,7 @@ public abstract class TradeRule implements ISidedContext {
 
     public abstract TradeRuleType<?> getType();
 
-    public final Component getName() { return nameOfType(this.getType()); }
+    public Component getName() { return nameOfType(this.getType()); }
 
     public abstract IconData getIcon();
 

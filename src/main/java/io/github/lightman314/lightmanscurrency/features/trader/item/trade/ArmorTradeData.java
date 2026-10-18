@@ -29,25 +29,27 @@ public class ArmorTradeData extends ItemTradeData {
     public ArmorTradeData() { super(); }
     public ArmorTradeData(TradePrice price,List<TradeItem> sellItems,Map<TradeRuleType<?>,TradeRule> ruleMap) { super(price,sellItems,ruleMap); }
 
-    protected EquipmentSlot getEquipmentSlot() {
+    public EquipmentSlot getEquipmentSlot() {
         if(this.slot != null)
             return this.slot;
         if(this.getHolder() != null) {
             int index = this.getHolder().getTrades().indexOf(this);
             if(index >= 0)
-            {
-                this.slot = switch (Math.abs(index) % 4) {
-                    case 1 -> EquipmentSlot.CHEST;
-                    case 2 -> EquipmentSlot.LEGS;
-                    case 3 -> EquipmentSlot.FEET;
-                    default -> EquipmentSlot.HEAD;
-                };
-            }
+                this.slot = getEquipmentSlot(index);
             else
                 this.slot = EquipmentSlot.OFFHAND;
             return this.slot;
         }
         return EquipmentSlot.OFFHAND;
+    }
+
+    public static EquipmentSlot getEquipmentSlot(int index) {
+        return switch (Math.abs(index) % 4) {
+            case 1 -> EquipmentSlot.CHEST;
+            case 2 -> EquipmentSlot.LEGS;
+            case 3 -> EquipmentSlot.FEET;
+            default -> EquipmentSlot.HEAD;
+        };
     }
 
     @Override

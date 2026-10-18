@@ -3,6 +3,8 @@ package io.github.lightman314.lightmanscurrency.core.lightmanscurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.*;
+import io.github.lightman314.lightmanscurrency.api.trader.permissions.builtin.BooleanPermissionType;
+import io.github.lightman314.lightmanscurrency.api.trader.permissions.builtin.EnumPermissionType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class LCPermissions {
@@ -24,8 +26,8 @@ public final class LCPermissions {
     public static final Permission<TriStatePermission> VIEW_LOGS = registerTriState("view_logs",TriStatePermission.NONE);
     public static final Permission<Boolean> EXTERNAL_ACCESS_SETTINGS = registerBoolean("external_access_settings",true);
 
-    public static Permission<Boolean> registerBoolean(String name,boolean defaultValue) { return register(name,BooleanPermissionType.of(defaultValue)); }
-    public static Permission<TriStatePermission> registerTriState(String name,TriStatePermission defaultValue) { return register(name,EnumPermissionType.INSTANCE.create(defaultValue)); }
+    public static Permission<Boolean> registerBoolean(String name,boolean defaultValue) { return register(name, BooleanPermissionType.of(defaultValue)); }
+    public static Permission<TriStatePermission> registerTriState(String name,TriStatePermission defaultValue) { return register(name, EnumPermissionType.TRI_STATE.create(defaultValue)); }
 
     public static <T> Permission<T> register(String name,Permission<T> permission) {
         REGISTER.register(name,() -> permission);

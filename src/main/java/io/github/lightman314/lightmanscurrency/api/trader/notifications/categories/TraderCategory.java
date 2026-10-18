@@ -86,7 +86,7 @@ public class TraderCategory extends NotificationCategory {
                 return ItemIcon.of(node.getBlock());
         }
         //Otherwise use the default icon
-        return IDisplayNode.getDefaultTraderIcon(trader).orElse(ItemIcon.of(LCItems.TRADING_CORE));
+        return IDisplayNode.getDefaultTraderIcon(trader).orElse(ItemIcon.of(LCItems.TRADING_MECHANISM));
     }
 
     @Override
@@ -100,6 +100,6 @@ public class TraderCategory extends NotificationCategory {
     }
 
     @Override
-    public int hashCode() { return (int)this.traderID; }
+    protected int hash() { return Long.hashCode(this.traderID); }
 
 }

@@ -36,6 +36,18 @@ public abstract class TradeEvent extends Event {
     public final TradingNode<?> getActiveNode() { return this.activeNode; }
     private final TradeData trade;
     public final TradeData getTrade() { return this.trade; }
+    public final int getTradeIndex() {
+        int subIndex = this.activeNode.getTrades().indexOf(this.trade);
+        if(subIndex < 0)
+            return subIndex;
+        int tradesBefore = 0;
+        for(TradingNode<?> node : this.getTrader().getTradingNodes()) {
+            if(node == this.activeNode && this.activeNode.getTrades().contains(this.trade))
+                return subIndex;
+            subIndex += node.getTradeCount();
+        }
+        return -1;
+    }
 
     public TradeEvent(TradeContext context,TradingNode<?> activeNode,TradeData trade)
     {
@@ -90,7 +102,7 @@ public abstract class TradeEvent extends Event {
         public TradePrice getOriginalBaseCost() { return this.originalBaseCost; }
         private TradePrice baseCost;
         public TradePrice getBaseCost() { return this.baseCost; }
-        public void setBaseCost(MoneyPrice newCost) { this.baseCost = newCost; }
+        public void setBaseCost(TradePrice newCost) { this.baseCost = newCost; }
         public BaseCost(TradeContext context,TradingNode<?> activeNode,TradeData trade,TradePrice baseCost) {
             super(context, activeNode, trade);
             this.originalBaseCost = this.baseCost = baseCost;

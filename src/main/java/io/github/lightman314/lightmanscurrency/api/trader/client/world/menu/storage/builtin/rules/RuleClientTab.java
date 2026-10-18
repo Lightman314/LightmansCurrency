@@ -24,10 +24,7 @@ public abstract class RuleClientTab<T extends TradeRule> extends TradeRuleClient
     public Component getName() { return this.getRule().getName(); }
 
     @Override
-    public boolean isVisible() {
-        T rule = this.getRule();
-        return rule != null && rule.isActive();
-    }
+    public boolean isVisible() { return this.getRule().isActive(); }
 
     public abstract TradeRuleType<T> getType();
 

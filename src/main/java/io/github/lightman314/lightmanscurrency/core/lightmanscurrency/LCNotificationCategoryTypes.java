@@ -14,11 +14,12 @@ public final class LCNotificationCategoryTypes {
     public static final DeferredRegister<NotificationCategoryType<?>> REGISTER = DeferredRegister.create(LCRegistries.Notifications.NOTIFICATION_CATEGORY_TYPE,LCApi.MODID);
 
     static {
-        register("general",GeneralCategory.TYPE);
+        register("unfiltered",UnfilteredCategory.TYPE);
         register("system",SystemCategory.TYPE);
         register("trader",TraderCategory.TYPE);
         register("trader_settings",TraderSettingsCategory.TYPE);
         register("bank",BankCategory.TYPE);
+        REGISTER.addAlias(LCApi.id("general"),LCApi.id("unfiltered"));
     }
 
     private static void register(String name,NotificationCategoryType<?> type) {

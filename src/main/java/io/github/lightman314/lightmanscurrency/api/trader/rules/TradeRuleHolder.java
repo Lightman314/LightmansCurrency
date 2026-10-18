@@ -4,6 +4,8 @@ import com.google.common.base.Predicates;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.INodeAccess;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.TradingNode;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeData;
 import net.minecraft.world.entity.player.Player;
@@ -27,6 +29,7 @@ public interface TradeRuleHolder extends ISidedContext {
      * Whether this trade rule holder applies the rules to all trades across the entire trader
      */
     default boolean isMultiTrade() { return !this.isSingleTrade(); }
+    default int getValidTradeCount() { return this instanceof INodeAccess trader ? TradingNode.getCustomerReadyTradeCount(trader) : 1; }
     default boolean canMoneyBeRelevant() { return true; }
     default boolean isMoneyRelevant() { return this.canMoneyBeRelevant(); }
 

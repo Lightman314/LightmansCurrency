@@ -62,6 +62,7 @@ public sealed class FancyPacketMap implements IIndentStringable permits FancyPac
 
     @Nullable
     public <T> T get(String key,Supplier<FancyPacketType<T>> type) { return this.get(key,type,null); }
+    @Nullable
     public <T> T get(String key,FancyPacketType<T> type) { return this.get(key,type,null); }
     public <T> T get(String key,Supplier<FancyPacketType<T>> type,T defaultValue) { return this.get(key,type.get(),defaultValue); }
     public <T> T get(String key,FancyPacketType<T> type,T defaultValue)

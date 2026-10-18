@@ -18,7 +18,7 @@ public final class NotificationStack implements ISidedContext.Mutable<Notificati
 
     public static final Codec<NotificationStack> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Notification.CODEC.fieldOf("notification").forGetter(NotificationStack::getNotification),
-            Codec.BOOL.fieldOf("seen").forGetter(NotificationStack::wasSeen),
+            Codec.BOOL.optionalFieldOf("seen",false).forGetter(NotificationStack::wasSeen),
             Codec.intRange(1,Integer.MAX_VALUE).fieldOf("count").forGetter(NotificationStack::getCount),
             Codec.LONG.fieldOf("timestamp").forGetter(NotificationStack::getTimestamp)
     ).apply(instance,NotificationStack::new));

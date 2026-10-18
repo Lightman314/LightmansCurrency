@@ -45,10 +45,10 @@ public class FreeSample extends PriceModifyingTradeRule implements IPersistentRu
     public static final TextEntry INFO_USED = TextEntry.tradeRuleMessage(TYPE,"info.used");
     public static final TextEntry INFO_TIMED = TextEntry.tradeRuleMessage(TYPE,"info.timed");
     public static final TextEntry INFO_TIME_REMAINING = TextEntry.tradeRuleMessage(TYPE,"info.time_remaining");
-    public static final TextEntry BUTTON_CLEAR_MEMORY = TextEntry.button(LCApi.MODID,"trade_rule.free_sample.reset");
-    public static final TextEntry TOOLTIP_CLEAR_MEMORY = TextEntry.tooltip(LCApi.MODID,"trade_rule.free_sample.reset");
-    public static final TextEntry GUI_INFO = TextEntry.gui(LCApi.MODID,"trade_rule.free_sample.info");
-    public static final TextEntry GUI_PLAYER_COUNT = TextEntry.gui(LCApi.MODID,"trade_rule.free_sample.count");
+    public static final TextEntry BUTTON_CLEAR_MEMORY = TextEntry.tradeRuleButton(TYPE,"reset");
+    public static final TextEntry TOOLTIP_CLEAR_MEMORY = TextEntry.tradeRuleTooltip(TYPE,"reset");
+    public static final TextEntry GUI_INFO = TextEntry.tradeRuleGui(TYPE,"info");
+    public static final TextEntry GUI_PLAYER_COUNT = TextEntry.tradeRuleGui(TYPE,"count");
     public static final TextEntry GUI_DURATION = TextEntry.tradeRuleGui(TYPE,"duration");
     public static final TextEntry GUI_NO_DURATION = TextEntry.tradeRuleGui(TYPE,"no_duration");
 

@@ -13,28 +13,32 @@ import io.github.lightman314.lightmanscurrency.api.config.client.screen.builtin.
 import io.github.lightman314.lightmanscurrency.api.icon.builtin.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.icon.builtin.MultiIcon;
 import io.github.lightman314.lightmanscurrency.api.icon.builtin.SpriteIcon;
+import io.github.lightman314.lightmanscurrency.api.icon.builtin.TextIcon;
 import io.github.lightman314.lightmanscurrency.api.icon.client.IconRenderer;
-import io.github.lightman314.lightmanscurrency.api.icon.client.builtin.ItemRenderer;
-import io.github.lightman314.lightmanscurrency.api.icon.client.builtin.MultiRenderer;
-import io.github.lightman314.lightmanscurrency.api.icon.client.builtin.SpriteRenderer;
+import io.github.lightman314.lightmanscurrency.api.icon.client.builtin.ItemIconRenderer;
+import io.github.lightman314.lightmanscurrency.api.icon.client.builtin.MultiIconRenderer;
+import io.github.lightman314.lightmanscurrency.api.icon.client.builtin.SpriteIconRenderer;
+import io.github.lightman314.lightmanscurrency.api.icon.client.builtin.TextIconRenderer;
 import io.github.lightman314.lightmanscurrency.api.money.client.ClientMoneyValueType;
 import io.github.lightman314.lightmanscurrency.api.trader.client.nodes.ClientTraderNode;
 import io.github.lightman314.lightmanscurrency.api.trader.client.nodes.builtin.*;
+import io.github.lightman314.lightmanscurrency.api.trader.client.permissions.ClientPermission;
+import io.github.lightman314.lightmanscurrency.api.trader.client.permissions.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.trader.client.trade.TradeButtonDisplay;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.customer.TraderCustomerScreen;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.customer.builtin.NormalCustomerClientTab;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.TraderStorageScreen;
-import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.MoneyStorageClientTab;
-import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.SettingsClipboardClientTab;
-import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.SimpleTradeEditClientTab;
+import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.info.InfoClientTab;
-import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.rules.RuleClientTab;
-import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.rules.TradeRulesClientTab;
+import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.rules.*;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.rules.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.storage.builtin.settings.SettingsClientTab;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.terminal.TradingTerminalScreen;
 import io.github.lightman314.lightmanscurrency.api.trader.client.world.menu.terminal.builtin.NetworkTraderSelectionClientTab;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.*;
+import io.github.lightman314.lightmanscurrency.api.trader.permissions.builtin.BooleanPermissionType;
+import io.github.lightman314.lightmanscurrency.api.trader.permissions.builtin.EnumPermissionType;
+import io.github.lightman314.lightmanscurrency.api.trader.permissions.builtin.IntegerPermissionType;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.builtin.*;
 import io.github.lightman314.lightmanscurrency.api.trader.client.trade.price.ClientTradePrice;
@@ -46,22 +50,23 @@ import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.bui
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.terminal.builtin.*;
 import io.github.lightman314.lightmanscurrency.client.features.atm.ATMScreen;
 import io.github.lightman314.lightmanscurrency.client.features.atm.tabs.*;
+import io.github.lightman314.lightmanscurrency.client.features.player_data.PlayerDataScreen;
+import io.github.lightman314.lightmanscurrency.client.features.player_data.tabs.*;
 import io.github.lightman314.lightmanscurrency.client.features.resources.data.item_position.RotationHandler;
 import io.github.lightman314.lightmanscurrency.client.features.resources.data.item_position.rotation.*;
 import io.github.lightman314.lightmanscurrency.client.features.trader.item.ItemTradeEditClientTab;
-import io.github.lightman314.lightmanscurrency.client.features.trader.item.block_entity.ItemTraderBlockEntityRenderer;
+import io.github.lightman314.lightmanscurrency.client.features.trader.item.block_entity.*;
 import io.github.lightman314.lightmanscurrency.client.features.trader.item.nodes.ClientItemStorageNode;
 import io.github.lightman314.lightmanscurrency.client.proxy.LCClientProxy;
 import io.github.lightman314.lightmanscurrency.core.LCBlockEntities;
 import io.github.lightman314.lightmanscurrency.core.LCMenuTypes;
 import io.github.lightman314.lightmanscurrency.features.atm.tabs.*;
+import io.github.lightman314.lightmanscurrency.features.player_data.tabs.*;
+import io.github.lightman314.lightmanscurrency.features.player_data.tabs.PlayerStatsTab;
 import io.github.lightman314.lightmanscurrency.features.trader.gacha.nodes.GachaStorageNode;
 import io.github.lightman314.lightmanscurrency.features.trader.item.menu.ItemTradeEditTab;
-import io.github.lightman314.lightmanscurrency.features.trader.item.trade.ArmorTradeData;
-import io.github.lightman314.lightmanscurrency.features.trader.item.trade.ItemTradeData;
-import io.github.lightman314.lightmanscurrency.features.trader.item.trade.ItemTradeButtonDisplay;
-import io.github.lightman314.lightmanscurrency.features.trader.item_common.ItemStorageNode;
-import io.github.lightman314.lightmanscurrency.features.trader.item_common.ItemStorageTab;
+import io.github.lightman314.lightmanscurrency.features.trader.item.trade.*;
+import io.github.lightman314.lightmanscurrency.features.trader.item_common.*;
 import io.github.lightman314.lightmanscurrency.client.features.trader.item_common.ItemStorageClientTab;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.neoforged.api.distmarker.Dist;
@@ -94,11 +99,13 @@ public class LightmansCurrencyClient {
 
         //Register Block Entity Renderers
         BlockEntityRenderers.register(LCBlockEntities.ITEM_TRADER.get(),ItemTraderBlockEntityRenderer.PROVIDER);
+        BlockEntityRenderers.register(LCBlockEntities.ARMOR_TRADER.get(), ArmorDisplayBlockEntityRenderer.PROVIDER);
 
         //Register Icon Renderers
-        IconRenderer.REGISTRY.register(ItemIcon.TYPE,ItemRenderer.INSTANCE);
-        IconRenderer.REGISTRY.register(SpriteIcon.TYPE,SpriteRenderer.INSTANCE);
-        IconRenderer.REGISTRY.register(MultiIcon.TYPE,MultiRenderer.INSTANCE);
+        IconRenderer.REGISTRY.register(ItemIcon.TYPE, ItemIconRenderer.INSTANCE);
+        IconRenderer.REGISTRY.register(SpriteIcon.TYPE, SpriteIconRenderer.INSTANCE);
+        IconRenderer.REGISTRY.register(TextIcon.TYPE,TextIconRenderer.INSTANCE);
+        IconRenderer.REGISTRY.register(MultiIcon.TYPE, MultiIconRenderer.INSTANCE);
 
         //Register ATM Icon Renderers
         ATMIconRenderer.REGISTRY.register(ATMArrowIcon.TYPE,ATMArrowIconRenderer.INSTANCE);
@@ -109,8 +116,15 @@ public class LightmansCurrencyClient {
         ClientMenuTab.initialize();
 
         //Register Trade Rule Tabs
+        RuleClientTab.TAB_BUILDERS.register(DailyTrades.TYPE,DailyTradesClientTab::new);
+        RuleClientTab.TAB_BUILDERS.register(DemandPricing.TYPE,DemandPricingClientTab::new);
         RuleClientTab.TAB_BUILDERS.register(FreeSample.TYPE,FreeSampleClientTab::new);
+        RuleClientTab.TAB_BUILDERS.register(GlobalTradeLimit.TYPE,GlobalTradeLimitClientTab::new);
+        RuleClientTab.TAB_BUILDERS.register(PriceFluctuation.TYPE,PriceFluctuationClientTab::new);
+        RuleClientTab.TAB_BUILDERS.register(PlayerDiscounts.TYPE,PlayerDiscountsClientTab::new);
+        RuleClientTab.TAB_BUILDERS.register(PlayerInteractionListing.TYPE,PlayerInteractionListingClientTab::new);
         RuleClientTab.TAB_BUILDERS.register(PlayerTradeLimit.TYPE,PlayerTradeLimitClientTab::new);
+        RuleClientTab.TAB_BUILDERS.register(TimedSale.TYPE,TimedSaleClientTab::new);
 
         //Register Trade Displays
         TradeButtonDisplay.REGISTRY.register(ItemTradeData.TYPE, ItemTradeButtonDisplay.INSTANCE);
@@ -119,6 +133,11 @@ public class LightmansCurrencyClient {
         //Register Trade Price Displays
         ClientTradePrice.REGISTRY.register(MoneyPrice.TYPE,MoneyPriceClient.INSTANCE);
         ClientTradePrice.REGISTRY.register(ItemPrice.TYPE,ItemPriceClient.INSTANCE);
+
+        //Register Client Permissions
+        ClientPermission.REGISTRY.register(BooleanPermissionType.INSTANCE,ClientBooleanPermission.INSTANCE);
+        ClientPermission.REGISTRY.register(IntegerPermissionType.INSTANCE,ClientIntegerPermission.INSTANCE);
+        ClientPermission.REGISTRY.register(EnumPermissionType.TRI_STATE,ClientEnumPermission.TRI_STATE);
 
         //Register Client Trader Nodes
         ClientTraderNode.REGISTRY.register(OwnerNode.TYPE,ClientOwnerNode.INSTANCE);
@@ -129,6 +148,7 @@ public class LightmansCurrencyClient {
         ClientTraderNode.REGISTRY.register(ItemStorageNode.TYPE,ClientItemStorageNode.INSTANCE);
         ClientTraderNode.REGISTRY.register(GachaStorageNode.TYPE,ClientItemStorageNode.INSTANCE);
         ClientTraderNode.REGISTRY.register(AdminSettingsNode.TYPE,ClientAdminSettingsNode.INSTANCE);
+        ClientTraderNode.REGISTRY.register(AlliesNode.TYPE,ClientAlliesNode.INSTANCE);
 
         //Register Money Price Displays
         ClientMoneyValueType.REGISTRY.register(CoinValue.TYPE,ClientCoinType.INSTANCE);
@@ -168,8 +188,12 @@ public class LightmansCurrencyClient {
                 .register(TradeTradeRuleTab.KEY,TradeRulesClientTab.BUILDER)
                 .register(InfoTab.KEY,InfoClientTab.BUILDER);
         //Terminal Menu
-        event.forMenu(LCMenuTypes.TRADING_TERMINAL, TradingTerminalScreen.class)
+        event.forMenu(LCMenuTypes.TRADING_TERMINAL,TradingTerminalScreen.class)
                 .register(NetworkTraderSelectionTab.KEY,NetworkTraderSelectionClientTab.BUILDER);
+        //Player Data Menu
+        event.forMenu(LCMenuTypes.PLAYER_DATA,PlayerDataScreen.class)
+                .register(NotificationTab.CLIENT_KEY,NotificationClientTab.BUILDER)
+                .register(PlayerStatsTab.CLIENT_KEY,PlayerStatsClientTab.BUILDER);
 
     }
 

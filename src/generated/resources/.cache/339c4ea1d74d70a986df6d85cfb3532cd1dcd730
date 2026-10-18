@@ -1,4 +1,5 @@
-// 26.1.2	2026-10-02T14:54:18.6028449	Tags for minecraft:item mod id lightmanscurrency
+// 26.1.2	2026-10-14T16:22:51.9633522	Tags for minecraft:item mod id lightmanscurrency
+1d6ab3074694ff74b60dd2d6ca355d16411df5fb data/curios/tags/item/charm.json
 f50311c506e1b643b28dec06d9307e3436c63df2 data/curios/tags/item/wallet.json
 4d1e3aa203ff9f068defdd95ee8d0fcbb9a2f65e data/c/tags/item/dyed/black.json
 702c4011eabfe073ff75efd58448071b753c888f data/c/tags/item/dyed/blue.json
@@ -18,7 +19,7 @@ a01cafad987361a9ef467740d7b807e5e7c28d2f data/c/tags/item/dyed/white.json
 309d99403bf49a5fb0172d50db743c813fb412f6 data/c/tags/item/dyed/yellow.json
 1bf31735ec9977500912b7669bce244d9b7e20c1 data/lightmanscurrency/tags/item/atm.json
 b13b1d2a54bcdda6e4766142d82b7b5baf245b2c data/lightmanscurrency/tags/item/coin_minting_material.json
-eab69f81f4c8f12618755243db77d30692d20b15 data/lightmanscurrency/tags/item/groups/card_display.json
+05931946dc2be1fae77bbafbd9c1ad2e7dcc03c6 data/lightmanscurrency/tags/item/groups/card_display.json
 1723bc0183c181697067e639bf42ba46ba64ec2a data/lightmanscurrency/tags/item/groups/display_case.json
 df5c56756562e6d789328835082cea3ad5348c4e data/lightmanscurrency/tags/item/groups/double_shelf.json
 e35d49b719c10679008585c719bd99dc668e5a4f data/lightmanscurrency/tags/item/groups/item_network_trader.json

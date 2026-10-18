@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition
 import io.github.lightman314.lightmanscurrency.api.text.LCText;
 import io.github.lightman314.lightmanscurrency.client.ClientEventListeners;
 import io.github.lightman314.lightmanscurrency.client.features.wallet.gui.WalletGuiLayer;
+import io.github.lightman314.lightmanscurrency.client.helpers.KeyInputHelpers;
 import io.github.lightman314.lightmanscurrency.core.LCDataComponents;
 import io.github.lightman314.lightmanscurrency.core.LCSounds;
 import io.github.lightman314.lightmanscurrency.core.neoforge.LCDataAttachments;
@@ -66,12 +67,7 @@ public final class WalletClientEvents {
 
     @SubscribeEvent
     private static void openWalletInput(ClientTickEvent.Post event) {
-        boolean ignore = false;
-        while(KEY_WALLET.consumeClick()) {
-            //Only consume the action once, even if the button has been pressed multiple times
-            if(ignore)
-                continue;
-            ignore = true;
+        if(KeyInputHelpers.consumeAllClicks(KEY_WALLET)) {
             Minecraft mc = Minecraft.getInstance();
             LocalPlayer player = mc.player;
             if(player != null && mc.screen == null)

@@ -45,7 +45,7 @@ public abstract class AbstractTradeRuleTab extends TraderStorageTab {
 
     public final boolean hasRule(TradeRuleType<?> type) {
         TradeRuleHolder holder = this.getRuleHolder();
-        if(holder == null || type == null)
+        if(holder == null)
             return false;
         return holder.getRuleOfType(type) != null;
     }
@@ -79,8 +79,7 @@ public abstract class AbstractTradeRuleTab extends TraderStorageTab {
         }
         if(this.hasRequiredPermissions()) {
             TradeRule rule = this.getRule(type);
-            if(rule != null)
-                rule.handlePlayerRequest(this.getPlayer(),request);
+            rule.handlePlayerRequest(this.getPlayer(),request);
         }
     }
 

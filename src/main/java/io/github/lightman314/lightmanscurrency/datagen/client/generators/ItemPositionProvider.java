@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.datagen.client.generators;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.BlockItemTagKey;
 import io.github.lightman314.lightmanscurrency.api.helpers.registry.DeferredHolderBundle;
 import io.github.lightman314.lightmanscurrency.api.helpers.registry.DeferredHolderBundle2;
 import io.github.lightman314.lightmanscurrency.client.features.resources.data.item_position.RotationHandler;
@@ -82,6 +83,9 @@ public abstract class ItemPositionProvider implements DataProvider {
         }
         else if(obj instanceof TagKey<?> tag && tag.isFor(Registries.BLOCK)) {
             builder.acceptTag(tag.location());
+        }
+        else if(obj instanceof BlockItemTagKey tag) {
+            builder.acceptTag(tag.block());
         }
         else if(obj instanceof List<?> list) {
             for(Object o : list)

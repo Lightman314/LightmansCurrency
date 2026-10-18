@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.features.cash_register.CashRegisterBlockEntity;
 import io.github.lightman314.lightmanscurrency.features.coin_mint.CoinMintBlockEntity;
 import io.github.lightman314.lightmanscurrency.features.trader.item.blocks.ItemTraderBlockEntity;
+import io.github.lightman314.lightmanscurrency.features.trader.item.blocks.armor.ArmorDisplayTraderBlockEntity;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -21,6 +22,7 @@ public final class LCBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> REGISTER = DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE,LCApi.MODID);
 
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<ItemTraderBlockEntity>> ITEM_TRADER = register("item_trader",ItemTraderBlockEntity::new,merge(LCBlocks.DISPLAY_CASE.getFutureSet(),LCBlocks.SINGLE_SHELF.getFutureSet(),LCBlocks.DOUBLE_SHELF.getFutureSet(),LCBlocks.CARD_DISPLAY.getFutureSet(),LCBlocks.VENDING_MACHINE.getFutureSet(),LCBlocks.LARGE_VENDING_MACHINE.getFutureSet(),LCBlocks.ITEM_NETWORK_TRADER.getFutureSet()));
+    public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<ArmorDisplayTraderBlockEntity>> ARMOR_TRADER = register("armor_trader", ArmorDisplayTraderBlockEntity::new,easySet(LCBlocks.ARMOR_DISPLAY));
 
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<CoinMintBlockEntity>> COIN_MINT = register("coin_mint",CoinMintBlockEntity::new,easySet(LCBlocks.COIN_MINT));
 

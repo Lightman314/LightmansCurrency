@@ -6,13 +6,13 @@ import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.FancyGuiEx
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.icon.IconData;
 import io.github.lightman314.lightmanscurrency.api.icon.IconType;
-import io.github.lightman314.lightmanscurrency.api.icon.client.builtin.EmptyRenderer;
+import io.github.lightman314.lightmanscurrency.api.icon.client.builtin.EmptyIconRenderer;
 
 public abstract class IconRenderer {
 
     public static final ClientPairedRegistry<IconType<?>,IconRenderer> REGISTRY = ClientPairedRegistry.builder(LCRegistries.Misc.ICON_TYPE,IconRenderer.class)
             .defaultValueBuilder(IconRenderer::getEmpty).build();
-    private static IconRenderer getEmpty() { return EmptyRenderer.INSTANCE; }
+    private static IconRenderer getEmpty() { return EmptyIconRenderer.INSTANCE; }
 
     public static void extractState(FancyGuiExtractor gui,IconData icon,ScreenPosition position) { extractState(gui,icon,position.x,position.y); }
     public static void extractState(FancyGuiExtractor gui,IconData icon,int x,int y) {

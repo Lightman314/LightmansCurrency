@@ -75,7 +75,7 @@ public final class LCCreativeGroups {
                         p.accept(LCItems.WALLET_NETHER_STAR);
                         p.accept(LCItems.WALLET_ENDER_DRAGON);
                         //Trading Core
-                        p.accept(LCItems.TRADING_CORE);
+                        p.accept(LCItems.TRADING_MECHANISM);
                     }));
 
     public static final DeferredHolder<CreativeModeTab,CreativeModeTab> MACHINES = register("machines",builder ->
@@ -97,7 +97,7 @@ public final class LCCreativeGroups {
 
     public static final DeferredHolder<CreativeModeTab,CreativeModeTab> TRADERS = register("traders",builder ->
             builder.title(LCText.Resources.CREATIVE_GROUP_TRADERS.get())
-                    .icon(LCItems.TRADING_CORE::toStack)
+                    .icon(LCItems.TRADING_MECHANISM::toStack)
                     .displayItems(((parameters, p) -> {
                         ezPop(p,LCBlocks.DISPLAY_CASE);
                         ezPop(p,LCBlocks.SINGLE_SHELF);
@@ -106,6 +106,7 @@ public final class LCCreativeGroups {
                         ezPop(p,LCBlocks.VENDING_MACHINE);
                         ezPop(p,LCBlocks.LARGE_VENDING_MACHINE);
                         ezPop(p,LCBlocks.ITEM_NETWORK_TRADER);
+                        p.accept(LCBlocks.ARMOR_DISPLAY);
                     })));
 
     public static final DeferredHolder<CreativeModeTab,CreativeModeTab> UPGRADES = register("upgrades",builder ->

@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.world.menu.validation.MenuVal
 import io.github.lightman314.lightmanscurrency.features.atm.ATMMenu;
 import io.github.lightman314.lightmanscurrency.features.coin_mint.CoinMintBlockEntity;
 import io.github.lightman314.lightmanscurrency.features.coin_mint.CoinMintMenu;
+import io.github.lightman314.lightmanscurrency.features.player_data.PlayerDataMenu;
 import io.github.lightman314.lightmanscurrency.features.wallet.menu.WalletMenu;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -45,6 +46,8 @@ public final class LCMenuTypes {
 
     public static final DeferredHolder<MenuType<?>,MenuType<TraderStorageMenu>> TRADER_STORAGE = register("trader_storage",() ->
             (id,inv,data) -> new TraderStorageMenu(id,inv.player,data.readLong(),MenuValidator.STREAM_CODEC.decode(data)));
+
+    public static final DeferredHolder<MenuType<?>,MenuType<PlayerDataMenu>> PLAYER_DATA = register("player_data",() -> (id,inv,data) -> new PlayerDataMenu(id,inv.player));
 
     private static <T extends AbstractContainerMenu> DeferredHolder<MenuType<?>,MenuType<T>> register(String name,Supplier<IContainerFactory<T>> factory)
     {

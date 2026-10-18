@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.data;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.IRegistryAccess;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
@@ -12,6 +13,7 @@ import net.minecraft.world.entity.player.Player;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 public abstract class FancyData implements ISidedContext, IRegistryAccess {
 
@@ -59,6 +61,8 @@ public abstract class FancyData implements ISidedContext, IRegistryAccess {
 
     public abstract void onPlayerJoin(ServerPlayer player);
 
+    public void onPlayerLeave(ServerPlayer player) {}
+
     public abstract void syncTick();
 
     public void onServerShutdown() {}
@@ -67,12 +71,20 @@ public abstract class FancyData implements ISidedContext, IRegistryAccess {
 
     protected final void sendPacketToAll(FancyPacketMap message) { this.sendPacket(null,message); }
     protected final void sendPacketToTarget(Player target, FancyPacketMap message) { this.sendPacket(target,message); }
+    protected final void sendPacketToTarget(UUID target,FancyPacketMap message) {
+        MinecraftServer server = this.getServer();
+        if(server != null) {
+            Player player = server.getPlayerList().getPlayer(target);
+            if(player != null)
+                this.sendPacketToTarget(player,message);
+            else
+                LightmansCurrency.LogWarning("Unable to locate " + target);
+        }
+    }
     protected final void sendPacket(@Nullable Player target, FancyPacketMap message)
     {
         if(this.server == null)
             return;
-        //Assume a change whenever a packet needs to be sent
-        this.setChanged();
         SPacketSyncFancyData packet = new SPacketSyncFancyData(this.getType(),message);
         if(target == null)
             packet.sendToAll();

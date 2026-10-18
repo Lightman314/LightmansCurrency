@@ -48,6 +48,8 @@ public final class LCText {
         public static final TextEntry TOOLTIP_SMITHING_TEMPLATE_ADDTIONS_SLOT_DESCRIPTION = TextEntry.tooltip(MODID,"smithing_template.additions_slot_description");
 
         public static final TextEntry KEY_WALLET = TextEntry.keyBind(MODID,"open_wallet");
+        public static final TextEntry KEY_TERMINAL = TextEntry.keyBind(MODID,"portable_terminal");
+        public static final TextEntry KEY_ATM = TextEntry.keyBind(MODID,"portable_atm");
 
     }
 

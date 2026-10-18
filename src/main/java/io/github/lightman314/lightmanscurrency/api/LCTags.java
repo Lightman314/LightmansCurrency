@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api;
 
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.BlockItemTagKey;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderType;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
 import net.minecraft.core.registries.Registries;
@@ -39,15 +40,6 @@ public final class LCTags {
         public static final TagKey<Item> TRADERS_ITEM = key("traders/item");
         public static final TagKey<Item> TRADERS_NETWORK = key("traders/network");
 
-        public static final TagKey<Item> GROUP_DISPLAY_CASE = key("groups/display_case");
-        public static final TagKey<Item> GROUP_SINGLE_SHELF = key("groups/single_shelf");
-        public static final TagKey<Item> GROUP_DOUBLE_SHELF = key("groups/double_shelf");
-        public static final TagKey<Item> GROUP_CARD_DISPLAY = key("groups/card_display");
-        public static final TagKey<Item> GROUP_VENDING_MACHINE = key("groups/vending_machine");
-        public static final TagKey<Item> GROUP_LARGE_VENDING_MACHINE = key("groups/large_vending_machine");
-        public static final TagKey<Item> GROUP_ITEM_NETWORK_TRADERS = key("groups/item_network_trader");
-        public static final TagKey<Item> GROUP_AUCTION_STAND = key("groups/auction_stand");
-
 
         public static TagKey<Item> key(String name) { return TagKey.create(Registries.ITEM,LCApi.id(name)); }
 
@@ -61,16 +53,22 @@ public final class LCTags {
         public static final TagKey<Block> OWNER_PROTECTED = key("owner_protected");
         public static final TagKey<Block> SAFE_INTERACTABLE = key("safe_interactable");
 
-        public static final TagKey<Block> GROUP_CARD_DISPLAY = key("groups/card_display");
-        public static final TagKey<Block> GROUP_SINGLE_SHELF = key("groups/single_shelf");
-        public static final TagKey<Block> GROUP_DOUBLE_SHELF = key("groups/double_shelf");
-        public static final TagKey<Block> GROUP_DISPLAY_CASE = key("groups/display_case");
-        public static final TagKey<Block> GROUP_VENDING_MACHINE = key("groups/vending_machine");
-        public static final TagKey<Block> GROUP_LARGE_VENDING_MACHINE = key("groups/large_vending_machine");
-        public static final TagKey<Block> GROUP_ITEM_NETWORK_TRADERS = key("groups/item_network_trader");
-        public static final TagKey<Block> GROUP_AUCTION_STAND = key("groups/auction_stand");
-
         public static TagKey<Block> key(String name) { return TagKey.create(Registries.BLOCK,LCApi.id(name)); }
+
+    }
+
+    public static final class BlocksAndItems {
+
+        public static final BlockItemTagKey GROUP_CARD_DISPLAY = key("groups/card_display");
+        public static final BlockItemTagKey GROUP_SINGLE_SHELF = key("groups/single_shelf");
+        public static final BlockItemTagKey GROUP_DOUBLE_SHELF = key("groups/double_shelf");
+        public static final BlockItemTagKey GROUP_DISPLAY_CASE = key("groups/display_case");
+        public static final BlockItemTagKey GROUP_VENDING_MACHINE = key("groups/vending_machine");
+        public static final BlockItemTagKey GROUP_LARGE_VENDING_MACHINE = key("groups/large_vending_machine");
+        public static final BlockItemTagKey GROUP_ITEM_NETWORK_TRADERS = key("groups/item_network_trader");
+        public static final BlockItemTagKey GROUP_AUCTION_STAND = key("groups/auction_stand");
+
+        public static BlockItemTagKey key(String name) { return new BlockItemTagKey(LCApi.id(name)); }
 
     }
 

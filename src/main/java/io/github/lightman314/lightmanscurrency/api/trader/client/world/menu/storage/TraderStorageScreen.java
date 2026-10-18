@@ -48,7 +48,7 @@ public class TraderStorageScreen extends TabbedMenuScreen<TraderStorageMenu,Trad
         //Add additional buttons
         IconButton returnToCustomerMenu = this.addChild(IconButton.builder()
                 .onPress(this.getMenu()::openCustomerMenu)
-                .withIcon(ItemIcon.of(LCItems.TRADING_CORE))
+                .withIcon(ItemIcon.of(LCItems.TRADING_MECHANISM))
                 .tooltip(TooltipSource.simple(TraderStorageMenu.TOOLTIP_TRADER_OPEN_TRADES))
                 .visible(this::showRightEdgeWidgets)
                 .build());

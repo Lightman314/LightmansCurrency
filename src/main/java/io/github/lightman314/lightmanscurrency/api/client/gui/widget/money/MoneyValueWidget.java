@@ -45,7 +45,7 @@ public final class MoneyValueWidget extends AbstractMultiWidget.LateChildren {
     private final Consumer<MoneyValue> handler;
     private final Consumer<MoneyValueWidget> typeChangeListener;
     private final Predicate<MoneyValue> filter;
-    private final boolean allowFree;
+    private final BooleanSupplier allowFree;
     private final BooleanSupplier allowHandlerChange;
     public boolean canChangeHandlers() { return !this.locked && this.allowHandlerChange.getAsBoolean(); }
     private final TextSettings textSettings;
@@ -82,6 +82,8 @@ public final class MoneyValueWidget extends AbstractMultiWidget.LateChildren {
     @Nullable
     public MoneyInputHandler getCurrentHandler() { return this.currentHandler; }
     public void tryMatchHandler(MoneyValue value) {
+        if(value.isEmpty())
+            return;
         this.tryMatchValue(value,true);
     }
 
@@ -149,7 +151,7 @@ public final class MoneyValueWidget extends AbstractMultiWidget.LateChildren {
                 .atPos(area.pos.offset(area.width - 14,4))
                 .withSprite(SPRITE_FREE_TOGGLE)
                 .onPress(this::toggleFree)
-                .visible(v -> this.isVisible() && this.allowFree)
+                .visible(v -> this.isVisible() && this.allowFree.getAsBoolean())
                 .build());
 
         this.addChild(DropdownWidget.builder()
@@ -200,11 +202,9 @@ public final class MoneyValueWidget extends AbstractMultiWidget.LateChildren {
             this.currentHandler.close();
         }
         this.currentHandler = handler;
-        if(this.currentHandler != null) {
-            this.addChild(this.currentHandler);
-            this.currentHandler.initialize(this.getArea());
-            lastSelectedHandler = this.currentHandler.getKey();
-        }
+        this.addChild(this.currentHandler);
+        this.currentHandler.initialize(this.getArea());
+        lastSelectedHandler = this.currentHandler.getKey();
 
         this.markHandlerChanged();
     }
@@ -244,7 +244,7 @@ public final class MoneyValueWidget extends AbstractMultiWidget.LateChildren {
         //Render the current price in the top-right corner
         Component text = this.currentValue.getText();
         int width = gui.getFont().width(text);
-        int freeButtonOffset = this.allowFree ? 15 : 5;
+        int freeButtonOffset = this.allowFree.getAsBoolean() ? 15 : 5;
         gui.text(text,this.width - freeButtonOffset - width,5,this.textSettings.textColor(),false);
 
     }
@@ -279,7 +279,7 @@ public final class MoneyValueWidget extends AbstractMultiWidget.LateChildren {
         private Consumer<MoneyValueWidget> typeChangeListener = w -> {};
         private Predicate<MoneyValue> filter = Predicates.alwaysTrue();
         private MoneyValue startingValue = MoneyValue.empty();
-        private boolean allowFree = true;
+        private BooleanSupplier allowFree = () -> true;
         private BooleanSupplier allowHandlerChange = () -> true;
         private TextSettings textSettings = TextSettings.DEFAULT;
 
@@ -299,7 +299,8 @@ public final class MoneyValueWidget extends AbstractMultiWidget.LateChildren {
         public Builder startingValue(MoneyValue value) { this.startingValue = value; return this; }
 
         public Builder disallowFreeInput() { return this.allowFreeInput(false); }
-        public Builder allowFreeInput(boolean allowFree) { this.allowFree = allowFree; return this; }
+        public Builder allowFreeInput(BooleanSupplier allowFree) { this.allowFree = allowFree; return this; }
+        public Builder allowFreeInput(boolean allowFree) { return this.allowFreeInput(() -> allowFree); }
         public Builder allowHandlerChange(boolean allowHandlerChange) { return this.allowHandlerChange(() -> allowHandlerChange); }
         public Builder allowHandlerChange(BooleanSupplier allowHandlerChange) { this.allowHandlerChange = allowHandlerChange; return this; }
 

@@ -32,7 +32,7 @@ public class NotificationDisplayWidget extends AbstractMultiWidget.LateChildren 
     public static final Identifier BG = LCApi.id("widget/notification/background");
     public static final Identifier BG_UNSEEN = LCApi.id("widget/notification/background_unseen");
     public static final Identifier DIVIDER = LCApi.id("widget/notification/divider");
-    public static final Identifier DIVIDER_UNSEEN = LCApi.id("widget/notification/unseen");
+    public static final Identifier DIVIDER_UNSEEN = LCApi.id("widget/notification/divider_unseen");
     public static final Pair<Identifier,Identifier> SPRITES = Pair.of(BG,DIVIDER);
     public static final Pair<Identifier,Identifier> UNSEEN_SPRITES = Pair.of(BG_UNSEEN,DIVIDER_UNSEEN);
 

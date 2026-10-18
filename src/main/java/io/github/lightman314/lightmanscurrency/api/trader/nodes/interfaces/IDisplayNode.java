@@ -103,7 +103,7 @@ public interface IDisplayNode {
             if(icon != null && !icon.isEmpty())
                 return icon;
         }
-        return ItemIcon.of(LCItems.TRADING_CORE);
+        return ItemIcon.of(LCItems.TRADING_MECHANISM);
     }
 
     static List<Component> getTerminalInfo(@Nullable Player player,INodeAccess trader) {

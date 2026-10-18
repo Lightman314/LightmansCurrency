@@ -55,16 +55,6 @@ public abstract class TraderBlock extends EasyBlock implements TraderEntityBlock
             be.onTraderPlacement(player,stack);
     }
 
-    @Nullable
-    public TraderBlockEntity getBlockEntity(LevelAccessor level,BlockState state,BlockPos pos)
-    {
-        if(this instanceof IMultiBlock mb)
-            pos = mb.getBlockEntityPosition(pos,state);
-        if(level.getBlockEntity(pos) instanceof TraderBlockEntity be)
-            return be;
-        return null;
-    }
-
     @Override
     public final boolean canBreakBlock(LevelAccessor level,BlockState state,BlockPos pos,Player player) {
         TraderBlockEntity be = this.getBlockEntity(level,state,pos);

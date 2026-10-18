@@ -2,23 +2,21 @@ package io.github.lightman314.lightmanscurrency.datagen.common.tags;
 
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.LCTags;
+import io.github.lightman314.lightmanscurrency.api.helpers.keys.BlockItemTagKey;
 import io.github.lightman314.lightmanscurrency.api.helpers.registry.types.VanillaColor;
 import io.github.lightman314.lightmanscurrency.core.LCBlocks;
 import io.github.lightman314.lightmanscurrency.core.LCItems;
 import io.github.lightman314.lightmanscurrency.integration.curios.LCCuriosHelper;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.ItemTagsProvider;
-import top.theillusivec4.curios.api.CuriosApi;
-import top.theillusivec4.curios.api.CuriosResources;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -31,6 +29,9 @@ public class LCItemTagProvider extends ItemTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider registries) {
+
+        //Block And Item Tags
+        new LCBlockItemTagsProvider(this::blockItemTag).run();
 
         //Dyed Tags
         for(VanillaColor color : VanillaColor.values()) {
@@ -109,36 +110,23 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .addTag(LCTags.Items.TRADERS_NETWORK);
 
         this.ezTag(LCTags.Items.TRADERS_ITEM)
-                .addTag(LCTags.Items.GROUP_DISPLAY_CASE)
-                .addTag(LCTags.Items.GROUP_SINGLE_SHELF)
-                .addTag(LCTags.Items.GROUP_DOUBLE_SHELF)
-                .addTag(LCTags.Items.GROUP_CARD_DISPLAY)
-                .addTag(LCTags.Items.GROUP_VENDING_MACHINE)
-                .addTag(LCTags.Items.GROUP_LARGE_VENDING_MACHINE)
-                .addTag(LCTags.Items.GROUP_ITEM_NETWORK_TRADERS);
+                .addTag(LCTags.BlocksAndItems.GROUP_DISPLAY_CASE.item())
+                .addTag(LCTags.BlocksAndItems.GROUP_SINGLE_SHELF.item())
+                .addTag(LCTags.BlocksAndItems.GROUP_DOUBLE_SHELF.item())
+                .addTag(LCTags.BlocksAndItems.GROUP_CARD_DISPLAY.item())
+                .addTag(LCTags.BlocksAndItems.GROUP_VENDING_MACHINE.item())
+                .addTag(LCTags.BlocksAndItems.GROUP_LARGE_VENDING_MACHINE.item())
+                .addTag(LCTags.BlocksAndItems.GROUP_ITEM_NETWORK_TRADERS.item());
 
         this.tag(LCTags.Items.TRADERS_NETWORK)
-                .addTag(LCTags.Items.GROUP_ITEM_NETWORK_TRADERS);
-
-        //Item Groups for convenience
-        this.ezTag(LCTags.Items.GROUP_DISPLAY_CASE)
-                .addBundle(LCBlocks.DISPLAY_CASE);
-        this.ezTag(LCTags.Items.GROUP_SINGLE_SHELF)
-                .addBundle(LCBlocks.SINGLE_SHELF);
-        this.ezTag(LCTags.Items.GROUP_DOUBLE_SHELF)
-                .addBundle(LCBlocks.DOUBLE_SHELF);
-        this.ezTag(LCTags.Items.GROUP_CARD_DISPLAY)
-                .addBundle(LCBlocks.CARD_DISPLAY);
-        this.ezTag(LCTags.Items.GROUP_VENDING_MACHINE)
-                .addBundle(LCBlocks.VENDING_MACHINE);
-        this.ezTag(LCTags.Items.GROUP_LARGE_VENDING_MACHINE)
-                .addBundle(LCBlocks.LARGE_VENDING_MACHINE);
-        this.ezTag(LCTags.Items.GROUP_ITEM_NETWORK_TRADERS)
-                .addBundle(LCBlocks.ITEM_NETWORK_TRADER);
+                .addTag(LCTags.BlocksAndItems.GROUP_ITEM_NETWORK_TRADERS.item());
 
         //Curios Tags
         this.tag(Identifier.fromNamespaceAndPath("curios",LCCuriosHelper.WALLET_SLOT))
                 .addTag(LCTags.Items.WALLET);
+        this.tag(Identifier.fromNamespaceAndPath("curios","charm"))
+                .add(LCItems.TRADING_TERMINAL_PORTABLE)
+                .add(LCItems.ATM_PORTABLE);
 
     }
 
@@ -150,5 +138,7 @@ public class LCItemTagProvider extends ItemTagsProvider {
     protected LCTagAppender<ItemLike,Item> ezTag(TagKey<Item> tag) { return this.tag(tag).map(ItemLike::asItem); }
 
     protected LCTagAppender<Item,Item> tag(Identifier tag) { return this.tag(TagKey.create(this.registryKey,tag)); }
+
+    protected LCTagAppender<Block,Item> blockItemTag(BlockItemTagKey tag) { return this.tag(tag.item()).map(Block::asItem); }
 
 }

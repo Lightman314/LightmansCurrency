@@ -3,12 +3,12 @@ package io.github.lightman314.lightmanscurrency.api.trader.permissions;
 import com.google.common.base.Predicates;
 import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
-import io.github.lightman314.lightmanscurrency.api.helpers.registry.RegistryHelper;
+import io.github.lightman314.lightmanscurrency.api.helpers.registry.AbstractType;
+import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 
 import java.util.Map;
@@ -16,12 +16,12 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public final class Permission<T> {
+public final class Permission<T> extends AbstractType<Permission<?>> {
 
+    public static final Codec<Permission<?>> CODEC = LCRegistries.Trader.PERMISSION.byNameCodec();
     public static final StreamCodec<RegistryFriendlyByteBuf,Permission<?>> STREAM_CODEC = ByteBufCodecs.registry(LCRegistries.Trader.PERMISSION_KEY);
-    public static final Codec<Map<Permission<?>,PermissionValue<?>>> DATA_CODEC = Codec.dispatchedMap(LCRegistries.Trader.PERMISSION.byNameCodec(),PermissionValue::getCodec);
+    public static final Codec<Map<Permission<?>,PermissionValue<?>>> DATA_CODEC = Codec.dispatchedMap(CODEC,PermissionValue::getCodec);
 
-    public Identifier getKey() { return LCRegistries.Trader.PERMISSION.getKey(this); }
     private final PermissionType<T> type;
     public PermissionType<T> getType() { return this.type; }
     private final Supplier<T> defaultValue;
@@ -51,6 +51,11 @@ public final class Permission<T> {
 
     public boolean allowedValue(T value) { return this.allowedValue.test(value) && this.type.allowedValue(value); }
 
+    public Class<T> getValueClass() { return this.type.getValueClass(); }
+    public boolean isValueType(Object value) { return this.getValueClass().isInstance(value); }
+
+    public Component getValueText(T value) { return this.type.getValueText(this,value); }
+
     private String descriptionID;
     private String tooltipID;
     public String getDescriptionID() {
@@ -63,14 +68,15 @@ public final class Permission<T> {
             this.tooltipID = this.getDescriptionID() + ".tooltip";
         return this.tooltipID;
     }
-    public Component getName() { return Component.translatable(this.getDescriptionID()); }
+
+    @Override
+    protected Registry<Permission<?>> getRegistry() { return LCRegistries.Trader.PERMISSION; }
+
+    public Component getPermissionName() { return Component.translatable(this.getDescriptionID()); }
     public Component getTooltip() { return Component.translatable(this.getTooltipID()); }
 
     public PermissionValue<T> createNew() { return new PermissionValue<>(this,this.defaultValue.get()); }
 
     @Override
-    public int hashCode() { return RegistryHelper.hash(LCRegistries.Trader.PERMISSION,this); }
-    @Override
-    public String toString() { return "Permission[" + LCRegistries.Trader.PERMISSION.getKey(this) + "," + LCRegistries.Trader.PERMISSION_TYPE.getKey(this.type) + "," + this.defaultValue.get() + "]"; }
-
+    protected String getName() { return "Permission"; }
 }
