@@ -42,7 +42,6 @@ public class PotentialOwnerList {
     {
         if(this.allOwners == null)
             this.allOwners = PotentialOwnerProvider.getPotentialOwners(this.player).stream().filter(this.filter).toList();
-        LightmansCurrency.LogDebug("There are " + this.allOwners.size() + " total owners to filter from!");
         this.lastSearch = searchFilter;
         //Re-do the sorting whenever the search is updated
         List<PotentialOwner> temp = new ArrayList<>(this.allOwners);
@@ -59,7 +58,6 @@ public class PotentialOwnerList {
             temp.removeIf(po -> po.failedFilter(searchFilter));
 
         this.cache = List.copyOf(temp);
-        LightmansCurrency.LogDebug("Found " + this.cache.size() + " potential owners.");
     }
 
     public List<PotentialOwner> getOwners() { return this.cache; }

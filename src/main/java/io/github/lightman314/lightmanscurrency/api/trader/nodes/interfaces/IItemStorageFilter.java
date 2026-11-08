@@ -38,15 +38,32 @@ public interface IItemStorageFilter {
     static boolean denyItemExtraction(INodeAccess trader, ItemResource resource) {
         //Check nodes that determine what is allowed
         for(IItemStorageFilter node : trader.getNodes(IItemStorageFilter.class)) {
-            if(!node.denyItemExtraction(resource))
+            if(node.denyItemExtraction(resource))
                 return true;
         }
         //Next check trades
         for(TradingNode<?> tradingNode : trader.getTradingNodes()) {
             for(TradeData trade : tradingNode.getTrades()) {
-                if(trade instanceof IItemStorageFilter filter && !filter.denyItemExtraction(resource))
+                if(trade instanceof IItemStorageFilter filter && filter.denyItemExtraction(resource))
                     return true;
-                if(trade.getInternalPrice() instanceof IItemStorageFilter filter && !filter.denyItemExtraction(resource))
+                if(trade.getInternalPrice() instanceof IItemStorageFilter filter && filter.denyItemExtraction(resource))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    default boolean relevantForPersistentTrader(ItemResource item) { return false; }
+    static boolean relevantForPersistentTrader(INodeAccess trader,ItemResource item) {
+        for(IItemStorageFilter node : trader.getNodes(IItemStorageFilter.class)) {
+            if(node.relevantForPersistentTrader(item))
+                return true;
+        }
+        for(TradingNode<?> tradingNode : trader.getTradingNodes()) {
+            for(TradeData trade : tradingNode.getTrades()) {
+                if(trade instanceof IItemStorageFilter filter && filter.relevantForPersistentTrader(item))
+                    return true;
+                if(trade.getInternalPrice() instanceof IItemStorageFilter filter && filter.relevantForPersistentTrader(item))
                     return true;
             }
         }

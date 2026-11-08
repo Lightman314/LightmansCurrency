@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.api.helpers;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedList;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -124,6 +123,13 @@ public final class ResourceHelper {
                 result.add(s);
         }
         return result;
+    }
+
+    public static <T extends Resource> int extractFromIndex(ResourceHandler<T> handler,int index,int count,TransactionContext transaction) {
+        T r = handler.getResource(index);
+        if(r.isEmpty())
+            return 0;
+        return handler.extract(index,r,count,transaction);
     }
 
     public static <T extends Resource> int getTotalResourceCount(List<ResourceStack<T>> resources) {

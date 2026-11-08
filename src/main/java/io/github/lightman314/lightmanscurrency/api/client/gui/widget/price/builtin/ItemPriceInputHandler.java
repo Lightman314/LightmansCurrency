@@ -66,7 +66,6 @@ public class ItemPriceInputHandler extends PriceInputHandler {
     }
 
     private void setItem(ItemStack stack) {
-        LightmansCurrency.LogDebug("Sending setItem packet for " + stack.getHoverName().getString() + " to slot " + this.getCurrentSlot());
         this.sendPriceChange(FancyPacketMap.map()
                 .setItem("setItem",stack));
     }
@@ -83,7 +82,6 @@ public class ItemPriceInputHandler extends PriceInputHandler {
         if(this.getCurrentValue() instanceof ItemPrice ip) {
             int slot = this.getCurrentSlot();
             boolean newValue = !ip.getItem(slot).isStrict();
-            LightmansCurrency.LogDebug("Sending setStrict packet for slot " + slot + " " + newValue);
             this.sendPriceChange(FancyPacketMap.map()
                     .setBoolean("setStrict",newValue));
         }

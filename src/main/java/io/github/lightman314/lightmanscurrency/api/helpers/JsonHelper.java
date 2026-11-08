@@ -12,7 +12,6 @@ public final class JsonHelper {
     public static final Gson PRETTY_GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     public static final Gson SINGLE_LINE_GSON = new GsonBuilder().disableHtmlEscaping().create();
 
-    public static JsonElement parse(String string) { return GsonHelper.parse(string);
-    }
+    public static JsonElement parse(String string) { return GsonHelper.parse(string); }
 
 }

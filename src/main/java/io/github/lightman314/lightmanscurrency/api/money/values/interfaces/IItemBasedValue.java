@@ -9,7 +9,7 @@ public interface IItemBasedValue {
 
     /**
      * Returns the Money Value as a list of Item Stacks<br>
-     * Item Stacks <b>do not</b> need to obey the items max stack size,
+     * Item Stacks <b>do not</b> need to obey the items maxUses stack size,
      * which is useful for display purposes
      * @see #getAsSeperatedItemList()
      */
@@ -17,7 +17,7 @@ public interface IItemBasedValue {
 
     /**
      * Returns the Money Value as a list of Item Stacks<br>
-     * Item Stacks will obey the items max stack size,
+     * Item Stacks will obey the items maxUses stack size,
      * which is useful if spawning the items into the world and/or placing them in a container
      * @see #getAsItemList()
      */

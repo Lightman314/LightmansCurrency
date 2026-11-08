@@ -2,20 +2,18 @@ package io.github.lightman314.lightmanscurrency.api.trader.data;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
-import io.github.lightman314.lightmanscurrency.api.helpers.data.CodecInteractionHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.IRegistryAccess;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.ownership.MemberLevel;
-import io.github.lightman314.lightmanscurrency.api.ownership.holder.OwnerHolder;
+import io.github.lightman314.lightmanscurrency.api.ownership.holder.SimpleOwnerHolder;
 import io.github.lightman314.lightmanscurrency.api.ownership.interfaces.IOwnable;
 import io.github.lightman314.lightmanscurrency.api.ownership.interfaces.IOwnerHolder;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.*;
@@ -38,7 +36,6 @@ import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.Tra
 import io.github.lightman314.lightmanscurrency.api.world.menu.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.features.api_impl.data.TraderDataCache;
 import net.minecraft.IdentifierException;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.NeoForge;
@@ -53,10 +50,16 @@ public final class TraderData extends IRegistryAccess.WithHolder implements ISid
     public static int GLOBAL_TRADE_LIMIT = 100;
 
     //Codec
-    public static Codec<TraderData> CODEC = RecordCodecBuilder.create(builder -> builder.group(
+    public static final Codec<TraderData> CODEC = RecordCodecBuilder.create(builder -> builder.group(
             LCRegistries.Trader.TRADER_TYPES.byNameCodec().fieldOf("type").forGetter(TraderData::getType),
             Codec.LONG.fieldOf("id").forGetter(TraderData::getID),
             TraderNode.SET_CODEC.fieldOf("nodes").forGetter(TraderData::getWritableNodes)
+    ).apply(builder,TraderData::new));
+
+    public static final Codec<TraderData> DEBUG_CODEC = RecordCodecBuilder.create(builder -> builder.group(
+            LCRegistries.Trader.TRADER_TYPES.byNameCodec().fieldOf("type").forGetter(TraderData::getType),
+            Codec.LONG.fieldOf("id").forGetter(TraderData::getID),
+            TraderNode.SET_CODEC.fieldOf("nodes").forGetter(TraderData::getNodes)
     ).apply(builder,TraderData::new));
 
     //Trader Source Implementation
@@ -125,6 +128,21 @@ public final class TraderData extends IRegistryAccess.WithHolder implements ISid
         }
         //LightmansCurrency.LogDebug(player.getName().getString() + " is now tracking Trader #" + this.id + " at level " + level + " (Key: " + result.key() + ")");
         return result.key();
+    }
+
+    /**
+     * Called by the Trader Data cache after a persistent trader is reloaded from file to full re-sync any changed data
+     * to any players that were already tracking this persistent trader.
+     * @param players A list of all players on the server
+     * @param data The Trader Data Cache through which to send the packets
+     */
+    @ApiStatus.Internal
+    public void resendFullPackets(List<Player> players,TraderDataCache data) {
+        for(Player player : players) {
+            ISyncingContext context = this.trackingData.getContext(player);
+            if(!context.getCustomerSet().isEmpty())
+                data.sendTraderPacket(player,this,this.fullSyncPacket(context));
+        }
     }
 
     public long requestSpecialTracking(Player player,TrackingLevel level,UUID target)
@@ -235,18 +253,20 @@ public final class TraderData extends IRegistryAccess.WithHolder implements ISid
     public void handleSyncPacket(FancyPacketMap packet)
     {
         //Never process a sync packet on the logical server
-        if(this.isServer())
+        if(this.isServer()) {
+            LightmansCurrency.LogWarning("Received a sync packet on the logical server!",new Throwable());
             return;
+        }
+
         //LightmansCurrency.LogDebug("Processing sync packet:\n" + packet);
-        CodecInteractionHelper<JsonElement> encoder = CodecInteractionHelper.createJson(this.registryAccess());
         for(String key : packet.keySet())
         {
             try {
-                TraderNodeType<?> type = LCRegistries.Trader.TRADER_NODE_TYPE.getValue(Identifier.parse(key));
+                TraderNodeType<?> type = TraderNode.parseTypeString(key);
                 if(type != null && this.nodes.get(type) instanceof ISyncingNode sn)
                     sn.onDataSync(packet.getMap(key));
                 else
-                    LightmansCurrency.LogDebug("Missing " + key + " node on the logical client!");
+                    LightmansCurrency.LogDebug("Missing " + key + " node on the logical client!\nTrader ID: " + this.id + "\nTrader Type: " + this.type);
             } catch (IdentifierException ignored) {}
         }
     }
@@ -314,11 +334,8 @@ public final class TraderData extends IRegistryAccess.WithHolder implements ISid
     {
         if(this.isClient() || !this.initialized)
             return;
-        if(node != null)
-        {
-            this.changedNodes.add(node.getType());
-            this.trackingData.afterNodeChanged(node);
-        }
+        this.changedNodes.add(node.getType());
+        this.trackingData.afterNodeChanged(node);
         TraderDataCache.TYPE.get(ISidedContext.LOGICAL_SERVER).setTraderChanged(this);
     }
 
@@ -359,13 +376,14 @@ public final class TraderData extends IRegistryAccess.WithHolder implements ISid
     //Interface Implementations
     @Override
     public IOwnerHolder getOwner() {
+        Optional<IOwnerHolder> owner = Optional.empty();
         for(IOwnerSource node : this.getNodes(IOwnerSource.class))
         {
-            Optional<IOwnerHolder> owner = node.getValidOwner();
-            if(owner.isPresent())
-                return owner.get();
+            owner = node.getValidOwner(owner);
         }
-        return new OwnerHolder(this);
+        if(owner.isPresent())
+            return owner.get();
+        return new SimpleOwnerHolder(this);
     }
 
     public boolean isPermissionBlocked(Permission<?> permission)
@@ -384,7 +402,7 @@ public final class TraderData extends IRegistryAccess.WithHolder implements ISid
         //Ignore if the permission is blocked
         if(this.isPermissionBlocked(permission))
             return permission.getEmpty();
-        //Force to max value if the player is an admin
+        //Force to maxUses value if the player is an admin
         if(LCApi.isInAdminMode(player))
             return permission.getMaxValue();
         //Otherwise get the value from the PR

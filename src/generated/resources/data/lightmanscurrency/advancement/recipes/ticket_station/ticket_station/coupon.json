@@ -1,0 +1,54 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "lightmanscurrency:ticket_station/coupon"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "material": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:ticket_material/paper"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "ticket_station": {
+      "conditions": {
+        "items": [
+          {
+            "items": "lightmanscurrency:ticket_station"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "trader": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#lightmanscurrency:traders"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "ticket_station",
+      "material",
+      "trader"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "lightmanscurrency:ticket_station/coupon"
+    ]
+  }
+}

@@ -91,7 +91,7 @@ public class DemandPricing extends PriceModifyingTradeRule {
     public IconData getIcon() { return SpriteIcon.of(LCApi.id("icon/demand_pricing")); }
 
     @Override
-    protected boolean allowHolder(TradeRuleHolder holder) { return super.allowHolder(holder) && holder.isSingleTrade(); }
+    protected boolean requiresSingleTrade() { return true; }
 
     @Override
     protected boolean canActivate(TradeRuleHolder holder) {

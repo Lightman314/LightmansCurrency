@@ -5,7 +5,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.api.LCTags;
 import io.github.lightman314.lightmanscurrency.api.helpers.ExtractionResults;
-import io.github.lightman314.lightmanscurrency.api.helpers.ItemHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.ListHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.ResourceHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
@@ -20,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeFailedExcep
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeResult;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeData;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeDirection;
+import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.ITradeInteractionHandler;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.TradeEditContext;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.TradeSlot;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePrice;
@@ -27,9 +27,9 @@ import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.Trade
 import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.BuiltInResourceTypes;
 import io.github.lightman314.lightmanscurrency.features.trader.item.TradeItem;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IItemStorageFilter;
+import io.github.lightman314.lightmanscurrency.features.trader.item.requirements.ItemRequirement;
 import io.github.lightman314.lightmanscurrency.features.trader.item.trade.ItemTradeData;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
@@ -53,7 +53,7 @@ public class ItemPrice extends TradePrice implements IItemStorageFilter, ISearch
 
     public static final TradePriceType<ItemPrice> TYPE = new TradePriceType<>(MAP_CODEC,STREAM_CODEC,ItemPrice::new);
 
-    public static final TextEntry OPTION_NAME = TextEntry.priceOption(ItemPrice.TYPE);
+    public static final TextEntry OPTION_NAME = TextEntry.priceOption(TYPE);
 
     private final ImmutableList<TradeItem> items = TradeItem.createList(2);
     private boolean invalidSlot(int slot) { return slot < 0 || slot >= 2; }
@@ -85,14 +85,14 @@ public class ItemPrice extends TradePrice implements IItemStorageFilter, ISearch
      * @see io.github.lightman314.lightmanscurrency.features.trader.item.nodes.AbstractItemTradesNode#transferItemsFromCustomerToTrader(ItemTradeData, ResourceHandler, ResourceHandler, TradeContext) Item Trade Equivalent
      */
     @Override
-    public TransferResult transferFromCustomerToTrader(TradeContext context) throws TradeFailedException {
-        List<TradeItem> items = TradeItem.combineMatching(this.items);
+    protected TransferResult transferFromCustomerToTrader(TradeContext context) throws TradeFailedException {
+        List<ItemRequirement> items = TradeItem.asRequirements(this.items);
         if(items.isEmpty())
             throw new TradeFailedException(TradeResult.FAIL_INVALID_TRADE);
         List<ItemStack> product = new ArrayList<>();
         ResourceHandler<ItemResource> customerStorage = context.getCustomerResource(BuiltInResourceTypes.ITEM);
         ResourceHandler<ItemResource> traderStorage = context.getTraderResource(BuiltInResourceTypes.ITEM);
-        for(TradeItem item : items)
+        for(ItemRequirement item : items)
         {
             //Extract the items from the customer
             //Use extract first so that the customer isn't surprised by the trader taking unexpected items
@@ -121,7 +121,7 @@ public class ItemPrice extends TradePrice implements IItemStorageFilter, ISearch
     }
 
     @Override
-    public TransferResult transferFromTraderToCustomer(TradeContext context) {
+    protected TransferResult transferFromTraderToCustomer(TradeContext context) {
         //We do not support Item Price transfers from trader to customer
         return TransferResult.FAILED_TO_TAKE;
     }
@@ -130,14 +130,14 @@ public class ItemPrice extends TradePrice implements IItemStorageFilter, ISearch
     public long getAvailableStock(TradeContext context) {
         if(IAdminSettingProvider.hasInfiniteStock(context.getTrader()))
             return Long.MAX_VALUE;
-        List<TradeItem> combinedItems = TradeItem.combineMatching(this.items);
+        List<ItemRequirement> combinedItems = TradeItem.asRequirements(this.items);
         if(combinedItems.isEmpty())
             return 0;
         long minStock = Long.MAX_VALUE;
         ResourceHandler<ItemResource> itemHandler = context.getTraderResource(BuiltInResourceTypes.ITEM);
         try(Transaction tx = Transaction.open(context.getTransaction()))
         {
-            for(TradeItem requirement : combinedItems)
+            for(ItemRequirement requirement : combinedItems)
             {
                 ExtractionResults<ItemResource> results = ResourceHelper.extractFirstToTarget(itemHandler,requirement,Integer.MAX_VALUE,tx);
                 long rStock = results.totalCount() / requirement.getCount();
@@ -149,13 +149,13 @@ public class ItemPrice extends TradePrice implements IItemStorageFilter, ISearch
 
     @Override
     public boolean showOutOfSpaceWarning(TradeContext context) {
-        List<TradeItem> items = TradeItem.combineMatching(this.items);
+        List<ItemRequirement> items = TradeItem.asRequirements(this.items);
         if(items.isEmpty())
             return false;
         try(Transaction tx = Transaction.open(context.getTransaction())) {
             ResourceHandler<ItemResource> customerItems = context.getCustomerResource(BuiltInResourceTypes.ITEM);
             List<ResourceStack<ItemResource>> queryItems = new ArrayList<>();
-            for(TradeItem item : items) {
+            for(ItemRequirement item : items) {
                 ExtractionResults<ItemResource> results = ResourceHelper.extractFirstToTarget(customerItems,item,item.getCount(),tx);
                 if(results.totalCount() != item.getCount()) {
                     //Extract the results manually
@@ -177,12 +177,12 @@ public class ItemPrice extends TradePrice implements IItemStorageFilter, ISearch
 
     @Override
     public boolean showCannotAffordWarning(TradeContext context) {
-        List<TradeItem> items = TradeItem.combineMatching(this.items);
+        List<ItemRequirement> items = TradeItem.asRequirements(this.items);
         if(items.isEmpty())
             return false;
         try(Transaction tx = Transaction.open(context.getTransaction())) {
             ResourceHandler<ItemResource> customerItems = context.getCustomerResource(BuiltInResourceTypes.ITEM);
-            for(TradeItem item : items) {
+            for(ItemRequirement item : items) {
                 ExtractionResults<ItemResource> results = ResourceHelper.extractFirstToTarget(customerItems,item,item.getCount(),tx);
                 if(results.totalCount() != item.getCount())
                     return true;
@@ -190,6 +190,9 @@ public class ItemPrice extends TradePrice implements IItemStorageFilter, ISearch
         }
         return false;
     }
+
+    @Override
+    public boolean supportsModification() { return false; }
 
     @Override
     public TradePrice percentageOfValue(int percentage) { return this; }
@@ -203,15 +206,16 @@ public class ItemPrice extends TradePrice implements IItemStorageFilter, ISearch
         TradeItem item = this.getItem(itemSlot);
         if(context.hasShiftDown() || (item.isEmpty() && heldItem.isEmpty()))
         {
-            if(context.handler().isSimpleEdit())
+            ITradeInteractionHandler handler = context.handler();
+            if(handler.isSimpleEdit())
             {
                 //Open the advanced edit menu
-                context.handler().openAdvancedEdit(trade,slot);
+                handler.openAdvancedEdit(trade,slot);
             }
-            if(context.handler().isAdvancedEdit() && !context.handler().isSelected(slot))
+            if(handler.isAdvancedEdit() && !handler.isSelected(slot))
             {
                 //If this item slot isn't currently selected, change to the selection
-                context.handler().changeSelection(slot);
+                handler.changeSelection(slot);
             }
             return true;
         }
@@ -271,11 +275,6 @@ public class ItemPrice extends TradePrice implements IItemStorageFilter, ISearch
             item.setStrict(packet.getBoolean("setStrict"));
             this.setChanged();
         }
-    }
-
-    @Override
-    public Component getNotificationText() {
-        return ItemHelper.formatItemNames(this.items.stream().map(TradeItem::getStack).toList());
     }
 
     @Override

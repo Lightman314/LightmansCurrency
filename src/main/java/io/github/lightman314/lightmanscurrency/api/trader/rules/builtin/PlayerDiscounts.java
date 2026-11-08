@@ -13,14 +13,13 @@ import io.github.lightman314.lightmanscurrency.api.icon.builtin.MultiIcon;
 import io.github.lightman314.lightmanscurrency.api.icon.builtin.SpriteIcon;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.event.TradeEvent;
+import io.github.lightman314.lightmanscurrency.api.trader.persistent.PersistentDataException;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.IPersistentRule;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.PriceModifyingTradeRule;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.core.LCItems;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
-import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCIconTypes;
-import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
@@ -140,6 +139,22 @@ public class PlayerDiscounts extends PriceModifyingTradeRule implements IPersist
     public void decodeSettings(ValueInput data) {
         this.playerList.copyFrom(data.read("players", PlayerReferenceList.CODEC).orElse(new PlayerReferenceList()),true);
         this.setDiscount(data.getIntOr("discount",10));
+    }
+
+    @Override
+    public void writePersistentData(ValueOutput output) throws PersistentDataException {
+        output.putInt("discount",this.discount);
+        output.store("players",PlayerReferenceList.CODEC,this.playerList);
+    }
+
+    @Override
+    public void loadPersistentData(ValueInput input) throws PersistentDataException {
+        this.discount = input.getInt("discount").orElseThrow(() -> new PersistentDataException("Missing discount field!"));
+        this.playerList.copyFrom(input.read("playerList",PlayerReferenceList.CODEC).orElseThrow(() -> new PersistentDataException("Missing playerList field!")),false);
+        if(this.playerList.isEmpty())
+            throw new PersistentDataException("Cannot have an empty player list!");
+        if(this.discount <= 0 || this.discount > 100)
+            throw new PersistentDataException("Discount must be between 1 and 100");
     }
 
 }

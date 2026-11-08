@@ -44,6 +44,7 @@ import net.minecraft.world.entity.player.PlayerModelType;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
@@ -56,7 +57,7 @@ import org.lwjgl.glfw.GLFW;
 
 import java.util.function.BooleanSupplier;
 
-@EventBusSubscriber
+@EventBusSubscriber(Dist.CLIENT)
 public final class WalletClientEvents {
     private WalletClientEvents() {}
 

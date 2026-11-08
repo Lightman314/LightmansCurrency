@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.api.trader.world.menu.customer;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ITickerServer;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
@@ -15,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.tracking.TrackingLevel
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeCustomer;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeIndexes;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeResult;
+import io.github.lightman314.lightmanscurrency.api.trader.world.menu.terminal.TradingTerminalMenu;
 import io.github.lightman314.lightmanscurrency.api.world.menu.MessageMenu;
 import io.github.lightman314.lightmanscurrency.api.world.menu.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
@@ -103,8 +103,11 @@ public abstract class AbstractCustomerMenu extends MessageMenu.Validated impleme
             this.sendToServer(FancyPacketMap.flag("OpenTerminal"));
             return;
         }
-        //TODO actually open the terminal menu
-        LightmansCurrency.LogDebug("Not yet implemented");
+        //Ignore if we weren't actually accessed through the terminal
+        if(!this.getValidator().isNetworkAccess())
+            return;
+        //Open the Terminal Menu
+        this.getPlayer().openMenu(TradingTerminalMenu.createProvider(this.getValidator()));
     }
 
     @Override
@@ -120,8 +123,8 @@ public abstract class AbstractCustomerMenu extends MessageMenu.Validated impleme
         if(t == null)
             return;
         TradeResult result = t.attemptTrade(this.getContext(t),location.nodeIndex(),location.tradeIndex());
-        if(result.isFailure()) //Log the failure
-            LightmansCurrency.LogDebug("Trade Failed: " + result.getMessage().getString());
+        //if(result.isFailure()) //Log the failure
+        //    LightmansCurrency.LogDebug("Trade Failed: " + result.getMessage().getString());
     }
 
     @Override

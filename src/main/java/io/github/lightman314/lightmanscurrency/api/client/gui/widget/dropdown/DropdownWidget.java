@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.positioner.WidgetPositioner;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.scrolling.ScrollArea;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.scrolling.VerticalScrollBar;
+import io.github.lightman314.lightmanscurrency.api.helpers.ListHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntryBundle;
@@ -107,12 +108,13 @@ public class DropdownWidget extends AbstractMultiWidget.EarlyChildren implements
         gui.blitSprite(this.arrowSprite,area.width - arrowWidth,0,this.getFGColor(),this.active,this.isHovered);
 
         //Draw the option
-        DropdownOption option = this.options.get(this.currentlySelected);
-        extractOption(gui,area,option,arrowWidth);
+        extractOption(gui,area,ListHelper.getOrNull(this.options,this.currentlySelected),arrowWidth);
 
     }
 
-    public static void extractOption(FancyGuiExtractor gui,ScreenArea area,DropdownOption option,int rightSpacing) {
+    public static void extractOption(FancyGuiExtractor gui,ScreenArea area,@Nullable DropdownOption option,int rightSpacing) {
+        if(option == null)
+            return;
         //Draw the option sprite
         int textX = 2;
         if(option.icon() != null)

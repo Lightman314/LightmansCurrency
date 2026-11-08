@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "lightmanscurrency:item/ticket",
+    "layer1": "lightmanscurrency:item/ticket_overlay"
+  }
+}

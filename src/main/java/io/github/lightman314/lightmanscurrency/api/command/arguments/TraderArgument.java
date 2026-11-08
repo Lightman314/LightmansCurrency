@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.api.helpers.NumberHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.PersistentDataNode;
 import io.github.lightman314.lightmanscurrency.features.api_impl.data.TraderDataCache;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -81,9 +82,11 @@ public class TraderArgument implements ArgumentType<TraderData> {
             if(!this.filter.onlyRecoverableTraders() || t.getState().allowRecovery)
             {
                 this.trySuggest(builder,String.valueOf(t.getID()));
-                if(this.filter.allowPersistentIDs())
+                if(this.filter.allowPersistentIDs() && t.hasNode(PersistentDataNode.TYPE))
                 {
-                    //TODO get persistent node suggest that as well
+                    PersistentDataNode node = t.getNode(PersistentDataNode.TYPE);
+                    if(node.isPersistent())
+                        this.trySuggest(builder,node.getPersistentKey());
                 }
             }
         }

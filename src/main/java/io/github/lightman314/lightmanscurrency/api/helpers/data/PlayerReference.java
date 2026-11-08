@@ -11,7 +11,6 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.client.ClientPlayerNameCache;
 import io.github.lightman314.lightmanscurrency.api.helpers.ItemHelper;
@@ -34,7 +33,7 @@ import javax.annotation.Nullable;
 public class PlayerReference {
 
     public static final Codec<PlayerReference> CODEC = RecordCodecBuilder.create(builder -> builder.group(
-                    UUIDUtil.CODEC.fieldOf("id").forGetter(pr -> pr.id),
+                    UUIDUtil.LENIENT_CODEC.fieldOf("id").forGetter(pr -> pr.id),
                     Codec.STRING.fieldOf("name").forGetter(pr -> pr.getName(ISidedContext.LOGICAL_SERVER)),
                     Codec.BOOL.optionalFieldOf("forcedname",false).forGetter(pr -> pr.forceName)
             ).apply(builder,PlayerReference::new));
@@ -66,8 +65,8 @@ public class PlayerReference {
     public static final TextEntry TOOLTIP_REMOVE_PLAYER = TextEntry.tooltip(LCApi.MODID,"player.remove");
 
     public final UUID id;
-    private boolean forceName;
-    private final String name;
+    private final boolean forceName;
+    private String name;
     public String getName(boolean isClient) { return this.getName(ISidedContext.known(isClient)); }
     public String getName(ISidedContext context)
     {
@@ -80,10 +79,10 @@ public class PlayerReference {
         }
         else
         {
-            String n = getPlayerName(this.id);
-            if(n == null || n.isBlank())
-                return this.name;
-            return n;
+            String n = UsernameCache.getLastKnownUsername(this.id);
+            if(n != null && !n.isBlank())
+                this.name = n;
+            return this.name;
         }
     }
     public Component getNameComponent(ISidedContext context) { return Component.literal(this.getName(context)); }
@@ -94,16 +93,13 @@ public class PlayerReference {
         this.name = Objects.requireNonNull(name);
         this.forceName = forceName;
     }
-    private PlayerReference(UUID playerID, String name) { this(playerID,name,false); }
+    private PlayerReference(UUID playerID,String name) { this(playerID,name,false); }
 
     /**
      * Used to run an action/interaction under a team's name.
      */
-    public PlayerReference copyWithName(String name) {
-        PlayerReference copy = new PlayerReference(this.id, name);
-        copy.forceName = true;
-        return copy;
-    }
+    public PlayerReference copyWithName(String name) { return new PlayerReference(this.id, name,true); }
+
 
     public boolean is(PlayerReference player) { return is(player.id); }
 
@@ -154,9 +150,21 @@ public class PlayerReference {
             //LightmansCurrency.LogWarning("Attempted to assemble a player reference from name alone on a client. Should not be doing that.");
             return null;
         }
-        UUID playerID = getPlayerID(playerName);
-        if(playerID != null)
-            return of(playerID, playerName);
+        else {
+            UUID playerID = null;
+            for(Entry<UUID,String> entry : UsernameCache.getMap().entrySet())
+            {
+                if(entry.getValue().equalsIgnoreCase(playerName))
+                    return of(playerID,playerName);
+            }
+            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+            if(server != null)
+            {
+                GameProfile profile = server.services().profileResolver().fetchByName(playerName).orElse(null);
+                if(profile != null)
+                    return of(profile.id(),profile.name());
+            }
+        }
         return null;
     }
 
@@ -198,51 +206,6 @@ public class PlayerReference {
             }
         }
         return false;
-    }
-
-    /**
-     * Only run on server.
-     */
-    @Nullable
-    public static String getPlayerName(UUID playerID)
-    {
-        try {
-            String name = UsernameCache.getLastKnownUsername(playerID);
-            if(name != null)
-                return name;
-            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-            if(server != null)
-            {
-                GameProfile profile = server.services().profileResolver().fetchById(playerID).orElse(null);
-                if(profile != null)
-                    return profile.name();
-            }
-        } catch(Throwable t) { LightmansCurrency.LogError("Error getting player name.", t); }
-        return null;
-    }
-
-    /**
-     * Only run on server.
-     */
-    @Nullable
-    public static UUID getPlayerID(String playerName)
-    {
-        try {
-            for(Entry<UUID,String> entry : UsernameCache.getMap().entrySet())
-            {
-                if(entry.getValue().equalsIgnoreCase(playerName))
-                    return entry.getKey();
-            }
-            MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
-            if(server != null)
-            {
-                GameProfile profile = server.services().profileResolver().fetchByName(playerName).orElse(null);
-                if(profile != null)
-                    return profile.id();
-            }
-
-        } catch(Throwable t) { LightmansCurrency.LogError("Error getting player ID from name.", t); }
-        return null;
     }
 
     @Override

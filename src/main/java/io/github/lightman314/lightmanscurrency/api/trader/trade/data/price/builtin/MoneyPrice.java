@@ -15,11 +15,11 @@ import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.Trade
 import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.BuiltInResourceTypes;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 public class MoneyPrice extends TradePrice {
 
@@ -48,60 +48,54 @@ public class MoneyPrice extends TradePrice {
     public boolean isValid() { return this.price.isValidPrice(); }
 
     @Override
-    public TransferResult transferFromCustomerToTrader(TradeContext context) {
+    protected TransferResult transferFromCustomerToTrader(TradeContext context) {
         //If this is free, nothing to do
         if(this.isFree())
             return TransferResult.SUCCESS;
-        try(Transaction tx = Transaction.open(context.getTransaction()))
-        {
-            //Take from the customer
-            MoneyResourceHandler handler = context.getCustomerResource(BuiltInResourceTypes.MONEY);
-            MoneyValue taken = handler.extract(this.price,tx);
-            if(!taken.equals(this.price))
-                return TransferResult.FAILED_TO_TAKE;
-            //TODO pay taxes
-            MoneyValue taxesPaid = MoneyValue.empty();
-            MoneyValue toStore = this.price;
-            //If we shouldn't store the result in the trader, then we don't need to actually store the money into the trader
-            if(!this.shouldStoreInTrader(context))
-                return TransferResult.taxedSuccess(new MoneyReceipt(this.price),taxesPaid);
-            handler = context.getTraderResource(BuiltInResourceTypes.MONEY);
-            MoneyValue inserted = handler.insert(toStore,tx);
-            if(!inserted.equals(toStore))
-                return TransferResult.FAILED_TO_GIVE;
-            //Commit the sub-transaction
-            tx.commit();
+        TransactionContext transaction = context.getTransaction();
+        //Take from the customer
+        MoneyResourceHandler handler = context.getCustomerResource(BuiltInResourceTypes.MONEY);
+        MoneyValue taken = handler.extract(this.price,transaction);
+        if(!taken.equals(this.price))
+            return TransferResult.FAILED_TO_TAKE;
+        //TODO pay taxes
+        MoneyValue taxesPaid = MoneyValue.empty();
+        MoneyValue toStore = this.price;
+        //If we shouldn't store the result in the trader, then we don't need to actually store the money into the trader
+        if(!this.shouldStoreInTrader(context))
             return TransferResult.taxedSuccess(new MoneyReceipt(this.price),taxesPaid);
-        }
+        handler = context.getTraderResource(BuiltInResourceTypes.MONEY);
+        MoneyValue inserted = handler.insert(toStore,transaction);
+        if(!inserted.equals(toStore))
+            return TransferResult.FAILED_TO_GIVE;
+        //Commit the sub-transaction
+        return TransferResult.taxedSuccess(new MoneyReceipt(this.price),taxesPaid);
     }
 
     @Override
-    public TransferResult transferFromTraderToCustomer(TradeContext context) {
+    protected TransferResult transferFromTraderToCustomer(TradeContext context) {
         //If this is free, nothing to do
         if(this.isFree())
             return TransferResult.SUCCESS;
-        try(Transaction tx = Transaction.open(context.getTransaction()))
+        TransactionContext transaction = context.getTransaction();
+        //Take from the trader
+        //TODO pay taxes
+        MoneyValue taxesPaid = MoneyValue.empty();
+        MoneyValue toTake = this.price;
+        if(!this.hasInfiniteStock(context))
         {
-            //Take from the trader
-            //TODO pay taxes
-            MoneyValue taxesPaid = MoneyValue.empty();
-            MoneyValue toTake = this.price;
-            if(!this.hasInfiniteStock(context))
-            {
-                MoneyResourceHandler handler = context.getTraderResource(BuiltInResourceTypes.MONEY);
-                MoneyValue taken = handler.extract(toTake,tx);
-                if(!taken.equals(toTake))
-                    return TransferResult.FAILED_TO_TAKE;
-            }
-            //Now give to the player
-            MoneyResourceHandler handler = context.getCustomerResource(BuiltInResourceTypes.MONEY);
-            MoneyValue inserted = handler.insert(this.price,tx);
-            if(!inserted.equals(this.price))
-                return TransferResult.FAILED_TO_GIVE;
-            //Commit the sub-transaction
-            tx.commit();
-            return TransferResult.taxedSuccess(new MoneyReceipt(this.price),taxesPaid);
+            MoneyResourceHandler handler = context.getTraderResource(BuiltInResourceTypes.MONEY);
+            MoneyValue taken = handler.extract(toTake,transaction);
+            if(!taken.equals(toTake))
+                return TransferResult.FAILED_TO_TAKE;
         }
+        //Now give to the player
+        MoneyResourceHandler handler = context.getCustomerResource(BuiltInResourceTypes.MONEY);
+        MoneyValue inserted = handler.insert(this.price,transaction);
+        if(!inserted.equals(this.price))
+            return TransferResult.FAILED_TO_GIVE;
+        //Commit the sub-transaction
+        return TransferResult.taxedSuccess(new MoneyReceipt(this.price),taxesPaid);
     }
 
     @Override
@@ -137,6 +131,8 @@ public class MoneyPrice extends TradePrice {
     @Override
     public boolean isFree() { return this.price.isFree(); }
     @Override
+    public boolean supportsModification() { return !this.price.isEmpty(); }
+    @Override
     public TradePrice percentageOfValue(int percentage) { return new MoneyPrice(this.price.percentageOfValue(percentage)); }
 
     @Override
@@ -147,9 +143,6 @@ public class MoneyPrice extends TradePrice {
             this.setChanged();
         }
     }
-
-    @Override
-    public Component getNotificationText() { return this.price.getText(); }
 
     @Override
     public boolean onClickInteraction(Player player,TradeData trade,TradeSlot slot,int button,ItemStack heldItem,TradeEditContext context) {

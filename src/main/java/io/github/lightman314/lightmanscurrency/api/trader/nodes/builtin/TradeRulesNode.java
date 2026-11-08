@@ -5,13 +5,12 @@ import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IPersistentNode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.ISettingsStorageIONode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IStorageMenuTabProvider;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.PlayerSyncedTraderNode;
-import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRule;
-import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleHolder;
-import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleSettingsWrapper;
-import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleType;
+import io.github.lightman314.lightmanscurrency.api.trader.persistent.PersistentDataException;
+import io.github.lightman314.lightmanscurrency.api.trader.rules.*;
 import io.github.lightman314.lightmanscurrency.api.trader.settings_storage.SettingsDisplayOutput;
 import io.github.lightman314.lightmanscurrency.api.trader.settings_storage.SettingsLoadContext;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
@@ -20,6 +19,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.bui
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import net.minecraft.IdentifierException;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
@@ -28,7 +28,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public final class TradeRulesNode extends PlayerSyncedTraderNode implements TradeRuleHolder, IStorageMenuTabProvider, ISettingsStorageIONode {
+public final class TradeRulesNode extends PlayerSyncedTraderNode implements TradeRuleHolder, IStorageMenuTabProvider, ISettingsStorageIONode, IPersistentNode {
 
     private static final MapCodec<TradeRulesNode> MAP_CODEC = TradeRule.SET_CODEC.fieldOf("rules")
             .xmap(TradeRulesNode::new,TradeRulesNode::getEncodingRuleData);
@@ -42,10 +42,11 @@ public final class TradeRulesNode extends PlayerSyncedTraderNode implements Trad
     @Override
     public Map<TradeRuleType<?>, TradeRule> getRuleData() { return Collections.unmodifiableMap(this.rules); }
 
+    @Override
+    public void removeUnusedRule(TradeRule rule) { this.rules.remove(rule.getType()); }
+
     private TradeRulesNode() {}
-    private TradeRulesNode(Map<TradeRuleType<?>,TradeRule> rules) {
-        this.rules.putAll(rules);
-    }
+    private TradeRulesNode(Map<TradeRuleType<?>,TradeRule> rules) { this.rules.putAll(rules); }
 
     @Override
     public void setRuleChanged(TradeRuleType<?> type, Consumer<FancyPacketMap.Mutable> writer, Predicate<ISyncingContext> filter) {
@@ -59,6 +60,9 @@ public final class TradeRulesNode extends PlayerSyncedTraderNode implements Trad
         //Attach the Rules
         TradeRule.attach(this.rules,this);
     }
+
+    @Override
+    public void validateRuleStates() { this.validateRuleStates(this.rules); }
 
     @Override
     public TraderNodeType<?> getType() { return TYPE; }
@@ -105,4 +109,23 @@ public final class TradeRulesNode extends PlayerSyncedTraderNode implements Trad
         this.buildWrapper().appendDisplay(data,output);
     }
 
+    @Override
+    public void writePersistentData(ValueOutput output,String nameOverride) throws PersistentDataException {
+        TradeRuleHolder.writePersistentRuleData(this,output);
+    }
+
+    @Override
+    public void readPersistentData(ValueInput input,ProblemReporter reporter) {
+        TradeRuleHolder.readPersistentRuleData(this,input,reporter);
+    }
+
+    @Override
+    public void writePersistentSaveData(ValueOutput output) {
+        TradeRuleHolder.writePersistentRuleSaveData(this,output);
+    }
+
+    @Override
+    public void readPersisentSaveData(ValueInput input) {
+        TradeRuleHolder.readPersistentRuleSaveData(this,input);
+    }
 }

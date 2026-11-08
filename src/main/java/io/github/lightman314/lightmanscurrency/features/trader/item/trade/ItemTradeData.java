@@ -12,7 +12,9 @@ import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMa
 import io.github.lightman314.lightmanscurrency.api.trader.filtering.FilterHelper;
 import io.github.lightman314.lightmanscurrency.api.trader.filtering.PendingSearch;
 import io.github.lightman314.lightmanscurrency.api.trader.filtering.interfaces.ISearchFilterTrade;
+import io.github.lightman314.lightmanscurrency.api.trader.persistent.PersistentDataException;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRule;
+import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleHolder;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleType;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeContext;
@@ -28,7 +30,9 @@ import io.github.lightman314.lightmanscurrency.api.trader.trade.settings.Setting
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPacketTypes;
 import io.github.lightman314.lightmanscurrency.features.trader.item.TradeItem;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IItemStorageFilter;
+import io.github.lightman314.lightmanscurrency.features.trader.item.requirements.ItemRequirement;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
@@ -39,6 +43,7 @@ import net.neoforged.neoforge.transfer.resource.ResourceStack;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -91,9 +96,8 @@ public class ItemTradeData extends TradeDataWithRules implements IItemStorageFil
             return TradeItem.create();
         return this.sellItems.get(slot);
     }
-    public List<TradeItem> getCombinedItems() {
-        return TradeItem.combineMatching(this.sellItems);
-    }
+    public List<TradeItem> getCombinedItems() { return TradeItem.combineMatching(this.sellItems); }
+    public List<ItemRequirement> getCombinedRequirements() { return TradeItem.asRequirements(this.sellItems); }
     public void setItem(int slot,ItemStack item) {
         if(this.invalidSlot(slot))
             return;
@@ -151,17 +155,17 @@ public class ItemTradeData extends TradeDataWithRules implements IItemStorageFil
 
     @Override
     public boolean showOutOfSpaceWarning(TradeContext context) {
-        List<TradeItem> items = this.getCombinedItems();
-        if(items.isEmpty())
+        List<ItemRequirement> requirements = this.getCombinedRequirements();
+        if(requirements.isEmpty())
             return false;
         try(Transaction tx = Transaction.open(context.getTransaction())) {
             ResourceHandler<ItemResource> customerItems = context.getCustomerResource(BuiltInResourceTypes.ITEM);
             List<ResourceStack<ItemResource>> queryItems = new ArrayList<>();
-            for(TradeItem item : items) {
-                ExtractionResults<ItemResource> results = ResourceHelper.extractFirstToTarget(customerItems,item,item.getCount(),tx);
-                if(results.totalCount() != item.getCount()) {
+            for(ItemRequirement requirement : requirements) {
+                ExtractionResults<ItemResource> results = ResourceHelper.extractFirstToTarget(customerItems,requirement,requirement.getCount(),tx);
+                if(results.totalCount() != requirement.getCount()) {
                     //Extract the results manually
-                    queryItems.add(item.getDummyStack());
+                    queryItems.add(requirement.getDummyStack());
                 }
                 else
                     queryItems.addAll(results.extracted());
@@ -178,11 +182,11 @@ public class ItemTradeData extends TradeDataWithRules implements IItemStorageFil
     }
 
     protected long calculateTradeStock(ResourceHandler<ItemResource> storage, Transaction transaction) {
-        List<TradeItem> items = this.getCombinedItems();
+        List<ItemRequirement> items = this.getCombinedRequirements();
         if(items.isEmpty())
             return 0;
         long minStock = Long.MAX_VALUE;
-        for(TradeItem item : items) {
+        for(ItemRequirement item : items) {
             long stock = ResourceHelper.getResourceCount(storage,item,transaction) / item.getCount();
             minStock = Math.min(minStock,stock);
         }
@@ -301,6 +305,56 @@ public class ItemTradeData extends TradeDataWithRules implements IItemStorageFil
         List<FilterHelper.ItemWithContext> itemList = this.sellItems.stream().map(FilterHelper.ItemWithContext::new).toList();
         search.processFilter(FilterHelper.ITEM,FilterHelper.filterItemsWithContext(itemList,this.registryAccess()));
         search.processFilter(FilterHelper.TOOLTIP,FilterHelper.filterItemTooltipsWithContext(itemList,this.registryAccess()));
+    }
+
+    @OverridingMethodsMustInvokeSuper
+    public void writePersistentData(ValueOutput output) throws PersistentDataException {
+        //Write Trade Rules
+        ValueOutput rules = output.child("rules");
+        TradeRuleHolder.writePersistentRuleData(this,rules);
+        if(rules.isEmpty())
+            output.discard("rules");
+        //Price
+        output.store("price",TradePrice.CODEC,this.getInternalPrice());
+        ValueOutput.TypedOutputList<TradeItem> sellItemList = output.list("sellItems",TradeItem.CODEC);
+        //Trade Items
+        for(TradeItem item : this.sellItems) {
+            if(item.isValid())
+                sellItemList.add(item);
+        }
+        if(sellItemList.isEmpty())
+            throw new PersistentDataException("Trade with no valid sell items cannot be written to a persistent trader!");
+    }
+
+    public void readPersistentData(ValueInput input,ProblemReporter reporter) throws PersistentDataException {
+        //Read Trade Rules
+        TradeRuleHolder.readPersistentRuleData(this,input.childOrEmpty("rules"),reporter.forChild(new ProblemReporter.FieldPathElement("rules")));
+        //Price
+        this.setPrice(input.read("price",TradePrice.CODEC).orElseThrow(() -> new PersistentDataException("Invalid trade price!")));
+        //Trade Items
+        List<TradeItem> temp = input.read("sellItems",TradeItem.LENIENT_LIST_CODEC).orElseThrow(() -> new PersistentDataException("Missing 'sellItems' entry!"));
+        int index = 0;
+        int entryIndex = 0;
+        for(TradeItem entry : temp) {
+            if(index < 2 && entry.isValid())
+                this.sellItems.get(index++).copyFrom(entry);
+            else
+                reporter.forChild(new ProblemReporter.IndexedFieldPathElement("sellItems",entryIndex)).report(new PersistentDataException("Item is empty!"));
+            entryIndex++;
+        }
+        if(index <= 0)
+            throw new PersistentDataException("No valid sellItems were given!");
+    }
+
+    public void writePersistentSaveData(ValueOutput output) {
+        ValueOutput rules = output.child("rules");
+        TradeRuleHolder.writePersistentRuleSaveData(this,rules);
+        if(rules.isEmpty())
+            output.discard("rules");
+    }
+
+    public void readPersistentSaveData(ValueInput input) {
+        TradeRuleHolder.readPersistentRuleSaveData(this,input.childOrEmpty("rules"));
     }
 
 }

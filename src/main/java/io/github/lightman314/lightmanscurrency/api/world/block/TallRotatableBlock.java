@@ -27,7 +27,7 @@ public class TallRotatableBlock extends RotatableBlock implements ITallBlock {
 
     private final BiFunction<Direction,Boolean,VoxelShape> shape;
 
-    public TallRotatableBlock(Properties properties) { this(properties, ShapeHelper.TALL_BOX); }
+    public TallRotatableBlock(Properties properties) { this(properties,ShapeHelper.TALL_BOX); }
     public TallRotatableBlock(Properties properties,VoxelShape shape) { this(properties, ShapeHelper.tallSingleShape(shape)); }
     public TallRotatableBlock(Properties properties,BiFunction<Direction,Boolean,VoxelShape> shape) {
         super(properties.pushReaction(PushReaction.BLOCK));

@@ -144,7 +144,6 @@ public final class StatisticsDataHolder implements StatHolder.Clearable {
                 if(entry != null) {
                     Identifier id = Identifier.parse(key);
                     this.data.put(id,entry);
-                    LightmansCurrency.LogDebug("Updated value of " + id + " with " + entry.getValueText().getString());
                 }
             } catch (IdentifierException ignored) { }
         }

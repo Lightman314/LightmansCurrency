@@ -74,6 +74,17 @@ public interface TraderAPI {
     TraderData getTrader(ISidedContext context,long traderID);
 
     /**
+     * Gets the {@link TraderData} with the given persistent trader id.
+     */
+    @Nullable
+    default TraderData getTrader(boolean isClient,String persistentTraderID) { return this.getTrader(ISidedContext.known(isClient),persistentTraderID); }
+    /**
+     * Gets the {@link TraderData} with the given persistent trader id.
+     */
+    @Nullable
+    TraderData getTrader(ISidedContext context,String persistentTraderID);
+
+    /**
      * Gets a list of all {@link TraderData} that exist
      * @param isClient Whether we wish to access the client-side data, or the server-side data.
      */

@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.LCCapabilities;
+import io.github.lightman314.lightmanscurrency.api.LCDataMapTypes;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.bank_account.BankAccount;
 import io.github.lightman314.lightmanscurrency.api.coins.data.ChainData;
@@ -14,6 +15,8 @@ import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ITickerCom
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ITickerServer;
 import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
+import io.github.lightman314.lightmanscurrency.features.tickets.TicketTradeResources;
+import io.github.lightman314.lightmanscurrency.api.trader.event.TraderEvent;
 import io.github.lightman314.lightmanscurrency.api.trader.world.block.TraderBlock;
 import io.github.lightman314.lightmanscurrency.api.world.block.interfaces.IProtectedBlock;
 import io.github.lightman314.lightmanscurrency.core.LCBlockEntities;
@@ -45,6 +48,7 @@ import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
+import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
 
 import java.util.List;
 import java.util.Map;
@@ -88,6 +92,14 @@ public final class CommonEventListeners {
         event.register(LCRegistries.Data.FANCY_DATA);
         event.register(LCRegistries.Data.STAT_TYPE);
         event.register(LCRegistries.Network.PACKET_TYPE);
+    }
+
+    /*@SubscribeEvent private static void addDatapackRegistries(DataPackRegistryEvent.NewRegistry event) {}*/
+
+    @SubscribeEvent
+    private static void registerDataMaps(RegisterDataMapTypesEvent event) {
+        event.register(LCDataMapTypes.MASTER_TICKET_SET);
+        event.register(LCDataMapTypes.TICKET_STUB);
     }
 
     @SubscribeEvent
@@ -167,6 +179,8 @@ public final class CommonEventListeners {
         beforeAll(event,LCDataComponents.STORED_TRADER);
         beforeAll(event,LCDataComponents.UPGRADE_TYPE);
         beforeAll(event,LCDataComponents.TRADER_POSITIONS);
+        beforeAll(event,LCDataComponents.TICKET_ID);
+        beforeAll(event,LCDataComponents.TICKET_USES);
         //Bonus Tooltip Last so that it is always truly "before all"
         beforeAll(event,LCDataComponents.BONUS_TOOLTIP);
 
@@ -194,7 +208,7 @@ public final class CommonEventListeners {
     @SubscribeEvent
     private static void syncRelevantRecipes(OnDatapackSyncEvent event) {
         //Sync for recipe-viewer purposes
-        event.sendRecipes(LCRecipeTypes.COIN_MINT.get());
+        event.sendRecipes(LCRecipeTypes.TICKET_STATION.get());
     }
 
     @SubscribeEvent
@@ -214,6 +228,12 @@ public final class CommonEventListeners {
             if(!block.canBreakBlock(player.level(),event.getState(),event.getPos(),player))
                 event.setCanceled(true);
         }
+    }
+
+    @SubscribeEvent
+    private static void addTicketWrappers(TraderEvent.TraderResourceWrapperEvent event) {
+        event.addResourceWrapper(TicketTradeResources.TICKET_WRAPPER);
+        event.addResourceWrapper(TicketTradeResources.COUPON_WRAPPER);
     }
 
 }

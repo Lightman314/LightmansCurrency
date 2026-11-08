@@ -1,8 +1,6 @@
 package io.github.lightman314.lightmanscurrency.features.trader.item_common;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
-import io.github.lightman314.lightmanscurrency.api.helpers.debug.DebugHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.UpgradeNode;
@@ -88,10 +86,8 @@ public class ItemStorageTab extends TraderStorageTab {
                     else
                         slot.setChanged();
                     transaction.commit();
-                    LightmansCurrency.LogDebug("Inserted " + debugStack + " via quick-move on the " + DebugHelper.sideName(this));
                 }
                 else {
-                    LightmansCurrency.LogDebug("Could not insert any of " + stack + " on the " + DebugHelper.sideName(this));
                     return Optional.empty();
                 }
             }

@@ -7,7 +7,9 @@ import io.github.lightman314.lightmanscurrency.api.helpers.ResourceHelper;
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.trader.TraderAdminSettings;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IInteractionSlotProvider;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IPersistentNode;
 import io.github.lightman314.lightmanscurrency.api.trader.notifications.categories.TraderCategory;
+import io.github.lightman314.lightmanscurrency.api.trader.persistent.PersistentDataException;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePriceReceipt;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.slot.CapabilitySlotData;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.slot.InteractionSlotData;
@@ -19,24 +21,28 @@ import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeResult;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeDirection;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePrice;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.BuiltInResourceTypes;
-import io.github.lightman314.lightmanscurrency.features.trader.item.TradeItem;
 import io.github.lightman314.lightmanscurrency.features.trader.item.menu.ItemTradeEditTab;
 import io.github.lightman314.lightmanscurrency.features.trader.item.notifications.ItemTradeNotification;
+import io.github.lightman314.lightmanscurrency.features.trader.item.requirements.ItemRequirement;
 import io.github.lightman314.lightmanscurrency.features.trader.item.trade.ItemTradeData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.resource.ResourceStack;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import org.apache.commons.lang3.mutable.MutableInt;
 
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 
-public abstract class AbstractItemTradesNode<T extends ItemTradeData> extends UpgradeableTradingNode<T> implements IInteractionSlotProvider {
+public abstract class AbstractItemTradesNode<T extends ItemTradeData> extends UpgradeableTradingNode<T> implements IInteractionSlotProvider, IPersistentNode {
 
     public static final Identifier TRADE_COUNT_ARG = LCApi.id("item_trade_count");
 
@@ -68,7 +74,7 @@ public abstract class AbstractItemTradesNode<T extends ItemTradeData> extends Up
         if(direction.isOther())
             return TradeResult.FAIL_INVALID_TRADE;
         //Transfer the trades price
-        TradePrice.TransferResult result = price.transferPrice(direction,context);
+        TradePrice.TransferResult result = price.transferPrice(direction,context,this,trade);
         if(!result.isSuccess())
             return TradeResult.FAIL_INVALID_TRADE;
         boolean hadStock = trade.predictHasStock(context.getTrader(),context.getTransaction());
@@ -91,12 +97,12 @@ public abstract class AbstractItemTradesNode<T extends ItemTradeData> extends Up
 
     //i.e. Item Transfer for sale trades
     protected List<ItemStack> transferItemsFromTraderToCustomer(T trade,ResourceHandler<ItemResource> traderStorage,ResourceHandler<ItemResource> customerStorage,TradeContext context) throws TradeFailedException {
-        List<TradeItem> items = trade.getCombinedItems();
-        if(items.isEmpty())
+        List<ItemRequirement> requirements = trade.getCombinedRequirements();
+        if(requirements.isEmpty())
             throw new TradeFailedException(TradeResult.FAIL_INVALID_TRADE);
         List<ItemStack> product = new ArrayList<>();
         TraderAdminSettings settings = context.getAdminSettings();
-        for(TradeItem item : items)
+        for(ItemRequirement item : requirements)
         {
             //Extract the items from the trader
             try(Transaction extractTransaction = Transaction.open(context.getTransaction())) {
@@ -132,12 +138,12 @@ public abstract class AbstractItemTradesNode<T extends ItemTradeData> extends Up
 
     //Item Transfer for purchase trades
     protected List<ItemStack> transferItemsFromCustomerToTrader(T trade,ResourceHandler<ItemResource> traderStorage,ResourceHandler<ItemResource> customerStorage,TradeContext context) throws TradeFailedException {
-        List<TradeItem> items = trade.getCombinedItems();
+        List<ItemRequirement> items = trade.getCombinedRequirements();
         if(items.isEmpty())
             throw new TradeFailedException(TradeResult.FAIL_INVALID_TRADE);
         List<ItemStack> product = new ArrayList<>();
         TraderAdminSettings settings = context.getAdminSettings();
-        for(TradeItem item : items)
+        for(ItemRequirement item : items)
         {
             //Extract the items from the customer
             //Use extract first so that the customer isn't surprised by the trader taking unexpected items
@@ -179,4 +185,72 @@ public abstract class AbstractItemTradesNode<T extends ItemTradeData> extends Up
     @Override
     public void addInteractionSlot(Consumer<InteractionSlotData> builder) { builder.accept(CapabilitySlotData.ITEMS); }
 
+    @Override
+    public void writePersistentData(ValueOutput output,String nameOverride) throws PersistentDataException {
+        ValueOutput.ValueOutputList tradeList = output.childrenList("trades");
+        for(T trade : this.getTrades()) {
+            if(trade.isCustomerReady()) {
+                try {
+                    ValueOutput tradeEntry = tradeList.addChild();
+                    trade.writePersistentData(tradeEntry);
+                    if(tradeEntry.isEmpty())
+                        tradeList.discardLast();
+                } catch (PersistentDataException ignored) {}
+            }
+        }
+        if(tradeList.isEmpty())
+            throw new PersistentDataException("Trader has no Item Trades!");
+    }
+
+    @Override
+    public void readPersistentData(ValueInput input,ProblemReporter reporter) throws PersistentDataException {
+        ValueInput.ValueInputList tradeList = input.childrenList("trades").orElseThrow(() -> new PersistentDataException("Missing 'trades' entry!"));
+        if(tradeList.isEmpty())
+            throw new PersistentDataException("Trader has no Item Trades!");
+        List<T> trades = this.getMutableTrades();
+        trades.clear();
+        MutableInt index = new MutableInt(0);
+        tradeList.stream().forEach(tradeEntry -> {
+            ProblemReporter entryReporter = reporter.forChild(new ProblemReporter.IndexedFieldPathElement("trades",index.intValue()));
+            try {
+                T newTrade = this.createNewTrade();
+                newTrade.validateRuleStates();
+                newTrade.readPersistentData(tradeEntry,entryReporter);
+                //Initialize the trade before check if it's customer ready
+                trades.add(newTrade);
+                newTrade.initialize(this);
+                //Confirm that the trade is customer ready
+                if(!newTrade.isCustomerReady()) {
+                    trades.remove(newTrade);
+                    throw new PersistentDataException("Trade is not customer ready!");
+                }
+            } catch (PersistentDataException e) {
+                entryReporter.report(e);
+            }
+        });
+        if(trades.isEmpty())
+            throw new PersistentDataException("Failed to parse any of the item trades!");
+        this.overrideBaseCount(trades.size());
+    }
+
+    @Override
+    public void writePersistentSaveData(ValueOutput output) {
+        ValueOutput.ValueOutputList tradeList = output.childrenList("trades");
+        for(T trade : this.getTrades()) {
+            ValueOutput tradeEntry = tradeList.addChild();
+            trade.writePersistentSaveData(tradeEntry);
+        }
+    }
+
+    @Override
+    public void readPersisentSaveData(ValueInput input) {
+        ValueInput.ValueInputList tradeList = input.childrenListOrEmpty("trades");
+        List<ValueInput> tradeInputs = tradeList.stream().toList();
+        for(int i = 0; i < this.getTradeCount(); ++i) {
+            if(i < tradeInputs.size()) {
+                T trade = this.getTrade(i);
+                trade.readPersistentSaveData(tradeInputs.get(i));
+            }
+        }
+    }
 }

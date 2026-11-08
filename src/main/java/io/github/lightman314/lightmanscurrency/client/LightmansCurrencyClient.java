@@ -54,6 +54,7 @@ import io.github.lightman314.lightmanscurrency.client.features.player_data.Playe
 import io.github.lightman314.lightmanscurrency.client.features.player_data.tabs.*;
 import io.github.lightman314.lightmanscurrency.client.features.resources.data.item_position.RotationHandler;
 import io.github.lightman314.lightmanscurrency.client.features.resources.data.item_position.rotation.*;
+import io.github.lightman314.lightmanscurrency.client.features.tickets.TicketPriceClient;
 import io.github.lightman314.lightmanscurrency.client.features.trader.item.ItemTradeEditClientTab;
 import io.github.lightman314.lightmanscurrency.client.features.trader.item.block_entity.*;
 import io.github.lightman314.lightmanscurrency.client.features.trader.item.nodes.ClientItemStorageNode;
@@ -63,6 +64,7 @@ import io.github.lightman314.lightmanscurrency.core.LCMenuTypes;
 import io.github.lightman314.lightmanscurrency.features.atm.tabs.*;
 import io.github.lightman314.lightmanscurrency.features.player_data.tabs.*;
 import io.github.lightman314.lightmanscurrency.features.player_data.tabs.PlayerStatsTab;
+import io.github.lightman314.lightmanscurrency.features.tickets.trader.TicketPrice;
 import io.github.lightman314.lightmanscurrency.features.trader.gacha.nodes.GachaStorageNode;
 import io.github.lightman314.lightmanscurrency.features.trader.item.menu.ItemTradeEditTab;
 import io.github.lightman314.lightmanscurrency.features.trader.item.trade.*;
@@ -133,6 +135,7 @@ public class LightmansCurrencyClient {
         //Register Trade Price Displays
         ClientTradePrice.REGISTRY.register(MoneyPrice.TYPE,MoneyPriceClient.INSTANCE);
         ClientTradePrice.REGISTRY.register(ItemPrice.TYPE,ItemPriceClient.INSTANCE);
+        ClientTradePrice.REGISTRY.register(TicketPrice.TYPE,TicketPriceClient.INSTANCE);
 
         //Register Client Permissions
         ClientPermission.REGISTRY.register(BooleanPermissionType.INSTANCE,ClientBooleanPermission.INSTANCE);
@@ -149,6 +152,7 @@ public class LightmansCurrencyClient {
         ClientTraderNode.REGISTRY.register(GachaStorageNode.TYPE,ClientItemStorageNode.INSTANCE);
         ClientTraderNode.REGISTRY.register(AdminSettingsNode.TYPE,ClientAdminSettingsNode.INSTANCE);
         ClientTraderNode.REGISTRY.register(AlliesNode.TYPE,ClientAlliesNode.INSTANCE);
+        ClientTraderNode.REGISTRY.register(PersistentDataNode.TYPE,ClientPersistentDataNode.INSTANCE);
 
         //Register Money Price Displays
         ClientMoneyValueType.REGISTRY.register(CoinValue.TYPE,ClientCoinType.INSTANCE);

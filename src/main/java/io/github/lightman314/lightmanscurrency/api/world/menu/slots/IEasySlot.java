@@ -18,6 +18,8 @@ public interface IEasySlot {
     boolean isLocked();
     void setLocked(boolean locked);
 
+    void setBackground(List<Identifier> background);
+
     static void setActive(AbstractContainerMenu menu,boolean active) { setActive(menu,Predicates.alwaysTrue(),active); }
     static void setActive(AbstractContainerMenu menu, Predicate<IEasySlot> filter,boolean active) { setActive(menu.slots,filter,active); }
     static void setActive(List<Slot> slots,boolean active) { setActive(slots,Predicates.alwaysTrue(),active); }

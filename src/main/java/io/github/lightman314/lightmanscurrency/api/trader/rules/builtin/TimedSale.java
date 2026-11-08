@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.api.icon.IconData;
 import io.github.lightman314.lightmanscurrency.api.icon.builtin.ItemIcon;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.event.TradeEvent;
+import io.github.lightman314.lightmanscurrency.api.trader.persistent.PersistentDataException;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.IPersistentRule;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.PriceModifyingTradeRule;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleType;
@@ -175,6 +176,32 @@ public class TimedSale extends PriceModifyingTradeRule implements IPersistentRul
         this.setStartTime(0);
         this.setDuration(data.getLongOr("duration",TimeHelper.DURATION_DAY));
         this.setDiscount(data.getIntOr("discount",10));
+    }
+
+    @Override
+    public void writePersistentData(ValueOutput output) throws PersistentDataException {
+        output.putLong("duration",this.duration);
+        output.putInt("discount",this.discount);
+    }
+
+    @Override
+    public void loadPersistentData(ValueInput input) throws PersistentDataException {
+        this.duration = input.getLong("duration").orElseThrow(() -> new PersistentDataException("Missing duration field!"));
+        this.discount = input.getInt("discount").orElseThrow(() -> new PersistentDataException("Missing discount field!"));
+        if(this.duration < TimeHelper.DURATION_MINUTE)
+            throw new PersistentDataException("Duration must be at least 1 minute (" + TimeHelper.DURATION_MINUTE + ")");
+        if(this.discount < 1 || this.discount > 100)
+            throw new PersistentDataException("Discount must be between 1 and 100");
+    }
+
+    @Override
+    public void writePersistentSaveData(ValueOutput ouput) {
+        ouput.putLong("startTime",this.startTime);
+    }
+
+    @Override
+    public void readPersisentSaveData(ValueInput input) {
+        this.startTime = input.getLongOr("startTime",0);
     }
 
 }

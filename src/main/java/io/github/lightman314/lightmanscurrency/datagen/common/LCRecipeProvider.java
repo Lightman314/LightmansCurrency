@@ -13,8 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.helpers.registry.types.Vanill
 import io.github.lightman314.lightmanscurrency.core.LCBlocks;
 import io.github.lightman314.lightmanscurrency.core.LCItems;
 import io.github.lightman314.lightmanscurrency.api.helpers.ColorHelper;
-import io.github.lightman314.lightmanscurrency.datagen.common.crafting.CoinMintRecipeBuilder;
-import io.github.lightman314.lightmanscurrency.datagen.common.crafting.WalletUpgradeRecipeBuilder;
+import io.github.lightman314.lightmanscurrency.datagen.common.crafting.*;
 import io.github.lightman314.lightmanscurrency.datagen.helpers.WoodHelper;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.criterion.InventoryChangeTrigger;
@@ -120,6 +119,37 @@ public class LCRecipeProvider extends RecipeProvider {
                 .save(this.output);
         //Portable ATM Swap Recipe
         this.generateSwapRecipes(LCItems.ATM_PORTABLE,LCBlocks.ATM);
+
+        //Ticket Station
+        ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,LCBlocks.TICKET_STATION)
+                .unlockedBy("money",this.moneyKnowledge())
+                .unlockedBy("ticket_material",this.simpleRequirement(LCTags.Items.TICKET_MATERIAL))
+                .pattern("igi").pattern("igi").pattern("rrr")
+                .define('i',Tags.Items.INGOTS_IRON)
+                .define('g',Items.INK_SAC)
+                .define('r',Tags.Items.DUSTS_REDSTONE)
+                .save(this.output);
+
+        //Tickets
+        MasterTicketRecipeBuilder.of(this.itemHolderGetter(),LCItems.MASTER_TICKET)
+                .unlockedBy("ticket_station",this.simpleRequirement(LCBlocks.TICKET_STATION))
+                .unlockedBy("ticket_material",this.simpleRequirement(LCTags.Items.TICKET_MATERIAL_PAPER))
+                .requires(LCTags.Items.TICKET_MATERIAL_PAPER)
+                .save(this.output);
+        TicketRecipeBuilder.of(this.itemHolderGetter(),LCItems.TICKET)
+                .unlockedBy("ticket_station",this.simpleRequirement(LCBlocks.TICKET_STATION))
+                .unlockedBy("ticket_material",this.simpleRequirement(LCTags.Items.TICKET_MATERIAL_PAPER))
+                .unlockedBy("master_ticket",this.simpleRequirement(LCItems.MASTER_TICKET))
+                .withMasterTicket(LCItems.MASTER_TICKET)
+                .withIngredient(LCTags.Items.TICKET_MATERIAL_PAPER)
+                .save(this.output);
+        //Coupon
+        CouponRecipeBuilder.of(this.itemHolderGetter(),LCItems.COUPON)
+                .unlockedBy("ticket_station",this.simpleRequirement(LCBlocks.TICKET_STATION))
+                .unlockedBy("material",this.simpleRequirement(LCTags.Items.TICKET_MATERIAL_PAPER))
+                .unlockedBy("trader",this.simpleRequirement(LCTags.Items.TRADERS))
+                .requires(LCTags.Items.TICKET_MATERIAL_PAPER)
+                .save(this.output);
 
         //Trading Terminal
         ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,LCBlocks.TRADING_TERMINAL)

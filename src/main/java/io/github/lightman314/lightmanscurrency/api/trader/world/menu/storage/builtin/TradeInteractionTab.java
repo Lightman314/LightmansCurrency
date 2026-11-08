@@ -47,7 +47,7 @@ public abstract class TradeInteractionTab extends TraderStorageTab implements IT
             this.writeTargetTrade(packet,trade);
             this.sendToServer(FancyPacketMap.map()
                     .setMap("tradeClick",packet
-                            .action(slot.encode())
+                            .write(slot)
                             .setInt("mouse",mouseButton)
                             .setMap("context",context.encode())));
         }

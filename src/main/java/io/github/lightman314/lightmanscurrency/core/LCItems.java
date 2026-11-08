@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.core;
 import io.github.lightman314.lightmanscurrency.LCConfig;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.text.LCText;
+import io.github.lightman314.lightmanscurrency.features.tickets.TicketDurabilityItem;
 import io.github.lightman314.lightmanscurrency.api.upgrades.CapacityUpgradeType;
 import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeHolder;
 import io.github.lightman314.lightmanscurrency.api.upgrades.data.ConfigNumberSource;
@@ -97,6 +98,13 @@ public final class LCItems {
 
     public static final DeferredItem<PortableATMItem> ATM_PORTABLE = register("atm_portable",PortableATMItem::new);
     public static final DeferredItem<PortableTerminalItem> TRADING_TERMINAL_PORTABLE = register("trading_terminal_portable",PortableTerminalItem::new);
+
+    //Tickets
+    public static final DeferredItem<Item> MASTER_TICKET = registerBasic("master_ticket",p -> p.rarity(Rarity.UNCOMMON).stacksTo(1));
+    public static final DeferredItem<Item> TICKET = register("ticket", TicketDurabilityItem::new);
+    public static final DeferredItem<Item> TICKET_STUB = registerBasic("ticket_stub");
+
+    public static final DeferredItem<Item> COUPON = register("coupon", TicketDurabilityItem::new);
 
     //Upgrades
     public static final DeferredItem<Item> ITEM_CAPACITY_UPGRADE_1 = registerBasic("item_capacity_upgrade_1",

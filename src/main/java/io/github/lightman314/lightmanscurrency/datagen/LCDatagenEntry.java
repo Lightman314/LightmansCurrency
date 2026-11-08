@@ -54,6 +54,8 @@ public final class LCDatagenEntry {
         //Loot
         event.addProvider(LCLootTableProvider.create(output,registryFuture));
         event.addProvider(new LCGlobalLootModifierProvider(output,registryFuture));
+        //Data Maps
+        event.addProvider(new LCDataMapProvider(output,registryFuture));
         //Tags
         event.addProvider(new LCItemTagProvider(output,registryFuture));
         event.addProvider(new LCBlockTagProvider(output,registryFuture));

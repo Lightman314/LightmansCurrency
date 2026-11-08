@@ -4,6 +4,8 @@ import com.mojang.serialization.Codec;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.BonusTooltip;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.ItemContents;
+import io.github.lightman314.lightmanscurrency.features.tickets.data.EncryptedCodeEntry;
+import io.github.lightman314.lightmanscurrency.features.tickets.data.TicketUses;
 import io.github.lightman314.lightmanscurrency.api.trader.data_components.CopiedTrader;
 import io.github.lightman314.lightmanscurrency.api.trader.data_components.StoredTrader;
 import io.github.lightman314.lightmanscurrency.api.trader.settings_storage.CopiedTraderSettings;
@@ -11,6 +13,7 @@ import io.github.lightman314.lightmanscurrency.api.upgrades.UpgradeHolder;
 import io.github.lightman314.lightmanscurrency.api.upgrades.data.NumberSource;
 import io.github.lightman314.lightmanscurrency.features.cash_register.TraderPositionSet;
 import io.github.lightman314.lightmanscurrency.features.colors.ColorDisplay;
+import io.github.lightman314.lightmanscurrency.features.tickets.data.TicketID;
 import io.github.lightman314.lightmanscurrency.features.wallet.WalletItem;
 import io.github.lightman314.lightmanscurrency.features.wallet.WalletUpgradeData;
 import net.minecraft.core.Holder;
@@ -55,6 +58,11 @@ public final class LCDataComponents {
 
     //Trader Settings
     public static final DeferredHolder<DataComponentType<?>,DataComponentType<CopiedTraderSettings>> TRADER_SETTINGS = register("trader_settings",CopiedTraderSettings.CODEC,CopiedTraderSettings.STREAM_CODEC);
+
+    //Ticket Data
+    public static final DeferredHolder<DataComponentType<?>,DataComponentType<TicketID>> TICKET_ID = register("ticket_id",TicketID.CODEC,TicketID.STREAM_CODEC);
+    public static final DeferredHolder<DataComponentType<?>,DataComponentType<TicketUses>> TICKET_USES = register("ticket_uses",TicketUses.CODEC,TicketUses.STREAM_CODEC);
+    public static final DeferredHolder<DataComponentType<?>,DataComponentType<EncryptedCodeEntry>> COUPON_CODE = register("coupon_code",EncryptedCodeEntry.CODEC,EncryptedCodeEntry.STREAM_CODEC);
 
     //Item Attributes
     public static final DeferredHolder<DataComponentType<?>,DataComponentType<Integer>> WALLET_CAPACITY = registerIntRange("wallet_capacity",1, WalletItem.MAX_WALLET_SLOTS);

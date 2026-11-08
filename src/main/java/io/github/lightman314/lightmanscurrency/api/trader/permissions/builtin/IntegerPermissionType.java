@@ -33,7 +33,7 @@ public final class IntegerPermissionType extends PermissionType<Integer> {
     public static Permission<Integer> of(int defaultValue, int maxValue)
     {
         if(maxValue <= 0)
-            throw new IllegalArgumentException("Cannot have an integer permission with a max value <= 0");
+            throw new IllegalArgumentException("Cannot have an integer permission with a maxUses value <= 0");
         return new Permission<>(INSTANCE,() -> defaultValue,() -> maxValue,value -> value <= maxValue);
     }
 

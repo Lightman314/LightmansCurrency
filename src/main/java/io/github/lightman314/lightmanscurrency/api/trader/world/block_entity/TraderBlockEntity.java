@@ -213,7 +213,6 @@ public abstract class TraderBlockEntity extends EasyBlockEntity.Synced implement
     public final void onTraderPlacement(@Nullable Player owner, ItemStack stack)
     {
         //Remove any stored trader data if present as that should be single-use only
-        LightmansCurrency.LogDebug("onTraderPlacement called. Trader ID: " + this.traderID + " Stored Trader: " + stack.has(LCDataComponents.STORED_TRADER));
         stack.remove(LCDataComponents.STORED_TRADER);
         if(this.traderID >= 0)
             return;

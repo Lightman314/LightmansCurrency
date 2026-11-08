@@ -65,7 +65,6 @@ public class VillagerTradeMods {
         if(split.length < 2)
             throw new ConfigParsingException("Missing '-' dividers!");
         String profession = split[0];
-        LightmansCurrency.LogDebug("Attempting to parse entries for '" + profession + "' profession.");
         ConfiguredTradeMod mod = ConfiguredTradeMod.tryParse(split[1],false);
         return Pair.of(profession,mod);
     }

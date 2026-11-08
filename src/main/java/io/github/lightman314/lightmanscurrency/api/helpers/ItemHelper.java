@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.mixin.ItemStackAccessor;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.Container;
@@ -21,6 +22,7 @@ import net.minecraft.world.item.component.ResolvableProfile;
 
 import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Supplier;
 
 public final class ItemHelper {
 
@@ -180,6 +182,12 @@ public final class ItemHelper {
         for(ItemStack s : list)
             hashes.add(ItemStack.hashItemAndComponents(s));
         return hashes.hashCode();
+    }
+
+    public static <T> void copyComponent(Supplier<DataComponentType<T>> type, ItemStack from, ItemStack to) { copyComponent(type.get(),from,to); }
+    public static <T> void copyComponent(DataComponentType<T> type,ItemStack fromStack,ItemStack toStack) {
+        if(fromStack.has(type))
+            toStack.set(type,fromStack.get(type));
     }
 
     public static ItemStackTemplate asTemplate(ItemStack stack) { return new ItemStackTemplate(stack.getItem(),stack.getCount(),stack.getComponentsPatch()); }

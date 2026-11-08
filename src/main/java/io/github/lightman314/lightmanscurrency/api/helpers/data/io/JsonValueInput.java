@@ -127,26 +127,30 @@ public class JsonValueInput implements ValueInput {
     }
 
     @Nullable
-    private JsonPrimitive getOptionalPrimitive(String name) {
+    private JsonPrimitive getOptionalPrimitive(String name,String expected) {
         if(this.input.has(name)) {
             JsonElement element = this.input.get(name);
             if(element.isJsonPrimitive())
                 return element.getAsJsonPrimitive();
+            else
+                this.problemReporter.report(new UnexpectedTypeProblem(name,expected,element.getClass()));
         }
         return null;
     }
 
     @Nullable
     private Number getOptionalNumber(String name) {
-        JsonPrimitive primitive = this.getOptionalPrimitive(name);
+        JsonPrimitive primitive = this.getOptionalPrimitive(name,"number");
         if(primitive != null && primitive.isNumber())
             return primitive.getAsNumber();
+        else if(primitive != null)
+            this.problemReporter.report(new UnexpectedNonNumberProblem(name,primitive));
         return null;
     }
 
     @Override
-    public boolean getBooleanOr(String name, boolean defaultValue) {
-        JsonPrimitive primitive = this.getOptionalPrimitive(name);
+    public boolean getBooleanOr(String name,boolean defaultValue) {
+        JsonPrimitive primitive = this.getOptionalPrimitive(name,"boolean");
         if(primitive == null)
             return defaultValue;
         if(primitive.isBoolean())
@@ -216,7 +220,7 @@ public class JsonValueInput implements ValueInput {
 
     @Override
     public Optional<String> getString(String name) {
-        JsonPrimitive primitive = this.getOptionalPrimitive(name);
+        JsonPrimitive primitive = this.getOptionalPrimitive(name,"string");
         if(primitive != null && primitive.isString())
             return Optional.of(primitive.getAsString());
         return Optional.empty();
@@ -260,6 +264,20 @@ public class JsonValueInput implements ValueInput {
 
     private <T> TypedInputList<T> wrapTypedList(String name,JsonArray list,Codec<T> codec) {
         return list.isEmpty() ? this.helper.emptyTypedList() : new TypedListWrapper<>(this.problemReporter,name,this.holders,codec,list);
+    }
+
+    public record UnexpectedTypeProblem(String name,String expected,Class<? extends JsonElement> actual) implements ProblemReporter.Problem {
+        public UnexpectedTypeProblem(String name,Class<? extends JsonElement> expected,Class<? extends JsonElement> actual) { this(name,expected.getSimpleName(),actual); }
+        @Override
+        public String description() { return "Expected field '" + this.name + "' to contain value of type " + this.expected + ", but got " + this.actual.getSimpleName(); }
+    }
+
+    public record UnexpectedNonNumberProblem(String name,JsonPrimitive actual) implements ProblemReporter.Problem {
+        @Override
+        public String description() {
+            String actualType = actual.isString() ? "string" : "boolean";
+            return "Expected field '" + this.name + "' to contain number, but got " + actualType;
+        }
     }
 
     public record DecodeFromFieldFailedProblem(String name,JsonElement json,Error<?> error) implements ProblemReporter.Problem {

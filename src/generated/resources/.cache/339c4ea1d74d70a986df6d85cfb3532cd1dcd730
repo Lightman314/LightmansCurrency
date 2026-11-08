@@ -1,4 +1,4 @@
-// 26.1.2	2026-10-14T16:22:51.9633522	Tags for minecraft:item mod id lightmanscurrency
+// 26.1.2	2026-10-31T23:28:29.8396791	Tags for minecraft:item mod id lightmanscurrency
 1d6ab3074694ff74b60dd2d6ca355d16411df5fb data/curios/tags/item/charm.json
 f50311c506e1b643b28dec06d9307e3436c63df2 data/curios/tags/item/wallet.json
 4d1e3aa203ff9f068defdd95ee8d0fcbb9a2f65e data/c/tags/item/dyed/black.json
@@ -19,6 +19,7 @@ a01cafad987361a9ef467740d7b807e5e7c28d2f data/c/tags/item/dyed/white.json
 309d99403bf49a5fb0172d50db743c813fb412f6 data/c/tags/item/dyed/yellow.json
 1bf31735ec9977500912b7669bce244d9b7e20c1 data/lightmanscurrency/tags/item/atm.json
 b13b1d2a54bcdda6e4766142d82b7b5baf245b2c data/lightmanscurrency/tags/item/coin_minting_material.json
+3c33a321007aff59b2825046ab7e089111d09c3f data/lightmanscurrency/tags/item/coupons.json
 05931946dc2be1fae77bbafbd9c1ad2e7dcc03c6 data/lightmanscurrency/tags/item/groups/card_display.json
 1723bc0183c181697067e639bf42ba46ba64ec2a data/lightmanscurrency/tags/item/groups/display_case.json
 df5c56756562e6d789328835082cea3ad5348c4e data/lightmanscurrency/tags/item/groups/double_shelf.json
@@ -33,6 +34,13 @@ c64e59ade97ecccccb7b769c8e3856338623649e data/lightmanscurrency/tags/item/money/
 560adc395c50cedc09eabb2c49dcf7eabdf21eb5 data/lightmanscurrency/tags/item/network_terminal.json
 7811ee39c9efaa553ecc6c51f8265a950ae09c45 data/lightmanscurrency/tags/item/settings/readable.json
 970054623330ea0a4b0ad6f39454a7e87615fe56 data/lightmanscurrency/tags/item/settings/writable.json
+5b6f62ec1e93549a096aea277a15f2f72c5d3d6c data/lightmanscurrency/tags/item/tickets.json
+cedfdc1dc0e497d1bf28ac6d6efa2f5bd92b8de7 data/lightmanscurrency/tags/item/tickets/consumable.json
+ed1f96a23c6839004598abacb77d3a22a8ccc248 data/lightmanscurrency/tags/item/tickets/master.json
+3a44420bfbdff92ad961ec488bd4a960baf2485b data/lightmanscurrency/tags/item/tickets/stubs.json
+09343734f0060b5eceba364a8ec2ffe786284e3b data/lightmanscurrency/tags/item/ticket_material.json
+f2aa87f54e7951ea0cf81ac252c2abe279b0c936 data/lightmanscurrency/tags/item/ticket_material/gold.json
+a499413342989d684be9cb8ee7c6f18b10a2389e data/lightmanscurrency/tags/item/ticket_material/paper.json
 b9e069a31e2e6b01aad20fccb81ee431fd0ab64b data/lightmanscurrency/tags/item/traders.json
 f79be6fce699a9e679084c52dfcb4bed8d0f8494 data/lightmanscurrency/tags/item/traders/item.json
 fcb0be6ac9eaf753ee1060dca182402ce8617ede data/lightmanscurrency/tags/item/traders/network.json

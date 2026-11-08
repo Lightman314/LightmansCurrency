@@ -28,9 +28,9 @@ public class ItemDisplay extends TradeDisplayEntry.ManualTooltipRender {
     }
 
     public static ItemDisplay of(ItemStack stack) { return new ItemDisplay(stack,null,null,(t,i) -> {}); }
-    public static ItemDisplay of(ItemStack stack,Identifier emptyBackground) { return new ItemDisplay(stack,null,emptyBackground,(t,i) -> {}); }
+    public static ItemDisplay of(ItemStack stack,@Nullable Identifier emptyBackground) { return new ItemDisplay(stack,null,emptyBackground,(t,i) -> {}); }
     public static ItemDisplay of(ItemStack stack,ItemTooltipModifier tooltipEditor) { return new ItemDisplay(stack,null,null,tooltipEditor); }
-    public static ItemDisplay of(ItemStack stack,Identifier emptyBackground,ItemTooltipModifier tooltipEditor) { return new ItemDisplay(stack,null,emptyBackground,tooltipEditor); }
+    public static ItemDisplay of(ItemStack stack,@Nullable Identifier emptyBackground,ItemTooltipModifier tooltipEditor) { return new ItemDisplay(stack,null,emptyBackground,tooltipEditor); }
 
     @Override
     public int desiredWidth() { return 16; }

@@ -130,7 +130,9 @@ public abstract class FancyWidget extends AbstractWidget implements FancyRendera
     }
 
     @Override
-    public boolean isMouseOver(double mouseX, double mouseY) {
+    public boolean isMouseOver(double mouseX, double mouseY) { return this.isInArea(mouseX,mouseY); }
+
+    protected final boolean isInArea(double mouseX,double mouseY) {
         if(this.scissorArea.isPresent() && !this.scissorArea.get().isInArea(mouseX,mouseY))
             return false;
         return super.isMouseOver(mouseX, mouseY);
@@ -177,7 +179,7 @@ public abstract class FancyWidget extends AbstractWidget implements FancyRendera
         this.extractRenderState(gui.push(this.getPosition()),this.area);
         gui.pop();
         //Try and add the tooltip
-        if(this.isHovered())
+        if(this.isHovered)
         {
             List<Component> tooltips = this.collectTooltips(gui.getMousePos());
             if(tooltips != null && !tooltips.isEmpty())

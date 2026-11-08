@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage;
 
 import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
-import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
@@ -119,7 +118,7 @@ public class TraderStorageMenu extends TabbedMenu.Validated<TraderStorageMenu,Tr
     public final TradeContext.Builder getTradeContext() {
         TraderData trader = this.getTrader();
         if(trader == null)
-            return TradeContext.builder(new TraderData(LCRegistries.Trader.TRADER_TYPES.getValue(LCApi.id("null"))));
+            return TradeContext.dummyBuilder(this,this.registryAccess());
         return TradeContext.builder(trader);
     }
 

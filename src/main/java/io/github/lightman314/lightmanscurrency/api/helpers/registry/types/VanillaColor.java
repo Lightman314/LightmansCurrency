@@ -34,6 +34,8 @@ public enum VanillaColor {
     public TagKey<Item> getDyeTag() { return this.color.getTag(); }
     public TagKey<Item> getDyedTag() { return this.color.getDyedTag(); }
 
+    public int getColor() { return this.color.getTextureDiffuseColor(); }
+
     public final DyeColor color;
     VanillaColor(DyeColor color) { this.color = color; }
 

@@ -88,6 +88,9 @@ public final class TraderAPIImpl implements TraderAPI {
     public TraderData getTrader(ISidedContext context, long traderID) { return TraderDataCache.TYPE.get(context).getTrader(traderID); }
 
     @Override
+    public TraderData getTrader(ISidedContext context,String persistentTraderID) { return TraderDataCache.TYPE.get(context).getTrader(persistentTraderID); }
+
+    @Override
     public List<TraderData> getAllTraders(ISidedContext context) { return TraderDataCache.TYPE.get(context).getAllTraders(); }
 
     @Override

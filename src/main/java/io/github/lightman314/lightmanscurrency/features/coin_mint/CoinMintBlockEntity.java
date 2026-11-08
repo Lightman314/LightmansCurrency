@@ -88,7 +88,6 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements ITickerServe
 
     @Override
     protected void applyImplicitComponents(DataComponentGetter components) {
-        super.applyImplicitComponents(components);
         this.name = components.get(DataComponents.CUSTOM_NAME);
         this.storage.copyFrom(components.getOrDefault(DataComponents.CONTAINER,ItemContainerContents.EMPTY).allItemsCopyStream().toList());
     }
@@ -158,7 +157,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements ITickerServe
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
         for(int i = 0; i < this.storage.size(); ++i)
-            Block.popResource(this.level,pos,this.storage.getStack(0));
+            Block.popResource(this.level,pos,this.storage.getStack(i));
         this.storage.clear();
     }
 
@@ -210,7 +209,7 @@ public class CoinMintBlockEntity extends EasyBlockEntity implements ITickerServe
     }
 
     @Override
-    public Component getDisplayName() { return this.name == null ? this.getBlockState().getBlock().getName() : this.name; }
+    public Component getDisplayName() { return this.name == null ? this.getBlockName() : this.name; }
     @Override
     public AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) { return new CoinMintMenu(containerId,player,this); }
     @Override

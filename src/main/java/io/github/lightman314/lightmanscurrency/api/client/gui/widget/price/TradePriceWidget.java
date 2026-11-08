@@ -52,6 +52,9 @@ public final class TradePriceWidget extends AbstractMultiWidget.LateChildren {
 
     private DropdownWidget selectionDropdown;
 
+    @Nullable
+    public TradeData getTrade() { return this.trade.get(); }
+
     public TradePrice getCurrentPrice() {
         TradeData trade = this.trade.get();
         if(trade != null)

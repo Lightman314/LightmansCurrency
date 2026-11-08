@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "g": "minecraft:ink_sac",
+    "i": "#c:ingots/iron",
+    "r": "#c:dusts/redstone"
+  },
+  "pattern": [
+    "igi",
+    "igi",
+    "rrr"
+  ],
+  "result": {
+    "id": "lightmanscurrency:ticket_station"
+  }
+}

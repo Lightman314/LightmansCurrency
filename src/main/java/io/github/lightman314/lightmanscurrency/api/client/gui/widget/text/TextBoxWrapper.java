@@ -20,12 +20,14 @@ import java.util.function.*;
 public final class TextBoxWrapper<T> implements FancyRenderable, IRenderTick, IWidgetWrapper, IKeyboardInterceptor {
 
     private boolean ignoreChanged = false;
+    private String lastValue;
     private final EditBox editBox;
     private final Consumer<T> handler;
     private final Function<String,T> reader;
     private final Function<T,String> writer;
     private final Function<EditBox,Boolean> visible;
     private final Function<EditBox,Boolean> active;
+    private final Predicate<String> allowedValue;
 
     public boolean isVisible() { return this.editBox.isVisible(); }
 
@@ -48,14 +50,20 @@ public final class TextBoxWrapper<T> implements FancyRenderable, IRenderTick, IW
         this.reader = builder.parser;
         this.writer = builder.writer;
         this.handler = builder.handler;
+        this.allowedValue = builder.allowedValue;
         this.active = builder.active;
         this.visible = builder.visible;
         this.editBox = new EditBox(builder.font,builder.area.x,builder.area.y,builder.area.width,builder.area.height,builder.oldTextBox,builder.message);
-        //Set max length *before* setting starting value
+        //Set maxUses length *before* setting starting value
         this.editBox.setMaxLength(builder.maxLength);
         //Set starting value
-        builder.startingValue.ifLeft(this.editBox::setValue)
-                .ifRight(startingValue -> this.editBox.setValue(this.writer.apply(startingValue)));
+        if(builder.oldTextBox != null && builder.withOldValue)
+            this.editBox.setValue(builder.oldTextBox.getValue());
+        else
+            builder.startingValue
+                    .ifLeft(this.editBox::setValue)
+                    .ifRight(startingValue -> this.editBox.setValue(this.writer.apply(startingValue)));
+        this.lastValue = this.editBox.getValue();
         //Set color
         if(builder.color != null)
             this.editBox.setTextColor(builder.color);
@@ -92,6 +100,12 @@ public final class TextBoxWrapper<T> implements FancyRenderable, IRenderTick, IW
     private void onTextChanged(String text) {
         if(this.ignoreChanged)
             return;
+        //Ignore the filter if the text is empty
+        if(!text.isEmpty() && !this.allowedValue.test(text)) {
+            this.setStringValue(this.lastValue);
+            return;
+        }
+        this.lastValue = text;
         T newValue = this.reader.apply(text);
         if(newValue != null)
             this.handler.accept(newValue);
@@ -110,12 +124,14 @@ public final class TextBoxWrapper<T> implements FancyRenderable, IRenderTick, IW
     public void setStringValue(String value) {
         this.ignoreChanged = true;
         this.editBox.setValue(value);
+        this.lastValue = value;
         this.ignoreChanged = false;
     }
 
     public void setValue(T value) {
         this.ignoreChanged = true;
-        this.editBox.setValue(this.writer.apply(value));
+        this.lastValue = this.writer.apply(value);
+        this.editBox.setValue(this.lastValue);
         this.ignoreChanged = false;
     }
 
@@ -155,11 +171,13 @@ public final class TextBoxWrapper<T> implements FancyRenderable, IRenderTick, IW
         private Integer color = null;
         private Component message = Component.empty();
         private boolean renderBG = true;
+        private Predicate<String> allowedValue = s -> true;
 
         private Function<EditBox,Boolean> active = b -> b.active;
         private Function<EditBox,Boolean> visible = b -> b.visible;
 
         private EditBox oldTextBox = null;
+        private boolean withOldValue = false;
 
         public Builder<T> withFont(Font font) { this.font = font; return this; }
         public Builder<T> copyValue(@Nullable EditBox box) { if(box != null) this.withStartingString(box.getValue()); return this; }
@@ -182,6 +200,8 @@ public final class TextBoxWrapper<T> implements FancyRenderable, IRenderTick, IW
         public Builder<T> parser(Function<String,T> parser) { this.parser = parser; return this; }
         public Builder<T> writer(Function<T,String> writer) { this.writer = writer; return this; }
 
+        public Builder<T> allowedString(Predicate<String> allowedValue) { this.allowedValue = allowedValue; return this; }
+
         public Builder<T> noBorder() { this.renderBG = false; return this; }
 
         public Builder<T> active(BooleanSupplier active) { return this.active1(w -> active.getAsBoolean()); }
@@ -198,6 +218,8 @@ public final class TextBoxWrapper<T> implements FancyRenderable, IRenderTick, IW
             return this;
         }
         public Builder<T> withOldWidget(@Nullable EditBox oldWidget) { this.oldTextBox = oldWidget; return this; }
+
+        public Builder<T> withOldValue() { this.withOldValue = true; return this; }
 
         public TextBoxWrapper<T> build() { return new TextBoxWrapper<>(this); }
 

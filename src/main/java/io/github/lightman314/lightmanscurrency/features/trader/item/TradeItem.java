@@ -4,19 +4,18 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
-import io.github.lightman314.lightmanscurrency.api.helpers.ResourceHelper;
+import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeContext;
+import io.github.lightman314.lightmanscurrency.features.trader.item.requirements.ItemMatchRequirement;
+import io.github.lightman314.lightmanscurrency.features.trader.item.requirements.ItemRequirement;
+import io.github.lightman314.lightmanscurrency.features.trader.item.requirements.StackMatchRequirement;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.resource.ResourceStack;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
-import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.apache.commons.lang3.NotImplementedException;
 
 import javax.annotation.Nullable;
@@ -24,10 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
-public class TradeItem implements Predicate<ItemResource> {
+public class TradeItem {
 
     public static final Codec<TradeItem> CODEC = RecordCodecBuilder.create(builder -> builder.group(
             ItemResource.OPTIONAL_CODEC.fieldOf("item").forGetter(r -> r.item),
@@ -35,6 +33,12 @@ public class TradeItem implements Predicate<ItemResource> {
             Codec.STRING.optionalFieldOf("name").forGetter(TradeItem::getOptionalNameChange),
             Codec.BOOL.fieldOf("strict").forGetter(TradeItem::isStrict)
     ).apply(builder, TradeItem::new));
+    public static final Codec<TradeItem> LENIENT_CODEC = Codec.withAlternative(CODEC,ItemStack.CODEC.xmap(stack -> {
+        TradeItem ti = TradeItem.create();
+        ti.setStack(stack);
+        return ti;
+    },TradeItem::getStack));
+    public static final Codec<List<TradeItem>> LENIENT_LIST_CODEC = CodecHelper.lenientListCodec(LENIENT_CODEC);
     public static final StreamCodec<RegistryFriendlyByteBuf, TradeItem> STREAM_CODEC = StreamCodec.composite(
             ItemResource.STREAM_CODEC,r -> r.item,
             ByteBufCodecs.INT,TradeItem::getCount,
@@ -166,18 +170,13 @@ public class TradeItem implements Predicate<ItemResource> {
         return copy;
     }
 
-    @Override
-    public boolean test(ItemResource resource) {
-        if(this.isEmpty())
-            return false;
-        if(this.isFilter())
-        {
-            //Get Filter
-            return false;
+    public ItemRequirement asRequirement() {
+        if(this.isFilter()) {
+            throw new NotImplementedException("Filters not yet implemented!");
         }
         if(this.isStrict())
-            return this.item.equals(resource);
-        return this.item.is(resource.getItem());
+            return new StackMatchRequirement(this.item,this.count);
+        return new ItemMatchRequirement(this.item.getItem(),this.count);
     }
 
     @Override
@@ -188,6 +187,10 @@ public class TradeItem implements Predicate<ItemResource> {
         if(obj instanceof TradeItem other)
             return this.item.equals(other.item) && this.count == other.count && this.nameChange.equals(other.nameChange) && this.strict == other.strict;
         return false;
+    }
+
+    public static List<ItemRequirement> asRequirements(List<TradeItem> items) {
+        return ItemRequirement.combine(items.stream().map(TradeItem::asRequirement).toList());
     }
 
     public static List<TradeItem> combineMatching(List<TradeItem> items) {
@@ -213,35 +216,8 @@ public class TradeItem implements Predicate<ItemResource> {
         return list;
     }
 
-    public List<ResourceStack<ItemResource>> extractFromUnlimitedResources(ResourceHandler<ItemResource> potentialStorage,RandomSource random,@Nullable TransactionContext transaction) {
-        if(ResourceHelper.getResourceCount(potentialStorage,this,transaction) > 0) {
-            List<ResourceStack<ItemResource>> result = new ArrayList<>();
-            //If at least one item matches this filter, then simply get a random item X amount of times, but without actually consuming the items
-            for(int i = 0; i < this.count; ++i) {
-                try(Transaction tx = Transaction.open(transaction)) {
-                    ItemResource r = ResourceHelper.extractRandom(potentialStorage,this,random,transaction);
-                    if(r == null) {
-                        result = null;
-                        break;
-                    }
-                    else
-                        result.add(new ResourceStack<>(r,1));
-                }
-            }
-            if(result != null)
-                return ResourceHelper.mergeResources(result);
-        }
-        //Otherwise get a random default item
-        if(this.isFilter()) {
-            throw new NotImplementedException("Trade Item Filters not yet implemented!");
-        }else {
-            //If this is a simple trade item, then simply return the resource with count as defined locally
-            return List.of(new ResourceStack<>(this.item,this.count));
-        }
-    }
-
     public static boolean allowedInStorage(List<TradeItem> tradeItems,ItemResource item) {
-        return tradeItems.stream().anyMatch(ti -> ti.test(item));
+        return tradeItems.stream().map(TradeItem::asRequirement).anyMatch(ti -> ti.test(item));
     }
 
     @Override

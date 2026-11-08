@@ -14,6 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
@@ -26,6 +27,7 @@ public abstract class FancyMenu extends AbstractContainerMenu implements ISidedC
 
     private final Player player;
     public final Player getPlayer() { return this.player; }
+    public final Level getLevel() { return this.player.level(); }
 
     @Override
     public final boolean isClient() { return this.player.level().isClientSide(); }

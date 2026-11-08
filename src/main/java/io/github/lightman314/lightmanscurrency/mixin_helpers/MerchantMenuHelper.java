@@ -28,8 +28,8 @@ public final class MerchantMenuHelper {
     public static void tryMoveItems(Player player,Container tradeContainer, MerchantOffer offer) {
         if(tradeContainer.getItem(0).isEmpty() || tradeContainer.getItem(1).isEmpty()) {
             if(LCApi.getCoinAPI().isCoin(offer.getCostA(),false) || LCApi.getCoinAPI().isCoin(offer.getCostB(),false)) {
-                ItemStack coinA = offer.getCostA();
-                ItemStack coinB = offer.getCostB();
+                ItemStack coinA = offer.getCostA().copy();
+                ItemStack coinB = offer.getCostB().copy();
 
                 ChainData chainA = LCApi.getCoinAPI().lookupChain(coinA);
                 ChainData chainB = LCApi.getCoinAPI().lookupChain(coinB);

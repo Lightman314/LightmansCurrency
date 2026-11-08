@@ -144,6 +144,24 @@ public abstract class TradeEvent extends Event {
     }
 
     /**
+     * This event is posted on the logical server immediately after the trade's price is transferred, <i>if</i> the price was successfully extracted.<br>
+     * Allows outside sources to require an additional price
+     */
+    public static final class AfterPriceExchange extends TradeEvent {
+
+        private TradePrice.TransferResult result;
+        public TradePrice.TransferResult getResult() { return this.result; }
+        public void setFailedToGive() { this.result = TradePrice.TransferResult.FAILED_TO_GIVE; }
+        public void setFailedToTake() { this.result = TradePrice.TransferResult.FAILED_TO_TAKE; }
+
+        public AfterPriceExchange(TradeContext context,TradingNode<?> activeNode,TradeData trade,TradePrice.TransferResult result) {
+            super(context, activeNode, trade);
+            this.result = result;
+        }
+
+    }
+
+    /**
      * Posted on the logical server after a successful trade.<br>
      * Contains information about the completed trade, such as the price paid, how many taxes were paid, and what product was actually given to the customer.<br>
      * The product information is provided as a list of objects

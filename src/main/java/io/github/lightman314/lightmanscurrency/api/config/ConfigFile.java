@@ -146,11 +146,7 @@ public abstract class ConfigFile implements ConfigReloadable {
 
     public String getFilePath() { return this.getConfigFolder() + "/" + this.fileName + ".txt"; }
 
-    private String getOldFilePath() { return this.getFilePath().replace(".txt",".lcconfig"); }
-
     protected final File getFile() { return new File(this.getFilePath()); }
-
-    private File getOldFile() { return new File(this.getOldFilePath()); }
 
     private ConfigSection root = null;
     public final LoadPhase loadPhase;
@@ -387,12 +383,7 @@ public abstract class ConfigFile implements ConfigReloadable {
     private List<String> readLines() {
         File file = this.getFile();
         if(!file.exists())
-        {
-            //Check old file extension for backwards compatibility
-            file = this.getOldFile();
-            if(!file.exists())
-                return new ArrayList<>();
-        }
+            return new ArrayList<>();
         try {
             BufferedReader br = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8));
             List<String> lines = new ArrayList<>();
@@ -419,13 +410,12 @@ public abstract class ConfigFile implements ConfigReloadable {
             if(!file.exists())
             {
                 File folder = new File(file.getParent());
-                if(!folder.exists())
-                    folder.mkdirs();
-
-                if(!file.createNewFile())
-                {
-                    LightmansCurrency.LogError("Unable to create " + this.fileName + "!");
-                    return;
+                if(folder.exists() || folder.mkdirs()) {
+                    if(!file.createNewFile())
+                    {
+                        LightmansCurrency.LogError("Unable to create " + this.fileName + "!");
+                        return;
+                    }
                 }
             }
 
@@ -433,18 +423,11 @@ public abstract class ConfigFile implements ConfigReloadable {
 
                 this.confirmSetup();
 
-                this.writeSection(writer, this.root);
+                this.writeSection(writer,this.root);
 
             }
 
         } catch (IOException | SecurityException e) { LightmansCurrency.LogError("Error modifying " + this.fileName + "!", e); }
-        //Delete old file after writing the new config to file just to be safe
-        File oldFile = this.getOldFile();
-        if(oldFile.exists())
-        {
-            try { oldFile.delete();
-            } catch (SecurityException e) { LightmansCurrency.LogError("Error deleting expired config file",e); }
-        }
     }
 
     private void writeSection(PrintWriter writer, ConfigSection section) {

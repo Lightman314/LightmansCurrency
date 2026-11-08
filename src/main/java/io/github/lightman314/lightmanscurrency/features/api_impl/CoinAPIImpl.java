@@ -172,7 +172,7 @@ public final class CoinAPIImpl implements CoinAPI {
         return name.substring(0,name.length() - 5);
     }
 
-    private static boolean safeLoadData(File file,Map<String,ChainData> map,List<CoinEntry> allEntries, CodecInteractionHelper<JsonElement> context)
+    private static boolean safeLoadData(File file,Map<String,ChainData> map,List<CoinEntry> allEntries,CodecInteractionHelper<JsonElement> context)
     {
         try {
             String chainName = extractChainID(file);
@@ -200,12 +200,9 @@ public final class CoinAPIImpl implements CoinAPI {
     {
         File file = new File(DATA_LOCATION + File.separatorChar + chain.chain + ".json");
         File dir = new File(file.getParent());
-        if(!dir.exists())
-            dir.mkdirs();
-        if(dir.exists())
+        if(dir.exists() || dir.mkdirs())
         {
             try {
-                file.createNewFile();
                 JsonObject json = chain.getAsJson(context);
                 FileHelper.writeStringToFile(file,JsonHelper.PRETTY_GSON.toJson(json));
             } catch (IOException e) { LightmansCurrency.LogError("Error attmpting to create '" + file.getPath() + " file.",e); }

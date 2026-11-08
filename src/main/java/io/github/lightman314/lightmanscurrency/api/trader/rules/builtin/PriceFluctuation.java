@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.trader.rules.builtin;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
@@ -11,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.icon.IconData;
 import io.github.lightman314.lightmanscurrency.api.icon.builtin.SpriteIcon;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.event.TradeEvent;
+import io.github.lightman314.lightmanscurrency.api.trader.persistent.PersistentDataException;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.IPersistentRule;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.PriceModifyingTradeRule;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleType;
@@ -96,18 +98,6 @@ public class PriceFluctuation extends PriceModifyingTradeRule implements IPersis
         this.setFluctuation(10);
     }
 
-    @Override
-    public void encodeSettings(ValueOutput output) {
-        output.putLong("duration",this.duration);
-        output.putInt("fluctuation",this.fluctuation);
-    }
-
-    @Override
-    public void decodeSettings(ValueInput data) {
-        this.setDuration(data.getLongOr("duration",TimeHelper.DURATION_DAY));
-        this.setFluctuation(data.getIntOr("fluctuation",10));
-    }
-
     private long getTraderSeedFactor(TradeEvent.Cost event) {
         long traderID = event.getTrader().getID();
         int tradeIndex = event.getTradeIndex();
@@ -123,6 +113,34 @@ public class PriceFluctuation extends PriceModifyingTradeRule implements IPersis
     @Override
     protected void tradeCost(TradeEvent.Cost event) {
         event.giveDiscount(this.randomizePriceMultiplier(this.getTraderSeedFactor(event)));
+    }
+
+    @Override
+    public void encodeSettings(ValueOutput output) {
+        output.putLong("duration",this.duration);
+        output.putInt("fluctuation",this.fluctuation);
+    }
+
+    @Override
+    public void decodeSettings(ValueInput data) {
+        this.setDuration(data.getLongOr("duration",TimeHelper.DURATION_DAY));
+        this.setFluctuation(data.getIntOr("fluctuation",10));
+    }
+
+    @Override
+    public void writePersistentData(ValueOutput output) throws PersistentDataException {
+        output.putLong("duration",this.duration);
+        output.putInt("fluctuation",this.fluctuation);
+    }
+
+    @Override
+    public void loadPersistentData(ValueInput input) throws PersistentDataException {
+        this.duration = input.getLong("duration").orElseThrow(() -> new PersistentDataException("Missing duration field!"));
+        this.fluctuation = input.getInt("fluctuation").orElseThrow(() -> new PersistentDataException("Missing fluctuation field!"));
+        if(this.duration < TimeHelper.DURATION_MINUTE)
+            throw new PersistentDataException("Duration must be greater than 1 minute (" + TimeHelper.DURATION_MINUTE + ")");
+        if(this.fluctuation < 0 || this.fluctuation >= 100)
+            throw new PersistentDataException("Fluctuation must be between 1 and 100");
     }
 
 }

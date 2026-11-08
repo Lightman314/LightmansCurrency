@@ -81,6 +81,12 @@ public final class LCText {
         public static final TextEntry TOOLTIP_OWNER_TEAM_FTB = TextEntry.tooltip(MODID,"ownership.team.ftb");
 
         public static final TextEntry COMMAND_OWNER_LABEL_TEAM = TextEntry.command(MODID,"owner.label.team");
+    }
+
+    public static final class Jei {
+        private Jei() {}
+
+        public static final TextEntry TICKET_STUB = TextEntry.jeiInfo(LCApi.MODID,"ticket_stub");
 
     }
 

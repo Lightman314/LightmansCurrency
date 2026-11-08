@@ -4,6 +4,7 @@ import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.data.FancyDataType;
 import io.github.lightman314.lightmanscurrency.features.api_impl.data.*;
+import io.github.lightman314.lightmanscurrency.features.tickets.TicketDataCache;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class LCFancyDataTypes {
@@ -18,6 +19,7 @@ public final class LCFancyDataTypes {
         register("player_stats",PlayerStatsDataCache.TYPE);
         register("player_notifications",PlayerNotificationCache.TYPE);
         register("ejection_data",EjectionDataCache.TYPE);
+        register("ticket_data",TicketDataCache.TYPE);
     }
 
     private static void register(String name,FancyDataType<?> type) {

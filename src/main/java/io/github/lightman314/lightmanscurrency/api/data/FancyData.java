@@ -31,6 +31,12 @@ public abstract class FancyData implements ISidedContext, IRegistryAccess {
     @Nullable
     protected final MinecraftServer getServer() { return this.server; }
 
+    public final List<ServerPlayer> getOnlinePlayers() {
+        if(this.server == null)
+            return List.of();
+        return this.server.getPlayerList().getPlayers();
+    }
+
     public final void initClient(HolderLookup.Provider registryAccess) {
         this.initialize(true,() -> {},registryAccess);
         this.setupCommon();
@@ -72,6 +78,8 @@ public abstract class FancyData implements ISidedContext, IRegistryAccess {
     protected final void sendPacketToAll(FancyPacketMap message) { this.sendPacket(null,message); }
     protected final void sendPacketToTarget(Player target, FancyPacketMap message) { this.sendPacket(target,message); }
     protected final void sendPacketToTarget(UUID target,FancyPacketMap message) {
+        if(message.isEmpty())
+            return;
         MinecraftServer server = this.getServer();
         if(server != null) {
             Player player = server.getPlayerList().getPlayer(target);

@@ -3,7 +3,7 @@
 	"parent": "lightmanscurrency:block/block",
 	"texture_size": [64, 64],
 	"textures": {
-		"main": "lightmanscurrency:block/ticket_machine",
+		"main": "lightmanscurrency:block/ticket_station",
 		"particle": "#main"
 	},
 	"elements": [

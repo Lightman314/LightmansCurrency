@@ -38,6 +38,11 @@ public final class InteractionMemory implements ISidedContext.Mutable<Interactio
         memory.forEach((id,list) -> this.memory.put(id,new ArrayList<>(list)));
     }
 
+    public void copyFrom(InteractionMemory memory) {
+        this.memory.clear();
+        memory.memory.forEach((id,list) -> this.memory.put(id,new ArrayList<>(list)));
+    }
+
     public FancyPacketMap createFullSyncPacket(ISyncingContext context) {
         FancyPacketMap.Mutable memoryMap = FancyPacketMap.map();
         //Loop through the customer set instead of the memory set as realistically speaking

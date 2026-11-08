@@ -29,7 +29,7 @@ public class SPacketDebugTraderData extends ServerToClientPacket {
         if(trader != null)
         {
             CodecInteractionHelper<JsonElement> encoder = CodecInteractionHelper.createJson(player.registryAccess());
-            LightmansCurrency.LogInfo("Client Copy of Trader #" + this.traderID + ":\n" + JsonHelper.PRETTY_GSON.toJson(encoder.write(trader,TraderData.CODEC)));
+            LightmansCurrency.LogInfo("Client Copy of Trader #" + this.traderID + ":\n" + JsonHelper.PRETTY_GSON.toJson(encoder.write(trader,TraderData.DEBUG_CODEC)));
             player.sendSystemMessage(Component.literal("Client data for trader #" + this.traderID + " has been printed to the logs!"));
         }
         else

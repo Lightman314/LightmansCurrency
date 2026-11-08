@@ -21,6 +21,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.*;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.SimpleSyncedNode;
 import io.github.lightman314.lightmanscurrency.api.trader.notifications.settings.ChangeSettingNotification;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.Permission;
+import io.github.lightman314.lightmanscurrency.api.trader.persistent.PersistentDataException;
 import io.github.lightman314.lightmanscurrency.api.trader.settings_storage.SettingsDisplayOutput;
 import io.github.lightman314.lightmanscurrency.api.trader.settings_storage.SettingsLoadContext;
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.ISyncingContext;
@@ -32,7 +33,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.Optional;
 
-public class OwnerNode extends SimpleSyncedNode implements IOwnerSource,IPermissionSource,INotificationConsumerNode,ISettingsMessageListener,ISettingsStorageIONode.PriorityLoad,IStatListeningNode, IAdminInfoProvider {
+public class OwnerNode extends SimpleSyncedNode implements IOwnerSource,IPermissionSource,INotificationConsumerNode,ISettingsMessageListener,ISettingsStorageIONode.PriorityLoad,IStatListeningNode,IAdminInfoProvider {
 
     private static final MapCodec<OwnerNode> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
             OwnerHolder.CODEC.fieldOf("owner").forGetter(OwnerNode::getOwner)
@@ -88,7 +89,12 @@ public class OwnerNode extends SimpleSyncedNode implements IOwnerSource,IPermiss
     }
 
     @Override
-    public Optional<IOwnerHolder> getValidOwner() { return Optional.of(this.owner); }
+    public Optional<IOwnerHolder> getValidOwner(Optional<IOwnerHolder> currentOwner) {
+        //Only provide the owner if no other node has defined one
+        if(currentOwner.isEmpty())
+            return Optional.of(this.owner);
+        return currentOwner;
+    }
 
     @Override
     public <T> T getPlayerPermission(PlayerReference player, Permission<T> permission) {

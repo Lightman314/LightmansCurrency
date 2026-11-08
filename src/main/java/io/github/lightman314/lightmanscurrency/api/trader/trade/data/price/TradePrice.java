@@ -8,6 +8,9 @@ import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMa
 import io.github.lightman314.lightmanscurrency.api.money.values.MoneyValue;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.trader.event.TradeEvent;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.TradingNode;
+import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeFailedException;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeResult;
@@ -17,11 +20,11 @@ import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.TradeE
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.TradeSlot;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.builtin.MoneyPrice;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.Set;
 
@@ -67,7 +70,7 @@ public abstract class TradePrice {
         return context.getAdminSettings().shouldStorePrice();
     }
 
-    public final TransferResult transferPrice(TradeDirection direction,TradeContext context) throws TradeFailedException {
+    public final TransferResult transferPrice(TradeDirection direction, TradeContext context,TradingNode<?> node,TradeData trade) throws TradeFailedException {
         TransferResult result;
         if(direction.isSale())
         {
@@ -89,10 +92,17 @@ public abstract class TradePrice {
         }
         else
             throw new TradeFailedException("Cannot transfer the price in the 'Other' direction!",TradeResult.FAIL_INVALID_TRADE);
+        if(result.isSuccess()) {
+            //Post after price exchange event
+            TradeEvent.AfterPriceExchange event = new TradeEvent.AfterPriceExchange(context,node,trade,result);
+            TradeRule.extraCost(context,trade,event);
+            NeoForge.EVENT_BUS.post(event);
+            return event.getResult();
+        }
         return result;
     }
-    public abstract TransferResult transferFromCustomerToTrader(TradeContext context) throws TradeFailedException;
-    public abstract TransferResult transferFromTraderToCustomer(TradeContext context) throws TradeFailedException;
+    protected abstract TransferResult transferFromCustomerToTrader(TradeContext context) throws TradeFailedException;
+    protected abstract TransferResult transferFromTraderToCustomer(TradeContext context) throws TradeFailedException;
 
     public final boolean hasStock(TradeContext context) { return this.getAvailableStock(context) > 0; }
     public abstract long getAvailableStock(TradeContext context);
@@ -102,14 +112,13 @@ public abstract class TradePrice {
     public abstract boolean showCannotAffordWarning(TradeContext context);
 
     public boolean isFree() { return false; }
+    public abstract boolean supportsModification();
     public abstract TradePrice percentageOfValue(int percentage);
 
     public abstract boolean onClickInteraction(Player player,TradeData trade,TradeSlot slot,int button, ItemStack heldItem, TradeEditContext context);
     public boolean onScrollInteraction(Player player,TradeData trade,TradeSlot slot,float scroll,ItemStack heldItem,TradeEditContext context) { return false; }
 
     public abstract void handleCustomEditMessage(FancyPacketMap packet,TradeSlot slot);
-
-    public abstract Component getNotificationText();
 
     public final void setChanged() { this.listener.run(); }
 
@@ -121,6 +130,13 @@ public abstract class TradePrice {
 
         public static TransferResult taxedSuccess(TradePriceReceipt receipt,MoneyValue taxesPaid) { return new TransferResult(Status.SUCCESS,taxesPaid,receipt); }
         public static TransferResult success(TradePriceReceipt receipt) { return new TransferResult(Status.SUCCESS,MoneyValue.empty(),receipt); }
+
+        public static TransferResult wrapEvent(TradeEvent.AfterPriceExchange event,TransferResult original) {
+            TransferResult result = event.getResult();
+            if(result.isSuccess())
+                return original;
+            return result.failedToGive() ? FAILED_TO_GIVE : FAILED_TO_TAKE;
+        }
 
         private final Status status;
         public boolean isSuccess() { return this.status == Status.SUCCESS; }

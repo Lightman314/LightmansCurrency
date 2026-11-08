@@ -1,0 +1,9 @@
+{
+  "values": [
+    "minecraft:paper",
+    "lightmanscurrency:master_ticket",
+    "lightmanscurrency:ticket",
+    "lightmanscurrency:ticket_stub",
+    "lightmanscurrency:coupon"
+  ]
+}

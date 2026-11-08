@@ -30,7 +30,6 @@ public final class WidgetPositioner implements IWidgetPositioner, IScrollable {
 
     @Override
     public void removeWidget(IMoveableWidget widget) {
-        LightmansCurrency.LogDebug("Removing " + widget.getClass().getSimpleName() + " from the widget positioner!");
         this.widgets.remove(widget);
     }
 

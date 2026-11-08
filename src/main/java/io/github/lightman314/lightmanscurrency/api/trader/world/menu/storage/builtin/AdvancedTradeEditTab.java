@@ -79,7 +79,7 @@ public abstract class AdvancedTradeEditTab extends TradeInteractionTab {
         return FancyPacketMap.map()
                 .setInt("trade_set",nodeIndex)
                 .setInt("trade_index",tradeIndex)
-                .setMap("selection",FancyPacketMap.map().action(slot.encode()));
+                .setMap("selection",FancyPacketMap.map().write(slot));
     }
 
     @Override

@@ -162,10 +162,8 @@ public class WorldNode extends SimpleSyncedNode implements IDisplayNode, ISettin
     public void handleSettingsChange(Player player,FancyPacketMap message) {
         if(message.contains("destroyTrader") && this.getPermission(player, LCPermissions.BREAK_TRADER).hasHigherPermission()) {
             TraderBlockEntity be = this.getBlockEntity(player.level());
-            if(be != null) {
-                LightmansCurrency.LogDebug("Requesting destruction of trader at " + this.position);
+            if(be != null)
                 be.requestTraderDestruction(player);
-            }
         }
     }
 

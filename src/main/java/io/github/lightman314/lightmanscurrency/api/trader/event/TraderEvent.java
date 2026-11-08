@@ -1,6 +1,8 @@
 package io.github.lightman314.lightmanscurrency.api.trader.event;
 
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
+import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeContext;
+import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.ResourceWrapper;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.StorageTabBuilder;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderType;
@@ -13,6 +15,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.Event;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Iterator;
 import java.util.function.Function;
@@ -20,7 +23,7 @@ import java.util.function.Function;
 public abstract class TraderEvent extends Event implements ISidedContext {
 
     @Override
-    public final boolean isClient() { return this.getTrader().isClient(); }
+    public boolean isClient() { return this.getTrader().isClient(); }
     public abstract long getTraderID();
     public abstract TraderData getTrader();
     public TraderType getTraderType() { return this.getTrader().getType(); }
@@ -32,10 +35,27 @@ public abstract class TraderEvent extends Event implements ISidedContext {
     {
         private final TraderData trader;
         @Override
-        public final long getTraderID() { return this.trader.getID(); }
+        public long getTraderID() { return this.trader.getID(); }
         @Override
-        public final TraderData getTrader() { return this.trader; }
+        public TraderData getTrader() { return this.trader; }
         public Direct(TraderData trader) { this.trader = trader; }
+    }
+
+    public static abstract class NullableDirect extends TraderEvent {
+        private final ISidedContext context;
+        @Override
+        public boolean isClient() { return this.context.isClient(); }
+        @Nullable
+        private final TraderData trader;
+        @Override
+        public final long getTraderID() { return this.trader == null ? -1 : this.trader.getID(); }
+        @Override
+        @Nullable
+        public final TraderData getTrader() { return this.trader; }
+        @Override
+        @Nullable
+        public final TraderType getTraderType() { return this.trader == null ? null : this.trader.getType(); }
+        public NullableDirect(@Nullable TraderData trader,ISidedContext context) { this.trader = trader; this.context = context; }
     }
 
     public static class RegisterNodesEvent extends Direct implements NodeCollector
@@ -106,6 +126,19 @@ public abstract class TraderEvent extends Event implements ISidedContext {
     public static class TraderDeletedEvent extends Direct {
         @ApiStatus.Internal
         public TraderDeletedEvent(TraderData trader) { super(trader); }
+    }
+
+    public static class TraderResourceWrapperEvent extends NullableDirect {
+
+        private final TradeContext.Builder builder;
+        @ApiStatus.Internal
+        public TraderResourceWrapperEvent(TraderData trader,TradeContext.Builder builder) {
+            super(trader,builder);
+            this.builder = builder;
+        }
+
+        public void addResourceWrapper(ResourceWrapper<?,?> wrapper) { this.builder.withResourceWrapper(wrapper); }
+
     }
 
 }

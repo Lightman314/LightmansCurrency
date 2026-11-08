@@ -59,7 +59,7 @@ public class VerticalScrollBar extends FancyWidget implements IMouseListener {
                 knobPosition = Math.clamp(gui.getMousePos().y - this.getY() - (this.knobSprite.height() / 2),0,this.height - this.knobSprite.height());
             else
                 knobPosition = this.getNaturalKnobPosition();
-            gui.blitSprite(this.knobSprite,0,knobPosition);
+            gui.blitSprite(this.knobSprite,(this.width - this.knobSprite.width()) / 2,knobPosition);
         }
     }
 
@@ -82,7 +82,7 @@ public class VerticalScrollBar extends FancyWidget implements IMouseListener {
 
     private int getScrollFromMouse(double mouseY) {
         mouseY -= (double)this.knobSprite.height() / 2d;
-        //Check if the mouse is out of bounds, upon which return the max/min scroll respectively
+        //Check if the mouse is out of bounds, upon which return the maxUses/min scroll respectively
         if(mouseY <= this.getY())
             return this.scrollable.getMinScroll();
         if(mouseY >= this.getY() + this.height - this.knobSprite.height())
@@ -155,7 +155,7 @@ public class VerticalScrollBar extends FancyWidget implements IMouseListener {
 
         public Builder withBackground(Identifier background) { return this.withBackground(new VerticalSizedSprite.Simple(background,this.getWidth())); }
         public Builder withBackground(VerticalSizedSprite backgroundSprite) { this.backgroundSprite = backgroundSprite; this.setWidth(this.backgroundSprite.width()); return this; }
-        public Builder withKnob(SizedSprite sprite) { this.knobSprite = sprite; this.setWidth(sprite.width()); return this; }
+        public Builder withKnob(SizedSprite sprite) { this.knobSprite = sprite; return this; }
 
         public Builder alwaysShow() { this.alwaysShow = true; return this; }
 

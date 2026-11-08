@@ -30,8 +30,8 @@ public abstract class TradeDataWithRules extends TradeData implements TradeRuleH
     }
 
     private boolean validateRules = true;
-    //Allow overriding so that it can return the more specific child class
-    public final void dontValidateRules() { this.validateRules = false; }
+    @Override
+    public final void validateRuleStates() { this.validateRules = false; this.validateRuleStates(this.rules); }
 
     @Override
     protected void afterInit() {
@@ -72,11 +72,19 @@ public abstract class TradeDataWithRules extends TradeData implements TradeRuleH
     }
 
     @Override
+    public void removeUnusedRule(TradeRule rule) {
+        this.rules.remove(rule.getType());
+    }
+
+    @Override
     @OverridingMethodsMustInvokeSuper
     public void handlePacket(FancyPacketMap message) {
         super.handlePacket(message);
         this.handleRuleUpdatePacket(message);
     }
+
+    @Override
+    public boolean canCurrentPriceBeModified() { return this.getInternalPrice().supportsModification(); }
 
     protected final void handleRuleUpdatePacket(FancyPacketMap message) {
         if(message.contains("rule_update")) {

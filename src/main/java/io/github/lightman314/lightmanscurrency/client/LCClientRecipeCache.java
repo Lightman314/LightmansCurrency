@@ -16,6 +16,8 @@ public final class LCClientRecipeCache {
 
     private static RecipeMap cache = RecipeMap.EMPTY;
 
+    public static RecipeMap getRecipeMap() { return cache; }
+
     public static <I extends RecipeInput,T extends Recipe<I>> Collection<RecipeHolder<T>> getRecipes(RecipeType<T> type) {
         return cache.byType(type);
     }

@@ -922,7 +922,7 @@ public final class LCConfig {
             builder.comment("The increase in the coin collection radius added by each additional level of the Coin Magnet enchantment.")
                     .add("coinMagnetLeveledRange", this.coinMagnetLeveledRange);
             builder.comment("The final level of Coin Magnet that will result in increased range calculations.",
-                            "Increase if you have another mod that increases the max level of the Coin Magnet enchantment",
+                            "Increase if you have another mod that increases the maxUses level of the Coin Magnet enchantment",
                             "and you wish for those levels to actually apply an effect.")
                     .add("coinMagnetCalculationLevelCap", this.coinMagnetCalculationCap);
 

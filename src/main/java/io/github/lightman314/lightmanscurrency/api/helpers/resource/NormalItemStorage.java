@@ -111,7 +111,7 @@ public class NormalItemStorage extends ListBackedItemStorage implements IndexMod
         this.knownChange(oldData);
     }
 
-    //Default to the items max stack size
+    //Default to the items maxUses stack size
     @Override
     public long getCapacityAsLong(int index, ItemResource resource) { return Math.min(64,resource.getMaxStackSize()); }
     @Override

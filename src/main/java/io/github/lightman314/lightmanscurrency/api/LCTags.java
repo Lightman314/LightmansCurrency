@@ -35,6 +35,17 @@ public final class LCTags {
 
         public static final TagKey<Item> NETWORK_TERMINAL = key("network_terminal");
 
+        //Ticket Tags
+        public static final TagKey<Item> TICKETS = key("tickets");
+        public static final TagKey<Item> TICKETS_MASTER = key("tickets/master");
+        public static final TagKey<Item> TICKETS_CONSUMABLE = key("tickets/consumable");
+        public static final TagKey<Item> TICKETS_STUBS = key("tickets/stubs");
+        public static final TagKey<Item> COUPONS = key("coupons");
+
+        public static final TagKey<Item> TICKET_MATERIAL = key("ticket_material");
+        public static final TagKey<Item> TICKET_MATERIAL_PAPER = key("ticket_material/paper");
+        public static final TagKey<Item> TICKET_MATERIAL_GOLD = key("ticket_material/gold");
+
         //Trader Tags
         public static final TagKey<Item> TRADERS = key("traders");
         public static final TagKey<Item> TRADERS_ITEM = key("traders/item");

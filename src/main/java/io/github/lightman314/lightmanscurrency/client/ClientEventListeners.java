@@ -22,9 +22,11 @@ import io.github.lightman314.lightmanscurrency.client.features.rendering.BlockSt
 import io.github.lightman314.lightmanscurrency.client.features.rendering.BlockStateRenderer;
 import io.github.lightman314.lightmanscurrency.client.features.resources.data.item_position.ItemPositionSetManager;
 import io.github.lightman314.lightmanscurrency.client.features.resources.data.item_position.ItemPositionManager;
+import io.github.lightman314.lightmanscurrency.client.features.tickets.TicketStationScreen;
 import io.github.lightman314.lightmanscurrency.client.features.wallet.WalletScreen;
 import io.github.lightman314.lightmanscurrency.core.LCMenuTypes;
 import io.github.lightman314.lightmanscurrency.features.api_impl.MoneyAPIImpl;
+import io.github.lightman314.lightmanscurrency.client.features.colors.InvertedDyeColor;
 import io.github.lightman314.lightmanscurrency.features.player_data.PlayerDataMenu;
 import io.github.lightman314.lightmanscurrency.mixin.client.CreativeModeInventoryScreenAccessor;
 import io.github.lightman314.lightmanscurrency.network.message.menus.CPacketViewPlayerData;
@@ -69,6 +71,7 @@ public class ClientEventListeners {
         event.register(LCMenuTypes.COIN_MINT.get(),CoinMintScreen::new);
         event.register(LCMenuTypes.ATM.get(),simpleFactory(ATMScreen::new));
         event.register(LCMenuTypes.TRADING_TERMINAL.get(),simpleFactory(TradingTerminalScreen::new));
+        event.register(LCMenuTypes.TICKET_STATION.get(),TicketStationScreen::new);
 
         //Traders
         event.register(LCMenuTypes.TRADER_DIRECT.get(),simpleFactory(TraderCustomerScreen::new));
@@ -152,6 +155,11 @@ public class ClientEventListeners {
     @SubscribeEvent
     private static void registerPipRenderers(RegisterPictureInPictureRenderersEvent event) {
         event.register(BlockStateRenderState.class,BlockStateRenderer::new);
+    }
+
+    @SubscribeEvent
+    private static void registerItemTintSources(RegisterColorHandlersEvent.ItemTintSources event) {
+        event.register(LCApi.id("dye_inverted"),InvertedDyeColor.MAP_CODEC);
     }
 
 }

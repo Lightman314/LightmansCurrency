@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Function3;
 import io.github.lightman314.lightmanscurrency.api.world.block.interfaces.IRotatableBlock;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Vector3fc;
 
@@ -43,6 +44,12 @@ public final class ShapeHelper {
 
     //Normal Rotatable
     public static Function<Direction,VoxelShape> singleShape(VoxelShape shape) { return dir -> shape; }
+    public static Function<Direction,VoxelShape> directionalShapeAddition(VoxelShape baseShape,VoxelShape north,VoxelShape east,VoxelShape south,VoxelShape west) {
+        return directionalShape(Shapes.or(baseShape,north),
+                Shapes.or(baseShape,east),
+                Shapes.or(baseShape,south),
+                Shapes.or(baseShape,west));
+    }
     public static Function<Direction,VoxelShape> directionalShape(VoxelShape north,VoxelShape east,VoxelShape south,VoxelShape west) {
         Map<Direction,VoxelShape> map = Map.of(
                 Direction.NORTH,north,

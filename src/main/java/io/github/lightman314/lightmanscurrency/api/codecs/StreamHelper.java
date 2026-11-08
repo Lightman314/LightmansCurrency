@@ -16,6 +16,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -28,6 +29,7 @@ public final class StreamHelper {
     public static final StreamCodec<RegistryFriendlyByteBuf,Optional<Item>> OPTIONAL_ITEM_STREAM = ByteBufCodecs.optional(ByteBufCodecs.registry(Registries.ITEM));
 
     public static final StreamCodec<ByteBuf,BigDecimal> BIG_DECIMAL = ByteBufCodecs.STRING_UTF8.map(BigDecimal::new,BigDecimal::toString);
+    public static final StreamCodec<ByteBuf,BigInteger> BIG_INTEGER = ByteBufCodecs.BYTE_ARRAY.map(BigInteger::new,BigInteger::toByteArray);
 
     public static final StreamCodec<RegistryFriendlyByteBuf,ItemStack> C2S_ITEM_STACK = ItemStack.validatedStreamCodec(ItemStack.OPTIONAL_STREAM_CODEC);
 

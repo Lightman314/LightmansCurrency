@@ -6,9 +6,9 @@ import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.Tra
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.terminal.TradingTerminalMenu;
 import io.github.lightman314.lightmanscurrency.api.world.menu.validation.MenuValidator;
 import io.github.lightman314.lightmanscurrency.features.atm.ATMMenu;
-import io.github.lightman314.lightmanscurrency.features.coin_mint.CoinMintBlockEntity;
 import io.github.lightman314.lightmanscurrency.features.coin_mint.CoinMintMenu;
 import io.github.lightman314.lightmanscurrency.features.player_data.PlayerDataMenu;
+import io.github.lightman314.lightmanscurrency.features.tickets.TicketStationMenu;
 import io.github.lightman314.lightmanscurrency.features.wallet.menu.WalletMenu;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.flag.FeatureFlagSet;
@@ -29,10 +29,13 @@ public final class LCMenuTypes {
             (id,inv,data) -> new WalletMenu(id,inv.player,data.readInt()));
 
     public static final DeferredHolder<MenuType<?>,MenuType<CoinMintMenu>> COIN_MINT = register("coin_mint",() ->
-            (id,inv,data) -> new CoinMintMenu(id,inv.player,(CoinMintBlockEntity)inv.player.level().getBlockEntity(data.readBlockPos())));
+            (id,inv,data) -> new CoinMintMenu(id,inv.player,inv.player.level().getBlockEntity(data.readBlockPos(),LCBlockEntities.COIN_MINT.get()).orElse(null)));
 
     public static final DeferredHolder<MenuType<?>,MenuType<ATMMenu>> ATM = register("atm",() ->
             (id,inv,data) -> new ATMMenu(id,inv.player));
+
+    public static final DeferredHolder<MenuType<?>,MenuType<TicketStationMenu>> TICKET_STATION = register("ticket_station",() ->
+            (id,inv,data) -> new TicketStationMenu(id,inv.player,inv.player.level().getBlockEntity(data.readBlockPos(),LCBlockEntities.TICKET_STATION.get()).orElse(null)));
 
     public static final DeferredHolder<MenuType<?>,MenuType<TradingTerminalMenu>> TRADING_TERMINAL = register("trading_terminal",() ->
             (id,inv,data) -> new TradingTerminalMenu(id,inv.player,MenuValidator.STREAM_CODEC.decode(data)));

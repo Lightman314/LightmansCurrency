@@ -18,7 +18,6 @@ public class CraftingRecipeMixin {
         for(ItemStack s : input.items()) {
             if(s.has(LCDataComponents.STORED_TRADER)) {
                 stack.set(LCDataComponents.STORED_TRADER,s.get(LCDataComponents.STORED_TRADER));
-
                 return stack;
             }
         }

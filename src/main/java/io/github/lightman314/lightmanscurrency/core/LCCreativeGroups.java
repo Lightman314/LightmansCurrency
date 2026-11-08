@@ -4,9 +4,13 @@ import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.registry.DeferredHolderBundle;
 import io.github.lightman314.lightmanscurrency.api.helpers.registry.DeferredHolderBundle2;
 import io.github.lightman314.lightmanscurrency.api.text.LCText;
+import io.github.lightman314.lightmanscurrency.features.tickets.TicketHelper;
+import io.github.lightman314.lightmanscurrency.features.tickets.data.EncryptedCodeEntry;
+import io.github.lightman314.lightmanscurrency.features.tickets.data.TicketID;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -14,6 +18,7 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import java.math.BigInteger;
 import java.util.function.UnaryOperator;
 
 @EventBusSubscriber
@@ -92,7 +97,15 @@ public final class LCCreativeGroups {
                         //Trading Terminal
                         p.accept(LCBlocks.TRADING_TERMINAL);
                         p.accept(LCItems.TRADING_TERMINAL_PORTABLE);
-                        //TODO Stuff lol
+                        //Ticket Station
+                        p.accept(LCBlocks.TICKET_STATION);
+                        //Tickets
+                        p.accept(TicketHelper.createTicket(LCItems.MASTER_TICKET,TicketID.CREATIVE_PAPER,0xFFFF00));
+                        p.accept(TicketHelper.createTicket(LCItems.TICKET,TicketID.CREATIVE_PAPER,0xFFFF00));
+                        p.accept(LCItems.TICKET_STUB);
+                        ItemStack coupon = new ItemStack(LCItems.COUPON.asItem());
+                        coupon.set(LCDataComponents.COUPON_CODE,new EncryptedCodeEntry(BigInteger.ZERO));
+                        p.accept(coupon);
                     }));
 
     public static final DeferredHolder<CreativeModeTab,CreativeModeTab> TRADERS = register("traders",builder ->

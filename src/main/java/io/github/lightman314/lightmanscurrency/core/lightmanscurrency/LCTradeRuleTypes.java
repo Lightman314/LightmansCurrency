@@ -14,6 +14,7 @@ public final class LCTradeRuleTypes {
     static {
         register("daily_trades",DailyTrades.TYPE);
         register("demand_pricing",DemandPricing.TYPE);
+        //register("discount_codes",DiscountCodes.TYPE);
         register("free_sample",FreeSample.TYPE);
         register("global_trade_limit",GlobalTradeLimit.TYPE);
         register("player_discounts",PlayerDiscounts.TYPE);

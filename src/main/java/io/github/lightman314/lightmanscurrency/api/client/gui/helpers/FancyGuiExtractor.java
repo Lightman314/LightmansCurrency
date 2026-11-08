@@ -365,6 +365,9 @@ public final class FancyGuiExtractor {
         this.gui.setTooltipForNextFrame(this.font,tooltips,item.getTooltipImage(),this.mousePos.x,this.mousePos.y,item.get(DataComponents.TOOLTIP_STYLE));
     }
 
+    public void renderPositionedItemTooltip(ItemStack item,ClientTooltipPositioner positioner) {
+        this.renderPositionedItemTooltip(item,l -> {},positioner);
+    }
     public void renderPositionedItemTooltip(ItemStack item,Consumer<List<Component>> modifier,ClientTooltipPositioner positioner) {
         List<Component> tooltips = Screen.getTooltipFromItem(this.mc,item);
         modifier.accept(tooltips);

@@ -37,6 +37,8 @@ import io.github.lightman314.lightmanscurrency.api.stats.interfaces.StatHolder;
 import io.github.lightman314.lightmanscurrency.api.stats.interfaces.StatViewer;
 import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesPaidNotification;
 import io.github.lightman314.lightmanscurrency.api.text.*;
+import io.github.lightman314.lightmanscurrency.features.tickets.data.TicketID;
+import io.github.lightman314.lightmanscurrency.features.tickets.data.TicketUses;
 import io.github.lightman314.lightmanscurrency.api.trader.TraderStats;
 import io.github.lightman314.lightmanscurrency.api.trader.data_components.CopiedTrader;
 import io.github.lightman314.lightmanscurrency.api.trader.data_components.StoredTrader;
@@ -84,6 +86,9 @@ import io.github.lightman314.lightmanscurrency.features.enchantments.MoneyMendin
 import io.github.lightman314.lightmanscurrency.features.player_data.PlayerDataMenu;
 import io.github.lightman314.lightmanscurrency.features.player_data.tabs.NotificationTab;
 import io.github.lightman314.lightmanscurrency.features.player_data.tabs.PlayerStatsTab;
+import io.github.lightman314.lightmanscurrency.features.tickets.TicketStationMenu;
+import io.github.lightman314.lightmanscurrency.features.tickets.recipe.TicketStationRecipe;
+import io.github.lightman314.lightmanscurrency.features.tickets.trader.TicketPrice;
 import io.github.lightman314.lightmanscurrency.features.trader.item.TradeItem;
 import io.github.lightman314.lightmanscurrency.features.trader.item.blocks.ItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.features.trader.item.nodes.ItemTradesNode;
@@ -183,6 +188,12 @@ public class LCEnglishProvider extends LanguageProvider {
         this.item(LCItems.TRADING_MECHANISM,"Trading Mechanism");
         this.item(LCItems.UPGRADE_SMITHING_TEMPLATE,"Trading Upgrades");
 
+        //Tickets
+        this.item(LCItems.MASTER_TICKET,"Master Ticket");
+        this.item(LCItems.TICKET,"Ticket");
+        this.item(LCItems.TICKET_STUB,"Ticket Stub");
+        this.item(LCItems.COUPON,"Coupon");
+
         //Upgrades
         this.item(LCItems.ITEM_CAPACITY_UPGRADE_1,"Item Capacity Upgrade (Iron)");
         this.item(LCItems.ITEM_CAPACITY_UPGRADE_2,"Item Capacity Upgrade (Gold)");
@@ -227,6 +238,7 @@ public class LCEnglishProvider extends LanguageProvider {
         this.block(LCBlocks.ATM,"ATM");
         this.item(LCItems.ATM_PORTABLE,"ATM");
         this.block(LCBlocks.CASH_REGISTER,"Cash Register");
+        this.block(LCBlocks.TICKET_STATION,"Ticket Station");
         this.block(LCBlocks.TRADING_TERMINAL,"Trading Network Access Terminal");
         this.item(LCItems.TRADING_TERMINAL_PORTABLE,"Trading Network Access Terminal");
 
@@ -298,6 +310,11 @@ public class LCEnglishProvider extends LanguageProvider {
         this.text(LCText.Resources.TOOLTIP_SMITHING_TEMPLATE_ADDTIONS_SLOT_DESCRIPTION,"Add Material");
         this.text(ChocolateCoinItem.TOOLTIP_HEALING,"Heals %s Health");
 
+        //Ticket Tooltips
+        this.text(TicketID.TOOLTIP,"Ticket ID: %s");
+        this.text(TicketUses.TOOLTIP,"Uses Remaining: %s");
+        this.text(TicketUses.TOOLTIP_INFINITE,"∞");
+
         //Upgrade Tooltips
         this.text(UpgradeType.TOOLTIP_UPGRADE_TARGETS,"Upgrade can be used by:");
         this.text(UpgradeType.TOOLTIP_UPGRADE_UNIQUE,"Unique Upgrade");
@@ -334,6 +351,9 @@ public class LCEnglishProvider extends LanguageProvider {
 
         //Price Text
         this.text(ItemPrice.OPTION_NAME,"Item Bartering");
+        this.text(TicketPrice.OPTION_NAME,"Ticket Collection");
+        this.text(TicketPrice.GUI_STORE_TICKET_STUBS,"Store Ticket Stubs");
+        this.text(TicketPrice.TOOLTIP_USES,"Consumes %s ticket uses");
 
         //Coin Display
         this.text(CoinDisplay.TOOLTIP_COIN_DISPLAY,"%1$s");
@@ -366,6 +386,10 @@ public class LCEnglishProvider extends LanguageProvider {
         this.text(SortableMoneyResourceHandler.TOOLTIP_MONEY_SOURCE_PLAYER,"On Your Person:");
         this.text(NormalCustomerTab.TOOLTIP_MONEY_SOURCE_SLOTS,"Money Slots:");
         this.text(NormalCustomerTab.TOOLTIP_MONEY_SOURCE_SLOTS_CAPABILITY,"Money Access Items:");
+
+        //Ticket Station
+        this.text(TicketStationMenu.GUI_LABEL_CODE,"Code:");
+        this.text(TicketStationMenu.GUI_LABEL_DURABILITY,"Durability:");
 
         //ATM
         this.text(CoinExchangeTab.TOOLTIP,"Exchange Coins");
@@ -463,6 +487,12 @@ public class LCEnglishProvider extends LanguageProvider {
         //Owner Settings
         this.text(OwnerNode.NAME,"Trader Ownership");
         this.text(OwnerNode.VALUE_OWNER,"Trader Owner");
+        //Persistent Data Settings
+        this.text(PersistentDataNode.TOOLTIP_SETTINGS,"Persistent Trader Settings");
+        this.text(PersistentDataNode.GUI_ID,"Persistent Trader ID:");
+        this.text(PersistentDataNode.GUI_OWNER,"Trader Owner:");
+        this.text(PersistentDataNode.GUI_NAME,"Trader Name:");
+        this.text(PersistentDataNode.BUTTON_CREATE_COPY,"Create Persistent Copy");
         //Trade Rule Settings
         this.text(TradeRulesNode.NAME,"Global Trader Rules");
         //Trade Settings
@@ -723,6 +753,12 @@ public class LCEnglishProvider extends LanguageProvider {
 
         this.text(LCConfigCommand.RELOAD,"Reloaded %s Config Files");
         this.text(LCConfigCommand.RELOAD_FILE,"Reloaded %s");
+
+        //JEI
+        this.text(LCText.Jei.TICKET_STUB,"A broken ticket returned to the customer or stored in the trader after a ticket is consumed by a trader");
+        this.text(TicketStationRecipe.JEI_INFO_DURABILITY,"Result can have a custom durability between %1$s and %2$s");
+        this.text(TicketStationRecipe.JEI_INFO_DURABILITY_INFINITE,"Result can also have infinite durability");
+
 
         //Config
         this.text(LCText.Config.CONFIG_TITLE_FILES,"%s Config Files");
@@ -1023,7 +1059,7 @@ public class LCEnglishProvider extends LanguageProvider {
         this.configOption(LCConfig.SERVER.coinMagnetLeveledRange,"CM Leveled Range","The increase in the coin collection radius added by each additional level of the Coin Magnet enchantment.");
         this.configOption(LCConfig.SERVER.coinMagnetCalculationCap,"CM Calculation Cap",
                 "The final level of Coin Magnet that will result in increased range calculations.",
-                "Increase if you have another mod that increases the max level of the Coin Magnet enchantment",
+                "Increase if you have another mod that increases the maxUses level of the Coin Magnet enchantment",
                 "and you wish for those levels to actually apply an effect.");
         //Auction House
         this.configSection(LCConfig.SERVER,"auction_house","Auction House Settings");

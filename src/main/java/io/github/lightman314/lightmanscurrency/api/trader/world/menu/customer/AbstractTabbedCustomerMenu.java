@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.api.trader.world.menu.customer;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.money.OverflowHandler;
@@ -223,8 +222,8 @@ public abstract class AbstractTabbedCustomerMenu extends TabbedMenu.Validated<Ab
         if(t == null)
             return;
         TradeResult result = t.attemptTrade(this.getContext(t),location.nodeIndex(),location.tradeIndex());
-        if(result.isFailure()) //Log the failure
-            LightmansCurrency.LogDebug("Trade Failed: " + result.getMessage().getString());
+        //if(result.isFailure()) //Log the failure
+        //    LightmansCurrency.LogDebug("Trade Failed: " + result.getMessage().getString());
     }
 
     @Override

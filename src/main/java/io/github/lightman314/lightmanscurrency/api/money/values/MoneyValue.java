@@ -299,7 +299,7 @@ public abstract class MoneyValue implements Resource {
         // If less than 1, return empty
         if(result.compareTo(BigDecimal.valueOf(0.5d)) < 0)
             return empty();
-        //If larger than the max long value, return max long value
+        //If larger than the maxUses long value, return maxUses long value
         if(result.compareTo(BigDecimal.valueOf(Long.MAX_VALUE)) > 0)
             return this.fromInternalValue(Long.MAX_VALUE);
         if(result.remainder(BigDecimal.ONE).compareTo(BigDecimal.valueOf(0.5d)) >= 0)

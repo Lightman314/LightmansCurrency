@@ -27,17 +27,17 @@ import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCFancyPac
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCUpgrades;
 import net.minecraft.core.Direction;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 
-public class ItemStorageNode extends SimpleSyncedNode implements IPermissionUser, IStorageMenuTabProvider,ITradeResourceProvider,IUpgradeUser,ITraderDestructionListener {
+public class ItemStorageNode extends SimpleSyncedNode implements IPermissionUser, IStorageMenuTabProvider,ITradeResourceProvider,IUpgradeUser,ITraderDestructionListener, IPersistentNode {
 
     private static final MapCodec<ItemStorageNode> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
             CodecHelper.UNLIMITED_ITEM_LIST.fieldOf("storage").forGetter(ItemStorageNode::getContents)
@@ -116,4 +116,21 @@ public class ItemStorageNode extends SimpleSyncedNode implements IPermissionUser
             }
         }
     }
+
+    @Override
+    public void writePersistentData(ValueOutput output,String nameOverride) {
+        List<ItemStack> relevantItems = new ArrayList<>();
+        for(ItemStack item : this.storage.getContents()) {
+            if(IItemStorageFilter.relevantForPersistentTrader(this,ItemResource.of(item)))
+                relevantItems.add(item.copy());
+        }
+        if(!relevantItems.isEmpty())
+            output.store("storage",CodecHelper.UNLIMITED_ITEM_LIST,relevantItems);
+    }
+
+    @Override
+    public void readPersistentData(ValueInput input,ProblemReporter reporter) {
+        this.storage.copyFrom(input.read("storage",CodecHelper.UNLIMITED_ITEM_LIST).orElse(List.of()));
+    }
+
 }

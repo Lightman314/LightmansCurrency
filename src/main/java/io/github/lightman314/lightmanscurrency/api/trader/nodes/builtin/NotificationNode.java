@@ -165,7 +165,6 @@ public class NotificationNode extends SimpleSyncedNode implements INotificationC
                 //Sadly we can't optimize this to a "delete notification" packet as otherwise it'll delete it twice on the client
                 if(trueIndex >= 0)
                     this.setChanged(m -> m.setList("allNotifications",LCFancyPacketTypes.NOTIFICATION_STACK,this.getNotifications()));
-                LightmansCurrency.LogDebug("Deleted the notification at index " + trueIndex + " (" + index + " of its type)");
             }
             else
                 LightmansCurrency.LogWarning("Attempted to delete a notification without the proper permissions!");

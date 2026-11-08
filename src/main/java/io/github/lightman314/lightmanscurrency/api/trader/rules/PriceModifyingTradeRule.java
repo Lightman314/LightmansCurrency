@@ -9,9 +9,9 @@ public abstract class PriceModifyingTradeRule extends TradeRule {
 
     @Override
     @OverridingMethodsMustInvokeSuper
-    protected boolean allowHolder(TradeRuleHolder holder) { return holder.canMoneyBeRelevant(); }
+    protected boolean allowHolder(TradeRuleHolder holder) { return holder.canPotentialPriceBeModified(); }
     @Override
     @OverridingMethodsMustInvokeSuper
-    protected boolean canActivate(TradeRuleHolder holder) { return holder.isMoneyRelevant(); }
+    protected boolean canActivate(TradeRuleHolder holder) { return holder.canCurrentPriceBeModified(); }
 
 }

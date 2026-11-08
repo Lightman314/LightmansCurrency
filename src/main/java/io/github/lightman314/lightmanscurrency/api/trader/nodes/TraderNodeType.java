@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.registry.AbstractType;
+import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IUnitNode;
 import net.minecraft.core.Registry;
 
 import java.util.function.Supplier;
@@ -23,9 +24,9 @@ public abstract class TraderNodeType<T extends TraderNode> extends AbstractType.
     protected final String getName() { return "TraderNodeType"; }
 
     public static <T extends TraderNode> TraderNodeType<T> simple(Supplier<T> factory,MapCodec<T> codec) { return new SimpleType<>(factory,codec); }
-    public static <T extends TraderNode> TraderNodeType<T> unit(Supplier<T> factory) { return new UnitType<>(factory); }
+    public static <T extends TraderNode & IUnitNode> TraderNodeType<T> unit(Supplier<T> factory) { return new UnitType<>(factory); }
 
-    private static class UnitType<T extends TraderNode> extends TraderNodeType<T>
+    private static class UnitType<T extends TraderNode & IUnitNode> extends TraderNodeType<T>
     {
         private final Supplier<T> factory;
         private UnitType(Supplier<T> factory) {

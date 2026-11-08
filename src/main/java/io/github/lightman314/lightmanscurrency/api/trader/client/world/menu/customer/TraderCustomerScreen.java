@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.client.gui.widget.button.tabs
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.TooltipSource;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.positioner.IWidgetPositioner;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.positioner.WidgetPositioner;
+import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedContext;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.icon.builtin.ItemIcon;
@@ -101,7 +102,7 @@ public class TraderCustomerScreen extends TabbedMenuScreen<AbstractTabbedCustome
             //Render the Info Sprite
             gui.blitSprite(LCSprites.GENERIC_INFO,INFO_WIDGET_POSITION.x,INFO_WIDGET_POSITION.y);
             //Need the trade context to render available funds info
-            try(TradeContext context = this.menu.getContext(null).build()) {
+            try(TradeContext context = this.menu.buildContext(TradeContext.dummyBuilder(ISidedContext.LOGICAL_CLIENT,this.menu.registryAccess())).build()) {
                 SortedMoneyResourceHandler money = context.getCustomerResource(BuiltInResourceTypes.MONEY);
                 //Render the available funds text
                 Component line = MoneyDisplayHelper.getCyclingValueLine(money,Component.empty());

@@ -11,6 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.icon.IconData;
 import io.github.lightman314.lightmanscurrency.api.icon.builtin.SpriteIcon;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.event.TradeEvent;
+import io.github.lightman314.lightmanscurrency.api.trader.persistent.PersistentDataException;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.IPersistentRule;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleHolder;
@@ -27,9 +28,10 @@ import java.util.UUID;
 
 public class DailyTrades extends TradeRule implements IPersistentRule {
 
+    private static final Codec<Map<UUID,Data>> DATA_CODEC = Codec.unboundedMap(UUIDUtil.STRING_CODEC,Data.CODEC);
     private static final MapCodec<DailyTrades> MAP_CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
             activeField(),
-            Codec.unboundedMap(UUIDUtil.STRING_CODEC,Data.CODEC).fieldOf("data").forGetter(r -> r.data),
+            DATA_CODEC.fieldOf("data").forGetter(r -> r.data),
             Codec.LONG.fieldOf("delay").forGetter(DailyTrades::getDelay)
     ).apply(builder,DailyTrades::new));
     public static final TradeRuleType<DailyTrades> TYPE = new TradeRuleType<>(MAP_CODEC,DailyTrades::new);
@@ -116,7 +118,7 @@ public class DailyTrades extends TradeRule implements IPersistentRule {
     }
 
     @Override
-    protected boolean allowHolder(TradeRuleHolder holder) { return holder.isMultiTrade(); }
+    protected boolean requiresMultipleTrades() { return true; }
 
     @Override
     protected boolean canActivate(TradeRuleHolder holder) { return holder.getValidTradeCount() > 1; }
@@ -174,6 +176,26 @@ public class DailyTrades extends TradeRule implements IPersistentRule {
     @Override
     public void decodeSettings(ValueInput data) {
         this.delay = data.getLongOr("delay",TimeHelper.DURATION_DAY);
+    }
+
+    @Override
+    public void writePersistentData(ValueOutput output) {
+        output.putLong("delay",this.delay);
+    }
+
+    @Override
+    public void loadPersistentData(ValueInput input) throws PersistentDataException {
+        this.delay = input.getLong("delay").orElseThrow(() -> new PersistentDataException("Missing 'delay' field!"));
+    }
+
+    @Override
+    public void writePersistentSaveData(ValueOutput ouput) {
+        ouput.store("data",DATA_CODEC,this.data);
+    }
+
+    @Override
+    public void readPersisentSaveData(ValueInput input) {
+        this.data.putAll(input.read("data",DATA_CODEC).orElse(Map.of()));
     }
 
     private static class Data {

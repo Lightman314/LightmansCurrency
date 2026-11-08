@@ -76,7 +76,7 @@ public class ItemSelectionWidget extends AbstractMultiWidget.LateChildren implem
     }
 
     @Override
-    public boolean isMouseOver(double mouseX, double mouseY) { return true; }
+    public boolean isMouseOver(double mouseX, double mouseY) { return this.isInArea(mouseX,mouseY); }
 
     private List<ItemStack> getFilteredItems() { return new ArrayList<>(ItemSelectionHelper.getFilteredItems(this.filter)); }
 
@@ -216,7 +216,6 @@ public class ItemSelectionWidget extends AbstractMultiWidget.LateChildren implem
         if(hoveredSlot >= 0) {
             hoveredSlot += this.scroll * this.columns;
             ItemStack stack = this.quantityFixedItem(hoveredSlot);
-            LightmansCurrency.LogDebug("Item Selection detected a click on " + stack.getHoverName().getString());
             if(!stack.isEmpty()) {
                 this.listener.accept(stack);
             }

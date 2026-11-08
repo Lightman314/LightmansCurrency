@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.api.trader.nodes;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
+import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.data.PlayerReference;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.IRegistryAccess;
@@ -9,9 +10,12 @@ import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ISidedCont
 import io.github.lightman314.lightmanscurrency.api.notifications.Notification;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.trader.permissions.Permission;
+import net.minecraft.IdentifierException;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.TypedInstance;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.ApiStatus;
 import javax.annotation.Nullable;
@@ -41,7 +45,17 @@ public abstract class TraderNode implements TypedInstance<TraderNodeType<?>>,ISi
     public final void setChangedNoPacket() { this.trader.setChangedNoPacket(); }
 
     public abstract TraderNodeType<?> getType();
-    public final String getTypeString() { return this.getType().getKey().toString(); }
+    public final String getTypeString() {
+        Identifier type = this.getType().getKey();
+        if(type.getNamespace().equals(LCApi.MODID))
+            return type.getPath();
+        return type.toString();
+    }
+    @Nullable
+    public static TraderNodeType<?> parseTypeString(String type) throws IdentifierException {
+        Identifier id = type.contains(":") ? Identifier.parse(type) : LCApi.id(type);
+        return LCRegistries.Trader.TRADER_NODE_TYPE.getValue(id);
+    }
 
     /**
      * Called during the TraderData constructor to give the node access to its trader for future methods<br>

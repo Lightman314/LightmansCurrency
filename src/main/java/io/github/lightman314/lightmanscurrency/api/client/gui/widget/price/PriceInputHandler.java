@@ -8,6 +8,8 @@ import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
+import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
+import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeData;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePrice;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePriceType;
 import net.minecraft.client.Minecraft;
@@ -33,9 +35,17 @@ public abstract class PriceInputHandler implements IWidgetHolder {
     private Consumer<FancyPacketMap> messageSender;
     protected boolean isVisible() { return this.parent != null && this.parent.isVisible(); }
 
+    @Nullable
+    protected TraderData getTrader() {
+        TradeData trade = this.getTrade();
+        return trade == null ? null : trade.getTrader();
+    }
+    @Nullable
+    protected TradeData getTrade() { return this.parent.getTrade(); }
+
     protected TradePrice getCurrentValue() { return this.parent.getCurrentPrice(); }
 
-    public final void setup(TradePriceWidget parent, Consumer<FancyPacketMap> messageSender, @Nullable PriceInputHandler lastHandler) {
+    public final void setup(TradePriceWidget parent,Consumer<FancyPacketMap> messageSender,@Nullable PriceInputHandler lastHandler) {
         this.parent = parent;
         this.messageSender = messageSender;
         if(lastHandler != null)

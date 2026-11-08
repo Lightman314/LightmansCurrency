@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.icon.IconData;
 import io.github.lightman314.lightmanscurrency.api.icon.builtin.SpriteIcon;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.event.TradeEvent;
+import io.github.lightman314.lightmanscurrency.api.trader.persistent.PersistentDataException;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.IPersistentRule;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleType;
@@ -123,4 +124,25 @@ public class GlobalTradeLimit extends TradeRule implements IPersistentRule {
         this.limit = data.getIntOr("limit",1);
     }
 
+    @Override
+    public void writePersistentData(ValueOutput output) {
+        output.putInt("limit",this.limit);
+    }
+
+    @Override
+    public void loadPersistentData(ValueInput input) throws PersistentDataException {
+        this.limit = input.getIntOr("limit",1);
+        if(this.limit <= 0)
+            throw new PersistentDataException("Limit must be >= 1");
+    }
+
+    @Override
+    public void writePersistentSaveData(ValueOutput ouput) {
+        ouput.putInt("count",this.count);
+    }
+
+    @Override
+    public void readPersisentSaveData(ValueInput input) {
+        this.count = input.getIntOr("count",0);
+    }
 }

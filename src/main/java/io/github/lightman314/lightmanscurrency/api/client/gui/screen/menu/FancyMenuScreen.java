@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.GhostSlot;
 import io.github.lightman314.lightmanscurrency.api.client.gui.helpers.IngredientResult;
 import io.github.lightman314.lightmanscurrency.api.client.gui.screen.interfaces.IWidgetHolder;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.interfaces.*;
+import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.IRegistryAccess;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenArea;
 import io.github.lightman314.lightmanscurrency.api.helpers.screen.ScreenPosition;
 import io.github.lightman314.lightmanscurrency.api.helpers.interfaces.ITickerClient;
@@ -19,6 +20,7 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -27,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class FancyMenuScreen<M extends FancyMenu> extends AbstractContainerScreen<M> implements IFancyScreen {
+public abstract class FancyMenuScreen<M extends FancyMenu> extends AbstractContainerScreen<M> implements IFancyScreen, IRegistryAccess {
 
     private ScreenArea area = ScreenArea.ZERO;
 
@@ -51,7 +53,10 @@ public abstract class FancyMenuScreen<M extends FancyMenu> extends AbstractConta
         return result;
     }
 
-    public FancyMenuScreen(M menu,Inventory inventory) { this(menu,inventory,Component.empty()); }
+    @Override
+    public final HolderLookup.Provider registryAccess() { return this.menu.registryAccess(); }
+
+    public FancyMenuScreen(M menu, Inventory inventory) { this(menu,inventory,Component.empty()); }
     public FancyMenuScreen(M menu,Inventory inventory,Component title) { super(menu,inventory,title); }
     public FancyMenuScreen(M menu,Inventory inventory,int width,int height) { this(menu,inventory,Component.empty(),width,height); }
     public FancyMenuScreen(M menu,Inventory inventory,Component title,int width,int height) {
@@ -100,6 +105,8 @@ public abstract class FancyMenuScreen<M extends FancyMenu> extends AbstractConta
     @Override
     public final <T> T addChild(T child)
     {
+        if(child == this)
+            throw new IllegalArgumentException("Cannot add yourself as a child!");
         //Builder
         if(child instanceof IWidgetBuilder<?> builder)
         {
@@ -200,9 +207,12 @@ public abstract class FancyMenuScreen<M extends FancyMenu> extends AbstractConta
             r.extractLateRender(gui);
     }
 
+    protected void renderTick(ScreenPosition mousePos) {}
+
     private void deployRenderTick(ScreenPosition mousePos) {
         //Copy the list just in case the ticker adds or removes widgets
         List<IRenderTick> copy = new ArrayList<>(this.renderTicks);
+        this.renderTick(mousePos);
         //Deploy both the "early" and "late" phase of the render ticks
         this.deployRenderTick(false,copy,mousePos);
         this.deployRenderTick(true,copy,mousePos);

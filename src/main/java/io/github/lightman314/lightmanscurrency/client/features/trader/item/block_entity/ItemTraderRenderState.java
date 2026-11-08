@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.client.features.trader.item.bloc
 
 import com.google.common.primitives.Ints;
 import io.github.lightman314.lightmanscurrency.LCConfig;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeContext;
 import io.github.lightman314.lightmanscurrency.client.features.resources.data.item_position.ItemPositionData;
@@ -58,7 +57,7 @@ public class ItemTraderRenderState extends BlockEntityRenderState {
         state.positionData = ItemPositionSetManager.getDataForBlock(state.blockState);
         state.partialTicks = partialTicks;
         TraderData trader = be.getTrader();
-        if(trader == null)
+        if(trader == null || state.positionData.getEntryCount() <= 0)
             return;
         AbstractItemTradesNode<?> node = trader.getFirstNode(AbstractItemTradesNode.class);
         if(node == null)
@@ -71,7 +70,7 @@ public class ItemTraderRenderState extends BlockEntityRenderState {
                     //Only bother collecting the items if the stock count is greater than zero
                     for(TradeItem item : trade.getCombinedItems()) {
                         ItemStackRenderState itemState = new ItemStackRenderState();
-                        modelResolver.appendItemLayers(itemState,item.getDisplayStack(context),ItemDisplayContext.FIXED,null,null,0);
+                        modelResolver.updateForTopItem(itemState,item.getDisplayStack(context),ItemDisplayContext.FIXED,null,null,0);
                         display.saleItems.add(itemState);
                     }
                 }

@@ -42,7 +42,7 @@ public final class LCDebugCommand {
         TraderData trader = TraderArgument.getTrader(context,"traderID");
         int result = 0;
         CodecInteractionHelper<JsonElement> encoder = CodecInteractionHelper.createJson(source.registryAccess());
-        LightmansCurrency.LogInfo("Server Copy of Trader #" + trader.getID() + ":\n" + JsonHelper.PRETTY_GSON.toJson(encoder.write(trader,TraderData.CODEC)));
+        LightmansCurrency.LogInfo("Server Copy of Trader #" + trader.getID() + ":\n" + JsonHelper.PRETTY_GSON.toJson(encoder.write(trader,TraderData.DEBUG_CODEC)));
         source.sendSuccess(() -> Component.literal("Server data for trader #" + trader.getID() + " has been printed to the logs!"),false);
         result++;
         if(source.isPlayer())

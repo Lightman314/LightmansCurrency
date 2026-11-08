@@ -1,0 +1,16 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "lightmanscurrency:item/coupon",
+    "tints": [
+      {
+        "type": "minecraft:dye",
+        "default": -1
+      },
+      {
+        "type": "lightmanscurrency:dye_inverted",
+        "default": "#000000"
+      }
+    ]
+  }
+}

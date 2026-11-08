@@ -22,8 +22,7 @@ public class CoinMintRecipeBuilder implements RecipeBuilder {
 
     private final HolderGetter<Item> items;
 
-    @Nullable
-    private String group;
+    private String group = "";
     private Optional<Integer> duration = Optional.empty();
     private Ingredient ingredient;
     private int ingredientCount = 1;
@@ -55,7 +54,7 @@ public class CoinMintRecipeBuilder implements RecipeBuilder {
 
     @Override
     public CoinMintRecipeBuilder group(@Nullable String group) {
-        this.group = group;
+        this.group = group == null ? "" : group;
         return this;
     }
 
@@ -65,7 +64,7 @@ public class CoinMintRecipeBuilder implements RecipeBuilder {
     @Override
     public void save(RecipeOutput output, ResourceKey<Recipe<?>> location) {
         if(this.ingredient == null)
-            throw new IllegalStateException("Cannot save a Coin Mint recipe without it's ingredient defined!\n" + location);
+            throw new IllegalStateException("Cannot save a Coin Mint recipe without its ingredient defined!\n" + location);
         CoinMintRecipe recipe = new CoinMintRecipe(this.group,this.duration,this.ingredient,this.ingredientCount,this.result);
         output.accept(location,recipe,this.advancementBuilder.build(output,location,"coin_mint"));
     }

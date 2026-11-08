@@ -1,0 +1,6 @@
+{
+  "values": {
+    "lightmanscurrency:coupon": "lightmanscurrency:ticket_stub",
+    "lightmanscurrency:ticket": "lightmanscurrency:ticket_stub"
+  }
+}

@@ -9,7 +9,6 @@ import io.github.lightman314.lightmanscurrency.api.trader.world.block_entity.Tra
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderData;
 import io.github.lightman314.lightmanscurrency.api.trader.data_components.StoredTrader;
 import io.github.lightman314.lightmanscurrency.api.world.block.EasyBlock;
-import io.github.lightman314.lightmanscurrency.api.world.block.interfaces.IMultiBlock;
 import io.github.lightman314.lightmanscurrency.api.world.block.interfaces.IProtectedBlock;
 import io.github.lightman314.lightmanscurrency.api.world.block.interfaces.IRotatableBlock;
 import io.github.lightman314.lightmanscurrency.api.world.data.WorldPosition;
@@ -41,7 +40,7 @@ import java.util.function.Supplier;
 public abstract class TraderBlock extends EasyBlock implements TraderEntityBlock,IProtectedBlock {
 
     //Give all traders the `noLootTable` flag since their block drops are handled manually due to break protection
-    public TraderBlock(Properties properties) { super(properties.noLootTable()); }
+    public TraderBlock(Properties properties) { super(properties.noLootTable().pushReaction(PushReaction.BLOCK)); }
 
     @Override
     @Nullable
@@ -121,7 +120,6 @@ public abstract class TraderBlock extends EasyBlock implements TraderEntityBlock
 
     @Override
     protected void affectNeighborsAfterRemoval(BlockState state,ServerLevel level,BlockPos pos,boolean movedByPiston) {
-        LightmansCurrency.LogDebug("Destruction detected for trader at " + pos);
         //Delete all other blocks
         this.removeOtherParts(level,pos,state);
         //Only perform this check on the actual block entity
@@ -161,6 +159,8 @@ public abstract class TraderBlock extends EasyBlock implements TraderEntityBlock
         if(level.getBlockState(pos) == expectedState)
             level.setBlock(pos,Blocks.AIR.defaultBlockState(),Block.UPDATE_ALL);
     }
+
+
 
     public static <T,BE extends TraderBlockEntity> void registerCapability(RegisterCapabilitiesEvent event, BlockCapability<T, Direction> capability, Supplier<BlockEntityType<BE>> blockEntity, BiFunction<TraderData,Direction,T> getter) { registerCapability(event,capability,blockEntity.get(),getter); }
     public static <T,BE extends TraderBlockEntity> void registerCapability(RegisterCapabilitiesEvent event, BlockCapability<T, Direction> capability,BlockEntityType<BE> blockEntity,BiFunction<TraderData,Direction,T> getter) {

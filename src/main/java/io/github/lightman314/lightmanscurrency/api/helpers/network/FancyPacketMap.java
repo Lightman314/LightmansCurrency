@@ -13,12 +13,14 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
@@ -89,6 +91,8 @@ public sealed class FancyPacketMap implements IIndentStringable permits FancyPac
     public double getDouble(String key,double defaultValue) { return this.get(key, LCFancyPacketTypes.DOUBLE,defaultValue); }
 
     public String getString(String key) { return this.getString(key,""); }
+    @Nullable
+    public String getStringOrNull(String key) { return this.getString(key,null); }
     public String getString(String key,String defaultValue) { return this.get(key, LCFancyPacketTypes.STRING,defaultValue); }
     @Nullable
     public UUID getUUID(String key) { return this.getUUID(key,null); }
@@ -106,6 +110,14 @@ public sealed class FancyPacketMap implements IIndentStringable permits FancyPac
     @Nullable
     public Identifier getIdentifier(String key) { return this.getIdentifier(key,null); }
     public Identifier getIdentifier(String key,Identifier defaultValue) { return this.get(key, LCFancyPacketTypes.ID,defaultValue); }
+
+    @Nullable
+    public <T> ResourceKey<T> getResourceKey(String key,ResourceKey<? extends Registry<T>> registry) {
+        Identifier id = this.getIdentifier(key);
+        if(id == null)
+            return null;
+        return ResourceKey.create(registry,id);
+    }
 
     public Component getText(String key) { return this.getText(key,Component.empty()); }
     public Component getText(String key,Component defaultValue) { return this.get(key, LCFancyPacketTypes.TEXT,defaultValue); }
@@ -146,6 +158,9 @@ public sealed class FancyPacketMap implements IIndentStringable permits FancyPac
             return castList(entry,listType).list;
         return new ArrayList<>();
     }
+
+    public <T> T read(Function<FancyPacketMap,T> reader) { return reader.apply(this); }
+    public <T> T read(String key,Function<FancyPacketMap,T> reader) { return reader.apply(this.getMap(key)); }
 
     public FancyPacketMap immutable() { return this; }
     public FancyPacketMap.Mutable mutable() { return new Mutable(this.dataMap); }
@@ -205,6 +220,7 @@ public sealed class FancyPacketMap implements IIndentStringable permits FancyPac
         public <T extends Enum<T>>Mutable setEnum(String key,T value) { return this.setInt(key,value.ordinal()); }
 
         public Mutable setText(String key,Component value) { return this.set(key, LCFancyPacketTypes.TEXT,value); }
+        public Mutable setResourceKey(String key,ResourceKey<?> rk) { return this.setIdentifier(key,rk.identifier()); }
         public Mutable setIdentifier(String key,Identifier value) { return this.set(key, LCFancyPacketTypes.ID,value); }
         public Mutable setBlockPos(String key,BlockPos value) { return this.set(key, LCFancyPacketTypes.BLOCK_POS,value); }
         public Mutable setItem(String key,ItemStack value) { return this.set(key, LCFancyPacketTypes.ITEM_STACK,value.copy()); }
@@ -259,9 +275,15 @@ public sealed class FancyPacketMap implements IIndentStringable permits FancyPac
             return this.setMap(key,map);
         }
 
-        public Mutable action(Consumer<FancyPacketMap.Mutable> handler) {
-            handler.accept(this);
+        public Mutable write(FancyPacketWriter writer) {
+            writer.writeToPacket(this);
             return this;
+        }
+
+        public Mutable write(String key,FancyPacketWriter writer) {
+            Mutable child = map();
+            writer.writeToPacket(child);
+            return this.setMap(key,child);
         }
 
         public Mutable merge(FancyPacketMap map) {
@@ -301,6 +323,10 @@ public sealed class FancyPacketMap implements IIndentStringable permits FancyPac
         private static <T> Entry<T> parse(FancyPacketType<T> type,Object value) { return new Entry<>(type,forceCast(type,value)); }
         private static <T> T forceCast(FancyPacketType<T> type,Object value) { return (T)value; }
 
+    }
+
+    public interface FancyPacketWriter {
+        void writeToPacket(FancyPacketMap.Mutable packet);
     }
 
     public interface Listener extends Consumer<Consumer<FancyPacketMap.Mutable>> { }

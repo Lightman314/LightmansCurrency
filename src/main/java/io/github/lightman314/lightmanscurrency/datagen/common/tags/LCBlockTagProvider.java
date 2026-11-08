@@ -34,11 +34,14 @@ public class LCBlockTagProvider extends BlockTagsProvider {
                 .add(LCBlocks.COIN_PILE_NETHERITE,LCBlocks.COIN_BLOCK_NETHERITE)
                 .add(LCBlocks.COIN_PILE_COPPER,LCBlocks.COIN_BLOCK_COPPER)
                 .add(LCBlocks.COIN_MINT)
+                .add(LCBlocks.ATM)
+                .add(LCBlocks.TICKET_STATION)
                 .add(LCBlocks.TRADING_TERMINAL)
                 .addTag(LCTags.BlocksAndItems.GROUP_DISPLAY_CASE.block())
                 .addTag(LCTags.BlocksAndItems.GROUP_VENDING_MACHINE.block())
                 .addTag(LCTags.BlocksAndItems.GROUP_LARGE_VENDING_MACHINE.block())
-                .addTag(LCTags.BlocksAndItems.GROUP_ITEM_NETWORK_TRADERS.block());
+                .addTag(LCTags.BlocksAndItems.GROUP_ITEM_NETWORK_TRADERS.block())
+                .add(LCBlocks.ARMOR_DISPLAY);
 
         this.tag(BlockTags.MINEABLE_WITH_AXE)
                 .addTag(LCTags.BlocksAndItems.GROUP_CARD_DISPLAY.block())

@@ -77,6 +77,8 @@ public abstract class FancyScreen extends Screen implements IFancyScreen {
 
     @Override
     public <T> T addChild(T child) {
+        if(child == this)
+            throw new IllegalArgumentException("Cannot add yourself as a child!");
         //Builder
         if(child instanceof IWidgetBuilder<?> builder) {
             LightmansCurrency.LogWarning("Received a builder instead of the desired object!",new Throwable());

@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.network.message.block_entity.SPac
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -31,6 +32,8 @@ public abstract class EasyBlockEntity extends BlockEntity implements ISidedConte
     public final boolean isClient() { return this.level == null || this.level.isClientSide(); }
     @Override
     public final HolderLookup.Provider registryAccess() { return this.level.registryAccess(); }
+
+    public final Component getBlockName() { return this.getBlockState().getBlock().getName(); }
 
     @Override
     @Nullable

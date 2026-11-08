@@ -27,6 +27,7 @@ import io.github.lightman314.lightmanscurrency.features.commands.LCAdminCommand;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.chat.contents.PlainTextContents;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
@@ -227,15 +228,19 @@ public class DisplayNode extends SimpleSyncedNode implements IPersistentNode, IS
     }
 
     @Override
-    public void writePersistentData(ValueOutput output, String id, String ownerName) {
-        Component text = this.customNameText == null ? Component.literal(this.customName.isBlank() ? "Trader" : this.customName) : this.customNameText;
+    public void writePersistentData(ValueOutput output,String nameOverride) {
+        Component text;
+        if(nameOverride.isBlank())
+            text = this.customNameText == null ? Component.literal(this.customName.isBlank() ? "Trader" : this.customName) : this.customNameText;
+        else
+            text = Component.literal(nameOverride);
         output.store("name",ComponentSerialization.CODEC,text);
         if(this.customIcon.isPresent())
             output.store("icon",IconData.CODEC,this.customIcon.get());
     }
 
     @Override
-    public void loadPersistentData(ValueInput input) {
+    public void readPersistentData(ValueInput input,ProblemReporter reporter) {
         Optional<Component> name = input.read("name",ComponentSerialization.CODEC);
         name.ifPresentOrElse(n -> this.customNameText = n,
                 () -> this.customNameText = Component.literal("Trader"));

@@ -6,7 +6,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeDirect
 
 import java.util.function.Consumer;
 
-public record TradeSlot(TradeSlotType type,int slot) {
+public record TradeSlot(TradeSlotType type,int slot) implements FancyPacketMap.FancyPacketWriter {
 
     public static final TradeSlot NONE = new TradeSlot(TradeSlotType.EARLY, -1);
 
@@ -35,12 +35,12 @@ public record TradeSlot(TradeSlotType type,int slot) {
         return new TradeSlot(newType,this.slot);
     }
 
-    public Consumer<FancyPacketMap.Mutable> encode() {
-        return packet -> packet.setEnum("type",this.type).setInt("slot",this.slot);
-    }
-
     public static TradeSlot decode(FancyPacketMap packet) {
         return new TradeSlot(packet.getEnum("type",TradeSlotType.class),packet.getInt("slot"));
     }
 
+    @Override
+    public void writeToPacket(FancyPacketMap.Mutable packet) {
+        packet.setEnum("type",this.type).setInt("slot",this.slot);
+    }
 }

@@ -7,6 +7,7 @@ import io.github.lightman314.lightmanscurrency.api.helpers.registry.AbstractType
 import io.github.lightman314.lightmanscurrency.client.data.ClientFancyDataCache;
 import io.github.lightman314.lightmanscurrency.features.api_impl.data.FancySaveData;
 import net.minecraft.core.Registry;
+import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
 import java.util.function.Supplier;
@@ -25,8 +26,10 @@ public final class FancyDataType<T extends FancyData> extends AbstractType<Fancy
         this.serverOnly = serverOnly;
     }
 
+    @ApiStatus.Internal
     public T create() { return this.factory.get(); }
 
+    @ApiStatus.Internal
     public Codec<T> getCodec() { return this.codec; }
 
     @Nullable

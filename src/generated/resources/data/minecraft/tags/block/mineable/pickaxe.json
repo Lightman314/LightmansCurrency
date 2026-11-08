@@ -15,10 +15,13 @@
     "lightmanscurrency:copper_coin_pile",
     "lightmanscurrency:copper_coin_block",
     "lightmanscurrency:coin_mint",
+    "lightmanscurrency:atm",
+    "lightmanscurrency:ticket_station",
     "lightmanscurrency:trading_terminal",
     "#lightmanscurrency:groups/display_case",
     "#lightmanscurrency:groups/vending_machine",
     "#lightmanscurrency:groups/large_vending_machine",
-    "#lightmanscurrency:groups/item_network_trader"
+    "#lightmanscurrency:groups/item_network_trader",
+    "lightmanscurrency:armor_display"
   ]
 }

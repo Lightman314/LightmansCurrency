@@ -1,0 +1,12 @@
+{
+  "type": "lightmanscurrency:coupon",
+  "durability": {
+    "allowInfinite": true,
+    "max": 99,
+    "min": 1
+  },
+  "ingredient": "#lightmanscurrency:ticket_material/paper",
+  "result": {
+    "id": "lightmanscurrency:coupon"
+  }
+}

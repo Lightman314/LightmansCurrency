@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.builtin;
 
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.ListHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
@@ -65,7 +64,7 @@ public class SimpleTradeEditTab extends TradeInteractionTab {
         int tradeIndex = node.getTrades().indexOf(trade);
         if(tradeIndex < 0)
             return;
-        LightmansCurrency.LogDebug("Attempting to open the advanced trade tab for node " + nodeIndex + " trade " + tradeIndex + " slot " + slot);
+        //LightmansCurrency.LogDebug("Attempting to open the advanced trade tab for node " + nodeIndex + " trade " + tradeIndex + " slot " + slot);
         this.getMenu().changeTab(node.advancedEditTabKey(),AdvancedTradeEditTab.writeOpenMessage(nodeIndex,tradeIndex,slot));
     }
 

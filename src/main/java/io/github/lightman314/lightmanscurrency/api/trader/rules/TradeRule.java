@@ -129,6 +129,12 @@ public abstract class TradeRule implements ISidedContext {
     protected void tradeCost(TradeEvent.Cost event) {}
 
     @ApiStatus.Internal
+    public static void extraCost(INodeAccess trader,TradeData trade,TradeEvent.AfterPriceExchange event) {
+        postEventToRules(trader,trade,event,TradeRule::extraCost);
+    }
+    protected void extraCost(TradeEvent.AfterPriceExchange event) {}
+
+    @ApiStatus.Internal
     public static void afterTrade(INodeAccess trader,TradeData trade,TradeEvent.Post event) {
         postEventToRules(trader,trade,event,TradeRule::afterTrade);
     }

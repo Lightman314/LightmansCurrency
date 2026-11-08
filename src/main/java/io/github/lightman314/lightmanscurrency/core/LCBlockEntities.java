@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.core;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.features.cash_register.CashRegisterBlockEntity;
 import io.github.lightman314.lightmanscurrency.features.coin_mint.CoinMintBlockEntity;
+import io.github.lightman314.lightmanscurrency.features.tickets.TicketStationBlockEntity;
 import io.github.lightman314.lightmanscurrency.features.trader.item.blocks.ItemTraderBlockEntity;
 import io.github.lightman314.lightmanscurrency.features.trader.item.blocks.armor.ArmorDisplayTraderBlockEntity;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -27,6 +28,7 @@ public final class LCBlockEntities {
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<CoinMintBlockEntity>> COIN_MINT = register("coin_mint",CoinMintBlockEntity::new,easySet(LCBlocks.COIN_MINT));
 
     public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<CashRegisterBlockEntity>> CASH_REGISTER = register("cash_register",CashRegisterBlockEntity::new,easySet(LCBlocks.CASH_REGISTER));
+    public static final DeferredHolder<BlockEntityType<?>,BlockEntityType<TicketStationBlockEntity>> TICKET_STATION = register("ticket_station",TicketStationBlockEntity::new,easySet(LCBlocks.TICKET_STATION));
 
     @SafeVarargs
     public static Supplier<Set<Block>> easySet(Supplier<? extends Block>... blocks) {

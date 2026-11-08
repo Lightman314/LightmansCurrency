@@ -12,6 +12,7 @@ import io.github.lightman314.lightmanscurrency.api.icon.IconData;
 import io.github.lightman314.lightmanscurrency.api.icon.builtin.SpriteIcon;
 import io.github.lightman314.lightmanscurrency.api.text.TextEntry;
 import io.github.lightman314.lightmanscurrency.api.trader.event.TradeEvent;
+import io.github.lightman314.lightmanscurrency.api.trader.persistent.PersistentDataException;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.IPersistentRule;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRule;
 import io.github.lightman314.lightmanscurrency.api.trader.rules.TradeRuleType;
@@ -165,6 +166,31 @@ public class PlayerTradeLimit extends TradeRule implements IPersistentRule {
     public void decodeSettings(ValueInput data) {
         this.setLimit(data.getIntOr("limit",1));
         this.setTimer(data.getLongOr("timer",0L));
+    }
+
+    @Override
+    public void writePersistentData(ValueOutput output) throws PersistentDataException {
+        output.putInt("limit",this.limit);
+        if(this.timer > 0)
+            output.putLong("timer",this.timer);
+    }
+
+    @Override
+    public void loadPersistentData(ValueInput input) throws PersistentDataException {
+        this.limit = input.getIntOr("limit",1);
+        this.timer = input.getLongOr("timer",0);
+        if(this.limit <= 0)
+            throw new PersistentDataException("Limit must be >= 1");
+    }
+
+    @Override
+    public void writePersistentSaveData(ValueOutput ouput) {
+        ouput.store("data",InteractionMemory.CODEC,this.memory);
+    }
+
+    @Override
+    public void readPersisentSaveData(ValueInput input) {
+        this.memory.copyFrom(input.read("data",InteractionMemory.CODEC).orElse(new InteractionMemory()));
     }
 
 }

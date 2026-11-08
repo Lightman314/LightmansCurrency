@@ -12,6 +12,7 @@ public final class LCRecipeBookCategories {
     public static final DeferredRegister<RecipeBookCategory> REGISTER = DeferredRegister.create(BuiltInRegistries.RECIPE_BOOK_CATEGORY,LCApi.MODID);
 
     public static DeferredHolder<RecipeBookCategory,RecipeBookCategory> COIN_MINT = register("coin_mint");
+    public static DeferredHolder<RecipeBookCategory,RecipeBookCategory> TICKET_STATION = register("ticket_station");
 
     public static DeferredHolder<RecipeBookCategory,RecipeBookCategory> register(String name) {
         return REGISTER.register(name,RecipeBookCategory::new);

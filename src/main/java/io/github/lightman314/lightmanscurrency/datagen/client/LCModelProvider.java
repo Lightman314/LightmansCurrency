@@ -13,7 +13,9 @@ import io.github.lightman314.lightmanscurrency.datagen.client.models.LCTextureSl
 import io.github.lightman314.lightmanscurrency.datagen.client.models.LCTexturedModels;
 import io.github.lightman314.lightmanscurrency.datagen.client.models.multi.TallModelTemplate;
 import io.github.lightman314.lightmanscurrency.datagen.client.models.multi.TallWideModelTemplate;
+import io.github.lightman314.lightmanscurrency.client.features.colors.InvertedDyeColor;
 import io.github.lightman314.lightmanscurrency.features.wallet.WalletItem;
+import net.minecraft.client.color.item.Dye;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
 import net.minecraft.client.data.models.ModelProvider;
@@ -82,8 +84,8 @@ public class LCModelProvider extends ModelProvider {
         this.simpleWallet(itemModels,LCItems.WALLET_NETHER_STAR);
         this.simpleWallet(itemModels,LCItems.WALLET_ENDER_DRAGON,false);
 
-        itemModels.generateFlatItem(LCItems.TRADING_MECHANISM.get(),ModelTemplates.FLAT_ITEM);
-        itemModels.generateFlatItem(LCItems.UPGRADE_SMITHING_TEMPLATE.get(),ModelTemplates.FLAT_ITEM);
+        this.normalItem(itemModels,LCItems.TRADING_MECHANISM);
+        this.normalItem(itemModels,LCItems.UPGRADE_SMITHING_TEMPLATE);
 
         Identifier baseTexture = LCApi.id("item/item_capacity_upgrade");
         //Upgrade Items
@@ -128,9 +130,18 @@ public class LCModelProvider extends ModelProvider {
         this.existingItem(itemModels,LCItems.ATM_PORTABLE);
         //Cash Register
         this.rotatableBlockWithItem(blockModels,itemModels,LCBlocks.CASH_REGISTER);
+        //Ticket Station
+        this.rotatableBlockWithItem(blockModels,itemModels,LCBlocks.TICKET_STATION);
         //Terminal
         this.rotatableBlockWithItem(blockModels,itemModels,LCBlocks.TRADING_TERMINAL);
         this.existingItem(itemModels,LCItems.TRADING_TERMINAL_PORTABLE);
+
+        //Tickets
+        //this.dualLayeredItem();
+        this.dualColoredItem(itemModels,LCItems.MASTER_TICKET);
+        this.dualColoredItem(itemModels,LCItems.TICKET);
+        this.normalItem(itemModels,LCItems.TICKET_STUB);
+        this.dualColoredItem(itemModels,LCItems.COUPON);
 
         //Display Case Models
         this.coloredBlock(blockModels,itemModels,LCBlocks.DISPLAY_CASE,LCTexturedModels.DISPLAY_CASE);
@@ -172,11 +183,24 @@ public class LCModelProvider extends ModelProvider {
         itemModels.itemModelOutput.register(hipModel,new ClientItem(ItemModelUtils.plainModel(hipModel.withPrefix("item/")),ClientItem.Properties.DEFAULT));
     }
 
+    protected final void normalItem(ItemModelGenerators itemModels,Supplier<? extends ItemLike> item) { this.normalItem(itemModels,item.get().asItem()); }
+    protected final void normalItem(ItemModelGenerators itemModels,Item item) {
+        itemModels.generateFlatItem(item,ModelTemplates.FLAT_ITEM);
+    }
+
     protected final void dualLayeredItem(ItemModelGenerators itemModels,Supplier<? extends ItemLike> item,Identifier layer0,Identifier layer1) {
         Identifier itemID = this.getItemID(item.get());
         Identifier model = itemID.withPrefix("item/");
         ModelTemplates.TWO_LAYERED_ITEM.create(model,TextureMapping.layer0(new Material(layer0)).put(TextureSlot.LAYER1,new Material(layer1)),itemModels.modelOutput);
         itemModels.itemModelOutput.register(item.get().asItem(),new ClientItem(ItemModelUtils.plainModel(model),ClientItem.Properties.DEFAULT));
+    }
+
+    protected final void dualColoredItem(ItemModelGenerators itemModels,Supplier<? extends ItemLike> item) { this.dualColoredItem(itemModels,item.get().asItem()); }
+    protected final void dualColoredItem(ItemModelGenerators itemModels,Item item) {
+        Material baseLayer = TextureMapping.getItemTexture(item);
+        Material overlay = TextureMapping.getItemTexture(item,"_overlay");
+        Identifier model = ModelTemplates.TWO_LAYERED_ITEM.create(item,TextureMapping.layered(baseLayer,overlay),itemModels.modelOutput);
+        itemModels.itemModelOutput.accept(item,ItemModelUtils.tintedModel(model,new Dye(-1),InvertedDyeColor.createDefault()));
     }
 
     protected final void simpleBlock(BlockModelGenerators blockModels, Supplier<? extends Block> block)
@@ -409,4 +433,5 @@ public class LCModelProvider extends ModelProvider {
 
     protected final Identifier getItemID(ItemLike item) { return BuiltInRegistries.ITEM.getKey(item.asItem()); }
     protected final Identifier getItemModelID(ItemLike item) { return this.getItemID(item).withPrefix("item/"); }
+
 }

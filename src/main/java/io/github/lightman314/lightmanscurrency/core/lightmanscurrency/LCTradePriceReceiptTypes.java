@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.TradePriceReceiptType;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.builtin.ItemReceipt;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.builtin.MoneyReceipt;
+import io.github.lightman314.lightmanscurrency.features.tickets.trader.TicketPriceReceipt;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class LCTradePriceReceiptTypes {
@@ -16,6 +17,7 @@ public final class LCTradePriceReceiptTypes {
     static {
         register("money",MoneyReceipt.TYPE);
         register("items",ItemReceipt.TYPE);
+        register("ticket",TicketPriceReceipt.TYPE);
     }
 
     private static void register(String name,TradePriceReceiptType<?> type) {

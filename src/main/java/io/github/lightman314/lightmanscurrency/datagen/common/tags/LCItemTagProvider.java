@@ -105,6 +105,36 @@ public class LCItemTagProvider extends ItemTagsProvider {
                 .add(LCBlocks.TRADING_TERMINAL)
                 .add(LCItems.TRADING_TERMINAL_PORTABLE);
 
+        this.ezTag(LCTags.Items.TICKETS)
+                .addTag(LCTags.Items.TICKETS_MASTER)
+                .addTag(LCTags.Items.TICKETS_CONSUMABLE)
+                .addTag(LCTags.Items.TICKETS_STUBS);
+
+        this.ezTag(LCTags.Items.TICKETS_MASTER)
+                .add(LCItems.MASTER_TICKET);
+
+        this.ezTag(LCTags.Items.TICKETS_CONSUMABLE)
+                .add(LCItems.TICKET);
+        this.ezTag(LCTags.Items.TICKETS_STUBS)
+                .add(LCItems.TICKET_STUB);
+
+        this.tag(LCTags.Items.TICKET_MATERIAL)
+                .addTag(LCTags.Items.TICKET_MATERIAL_PAPER)
+                .addTag(LCTags.Items.TICKET_MATERIAL_GOLD);
+
+        this.tag(LCTags.Items.COUPONS)
+                .add(LCItems.COUPON);
+
+        this.ezTag(LCTags.Items.TICKET_MATERIAL_PAPER)
+                .add(Items.PAPER)
+                .add(LCItems.MASTER_TICKET)
+                .add(LCItems.TICKET)
+                .add(LCItems.TICKET_STUB)
+                .add(LCItems.COUPON);
+
+        this.ezTag(LCTags.Items.TICKET_MATERIAL_GOLD)
+                .add(Items.GOLD_INGOT);
+
         this.ezTag(LCTags.Items.TRADERS)
                 .addTag(LCTags.Items.TRADERS_ITEM)
                 .addTag(LCTags.Items.TRADERS_NETWORK);

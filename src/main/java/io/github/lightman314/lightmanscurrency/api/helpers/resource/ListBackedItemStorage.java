@@ -1,6 +1,7 @@
 package io.github.lightman314.lightmanscurrency.api.helpers.resource;
 
 import com.mojang.serialization.Codec;
+import io.github.lightman314.lightmanscurrency.api.codecs.CodecHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.ItemHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.NumberHelper;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
@@ -37,6 +38,14 @@ public abstract class ListBackedItemStorage implements ResourceHandler<ItemResou
     public ListBackedItemStorage(List<ItemStack> list) { this.storage = new ArrayList<>(list); }
     public ListBackedItemStorage(Runnable listener) { this((l1,l2) -> listener.run()); }
     public ListBackedItemStorage(ListChangedListener listener) { this.listener = listener; this.storage = new ArrayList<>(); }
+
+    public void write(ValueOutput output,String key) {
+        output.store(key,this.codec(),this.storage);
+    }
+
+    public void read(ValueInput input,String key) {
+        input.read(key,this.codec()).ifPresent(this::copyFrom);
+    }
 
     public void copyFrom(List<ItemStack> list)
     {

@@ -18,6 +18,7 @@ import io.github.lightman314.lightmanscurrency.features.coins.FallingCoinBlock;
 import io.github.lightman314.lightmanscurrency.features.coins.FallingCoinPile;
 import io.github.lightman314.lightmanscurrency.features.colors.ColorDisplay;
 import io.github.lightman314.lightmanscurrency.features.network_terminal.TradingTerminalBlock;
+import io.github.lightman314.lightmanscurrency.features.tickets.TicketStationBlock;
 import io.github.lightman314.lightmanscurrency.features.trader.item.blocks.ItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.features.trader.item.blocks.armor.ArmorTraderBlock;
 import io.github.lightman314.lightmanscurrency.features.trader.item.blocks.specific.*;
@@ -154,6 +155,7 @@ public final class LCBlocks {
 
     public static final DeferredBlock<ATMBlock> ATM = register("atm",ATMBlock::new,p ->
             p.mapColor(MapColor.COLOR_GRAY)
+                    .noOcclusion()
                     .strength(3f,6f)
                     .sound(SoundType.METAL));
 
@@ -164,7 +166,10 @@ public final class LCBlocks {
             CashRegisterItem::new,p -> p.component(LCDataComponents.BONUS_TOOLTIP,new BonusTooltip(CashRegisterBlock.TOOLTIP))
                     .component(LCDataComponents.TRADER_POSITIONS,TraderPositionSet.EMPTY));
 
-
+    public static final DeferredBlock<TicketStationBlock> TICKET_STATION = register("ticket_station",TicketStationBlock::new,p ->
+            p.mapColor(MapColor.METAL)
+                    .strength(3f,6f)
+                    .sound(SoundType.METAL));
 
     public static final DeferredBlock<TradingTerminalBlock> TRADING_TERMINAL = register("trading_terminal",p -> new TradingTerminalBlock(p,Block.box(1d,0d,1d,15d,16d,15d)),p ->
             p.mapColor(MapColor.METAL)

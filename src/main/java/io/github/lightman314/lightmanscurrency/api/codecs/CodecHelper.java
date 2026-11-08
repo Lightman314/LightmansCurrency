@@ -13,6 +13,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.*;
 import java.util.function.Function;
 
@@ -40,6 +41,8 @@ public class CodecHelper {
     public static final Codec<Identifier> IDENTIFIER_LC_DEFAULT = identifierWithDefaultNamespace(LCApi.MODID);
 
     public static final Codec<BigDecimal> BIG_DECIMAL = Codec.STRING.xmap(BigDecimal::new,BigDecimal::toString);
+    public static final Codec<BigInteger> BIG_INTEGER = Codec.STRING.xmap(BigInteger::new,BigInteger::toString);
+    public static final Codec<BigInteger> BIG_INTEGER_HEX = Codec.STRING.xmap(s -> new BigInteger(s,16),i -> i.toString(16));
 
     public static final Codec<Long> LONG_KEY = Codec.STRING.comapFlatMap(string -> {
         try {
@@ -49,6 +52,8 @@ public class CodecHelper {
     },l -> Long.toString(l));
 
     public static <T> Codec<Set<T>> setCodec(Codec<T> codec) { return Codec.list(codec).xmap(Set::copyOf,List::copyOf); }
+
+    public static <T> Codec<List<T>> lenientListCodec(Codec<T> codec) { return Codec.withAlternative(codec.listOf(),codec.xmap(List::of,List::getFirst)); }
 
     public static Codec<Identifier> identifierWithDefaultNamespace(String defaultNamespace) {
         return Codec.STRING.comapFlatMap(string -> {
@@ -66,6 +71,7 @@ public class CodecHelper {
             return id.toString();
         });
     }
+
 
     public static <T> Codec<T> byNameCodec(Function<Identifier,T> parser,Function<T,Identifier> idGetter,String name) { return byNameCodec(Identifier.CODEC,parser,idGetter,name); }
     public static <T> Codec<T> byNameCodec(Codec<Identifier> idCodec,Function<Identifier,T> parser,Function<T,Identifier> idGetter,String name)
