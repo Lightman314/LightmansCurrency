@@ -1,6 +1,5 @@
-package io.github.lightman314.lightmanscurrency.features.trader.item.trade;
+package io.github.lightman314.lightmanscurrency.features.trader.item.trade.client;
 
-import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.trader.TradeTooltipBuilder;
 import io.github.lightman314.lightmanscurrency.api.client.gui.widget.trader.trade_displays.ItemDisplay;
@@ -16,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeData;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.ITradeInteractionHandler;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.edit.TradeSlotType;
 import io.github.lightman314.lightmanscurrency.features.trader.item.TradeItem;
+import io.github.lightman314.lightmanscurrency.features.trader.item.trade.ItemTradeData;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -63,7 +63,7 @@ public class ItemTradeButtonDisplay extends TradeButtonDisplay {
                 return entries;
             }
         }
-        return ImmutableList.of();
+        return List.of();
     }
 
     public static Identifier getBackgroundSprite(ItemTradeData trade) {

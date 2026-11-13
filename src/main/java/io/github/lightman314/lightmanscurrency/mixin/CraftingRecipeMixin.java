@@ -2,6 +2,7 @@ package io.github.lightman314.lightmanscurrency.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import io.github.lightman314.lightmanscurrency.api.helpers.ItemHelper;
 import io.github.lightman314.lightmanscurrency.core.LCDataComponents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
@@ -16,10 +17,8 @@ public class CraftingRecipeMixin {
     private ItemStack assemble(CraftingInput input,Operation<ItemStack> original) {
         ItemStack stack = original.call(input);
         for(ItemStack s : input.items()) {
-            if(s.has(LCDataComponents.STORED_TRADER)) {
-                stack.set(LCDataComponents.STORED_TRADER,s.get(LCDataComponents.STORED_TRADER));
+            if(ItemHelper.copyComponent(LCDataComponents.STORED_TRADER,s,stack))
                 return stack;
-            }
         }
         return stack;
     }

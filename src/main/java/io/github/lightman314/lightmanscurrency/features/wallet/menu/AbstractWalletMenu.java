@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.features.wallet.menu;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Function3;
 import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
@@ -34,6 +33,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,7 +75,7 @@ public abstract class AbstractWalletMenu extends MessageMenu implements ItemAcce
     public final int halfBonusWidth;
 
     private final List<Slot> coinSlots = new ArrayList<>();
-    public final List<Slot> getCoinSlots() { return ImmutableList.copyOf(this.coinSlots); }
+    public final List<Slot> getCoinSlots() { return Collections.unmodifiableList(this.coinSlots); }
 
     public AbstractWalletMenu(MenuType<?> type,int menuID,Player player,int walletSlot) {
         super(type,menuID,player);
@@ -128,8 +128,6 @@ public abstract class AbstractWalletMenu extends MessageMenu implements ItemAcce
     }
 
     protected final void addCoinSlots(int yPos) {
-        if(!this.coinSlots.isEmpty())
-            return;
         Identifier background = LCApi.id("container/slot/money");
         int dummySlots = WalletItem.MAX_WALLET_SLOTS - this.walletStorage.size();
         int index = 0;

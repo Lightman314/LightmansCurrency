@@ -1,5 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.helpers.network;
 
+import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.helpers.debug.IIndentStringable;
 import io.netty.handler.codec.DecoderException;
@@ -9,6 +10,7 @@ import net.minecraft.network.codec.StreamCodec;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 public final class PacketList<T> implements Iterable<T>, IIndentStringable {
 
@@ -34,11 +36,19 @@ public final class PacketList<T> implements Iterable<T>, IIndentStringable {
     {
         this.listType = type;
         this.list = new ArrayList<>(list);
+        this.validateList();
+    }
+
+    private void validateList() {
+        for(int i = 0; i < this.list.size(); ++i) {
+            if(this.list.get(i) == null)
+                throw new NullPointerException("Null packet list entry at index " + i);
+        }
     }
 
     public boolean isEmpty() { return this.list.isEmpty(); }
 
-    public void add(T entry) { this.list.add(entry); }
+    public void add(T entry) { this.list.add(Objects.requireNonNull(entry)); }
 
     private void encodeList(RegistryFriendlyByteBuf buf)
     {

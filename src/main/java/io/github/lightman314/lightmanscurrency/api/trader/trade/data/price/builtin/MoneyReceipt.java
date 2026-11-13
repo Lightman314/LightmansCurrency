@@ -15,6 +15,8 @@ public class MoneyReceipt extends TradePriceReceipt {
 
     public static final TradePriceReceiptType<MoneyReceipt> TYPE = new TradePriceReceiptType<>(MAP_CODEC,STREAM_CODEC);
 
+    public static final MoneyReceipt FREE = new MoneyReceipt(MoneyValue.free());
+
     private final MoneyValue money;
     public final MoneyValue getMoney() { return this.money; }
     public MoneyReceipt(MoneyValue money) { this.money = money; }

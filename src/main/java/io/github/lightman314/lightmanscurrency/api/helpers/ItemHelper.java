@@ -184,10 +184,13 @@ public final class ItemHelper {
         return hashes.hashCode();
     }
 
-    public static <T> void copyComponent(Supplier<DataComponentType<T>> type, ItemStack from, ItemStack to) { copyComponent(type.get(),from,to); }
-    public static <T> void copyComponent(DataComponentType<T> type,ItemStack fromStack,ItemStack toStack) {
-        if(fromStack.has(type))
+    public static <T> boolean copyComponent(Supplier<DataComponentType<T>> type,ItemStack from,ItemStack to) { return copyComponent(type.get(),from,to); }
+    public static <T> boolean copyComponent(DataComponentType<T> type,ItemStack fromStack,ItemStack toStack) {
+        if(fromStack.has(type)) {
             toStack.set(type,fromStack.get(type));
+            return true;
+        }
+        return false;
     }
 
     public static ItemStackTemplate asTemplate(ItemStack stack) { return new ItemStackTemplate(stack.getItem(),stack.getCount(),stack.getComponentsPatch()); }

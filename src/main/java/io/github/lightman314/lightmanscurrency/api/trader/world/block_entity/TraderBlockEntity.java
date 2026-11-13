@@ -304,11 +304,13 @@ public abstract class TraderBlockEntity extends EasyBlockEntity.Synced implement
     }
 
     @Override
+    @OverridingMethodsMustInvokeSuper
     public void writeInitialPacket(FancyPacketMap.Mutable packet,Player player) {
         packet.setLong("traderID",this.traderID);
     }
 
     @Override
+    @OverridingMethodsMustInvokeSuper
     public void handleSyncPacket(FancyPacketMap packet) {
         if(packet.contains("traderID"))
             this.traderID = packet.getLong("traderID",-1);

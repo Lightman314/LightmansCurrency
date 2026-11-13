@@ -11,6 +11,7 @@ import io.netty.handler.codec.DecoderException;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.util.StringRepresentable;
 
 import javax.annotation.Nullable;
 import java.util.Locale;
@@ -68,6 +69,15 @@ public final class EnumHelper {
         for(T val : allValues)
         {
             if(val.toString().equalsIgnoreCase(string))
+                return val;
+        }
+        return defaultValue;
+    }
+
+    @Nullable
+    public static <T extends StringRepresentable> T stringRepresentableFromString(String string,T[] allValues,@Nullable T defaultValue) {
+        for(T val : allValues) {
+            if(val.getSerializedName().equalsIgnoreCase(string))
                 return val;
         }
         return defaultValue;

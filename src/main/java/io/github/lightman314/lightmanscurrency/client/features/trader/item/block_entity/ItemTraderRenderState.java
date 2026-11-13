@@ -62,7 +62,7 @@ public class ItemTraderRenderState extends BlockEntityRenderState {
         AbstractItemTradesNode<?> node = trader.getFirstNode(AbstractItemTradesNode.class);
         if(node == null)
             return;
-        try(TradeContext context = TradeContext.builder(trader).build()) {
+        try(TradeContext context = TradeContext.builder(trader,be.getLevel()).build()) {
             for (ItemTradeData trade : node.getTrades()) {
                 TradeItemDisplay display = new TradeItemDisplay();
                 display.stock = Ints.saturatedCast(trade.getStock(context));

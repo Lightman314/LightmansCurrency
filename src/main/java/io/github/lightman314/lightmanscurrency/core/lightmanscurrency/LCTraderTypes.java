@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderType;
 import io.github.lightman314.lightmanscurrency.features.trader.item.ArmorTraderType;
 import io.github.lightman314.lightmanscurrency.features.trader.item.ItemTraderType;
+import io.github.lightman314.lightmanscurrency.features.trader.paygate.PaygateTraderType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -16,6 +17,7 @@ public final class LCTraderTypes {
 
     public static final DeferredHolder<TraderType,ItemTraderType> ITEM_TRADER = register("item_trader",new ItemTraderType());
     public static final DeferredHolder<TraderType,ArmorTraderType> ARMOR_DISPLAY = register("armor_display",new ArmorTraderType());
+    public static final DeferredHolder<TraderType,PaygateTraderType> PAYGATE = register("paygate",new PaygateTraderType());
 
     private static <T extends TraderType> DeferredHolder<TraderType,T> register(String name,T type) {
         return REGISTER.register(name,() -> type);

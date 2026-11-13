@@ -380,8 +380,14 @@ public final class TraderDataCache extends FancyData implements ITickerServer, I
     @Override
     public void onPlayerJoin(ServerPlayer player) {
         //Send "Trader Exists" packet for each existing trader
-
         this.sendPacketToTarget(player, asCreationPacket(this.getAllTraders()));
+    }
+
+    @Override
+    public void onPlayerLeave(ServerPlayer player) {
+        //Inform all trader when the player leaves
+        for(TraderData trader : this.getAllTraders())
+            trader.onPlayerLeave(player);
     }
 
     public void setTraderChanged(TraderData trader)
@@ -400,8 +406,11 @@ public final class TraderDataCache extends FancyData implements ITickerServer, I
             if(trader != null)
                 this.sendUpdatePacket(trader);
         }
-        this.sendPacketToAll(FancyPacketMap.map().setList("DeletedTraders", LCFancyPacketTypes.LONG,this.deletedTraders));
-        this.deletedTraders.clear();
+        //Only send deleted traders packet if there's actually data worth sending
+        if(!this.deletedTraders.isEmpty()) {
+            this.sendPacketToAll(FancyPacketMap.map().setList("DeletedTraders",LCFancyPacketTypes.LONG,this.deletedTraders));
+            this.deletedTraders.clear();
+        }
     }
 
     private void sendUpdatePacket(TraderData trader)

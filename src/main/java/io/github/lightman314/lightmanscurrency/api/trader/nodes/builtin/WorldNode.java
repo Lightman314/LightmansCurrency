@@ -2,7 +2,6 @@ package io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
 import io.github.lightman314.lightmanscurrency.api.text.MultiLineTextEntry;
@@ -100,8 +99,8 @@ public class WorldNode extends SimpleSyncedNode implements IDisplayNode, ISettin
     }
 
     @Nullable
-    public TraderBlockEntity getBlockEntity(Level level) {
-        if(!this.position.isVoid()) {
+    public TraderBlockEntity getBlockEntity(@Nullable Level level) {
+        if(level != null && !this.position.isVoid()) {
             if(level.dimension() == this.position.getDimension() && level.isLoaded(this.position.getPos())) {
                 if(level.getBlockEntity(this.position.getPos()) instanceof TraderBlockEntity be && be.getTraderID() == this.getTrader().getID())
                     return be;

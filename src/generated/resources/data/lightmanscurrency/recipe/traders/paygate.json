@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "i": "#c:ingots/iron",
+    "r": "minecraft:redstone_block",
+    "t": "minecraft:redstone_torch",
+    "x": "lightmanscurrency:trading_mechanism"
+  },
+  "pattern": [
+    "iri",
+    "ixi",
+    "iti"
+  ],
+  "result": {
+    "id": "lightmanscurrency:paygate"
+  }
+}

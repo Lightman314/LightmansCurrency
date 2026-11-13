@@ -9,6 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.filtering.interfaces.I
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.interfaces.IDisplayNode;
 import io.github.lightman314.lightmanscurrency.api.trader.filtering.interfaces.ISearchFilterNode;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.templates.TradingNode;
+import io.github.lightman314.lightmanscurrency.api.trader.trade.data.IDescriptionTrade;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeData;
 import java.util.function.Predicate;
 
@@ -34,6 +35,11 @@ public final class GlobalFilter implements IExtraTraderSearchFilter, IExtraTrade
         //Apply trade type filter
         search.processFilter(FilterHelper.TRADE_TYPE,this.checkTradeType(trade));
         FilterHelper.longRange(search,FilterHelper.TRADE_STOCK,this.getTradeStock(trade,search));
+        //Trade Description/Tooltip
+        if(trade instanceof IDescriptionTrade dt) {
+            search.processUnfiltered(s -> dt.getDescription().toLowerCase().contains(s));
+            search.processFilter(FilterHelper.TOOLTIP,s -> dt.getTooltip().toLowerCase().contains(s));
+        }
         //Apply trade price filter
         if(trade.isCustomerReady() && trade.getInternalPrice() instanceof ISearchFilterPrice price)
             price.applySearchFilters(trade,search);

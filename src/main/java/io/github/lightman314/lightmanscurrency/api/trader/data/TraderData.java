@@ -126,7 +126,7 @@ public final class TraderData extends IRegistryAccess.WithHolder implements ISid
             for(ISyncingNode node : this.getNodes(ISyncingNode.class))
                 node.afterTrackingChange(context,oldLevel);
         }
-        //LightmansCurrency.LogDebug(player.getName().getString() + " is now tracking Trader #" + this.id + " at level " + level + " (Key: " + result.key() + ")");
+        //LightmansCurrency.LogDebug(player.getName().getString() + " is now tracking Trader #" + this.id + " at level " + level + " (Key: " + result.key() + ")" + "\nWas tracking at " + oldLevel);
         return result.key();
     }
 
@@ -497,6 +497,10 @@ public final class TraderData extends IRegistryAccess.WithHolder implements ISid
             //If the trade is not cancelled by the event, tell the node to attempt the trade
             return node.executeTrade(context,tradeIndex);
         } catch (TradeFailedException e) { return e.result; }
+        catch (Exception error) {
+            LightmansCurrency.LogError("An error occurred while executing the trade.",error);
+            return TradeResult.FAIL_NULL;
+        }
     }
 
     private static class ResourceQuery implements ResourceCollector {

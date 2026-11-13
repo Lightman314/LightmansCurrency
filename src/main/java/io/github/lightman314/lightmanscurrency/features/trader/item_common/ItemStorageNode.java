@@ -37,7 +37,7 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import java.util.*;
 import java.util.function.Consumer;
 
-public class ItemStorageNode extends SimpleSyncedNode implements IPermissionUser, IStorageMenuTabProvider,ITradeResourceProvider,IUpgradeUser,ITraderDestructionListener, IPersistentNode {
+public class ItemStorageNode extends SimpleSyncedNode implements IPermissionUser,IStorageMenuTabProvider,ITradeResourceProvider,IUpgradeUser,ITraderDestructionListener,IPersistentNode {
 
     private static final MapCodec<ItemStorageNode> CODEC = RecordCodecBuilder.mapCodec(builder -> builder.group(
             CodecHelper.UNLIMITED_ITEM_LIST.fieldOf("storage").forGetter(ItemStorageNode::getContents)

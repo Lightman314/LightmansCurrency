@@ -5,6 +5,7 @@ import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.TradeDataType;
 import io.github.lightman314.lightmanscurrency.features.trader.item.trade.ArmorTradeData;
 import io.github.lightman314.lightmanscurrency.features.trader.item.trade.ItemTradeData;
+import io.github.lightman314.lightmanscurrency.features.trader.paygate.trade.PaygateTradeData;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class LCTradeTypes {
@@ -15,6 +16,7 @@ public final class LCTradeTypes {
     static {
         register("item",ItemTradeData.TYPE);
         register("armor",ArmorTradeData.TYPE);
+        register("paygate",PaygateTradeData.TYPE);
     }
 
     private static void register(String name,TradeDataType<?> type) {

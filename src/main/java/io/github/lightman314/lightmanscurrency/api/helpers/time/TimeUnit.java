@@ -83,6 +83,7 @@ public enum TimeUnit {
     public long getDurationMillis() { return this.millis; }
     TimeUnit(long millis) { this.millis = millis; }
 
+    public TimeUnitTextEntry getUnitText() { return ENTRIES.get(this); }
     public MutableComponent getText() { return ENTRIES.get(this).fullText.get(); }
     public MutableComponent getPluralText() { return ENTRIES.get(this).pluralText.get(); }
     public MutableComponent getShortText() { return ENTRIES.get(this).shortText.get(); }

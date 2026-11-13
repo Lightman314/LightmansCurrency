@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.helpers.time;
 
 import io.github.lightman314.lightmanscurrency.LCConfig;
-import io.github.lightman314.lightmanscurrency.LightmansCurrency;
 import io.github.lightman314.lightmanscurrency.api.proxy.LCProxy;
 import io.github.lightman314.lightmanscurrency.network.message.system.SPacketSyncTime;
 import net.neoforged.bus.api.SubscribeEvent;

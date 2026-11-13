@@ -8,6 +8,7 @@ import io.github.lightman314.lightmanscurrency.api.taxes.notifications.*;
 import io.github.lightman314.lightmanscurrency.api.trader.notifications.*;
 import io.github.lightman314.lightmanscurrency.api.trader.notifications.settings.*;
 import io.github.lightman314.lightmanscurrency.features.trader.item.notifications.ItemTradeNotification;
+import io.github.lightman314.lightmanscurrency.features.trader.paygate.notifications.PaygateTradeNotification;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class LCNotificationTypes {
@@ -26,6 +27,7 @@ public final class LCNotificationTypes {
         register("bank_interest",BankInterestNotification.TYPE);
         register("taxes_paid",TaxesPaidNotification.TYPE);
         register("item_trade",ItemTradeNotification.TYPE);
+        register("paygate_trade",PaygateTradeNotification.TYPE);
         register("setting_change_dumb",ChangeSettingNotification.Dumb.TYPE);
         register("setting_change_simple",ChangeSettingNotification.Simple.TYPE);
         register("setting_change_advanced",ChangeSettingNotification.Advanced.TYPE);

@@ -22,11 +22,13 @@ public class SimpleButtonSetting implements ScrollingWidgetBuilder {
     private final TooltipSource buttonTooltip;
     private final BooleanSupplier canEdit;
     private final Runnable onPress;
+    private final Runnable onAltPress;
     private SimpleButtonSetting(Builder builder) {
         this.buttonText = builder.buttonText;
         this.buttonTooltip = builder.buttonTooltip;
         this.canEdit = builder.canEdit;
         this.onPress = builder.onPress;
+        this.onAltPress = builder.onAltPress;
     }
 
     @Override
@@ -38,6 +40,7 @@ public class SimpleButtonSetting implements ScrollingWidgetBuilder {
                 .active(this.canEdit)
                 .tooltip(this.buttonTooltip)
                 .onPress(this.onPress)
+                .onAltPress(this.onAltPress)
                 .build());
         return 20;
     }
@@ -52,6 +55,7 @@ public class SimpleButtonSetting implements ScrollingWidgetBuilder {
         private TooltipSource buttonTooltip = TooltipSource.EMPTY;
         private BooleanSupplier canEdit = () -> false;
         private Runnable onPress = () -> {};
+        private Runnable onAltPress = () -> {};
 
         public Builder withText(Component text) { return this.withText(() -> text); }
         public Builder withText(Supplier<Component> text) { this.buttonText = text; return this; }
@@ -63,6 +67,7 @@ public class SimpleButtonSetting implements ScrollingWidgetBuilder {
         public Builder canEdit(BooleanSupplier canEdit) { this.canEdit = canEdit; return this; }
 
         public Builder onPress(Runnable onPress) { this.onPress = onPress; return this; }
+        public Builder onAltPress(Runnable onAltPress) { this.onAltPress = onAltPress; return this; }
 
         public SimpleButtonSetting build() { return new SimpleButtonSetting(this); }
 

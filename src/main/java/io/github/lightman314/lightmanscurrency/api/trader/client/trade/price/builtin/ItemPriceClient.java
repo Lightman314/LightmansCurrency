@@ -11,7 +11,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.Trade
 import io.github.lightman314.lightmanscurrency.api.trader.trade.data.price.builtin.ItemPrice;
 import io.github.lightman314.lightmanscurrency.api.trader.client.trade.price.ClientTradePrice;
 import io.github.lightman314.lightmanscurrency.features.trader.item.TradeItem;
-import io.github.lightman314.lightmanscurrency.features.trader.item.trade.ItemTradeButtonDisplay;
+import io.github.lightman314.lightmanscurrency.features.trader.item.trade.client.ItemTradeButtonDisplay;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.ArrayList;

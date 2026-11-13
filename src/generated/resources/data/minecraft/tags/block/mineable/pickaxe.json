@@ -22,6 +22,7 @@
     "#lightmanscurrency:groups/vending_machine",
     "#lightmanscurrency:groups/large_vending_machine",
     "#lightmanscurrency:groups/item_network_trader",
-    "lightmanscurrency:armor_display"
+    "lightmanscurrency:armor_display",
+    "lightmanscurrency:paygate"
   ]
 }

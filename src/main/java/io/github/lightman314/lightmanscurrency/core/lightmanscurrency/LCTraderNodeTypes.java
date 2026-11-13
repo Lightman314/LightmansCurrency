@@ -4,10 +4,12 @@ import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.TraderNodeType;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.*;
+import io.github.lightman314.lightmanscurrency.features.tickets.nodes.TicketStubStorageNode;
 import io.github.lightman314.lightmanscurrency.features.trader.gacha.nodes.GachaStorageNode;
 import io.github.lightman314.lightmanscurrency.features.trader.item.nodes.ArmorTradesNode;
 import io.github.lightman314.lightmanscurrency.features.trader.item.nodes.ItemTradesNode;
 import io.github.lightman314.lightmanscurrency.features.trader.item_common.ItemStorageNode;
+import io.github.lightman314.lightmanscurrency.features.trader.paygate.nodes.PaygateTradesNode;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class LCTraderNodeTypes {
@@ -43,6 +45,9 @@ public final class LCTraderNodeTypes {
         register("item_trades",ItemTradesNode.TYPE);
         register("armor_trades",ArmorTradesNode.TYPE);
         register("gacha_storage",GachaStorageNode.TYPE);
+        //Paygate
+        register("paygate_trades",PaygateTradesNode.TYPE);
+        register("ticket_stub_storage", TicketStubStorageNode.TYPE);
 
     }
 

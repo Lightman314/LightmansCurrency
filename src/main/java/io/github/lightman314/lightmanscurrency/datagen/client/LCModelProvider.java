@@ -14,6 +14,7 @@ import io.github.lightman314.lightmanscurrency.datagen.client.models.LCTexturedM
 import io.github.lightman314.lightmanscurrency.datagen.client.models.multi.TallModelTemplate;
 import io.github.lightman314.lightmanscurrency.datagen.client.models.multi.TallWideModelTemplate;
 import io.github.lightman314.lightmanscurrency.client.features.colors.InvertedDyeColor;
+import io.github.lightman314.lightmanscurrency.features.trader.paygate.blocks.PaygateBlock;
 import io.github.lightman314.lightmanscurrency.features.wallet.WalletItem;
 import net.minecraft.client.color.item.Dye;
 import net.minecraft.client.data.models.BlockModelGenerators;
@@ -165,6 +166,9 @@ public class LCModelProvider extends ModelProvider {
         //Armor Display
         this.tallRotatableBlockWithItem(blockModels,itemModels,LCBlocks.ARMOR_DISPLAY,this.getBlockModelID(LCBlocks.ARMOR_DISPLAY.get()));
 
+        //Paygate
+        this.paygateBlock(blockModels,itemModels,LCBlocks.PAYGATE);
+
     }
 
     protected final void existingItem(ItemModelGenerators itemModels,Supplier<? extends ItemLike> item) {
@@ -255,6 +259,24 @@ public class LCModelProvider extends ModelProvider {
     protected final <T extends Block & IRotatableBlock> void rotatableBlockWithItem(BlockModelGenerators blockModels,ItemModelGenerators itemModels,T block,Variant variant) {
         this.rotatableBlock(blockModels,block,variant);
         this.simpleBlockItem(itemModels,block,variant);
+    }
+
+    protected final <T extends PaygateBlock> void paygateBlock(BlockModelGenerators blockModels,ItemModelGenerators itemModels,Supplier<T> block) { this.paygateBlock(blockModels,itemModels,block.get()); }
+    protected final <T extends PaygateBlock> void paygateBlock(BlockModelGenerators blockModels,ItemModelGenerators itemModels,T block) {
+        Identifier baseModel = this.getBlockModelID(block);
+        Variant powered = new Variant(baseModel.withSuffix("_powered"));
+        Variant unpowered = new Variant(baseModel.withSuffix("_unpowered"));
+        blockModels.blockStateOutput.accept(MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(PaygateBlock.POWERED)
+                        .select(true,BlockModelGenerators.variant(powered))
+                        .select(false,BlockModelGenerators.variant(unpowered)))
+                .with(PropertyDispatch.modify(IRotatableBlock.FACING)
+                        .select(Direction.NORTH,this.rotationMutator(block,Direction.NORTH))
+                        .select(Direction.SOUTH,this.rotationMutator(block,Direction.SOUTH))
+                        .select(Direction.EAST,this.rotationMutator(block,Direction.EAST))
+                        .select(Direction.WEST,this.rotationMutator(block,Direction.WEST))
+                ));
+        this.simpleBlockItem(itemModels,block,unpowered);
     }
 
     protected final <T extends Block & IRotatableBlock & ITallBlock> void tallRotatableBlockWithItem(BlockModelGenerators blockModels,ItemModelGenerators itemModels,Supplier<T> block) { this.tallRotatableBlockWithItem(blockModels,itemModels,block.get()); }

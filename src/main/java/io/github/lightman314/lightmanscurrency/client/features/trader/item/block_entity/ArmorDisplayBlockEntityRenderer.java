@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -59,7 +60,7 @@ public class ArmorDisplayBlockEntityRenderer implements BlockEntityRenderer<Armo
                     for(int i = 0; i < 4; i++) {
                         ArmorTradeData trade = node.getTrade(i);
                         if(trade != null)
-                            stand.setItemSlot(trade.getEquipmentSlot(),this.extractItem(trader,trade));
+                            stand.setItemSlot(trade.getEquipmentSlot(),this.extractItem(trader,trade,be.getLevel()));
                     }
                 }
             }
@@ -74,9 +75,9 @@ public class ArmorDisplayBlockEntityRenderer implements BlockEntityRenderer<Armo
         }
     }
 
-    private ItemStack extractItem(TraderData trader,ArmorTradeData trade) {
-        try(TradeContext context = TradeContext.builder(trader).build()) {
-            if(!trade.hasStock(context))
+    private ItemStack extractItem(TraderData trader, ArmorTradeData trade, Level level) {
+        try(TradeContext context = TradeContext.builder(trader,level).build()) {
+            if(trade.outOfStock(context))
                 return ItemStack.EMPTY;
             for(int i = 0; i < 2; ++i) {
                 ItemStack temp = trade.getItem(i).getDisplayStack(context);

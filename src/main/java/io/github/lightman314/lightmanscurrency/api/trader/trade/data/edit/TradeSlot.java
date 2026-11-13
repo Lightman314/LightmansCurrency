@@ -10,6 +10,9 @@ public record TradeSlot(TradeSlotType type,int slot) implements FancyPacketMap.F
 
     public static final TradeSlot NONE = new TradeSlot(TradeSlotType.EARLY, -1);
 
+    public static final TradeSlot INPUT_0 = new TradeSlot(TradeSlotType.INPUT,0);
+    public static final TradeSlot OUTPUT_0 = new TradeSlot(TradeSlotType.OUTPUT,0);
+
     public boolean isEarly() { return this.type == TradeSlotType.EARLY; }
     public boolean isInput() { return this.type == TradeSlotType.INPUT; }
     public boolean isArrow() { return this.type == TradeSlotType.ARROW; }

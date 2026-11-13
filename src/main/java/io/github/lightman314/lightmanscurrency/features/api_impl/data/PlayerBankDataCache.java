@@ -83,7 +83,7 @@ public class PlayerBankDataCache extends FancyData {
     public List<BankReference> getPlayerBankAccounts() {
         List<BankReference> results = new ArrayList<>();
         for(UUID player : this.playerAccounts.keySet())
-            results.add(PlayerBankReference.of(player));
+            results.add(PlayerBankReference.of(player).setSidedContext(this));
         return results;
     }
 

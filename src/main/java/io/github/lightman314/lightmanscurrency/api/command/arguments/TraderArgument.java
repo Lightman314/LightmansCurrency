@@ -47,7 +47,7 @@ public class TraderArgument implements ArgumentType<TraderData> {
     @Override
     public TraderData parse(StringReader reader) throws CommandSyntaxException {
         String traderID = reader.readUnquotedString();
-        TraderDataCache data = TraderDataCache.TYPE.get(ISidedContext.LOGICAL_SERVER);
+        TraderDataCache data = TraderDataCache.TYPE.getUnknown();
         if(NumberHelper.isLong(traderID))
         {
             try {
@@ -76,7 +76,7 @@ public class TraderArgument implements ArgumentType<TraderData> {
 
     @Override
     public <S> CompletableFuture<Suggestions> listSuggestions(CommandContext<S> context, SuggestionsBuilder builder) {
-        List<TraderData> allTraders = LCApi.getTraderAPI().getAllTraders(ISidedContext.LOGICAL_SERVER);
+        List<TraderData> allTraders = TraderDataCache.TYPE.getUnknown().getAllTraders();
         for(TraderData t : allTraders)
         {
             if(!this.filter.onlyRecoverableTraders() || t.getState().allowRecovery)

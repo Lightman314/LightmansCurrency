@@ -81,12 +81,10 @@ public abstract class TradeButtonDisplay {
             //Check Space (Purchase)
             if(trade.isPurchase() && trade.showOutOfSpaceWarning(context))
                 event.addWarning(TradeData.TOOLTIP_OUT_OF_SPACE.get());
-
-            //Check Price Space
-            if(trade.isSale() && price.showOutOfSpaceWarning(context)) {
-                event.addWarning(TradeData.TOOLTIP_OUT_OF_SPACE.get());
-            }
         }
+        //Check Price Space
+        if(trade.isSale() && IAdminSettingProvider.shouldStorePrice(context) && price.showOutOfSpaceWarning(context))
+            event.addWarning(TradeData.TOOLTIP_OUT_OF_SPACE.get());
         //Check whether they can afford this trade
         if(trade.isSale() && price.showCannotAffordWarning(context))
             event.addWarning(TradeData.TOOLTIP_CANNOT_AFFORD.get());

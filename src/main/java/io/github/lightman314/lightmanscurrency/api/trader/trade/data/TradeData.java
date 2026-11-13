@@ -32,7 +32,7 @@ import java.util.function.Predicate;
 
 public abstract class TradeData implements ISidedContext, IRegistryAccess {
 
-    public static final Codec<TradeData> CODEC = LCRegistries.Trader.TRADE_DATA_TYPE.byNameCodec()
+    public static final Codec<TradeData> GENERIC_CODEC = LCRegistries.Trader.TRADE_DATA_TYPE.byNameCodec()
             .dispatch(TradeData::getType,TradeDataType::codec);
 
     public static final TextEntry TOOLTIP_TRADE_INFO_TITLE = TextEntry.tooltip(LCApi.MODID,"trade.info.title");
@@ -137,7 +137,7 @@ public abstract class TradeData implements ISidedContext, IRegistryAccess {
     public final boolean predictHasStock(TraderData trader,@Nullable TransactionContext transaction) { return this.predictStock(trader,transaction) > 0; }
     public long predictStock(TraderData trader,@Nullable TransactionContext transaction) {
         //Create a customer-free trade context and use that to calculate the trades stock
-        try(TradeContext context = TradeContext.builder(trader).build(transaction)) { return this.getStock(context); }
+        try(TradeContext context = TradeContext.builder(trader,null).build(transaction)) { return this.getStock(context); }
     }
 
     public abstract boolean processTradeClick(Player player,TradeSlot slot,int button,ItemStack heldItem,TradeEditContext context);

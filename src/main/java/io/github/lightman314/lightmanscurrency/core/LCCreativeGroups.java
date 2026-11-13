@@ -120,6 +120,7 @@ public final class LCCreativeGroups {
                         ezPop(p,LCBlocks.LARGE_VENDING_MACHINE);
                         ezPop(p,LCBlocks.ITEM_NETWORK_TRADER);
                         p.accept(LCBlocks.ARMOR_DISPLAY);
+                        p.accept(LCBlocks.PAYGATE);
                     })));
 
     public static final DeferredHolder<CreativeModeTab,CreativeModeTab> UPGRADES = register("upgrades",builder ->

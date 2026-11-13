@@ -124,7 +124,6 @@ public abstract class TradePrice {
 
     public static final class TransferResult {
 
-        public static final TransferResult SUCCESS = new TransferResult(Status.SUCCESS,MoneyValue.empty(),null);
         public static final TransferResult FAILED_TO_TAKE = new TransferResult(Status.FAILED_TO_TAKE,MoneyValue.empty(),null);
         public static final TransferResult FAILED_TO_GIVE = new TransferResult(Status.FAILED_TO_GIVE,MoneyValue.empty(),null);
 

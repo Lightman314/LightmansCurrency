@@ -37,6 +37,7 @@ import io.github.lightman314.lightmanscurrency.api.stats.interfaces.StatHolder;
 import io.github.lightman314.lightmanscurrency.api.stats.interfaces.StatViewer;
 import io.github.lightman314.lightmanscurrency.api.taxes.notifications.TaxesPaidNotification;
 import io.github.lightman314.lightmanscurrency.api.text.*;
+import io.github.lightman314.lightmanscurrency.api.trader.trade.data.IDescriptionTrade;
 import io.github.lightman314.lightmanscurrency.features.tickets.data.TicketID;
 import io.github.lightman314.lightmanscurrency.features.tickets.data.TicketUses;
 import io.github.lightman314.lightmanscurrency.api.trader.TraderStats;
@@ -87,6 +88,7 @@ import io.github.lightman314.lightmanscurrency.features.player_data.PlayerDataMe
 import io.github.lightman314.lightmanscurrency.features.player_data.tabs.NotificationTab;
 import io.github.lightman314.lightmanscurrency.features.player_data.tabs.PlayerStatsTab;
 import io.github.lightman314.lightmanscurrency.features.tickets.TicketStationMenu;
+import io.github.lightman314.lightmanscurrency.features.tickets.nodes.TicketStubStorageNode;
 import io.github.lightman314.lightmanscurrency.features.tickets.recipe.TicketStationRecipe;
 import io.github.lightman314.lightmanscurrency.features.tickets.trader.TicketPrice;
 import io.github.lightman314.lightmanscurrency.features.trader.item.TradeItem;
@@ -95,6 +97,9 @@ import io.github.lightman314.lightmanscurrency.features.trader.item.nodes.ItemTr
 import io.github.lightman314.lightmanscurrency.features.trader.item.notifications.ItemTradeNotification;
 import io.github.lightman314.lightmanscurrency.features.trader.item_common.ItemStorageNode;
 import io.github.lightman314.lightmanscurrency.features.trader.item_common.ItemStorageTab;
+import io.github.lightman314.lightmanscurrency.features.trader.paygate.OutputConflictHandling;
+import io.github.lightman314.lightmanscurrency.features.trader.paygate.nodes.PaygateTradesNode;
+import io.github.lightman314.lightmanscurrency.features.trader.paygate.notifications.PaygateTradeNotification;
 import io.github.lightman314.lightmanscurrency.features.wallet.WalletItem;
 import io.github.lightman314.lightmanscurrency.features.wallet.menu.AbstractWalletMenu;
 import net.minecraft.core.Direction;
@@ -261,6 +266,8 @@ public class LCEnglishProvider extends LanguageProvider {
         this.block(LCBlocks.ITEM_NETWORK_TRADER.getHolder(4),"Item Network Trader T4");
         //Armor Display
         this.block(LCBlocks.ARMOR_DISPLAY,"Armor Display");
+        //Paygate
+        this.block(LCBlocks.PAYGATE,"Paygate");
 
         //Enchantments
         this.enchantment(LCEnchantments.COIN_MAGNET,"Coin Magnet","Lets your wallet collect coins from a larger range.");
@@ -532,12 +539,31 @@ public class LCEnglishProvider extends LanguageProvider {
 
         this.text(TraderStatsNode.TOOLTIP_TRADER_STATS,"Trader Stats");
 
+        this.text(IDescriptionTrade.GUI_DESCRIPTION,"Description:");
+        this.text(IDescriptionTrade.GUI_TOOLTIP,"Tooltip:");
+
         this.text(ItemTradesNode.NAME,"Item Trades");
         this.text(TraderCustomerMenu.GUI_TRADER_TITLE,"%1$s (%2$s)");
         this.text(TraderCustomerMenu.TOOLTIP_TRADER_OPEN_STORAGE,"Open Trader Storage");
         this.text(TraderCustomerMenu.TOOLTIP_TRADER_COLLECT_MONEY,"Collect Stored Money");
         this.text(TraderCustomerMenu.TOOLTIP_TRADER_NETWORK_BACK,"Back to Network Terminal");
         this.text(TraderStorageMenu.TOOLTIP_TRADER_OPEN_TRADES,"Return to Customer Menu");
+
+        this.text(PaygateTradesNode.NAME,"Paygate Trades");
+        this.text(PaygateTradesNode.SETTINGS_LABEL,"Paygate Settings");
+        this.text(PaygateTradesNode.CONFLICT_MODE,"Output Conflict Handling:");
+        this.text(PaygateTradesNode.TOOLTIP_ALREADY_ACTIVE,"Already Active");
+        this.text(PaygateTradesNode.TOOLTIP_TIME_REMAINING,"Time Remaining: %s");
+        this.text(PaygateTradesNode.GUI_DURATION,"Duration:");
+        this.text(PaygateTradesNode.GUI_REDSTONE_LEVEL,"Redstone Level: %s");
+        this.text(PaygateTradesNode.GUI_OUTPUT_SIDES,"Output Sides");
+
+        this.text(OutputConflictHandling.TEXT.get(OutputConflictHandling.DENY_ANY),"Deny: Any Outputs");
+        this.text(OutputConflictHandling.TEXT.get(OutputConflictHandling.DENY_SIDE_CONFLICT),"Deny: Conflicting Outputs");
+        this.text(OutputConflictHandling.TEXT.get(OutputConflictHandling.ADD_TIME),"Allow: Add to Timer");
+        this.text(OutputConflictHandling.TEXT.get(OutputConflictHandling.OVERRIDE_TIME),"Allow: Override Timer");
+
+        this.text(TicketStubStorageNode.TOOLTIP_COLLECT_STUBS,"Collect Ticket Stubs (%s)");
 
         this.text(TradePrice.TOOLTIP_TRADE_EDIT_PRICE,"Click to Edit Price");
 
@@ -688,6 +714,7 @@ public class LCEnglishProvider extends LanguageProvider {
         this.text(OutOfStockNotification.TEXT,"Trade #%2$s is out of stock");
         this.text(OutOfStockNotification.TEXT_INDEXLESS,"Trader is out of stock");
         this.text(ItemTradeNotification.TEXT,"%1$s %2$s %3$s for %4$s");
+        this.text(PaygateTradeNotification.TEXT,"%1$s activated the paygate for %3$s for %2$s");
 
         this.text(UnfilteredCategory.INSTANCE.text,"All Notifications");
         this.text(LowBalanceNotification.TEXT,"Bank Account is below %s");

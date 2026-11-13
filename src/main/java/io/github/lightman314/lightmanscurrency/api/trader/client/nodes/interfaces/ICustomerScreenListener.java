@@ -9,7 +9,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.world.menu.customer.Tr
 
 public interface ICustomerScreenListener {
 
-    void onCustomerScreenInit(TraderSource source, IWidgetPositioner edgePositioner,IWidgetHolder screen,TraderCustomerMenu menu);
-    void onCustomerScreenRender(TraderSource source,FancyGuiExtractor gui,ScreenArea area,TraderCustomerMenu menu);
+    default void onCustomerScreenInit(TraderSource source, IWidgetPositioner edgePositioner,IWidgetHolder screen,TraderCustomerMenu menu) {}
+    default void onCustomerScreenRender(TraderSource source,FancyGuiExtractor gui,ScreenArea area,TraderCustomerMenu menu) {}
 
 }

@@ -41,7 +41,8 @@ public class LCBlockTagProvider extends BlockTagsProvider {
                 .addTag(LCTags.BlocksAndItems.GROUP_VENDING_MACHINE.block())
                 .addTag(LCTags.BlocksAndItems.GROUP_LARGE_VENDING_MACHINE.block())
                 .addTag(LCTags.BlocksAndItems.GROUP_ITEM_NETWORK_TRADERS.block())
-                .add(LCBlocks.ARMOR_DISPLAY);
+                .add(LCBlocks.ARMOR_DISPLAY)
+                .add(LCBlocks.PAYGATE);
 
         this.tag(BlockTags.MINEABLE_WITH_AXE)
                 .addTag(LCTags.BlocksAndItems.GROUP_CARD_DISPLAY.block())

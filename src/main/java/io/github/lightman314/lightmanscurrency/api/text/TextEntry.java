@@ -32,7 +32,8 @@ public final class TextEntry {
     public TextEntry(String key) { this(() -> key); }
     public TextEntry(Supplier<String> key) { this.key = Lazy.of(key); }
 
-    public MutableComponent get(Object... objects) { return Component.translatableEscape(this.getKey(),objects);}
+    public MutableComponent get(Object... objects) { return Component.translatableEscape(this.getKey(),objects); }
+    public String getString(Object... objects) { return get(objects).getString(); }
     public MutableComponent getWithStyle(ChatFormatting... format) { return Component.translatableEscape(this.getKey()).withStyle(format); }
     public List<Component> getAsList(Object... objects) { return Lists.newArrayList(this.get(objects)); }
     public List<Component> getAsListWithStyle(ChatFormatting... format) { return Lists.newArrayList(this.getWithStyle(format)); }

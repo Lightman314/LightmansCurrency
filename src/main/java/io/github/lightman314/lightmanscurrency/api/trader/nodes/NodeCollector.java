@@ -1,6 +1,5 @@
 package io.github.lightman314.lightmanscurrency.api.trader.nodes;
 
-import com.google.common.collect.ImmutableSet;
 import io.github.lightman314.lightmanscurrency.api.LCRegistries;
 import net.minecraft.resources.Identifier;
 
@@ -34,7 +33,7 @@ public interface NodeCollector extends Iterable<TraderNodeType<?>> {
         @Override
         public void removeNode(TraderNodeType<?> node) { this.nodes.remove(node); }
         @Override
-        public Iterator<TraderNodeType<?>> iterator() { return ImmutableSet.copyOf(this.nodes).iterator(); }
+        public Iterator<TraderNodeType<?>> iterator() { return Set.copyOf(this.nodes).iterator(); }
     }
 
 }

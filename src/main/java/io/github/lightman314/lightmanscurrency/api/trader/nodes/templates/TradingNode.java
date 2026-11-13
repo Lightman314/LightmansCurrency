@@ -1,7 +1,6 @@
 package io.github.lightman314.lightmanscurrency.api.trader.nodes.templates;
 
 import com.google.common.base.Predicates;
-import com.google.common.collect.ImmutableList;
 import io.github.lightman314.lightmanscurrency.api.LCApi;
 import io.github.lightman314.lightmanscurrency.api.helpers.keys.DualKey;
 import io.github.lightman314.lightmanscurrency.api.helpers.network.FancyPacketMap;
@@ -48,6 +47,7 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jetbrains.annotations.ApiStatus;
 
 import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -140,6 +140,7 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
     public abstract Component getSetLabel();
 
     @Override
+    @OverridingMethodsMustInvokeSuper
     public void createSyncPacket(FancyPacketMap.Mutable builder, ISyncingContext context) {
         List<FancyPacketMap> tradeList = new ArrayList<>();
         for(TradeData trade : this.getTrades())
@@ -152,6 +153,7 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
     }
 
     @Override
+    @OverridingMethodsMustInvokeSuper
     public void onDataSync(FancyPacketMap data) {
         if(data.contains("tradeCount")) {
             //Force the trade count to match the expected count
@@ -224,8 +226,8 @@ public abstract class TradingNode<T extends TradeData> extends PlayerSyncedTrade
         this.postNotification(new OutOfStockNotification(this.getTrader(),this.getGlobalTradeIndex(tradeIndex)));
     }
 
-    protected final TradeResult finishSuccessfulTrade(TradeContext context,TradeData trade,TradePrice pricePaid,TradePrice.TransferResult priceResult) { return this.finishSuccessfulTrade(context,trade,pricePaid,priceResult,ImmutableList.of()); }
-    protected final TradeResult finishSuccessfulTrade(TradeContext context,TradeData trade,TradePrice pricePaid,TradePrice.TransferResult priceResult,@Nullable Notification notification) { return this.finishSuccessfulTrade(context,trade,pricePaid,priceResult,ImmutableList.of(),notification); }
+    protected final TradeResult finishSuccessfulTrade(TradeContext context,TradeData trade,TradePrice pricePaid,TradePrice.TransferResult priceResult) { return this.finishSuccessfulTrade(context,trade,pricePaid,priceResult,List.of()); }
+    protected final TradeResult finishSuccessfulTrade(TradeContext context,TradeData trade,TradePrice pricePaid,TradePrice.TransferResult priceResult,@Nullable Notification notification) { return this.finishSuccessfulTrade(context,trade,pricePaid,priceResult,List.of(),notification); }
     protected final TradeResult finishSuccessfulTrade(TradeContext context,TradeData trade,TradePrice pricePaid,TradePrice.TransferResult priceResult,List<?> product) { return this.finishSuccessfulTrade(context,trade,pricePaid,priceResult,product,null); }
     protected final TradeResult finishSuccessfulTrade(TradeContext context,TradeData trade,TradePrice pricePaid,TradePrice.TransferResult priceResult, List<?> product,@Nullable Notification notification)
     {

@@ -1,6 +1,7 @@
 {
   "type": "minecraft:crafting_shaped",
   "category": "misc",
+  "group": "trader_card_display",
   "key": {
     "c": "#c:chests/wooden",
     "l": "minecraft:bamboo_block",

@@ -22,6 +22,7 @@ import io.github.lightman314.lightmanscurrency.features.tickets.TicketStationBlo
 import io.github.lightman314.lightmanscurrency.features.trader.item.blocks.ItemTraderBlock;
 import io.github.lightman314.lightmanscurrency.features.trader.item.blocks.armor.ArmorTraderBlock;
 import io.github.lightman314.lightmanscurrency.features.trader.item.blocks.specific.*;
+import io.github.lightman314.lightmanscurrency.features.trader.paygate.blocks.PaygateBlock;
 import net.minecraft.util.Util;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -234,7 +235,8 @@ public final class LCBlocks {
     public static final DeferredHolderBundle<Integer,Block,ItemNetworkTraderBlock> ITEM_NETWORK_TRADER = registerTieredBlock("item_network_trader", ItemNetworkTraderBlock::new,(p,t) ->
             p.mapColor(MapColor.METAL)
                     .strength(5f,Float.POSITIVE_INFINITY)
-                    .sound(SoundType.METAL),
+                    .sound(SoundType.METAL)
+                    .noOcclusion(),
             4,
             (b,p,t) -> new BlockItem(b,p),
             (p,t) -> p.component(LCDataComponents.BONUS_TOOLTIP,ItemTraderBlock.TOOLTIP.asTooltip(t * 4)));
@@ -243,8 +245,16 @@ public final class LCBlocks {
     public static final DeferredBlock<ArmorTraderBlock> ARMOR_DISPLAY = register("armor_display",ArmorTraderBlock::new,p ->
             p.mapColor(MapColor.METAL)
                     .strength(5f,Float.POSITIVE_INFINITY)
-                    .sound(SoundType.METAL),
+                    .sound(SoundType.METAL)
+                    .noOcclusion(),
             BlockItem::new,p -> p.component(LCDataComponents.BONUS_TOOLTIP,ItemTraderBlock.ARMOR_TOOLTIP.asTooltip(4)));
+
+
+    //Paygate
+    public static final DeferredBlock<PaygateBlock> PAYGATE = register("paygate",PaygateBlock::new,p ->
+            p.mapColor(MapColor.METAL)
+                    .strength(5f,Float.POSITIVE_INFINITY)
+                    .sound(SoundType.METAL));
 
     public static <T extends Block> DeferredHolderBundle<VanillaColor,Block,T> registerColored(String name,Function<BlockBehaviour.Properties,T> factory,BiFunction<BlockBehaviour.Properties,VanillaColor,BlockBehaviour.Properties> properties) {
         return registerColored(name,factory,properties,(b,p,c) -> new BlockItem(b,p),(p,c) -> p);

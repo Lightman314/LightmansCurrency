@@ -279,6 +279,7 @@ public class LCRecipeProvider extends RecipeProvider {
         LCBlocks.CARD_DISPLAY.forEach((type,color,display) ->
             WoodHelper.getLogAndPlank(type).ifPresent(pair ->
                 ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,display)
+                        .group("trader_card_display")
                         .unlockedBy("money",moneyKnowledge())
                         .unlockedBy("trader",traderKnowledge())
                         .pattern("  w").pattern(" xl").pattern("llc")
@@ -372,6 +373,18 @@ public class LCRecipeProvider extends RecipeProvider {
                 .define('i',Tags.Items.INGOTS_IRON)
                 .define('a',Items.ARMOR_STAND)
                 .save(this.output,this.id("traders/",LCBlocks.ARMOR_DISPLAY));
+
+        //Paygate
+        ShapedRecipeBuilder.shaped(this.itemHolderGetter(),RecipeCategory.MISC,LCBlocks.PAYGATE)
+                .unlockedBy("money",moneyKnowledge())
+                .unlockedBy("trader",traderKnowledge())
+                .unlockedBy("redstone",this.simpleRequirement(Tags.Items.DUSTS_REDSTONE))
+                .pattern("iri").pattern("ixi").pattern("iti")
+                .define('i',Tags.Items.INGOTS_IRON)
+                .define('t',Items.REDSTONE_TORCH)
+                .define('r',Items.REDSTONE_BLOCK)
+                .define('x',LCItems.TRADING_MECHANISM)
+                .save(this.output,this.id("traders/",LCBlocks.PAYGATE));
 
     }
 

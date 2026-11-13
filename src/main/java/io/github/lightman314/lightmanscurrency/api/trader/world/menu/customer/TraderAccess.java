@@ -7,7 +7,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public interface TraderCustomerAccess {
+public interface TraderAccess {
 
     TraderSource getTraderSource();
     default boolean isSimpleTrader() { return this.getTraderSource().isSimple(); }

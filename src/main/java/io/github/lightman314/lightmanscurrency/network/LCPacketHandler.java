@@ -10,6 +10,7 @@ import io.github.lightman314.lightmanscurrency.network.message.menus.CPacketView
 import io.github.lightman314.lightmanscurrency.network.message.notifications.SPacketChatNotification;
 import io.github.lightman314.lightmanscurrency.network.message.player.*;
 import io.github.lightman314.lightmanscurrency.network.message.system.*;
+import io.github.lightman314.lightmanscurrency.network.message.trader.CPacketCollectTicketStubs;
 import io.github.lightman314.lightmanscurrency.network.message.wallet.*;
 import io.github.lightman314.lightmanscurrency.network.packet.BiDirectionalPacket;
 import io.github.lightman314.lightmanscurrency.network.packet.ClientToServerPacket;
@@ -77,6 +78,9 @@ public class LCPacketHandler {
 
         //Player Menu Buttons
         registerC2S(CPacketViewPlayerData.TYPE,CPacketViewPlayerData.STREAM_CODEC);
+
+        //Trader Packets
+        registerC2S(CPacketCollectTicketStubs.TYPE,CPacketCollectTicketStubs.STREAM_CODEC);
 
         //Curios Compat Packets
         registerC2S(CPacketOpenTerminal.TYPE,CPacketOpenTerminal.STREAM_CODEC);

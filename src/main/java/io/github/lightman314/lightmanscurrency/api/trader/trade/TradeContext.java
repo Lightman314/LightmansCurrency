@@ -16,6 +16,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.trade.resources.Resour
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
@@ -29,10 +30,16 @@ public final class TradeContext implements AutoCloseable,INodeAccess,ISidedConte
     public TransactionContext getTransaction() { return this.transaction; }
     public Transaction openNewTransaction() { return Transaction.open(this.transaction); }
 
-    private final ISidedContext context;
-
+    @Nullable
+    private final Level level;
+    @Nullable
+    public Level getLevel() { return this.level; }
     @Override
-    public boolean isClient() { return this.context.isClient(); }
+    public boolean isClient() {
+        if(this.level == null)
+            return this.trader.isClient();
+        return this.level.isClientSide();
+    }
     private final HolderLookup.Provider registryAccess;
     @Override
     public HolderLookup.Provider registryAccess() { return this.registryAccess; }
@@ -110,7 +117,7 @@ public final class TradeContext implements AutoCloseable,INodeAccess,ISidedConte
     private TradeContext(Builder builder,@Nullable TransactionContext transaction)
     {
         this.trader = builder.trader;
-        this.context = builder.context;
+        this.level = builder.level;
         this.registryAccess = builder.registryAccess;
         this.customer = builder.customer;
         this.random = builder.random;
@@ -154,11 +161,11 @@ public final class TradeContext implements AutoCloseable,INodeAccess,ISidedConte
     }
 
 
-    public static Builder dummyBuilder(ISidedContext context,HolderLookup.Provider registryAccess) { return builder(null,context,registryAccess,TradeCustomer.EDITING,RandomSource.create(-1),false); }
-    public static Builder builder(TraderData trader) { return builder(Objects.requireNonNull(trader),trader,trader.registryAccess(),TradeCustomer.EDITING,RandomSource.create(-1),false); }
-    public static Builder builder(TraderData trader,TradeCustomer customer,RandomSource random,boolean networkAccess) { return builder(Objects.requireNonNull(trader),trader,trader.registryAccess(),customer,random,networkAccess); }
-    private static Builder builder(@Nullable TraderData trader,ISidedContext context,HolderLookup.Provider registryAccess,TradeCustomer customer,RandomSource random,boolean networkAccess) {
-        return new Builder(trader,context,registryAccess,customer,random,networkAccess);
+    public static Builder dummyBuilder(Level level,HolderLookup.Provider registryAccess) { return builder(null,level,registryAccess,TradeCustomer.EDITING,RandomSource.create(-1),false); }
+    public static Builder builder(TraderData trader,@Nullable Level level) { return builder(Objects.requireNonNull(trader),level,trader.registryAccess(),TradeCustomer.EDITING,RandomSource.create(-1),false); }
+    public static Builder builder(TraderData trader,@Nullable Level level,TradeCustomer customer,RandomSource random, boolean networkAccess) { return builder(Objects.requireNonNull(trader),level,trader.registryAccess(),customer,random,networkAccess); }
+    private static Builder builder(@Nullable TraderData trader,@Nullable Level level,HolderLookup.Provider registryAccess,TradeCustomer customer,RandomSource random,boolean networkAccess) {
+        return new Builder(trader,level,registryAccess,customer,random,networkAccess);
     }
 
     @Override
@@ -175,7 +182,7 @@ public final class TradeContext implements AutoCloseable,INodeAccess,ISidedConte
 
         @Nullable
         private final TraderData trader;
-        private final ISidedContext context;
+        private final Level level;
         private final HolderLookup.Provider registryAccess;
         private final TradeCustomer customer;
         private final RandomSource random;
@@ -186,9 +193,9 @@ public final class TradeContext implements AutoCloseable,INodeAccess,ISidedConte
 
         private final Map<ResourceType<?,?>,List<ResourceWrapper<?,?>>> wrappers = new HashMap<>();
 
-        private Builder(@Nullable TraderData trader,ISidedContext context,HolderLookup.Provider registryAccess,TradeCustomer customer,RandomSource random,boolean networkAccess) {
+        private Builder(@Nullable TraderData trader,Level level,HolderLookup.Provider registryAccess,TradeCustomer customer,RandomSource random,boolean networkAccess) {
             this.trader = trader;
-            this.context = context;
+            this.level = level;
             this.registryAccess = registryAccess;
             this.customer = customer;
             this.random = random;
@@ -202,7 +209,11 @@ public final class TradeContext implements AutoCloseable,INodeAccess,ISidedConte
         }
 
         @Override
-        public boolean isClient() { return this.context.isClient(); }
+        public boolean isClient() {
+            if(this.level == null)
+                return this.trader.isClient();
+            return this.level.isClientSide();
+        }
 
         @Override
         public HolderLookup.Provider registryAccess() { return this.registryAccess; }

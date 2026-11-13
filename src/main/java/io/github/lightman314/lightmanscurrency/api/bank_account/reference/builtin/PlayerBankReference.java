@@ -41,7 +41,7 @@ public final class PlayerBankReference extends BankReference {
     @Override
     public BankAccount get() {
         PlayerBankDataCache cache = PlayerBankDataCache.TYPE.get(this);
-        return cache.getAccount(this.player);
+        return cache == null ? null : cache.getAccount(this.player);
     }
 
     @Override

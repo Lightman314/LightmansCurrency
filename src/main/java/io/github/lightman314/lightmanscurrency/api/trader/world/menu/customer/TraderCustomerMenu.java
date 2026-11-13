@@ -14,8 +14,9 @@ import io.github.lightman314.lightmanscurrency.api.world.menu.validation.IValida
 import io.github.lightman314.lightmanscurrency.core.lightmanscurrency.LCPermissions;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
-public interface TraderCustomerMenu extends TraderCustomerAccess,IValidatedMenu,ISidedContext,IRegistryAccess {
+public interface TraderCustomerMenu extends TraderAccess,IValidatedMenu,ISidedContext,IRegistryAccess {
 
     TextEntry TOOLTIP_TRADER_OPEN_STORAGE = TextEntry.tooltip(LCApi.MODID,"trader.open_storage");
     TextEntry TOOLTIP_TRADER_COLLECT_MONEY = TextEntry.tooltip(LCApi.MODID,"trader.collect_coins");
@@ -23,6 +24,7 @@ public interface TraderCustomerMenu extends TraderCustomerAccess,IValidatedMenu,
     TextEntry GUI_TRADER_TITLE = TextEntry.gui(LCApi.MODID,"trader.title");
 
     Player getPlayer();
+    Level getLevel();
     TradeCustomer getCustomer();
     RandomSource getRandom();
 
@@ -44,7 +46,7 @@ public interface TraderCustomerMenu extends TraderCustomerAccess,IValidatedMenu,
 
     void attemptTrade(TradeIndexes tradeIndexes);
 
-    default TradeContext.Builder getContext(TraderData trader) { return this.buildContext(TradeContext.builder(trader,this.getCustomer(),this.getRandom(),this.getValidator().isNetworkAccess())); }
+    default TradeContext.Builder getContext(TraderData trader) { return this.buildContext(TradeContext.builder(trader,this.getLevel(),this.getCustomer(),this.getRandom(),this.getValidator().isNetworkAccess())); }
     TradeContext.Builder buildContext(TradeContext.Builder builder);
 
 }

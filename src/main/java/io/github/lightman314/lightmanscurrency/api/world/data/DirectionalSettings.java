@@ -26,9 +26,10 @@ public class DirectionalSettings {
     public static final TextEntryBundle<Direction> GUI_INPUT_SIDES = TextEntryBundle.of(Direction.values(),"gui.lightmanscurrency.settings.side");
 
     private IDirectionalSettingsHolder parent = IDirectionalSettingsHolder.DEFAULT;
-    public DirectionalSettings withParent(IDirectionalSettingsHolder parent) {
+    public DirectionalSettings withParent(IDirectionalSettingsHolder parent) { return this.withParent(parent,DirectionalSettingsState.NONE); }
+    public DirectionalSettings withParent(IDirectionalSettingsHolder parent,DirectionalSettingsState defaultState) {
         this.parent = parent;
-        this.populateMap();
+        this.populateMap(defaultState);
         return this;
     }
 
@@ -52,13 +53,13 @@ public class DirectionalSettings {
         }
     }
 
-    private void populateMap() {
+    private void populateMap(DirectionalSettingsState defaultState) {
         List<Direction> ignored = this.parent.getIgnoredSides();
         for(Direction side : Direction.values()) {
             if(ignored.contains(side))
                 this.data.remove(side);
             else
-                this.data.putIfAbsent(side,DirectionalSettingsState.NONE);
+                this.data.putIfAbsent(side,defaultState);
         }
     }
 
@@ -93,6 +94,10 @@ public class DirectionalSettings {
         this.data.put(side,state);
         this.listener.accept(m -> m.setEnum(side.getSerializedName(),state));
         return true;
+    }
+    public void setAllStates(DirectionalSettingsState state) {
+        for(Direction side : Direction.values())
+            this.setState(side,state);
     }
 
     public boolean allowInputs(Direction side) { return this.getState(side).allowsInputs(); }

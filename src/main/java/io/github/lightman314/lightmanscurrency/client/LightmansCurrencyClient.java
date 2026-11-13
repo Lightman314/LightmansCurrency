@@ -54,22 +54,31 @@ import io.github.lightman314.lightmanscurrency.client.features.player_data.Playe
 import io.github.lightman314.lightmanscurrency.client.features.player_data.tabs.*;
 import io.github.lightman314.lightmanscurrency.client.features.resources.data.item_position.RotationHandler;
 import io.github.lightman314.lightmanscurrency.client.features.resources.data.item_position.rotation.*;
+import io.github.lightman314.lightmanscurrency.client.features.tickets.ClientTicketStubStorageNode;
 import io.github.lightman314.lightmanscurrency.client.features.tickets.TicketPriceClient;
 import io.github.lightman314.lightmanscurrency.client.features.trader.item.ItemTradeEditClientTab;
 import io.github.lightman314.lightmanscurrency.client.features.trader.item.block_entity.*;
 import io.github.lightman314.lightmanscurrency.client.features.trader.item.nodes.ClientItemStorageNode;
+import io.github.lightman314.lightmanscurrency.client.features.trader.paygate.PaygateTradeEditClientTab;
+import io.github.lightman314.lightmanscurrency.client.features.trader.paygate.nodes.ClientPaygateTradesNode;
 import io.github.lightman314.lightmanscurrency.client.proxy.LCClientProxy;
 import io.github.lightman314.lightmanscurrency.core.LCBlockEntities;
 import io.github.lightman314.lightmanscurrency.core.LCMenuTypes;
 import io.github.lightman314.lightmanscurrency.features.atm.tabs.*;
 import io.github.lightman314.lightmanscurrency.features.player_data.tabs.*;
 import io.github.lightman314.lightmanscurrency.features.player_data.tabs.PlayerStatsTab;
+import io.github.lightman314.lightmanscurrency.features.tickets.nodes.TicketStubStorageNode;
 import io.github.lightman314.lightmanscurrency.features.tickets.trader.TicketPrice;
 import io.github.lightman314.lightmanscurrency.features.trader.gacha.nodes.GachaStorageNode;
 import io.github.lightman314.lightmanscurrency.features.trader.item.menu.ItemTradeEditTab;
 import io.github.lightman314.lightmanscurrency.features.trader.item.trade.*;
+import io.github.lightman314.lightmanscurrency.features.trader.item.trade.client.ItemTradeButtonDisplay;
 import io.github.lightman314.lightmanscurrency.features.trader.item_common.*;
 import io.github.lightman314.lightmanscurrency.client.features.trader.item_common.ItemStorageClientTab;
+import io.github.lightman314.lightmanscurrency.features.trader.paygate.menu.PaygateTradeEditTab;
+import io.github.lightman314.lightmanscurrency.features.trader.paygate.nodes.PaygateTradesNode;
+import io.github.lightman314.lightmanscurrency.features.trader.paygate.trade.PaygateTradeData;
+import io.github.lightman314.lightmanscurrency.features.trader.paygate.trade.client.PaygateTradeButtonDisplay;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -129,8 +138,9 @@ public class LightmansCurrencyClient {
         RuleClientTab.TAB_BUILDERS.register(TimedSale.TYPE,TimedSaleClientTab::new);
 
         //Register Trade Displays
-        TradeButtonDisplay.REGISTRY.register(ItemTradeData.TYPE, ItemTradeButtonDisplay.INSTANCE);
-        TradeButtonDisplay.REGISTRY.register(ArmorTradeData.TYPE, ItemTradeButtonDisplay.INSTANCE);
+        TradeButtonDisplay.REGISTRY.register(ItemTradeData.TYPE,ItemTradeButtonDisplay.INSTANCE);
+        TradeButtonDisplay.REGISTRY.register(ArmorTradeData.TYPE,ItemTradeButtonDisplay.INSTANCE);
+        TradeButtonDisplay.REGISTRY.register(PaygateTradeData.TYPE,PaygateTradeButtonDisplay.INSTANCE);
 
         //Register Trade Price Displays
         ClientTradePrice.REGISTRY.register(MoneyPrice.TYPE,MoneyPriceClient.INSTANCE);
@@ -153,6 +163,8 @@ public class LightmansCurrencyClient {
         ClientTraderNode.REGISTRY.register(AdminSettingsNode.TYPE,ClientAdminSettingsNode.INSTANCE);
         ClientTraderNode.REGISTRY.register(AlliesNode.TYPE,ClientAlliesNode.INSTANCE);
         ClientTraderNode.REGISTRY.register(PersistentDataNode.TYPE,ClientPersistentDataNode.INSTANCE);
+        ClientTraderNode.REGISTRY.register(PaygateTradesNode.TYPE,ClientPaygateTradesNode.INSTANCE);
+        ClientTraderNode.REGISTRY.register(TicketStubStorageNode.TYPE,ClientTicketStubStorageNode.INSTANCE);
 
         //Register Money Price Displays
         ClientMoneyValueType.REGISTRY.register(CoinValue.TYPE,ClientCoinType.INSTANCE);
@@ -190,7 +202,8 @@ public class LightmansCurrencyClient {
                 .register(SettingsClipboardTab.KEY,SettingsClipboardClientTab.BUILDER)
                 .register(GlobalTradeRuleTab.KEY,TradeRulesClientTab.BUILDER)
                 .register(TradeTradeRuleTab.KEY,TradeRulesClientTab.BUILDER)
-                .register(InfoTab.KEY,InfoClientTab.BUILDER);
+                .register(InfoTab.KEY,InfoClientTab.BUILDER)
+                .register(PaygateTradeEditTab.KEY,PaygateTradeEditClientTab.BUILDER);
         //Terminal Menu
         event.forMenu(LCMenuTypes.TRADING_TERMINAL,TradingTerminalScreen.class)
                 .register(NetworkTraderSelectionTab.KEY,NetworkTraderSelectionClientTab.BUILDER);

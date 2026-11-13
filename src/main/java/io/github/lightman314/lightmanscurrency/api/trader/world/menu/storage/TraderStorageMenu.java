@@ -15,6 +15,7 @@ import io.github.lightman314.lightmanscurrency.api.trader.tracking.TrackingLevel
 import io.github.lightman314.lightmanscurrency.api.trader.tracking.managers.MenuTrackingManager;
 import io.github.lightman314.lightmanscurrency.api.trader.trade.TradeContext;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.customer.AbstractTabbedCustomerMenu;
+import io.github.lightman314.lightmanscurrency.api.trader.world.menu.customer.TraderAccess;
 import io.github.lightman314.lightmanscurrency.api.trader.world.menu.storage.builtin.SimpleTradeEditTab;
 import io.github.lightman314.lightmanscurrency.api.world.menu.provider.FancyMenuProvider;
 import io.github.lightman314.lightmanscurrency.api.world.menu.tabbed.TabBuilder;
@@ -33,12 +34,16 @@ import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.*;
 
-public class TraderStorageMenu extends TabbedMenu.Validated<TraderStorageMenu,TraderStorageTab> implements INodeAccess {
+public class TraderStorageMenu extends TabbedMenu.Validated<TraderStorageMenu,TraderStorageTab> implements TraderAccess,INodeAccess {
 
     public static final int SLOT_OFFSET = AbstractTabbedCustomerMenu.SLOT_OFFSET;
     public static final int INVENTORY_SLOTS = 9 * 4;
 
     public static final TextEntry TOOLTIP_TRADER_OPEN_TRADES = TextEntry.tooltip(LCApi.MODID,"trader.open_trades");
+
+    private final TraderSource source = TraderSource.deferred(this::getTrader);
+    @Override
+    public TraderSource getTraderSource() { return this.source; }
 
     private final Map<Identifier,Integer> keyToSlotMap;
     private final long traderID;
@@ -118,8 +123,8 @@ public class TraderStorageMenu extends TabbedMenu.Validated<TraderStorageMenu,Tr
     public final TradeContext.Builder getTradeContext() {
         TraderData trader = this.getTrader();
         if(trader == null)
-            return TradeContext.dummyBuilder(this,this.registryAccess());
-        return TradeContext.builder(trader);
+            return TradeContext.dummyBuilder(this.getLevel(),this.registryAccess());
+        return TradeContext.builder(trader,this.getLevel());
     }
 
     public void openCustomerMenu() {

@@ -23,6 +23,8 @@ import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.ArrayList;
@@ -52,6 +54,9 @@ public abstract class FancyMenuScreen<M extends FancyMenu> extends AbstractConta
         }
         return result;
     }
+
+    public final Player getPlayer() { return this.menu.getPlayer(); }
+    public final Level getLevel() { return this.menu.getLevel(); }
 
     @Override
     public final HolderLookup.Provider registryAccess() { return this.menu.registryAccess(); }

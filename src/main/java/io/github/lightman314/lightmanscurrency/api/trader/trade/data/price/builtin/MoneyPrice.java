@@ -51,7 +51,7 @@ public class MoneyPrice extends TradePrice {
     protected TransferResult transferFromCustomerToTrader(TradeContext context) {
         //If this is free, nothing to do
         if(this.isFree())
-            return TransferResult.SUCCESS;
+            return TransferResult.success(MoneyReceipt.FREE);
         TransactionContext transaction = context.getTransaction();
         //Take from the customer
         MoneyResourceHandler handler = context.getCustomerResource(BuiltInResourceTypes.MONEY);
@@ -76,7 +76,7 @@ public class MoneyPrice extends TradePrice {
     protected TransferResult transferFromTraderToCustomer(TradeContext context) {
         //If this is free, nothing to do
         if(this.isFree())
-            return TransferResult.SUCCESS;
+            return TransferResult.success(MoneyReceipt.FREE);
         TransactionContext transaction = context.getTransaction();
         //Take from the trader
         //TODO pay taxes

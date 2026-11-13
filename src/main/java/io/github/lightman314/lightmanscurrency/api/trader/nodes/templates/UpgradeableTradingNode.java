@@ -154,7 +154,7 @@ public abstract class UpgradeableTradingNode<T extends TradeData> extends Tradin
     public boolean showTradeCountButtons(Player player) {
         if(LCApi.isInAdminMode(player))
             return true;
-        return hasMultipleUpgradeables(this) && this.hasAnyOfferUpgrades() || this.upgradeCount > 0;
+        return this.getPermission(player,LCPermissions.EDIT_TRADES) && hasMultipleUpgradeables(this) && this.hasAnyOfferUpgrades() || this.upgradeCount > 0;
     }
 
     @Override

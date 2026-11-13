@@ -4,6 +4,7 @@ import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import io.github.lightman314.lightmanscurrency.api.trader.data.TraderType;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.NodeCollector;
 import io.github.lightman314.lightmanscurrency.api.trader.nodes.builtin.*;
+import io.github.lightman314.lightmanscurrency.features.tickets.nodes.TicketStubStorageNode;
 
 public abstract class NormalTraderType extends TraderType {
 
@@ -21,6 +22,7 @@ public abstract class NormalTraderType extends TraderType {
         collector.addNode(SettingsNode.TYPE);
         collector.addNode(AdminSettingsNode.TYPE);
         collector.addNode(TraderStatsNode.TYPE);
+        collector.addNode(TicketStubStorageNode.TYPE);
         this.addAdditionalNodes(collector);
     }
 

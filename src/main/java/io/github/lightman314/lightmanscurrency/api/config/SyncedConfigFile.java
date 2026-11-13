@@ -3,6 +3,7 @@ package io.github.lightman314.lightmanscurrency.api.config;
 import io.github.lightman314.lightmanscurrency.api.config.options.ConfigOption;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
@@ -47,6 +48,7 @@ public abstract class SyncedConfigFile extends ConfigFile {
     @Override
     protected void afterOptionChanged(ConfigOption<?> option) { this.sendSyncPacket(null); }
 
+    @SubscribeEvent
     private static void onPlayerJoined(PlayerEvent.PlayerLoggedInEvent event) {
         if(event.getEntity() instanceof ServerPlayer sp)
         {
